@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
@@ -40,6 +41,13 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
             final boolean invocationSuccessful, final long elapsedTime)
     {
         super(sessionManager, invocationSuccessful, elapsedTime);
+    }
+
+    public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
+            String sessionToken, TechId experimentID) throws UserFailureException
+    {
+        logAccess(sessionToken, "get_abundance_colum_definitions", "EXPERIMENT_ID(%s)", experimentID);
+        return null;
     }
 
     public Collection<ProteinWithAbundances> listProteinsByExperiment(String sessionToken,

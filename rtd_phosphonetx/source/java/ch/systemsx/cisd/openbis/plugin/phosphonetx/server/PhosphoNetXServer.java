@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import net.lemnik.eodsql.DataSet;
 
 import org.springframework.stereotype.Component;
 
@@ -32,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IDataSetProteinTable;
@@ -39,16 +43,19 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinDetai
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSequenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinWithAbundancesTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleTable;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.TreatmentFinder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SimpleSample;
 
 /**
  * @author Franz-Josef Elmer
@@ -62,6 +69,8 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     
     @Resource(name = ResourceNames.PHOSPHONETX_BO_FACTORY)
     private IBusinessObjectFactory specificBOFactory;
+
+    private final TreatmentFinder treatmentFinder = new TreatmentFinder();
 
     public PhosphoNetXServer()
     {
@@ -79,10 +88,37 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         this.specificDAOFactory = specificDAOFactory;
         this.specificBOFactory = specificBOFactory;
     }
-
+    
     public IPhosphoNetXServer createLogger(boolean invocationSuccessful, long elapsedTime)
     {
         return new PhosphoNetXServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+    }
+
+    public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
+            String sessionToken, TechId experimentID) throws UserFailureException
+    {
+        getSessionManager().getSession(sessionToken);
+        String experimentPermID = getExperimentPermIDFor(experimentID);
+        IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
+        DataSet<SimpleSample> samples = dao.listAbundanceRelatedSamplesByExperiment(experimentPermID);
+        List<AbundanceColumnDefinition> columnDefinitions = new ArrayList<AbundanceColumnDefinition>();
+        for (SimpleSample simpleSample : samples)
+        {
+            AbundanceColumnDefinition columnDefinition = new AbundanceColumnDefinition();
+            columnDefinition.setSampleID(simpleSample.getId());
+            String samplePermID = simpleSample.getSamplePermID();
+            SamplePE sample = getDAOFactory().getSampleDAO().tryToFindByPermID(samplePermID);
+            if (sample == null)
+            {
+                throw new UserFailureException("No sample found for perm ID " + samplePermID);
+            }
+            columnDefinition.setSampleCode(sample.getCode());
+            columnDefinition.setTreatments(treatmentFinder.findTreatmentsOf(sample));
+            columnDefinitions.add(columnDefinition);
+        }
+        samples.close();
+        
+        return columnDefinitions;
     }
 
     public Collection<ProteinWithAbundances> listProteinsByExperiment(String sessionToken,
@@ -147,8 +183,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     private String getExperimentPermIDFor(TechId experimentId)
     {
         ExperimentPE experiment = getDAOFactory().getExperimentDAO().getByTechId(experimentId);
-        String experimentPermId = experiment.getPermId();
-        return experimentPermId;
+        return experiment.getPermId();
     }
     
 }

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SampleAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.Sequence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SimpleSample;
 
 /**
  * 
@@ -49,6 +50,14 @@ public interface IProteinQueryDAO extends BaseQuery
             + "left join samples on a.samp_id = samples.id "
             + "where e.perm_id = ?{1} order by pr.uniprot_id, samples.id")
     public DataSet<ProteinReferenceWithProbability> listProteinsByExperiment(String experimentPermID);
+    
+    @Select("select distinct s.id, s.perm_id "
+            + "from abundances as a left join proteins as p on a.prot_id = p.id "
+            + "                     left join data_sets as d on p.dase_id = d.id "
+            + "                     left join experiments as e on d.expe_id = e.id "
+            + "                     left join samples as s on a.samp_id = s.id "
+            + "where e.perm_id = ?{1}")
+    public DataSet<SimpleSample> listAbundanceRelatedSamplesByExperiment(String experimentPermID);
     
     @Select("select * from protein_references where id = ?{1}")
     public ProteinReference tryToGetProteinReference(long proteinReferenceID);

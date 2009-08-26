@@ -27,7 +27,9 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
@@ -37,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 
 /**
  * @author Franz-Josef Elmer
@@ -97,17 +100,18 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         }
     }
 
+    private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
     private final ComboBox<FalseDiscoveryRateModel> fdrComboBox;
-
     private final ExperimentChooserFieldAdaptor chooser;
-
+    private final ComboBox<AggregateFunctionModel> aggregateFunctionComboBox;
+    
     private ProteinByExperimentBrowserGrid browserGrid;
-
     private Experiment experiment;
-    private ComboBox<AggregateFunctionModel> aggregateFunctionComboBox;
+
 
     ProteinByExperimentBrowerToolBar(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
+        this.viewContext = viewContext;
         setBorders(true);
         add(new LabelToolItem(viewContext.getMessage(Dict.SELECTED_EXPERIMENT_LABEL)
                 + GenericConstants.LABEL_SEPARATOR));
@@ -204,7 +208,12 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             double falseDiscoveryRate = getSelection(fdrComboBox, 0.0);
             AggregateFunction aggregateFunction =
                     getSelection(aggregateFunctionComboBox, DEFAULT_AGGREGATE_FUNCTION);
-            browserGrid.update(TechId.create(experiment), falseDiscoveryRate, aggregateFunction);
+            TechId experimentID = TechId.create(experiment);
+            AsyncCallback<List<AbundanceColumnDefinition>> callback =
+                    new AbundanceColumnDefinitionsCallback(viewContext, browserGrid, experimentID,
+                            falseDiscoveryRate, aggregateFunction);
+            viewContext.getService().getAbundanceColumnDefinitionsForProteinByExperiment(
+                    experimentID, callback);
         }
     }
     
@@ -212,5 +221,35 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
     {
         List<? extends SimpleModel<T>> selection = comboBox.getSelection();
         return selection.isEmpty() ? defaultValue : selection.get(0).getObject();
+    }
+    
+    private static final class AbundanceColumnDefinitionsCallback extends
+            AbstractAsyncCallback<List<AbundanceColumnDefinition>>
+    {
+        private final ProteinByExperimentBrowserGrid browserGrid;
+
+        private final TechId experimentID;
+
+        private final double falseDiscoveryRate;
+
+        private final AggregateFunction aggregateFunction;
+
+        public AbundanceColumnDefinitionsCallback(IViewContext<?> viewContext,
+                ProteinByExperimentBrowserGrid browserGrid, TechId experimentID,
+                double falseDiscoveryRate, AggregateFunction aggregateFunction)
+        {
+            super(viewContext);
+            this.browserGrid = browserGrid;
+            this.experimentID = experimentID;
+            this.falseDiscoveryRate = falseDiscoveryRate;
+            this.aggregateFunction = aggregateFunction;
+        }
+
+        @Override
+        protected void process(List<AbundanceColumnDefinition> result)
+        {
+            browserGrid.update(experimentID, falseDiscoveryRate, aggregateFunction, result);
+        }
+        
     }
 }

@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
@@ -41,6 +42,12 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundan
  */
 public interface IPhosphoNetXServer extends IServer
 {
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
+            String sessionToken, @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
+            TechId experimentID) throws UserFailureException; 
+    
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     public Collection<ProteinWithAbundances> listProteinsByExperiment(String sessionToken,
@@ -67,6 +74,6 @@ public interface IPhosphoNetXServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     public List<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
-            String sessionToken, TechId proteinID) throws UserFailureException; 
-    
+            String sessionToken, TechId proteinID) throws UserFailureException;
+
 }

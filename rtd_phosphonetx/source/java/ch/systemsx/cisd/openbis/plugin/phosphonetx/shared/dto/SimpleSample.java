@@ -18,25 +18,25 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
 
 import net.lemnik.eodsql.ResultColumn;
 
-
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class SampleAbundance extends SimpleSample
+public class SimpleSample extends AbstractDTOWithID
 {
-    @ResultColumn("value")
-    private double abundance;
-    
-    public final double getAbundance()
+
+    @ResultColumn("perm_id")
+    private String samplePermID;
+
+    public final String getSamplePermID()
     {
-        return abundance;
+        return samplePermID;
     }
 
-    public final void setAbundance(double abundance)
+    public final void setSamplePermID(String samplePermID)
     {
-        this.abundance = abundance;
+        this.samplePermID = samplePermID;
     }
 
 }

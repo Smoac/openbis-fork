@@ -16,14 +16,20 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
@@ -40,6 +46,8 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Treatment;
 
 /**
  * @author Franz-Josef Elmer
@@ -59,6 +67,8 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     private final ProteinByExperimentBrowerToolBar toolbar;
 
     private ListProteinByExperimentCriteria criteria;
+
+    private List<AbundanceColumnDefinition> abundanceColumnDefinitions;
 
     static IDisposableComponent create(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
@@ -87,13 +97,15 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                     });
     }
 
-    void update(TechId experimentID, double falseDiscoveryRate, AggregateFunction aggregateFunction)
+    void update(TechId experimentID, double falseDiscoveryRate,
+            AggregateFunction aggregateFunction, List<AbundanceColumnDefinition> definitions)
     {
         criteria = new ListProteinByExperimentCriteria();
         criteria.setExperimentID(experimentID);
         criteria.setFalseDiscoveryRate(falseDiscoveryRate);
         criteria.setAggregateFunction(aggregateFunction);
-        refresh();
+        abundanceColumnDefinitions = definitions;
+        refresh(null, true);
     }
 
     @Override
@@ -106,9 +118,58 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     protected ColumnDefsAndConfigs<ProteinInfo> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<ProteinInfo> definitions = super.createColumnsDefinition();
+        List<IColumnDefinitionUI<ProteinInfo>> columns = new ArrayList<IColumnDefinitionUI<ProteinInfo>>();
+        for (AbundanceColumnDefinition definition : abundanceColumnDefinitions)
+        {
+            String header = definition.getSampleCode();
+            List<Treatment> treatments = definition.getTreatments();
+            if (treatments.isEmpty() == false)
+            {
+                header = "";
+                String delim = "";
+                for (Treatment treatment : treatments)
+                {
+                    header += delim + treatment;
+                    delim = "\n";
+                }
+            }
+            final long sampleID = definition.getSampleID();
+            columns.add(new AbstractColumnDefinition<ProteinInfo>(header, 100, false)
+                {
+                    @Override
+                    protected String tryGetValue(ProteinInfo entity)
+                    {
+                        Map<Long, Double> abundances = entity.getAbundances();
+                        if (abundances == null)
+                        {
+                            return null;
+                        }
+                        Double abundance = abundances.get(sampleID);
+                        if (abundance == null)
+                        {
+                            return null;
+                        }
+                        return Double.toString(abundance);
+                    }
+
+                    public String getIdentifier()
+                    {
+                        return "abundance-" + Long.toString(sampleID);
+                    }
+                });
+        }
+        definitions.addColumns(columns);
         definitions.setGridCellRendererFor(ProteinColDefKind.UNIPROT_ID.id(), LinkRenderer
                 .createLinkRenderer());
         return definitions;
+    }
+
+    @Override
+    protected BaseEntityModel<ProteinInfo> createModel(ProteinInfo entity)
+    {
+        Set<IColumnDefinition<ProteinInfo>> columnDefs = createColumnsDefinition().getColumnDefs();
+        return new BaseEntityModel<ProteinInfo>(entity,
+                new ArrayList<IColumnDefinition<ProteinInfo>>(columnDefs));
     }
 
     @Override
@@ -139,7 +200,8 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET) };
+            { DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
+                    DatabaseModificationKind.edit(ObjectKind.SAMPLE) };
     }
 
 }

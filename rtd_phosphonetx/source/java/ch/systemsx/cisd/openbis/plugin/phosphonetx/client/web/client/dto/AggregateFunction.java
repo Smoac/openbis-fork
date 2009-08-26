@@ -32,7 +32,7 @@ public enum AggregateFunction implements IsSerializable
         @Override
         public double aggregate(double[] values)
         {
-            int sum = 0;
+            double sum = 0;
             for (double value : values)
             {
                 sum += value;
