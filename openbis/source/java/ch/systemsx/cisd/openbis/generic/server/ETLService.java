@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -53,15 +54,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -426,7 +428,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return externalDataBO.getExternalData();
     }
 
-    public List<String> listSamplesByCriteria(String sessionToken,
+    public List<Sample> listSamplesByCriteria(String sessionToken,
             ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -435,17 +437,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         Session session = sessionManager.getSession(sessionToken);
         ISampleTable sampleTable = boFactory.createSampleTable(session);
         sampleTable.loadSamplesByCriteria(criteria);
-        return extractCodes(sampleTable.getSamples());
-    }
-
-    private static List<String> extractCodes(List<SamplePE> samples)
-    {
-        List<String> codes = new ArrayList<String>();
-        for (SamplePE sample : samples)
-        {
-            codes.add(sample.getCode());
-        }
-        return codes;
+        return SampleTranslator.translate(sampleTable.getSamples(), "");
     }
 
     public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStoreCode)
@@ -462,4 +454,5 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         dataSetTable.loadByDataStore(dataStore);
         return SimpleDataSetHelper.translate(dataSetTable.getExternalData());
     }
+
 }

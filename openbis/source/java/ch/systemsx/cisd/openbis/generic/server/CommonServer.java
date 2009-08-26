@@ -440,12 +440,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             {
                 removeWithoutExperiment(samples);
             }
-            final List<Sample> list = new ArrayList<Sample>(samples.size());
-            for (final SamplePE sample : samples)
-            {
-                list.add(SampleTranslator.translate(sample, criteria.getBaseIndexUrl()));
-            }
-            return list;
+            String baseIndexUrl = criteria.getBaseIndexUrl();
+            return SampleTranslator.translate(samples, baseIndexUrl);
         }
     }
 

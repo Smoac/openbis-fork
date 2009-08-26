@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -99,7 +101,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
-    public List<String> listSamplesByCriteria(String sessionToken,
+    public List<Sample> listSamplesByCriteria(String sessionToken,
             ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {
         logAccess(sessionToken, "listSamplesByCriteria", "criteria(%s)", criteria);
@@ -110,6 +112,15 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
             throws UserFailureException
     {
         logAccess(sessionToken, "listDataSets", "DATA_STORE(%s)", dataStore);
+        return null;
+    }
+
+    public SamplePE getSampleWithProperty(String sessionToken, String propertyTypeCode,
+            GroupIdentifier groupIdentifier, String propertyValue)
+    {
+        logAccess(sessionToken, "get_sample_with_property",
+                "PROPERTY_TYPE(%s) GROUP(%s) PROPERTY_VALUE(%s)", propertyTypeCode, groupIdentifier,
+                propertyValue);
         return null;
     }
 

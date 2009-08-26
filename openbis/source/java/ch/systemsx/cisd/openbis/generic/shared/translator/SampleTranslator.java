@@ -44,6 +44,16 @@ public final class SampleTranslator
         // Can not be instantiated.
     }
 
+    public static List<Sample> translate(final List<SamplePE> samples, String baseIndexURL)
+    {
+        final List<Sample> list = new ArrayList<Sample>(samples.size());
+        for (final SamplePE sample : samples)
+        {
+            list.add(translate(sample, baseIndexURL));
+        }
+        return list;
+    }
+
     public final static Sample translate(final SamplePE samplePE, String baseIndexURL)
     {
         return translate(samplePE, baseIndexURL, true);
