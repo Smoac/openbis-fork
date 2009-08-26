@@ -44,21 +44,21 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 
 /**
  * Test cases for corresponding {@link HibernateSearchDAO} class.
@@ -115,7 +115,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            hibernateSearchDAO.searchEntitiesByTerm(null, null);
+            hibernateSearchDAO.searchEntitiesByTerm(null, null, createDataProvider());
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -124,7 +124,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         fail = true;
         try
         {
-            hibernateSearchDAO.searchEntitiesByTerm(MaterialPE.class, "");
+            hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.MATERIAL, "",
+                    createDataProvider());
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -132,19 +133,25 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         assertFalse(fail);
     }
 
+    private final HibernateSearchDataProvider createDataProvider()
+    {
+        return new HibernateSearchDataProvider(daoFactory);
+    }
+
     @Test(dataProvider = "registratorTerm")
     public final void testSearchEntitiesByRegistrator(final String term)
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         final String lastName = "John";
-        final List<SearchHit> hits = hibernateSearchDAO.searchEntitiesByTerm(SamplePE.class, term);
+        final List<MatchingEntity> hits =
+                hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.SAMPLE, term,
+                        createDataProvider());
         assertTrue(hits.size() > 0);
-        for (SearchHit searchHit : hits)
+        for (MatchingEntity matchingEntity : hits)
         {
-            SamplePE samplePE = ((SamplePE) searchHit.getEntity());
-            assertEquals(lastName, samplePE.getRegistrator().getFirstName());
-            AssertionUtil
-                    .assertContains("registrator: First Name", searchHit.getFieldDescription());
+            assertEquals(lastName, matchingEntity.getRegistrator().getFirstName());
+            AssertionUtil.assertContains("registrator First Name", matchingEntity
+                    .getFieldDescription());
         }
     }
 
@@ -153,14 +160,14 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         String query = "exp";
-        final List<SearchHit> hits =
-                hibernateSearchDAO.searchEntitiesByTerm(ExperimentPE.class, query);
+        final List<MatchingEntity> hits =
+                hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.EXPERIMENT, query,
+                        createDataProvider());
         assertEquals(5, hits.size());
-        for (SearchHit searchHit : hits)
+        for (MatchingEntity matchingEntity : hits)
         {
-            ExperimentPE entity = ((ExperimentPE) searchHit.getEntity());
-            AssertionUtil.assertContainsInsensitive(query, entity.getCode());
-            assertEquals("code", searchHit.getFieldDescription());
+            AssertionUtil.assertContainsInsensitive(query, matchingEntity.getCode());
+            assertEquals("code", matchingEntity.getFieldDescription());
         }
     }
 
@@ -169,12 +176,14 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         String propertyValue = "adenovirus";
-        final List<SearchHit> hits =
-                hibernateSearchDAO.searchEntitiesByTerm(MaterialPE.class, propertyValue);
+        final List<MatchingEntity> hits =
+                hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.MATERIAL, propertyValue,
+                        createDataProvider());
         assertEquals(2, hits.size());
-        for (SearchHit searchHit : hits)
+        for (MatchingEntity matchingEntity : hits)
         {
-            MaterialPE material = (MaterialPE) searchHit.getEntity();
+            MaterialPE material =
+                    daoFactory.getMaterialDAO().getByTechId(new TechId(matchingEntity.getId()));
             ensureContains(material.getProperties(), propertyValue);
         }
     }

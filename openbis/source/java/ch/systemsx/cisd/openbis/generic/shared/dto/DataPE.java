@@ -140,7 +140,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_DATASET_TYPE)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_ENTITY_TYPE)
     public DataSetTypePE getDataSetType()
     {
         return dataSetType;

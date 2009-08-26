@@ -20,10 +20,11 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 
 /**
  * <i>Data Access Object</i> for accessing <i>Hibernate Search</i>.
@@ -33,13 +34,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 public interface IHibernateSearchDAO
 {
     /**
-     * Searches in entities of type <var>entityClass</var> for given <var>searchTerm</var> using
-     * all the indexed fields.
+     * Searches in entities of type <var>searchableEntity</var> for given <var>searchTerm</var>
+     * using all the indexed fields.
      * 
      * @param searchTerm could be something like "<code>C11 AND System User</code>".
      */
-    public <T extends IMatchingEntity> List<SearchHit> searchEntitiesByTerm(
-            final Class<T> entityClass, final String searchTerm) throws DataAccessException;
+    public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
+            final String searchTerm, final HibernateSearchDataProvider dataProvider)
+            throws DataAccessException;
 
     /** search for datasets using the specified criteria */
     public List<ExternalDataPE> searchForDataSets(DataSetSearchCriteria criteria);

@@ -21,12 +21,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.search.Query;
@@ -56,12 +57,18 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -91,50 +98,54 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     // IHibernateSearchDAO
     //
 
-    public final <T extends IMatchingEntity> List<SearchHit> searchEntitiesByTerm(
-            final Class<T> entityClass, final String searchTerm) throws DataAccessException
+    public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
+            final String searchTerm, final HibernateSearchDataProvider dataProvider)
+            throws DataAccessException
     {
-        assert entityClass != null : "Unspecified entity class";
+        assert searchableEntity != null : "Unspecified searchable entity";
         assert StringUtils.isBlank(searchTerm) == false : "Unspecified search term.";
+        assert dataProvider != null : "Unspecified data provider";
 
-        final List<SearchHit> list =
+        final List<MatchingEntity> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
                     {
-                        public final Object doInHibernate(final Session session)
+                        public final List<MatchingEntity> doInHibernate(final Session session)
                                 throws HibernateException, SQLException
                         {
-                            return doSearchEntitiesByTerm(session, entityClass, searchTerm);
+                            return doSearchEntitiesByTerm(session, searchableEntity, searchTerm,
+                                    dataProvider);
                         }
                     }));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format(
                     "%d matching entities of type '%s' have been found for search term '%s'.", list
-                            .size(), entityClass, searchTerm));
+                            .size(), searchableEntity.getMatchingEntityClass(), searchTerm));
         }
         return list;
     }
 
-    private final <T extends IMatchingEntity> List<SearchHit> doSearchEntitiesByTerm(
-            final Session session, final Class<T> entityClass, final String userQuery)
-            throws DataAccessException, UserFailureException
+    private final List<MatchingEntity> doSearchEntitiesByTerm(final Session session,
+            final SearchableEntity searchableEntity, final String userQuery,
+            final HibernateSearchDataProvider dataProvider) throws DataAccessException,
+            UserFailureException
     {
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         Analyzer analyzer = LuceneQueryBuilder.createSearchAnalyzer();
 
-        MyIndexReaderProvider<T> indexProvider =
-                new MyIndexReaderProvider<T>(fullTextSession, entityClass);
+        MyIndexReaderProvider indexProvider =
+                new MyIndexReaderProvider(fullTextSession, searchableEntity);
         String searchQuery = LuceneQueryBuilder.adaptQuery(userQuery);
 
         try
         {
-            List<SearchHit> result = new ArrayList<SearchHit>();
+            List<MatchingEntity> result = new ArrayList<MatchingEntity>();
             String[] fields = indexProvider.getIndexedFields();
             for (String fieldName : fields)
             {
-                List<SearchHit> hits =
-                        searchTermInField(fullTextSession, fieldName, searchQuery, entityClass,
-                                analyzer, indexProvider.getReader());
+                List<MatchingEntity> hits =
+                        searchTermInField(fullTextSession, fieldName, searchQuery,
+                                searchableEntity, analyzer, indexProvider.getReader(), dataProvider);
                 result.addAll(hits);
             }
             return result;
@@ -144,21 +155,25 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    private final <T extends IMatchingEntity> List<SearchHit> searchTermInField(
-            final FullTextSession fullTextSession, final String fieldName, final String searchTerm,
-            final Class<T> entityClass, Analyzer analyzer, IndexReader indexReader)
-            throws DataAccessException, UserFailureException
+    private final List<MatchingEntity> searchTermInField(final FullTextSession fullTextSession,
+            final String fieldName, final String searchTerm,
+            final SearchableEntity searchableEntity, Analyzer analyzer, IndexReader indexReader,
+            final HibernateSearchDataProvider dataProvider) throws DataAccessException,
+            UserFailureException
     {
         Query query = LuceneQueryBuilder.parseQuery(fieldName, searchTerm, analyzer);
         query = rewriteQuery(indexReader, query);
         final FullTextQuery hibernateQuery =
-                fullTextSession.createFullTextQuery(query, entityClass);
-        hibernateQuery.setProjection(FullTextQuery.THIS, FullTextQuery.DOCUMENT_ID,
-                FullTextQuery.DOCUMENT);
+                fullTextSession.createFullTextQuery(query, searchableEntity
+                        .getMatchingEntityClass());
+
+        hibernateQuery.setProjection(FullTextQuery.DOCUMENT_ID, FullTextQuery.DOCUMENT);
+        hibernateQuery.setReadOnly(true);
 
         MyHighlighter highlighter = new MyHighlighter(query, indexReader, analyzer);
-        hibernateQuery.setResultTransformer(createResultTransformer(fieldName, highlighter));
-        List<SearchHit> result = AbstractDAO.cast(hibernateQuery.list());
+        hibernateQuery.setResultTransformer(createResultTransformer(searchableEntity, fieldName,
+                highlighter, dataProvider));
+        final List<MatchingEntity> result = AbstractDAO.cast(hibernateQuery.list());
         return filterNulls(result);
     }
 
@@ -188,8 +203,9 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    private static ResultTransformer createResultTransformer(final String fieldName,
-            final MyHighlighter highlighter)
+    private static ResultTransformer createResultTransformer(
+            final SearchableEntity searchableEntity, final String fieldName,
+            final MyHighlighter highlighter, final HibernateSearchDataProvider dataProvider)
     {
         return new ResultTransformer()
             {
@@ -203,13 +219,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
                 public Object transformTuple(Object[] tuple, String[] aliases)
                 {
-                    IMatchingEntity entity = (IMatchingEntity) tuple[0];
-                    int documentId = (Integer) tuple[1];
-                    Document doc = (Document) tuple[2];
-                    if (entity == null)
-                    {
-                        return null;
-                    }
+                    final int documentId = (Integer) tuple[0];
+                    final Document doc = (Document) tuple[1];
 
                     String matchingText = null;
                     try
@@ -230,8 +241,74 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                     {
                         logSearchHighlightingError(ex);
                     }
-                    return new SearchHit(entity, fieldName, matchingText);
+                    return createMatchingEntity(doc, matchingText);
                 }
+
+                private MatchingEntity createMatchingEntity(final Document doc,
+                        final String matchingText)
+                {
+                    final MatchingEntity result = new MatchingEntity();
+
+                    // search properties
+                    result.setFieldDescription(fieldName);
+                    result.setTextFragment(matchingText);
+
+                    // IIdentifiable properties
+                    result.setCode(getFieldValue(doc, SearchFieldConstants.CODE));
+                    result.setId(Long.parseLong(getFieldValue(doc, SearchFieldConstants.ID)));
+                    result.setIdentifier(getFieldValue(doc, SearchFieldConstants.IDENTIFIER));
+
+                    // entity kind
+                    result.setEntityKind(DtoConverters.convertEntityKind(searchableEntity
+                            .getEntityKind()));
+
+                    // entity type
+                    BasicEntityType entityType = new BasicEntityType();
+                    entityType.setCode(getFieldValue(doc, SearchFieldConstants.PREFIX_ENTITY_TYPE
+                            + SearchFieldConstants.CODE));
+                    result.setEntityType(entityType);
+
+                    // group
+                    Map<String, Group> groupsById = dataProvider.getGroupsById();
+                    Field groupFieldOrNull = doc.getField(getGroupIdFieldName());
+                    if (groupFieldOrNull != null)
+                    {
+                        Group group = groupsById.get(groupFieldOrNull.stringValue());
+                        result.setGroup(group);
+                    }
+
+                    // registrator
+                    Person registrator = new Person();
+                    registrator.setFirstName(getFieldValue(doc,
+                            SearchFieldConstants.PREFIX_REGISTRATOR
+                                    + SearchFieldConstants.PERSON_FIRST_NAME));
+                    registrator.setLastName(getFieldValue(doc,
+                            SearchFieldConstants.PREFIX_REGISTRATOR
+                                    + SearchFieldConstants.PERSON_LAST_NAME));
+                    registrator.setEmail(getFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
+                            + SearchFieldConstants.PERSON_EMAIL));
+                    result.setRegistrator(registrator);
+
+                    return result;
+                }
+
+                private String getFieldValue(final Document document, final String searchFieldName)
+                {
+                    return document.getField(searchFieldName).stringValue();
+                }
+
+                private String getGroupIdFieldName()
+                {
+                    String groupId = SearchFieldConstants.PREFIX_GROUP + SearchFieldConstants.ID;
+                    if (searchableEntity.equals(SearchableEntity.EXPERIMENT))
+                    {
+                        return SearchFieldConstants.PREFIX_PROJECT + groupId;
+                    } else
+                    {
+                        return groupId;
+                    }
+                }
+
             };
     }
 
@@ -283,7 +360,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    private static final class MyIndexReaderProvider<T>
+    private static final class MyIndexReaderProvider
     {
         private final ReaderProvider readerProvider;
 
@@ -291,11 +368,11 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
         /** opens the index reader. Closing the index after usage must be done with #close() method. */
         public MyIndexReaderProvider(final FullTextSession fullTextSession,
-                final Class<T> entityClass)
+                final SearchableEntity searchableEntity)
         {
             SearchFactory searchFactory = fullTextSession.getSearchFactory();
             DirectoryProvider<?>[] directoryProviders =
-                    searchFactory.getDirectoryProviders(entityClass);
+                    searchFactory.getDirectoryProviders(searchableEntity.getMatchingEntityClass());
             this.readerProvider = searchFactory.getReaderProvider();
             this.indexReader = readerProvider.openReader(directoryProviders);
         }

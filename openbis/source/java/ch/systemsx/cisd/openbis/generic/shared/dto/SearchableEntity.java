@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+
 /**
  * An entity that is searchable by <i>Hibernate Search</i>.
  * 
@@ -23,55 +25,28 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
  */
 public enum SearchableEntity
 {
-    SAMPLE("Sample")
-    {
+    SAMPLE("Sample", EntityKind.SAMPLE),
 
-        //
-        // SearchableEntity
-        //
+    EXPERIMENT("Experiment", EntityKind.EXPERIMENT),
 
-        @Override
-        public final <T extends IMatchingEntity> Class<T> getMatchingEntityClass()
-        {
-            return cast(SamplePE.class);
-        }
-    },
-    EXPERIMENT("Experiment")
-    {
-        //
-        // SearchableEntity
-        //
-
-        @Override
-        public final <T extends IMatchingEntity> Class<T> getMatchingEntityClass()
-        {
-            return cast(ExperimentPE.class);
-        }
-    },
-    MATERIAL("Material")
-    {
-        //
-        // SearchableEntity
-        //
-
-        @Override
-        public final <T extends IMatchingEntity> Class<T> getMatchingEntityClass()
-        {
-            return cast(MaterialPE.class);
-        }
-    };
+    MATERIAL("Material", EntityKind.MATERIAL);
 
     private final String description;
 
-    SearchableEntity(final String description)
+    private final EntityKind entityKind;
+
+    SearchableEntity(final String description, final EntityKind entityKind)
     {
         this.description = description;
+        this.entityKind = entityKind;
     }
 
-    @SuppressWarnings("unchecked")
-    final static <T> Class<T> cast(final Class<?> clazz)
+    /**
+     * Returns entity kind for this searchable entity.
+     */
+    public EntityKind getEntityKind()
     {
-        return (Class<T>) clazz;
+        return entityKind;
     }
 
     /**
@@ -93,7 +68,16 @@ public enum SearchableEntity
     /**
      * Returns the <code>class</code> of this searchable entity.
      */
-    public abstract <T extends IMatchingEntity> Class<T> getMatchingEntityClass();
+    public <T extends IMatchingEntity> Class<T> getMatchingEntityClass()
+    {
+        return cast(entityKind.getEntityClass());
+    }
+
+    @SuppressWarnings("unchecked")
+    final static <T> Class<T> cast(final Class<?> clazz)
+    {
+        return (Class<T>) clazz;
+    }
 
     //
     // Object

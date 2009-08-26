@@ -158,7 +158,7 @@ public class LuceneQueryBuilder
             case DATA_SET_CODE:
                 return CODE;
             case DATA_SET_TYPE:
-                return SearchFieldConstants.PREFIX_DATASET_TYPE + CODE;
+                return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
             case DATA_SET_PROPERTY:
                 return getPropertyIndexField(searchField.getPropertyCode());
             case FILE_TYPE:

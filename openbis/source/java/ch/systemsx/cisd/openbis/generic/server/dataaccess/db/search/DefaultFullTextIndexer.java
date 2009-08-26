@@ -77,14 +77,18 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
         fullTextSession.setCacheMode(CacheMode.IGNORE);
 
         // we index entities in batches loading them in groups restricted by id:
-        // ( ids[index],ids[min(index+batchSize, maxIndex))] ]
+        // [ ids[index], ids[min(index+batchSize, maxIndex))] )
         final Transaction transaction = hibernateSession.beginTransaction();
         final List<Long> ids = getAllIds(fullTextSession, clazz);
-        operationLog.info(String
-                .format("... got %d '%s' ids...", ids.size(), clazz.getSimpleName()));
-
+        final int idsSize = ids.size();
+        operationLog.info(String.format("... got %d '%s' ids...", idsSize, clazz.getSimpleName()));
         int index = 0;
-        final int maxIndex = ids.size() - 1;
+        final int maxIndex = idsSize - 1;
+        // need to increment last id because we use 'lt' condition
+        if (maxIndex > -1)
+        {
+            ids.set(maxIndex, ids.get(maxIndex) + 1);
+        }
         while (index < maxIndex)
         {
             final int nextIndex = getNextIndex(index, maxIndex);
@@ -135,8 +139,8 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
     private <T> Criteria createCriteriaWithRestrictedId(final FullTextSession fullTextSession,
             final Class<T> clazz, final long minId, final long maxId)
     {
-        return createCriteria(fullTextSession, clazz).add(Restrictions.gt(ID_PROPERTY_NAME, minId))
-                .add(Restrictions.le(ID_PROPERTY_NAME, maxId));
+        return createCriteria(fullTextSession, clazz).add(Restrictions.ge(ID_PROPERTY_NAME, minId))
+                .add(Restrictions.lt(ID_PROPERTY_NAME, maxId));
     }
 
     private <T> Criteria createCriteria(final FullTextSession fullTextSession, final Class<T> clazz)

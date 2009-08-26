@@ -134,7 +134,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
             // index the file name. Make the field code unique, so that we can recognize which field
             // has matched the query later on
             String attachmentNameFieldName =
-                    SearchFieldConstants.PREFIX_ATTACHMENT_FILE_NAME + attachmentName;
+                    name + "'" + attachmentName + "' " + SearchFieldConstants.FILE_NAME;
             Field field =
                     new Field(attachmentNameFieldName, attachmentName, Field.Store.YES,
                             luceneOptions.getIndex());
@@ -189,7 +189,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
                 AttachmentPE attachment, String attachmentName, Reader contentReader)
         {
             String fieldName =
-                    SearchFieldConstants.PREFIX_ATTACHMENT + attachmentName + ", ver. "
+                    SearchFieldConstants.PREFIX_ATTACHMENT + "'" + attachmentName + "', ver. "
                             + attachment.getVersion();
 
             Field field = new Field(fieldName, contentReader);

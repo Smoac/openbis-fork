@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -139,7 +140,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
@@ -163,7 +163,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTypeTranslator
 import ch.systemsx.cisd.openbis.generic.shared.translator.RoleAssignmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.SearchHitTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
@@ -526,10 +525,10 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         {
             for (final SearchableEntity searchableEntity : searchableEntities)
             {
-                final List<SearchHit> entities =
-                        getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
-                                searchableEntity.getMatchingEntityClass(), queryText);
-                list.addAll(SearchHitTranslator.translate(entities));
+                HibernateSearchDataProvider dataProvider =
+                        new HibernateSearchDataProvider(getDAOFactory());
+                list.addAll(getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
+                        searchableEntity, queryText, dataProvider));
             }
         } catch (final DataAccessException ex)
         {

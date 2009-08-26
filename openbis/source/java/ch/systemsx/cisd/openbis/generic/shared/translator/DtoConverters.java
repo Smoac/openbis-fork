@@ -27,18 +27,11 @@ import ch.systemsx.cisd.common.utilities.BeanUtils.Converter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SearchHit;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -61,12 +54,10 @@ public class DtoConverters
                 .name());
     }
 
-    /**
-     * Returns the {@link IMatchingEntity} converter.
-     */
-    public final static BeanUtils.Converter getMatchingEntityConverter()
+    public static final EntityKind convertEntityKind(
+            final ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind)
     {
-        return MatchingEntityConverter.INSTANCE;
+        return EntityKind.valueOf(entityKind.name());
     }
 
     /**
@@ -96,80 +87,6 @@ public class DtoConverters
     //
     // Helper classes
     //
-    /**
-     * A {@link BeanUtils.Converter} for converting {@link IMatchingEntity} into
-     * {@link MatchingEntity}.
-     * 
-     * @author Christian Ribeaud
-     */
-    // Note: the convertToXXX() methods will be used by reflection
-    private final static class MatchingEntityConverter implements BeanUtils.Converter
-    {
-
-        static final MatchingEntityConverter INSTANCE = new MatchingEntityConverter();
-
-        private MatchingEntityConverter()
-        {
-        }
-
-        //
-        // BeanUtils.Converter
-        //
-
-        public final Long convertToId(final SearchHit matchingEntity)
-        {
-            // SearchHit.entity may be a proxy which always returns null when we want to get 'id'.
-            // HibernateUtils.getId(entity) could be used in SearchHit.getId() instead of this code,
-            // but it is better to keep it undependent of Hibernate (at least until the getter
-            // is used somewhere else). SearchHit.entity could also be unproxied with
-            // HibernateUtils.unproxy(T) e.g. in HibernateSearchDAO.
-            return HibernateUtils.getId(matchingEntity.getEntity());
-        }
-
-        public final EntityKind convertToEntityKind(final SearchHit matchingEntity)
-        {
-            return EntityKind.valueOf(matchingEntity.getEntityKind().name());
-        }
-
-        public final String convertToFieldDescription(final SearchHit matchingEntity)
-        {
-            return StringEscapeUtils.escapeHtml(matchingEntity.getFieldDescription());
-        }
-
-        public final String convertToTextFragment(final SearchHit matchingEntity)
-        {
-            return StringEscapeUtils.escapeHtml(matchingEntity.getTextFragment());
-        }
-
-        public final Group convertToGroup(final SearchHit matchingEntity)
-        {
-            final IMatchingEntity entity = matchingEntity.getEntity();
-            final ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind entityKind =
-                    entity.getEntityKind();
-            if (entityKind == ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT)
-            {
-                final ExperimentPE experiment = (ExperimentPE) entity;
-                return GroupTranslator.translate(experiment.getProject().getGroup());
-            } else if (entityKind == ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.SAMPLE)
-            {
-                final SamplePE sample = (SamplePE) entity;
-                final SampleIdentifier sampleIdentifier = sample.getSampleIdentifier();
-                // Everyone can read from the database instance level.
-                if (sampleIdentifier.isGroupLevel())
-                {
-                    return GroupTranslator.translate(sample.getGroup());
-                } else
-                {
-                    return null;
-                }
-            } else
-            {
-                return null;
-            }
-        }
-
-    }
-
     /**
      * A {@link BeanUtils.Converter} for converting {@link DataTypePE} into {@link DataType}.
      * 

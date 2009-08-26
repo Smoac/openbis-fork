@@ -221,6 +221,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.GROUP_COLUMN, updatable = true)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_GROUP)
     public GroupPE getGroup()
     {
         return group;
@@ -244,7 +245,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN, updatable = false)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_TYPE)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_ENTITY_TYPE)
     public SampleTypePE getSampleType()
     {
         return sampleType;
@@ -521,6 +522,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     //
 
     @Transient
+    @Field(index = Index.NO, store = Store.YES, name = SearchFieldConstants.IDENTIFIER)
     public final String getIdentifier()
     {
         return getSampleIdentifier().toString();
@@ -548,7 +550,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @Override
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "sampleParentInternal", cascade = CascadeType.ALL)
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_SAMPLE_ATTACHMENTS)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_ATTACHMENT)
     @Fetch(FetchMode.SUBSELECT)
     protected Set<AttachmentPE> getInternalAttachments()
     {

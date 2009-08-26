@@ -156,6 +156,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.MATERIAL_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.MATERIAL_TYPE_COLUMN, updatable = false)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_ENTITY_TYPE)
     public MaterialTypePE getMaterialType()
     {
         return materialType;
@@ -230,7 +231,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     {
         return HibernateUtils.isInitialized(getMaterialProperties());
     }
-    
+
     public void setProperties(final Set<? extends EntityPropertyPE> properties)
     {
         getMaterialProperties().clear();
@@ -328,6 +329,7 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     //
 
     @Transient
+    @Field(index = Index.NO, store = Store.YES, name = SearchFieldConstants.IDENTIFIER)
     public final String getIdentifier()
     {
         return getCode();

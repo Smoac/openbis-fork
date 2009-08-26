@@ -18,11 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
-import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * A {@link IValidator} implementation suitable for {@link IMatchingEntity}.
+ * A {@link IValidator} implementation suitable for {@link MatchingEntity}.
  * 
  * @author Christian Ribeaud
  */

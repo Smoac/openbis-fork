@@ -325,7 +325,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
     @Override
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectParentInternal", cascade = CascadeType.ALL)
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_PROJECT_ATTACHMENTS)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_ATTACHMENT)
     @Fetch(FetchMode.SUBSELECT)
     protected Set<AttachmentPE> getInternalAttachments()
     {

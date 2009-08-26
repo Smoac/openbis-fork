@@ -231,7 +231,7 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     @ManyToOne(fetch = FetchType.EAGER)
     @NotNull(message = ValidationMessages.EXPERIMENT_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.EXPERIMENT_TYPE_COLUMN, updatable = false)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT_TYPE)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_ENTITY_TYPE)
     public ExperimentTypePE getExperimentType()
     {
         return experimentType;
@@ -318,7 +318,7 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     @Override
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "experimentParentInternal", cascade = CascadeType.ALL)
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_EXPERIMENT_ATTACHMENTS)
+    @IndexedEmbedded(prefix = SearchFieldConstants.PREFIX_ATTACHMENT)
     @Fetch(FetchMode.SUBSELECT)
     protected Set<AttachmentPE> getInternalAttachments()
     {
@@ -492,6 +492,7 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
     //
 
     @Transient
+    @Field(index = Index.NO, store = Store.YES, name = SearchFieldConstants.IDENTIFIER)
     public final String getIdentifier()
     {
         if (experimentIdentifier == null)

@@ -36,23 +36,17 @@ public final class SearchFieldConstants
 
     public static final String PREFIX_SAMPLE = "sample" + SEPARATOR;
 
-    public static final String PREFIX_DATASET_TYPE = "dataset type" + SEPARATOR;
+    public static final String PREFIX_ENTITY_TYPE = "type" + SEPARATOR;
 
     public static final String PREFIX_FILE_FORMAT_TYPE = "file format type" + SEPARATOR;
 
     public static final String PREFIX_PROJECT = "project" + SEPARATOR;
 
-    public static final String PREFIX_EXPERIMENT_TYPE = "type" + SEPARATOR;
-
     public static final String PREFIX_GROUP = "group" + SEPARATOR;
 
-    public static final String PREFIX_SAMPLE_TYPE = "type" + SEPARATOR;
+    public static final String PREFIX_REGISTRATOR = "registrator" + SEPARATOR;
 
-    public static final String PREFIX_REGISTRATOR = "registrator: ";
-
-    public static final String PREFIX_ATTACHMENT = "attachment: ";
-
-    public static final String PREFIX_ATTACHMENT_FILE_NAME = "attachment name: ";
+    public static final String PREFIX_ATTACHMENT = "attachment" + SEPARATOR;
 
     public static final String DELETED = "deleted";
 
@@ -60,17 +54,14 @@ public final class SearchFieldConstants
 
     public static final String PERSON_FIRST_NAME = "First Name";
 
+    public static final String PERSON_EMAIL = "Email";
+
+    public static final String ID = "id";
+
     public static final String CODE = "code";
 
-    /**
-     * These constants were intentionally left empty. Constant can be empty only when we are sure,
-     * that the name of the index field will be unique and non empty anyway (e.g. it is build in a
-     * bridge class or the field name consists of some other non empty elements).
-     */
+    public static final String IDENTIFIER = "identifier";
 
-    public static final String PREFIX_EXPERIMENT_ATTACHMENTS = "";
+    public static final String FILE_NAME = "name";
 
-    public static final String PREFIX_SAMPLE_ATTACHMENTS = "";
-
-    public static final String PREFIX_PROJECT_ATTACHMENTS = "";
 }

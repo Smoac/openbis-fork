@@ -41,11 +41,11 @@ public final class MatchingEntity implements IsSerializable, IEntityInformationH
 
     private EntityKind entityKind;
 
+    private Group groupOrNull;
+
     private String fieldDescription;
 
     private String textFragment;
-    
-    private Group groupOrNull;
 
     public final EntityKind getEntityKind()
     {

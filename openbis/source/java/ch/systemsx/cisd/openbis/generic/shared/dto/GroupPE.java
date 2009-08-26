@@ -130,6 +130,7 @@ public final class GroupPE extends HibernateAbstractRegistrationHolder implement
     @SequenceGenerator(name = SequenceNames.GROUP_SEQUENCE, sequenceName = SequenceNames.GROUP_SEQUENCE, allocationSize = 1)
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.GROUP_SEQUENCE)
+    @Field(index = Index.NO, store = Store.YES)
     public final Long getId()
     {
         return id;
