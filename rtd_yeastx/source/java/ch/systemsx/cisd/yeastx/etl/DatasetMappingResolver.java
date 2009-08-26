@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -122,13 +123,13 @@ class DatasetMappingResolver
         }
         ListSamplesByPropertyCriteria criteria =
                 createFindSampleByNameCriteria(mapping, sampleCodeOrLabel);
-        List<String> samples = tryListSamplesByCriteria(criteria, mapping, log);
+        List<Sample> samples = tryListSamplesByCriteria(criteria, mapping, log);
         if (samples == null)
         {
             return null; // some error occurred
         } else if (samples.size() == 1)
         {
-            return samples.get(0);
+            return samples.get(0).getCode();
         } else if (samples.size() == 0)
         {
             // try to assume that the sample code, not name, has been provided
@@ -153,7 +154,7 @@ class DatasetMappingResolver
         }
     }
 
-    private List<String> tryListSamplesByCriteria(ListSamplesByPropertyCriteria criteria,
+    private List<Sample> tryListSamplesByCriteria(ListSamplesByPropertyCriteria criteria,
             DataSetMappingInformation mapping, LogUtils log)
     {
         try
