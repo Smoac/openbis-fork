@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.AssertJUnit;
@@ -57,6 +59,7 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -297,17 +300,31 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
         final GroupIdentifier groupIdentifier = new GroupIdentifier(DB_INSTANCE, GROUP_CODE);
+        String upperCaseParameterName = CELL_LYSATE1.toUpperCase();
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(groupIdentifier, CELL_LYSATE1
-                        .toUpperCase());
+                new SampleIdentifier(groupIdentifier, upperCaseParameterName);
+        final ListSamplesByPropertyCriteria criteria =
+                new ListSamplesByPropertyCriteria(AbundanceHandler.MZXML_FILENAME,
+                        upperCaseParameterName, GROUP_CODE, null);
         context.checking(new Expectations()
             {
                 {
                     one(service).tryGetSampleWithExperiment(sampleIdentifier);
                     will(returnValue(null));
-                    
-                    one(service).tryToGetSampleWithProperty("MZXML_FILENAME", groupIdentifier, CELL_LYSATE1
-                            .toUpperCase());
+
+                    one(service).listSamplesByCriteria(
+                            with(new BaseMatcher<ListSamplesByPropertyCriteria>()
+                                {
+                                    public boolean matches(Object item)
+                                    {
+                                        return criteria.toString().equals(item.toString());
+                                    }
+
+                                    public void describeTo(Description description)
+                                    {
+                                        description.appendValue(criteria);
+                                    }
+                                }));
                 }
             });
         p1.setPeptides(Collections.<Peptide> emptyList());
@@ -321,8 +338,8 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         } catch (UserFailureException ex)
         {
             AssertionUtil.assertContains("Protein '" + PROTEIN_NAME1
-                    + "' has an abundance value for a non-existing sample: " + sampleIdentifier, ex
-                    .getMessage());
+                    + "' has an abundance value for an unidentified samples: "
+                    + upperCaseParameterName, ex.getMessage());
         }
 
         context.assertIsSatisfied();

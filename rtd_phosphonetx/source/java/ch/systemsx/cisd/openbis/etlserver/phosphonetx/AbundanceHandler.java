@@ -17,13 +17,16 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Parameter;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -33,6 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 class AbundanceHandler extends AbstractHandler
 {
+    @Private static final String MZXML_FILENAME = "MZXML_FILENAME";
+    
     private final IEncapsulatedOpenBISService openbisService;
     private final GroupIdentifier groupIdentifier;
     private final Experiment experiment;
@@ -69,18 +74,32 @@ class AbundanceHandler extends AbstractHandler
             SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(groupIdentifier, parameterName);
             SamplePE samplePE = openbisService.tryGetSampleWithExperiment(sampleIdentifier);
-            if (samplePE == null)
+            String permID;
+            if (samplePE != null)
             {
-                samplePE =
-                        openbisService.tryToGetSampleWithProperty("MZXML_FILENAME",
-                                groupIdentifier, parameterName);
-                if (samplePE == null)
+                permID = samplePE.getPermId();
+            } else
+            {
+                List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> list =
+                        openbisService
+                                .listSamplesByCriteria(new ListSamplesByPropertyCriteria(
+                                        MZXML_FILENAME, parameterName, groupIdentifier
+                                                .getGroupCode(), null));
+                if (list == null || list.size() == 0)
                 {
                     throw new UserFailureException("Protein '" + proteinName
-                            + "' has an abundance value for a non-existing sample: " + sampleIdentifier);
+                            + "' has an abundance value for an unidentified samples: "
+                            + parameterName);
                 }
+                if (list.size() > 1)
+                {
+                    throw new UserFailureException("Protein '" + proteinName
+                            + "' has an abundance value for which " + list.size()
+                            + " samples are found: " + parameterName);
+                }
+                permID = list.get(0).getPermId();
             }
-            sample = getOrCreateSample(experiment, samplePE.getPermId());
+            sample = getOrCreateSample(experiment, permID);
             samples.put(parameterName, sample);
         }
         return sample;
