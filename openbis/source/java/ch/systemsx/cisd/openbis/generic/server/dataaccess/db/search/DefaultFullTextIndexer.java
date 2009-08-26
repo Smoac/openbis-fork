@@ -106,8 +106,7 @@ final class DefaultFullTextIndexer implements IFullTextIndexer
             fullTextSession.flushToIndexes();
             hibernateSession.clear();
         }
-        // TODO 2009-08-12, Piotr Buczek: check whether optimize improves search perfomance
-        // fullTextSession.getSearchFactory().optimize(clazz);
+        fullTextSession.getSearchFactory().optimize(clazz);
         transaction.commit();
         operationLog.info(String.format("'%s' index complete. %d entities have been indexed.",
                 clazz.getSimpleName(), index));
