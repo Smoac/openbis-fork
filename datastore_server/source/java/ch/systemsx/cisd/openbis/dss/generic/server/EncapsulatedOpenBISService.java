@@ -31,17 +31,17 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvi
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -193,7 +193,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.tryToGetPropertiesOfTopSampleRegisteredFor(sessionToken, sampleIdentifier);
     }
 
-    private List<String> primListSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
+    private List<Sample> primListSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
             throws UserFailureException
     {
         return service.listSamplesByCriteria(sessionToken, criteria);
@@ -262,7 +262,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    synchronized public final List<String> listSamplesByCriteria(
+    synchronized public final List<Sample> listSamplesByCriteria(
             final ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {
         checkSessionToken();
@@ -328,13 +328,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             authenticate();
             return primListDataSets();
         }
-    }
-
-    synchronized public SamplePE tryToGetSampleWithProperty(String string, GroupIdentifier groupIdentifier,
-            String parameterName)
-    {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     private List<SimpleDataSetInformationDTO> primListDataSets()

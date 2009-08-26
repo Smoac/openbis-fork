@@ -21,14 +21,14 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -75,7 +75,7 @@ public interface IEncapsulatedOpenBISService
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /** See {@link IETLLIMSService#listSamplesByCriteria(String, ListSamplesByPropertyCriteria)} */
-    public List<String> listSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
+    public List<Sample> listSamplesByCriteria(final ListSamplesByPropertyCriteria criteria)
             throws UserFailureException;
 
     /** See {@link IETLLIMSService#listDataSets(String, String)} */
@@ -95,7 +95,4 @@ public interface IEncapsulatedOpenBISService
      * Returns the home database instance.
      */
     public DatabaseInstancePE getHomeDatabaseInstance();
-
-    public SamplePE tryToGetSampleWithProperty(String string, GroupIdentifier groupIdentifier,
-            String parameterName);
 }
