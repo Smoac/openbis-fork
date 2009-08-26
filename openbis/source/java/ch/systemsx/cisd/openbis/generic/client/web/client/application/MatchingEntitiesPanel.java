@@ -27,6 +27,8 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
@@ -45,7 +47,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
@@ -117,44 +121,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
                                 public void componentSelected(ButtonEvent ce)
                                 {
                                     final List<MatchingEntity> entities = getSelectedBaseObjects();
-                                    showRelatedDatasetsTab(entities);
-                                }
-
-                                private void showRelatedDatasetsTab(List<MatchingEntity> entities)
-                                {
-                                    final RelatedDataSetCriteria criteria =
-                                            createCriteria(entities);
-                                    final ITabItemFactory tabFactory = new ITabItemFactory()
-                                        {
-                                            public ITabItem create()
-                                            {
-                                                IDisposableComponent component =
-                                                        RelatedDataSetGrid.create(viewContext,
-                                                                criteria);
-                                                return DefaultTabItem.create(getTabTitle(),
-                                                        component, viewContext);
-                                            }
-
-                                            public String getId()
-                                            {
-                                                return RelatedDataSetGrid.BROWSER_ID
-                                                        + XDOM.getUniqueId();
-                                            }
-
-                                            private String getTabTitle()
-                                            {
-                                                return "Related Data Sets";
-                                            }
-                                        };
-                                    DispatcherHelper.dispatchNaviEvent(tabFactory);
-                                }
-
-                                private RelatedDataSetCriteria createCriteria(
-                                        List<MatchingEntity> entities)
-                                {
-                                    RelatedDataSetCriteria criteria = new RelatedDataSetCriteria();
-                                    criteria.setEntities(entities);
-                                    return criteria;
+                                    new ShowRelatedDatasetsDialog(entities).show();
                                 }
                             });
         showRelatedDatasetsButton.setId(SHOW_RELATED_DATASETS_BUTTON_ID);
@@ -162,6 +129,102 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
         allowMultipleSelection();
 
         addEntityOperationsSeparator();
+    }
+
+    private final class ShowRelatedDatasetsDialog extends
+            AbstractDataConfirmationDialog<List<MatchingEntity>>
+    {
+        private static final int FIELD_WIDTH = 200;
+
+        private static final int LABEL_WIDTH = 120;
+
+        private Radio allOrSelectedRadio;
+
+        public ShowRelatedDatasetsDialog(List<MatchingEntity> entities)
+        {
+            super(viewContext, entities, viewContext
+                    .getMessage(Dict.SHOW_RELATED_DATASETS_DIALOG_TITLE));
+            setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
+        }
+
+        @Override
+        protected String createMessage()
+        {
+            return viewContext.getMessage(Dict.SHOW_RELATED_DATASETS_DIALOG_MESSAGE, data.size());
+        }
+
+        @Override
+        protected final void extendForm()
+        {
+            formPanel.setLabelWidth(LABEL_WIDTH);
+            formPanel.setFieldWidth(FIELD_WIDTH);
+            formPanel.setBodyBorder(false);
+            formPanel.setHeaderVisible(false);
+
+            formPanel.add(createAllOrSelectedRadio());
+        }
+
+        private final RadioGroup createAllOrSelectedRadio()
+        {
+            final String radioGroupLabel =
+                    viewContext.getMessage(Dict.SHOW_RELATED_DATASETS_DIALOG_RADIO_LABEL);
+            final String selectedLabel =
+                    viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data.size());
+            final String allLabel = viewContext.getMessage(Dict.ALL_RADIO, data.size());
+
+            return WidgetUtils.createAllOrSelectedRadioGroup(allOrSelectedRadio =
+                    WidgetUtils.createRadio(selectedLabel), WidgetUtils.createRadio(allLabel),
+                    radioGroupLabel, data.size());
+        }
+
+        private boolean getSelected()
+        {
+            return WidgetUtils.isSelected(allOrSelectedRadio);
+        }
+
+        @Override
+        protected void executeConfirmedAction()
+        {
+            final boolean selected = getSelected();
+            RelatedDataSetCriteria criteria = createCriteria(selected);
+            showRelatedDatasetsTab(criteria);
+        }
+
+        private RelatedDataSetCriteria createCriteria(boolean selected)
+        {
+            if (getSelected())
+            {
+                return RelatedDataSetCriteria.createSelectedEntities(getSelectedBaseObjects());
+            } else
+            {
+                return RelatedDataSetCriteria.createDisplayedEntities(createTableExportCriteria());
+            }
+        }
+
+        private void showRelatedDatasetsTab(final RelatedDataSetCriteria criteria)
+        {
+            final ITabItemFactory tabFactory = new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        IDisposableComponent component =
+                                RelatedDataSetGrid.create(viewContext, criteria);
+                        return DefaultTabItem.create(getTabTitle(), component, viewContext);
+                    }
+
+                    public String getId()
+                    {
+                        return RelatedDataSetGrid.BROWSER_ID + XDOM.getUniqueId();
+                    }
+
+                    private String getTabTitle()
+                    {
+                        return "Related Data Sets";
+                    }
+                };
+            DispatcherHelper.dispatchNaviEvent(tabFactory);
+        }
+
     }
 
     private static String createId()
@@ -257,4 +320,5 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     {
         refreshGridSilently();
     }
+
 }

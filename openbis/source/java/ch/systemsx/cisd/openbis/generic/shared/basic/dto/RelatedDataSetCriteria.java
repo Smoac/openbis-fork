@@ -21,10 +21,11 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 
 /**
- * Criteria for listing <i>data sets</i> related to {@link MatchingEntity}entities like samples and
+ * Criteria for listing <i>data sets</i> related to {@link MatchingEntity}s like samples and
  * experiments.
  * 
  * @author Piotr Buczek
@@ -33,14 +34,46 @@ public class RelatedDataSetCriteria implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    private TableExportCriteria<? extends IEntityInformationHolder> displayedEntitiesOrNull;
+
+    private List<? extends IEntityInformationHolder> selectedEntitiesOrNull;
+
     private List<? extends IEntityInformationHolder> entities;
 
-    public RelatedDataSetCriteria()
+    public static RelatedDataSetCriteria createDisplayedEntities(
+            TableExportCriteria<? extends IEntityInformationHolder> displayedEntities)
     {
+        return new RelatedDataSetCriteria(displayedEntities, null);
+    }
+
+    public static RelatedDataSetCriteria createSelectedEntities(
+            List<? extends IEntityInformationHolder> selectedEntities)
+    {
+        return new RelatedDataSetCriteria(null, selectedEntities);
+    }
+
+    private RelatedDataSetCriteria(
+            TableExportCriteria<? extends IEntityInformationHolder> displayedEntitiesOrNull,
+            List<? extends IEntityInformationHolder> selectedEntitiesOrNull)
+    {
+        assert (displayedEntitiesOrNull == null) != (selectedEntitiesOrNull == null) : "Exactly one arg must be null and one non-null";
+        this.displayedEntitiesOrNull = displayedEntitiesOrNull;
+        this.selectedEntitiesOrNull = selectedEntitiesOrNull;
+    }
+
+    public TableExportCriteria<? extends IEntityInformationHolder> tryGetDisplayedEntities()
+    {
+        return displayedEntitiesOrNull;
+    }
+
+    public List<? extends IEntityInformationHolder> tryGetSelectedEntities()
+    {
+        return selectedEntitiesOrNull;
     }
 
     public List<? extends IEntityInformationHolder> getEntities()
     {
+        assert entities != null : "entities not set";
         return entities;
     }
 
@@ -49,14 +82,35 @@ public class RelatedDataSetCriteria implements IsSerializable, Serializable
         this.entities = entities;
     }
 
-    @Override
-    public String toString()
+    // GWT only
+    private RelatedDataSetCriteria()
     {
-        final StringBuilder sb = new StringBuilder();
-        for (IEntityInformationHolder entity : getEntities())
-        {
-            sb.append(entity.getIdentifier() + "[" + entity.getId() + "]" + "/n");
-        }
-        return sb.toString();
     }
+
+    @SuppressWarnings("unused")
+    private TableExportCriteria<? extends IEntityInformationHolder> getDisplayedEntitiesOrNull()
+    {
+        return displayedEntitiesOrNull;
+    }
+
+    @SuppressWarnings("unused")
+    private void setDisplayedEntitiesOrNull(
+            TableExportCriteria<? extends IEntityInformationHolder> displayedEntitiesOrNull)
+    {
+        this.displayedEntitiesOrNull = displayedEntitiesOrNull;
+    }
+
+    @SuppressWarnings("unused")
+    private List<? extends IEntityInformationHolder> getSelectedEntitiesOrNull()
+    {
+        return selectedEntitiesOrNull;
+    }
+
+    @SuppressWarnings("unused")
+    private void setSelectedEntitiesOrNull(
+            List<? extends IEntityInformationHolder> selectedEntitiesOrNull)
+    {
+        this.selectedEntitiesOrNull = selectedEntitiesOrNull;
+    }
+
 }

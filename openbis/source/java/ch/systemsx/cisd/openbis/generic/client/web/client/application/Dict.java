@@ -716,6 +716,14 @@ public abstract class Dict
 
     public static final String BUTTON_SHOW_RELATED_DATASETS = "show_related_datasets";
 
+    public static final String SHOW_RELATED_DATASETS_DIALOG_TITLE = "show_related_datasets";
+
+    public static final String SHOW_RELATED_DATASETS_DIALOG_MESSAGE =
+            "show_related_datasets_message";
+
+    public static final String SHOW_RELATED_DATASETS_DIALOG_RADIO_LABEL =
+            "show_related_datasets_radio_label";
+
     public static final String MESSAGE_NO_EXTERNAL_UPLOAD_SERVICE =
             "message_no_external_upload_service";
 

@@ -120,6 +120,8 @@ var common = {
   matching_field: "Matching Field",
   too_generic: "Query string '{0}' is too generic.",
   show_related_datasets: "Show Related Data Sets",
+  show_related_datasets_message: "Select between showing Data Sets related to selected ({0}) entities or to all entities from the grid and click on OK button.",
+  show_related_datasets_radio_label: "Related entities",
   
   //
   // Sample Browser

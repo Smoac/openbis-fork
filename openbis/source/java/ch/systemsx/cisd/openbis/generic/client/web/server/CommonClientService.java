@@ -515,8 +515,22 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
+        setupRelatedEntities(criteria);
         return listEntities(resultSetConfig, new ListRelatedDataSetOriginalDataProvider(
                 commonServer, sessionToken, criteria));
+    }
+
+    private void setupRelatedEntities(RelatedDataSetCriteria criteria)
+    {
+        List<? extends IEntityInformationHolder> entities = criteria.tryGetSelectedEntities();
+        if (entities == null)
+        {
+            TableExportCriteria<? extends IEntityInformationHolder> displayedEntitiesCriteria =
+                    criteria.tryGetDisplayedEntities();
+            assert displayedEntitiesCriteria != null : "displayedEntitiesCriteria is null";
+            entities = fetchCachedEntities(displayedEntitiesCriteria);
+        }
+        criteria.setEntities(entities);
     }
 
     public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)
