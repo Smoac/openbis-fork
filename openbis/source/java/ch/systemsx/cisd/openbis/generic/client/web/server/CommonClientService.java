@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -77,6 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -108,7 +110,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -515,12 +516,12 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        setupRelatedEntities(criteria);
+        DataSetRelatedEntities entities = extractRelatedEntities(criteria);
         return listEntities(resultSetConfig, new ListRelatedDataSetOriginalDataProvider(
-                commonServer, sessionToken, criteria));
+                commonServer, sessionToken, entities));
     }
 
-    private void setupRelatedEntities(RelatedDataSetCriteria criteria)
+    private DataSetRelatedEntities extractRelatedEntities(RelatedDataSetCriteria criteria)
     {
         List<? extends IEntityInformationHolder> entities = criteria.tryGetSelectedEntities();
         if (entities == null)
@@ -530,7 +531,7 @@ public final class CommonClientService extends AbstractClientService implements
             assert displayedEntitiesCriteria != null : "displayedEntitiesCriteria is null";
             entities = fetchCachedEntities(displayedEntitiesCriteria);
         }
-        criteria.setEntities(entities);
+        return new DataSetRelatedEntities(entities);
     }
 
     public final ResultSet<Experiment> listExperiments(final ListExperimentsCriteria listCriteria)

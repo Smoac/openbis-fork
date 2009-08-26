@@ -74,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -102,7 +103,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -574,8 +574,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         checkSession(sessionToken);
         final List<DataTypePE> dataTypePEs = getDAOFactory().getPropertyTypeDAO().listDataTypes();
-        final List<DataType> dataTypes = BeanUtils.createBeanList(DataType.class, dataTypePEs, DtoConverters
-                .getDataTypeConverter());
+        final List<DataType> dataTypes =
+                BeanUtils.createBeanList(DataType.class, dataTypePEs, DtoConverters
+                        .getDataTypeConverter());
         Collections.sort(dataTypes, new Comparator<DataType>()
             {
                 public int compare(DataType o1, DataType o2)
@@ -592,7 +593,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         checkSession(sessionToken);
         final List<FileFormatTypePE> fileFormatTypePEs =
                 getDAOFactory().getFileFormatTypeDAO().listFileFormatTypes();
-        final List<FileFormatType> fileFormatTypes = TypeTranslator.translate(fileFormatTypePEs); 
+        final List<FileFormatType> fileFormatTypes = TypeTranslator.translate(fileFormatTypePEs);
         Collections.sort(fileFormatTypes, new Comparator<FileFormatType>()
             {
                 public int compare(FileFormatType o1, FileFormatType o2)
@@ -797,14 +798,15 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public List<ExternalData> listRelatedDataSets(String sessionToken,
-            RelatedDataSetCriteria criteria)
+            DataSetRelatedEntities relatedEntities)
     {
+        System.out.println("listRelatedDataSets");
         final Session session = getSessionManager().getSession(sessionToken);
         try
         {
             final Set<ExternalDataPE> resultSet = new LinkedHashSet<ExternalDataPE>();
             // TODO 2009-08-17, Piotr Buczek: optimize performance
-            addRelatedDataSets(resultSet, criteria.getEntities());
+            addRelatedDataSets(resultSet, relatedEntities.getEntities());
             final List<ExternalData> list = new ArrayList<ExternalData>(resultSet.size());
             for (final ExternalDataPE hit : resultSet)
             {
@@ -819,10 +821,10 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     private void addRelatedDataSets(final Set<ExternalDataPE> resultSet,
-            final List<? extends IEntityInformationHolder> entities)
+            final List<? extends IEntityInformationHolder> relatedEntities)
     {
         final IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
-        for (IEntityInformationHolder entity : entities)
+        for (IEntityInformationHolder entity : relatedEntities)
         {
             if (isEntityKindRelatedWithDataSets(entity.getEntityKind()))
             {

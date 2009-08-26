@@ -31,9 +31,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Re
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 
 /**
  * Dialog used to show a tab with Data Sets related to entities like samples and experiments.

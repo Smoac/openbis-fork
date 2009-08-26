@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -69,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -471,17 +471,16 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
-    public List<ExternalData> searchForDataSets(String sessionToken,
-            DataSetSearchCriteria criteria);
+    public List<ExternalData> searchForDataSets(String sessionToken, DataSetSearchCriteria criteria);
 
     /**
-     * Returns all data sets related with entities specified in given criteria.
+     * Returns all data sets related to specified entities.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<ExternalData> listRelatedDataSets(String sessionToken,
-            RelatedDataSetCriteria criteria);
+            DataSetRelatedEntities entities);
 
     /**
      * List material types.

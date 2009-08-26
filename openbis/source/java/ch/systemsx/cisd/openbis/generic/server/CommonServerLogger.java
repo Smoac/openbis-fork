@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -389,7 +389,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public List<ExternalData> listRelatedDataSets(String sessionToken,
-            RelatedDataSetCriteria criteria)
+            DataSetRelatedEntities entities)
     {
         logAccess(sessionToken, "list_related_datasets");
         return null;

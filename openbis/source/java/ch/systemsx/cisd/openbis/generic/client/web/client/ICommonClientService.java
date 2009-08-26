@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -69,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ProjectUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -380,15 +380,13 @@ public interface ICommonClientService extends IClientService
      * For given <var>sampleId</var> returns corresponding list of {@link ExternalData}.
      */
     public ResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
-            DefaultResultSetConfig<String, ExternalData> criteria)
-            throws UserFailureException;
+            DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
 
     /**
      * For given <var>experimentId</var> returns corresponding list of {@link ExternalData}.
      */
     public ResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
-            DefaultResultSetConfig<String, ExternalData> criteria)
-            throws UserFailureException;
+            DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
 
     /**
      * Lists the searchable entities.

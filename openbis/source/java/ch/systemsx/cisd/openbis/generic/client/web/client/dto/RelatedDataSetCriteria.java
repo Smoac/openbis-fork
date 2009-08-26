@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.io.Serializable;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 
 /**
  * Criteria for listing <i>data sets</i> related to {@link MatchingEntity}s like samples and
@@ -30,15 +29,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
  * 
  * @author Piotr Buczek
  */
-public class RelatedDataSetCriteria implements IsSerializable, Serializable
+public class RelatedDataSetCriteria implements IsSerializable
 {
-    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private TableExportCriteria<? extends IEntityInformationHolder> displayedEntitiesOrNull;
 
     private List<? extends IEntityInformationHolder> selectedEntitiesOrNull;
-
-    private List<? extends IEntityInformationHolder> entities;
 
     public static RelatedDataSetCriteria createDisplayedEntities(
             TableExportCriteria<? extends IEntityInformationHolder> displayedEntities)
@@ -69,17 +65,6 @@ public class RelatedDataSetCriteria implements IsSerializable, Serializable
     public List<? extends IEntityInformationHolder> tryGetSelectedEntities()
     {
         return selectedEntitiesOrNull;
-    }
-
-    public List<? extends IEntityInformationHolder> getEntities()
-    {
-        assert entities != null : "entities not set";
-        return entities;
-    }
-
-    public void setEntities(List<? extends IEntityInformationHolder> entities)
-    {
-        this.entities = entities;
     }
 
     // GWT only
