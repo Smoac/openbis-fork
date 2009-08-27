@@ -61,7 +61,13 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     VOCABULARY_TERMS_GRID("vocabulary-terms-grid"),
 
-    FILE_FORMAT_TYPE_BROWSER_GRID("file-format-type-browser-grid"), ;
+    FILE_FORMAT_TYPE_BROWSER_GRID("file-format-type-browser-grid"),
+
+    ATTACHMENT_SECTION("attachment-section"),
+
+    SAMPLE_SECTION("sample-section"),
+
+    DATA_SET_SECTION("data-set-section"), ;
 
     private final String genericNameOrPrefix;
 

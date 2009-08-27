@@ -223,6 +223,12 @@ public class DisplaySettingsManager
         storeSettings(displayTypeID, grid.getColumnModel(), grid.getFilteredColumnIds());
     }
 
+    public void storeSectionSettings(String displayTypeID, boolean display)
+    {
+        displaySettings.getSectionSettings().put(displayTypeID, display);
+        updater.update();
+    }
+
     private void storeSettings(String displayTypeID, ColumnModel columnModel,
             List<String> filteredColumnIds)
     {

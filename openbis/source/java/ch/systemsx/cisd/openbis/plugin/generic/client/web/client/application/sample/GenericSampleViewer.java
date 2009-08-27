@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
@@ -76,7 +77,9 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 public final class GenericSampleViewer extends AbstractViewer<IGenericClientServiceAsync, Sample>
         implements IDatabaseModificationObserver
 {
-    private static final String PREFIX = "generic-sample-viewer_";
+    private static final String GENERIC_SAMPLE_VIEWER = "generic-sample-viewer";
+
+    private static final String PREFIX = GENERIC_SAMPLE_VIEWER + "_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
@@ -144,13 +147,12 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     {
         final Sample generator = sampleGeneration.getGenerator();
 
-        final SectionsPanel container = new SectionsPanel();
+        final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
 
-        // Attachments
-        attachmentsSection = createAttachmentsSection(generator);
-        container.addPanel(attachmentsSection);
         // 'Part of' samples
         containerSamplesSection = new ContainerSamplesSection(viewContext);
+        containerSamplesSection.setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION,
+                GENERIC_SAMPLE_VIEWER);
         IDelegatedAction showContainerSamplesSectionAction = new IDelegatedAction()
             {
                 public void execute()
@@ -172,12 +174,20 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 new ContainerSamplesGridDataRefreshCallback(showContainerSamplesSectionAction,
                         hideContainerSamplesSectionAction));
         // Data Sets
-        final ContentPanel externalDataPanel =
+        final SingleSectionPanel externalDataPanel =
                 createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
         dataSetBrowser =
                 SampleDataSetBrowser.create(viewContext, sampleId, generator.getSampleType());
         externalDataPanel.add(dataSetBrowser.getComponent());
+        externalDataPanel.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION,
+                GENERIC_SAMPLE_VIEWER);
         container.addPanel(externalDataPanel);
+
+        // Attachments
+        attachmentsSection = createAttachmentsSection(generator);
+        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION,
+                GENERIC_SAMPLE_VIEWER);
+        container.addPanel(attachmentsSection);
 
         container.setLayoutOnChange(true);
         container.layout();
@@ -199,7 +209,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         super.onDetach();
     }
 
-    private final static ContentPanel createContentPanel(final String heading)
+    private final static SingleSectionPanel createContentPanel(final String heading)
     {
         return new SingleSectionPanel(heading);
     }

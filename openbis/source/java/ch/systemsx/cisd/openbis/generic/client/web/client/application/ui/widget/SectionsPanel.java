@@ -11,6 +11,10 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToggleToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+
 /**
  * Content panel which allows to choose which contained panels should be visible and uses the whole
  * space available to show them.
@@ -25,23 +29,26 @@ public class SectionsPanel extends ContentPanel
 
     private final boolean withShowHide;
 
-    public SectionsPanel()
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
+
+    public SectionsPanel(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this(true);
+        this(true, viewContext);
     }
 
-    public SectionsPanel(boolean withShowHide)
+    public SectionsPanel(boolean withShowHide, IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.withShowHide = withShowHide;
+        this.viewContext = viewContext;
         setLayout(new FillLayout());
         toolbar = new ToolBar();
         setHeaderVisible(false);
         setTopComponent(toolbar);
     }
 
-    public void addPanel(final ContentPanel panel)
+    public void addPanel(final SingleSectionPanel panel)
     {
-        final SectionElement element = new SectionElement(panel, withShowHide);
+        final SectionElement element = new SectionElement(panel, withShowHide, viewContext);
         element.getButton().addSelectionListener(new SelectionListener<ComponentEvent>()
             {
                 @Override
@@ -50,7 +57,7 @@ public class SectionsPanel extends ContentPanel
                     removeAll();
                     for (SectionElement el : elements)
                     {
-                        if (el.getButton().isPressed())
+                        if (el.getButton().pressed)
                         {
                             internalAdd(el);
                         }
@@ -60,7 +67,8 @@ public class SectionsPanel extends ContentPanel
             });
         elements.add(element);
         addToToolbar(element.getButton());
-        internalAdd(element);
+        if (element.getButton().pressed)
+            internalAdd(element);
     }
 
     private void addToToolbar(ToggleToolItem bb)
@@ -68,7 +76,7 @@ public class SectionsPanel extends ContentPanel
         toolbar.add(bb);
     }
 
-    public void removePanel(final ContentPanel panel)
+    public void removePanel(final SingleSectionPanel panel)
     {
         int index = elements.indexOf(panel);
         if (index > -1)
@@ -90,7 +98,7 @@ public class SectionsPanel extends ContentPanel
     }
 
     /**
-     * Use {@link #removePanel(ContentPanel)}
+     * Use {@link #removePanel(SingleSectionPanel)}
      */
     @Deprecated
     @Override
@@ -100,7 +108,7 @@ public class SectionsPanel extends ContentPanel
     }
 
     /**
-     * Use {@link #addPanel(ContentPanel)}
+     * Use {@link #addPanel(SingleSectionPanel)}
      */
     @Deprecated
     @Override
@@ -114,19 +122,20 @@ public class SectionsPanel extends ContentPanel
 
         private ToggleToolItem button;
 
-        private ContentPanel panel;
+        private SingleSectionPanel panel;
 
-        public SectionElement(ContentPanel panel, boolean withShowHide)
+        public SectionElement(SingleSectionPanel panel, boolean withShowHide,
+                IViewContext<ICommonClientServiceAsync> viewContext)
         {
             panel.setCollapsible(false);
             this.setPanel(panel);
             String heading = panel.getHeading();
-            setButton(createButton(heading, withShowHide));
-        }
-
-        public void setButton(ToggleToolItem button)
-        {
-            this.button = button;
+            Boolean sectionSetting =
+                    viewContext.getModel().getSessionContext().getDisplaySettings()
+                            .getSectionSettings().get(panel.getDisplayID());
+            boolean pressed = sectionSetting != null ? sectionSetting : true;
+            button =
+                    createButton(heading, withShowHide, pressed, panel.getDisplayID(), viewContext);
         }
 
         public ToggleToolItem getButton()
@@ -134,7 +143,7 @@ public class SectionsPanel extends ContentPanel
             return button;
         }
 
-        void setPanel(ContentPanel panel)
+        void setPanel(SingleSectionPanel panel)
         {
             this.panel = panel;
         }
@@ -144,27 +153,33 @@ public class SectionsPanel extends ContentPanel
             return panel;
         }
 
-        private static ToggleToolItem createButton(String heading, boolean withShowHide)
+        private static String getHeading(String heading, boolean withShowHide, boolean pressed)
         {
             final String showHeading = withShowHide ? ("Show " + heading) : heading;
             final String hideHeading = withShowHide ? ("Hide " + heading) : heading;
-            final ToggleToolItem result = new ToggleToolItem(hideHeading);
-            result.pressed = true;
+            return pressed ? hideHeading : showHeading;
+        }
+
+        private static ToggleToolItem createButton(final String heading,
+                final boolean withShowHide, boolean pressed, final String displayId,
+                final IViewContext<ICommonClientServiceAsync> viewContext)
+        {
+            final ToggleToolItem result =
+                    new ToggleToolItem(getHeading(heading, withShowHide, pressed));
+            result.pressed = pressed;
             result.addSelectionListener(new SelectionListener<ComponentEvent>()
                 {
                     @Override
                     public void componentSelected(ComponentEvent ce)
                     {
-                        if (result.isPressed())
-                        {
-                            result.setText(hideHeading);
-                        } else
-                        {
-                            result.setText(showHeading);
-                        }
+                        result.pressed = (result.pressed == false);
+                        result.setText(getHeading(heading, withShowHide, result.pressed));
+                        viewContext.getDisplaySettingsManager().storeSectionSettings(displayId,
+                                result.pressed);
                     }
                 });
             return result;
         }
     }
+
 }

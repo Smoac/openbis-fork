@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +37,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class DisplaySettings implements Serializable, IsSerializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private Map<String, List<ColumnSetting>> columnSettings =
             new LinkedHashMap<String, List<ColumnSetting>>();
+
+    private Map<String, Boolean> sectionSettings = new HashMap<String, Boolean>();
 
     public final Map<String, List<ColumnSetting>> getColumnSettings()
     {
@@ -49,7 +52,18 @@ public class DisplaySettings implements Serializable, IsSerializable
     {
         this.columnSettings = columnSettings;
     }
-    
-    
 
+    public Map<String, Boolean> getSectionSettings()
+    {
+        if (sectionSettings == null)
+        {
+            sectionSettings = new HashMap<String, Boolean>();
+        }
+        return sectionSettings;
+    }
+
+    public final void setSectionSettings(Map<String, Boolean> sectionSettings)
+    {
+        this.sectionSettings = sectionSettings;
+    }
 }

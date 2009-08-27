@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
@@ -43,7 +44,9 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 public final class GenericExperimentViewer extends
         AbstractViewer<IGenericClientServiceAsync, Experiment>
 {
-    private static final String PREFIX = "generic-experiment-viewer_";
+    private static final String GENERIC_EXPERIMENT_VIEWER = "generic-experiment-viewer";
+
+    private static final String PREFIX = GENERIC_EXPERIMENT_VIEWER + "_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
@@ -178,22 +181,28 @@ public final class GenericExperimentViewer extends
     public Component createRightPanel(Experiment result,
             CompositeDatabaseModificationObserverWithMainObserver observer)
     {
-        final SectionsPanel container = new SectionsPanel();
-
-        final AttachmentVersionsSection<Experiment> attachmentsSection =
-                createAttachmentsSection(result);
-        container.addPanel(attachmentsSection);
-        observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
+        final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
 
         final ExperimentSamplesSection sampleSection =
                 new ExperimentSamplesSection(viewContext, result);
+        sampleSection
+                .setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, GENERIC_EXPERIMENT_VIEWER);
         container.addPanel(sampleSection);
         observer.addObserver(sampleSection.getDatabaseModificationObserver());
 
         final ExperimentDataSetSection dataSection =
                 new ExperimentDataSetSection(result, viewContext);
+        dataSection
+                .setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, GENERIC_EXPERIMENT_VIEWER);
         container.addPanel(dataSection);
         observer.addObserver(dataSection.getDatabaseModificationObserver());
+
+        final AttachmentVersionsSection<Experiment> attachmentsSection =
+                createAttachmentsSection(result);
+        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION,
+                GENERIC_EXPERIMENT_VIEWER);
+        container.addPanel(attachmentsSection);
+        observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
 
         container.layout();
         return container;

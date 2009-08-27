@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+
 /**
  * {@link ContentPanel} configured for Experiment Viewer.
  * 
@@ -26,6 +28,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
  */
 public class SingleSectionPanel extends ContentPanel
 {
+    private String displayId;
+
     public SingleSectionPanel(final String header)
     {
         setHeaderVisible(true);
@@ -35,4 +39,27 @@ public class SingleSectionPanel extends ContentPanel
         setBodyBorder(true);
         setLayout(new FitLayout());
     }
+
+    public void setDisplayID(DisplayTypeIDGenerator generator, String suffix)
+    {
+        if (suffix != null)
+        {
+            this.displayId = generator.createID(suffix);
+        } else
+        {
+            this.displayId = generator.createID();
+        }
+    }
+
+    public String getDisplayID()
+    {
+        if (displayId == null)
+        {
+            throw new IllegalStateException("Undefined display ID");
+        } else
+        {
+            return displayId;
+        }
+    }
+
 }
