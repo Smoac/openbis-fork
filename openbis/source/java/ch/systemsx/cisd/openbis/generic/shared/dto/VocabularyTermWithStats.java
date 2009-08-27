@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * 
  * @author Tomasz Pylak
  */
-public class VocabularyTermWithStats implements Serializable
+public class VocabularyTermWithStats implements Serializable, Comparable<VocabularyTermWithStats>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -63,5 +63,14 @@ public class VocabularyTermWithStats implements Serializable
         {
             return usage.intValue();
         }
+    }
+
+    //
+    // Comparable
+    //
+
+    public int compareTo(VocabularyTermWithStats o)
+    {
+        return this.getTerm().compareTo(o.getTerm());
     }
 }

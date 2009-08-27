@@ -518,6 +518,8 @@ public abstract class Dict
 
     public static final String TERM_FOR_SAMPLES_USAGE = "TERM_FOR_SAMPLES_USAGE";
 
+    public static final String TERM_FOR_DATA_SET_USAGE = "TERM_FOR_DATA_SET_USAGE";
+
     public static final String TERM_FOR_EXPERIMENTS_USAGE = "TERM_FOR_EXPERIMENTS_USAGE";
 
     public static final String TERM_FOR_MATERIALS_USAGE = "TERM_FOR_MATERIALS_USAGE";

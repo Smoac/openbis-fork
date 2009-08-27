@@ -25,7 +25,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 
 /**
  * An interface that contains all data access operations on {@link EntityTypePropertyTypePE}s.
@@ -72,11 +73,12 @@ public interface IEntityPropertyTypeDAO
             throws DataAccessException;
 
     /**
-     * Counts how many times is the specified vocabulary term used as a property value for the
-     * entity kind represented by this class.
+     * Fills term usage statistics for the entity kind represented by this class.
+     * 
+     * @param termsWithStats all terms of specified vocabulary that will have statistics filled
      */
-    public long countTermUsageStatistics(final VocabularyTermPE vocabularyTerm)
-            throws DataAccessException;
+    public void fillTermUsageStatistics(List<VocabularyTermWithStats> termsWithStats,
+            VocabularyPE vocabulary);
 
     /**
      * Returns a list of all properties referring to the specified vocabulary term.

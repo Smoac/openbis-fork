@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -120,10 +122,24 @@ public class EntityPropertyTypeDAOTest extends AbstractDAOTest
         IEntityPropertyTypeDAO dao = daoFactory.getEntityPropertyTypeDAO(EntityKind.EXPERIMENT);
         VocabularyPE vocabulary = daoFactory.getVocabularyDAO().tryFindVocabularyByCode("GENDER");
         assert vocabulary != null : "gender vocabulary not found";
-        VocabularyTermPE term = tryFindTerm(vocabulary, "MALE");
-        assert term != null : "term MALE not found in GENDER vocabulary";
-        long stats = dao.countTermUsageStatistics(term);
-        assertEquals(3, stats);
+
+        VocabularyTermWithStats maleTermWithStats = createTermWithStats(vocabulary, "MALE");
+        VocabularyTermWithStats femaleTermWithStats = createTermWithStats(vocabulary, "FEMALE");
+
+        List<VocabularyTermWithStats> termsWithStats =
+                Arrays.asList(maleTermWithStats, femaleTermWithStats);
+        dao.fillTermUsageStatistics(termsWithStats, vocabulary);
+
+        assertEquals(3, maleTermWithStats.getUsageCounter(EntityKind.EXPERIMENT));
+        assertEquals(1, femaleTermWithStats.getUsageCounter(EntityKind.EXPERIMENT));
+    }
+
+    private VocabularyTermWithStats createTermWithStats(VocabularyPE vocabulary, String termCode)
+    {
+        final VocabularyTermPE term = tryFindTerm(vocabulary, termCode);
+        assert term != null : "term " + termCode + " not found in " + vocabulary.getCode()
+                + " vocabulary";
+        return new VocabularyTermWithStats(term);
     }
 
     private static VocabularyTermPE tryFindTerm(VocabularyPE vocabulary, String termCode)

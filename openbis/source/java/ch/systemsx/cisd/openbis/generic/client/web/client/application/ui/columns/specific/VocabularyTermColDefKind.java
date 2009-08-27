@@ -92,6 +92,16 @@ public enum VocabularyTermColDefKind implements IColumnDefinitionKind<Vocabulary
             }
         }),
 
+    EXPERIMENT_USAGE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(
+            Dict.TERM_FOR_EXPERIMENTS_USAGE, true)
+        {
+            @Override
+            public String tryGetValue(VocabularyTermWithStats entity)
+            {
+                return "" + entity.getUsageCounter(EntityKind.EXPERIMENT);
+            }
+        }),
+
     SAMPLE_USAGE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(
             Dict.TERM_FOR_SAMPLES_USAGE, true)
         {
@@ -102,13 +112,13 @@ public enum VocabularyTermColDefKind implements IColumnDefinitionKind<Vocabulary
             }
         }),
 
-    EXPERIMENT_USAGE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(
-            Dict.TERM_FOR_EXPERIMENTS_USAGE, true)
+    DATA_SET_USAGE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(
+            Dict.TERM_FOR_DATA_SET_USAGE, true)
         {
             @Override
             public String tryGetValue(VocabularyTermWithStats entity)
             {
-                return "" + entity.getUsageCounter(EntityKind.EXPERIMENT);
+                return "" + entity.getUsageCounter(EntityKind.DATA_SET);
             }
         }),
 

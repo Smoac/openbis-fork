@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -230,24 +231,22 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         assert vocabularyPE != null : "Unspecified vocabulary";
         enrichWithTerms();
         Set<VocabularyTermPE> terms = vocabularyPE.getTerms();
-        List<VocabularyTermWithStats> stats = new ArrayList<VocabularyTermWithStats>();
-        for (VocabularyTermPE term : terms)
-        {
-            stats.add(countTermUsageStatistics(term));
-        }
-        return stats;
+        return createTermsWithStatistics(terms);
     }
 
-    private VocabularyTermWithStats countTermUsageStatistics(VocabularyTermPE term)
+    private List<VocabularyTermWithStats> createTermsWithStatistics(Set<VocabularyTermPE> terms)
     {
-        VocabularyTermWithStats stats = new VocabularyTermWithStats(term);
+        List<VocabularyTermWithStats> results = new ArrayList<VocabularyTermWithStats>();
+        for (VocabularyTermPE term : terms)
+        {
+            results.add(new VocabularyTermWithStats(term));
+        }
+        Collections.sort(results);
         for (EntityKind entityKind : EntityKind.values())
         {
-            long numberOfUsages =
-                    getEntityPropertyTypeDAO(entityKind).countTermUsageStatistics(term);
-            stats.registerUsage(entityKind, numberOfUsages);
+            getEntityPropertyTypeDAO(entityKind).fillTermUsageStatistics(results, vocabularyPE);
         }
-        return stats;
+        return results;
     }
 
     public void load(String vocabularyCode) throws UserFailureException

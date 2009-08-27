@@ -17,16 +17,19 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -38,7 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -181,20 +185,39 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         return true;
     }
 
-    public final long countTermUsageStatistics(final VocabularyTermPE vocabularyTerm)
-            throws DataAccessException
+    public void fillTermUsageStatistics(List<VocabularyTermWithStats> termsWithStats,
+            VocabularyPE vocabulary)
     {
-        String query =
-                String.format("select count(*) from %s props where props.vocabularyTerm = ?",
-                        entityKind.getEntityPropertyClass().getSimpleName());
-        final List<Long> sizes = cast(getHibernateTemplate().find(query, toArray(vocabularyTerm)));
-        final long count = DataAccessUtils.longResult(sizes);
-        if (operationLog.isDebugEnabled())
+        assert termsWithStats != null : "Unspecified terms.";
+        assert vocabulary != null : "Unspecified vocabulary.";
+        assert termsWithStats.size() == vocabulary.getTerms().size() : "Sizes of terms to be filled and vocabulary terms don't match.";
+
+        Map<Long, VocabularyTermWithStats> termsById =
+                new HashMap<Long, VocabularyTermWithStats>(termsWithStats.size());
+        for (VocabularyTermWithStats termWithStats : termsWithStats)
         {
-            operationLog.debug(String.format("Term '%s' is used %d times.", vocabularyTerm
-                    .getCode(), count));
+            Long id = termWithStats.getTerm().getId();
+            termsById.put(id, termWithStats);
         }
-        return count;
+
+        final DetachedCriteria criteria =
+                DetachedCriteria.forClass(entityKind.getEntityPropertyClass());
+        // alias is the easiest way to restrict on association using criteria
+        criteria.createAlias("vocabularyTerm", "term");
+        criteria.add(Restrictions.eq("term.vocabularyInternal", vocabulary));
+        ProjectionList projectionList = Projections.projectionList();
+        projectionList.add(Projections.rowCount());
+        projectionList.add(Projections.groupProperty("term.id"));
+        criteria.setProjection(projectionList);
+
+        final List<Object[]> results = cast(getHibernateTemplate().findByCriteria(criteria));
+
+        for (Object[] result : results)
+        {
+            Integer numberOfUsages = (Integer) result[0];
+            Long termId = (Long) result[1];
+            termsById.get(termId).registerUsage(entityKind, numberOfUsages);
+        }
     }
 
     public List<EntityPropertyPE> listPropertiesByVocabularyTerm(String vocabularyTermCode)

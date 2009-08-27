@@ -328,6 +328,7 @@ var common = {
  terms: "Terms",
  VOCABULARY_TERMS_BROWSER: "Vocabulary Terms of {0}",
  TERM_FOR_SAMPLES_USAGE: "Usages for Samples",
+ TERM_FOR_DATA_SET_USAGE: "Usages for Data Sets",
  TERM_FOR_EXPERIMENTS_USAGE: "Usages for Experiments",
  TERM_FOR_MATERIALS_USAGE: "Usages for Materials",
  TERM_TOTAL_USAGE: "Total Usages Number",
