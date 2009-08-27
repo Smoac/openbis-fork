@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
@@ -28,6 +31,8 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
@@ -44,7 +49,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTr
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -97,15 +104,45 @@ public abstract class AbstractClientService implements IClientService
                 .getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
     }
 
-    protected <T> ResultSet<T> listEntities(final IResultSetConfig<String, T> criteria,
+    protected final <T extends IEntityInformationHolder> ResultSetWithEntityTypes<T> listEntitiesWithTypes(
+            final IResultSetConfig<String, T> criteria, IOriginalDataProvider<T> dataProvider)
+    {
+        ResultSet<T> resultSet = listEntities(criteria, dataProvider);
+        Set<BasicEntityType> entityTypes =
+                fetchEntityTypes(dataProvider, resultSet.getResultSetKey());
+        return new ResultSetWithEntityTypes<T>(resultSet, entityTypes);
+    }
+
+    protected final <T> IResultSet<String, T> getResultSet(
+            IResultSetConfig<String, T> resultSetConfig, IOriginalDataProvider<T> dummyDataProvider)
+    {
+        final IResultSetManager<String> resultSetManager = getResultSetManager();
+        final IResultSet<String, T> result =
+                resultSetManager.getResultSet(resultSetConfig, dummyDataProvider);
+        return result;
+    }
+
+    protected final <T extends IEntityInformationHolder> Set<BasicEntityType> fetchEntityTypes(
+            IOriginalDataProvider<T> dataProvider, String resultSetKey)
+    {
+        DefaultResultSetConfig<String, T> criteria = DefaultResultSetConfig.createFetchAll();
+        criteria.setResultSetKey(resultSetKey);
+        final IResultSet<String, T> allData = getResultSet(criteria, dataProvider);
+        Set<BasicEntityType> result = new HashSet<BasicEntityType>();
+        for (T row : allData.getList())
+        {
+            result.add(row.getEntityType());
+        }
+        return result;
+    }
+
+    protected final <T> ResultSet<T> listEntities(final IResultSetConfig<String, T> criteria,
             IOriginalDataProvider<T> dataProvider)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
-            final IResultSetManager<String> resultSetManager = getResultSetManager();
-            final IResultSet<String, T> result =
-                    resultSetManager.getResultSet(criteria, dataProvider);
+            final IResultSet<String, T> result = getResultSet(criteria, dataProvider);
             return ResultSetTranslator.translate(result);
         } catch (final UserFailureException e)
         {
@@ -197,7 +234,7 @@ public abstract class AbstractClientService implements IClientService
                 SessionConstants.OPENBIS_EXPORT_MANAGER);
     }
 
-    protected <T> String prepareExportEntities(TableExportCriteria<T> criteria)
+    protected final <T> String prepareExportEntities(TableExportCriteria<T> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

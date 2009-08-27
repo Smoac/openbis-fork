@@ -170,20 +170,26 @@ public class SampleAbundanceBrowserGrid
     // property types used in the previous refresh operation or null if it has not occurred yet
     private List<PropertyType> previousPropertyTypes;
 
-    // provides property types which will be used to build property columns in the grid
-    private final IPropertyTypesProvider propertyTypesProvider;
+    // provides property types which will be used to build property columns in the grid and
+    // criteria to filter samples
+    private final ISampleAbundanceCriteriaProvider propertyTypesAndCriteriaProvider;
 
     private SampleAbundanceBrowserGrid(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             ISampleAbundanceCriteriaProvider criteriaProvider, String gridId, boolean showHeader,
             boolean refreshAutomatically)
     {
-        super(viewContext.getCommonViewContext(), gridId, showHeader, refreshAutomatically,
-                criteriaProvider);
+        super(viewContext.getCommonViewContext(), gridId, showHeader, refreshAutomatically);
         this.phosphoViewContext = viewContext;
-        this.propertyTypesProvider = criteriaProvider;
+        this.propertyTypesAndCriteriaProvider = criteriaProvider;
         this.previousPropertyTypes = null;
         setId(BROWSER_ID);
+    }
+
+    @Override
+    protected ICriteriaProvider<ListSampleAbundanceByProteinCriteria> getCriteriaProvider()
+    {
+        return propertyTypesAndCriteriaProvider;
     }
 
     // adds show, show-details and invalidate buttons
@@ -319,7 +325,7 @@ public class SampleAbundanceBrowserGrid
     protected ColumnDefsAndConfigs<SampleWithPropertiesAndAbundance> createColumnsDefinition()
     {
         assert criteria != null : "criteria not set!";
-        List<PropertyType> propertyTypes = propertyTypesProvider.tryGetPropertyTypes();
+        List<PropertyType> propertyTypes = propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
         assert propertyTypes != null : "propertyTypes not set!";
 
         ColumnDefsAndConfigs<SampleWithPropertiesAndAbundance> schema =
@@ -332,7 +338,8 @@ public class SampleAbundanceBrowserGrid
     @Override
     protected boolean hasColumnsDefinitionChanged(ListSampleAbundanceByProteinCriteria newCriteria)
     {
-        List<PropertyType> newPropertyTypes = propertyTypesProvider.tryGetPropertyTypes();
+        List<PropertyType> newPropertyTypes =
+                propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
         if (newPropertyTypes == null)
         {
             return false; // we are before the first auto-refresh

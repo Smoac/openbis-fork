@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParam
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
@@ -62,7 +63,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService.
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.RoleCodeTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.SearchableEntityTranslator;
@@ -184,11 +184,9 @@ public final class CommonClientService extends AbstractClientService implements
 
     private final <T> List<T> fetchCachedEntities(final TableExportCriteria<T> exportCriteria)
     {
-        final IResultSetManager<String> resultSetManager = getResultSetManager();
         IResultSetConfig<String, T> resultSetConfig = createExportListCriteria(exportCriteria);
         IOriginalDataProvider<T> dummyDataProvider = createDummyDataProvider();
-        final IResultSet<String, T> result =
-                resultSetManager.getResultSet(resultSetConfig, dummyDataProvider);
+        final IResultSet<String, T> result = getResultSet(resultSetConfig, dummyDataProvider);
         final ResultSet<T> entities = ResultSetTranslator.translate(result);
         return entities.getList();
     }
@@ -494,30 +492,32 @@ public final class CommonClientService extends AbstractClientService implements
 
     // ---------------- methods which list entities using cache
 
-    public final ResultSet<Sample> listSamples(final ListSampleDisplayCriteria listCriteria)
+    public final ResultSetWithEntityTypes<Sample> listSamples(
+            final ListSampleDisplayCriteria listCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        return listEntities(listCriteria, new ListSamplesOriginalDataProvider(commonServer,
-                sessionToken, listCriteria.getCriteria()));
+        return listEntitiesWithTypes(listCriteria, new ListSamplesOriginalDataProvider(
+                commonServer, sessionToken, listCriteria.getCriteria()));
     }
 
-    public ResultSet<ExternalData> searchForDataSets(DataSetSearchCriteria criteria,
+    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(DataSetSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        return listEntities(resultSetConfig, new ListDataSetSearchOriginalDataProvider(
+        return listEntitiesWithTypes(resultSetConfig, new ListDataSetSearchOriginalDataProvider(
                 commonServer, sessionToken, criteria));
     }
 
-    public ResultSet<ExternalData> searchForDataSets(RelatedDataSetCriteria criteria,
+    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
+            RelatedDataSetCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
         DataSetRelatedEntities entities = extractRelatedEntities(criteria);
-        return listEntities(resultSetConfig, new ListRelatedDataSetOriginalDataProvider(
+        return listEntitiesWithTypes(resultSetConfig, new ListRelatedDataSetOriginalDataProvider(
                 commonServer, sessionToken, entities));
     }
 
@@ -843,11 +843,11 @@ public final class CommonClientService extends AbstractClientService implements
             });
     }
 
-    public ResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
+    public ResultSetWithEntityTypes<ExternalData> listSampleDataSets(final TechId sampleId,
             DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<ExternalData>()
+        return listEntitiesWithTypes(criteria, new IOriginalDataProvider<ExternalData>()
             {
                 public List<ExternalData> getOriginalData() throws UserFailureException
                 {
@@ -859,11 +859,11 @@ public final class CommonClientService extends AbstractClientService implements
             });
     }
 
-    public ResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
+    public ResultSetWithEntityTypes<ExternalData> listExperimentDataSets(final TechId experimentId,
             DefaultResultSetConfig<String, ExternalData> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(criteria, new IOriginalDataProvider<ExternalData>()
+        return listEntitiesWithTypes(criteria, new IOriginalDataProvider<ExternalData>()
             {
 
                 public List<ExternalData> getOriginalData() throws UserFailureException

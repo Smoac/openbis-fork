@@ -47,11 +47,13 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceCol
 class ProteinByExperimentBrowerToolBar extends ToolBar
 {
     private static final AggregateFunction DEFAULT_AGGREGATE_FUNCTION = AggregateFunction.MEAN;
-    
+
     private abstract static class SimpleModel<T> extends BaseModelData
     {
+        private static final long serialVersionUID = 1L;
+
         private static final String PROPERTY = "property";
-        
+
         private final T object;
 
         SimpleModel(T object)
@@ -59,7 +61,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             this.object = object;
             set(PROPERTY, render(object));
         }
-        
+
         public final T getObject()
         {
             return object;
@@ -83,7 +85,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             return Integer.toString((int) (100 * modelObject)) + "%";
         }
     }
-    
+
     private static final class AggregateFunctionModel extends SimpleModel<AggregateFunction>
     {
         private static final long serialVersionUID = 1L;
@@ -101,13 +103,16 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
     }
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
-    private final ComboBox<FalseDiscoveryRateModel> fdrComboBox;
-    private final ExperimentChooserFieldAdaptor chooser;
-    private final ComboBox<AggregateFunctionModel> aggregateFunctionComboBox;
-    
-    private ProteinByExperimentBrowserGrid browserGrid;
-    private Experiment experiment;
 
+    private final ComboBox<FalseDiscoveryRateModel> fdrComboBox;
+
+    private final ExperimentChooserFieldAdaptor chooser;
+
+    private final ComboBox<AggregateFunctionModel> aggregateFunctionComboBox;
+
+    private ProteinByExperimentBrowserGrid browserGrid;
+
+    private Experiment experiment;
 
     ProteinByExperimentBrowerToolBar(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
@@ -148,7 +153,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         aggregateFunctionComboBox = createAggregateFunctionComboBox(changedListener);
         add(new AdapterToolItem(aggregateFunctionComboBox));
     }
-    
+
     private ComboBox<FalseDiscoveryRateModel> createFDRComboBox(
             SelectionChangedListener<ModelData> changedListener)
     {
@@ -216,13 +221,13 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
                     experimentID, callback);
         }
     }
-    
+
     private <T> T getSelection(ComboBox<? extends SimpleModel<T>> comboBox, T defaultValue)
     {
         List<? extends SimpleModel<T>> selection = comboBox.getSelection();
         return selection.isEmpty() ? defaultValue : selection.get(0).getObject();
     }
-    
+
     private static final class AbundanceColumnDefinitionsCallback extends
             AbstractAsyncCallback<List<AbundanceColumnDefinition>>
     {
@@ -250,6 +255,6 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         {
             browserGrid.update(experimentID, falseDiscoveryRate, aggregateFunction, result);
         }
-        
+
     }
 }

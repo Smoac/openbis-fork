@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -61,7 +61,8 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
                 new ListSamplesCallback(viewContext));
     }
 
-    public class ListSamplesCallback extends AbstractAsyncCallback<ResultSet<Sample>>
+    public class ListSamplesCallback extends
+            AbstractAsyncCallback<ResultSetWithEntityTypes<Sample>>
     {
 
         public ListSamplesCallback(IViewContext<?> viewContext)
@@ -70,9 +71,9 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
         }
 
         @Override
-        protected void process(ResultSet<Sample> result)
+        protected void process(ResultSetWithEntityTypes<Sample> result)
         {
-            samplesArea.setSamples(result.getList());
+            samplesArea.setSamples(result.getResultSet().getList());
             samplesArea.setEnabled(true);
         }
     }

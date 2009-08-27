@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -58,7 +58,7 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
     private ExperimentDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
             TechId experimentId)
     {
-        super(viewContext, createBrowserId(experimentId), createGridId(experimentId), true);
+        super(viewContext, createBrowserId(experimentId), createGridId(experimentId));
         this.experimentId = experimentId;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
     }
@@ -74,10 +74,9 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<ExternalData>> callback)
+    protected void listDatasets(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
+            final AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback)
     {
-        viewContext.getService().listExperimentDataSets(experimentId, resultSetConfig,
-                callback);
+        viewContext.getService().listExperimentDataSets(experimentId, resultSetConfig, callback);
     }
 }

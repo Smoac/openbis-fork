@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PluginTaskDescriptionModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 
@@ -125,7 +124,6 @@ class DataStoreServicesGrid extends ContentPanel
                 createGridSelectionChangeListener());
         grid.setId(TABLE_ID);
         grid.setBorders(true);
-        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         String displayTypeID = DisplayTypeIDGenerator.PLUGIN_TASKS_BROWSER_GRID.createID();
         displaySettingsManager.prepareGrid(displayTypeID, grid);
         cp.add(grid);

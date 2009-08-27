@@ -111,11 +111,20 @@ public class ExperimentBrowserGrid extends
         return browserGrid.asDisposableWithToolbarAndTree(toolbar, treeSection);
     }
 
+    private final ICriteriaProvider<ListExperimentsCriteria> criteriaProvider;
+
     private ExperimentBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             ICriteriaProvider<ListExperimentsCriteria> criteriaProvider)
     {
-        super(viewContext, GRID_ID, criteriaProvider);
+        super(viewContext, GRID_ID);
+        this.criteriaProvider = criteriaProvider;
         setId(BROWSER_ID);
+    }
+
+    @Override
+    protected ICriteriaProvider<ListExperimentsCriteria> getCriteriaProvider()
+    {
+        return criteriaProvider;
     }
 
     private void extendBottomToolbar()
@@ -317,5 +326,4 @@ public class ExperimentBrowserGrid extends
                 }
             };
     }
-
 }

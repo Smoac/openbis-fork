@@ -70,7 +70,7 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
     //
 
     @Override
-    public final boolean equals(final Object obj)
+    public boolean equals(final Object obj)
     {
         if (obj == this)
         {
@@ -85,7 +85,7 @@ public class Code<T extends Code<T>> implements IsSerializable, ICodeProvider, C
     }
 
     @Override
-    public final int hashCode()
+    public int hashCode()
     {
         return getCode().hashCode();
     }

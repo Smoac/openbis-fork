@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
@@ -149,7 +150,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listSamples(ListSampleDisplayCriteria)
      */
     public void listSamples(final ListSampleDisplayCriteria criteria,
-            AsyncCallback<ResultSet<Sample>> asyncCallback);
+            AsyncCallback<ResultSetWithEntityTypes<Sample>> asyncCallback);
 
     /**
      * @see ICommonClientService#prepareExportSamples(TableExportCriteria)
@@ -317,14 +318,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void listSampleDataSets(TechId sampleId,
             DefaultResultSetConfig<String, ExternalData> criteria,
-            AsyncCallback<ResultSet<ExternalData>> asyncCallback);
+            AsyncCallback<ResultSetWithEntityTypes<ExternalData>> asyncCallback);
 
     /**
      * @see ICommonClientService#listExperimentDataSets(TechId, DefaultResultSetConfig)
      */
     public void listExperimentDataSets(TechId experimentId,
             DefaultResultSetConfig<String, ExternalData> criteria,
-            AsyncCallback<ResultSet<ExternalData>> asyncCallback);
+            AsyncCallback<ResultSetWithEntityTypes<ExternalData>> asyncCallback);
 
     /**
      * @see ICommonClientService#listSearchableEntities()
@@ -400,14 +401,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void searchForDataSets(DataSetSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig,
-            final AsyncCallback<ResultSet<ExternalData>> callback);
+            final AsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback);
 
     /**
      * @see ICommonClientService#searchForDataSets(RelatedDataSetCriteria, IResultSetConfig)
      */
     public void searchForDataSets(RelatedDataSetCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig,
-            final AsyncCallback<ResultSet<ExternalData>> callback);
+            final AsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback);
 
     /**
      * @see ICommonClientService#listMaterialTypes()

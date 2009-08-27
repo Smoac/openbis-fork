@@ -140,11 +140,20 @@ public class MaterialBrowserGrid extends
 
     }
 
+    private final ICriteriaProvider<ListMaterialCriteria> criteriaProvider;
+
     private MaterialBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             boolean refreshAutomatically, ICriteriaProvider<ListMaterialCriteria> criteriaProvider)
     {
-        super(viewContext, GRID_ID, true, refreshAutomatically, criteriaProvider);
+        super(viewContext, GRID_ID, true, refreshAutomatically);
+        this.criteriaProvider = criteriaProvider;
         setId(BROWSER_ID);
+    }
+
+    @Override
+    protected ICriteriaProvider<ListMaterialCriteria> getCriteriaProvider()
+    {
+        return criteriaProvider;
     }
 
     private void extendBottomToolbar(boolean detailsAvailable)

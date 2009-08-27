@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -58,14 +58,14 @@ public class RelatedDataSetGrid extends AbstractExternalDataGrid
     private RelatedDataSetGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             final RelatedDataSetCriteria relatedCriteria)
     {
-        super(viewContext, BROWSER_ID, GRID_ID, false);
+        super(viewContext, BROWSER_ID, GRID_ID);
         this.relatedCriteria = relatedCriteria;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.RELATED_DATA_SET_GRID);
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<ExternalData>> callback)
+    protected void listDatasets(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
+            final AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback)
     {
         viewContext.getService().searchForDataSets(relatedCriteria, resultSetConfig, callback);
     }

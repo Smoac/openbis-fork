@@ -156,7 +156,12 @@ public class DisplaySettingsManager
         }
     }
 
-    // Update grid columns and filters by applying the specified settings.
+    /**
+     * Update grid columns and filters by applying the specified settings.
+     * 
+     * @param filteredColumnIds used only to check if the user settings are different form the
+     *            defaults
+     */
     private static GridDisplaySettings tryApplySettings(List<ColumnSetting> columnSettings,
             ColumnModel columnModel, List<String> filteredColumnIds)
     {

@@ -47,17 +47,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractGridDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -130,21 +133,9 @@ public class SampleBrowserGrid extends
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForContainer(containerSampleId, getBaseIndexURL());
-        ISampleCriteriaProvider criteriaProvider =
-                new SampleCriteriaProvider(viewContext, criteria);
-        // we do not refresh the grid, the criteria provider will do this when property types will
-        // be loaded
-        boolean refreshAutomatically = false;
+        final String entityTypeCode = sampleType.getCode();
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteriaProvider, gridId, false,
-                        refreshAutomatically)
-                    {
-                        @Override
-                        protected String getGridDisplayTypeID()
-                        {
-                            return super.getGridDisplayTypeID() + "-" + sampleType.getCode();
-                        }
-                    };
+                createGridAsComponent(viewContext, gridId, criteria, entityTypeCode);
         refreshCallback.setGrid(browserGrid);
         browserGrid.setExternalRefreshCallback(refreshCallback);
         browserGrid.updateCriteriaProviderAndRefresh();
@@ -159,6 +150,20 @@ public class SampleBrowserGrid extends
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForExperiment(experimentId, getBaseIndexURL());
+        final String entityTypeCode = experimentType.getCode();
+
+        final SampleBrowserGrid browserGrid =
+                createGridAsComponent(viewContext, gridId, criteria, entityTypeCode);
+        browserGrid.updateCriteriaProviderAndRefresh();
+        browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
+        browserGrid.extendBottomToolbar();
+        return browserGrid.asDisposableWithoutToolbar();
+    }
+
+    private static SampleBrowserGrid createGridAsComponent(
+            final IViewContext<ICommonClientServiceAsync> viewContext, final String gridId,
+            final ListSampleDisplayCriteria criteria, final String entityTypeCode)
+    {
         ISampleCriteriaProvider criteriaProvider =
                 new SampleCriteriaProvider(viewContext, criteria);
         // we do not refresh the grid, the criteria provider will do this when property types will
@@ -171,23 +176,23 @@ public class SampleBrowserGrid extends
                         @Override
                         protected String getGridDisplayTypeID()
                         {
-                            return super.getGridDisplayTypeID() + "-" + experimentType.getCode();
+                            return super.getGridDisplayTypeID() + "-" + entityTypeCode;
                         }
                     };
-        browserGrid.updateCriteriaProviderAndRefresh();
-        browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
-        browserGrid.extendBottomToolbar();
-        return browserGrid.asDisposableWithoutToolbar();
+        return browserGrid;
     }
 
     public static interface ISampleCriteriaProvider extends
             ICriteriaProvider<ListSampleDisplayCriteria>, IPropertyTypesProvider
     {
+
     }
 
     public static interface IPropertyTypesProvider
     {
-        public List<PropertyType> tryGetPropertyTypes();
+        List<PropertyType> tryGetPropertyTypes();
+
+        void setEntityTypes(Set<BasicEntityType> availableEntityTypes);
     }
 
     /**
@@ -201,12 +206,37 @@ public class SampleBrowserGrid extends
 
         private final ListSampleDisplayCriteria criteria;
 
+        // Set of entity types which are currently shown in this grid.
+        // Used to decide which property columns should be shown.
+        // Note: content depends on the current grid content.
+        private Set<BasicEntityType> shownEntityTypesOrNull;
+
         public SampleCriteriaProvider(IViewContext<?> viewContext,
                 ListSampleDisplayCriteria criteria)
         {
             this.propertyTypeProvider =
-                    new PropertyTypesCriteriaProvider(viewContext, EntityKind.SAMPLE);
+                    createPropertyTypesCriteriaProvider(viewContext, EntityKind.SAMPLE);
             this.criteria = criteria;
+        }
+
+        /*
+         * Provides property types which should be shown as the grid columns. Takes into account
+         * what types of entities are displayed and does not show property types which are not
+         * assigned to any of those types.
+         */
+        private ICriteriaProvider<PropertyTypesCriteria> createPropertyTypesCriteriaProvider(
+                IViewContext<?> viewContext, final EntityKind entityKind)
+        {
+            return new PropertyTypesCriteriaProvider(viewContext, entityKind)
+                {
+                    @Override
+                    public PropertyTypesCriteria tryGetCriteria()
+                    {
+                        PropertyTypesCriteria propertyTypesCriteria = super.tryGetCriteria();
+                        return PropertyTypesFilterUtil.filterPropertyTypesForEntityTypes(
+                                propertyTypesCriteria, entityKind, shownEntityTypesOrNull);
+                    }
+                };
         }
 
         public List<PropertyType> tryGetPropertyTypes()
@@ -237,20 +267,25 @@ public class SampleBrowserGrid extends
             return propertyTypeProvider.getRelevantModifications();
         }
 
+        public void setEntityTypes(Set<BasicEntityType> entityTypes)
+        {
+            this.shownEntityTypesOrNull = entityTypes;
+        }
     }
 
     // property types used in the previous refresh operation or null if it has not occurred yet
     private List<PropertyType> previousPropertyTypes;
 
-    // provides property types which will be used to build property columns in the grid
-    private final IPropertyTypesProvider propertyTypesProvider;
+    // provides property types which will be used to build property columns in the grid and
+    // criteria to filter samples
+    private final ISampleCriteriaProvider propertyTypesAndCriteriaProvider;
 
     private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             ISampleCriteriaProvider criteriaProvider, String gridId, boolean showHeader,
             boolean refreshAutomatically)
     {
-        super(viewContext, gridId, showHeader, refreshAutomatically, criteriaProvider);
-        this.propertyTypesProvider = criteriaProvider;
+        super(viewContext, gridId, showHeader, refreshAutomatically);
+        this.propertyTypesAndCriteriaProvider = criteriaProvider;
         this.previousPropertyTypes = null;
 
         registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT.id(),
@@ -267,6 +302,12 @@ public class SampleBrowserGrid extends
                         }
                     });
         setId(BROWSER_ID);
+    }
+
+    @Override
+    protected ICriteriaProvider<ListSampleDisplayCriteria> getCriteriaProvider()
+    {
+        return propertyTypesAndCriteriaProvider;
     }
 
     // adds show, show-details and invalidate buttons
@@ -314,10 +355,23 @@ public class SampleBrowserGrid extends
 
     @Override
     protected void listEntities(DefaultResultSetConfig<String, Sample> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Sample>> callback)
+            final AbstractAsyncCallback<ResultSet<Sample>> callback)
     {
+        AbstractAsyncCallback<ResultSetWithEntityTypes<Sample>> extendedCallback =
+                new AbstractAsyncCallback<ResultSetWithEntityTypes<Sample>>(viewContext)
+                    {
+                        @Override
+                        protected void process(ResultSetWithEntityTypes<Sample> result)
+                        {
+                            propertyTypesAndCriteriaProvider.setEntityTypes(result
+                                    .getAvailableEntityTypes());
+                            callback.onSuccess(result.getResultSet());
+                            refreshColumnsSettingsIfNecessary();
+                        }
+                    };
+
         criteria.copyPagingConfig(resultSetConfig);
-        viewContext.getService().listSamples(criteria, callback);
+        viewContext.getService().listSamples(criteria, extendedCallback);
     }
 
     @Override
@@ -402,7 +456,7 @@ public class SampleBrowserGrid extends
     protected ColumnDefsAndConfigs<Sample> createColumnsDefinition()
     {
         assert criteria != null : "criteria not set!";
-        List<PropertyType> propertyTypes = propertyTypesProvider.tryGetPropertyTypes();
+        List<PropertyType> propertyTypes = propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
         assert propertyTypes != null : "propertyTypes not set!";
 
         ColumnDefsAndConfigs<Sample> schema =
@@ -416,7 +470,8 @@ public class SampleBrowserGrid extends
     @Override
     protected boolean hasColumnsDefinitionChanged(ListSampleDisplayCriteria newCriteria)
     {
-        List<PropertyType> newPropertyTypes = propertyTypesProvider.tryGetPropertyTypes();
+        List<PropertyType> newPropertyTypes =
+                propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
         if (newPropertyTypes == null)
         {
             return false; // we are before the first auto-refresh

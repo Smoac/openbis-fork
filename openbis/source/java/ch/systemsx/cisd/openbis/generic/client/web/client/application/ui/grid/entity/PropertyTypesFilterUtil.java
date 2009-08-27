@@ -17,8 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -29,19 +33,95 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  */
 public class PropertyTypesFilterUtil
 {
-    public static List<PropertyType> filterPropertyTypesForEntityKind(List<PropertyType> list,
-            EntityKind entityKind)
+    /** returns only these properties which have connection to a given entity kind */
+    public static List<PropertyType> filterPropertyTypesForEntityKind(
+            List<PropertyType> propertyTypes, EntityKind entityKind)
+    {
+        List<PropertyType> result = new ArrayList<PropertyType>();
+        for (final PropertyType st : propertyTypes)
+        {
+            if (getPropertyAssignments(st, entityKind).size() > 0)
+            {
+                result.add(st);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * returns these property types in specified criteria which are assigned to any of the specified
+     * entity types
+     */
+    public static PropertyTypesCriteria filterPropertyTypesForEntityTypes(
+            PropertyTypesCriteria propertyTypesCriteriaOrNull, EntityKind entityKind,
+            Set<BasicEntityType> shownEntityTypesOrNull)
+    {
+        if (propertyTypesCriteriaOrNull != null && shownEntityTypesOrNull != null)
+        {
+            List<PropertyType> propertyTypes = propertyTypesCriteriaOrNull.tryGetPropertyTypes();
+            if (propertyTypes != null)
+            {
+                propertyTypes =
+                        PropertyTypesFilterUtil.filterPropertyTypesForEntityTypes(propertyTypes,
+                                entityKind, shownEntityTypesOrNull);
+                // Note: a new object has to be created, this reference may be kept somewhere else
+                PropertyTypesCriteria newCriteria = new PropertyTypesCriteria();
+                newCriteria.copyPagingConfig(propertyTypesCriteriaOrNull);
+                newCriteria.setPropertyTypes(propertyTypes);
+                return newCriteria;
+            }
+        }
+        return propertyTypesCriteriaOrNull;
+    }
+
+    /** returns these property types which are assigned to any of the specified entity types */
+    private static List<PropertyType> filterPropertyTypesForEntityTypes(
+            List<PropertyType> propertyTypes, EntityKind entityKind,
+            Set<BasicEntityType> entityTypes)
+    {
+        Set<String> entityTypesCodes = extractCodes(entityTypes);
+        List<PropertyType> result = new ArrayList<PropertyType>();
+        for (final PropertyType propertyType : propertyTypes)
+        {
+            List<? extends EntityTypePropertyType<?>> assignments =
+                    getPropertyAssignments(propertyType, entityKind);
+            for (EntityTypePropertyType<?> assignment : assignments)
+            {
+                // TODO 2009-08-27, Tomasz Pylak: use entityTypes equality when sample types
+                // obtained from sample listenr will be filled with database instance as well.
+                if (entityTypesCodes.contains(assignment.getEntityType().getCode()))
+                {
+                    result.add(propertyType);
+                }
+            }
+        }
+        return result;
+    }
+
+    private static Set<String> extractCodes(Set<BasicEntityType> entityTypes)
+    {
+        Set<String> codes = new HashSet<String>();
+        Iterator<BasicEntityType> iterator = entityTypes.iterator();
+        while (iterator.hasNext())
+        {
+            codes.add(iterator.next().getCode());
+        }
+        return codes;
+    }
+
+    private static List<? extends EntityTypePropertyType<?>> getPropertyAssignments(
+            PropertyType propertyType, EntityKind entityKind)
     {
         switch (entityKind)
         {
             case DATA_SET:
-                return filterDataSetPropertyTypes(list);
+                return propertyType.getDataSetTypePropertyTypes();
             case EXPERIMENT:
-                return filterExperimentPropertyTypes(list);
+                return propertyType.getExperimentTypePropertyTypes();
             case MATERIAL:
-                return filterMaterialPropertyTypes(list);
+                return propertyType.getMaterialTypePropertyTypes();
             case SAMPLE:
-                return filterSamplePropertyTypes(list);
+                return propertyType.getSampleTypePropertyTypes();
         }
         throw new IllegalStateException("unknown enumerator " + entityKind);
     }
@@ -49,57 +129,25 @@ public class PropertyTypesFilterUtil
     /** returns property types which are assigned to at least one sample type */
     public static List<PropertyType> filterSamplePropertyTypes(List<PropertyType> propertyTypes)
     {
-        List<PropertyType> result = new ArrayList<PropertyType>();
-        for (final PropertyType st : propertyTypes)
-        {
-            if (st.getSampleTypePropertyTypes().size() > 0)
-            {
-                result.add(st);
-            }
-        }
-        return result;
+        return filterPropertyTypesForEntityKind(propertyTypes, EntityKind.SAMPLE);
     }
 
     /** returns property types which are assigned to at least one experiment type */
     public static List<PropertyType> filterExperimentPropertyTypes(List<PropertyType> propertyTypes)
     {
-        List<PropertyType> result = new ArrayList<PropertyType>();
-        for (final PropertyType st : propertyTypes)
-        {
-            if (st.getExperimentTypePropertyTypes().size() > 0)
-            {
-                result.add(st);
-            }
-        }
-        return result;
+        return filterPropertyTypesForEntityKind(propertyTypes, EntityKind.EXPERIMENT);
     }
 
     /** returns property types which are assigned to at least one dataset type */
     public static List<PropertyType> filterDataSetPropertyTypes(List<PropertyType> propertyTypes)
     {
-        List<PropertyType> result = new ArrayList<PropertyType>();
-        for (final PropertyType st : propertyTypes)
-        {
-            if (st.getDataSetTypePropertyTypes().size() > 0)
-            {
-                result.add(st);
-            }
-        }
-        return result;
+        return filterPropertyTypesForEntityKind(propertyTypes, EntityKind.DATA_SET);
     }
 
     /** returns property types which are assigned to at least one material type */
     public static List<PropertyType> filterMaterialPropertyTypes(List<PropertyType> propertyTypes)
     {
-        List<PropertyType> result = new ArrayList<PropertyType>();
-        for (final PropertyType st : propertyTypes)
-        {
-            if (st.getMaterialTypePropertyTypes().size() > 0)
-            {
-                result.add(st);
-            }
-        }
-        return result;
+        return filterPropertyTypesForEntityKind(propertyTypes, EntityKind.MATERIAL);
     }
 
     public static List<PropertyType> extractPropertyTypes(EntityType selectedType)

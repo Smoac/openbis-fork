@@ -75,12 +75,12 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
 
     abstract protected EntityKind getEntityKind();
 
-    private final ICriteriaProvider<K> criteriaProvider;
+    abstract protected ICriteriaProvider<K> getCriteriaProvider();
+
+    private IDataRefreshCallback externalRefreshCallbackOrNull;
 
     // criteria used in the previous refresh operation or null if it has not occurred yet
     protected K criteria;
-
-    protected IDataRefreshCallback externalRefreshCallbackOrNull;
 
     public interface ICriteriaProvider<K>
     {
@@ -98,19 +98,16 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
     }
 
     protected AbstractEntityBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            String gridId, ICriteriaProvider<K> criteriaProvider)
+            String gridId)
     {
         super(viewContext, gridId);
-        this.criteriaProvider = criteriaProvider;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
     }
 
     protected AbstractEntityBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            String gridId, boolean showHeader, boolean refreshAutomatically,
-            ICriteriaProvider<K> criteriaProvider)
+            String gridId, boolean showHeader, boolean refreshAutomatically)
     {
         super(viewContext, gridId, showHeader, refreshAutomatically);
-        this.criteriaProvider = criteriaProvider;
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         allowMultipleSelection();
     }
@@ -138,25 +135,46 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
     }
 
     /**
-     * Refreshes the sample browser grid up to given parameters.
+     * Refreshes the browser grid up to given parameters.
      * <p>
-     * Note that, doing so, the result set associated on the server side with this
-     * <code>resultSetKey</code> will be removed.
+     * Note that by doing so the result set in the cache on the server side will be removed.
      * </p>
      */
     @Override
     protected void refresh()
     {
-        K newCriteria = criteriaProvider.tryGetCriteria();
-        if (newCriteria == null)
+        Boolean refreshColumnsNeeded = updateCriteria();
+        if (refreshColumnsNeeded == null)
         {
             return;
         }
+        String newHeader = createHeader();
+        super.refresh(externalRefreshCallbackOrNull, newHeader, refreshColumnsNeeded);
+    }
+
+    protected final void refreshColumnsSettingsIfNecessary()
+    {
+        Boolean refreshColumnsNeeded = updateCriteria();
+        if (refreshColumnsNeeded != null && refreshColumnsNeeded.booleanValue())
+        {
+            super.refreshColumnsAndFilters();
+        }
+    }
+
+    /**
+     * Updates criteria, returns null if bew criteria are not yet known, otherwise a boolean which
+     * tells if columns definition changed.
+     */
+    private Boolean updateCriteria()
+    {
+        K newCriteria = getCriteriaProvider().tryGetCriteria();
+        if (newCriteria == null)
+        {
+            return null;
+        }
         boolean refreshColumnsDefinition = hasColumnsDefinitionChanged(newCriteria);
         this.criteria = newCriteria;
-        String newHeader = createHeader();
-
-        super.refresh(externalRefreshCallbackOrNull, newHeader, refreshColumnsDefinition);
+        return refreshColumnsDefinition;
     }
 
     protected final void setExternalRefreshCallback(IDataRefreshCallback externalRefreshCallback)
@@ -167,14 +185,14 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
     @Override
     protected boolean isRefreshEnabled()
     {
-        return criteriaProvider.tryGetCriteria() != null;
+        return getCriteriaProvider().tryGetCriteria() != null;
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
         List<DatabaseModificationKind> relevantModifications =
                 new ArrayList<DatabaseModificationKind>();
-        SetUtils.addAll(relevantModifications, criteriaProvider.getRelevantModifications());
+        SetUtils.addAll(relevantModifications, getCriteriaProvider().getRelevantModifications());
         relevantModifications.addAll(getGridRelevantModifications());
         return relevantModifications.toArray(DatabaseModificationKind.EMPTY_ARRAY);
     }
@@ -185,7 +203,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
                 SetUtils.containsAny(observedModifications, getGridRelevantModifications());
         // we refresh the whole grid after the entity types are refreshed. In this way we are able
         // to take into account new property types which constitute new columns.
-        criteriaProvider.update(observedModifications,
+        getCriteriaProvider().update(observedModifications,
                 createRefreshGridCallback(shouldRefreshGridAfterwards));
     }
 
@@ -200,7 +218,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         boolean shouldRefreshGridAfterwards = true;
         HashSet<DatabaseModificationKind> observedModifications =
                 new HashSet<DatabaseModificationKind>();
-        criteriaProvider.update(observedModifications,
+        getCriteriaProvider().update(observedModifications,
                 createRefreshGridCallback(shouldRefreshGridAfterwards));
     }
 

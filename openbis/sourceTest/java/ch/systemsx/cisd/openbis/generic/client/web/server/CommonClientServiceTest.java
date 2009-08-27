@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager;
@@ -149,8 +150,9 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final ListSampleDisplayCriteria criteria = createListCriteria();
         prepareListEntities(entities, criteria);
 
-        final ResultSet<Sample> resultSet = commonClientService.listSamples(criteria);
-        assertEqualEntities(entities, resultSet);
+        final ResultSetWithEntityTypes<Sample> resultSet =
+                commonClientService.listSamples(criteria);
+        assertEqualEntities(entities, resultSet.getResultSet());
         context.assertIsSatisfied();
     }
 
@@ -335,7 +337,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
             {
                 {
                     prepareGetSessionToken(this);
-                    one(httpSession).getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+                    allowing(httpSession).getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
                     will(returnValue(new CachedResultSetManager<String>(
                             new TokenBasedResultSetKeyGenerator())));
 
@@ -344,10 +346,10 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 }
             });
 
-        ResultSet<ExternalData> resultSet =
+        ResultSetWithEntityTypes<ExternalData> resultSet =
                 commonClientService.listExperimentDataSets(experimentId,
                         new DefaultResultSetConfig<String, ExternalData>());
-        List<ExternalData> list = resultSet.getList();
+        List<ExternalData> list = resultSet.getResultSet().getList();
         assertEquals(1, list.size());
         ExternalData data = list.get(0);
         assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data

@@ -23,9 +23,6 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.tree.Tree;
 import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.google.gwt.core.client.GWT;
@@ -159,28 +156,6 @@ public final class GWTUtils
             }
         }
         return null;
-    }
-
-    /**
-     * Calls {@link Grid#setAutoExpandColumn(String)} on the last column visible.
-     * <p>
-     * Does nothing if all columns are hidden.
-     * </p>
-     */
-    public final static <T extends ModelData> void setAutoExpandOnLastVisibleColumn(
-            final Grid<T> grid)
-    {
-        final ColumnModel columnModel = grid.getColumnModel();
-        for (int i = columnModel.getColumnCount(); --i >= 0;)
-        {
-            final ColumnConfig columnConfig = columnModel.getColumn(i);
-            if (columnConfig.isHidden() == false)
-            {
-                // TODO 2008-12-18, Christian Ribeaud: This sometimes throws an exception.
-                // grid.setAutoExpandColumn(columnConfig.getId());
-                return;
-            }
-        }
     }
 
     /**

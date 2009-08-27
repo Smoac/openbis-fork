@@ -46,14 +46,19 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IB
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -68,21 +73,27 @@ public abstract class AbstractExternalDataGrid
         extends
         AbstractEntityBrowserGrid<ExternalData, BaseEntityModel<ExternalData>, PropertyTypesCriteria>
 {
+    /** lists datasets and collects statistics about all datasets types */
+    abstract protected void listDatasets(
+            DefaultResultSetConfig<String, ExternalData> resultSetConfig,
+            AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback);
+
     public static final String SHOW_DETAILS_BUTTON_ID_SUFFIX = "_show-details-button";
 
-    /**
-     * @param displayOnlyDatasetProperties if false the grid columns will consist of all property
-     *            types relevant anyhow to datasets, not only property types directly connected to
-     *            datasets.
-     */
-    protected AbstractExternalDataGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            String browserId, String gridId, boolean displayOnlyDatasetProperties)
-    {
+    // Set of entity types which are currently shown in this grid.
+    // Used to decide which property columns should be shown.
+    // Note: content depends on the current grid content.
+    private Set<BasicEntityType> shownEntityTypesOrNull;
 
-        super(viewContext, gridId, false, false, createCriteriaProvider(viewContext,
-                displayOnlyDatasetProperties));
+    private final ICriteriaProvider<PropertyTypesCriteria> criteriaProvider;
+
+    protected AbstractExternalDataGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+            String browserId, String gridId)
+    {
+        super(viewContext, gridId, false, false);
+        this.criteriaProvider = createCriteriaProvider();
         setId(browserId);
-        super.updateCriteriaProviderAndRefresh();
+        updateCriteriaProviderAndRefresh();
 
         addEntityOperationsLabel();
         addButton(createBrowseExternalDataButton());
@@ -150,6 +161,50 @@ public abstract class AbstractExternalDataGrid
         registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE.id(), sampleClickListener);
         registerLinkClickListenerFor(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER.id(),
                 sampleClickListener);
+    }
+
+    @Override
+    protected ICriteriaProvider<PropertyTypesCriteria> getCriteriaProvider()
+    {
+        return criteriaProvider;
+    }
+
+    /*
+     * Provides property types which should be shown as the grid columns. Takes into account what
+     * types of datasets are displayed and does not show property types which are not assigned to
+     * any of those types.
+     */
+    private ICriteriaProvider<PropertyTypesCriteria> createCriteriaProvider()
+    {
+        final EntityKind entityKind = getEntityKind();
+        return new PropertyTypesCriteriaProvider(viewContext, entityKind)
+            {
+                @Override
+                public PropertyTypesCriteria tryGetCriteria()
+                {
+                    PropertyTypesCriteria propertyTypesCriteria = super.tryGetCriteria();
+                    return PropertyTypesFilterUtil.filterPropertyTypesForEntityTypes(
+                            propertyTypesCriteria, entityKind, shownEntityTypesOrNull);
+                }
+            };
+    }
+
+    @Override
+    protected final void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
+            final AbstractAsyncCallback<ResultSet<ExternalData>> callback)
+    {
+        AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> extendedCallback =
+                new AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>>(viewContext)
+                    {
+                        @Override
+                        protected void process(ResultSetWithEntityTypes<ExternalData> result)
+                        {
+                            shownEntityTypesOrNull = result.getAvailableEntityTypes();
+                            callback.onSuccess(result.getResultSet());
+                            refreshColumnsSettingsIfNecessary();
+                        }
+                    };
+        listDatasets(resultSetConfig, extendedCallback);
     }
 
     private abstract class OpenEntityDetailsTabCellClickListener implements
@@ -245,25 +300,17 @@ public abstract class AbstractExternalDataGrid
             };
     }
 
-    private static ICriteriaProvider<PropertyTypesCriteria> createCriteriaProvider(
-            final IViewContext<ICommonClientServiceAsync> viewContext,
-            boolean displayOnlyDatasetProperties)
-    {
-        EntityKind entityKindOrNull = displayOnlyDatasetProperties ? EntityKind.DATA_SET : null;
-        return new PropertyTypesCriteriaProvider(viewContext, entityKindOrNull);
-    }
-
     @Override
     protected BaseEntityModel<ExternalData> createModel(ExternalData entity)
     {
         return getColumnsFactory().createModel(entity);
     }
 
-    protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
+	protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
     {
         return getColumnsFactory().createColumnsSchema(viewContext, criteria.tryGetPropertyTypes());
     }
-
+    
     @Override
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {

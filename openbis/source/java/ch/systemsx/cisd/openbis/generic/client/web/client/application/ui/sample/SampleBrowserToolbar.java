@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -171,6 +172,13 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
             selectGroupCombo.refreshStore();
         }
 
+    }
+
+    public void setEntityTypes(Set<BasicEntityType> availableEntityTypes)
+    {
+        // TODO 2009-08-27, Tomasz Pylak: use this info to narrow properties when displaying "all"
+        // types of samples. The method tryGetPropertyTypes would have to be rewritten and an
+        // artificial SampleType for displaying all samples should not be used.
     }
 
 }

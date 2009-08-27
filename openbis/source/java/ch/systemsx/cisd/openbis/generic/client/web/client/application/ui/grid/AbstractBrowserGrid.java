@@ -78,7 +78,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.M
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IResultUpdater;
@@ -119,8 +118,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             AbstractAsyncCallback<String> callback);
 
     /**
-     * @return definition of all the columns in the grid: visible properties and the mechanism of
-     *         creating each column's value from the row model
+     * Creates a column model with all available columns from scratch without taking user settings
+     * into account.
+     * 
+     * @return definition of all the columns in the grid
      */
     abstract protected ColumnDefsAndConfigs<T> createColumnsDefinition();
 
@@ -819,8 +820,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /**
-     * @param externalRefreshCallbackOrNull external class can define it's own refresh callback method. It
-     *                                will be merged with the internal one.
+     * @param externalRefreshCallbackOrNull external class can define it's own refresh callback
+     *            method. It will be merged with the internal one.
      */
     protected final void refresh(final IDataRefreshCallback externalRefreshCallbackOrNull,
             String headerOrNull, boolean refreshColumnsDefinition)
@@ -833,16 +834,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             refreshColumnsAndFilters();
         }
-        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
-
         reloadData();
-        
         refreshColumnHeaderWidths();
     }
 
     private void refreshColumnHeaderWidths()
     {
-        // Workaround for the problem of incorrect column header widths if column header is very long  
+        // Workaround for the problem of incorrect column header widths if column header is very
+        // long
         ColumnModel columnModel = grid.getColumnModel();
         if (columnModel.getColumnCount() > 0)
         {
@@ -850,36 +849,40 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    private void refreshColumnsAndFilters()
+    protected final void refreshColumnsAndFilters()
     {
-        ColumnModel columnModel = rebuildColumns();
-        List<IColumnDefinition<T>> initialFilters = getInitialFilters();
+        ColumnDefsAndConfigs<T> defsAndConfigs = createColumnsDefinition();
+        this.columnDefinitions = defsAndConfigs.getColumnDefs();
+        ColumnModel columnModel = createColumnModel(defsAndConfigs.getColumnConfigs());
 
-        GridDisplaySettings settings = tryApplyDisplaySettings(columnModel, initialFilters);
-
+        GridDisplaySettings settings = tryApplyDisplaySettings(columnModel);
         if (settings != null)
         {
             columnModel = createColumnModel(settings.getColumnConfigs());
             rebuildFiltersFromIds(settings.getFilteredColumnIds());
         } else
         {
-            rebuildFilters(initialFilters);
+            rebuildFilters(getInitialFilters());
         }
         changeColumnModel(columnModel);
+
+        refreshColumnHeaderWidths();
+        hideLoadingMask();
     }
 
-    private GridDisplaySettings tryApplyDisplaySettings(ColumnModel columnModel,
-            List<IColumnDefinition<T>> initialFilters)
+    private void hideLoadingMask()
     {
+        if (grid.el() != null)
+        {
+            grid.el().unmask();
+        }
+    }
+
+    private GridDisplaySettings tryApplyDisplaySettings(ColumnModel columnModel)
+    {
+        List<IColumnDefinition<T>> initialFilters = getInitialFilters();
         return viewContext.getDisplaySettingsManager().tryApplySettings(getGridDisplayTypeID(),
                 columnModel, extractColumnIds(initialFilters));
-    }
-
-    private ColumnModel rebuildColumns()
-    {
-        ColumnDefsAndConfigs<T> defsAndConfigs = createColumnsDefinition();
-        this.columnDefinitions = defsAndConfigs.getColumnDefs();
-        return createColumnModel(defsAndConfigs.getColumnConfigs());
     }
 
     private void changeColumnModel(ColumnModel columnModel)
@@ -1264,7 +1267,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         grid.setId(gridId);
         grid.setLoadMask(true);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        GWTUtils.setAutoExpandOnLastVisibleColumn(grid);
         return grid;
     }
 

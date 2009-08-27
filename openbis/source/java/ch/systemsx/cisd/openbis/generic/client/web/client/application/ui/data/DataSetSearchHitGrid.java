@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -63,16 +63,15 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
 
     private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID, false);
+        super(viewContext, BROWSER_ID, GRID_ID);
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<ExternalData>> callback)
+    protected void listDatasets(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
+            final AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback)
     {
-        viewContext.getService().searchForDataSets(chosenSearchCriteria, resultSetConfig,
-                callback);
+        viewContext.getService().searchForDataSets(chosenSearchCriteria, resultSetConfig, callback);
     }
 
     public void refresh(DataSetSearchCriteria newCriteria, List<PropertyType> propertyTypes)

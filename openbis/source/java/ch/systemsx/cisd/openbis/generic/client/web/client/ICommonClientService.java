@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
@@ -180,7 +181,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns a list of samples for given sample type.
      */
-    public ResultSet<Sample> listSamples(final ListSampleDisplayCriteria criteria)
+    public ResultSetWithEntityTypes<Sample> listSamples(final ListSampleDisplayCriteria criteria)
             throws UserFailureException;
 
     /**
@@ -379,13 +380,13 @@ public interface ICommonClientService extends IClientService
     /**
      * For given <var>sampleId</var> returns corresponding list of {@link ExternalData}.
      */
-    public ResultSet<ExternalData> listSampleDataSets(final TechId sampleId,
+    public ResultSetWithEntityTypes<ExternalData> listSampleDataSets(final TechId sampleId,
             DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
 
     /**
      * For given <var>experimentId</var> returns corresponding list of {@link ExternalData}.
      */
-    public ResultSet<ExternalData> listExperimentDataSets(final TechId experimentId,
+    public ResultSetWithEntityTypes<ExternalData> listExperimentDataSets(final TechId experimentId,
             DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
 
     /**
@@ -473,14 +474,15 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns {@link ExternalData} fulfilling given {@link DataSetSearchCriteria}.
      */
-    public ResultSet<ExternalData> searchForDataSets(DataSetSearchCriteria criteria,
+    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(DataSetSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws UserFailureException;
 
     /**
      * Returns {@link ExternalData} fulfilling given {@link RelatedDataSetCriteria}.
      */
-    public ResultSet<ExternalData> searchForDataSets(RelatedDataSetCriteria criteria,
+    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
+            RelatedDataSetCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws UserFailureException;
 
