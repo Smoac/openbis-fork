@@ -47,7 +47,10 @@ abstract class AbstractPredicate<T> implements IPredicate<T>
     abstract Status doEvaluation(final PersonPE person,
             final List<RoleWithIdentifier> allowedRoles, final T value);
 
-    /** can the checked value be null, false by default. To be subclassed in other cases */
+    /** 
+     * Is the checked value allowed to be <code>null</code>, <code>false</code> by default. 
+     * Can be overridden in sub-classes.
+     */
     protected boolean isNullValueAllowed()
     {
         return false;

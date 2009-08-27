@@ -39,7 +39,7 @@ abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredica
     protected List<GroupPE> groups;
 
     @Override
-    public final void init(IAuthorizationDataProvider provider)
+    public void init(IAuthorizationDataProvider provider)
     {
         super.init(provider);
         groups = provider.listGroups();

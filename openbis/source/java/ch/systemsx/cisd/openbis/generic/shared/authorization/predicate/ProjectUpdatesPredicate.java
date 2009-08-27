@@ -56,7 +56,7 @@ public class ProjectUpdatesPredicate extends AbstractPredicate<ProjectUpdatesDTO
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final ProjectUpdatesDTO updates)
     {
-        assert groupPredicate.inited : "Predicate has not been initialized";
+        assert groupPredicate.initialized : "Predicate has not been initialized";
         Status status;
         status = groupPredicate.doEvaluation(person, allowedRoles, updates.getIdentifier());
         if (status.equals(Status.OK) == false)

@@ -105,7 +105,7 @@ public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<Tec
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final TechId techId)
     {
-        assert inited : "Predicate has not been initialized";
+        assert initialized : "Predicate has not been initialized";
 
         GroupPE groupOrNull = authorizationDataProvider.tryToGetGroup(entityKind, techId);
         if (groupOrNull == null)

@@ -42,7 +42,7 @@ public class DataSetCodePredicate extends AbstractGroupPredicate<String>
     @Override
     Status doEvaluation(PersonPE person, List<RoleWithIdentifier> allowedRoles, String dataSetCode)
     {
-        assert inited : "Predicate has not been initialized";
+        assert initialized : "Predicate has not been initialized";
         
         ProjectPE project = authorizationDataProvider.tryToGetProject(dataSetCode);
         if (project != null)

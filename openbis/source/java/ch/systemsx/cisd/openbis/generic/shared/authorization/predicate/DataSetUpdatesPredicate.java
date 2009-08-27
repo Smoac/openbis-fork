@@ -60,7 +60,7 @@ public class DataSetUpdatesPredicate extends AbstractPredicate<DataSetUpdatesDTO
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final DataSetUpdatesDTO updates)
     {
-        assert dataSetTechIdPredicate.inited : "Predicate has not been initialized";
+        assert dataSetTechIdPredicate.initialized : "Predicate has not been initialized";
         Status status;
         status = dataSetTechIdPredicate.doEvaluation(person, allowedRoles, updates.getDatasetId());
         if (status.equals(Status.OK) == false)

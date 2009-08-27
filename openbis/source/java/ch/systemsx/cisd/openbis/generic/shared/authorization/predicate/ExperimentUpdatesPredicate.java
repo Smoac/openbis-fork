@@ -60,7 +60,7 @@ public class ExperimentUpdatesPredicate extends AbstractPredicate<ExperimentUpda
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final ExperimentUpdatesDTO updates)
     {
-        assert experimentTechIdPredicate.inited : "Predicate has not been initialized";
+        assert experimentTechIdPredicate.initialized : "Predicate has not been initialized";
         Status status;
         status =
                 experimentTechIdPredicate.doEvaluation(person, allowedRoles, updates

@@ -79,7 +79,7 @@ public final class DatabaseInstanceIdentifierPredicate extends
     final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final DatabaseInstanceIdentifier databaseInstanceIdentifier)
     {
-        assert inited : "Predicate has not been initialized";
+        assert initialized : "Predicate has not been initialized";
         DatabaseInstancePE databaseInstance = getDatabaseInstance(databaseInstanceIdentifier);
         final boolean matching = isMatching(allowedRoles, databaseInstance.getUuid(), isReadAccess);
         if (matching)

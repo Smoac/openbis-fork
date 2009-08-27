@@ -33,7 +33,7 @@ abstract class AbstractDatabaseInstancePredicate<T> extends AbstractPredicate<T>
 
     protected IAuthorizationDataProvider authorizationDataProvider;
 
-    boolean inited;
+    boolean initialized;
 
     protected DatabaseInstancePE getDatabaseInstance(final DatabaseInstanceIdentifier identifier)
     {
@@ -47,9 +47,9 @@ abstract class AbstractDatabaseInstancePredicate<T> extends AbstractPredicate<T>
 
     public void init(IAuthorizationDataProvider provider)
     {
-        assert inited == false : "Already initialized";
+        assert initialized == false : "Already initialized";
         this.authorizationDataProvider = provider;
-        inited = true;
+        initialized = true;
     }
 
 }

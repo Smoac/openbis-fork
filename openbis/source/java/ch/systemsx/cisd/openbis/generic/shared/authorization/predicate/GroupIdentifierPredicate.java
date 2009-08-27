@@ -50,7 +50,7 @@ public class GroupIdentifierPredicate extends AbstractGroupPredicate<GroupIdenti
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final GroupIdentifier groupIdentifierOrNull)
     {
-        assert inited : "Predicate has not been initialized";
+        assert initialized : "Predicate has not been initialized";
         final String groupCode = GroupCodeHelper.getGroupCode(person, groupIdentifierOrNull);
         final DatabaseInstancePE databaseInstance = getDatabaseInstance(groupIdentifierOrNull);
         return evaluate(person, allowedRoles, databaseInstance, groupCode);

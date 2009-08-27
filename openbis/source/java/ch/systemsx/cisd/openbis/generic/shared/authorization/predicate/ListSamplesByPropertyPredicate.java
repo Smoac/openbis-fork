@@ -56,7 +56,7 @@ public class ListSamplesByPropertyPredicate extends
     Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final ListSamplesByPropertyCriteria criteria)
     {
-        assert groupPredicate.inited : "Predicate has not been initialized";
+        assert groupPredicate.initialized : "Predicate has not been initialized";
         return groupPredicate.doEvaluation(person, allowedRoles, criteria.getGroupIdentifier());
     }
 }
