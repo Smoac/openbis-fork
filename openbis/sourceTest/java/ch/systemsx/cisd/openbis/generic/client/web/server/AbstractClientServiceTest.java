@@ -72,7 +72,7 @@ public abstract class AbstractClientServiceTest extends AssertJUnit
 
     protected final void prepareGetResultSetManager(final Expectations expectations)
     {
-        expectations.one(httpSession).getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
+        expectations.allowing(httpSession).getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
         expectations.will(Expectations.returnValue(resultSetManager));
     }
 

@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
@@ -143,13 +144,22 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         commonClientService.setCifexRecipient(CIFEX_RECIPIENT);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public final void testListSamples()
     {
         List<Sample> entities = Arrays.asList(new Sample());
         final ListSampleDisplayCriteria criteria = createListCriteria();
         prepareListEntities(entities, criteria);
-
+        // this call is to obtain sample types
+        context.checking(new Expectations()
+            {
+                {
+                    one(resultSetManager).getResultSet(
+                            with(Expectations.any(IResultSetConfig.class)),
+                            with(Expectations.any(IOriginalDataProvider.class)));
+                }
+            });
         final ResultSetWithEntityTypes<Sample> resultSet =
                 commonClientService.listSamples(criteria);
         assertEqualEntities(entities, resultSet.getResultSet());
@@ -205,8 +215,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     }
 
     @SuppressWarnings("unchecked")
-    private <T> void prepareGetResultSet(Expectations exp,
-            DefaultResultSetConfig<String, T> criteria)
+    private <T> void prepareGetResultSet(Expectations exp, IResultSetConfig<String, T> criteria)
     {
         exp.one(resultSetManager).getResultSet(exp.with(criteria),
                 exp.with(Expectations.any(IOriginalDataProvider.class)));
