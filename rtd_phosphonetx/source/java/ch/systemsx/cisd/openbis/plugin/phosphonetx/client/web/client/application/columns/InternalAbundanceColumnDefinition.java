@@ -24,6 +24,8 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.Protein
 public final class InternalAbundanceColumnDefinition extends
         AbstractColumnDefinition<ProteinInfo>
 {
+    private static final Double ZERO = new Double(-1e-9);
+    
     private long sampleID;
 
     // GWT only
@@ -39,24 +41,33 @@ public final class InternalAbundanceColumnDefinition extends
         this.sampleID = sampleID;
     }
 
+    public String getIdentifier()
+    {
+        return "abundance-" + Long.toString(sampleID);
+    }
+    
     @Override
     protected String tryGetValue(ProteinInfo entity)
+    {
+        Double abundance = tryToGetAbundance(entity);
+        return abundance == null ? null : Double.toString(abundance);
+    }
+
+    @Override
+    public Comparable<?> getComparableValue(ProteinInfo rowModel)
+    {
+        Double abundance = tryToGetAbundance(rowModel);
+        return abundance == null ? ZERO : abundance;
+    }
+    
+    private Double tryToGetAbundance(ProteinInfo entity)
     {
         Map<Long, Double> abundances = entity.getAbundances();
         if (abundances == null)
         {
             return null;
         }
-        Double abundance = abundances.get(sampleID);
-        if (abundance == null)
-        {
-            return null;
-        }
-        return Double.toString(abundance);
+        return abundances.get(sampleID);
     }
 
-    public String getIdentifier()
-    {
-        return "abundance-" + Long.toString(sampleID);
-    }
 }
