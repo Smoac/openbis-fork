@@ -38,10 +38,16 @@ class AbundanceHandler extends AbstractHandler
 {
     @Private static final String MZXML_FILENAME = "MZXML_FILENAME";
     
+    private static final class SampleOrError
+    {
+        Sample sample;
+        String error;
+    }
+    
     private final IEncapsulatedOpenBISService openbisService;
     private final GroupIdentifier groupIdentifier;
     private final Experiment experiment;
-    private final Map<String, Sample> samples = new HashMap<String, Sample>();
+    private final Map<String, SampleOrError> samplesOrErrors = new HashMap<String, SampleOrError>();
 
     AbundanceHandler(IEncapsulatedOpenBISService openbisService, IProtDAO dao,
             GroupIdentifier groupIdentifier, Experiment experiment)
@@ -68,16 +74,16 @@ class AbundanceHandler extends AbstractHandler
 
     private Sample getOrCreateSample(String parameterName, String proteinName)
     {
-        Sample sample = samples.get(parameterName);
-        if (sample == null)
+        SampleOrError sampleOrError = samplesOrErrors.get(parameterName);
+        if (sampleOrError == null)
         {
             SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(groupIdentifier, parameterName);
             SamplePE samplePE = openbisService.tryGetSampleWithExperiment(sampleIdentifier);
-            String permID;
+            sampleOrError = new SampleOrError();
             if (samplePE != null)
             {
-                permID = samplePE.getPermId();
+                sampleOrError.sample = getOrCreateSample(experiment, samplePE.getPermId());
             } else
             {
                 List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> list =
@@ -87,21 +93,22 @@ class AbundanceHandler extends AbstractHandler
                                                 .getGroupCode(), null));
                 if (list == null || list.size() == 0)
                 {
-                    throw new UserFailureException("Protein '" + proteinName
-                            + "' has an abundance value for an unidentified samples: "
-                            + parameterName);
-                }
-                if (list.size() > 1)
+                    sampleOrError.error = "an unidentified sample: " + parameterName;
+                } else if (list.size() > 1)
                 {
-                    throw new UserFailureException("Protein '" + proteinName
-                            + "' has an abundance value for which " + list.size()
-                            + " samples are found: " + parameterName);
+                    sampleOrError.error = list.size() + " samples are found: " + parameterName;
+                } else
+                {
+                    sampleOrError.sample = getOrCreateSample(experiment, list.get(0).getPermId());
                 }
-                permID = list.get(0).getPermId();
             }
-            sample = getOrCreateSample(experiment, permID);
-            samples.put(parameterName, sample);
+            samplesOrErrors.put(parameterName, sampleOrError);
         }
-        return sample;
+        if (sampleOrError.error != null)
+        {
+            throw new UserFailureException("Protein '" + proteinName
+                            + "' has an abundance value for " + sampleOrError.error);
+        }
+        return sampleOrError.sample;
     }
 }

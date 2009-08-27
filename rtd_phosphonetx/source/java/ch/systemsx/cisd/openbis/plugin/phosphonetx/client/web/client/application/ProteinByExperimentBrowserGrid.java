@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -27,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
@@ -42,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.InternalAbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.ProteinColDefKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
@@ -134,29 +133,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                 }
             }
             final long sampleID = definition.getSampleID();
-            columns.add(new AbstractColumnDefinition<ProteinInfo>(header, 100, false)
-                {
-                    @Override
-                    protected String tryGetValue(ProteinInfo entity)
-                    {
-                        Map<Long, Double> abundances = entity.getAbundances();
-                        if (abundances == null)
-                        {
-                            return null;
-                        }
-                        Double abundance = abundances.get(sampleID);
-                        if (abundance == null)
-                        {
-                            return null;
-                        }
-                        return Double.toString(abundance);
-                    }
-
-                    public String getIdentifier()
-                    {
-                        return "abundance-" + Long.toString(sampleID);
-                    }
-                });
+            columns.add(new InternalAbundanceColumnDefinition(header, 100, false, sampleID));
         }
         definitions.addColumns(columns);
         definitions.setGridCellRendererFor(ProteinColDefKind.UNIPROT_ID.id(), LinkRenderer

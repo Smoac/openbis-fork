@@ -338,7 +338,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         } catch (UserFailureException ex)
         {
             AssertionUtil.assertContains("Protein '" + PROTEIN_NAME1
-                    + "' has an abundance value for an unidentified samples: "
+                    + "' has an abundance value for an unidentified sample: "
                     + upperCaseParameterName, ex.getMessage());
         }
 
