@@ -29,12 +29,24 @@ public class ProteinByExperiment implements IsSerializable, Serializable
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+    
+    private String accessionNumberType;
 
     private String accessionNumber;
 
     private String description;
 
     private ProteinDetails details;
+
+    public final String getAccessionNumberType()
+    {
+        return accessionNumberType;
+    }
+
+    public final void setAccessionNumberType(String accessionNumberType)
+    {
+        this.accessionNumberType = accessionNumberType;
+    }
 
     public final String getAccessionNumber()
     {

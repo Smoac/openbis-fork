@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.AccessionNumberBuilder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IDataSetProteinTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinDetailsBO;
@@ -143,7 +144,10 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         {
             throw new UserFailureException("No protein reference found for ID: " + proteinReferenceID);
         }
-        proteinByExperiment.setAccessionNumber(proteinReference.getAccessionNumber());
+        AccessionNumberBuilder builder =
+                new AccessionNumberBuilder(proteinReference.getAccessionNumber());
+        proteinByExperiment.setAccessionNumber(builder.getAccessionNumber());
+        proteinByExperiment.setAccessionNumberType(builder.getTypeOrNull());
         proteinByExperiment.setDescription(proteinReference.getDescription());
         IProteinDetailsBO proteinDetailsBO = specificBOFactory.createProteinDetailsBO(session);
         proteinDetailsBO.loadByExperimentAndReference(experimentID, proteinReferenceID);

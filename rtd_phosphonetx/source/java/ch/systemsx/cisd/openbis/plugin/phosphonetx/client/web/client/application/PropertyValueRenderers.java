@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import com.extjs.gxt.ui.client.widget.Text;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -40,7 +41,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExp
  */
 public final class PropertyValueRenderers
 {
-    private static final String PROTEIN_DETAILS_PAGE_URL = "http://www.uniprot.org/uniprot/";
 
     private PropertyValueRenderers()
     {
@@ -89,13 +89,13 @@ public final class PropertyValueRenderers
         public Widget getAsWidget(ProteinByExperiment object)
         {
             String accessionNumber = object.getAccessionNumber();
-            String url = createProteinDescriptionURL(accessionNumber);
+            String type = object.getAccessionNumberType();
+            String url = AccessionNumberURLCreator.tryToCreateURL(type, accessionNumber);
+            if (url == null)
+            {
+                return new Text(accessionNumber);
+            }
             return new ExternalHyperlink(accessionNumber, url);
-        }
-
-        private static String createProteinDescriptionURL(String accessionNumber)
-        {
-            return PROTEIN_DETAILS_PAGE_URL + accessionNumber;
         }
     }
 

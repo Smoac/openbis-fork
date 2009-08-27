@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.AccessionNumberBuilder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
@@ -63,7 +64,8 @@ class ListProteinOriginalDataProvider implements IOriginalDataProvider<ProteinIn
         {
             ProteinInfo proteinInfo = new ProteinInfo();
             proteinInfo.setId(new TechId(protein.getId()));
-            proteinInfo.setAccessionNumber(protein.getAccessionNumber());
+            AccessionNumberBuilder builder = new AccessionNumberBuilder(protein.getAccessionNumber());
+            proteinInfo.setAccessionNumber(builder.getAccessionNumber());
             proteinInfo.setDescription(protein.getDescription());
             proteinInfo.setExperimentID(experimentID);
             Map<Long, Double> abundances = new HashMap<Long, Double>();
