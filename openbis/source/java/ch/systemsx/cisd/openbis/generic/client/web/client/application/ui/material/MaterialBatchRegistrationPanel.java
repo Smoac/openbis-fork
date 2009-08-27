@@ -25,9 +25,10 @@ import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
@@ -49,15 +50,16 @@ public final class MaterialBatchRegistrationPanel extends LayoutContainer
 
     private final MaterialTypeSelectionWidget materialTypeSelection;
 
-    private final CommonViewContext viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public static DatabaseModificationAwareComponent create(final CommonViewContext viewContext)
+    public static DatabaseModificationAwareComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         MaterialBatchRegistrationPanel panel = new MaterialBatchRegistrationPanel(viewContext);
         return new DatabaseModificationAwareComponent(panel, panel.materialTypeSelection);
     }
 
-    private MaterialBatchRegistrationPanel(final CommonViewContext viewContext)
+    private MaterialBatchRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
         setId(ID);

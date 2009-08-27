@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -30,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
@@ -130,6 +133,19 @@ public class ExperimentBrowserGrid extends
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
+
+        final Button addButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Experiment"),
+                        new SelectionListener<ComponentEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ComponentEvent ce)
+                                {
+                                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
+                                            viewContext).getExperimentRegistration());
+                                }
+                            });
+        addButton(addButton);
 
         String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
         Button showDetailsButton =

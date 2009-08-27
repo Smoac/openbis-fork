@@ -105,6 +105,8 @@ public abstract class Dict
 
     public static final String TOOLTIP_VIEW_DATASET = "tooltip_view_dataset";
 
+    public static final String BUTTON_ADD = "button_add";
+
     public static final String BUTTON_SAVE = "button_save";
 
     public static final String BUTTON_CHOOSE = "button_choose";
@@ -562,8 +564,6 @@ public abstract class Dict
     //
     public static final String GROUP_BROWSER = "group_browser";
 
-    public static final String BUTTON_ADD_GROUP = "button_add_group";
-
     //
     // Person Browser
     //
@@ -576,8 +576,6 @@ public abstract class Dict
     public static final String LAST_NAME = "last_name";
 
     public static final String EMAIL = "email";
-
-    public static final String BUTTON_ADD_PERSON = "button_add_person";
 
     //
     // Role Browser

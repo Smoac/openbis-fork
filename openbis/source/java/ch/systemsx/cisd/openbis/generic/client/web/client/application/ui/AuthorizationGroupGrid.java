@@ -111,7 +111,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
         addButton(showDetailsButton);
 
         final Button addAuthorizationGroupButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD_GROUP),
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Group"),
                         new SelectionListener<ComponentEvent>()
                             {
                                 @Override

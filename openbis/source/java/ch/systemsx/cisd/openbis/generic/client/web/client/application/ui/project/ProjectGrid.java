@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.projec
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
@@ -27,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
@@ -85,6 +88,19 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
+
+        final Button addButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Project"),
+                        new SelectionListener<ComponentEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ComponentEvent ce)
+                                {
+                                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
+                                            viewContext).getProjectRegistration());
+                                }
+                            });
+        addButton(addButton);
 
         Button showDetailsButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),

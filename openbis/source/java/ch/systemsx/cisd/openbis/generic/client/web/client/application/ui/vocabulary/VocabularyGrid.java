@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -31,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
@@ -84,6 +87,19 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
+
+        final Button addButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Vocabulary"),
+                        new SelectionListener<ComponentEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ComponentEvent ce)
+                                {
+                                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
+                                            viewContext).getVocabularyRegistration());
+                                }
+                            });
+        addButton(addButton);
 
         Button showDetailsButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),

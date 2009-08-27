@@ -18,9 +18,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import com.google.gwt.http.client.URL;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
@@ -58,7 +59,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
 
     private FileFormatTypeSelectionWidget fileTypeSelectionWidget;
 
-    public DataSetUploadForm(CommonViewContext viewContext)
+    public DataSetUploadForm(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, ID_SUFFIX);
         cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
@@ -81,7 +82,8 @@ public class DataSetUploadForm extends AbstractRegistrationForm
         }
     }
 
-    public static DatabaseModificationAwareComponent create(CommonViewContext viewContext)
+    public static DatabaseModificationAwareComponent create(
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
         DataSetUploadForm form = new DataSetUploadForm(viewContext);
         IDatabaseModificationObserver observer = form.createDatabaseModificationObserver();

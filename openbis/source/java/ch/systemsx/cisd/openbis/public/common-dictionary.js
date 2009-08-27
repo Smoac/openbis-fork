@@ -57,6 +57,7 @@ var common = {
   // Buttons
   //
   
+  button_add: "Add {0}",
   button_save: "Save",
   button_choose: "Choose",
   button_cancel: "Cancel",
@@ -353,7 +354,6 @@ var common = {
  first_name: "First Name",
  last_name: "Last Name",
  email: "Email",
- button_add_person: "Add Person",
  
  //
  // Role Browser
@@ -368,7 +368,6 @@ var common = {
  //
  group_browser: "Group Browser",
  leader: "Head",
- button_add_group: "Add Group",
 
  //
  // Project Browser

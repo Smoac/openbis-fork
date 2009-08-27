@@ -93,7 +93,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
         addEntityOperationsLabel();
 
         final Button addGroupButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD_GROUP),
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Group"),
                         new SelectionListener<ComponentEvent>()
                             {
                                 @Override

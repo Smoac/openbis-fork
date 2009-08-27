@@ -129,7 +129,7 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
     {
         addEntityOperationsLabel();
         final Button addPersonButton =
-                new Button(viewContext.getMessage(Dict.BUTTON_ADD_PERSON),
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Person"),
                         new SelectionListener<ComponentEvent>()
                             {
                                 @Override

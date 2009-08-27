@@ -30,9 +30,10 @@ import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
@@ -53,7 +54,7 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
 {
     private final S entityTypeSelection;
 
-    private final CommonViewContext viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final EntityKind entityKind;
 
@@ -66,8 +67,8 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
         return GenericConstants.ID_PREFIX + entityKind.name().toLowerCase() + "-registration";
     }
 
-    public EntityRegistrationPanel(final CommonViewContext viewContext, EntityKind entityKind,
-            S entityTypeSelection)
+    public EntityRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext,
+            EntityKind entityKind, S entityTypeSelection)
     {
         this.entityTypeSelection = entityTypeSelection;
         this.viewContext = viewContext;

@@ -18,8 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import com.extjs.gxt.ui.client.widget.Component;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
@@ -59,9 +60,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  */
 public final class ComponentProvider
 {
-    private final CommonViewContext viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    ComponentProvider(final CommonViewContext viewContext)
+    public ComponentProvider(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
     }

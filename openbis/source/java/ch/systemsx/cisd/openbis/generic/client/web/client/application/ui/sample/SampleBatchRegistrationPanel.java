@@ -25,9 +25,10 @@ import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
@@ -48,15 +49,16 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
 
     private final SampleTypeSelectionWidget sampleTypeSelection;
 
-    private final CommonViewContext viewContext;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public static DatabaseModificationAwareComponent create(final CommonViewContext viewContext)
+    public static DatabaseModificationAwareComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         SampleBatchRegistrationPanel panel = new SampleBatchRegistrationPanel(viewContext);
         return new DatabaseModificationAwareComponent(panel, panel.sampleTypeSelection);
     }
 
-    private SampleBatchRegistrationPanel(final CommonViewContext viewContext)
+    private SampleBatchRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
         setId(ID);
