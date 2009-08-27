@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * Grid displaying vocabularies.
@@ -326,8 +327,18 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        // grid is refreshed manually when a new object is added, so there can be no auto-refresh
-        return new DatabaseModificationKind[] {};
+        // refresh when any high level entity or property assignment is modified/created/deleted
+        return new DatabaseModificationKind[]
+            { DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
+                    DatabaseModificationKind.edit(ObjectKind.DATA_SET),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
+                    DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.MATERIAL),
+                    DatabaseModificationKind.edit(ObjectKind.MATERIAL),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
+                    DatabaseModificationKind.edit(ObjectKind.SAMPLE),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     private void deleteTerms()
