@@ -26,12 +26,12 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.Protein
  */
 public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
 {
-    UNIPROT_ID(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.UNIPROT_ID)
+    ACCESSION_NUMBER(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.ACCESSION_NUMBER)
         {
             @Override
             public String tryGetValue(ProteinInfo entity)
             {
-                return entity.getUniprotID();
+                return entity.getAccessionNumber();
             }
         }),
 

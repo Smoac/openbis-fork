@@ -269,13 +269,13 @@ class ResultDataSetUploader extends AbstractHandler
             ProteinAnnotation annotation)
     {
         ProteinDescription protDesc = new ProteinDescription(annotation.getDescription());
-        String uniprotID = protDesc.getUniprotID();
+        String accessionNumber = protDesc.getAccessionNumber();
         String description = protDesc.getDescription();
-        ProteinReference proteinReference = dao.tryToGetProteinReference(uniprotID);
+        ProteinReference proteinReference = dao.tryToGetProteinReference(accessionNumber);
         if (proteinReference == null)
         {
             proteinReference = new ProteinReference();
-            proteinReference.setId(dao.createProteinReference(uniprotID, description));
+            proteinReference.setId(dao.createProteinReference(accessionNumber, description));
         } else if (StringUtils.equals(description, proteinReference.getDescription()) == false)
         {
             dao.updateProteinReferenceDescription(proteinReference.getId(), description);

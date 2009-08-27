@@ -101,7 +101,7 @@ public class ProteinViewer extends
         String info = proteinInfo.getDescription();
         if (info == null)
         {
-            info = proteinInfo.getUniprotID();
+            info = proteinInfo.getAccessionNumber();
         }
         return StringUtils.abbreviate(info, 30);
     }
@@ -189,7 +189,7 @@ public class ProteinViewer extends
             propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
                     .createExperimentPropertyValueRenderer(viewContext));
         }
-        properties.put(viewContext.getMessage(Dict.UNIPROT_ID), protein);
+        properties.put(viewContext.getMessage(Dict.ACCESSION_NUMBER), protein);
         propertyGrid.registerPropertyValueRenderer(ProteinByExperiment.class,
                 PropertyValueRenderers.createProteinIdentLinkRenderer(viewContext));
 

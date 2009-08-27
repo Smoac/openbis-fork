@@ -31,7 +31,7 @@ public class ProteinInfo implements IsSerializable
 {
     private TechId id;
     
-    private String uniprotID;
+    private String accessionNumber;
     
     private TechId experimentID;
     
@@ -71,14 +71,14 @@ public class ProteinInfo implements IsSerializable
         this.dataSetPermID = dataSetPermID;
     }
 
-    public final String getUniprotID()
+    public final String getAccessionNumber()
     {
-        return uniprotID;
+        return accessionNumber;
     }
 
-    public final void setUniprotID(String uniprotID)
+    public final void setAccessionNumber(String accessionNumber)
     {
-        this.uniprotID = uniprotID;
+        this.accessionNumber = accessionNumber;
     }
 
     public final String getDescription()

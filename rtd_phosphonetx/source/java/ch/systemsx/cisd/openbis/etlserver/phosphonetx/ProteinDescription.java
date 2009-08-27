@@ -29,7 +29,7 @@ final class ProteinDescription
         return "\\" + key + "=" + value;
     }
 
-    private final String uniprotID;
+    private final String accessionNumber;
 
     private final String description;
 
@@ -38,12 +38,12 @@ final class ProteinDescription
     public ProteinDescription(String proteinDescription)
     {
         String[] items = proteinDescription.split("\\\\");
-        uniprotID = tryToGetUniprotID(items);
+        accessionNumber = tryToGetAccessionNumber(items);
         description = tryToGetValue(items, DESCRIPTION_KEY);
         sequence = tryToGetValue(items, SEQUENCE_KEY);
-        if (uniprotID == null)
+        if (accessionNumber == null)
         {
-            throw new UserFailureException("Cannot find a uniprotId in a protein description: "
+            throw new UserFailureException("Cannot find an accession number in a protein description: "
                     + proteinDescription);
         }
         if (sequence == null)
@@ -54,9 +54,9 @@ final class ProteinDescription
         }
     }
 
-    public final String getUniprotID()
+    public final String getAccessionNumber()
     {
-        return uniprotID;
+        return accessionNumber;
     }
 
     public final String getDescription()
@@ -69,7 +69,7 @@ final class ProteinDescription
         return sequence;
     }
 
-    private String tryToGetUniprotID(String[] items)
+    private String tryToGetAccessionNumber(String[] items)
     {
         return items == null || items.length == 0 ? null : items[0].trim();
     }

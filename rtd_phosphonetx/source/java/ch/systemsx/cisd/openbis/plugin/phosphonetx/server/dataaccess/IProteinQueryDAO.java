@@ -39,7 +39,7 @@ public interface IProteinQueryDAO extends BaseQuery
     @Select(sql = "select * from probability_fdr_mappings where dase_id = ?{1}", disconnected = true)
     public DataSet<ProbabilityFDRMapping> getProbabilityFDRMapping(long dataSetID);
     
-    @Select("select pr.id, pr.uniprot_id, pr.description, d.id as data_set_id, p.probability, " 
+    @Select("select pr.id, pr.accession_number, pr.description, d.id as data_set_id, p.probability, " 
     		+ "   a.value as abundance, samples.id as sample_id "
             + "from identified_proteins as ip left join proteins as p on ip.prot_id = p.id "
             + "left join data_sets as d on p.dase_id = d.id "
@@ -48,7 +48,7 @@ public interface IProteinQueryDAO extends BaseQuery
             + "left join protein_references as pr on s.prre_id = pr.id "
             + "left join abundances as a on p.id = a.prot_id "
             + "left join samples on a.samp_id = samples.id "
-            + "where e.perm_id = ?{1} order by pr.uniprot_id, samples.id")
+            + "where e.perm_id = ?{1} order by pr.accession_number, samples.id")
     public DataSet<ProteinReferenceWithProbability> listProteinsByExperiment(String experimentPermID);
     
     @Select("select distinct s.id, s.perm_id "

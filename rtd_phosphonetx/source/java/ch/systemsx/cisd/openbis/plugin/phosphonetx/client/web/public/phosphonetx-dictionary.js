@@ -8,7 +8,7 @@ var phosphonetx = {
   aggregate_function_label: "Aggregate Function",
   
   // Protein grid
-  uniprot_id: "UniProt ID",
+  accession_number: "Accession Number",
   protein_description: "Protein",
   false_discovery_rate: "FDR",
   

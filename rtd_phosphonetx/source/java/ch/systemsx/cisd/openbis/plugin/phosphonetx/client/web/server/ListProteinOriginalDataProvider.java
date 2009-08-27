@@ -63,7 +63,7 @@ class ListProteinOriginalDataProvider implements IOriginalDataProvider<ProteinIn
         {
             ProteinInfo proteinInfo = new ProteinInfo();
             proteinInfo.setId(new TechId(protein.getId()));
-            proteinInfo.setUniprotID(protein.getUniprotID());
+            proteinInfo.setAccessionNumber(protein.getAccessionNumber());
             proteinInfo.setDescription(protein.getDescription());
             proteinInfo.setExperimentID(experimentID);
             Map<Long, Double> abundances = new HashMap<Long, Double>();

@@ -25,20 +25,20 @@ import net.lemnik.eodsql.ResultColumn;
  */
 public class ProteinReference extends AbstractDTOWithID
 {
-    @ResultColumn("uniprot_id")
-    private String uniprotID;
+    @ResultColumn("accession_number")
+    private String accessionNumber;
     
     @ResultColumn("description")
     private String description;
 
-    public final String getUniprotID()
+    public final String getAccessionNumber()
     {
-        return uniprotID;
+        return accessionNumber;
     }
 
-    public final void setUniprotID(String uniprotID)
+    public final void setAccessionNumber(String accessionNumber)
     {
-        this.uniprotID = uniprotID;
+        this.accessionNumber = accessionNumber;
     }
 
     public final String getDescription()

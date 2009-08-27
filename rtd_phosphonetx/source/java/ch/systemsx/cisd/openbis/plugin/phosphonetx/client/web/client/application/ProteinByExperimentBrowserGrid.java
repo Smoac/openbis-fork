@@ -85,7 +85,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         toolbar = new ProteinByExperimentBrowerToolBar(viewContext);
         toolbar.setBrowserGrid(this);
         setDisplayTypeIDGenerator(PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
-        registerLinkClickListenerFor(ProteinColDefKind.UNIPROT_ID.id(),
+        registerLinkClickListenerFor(ProteinColDefKind.ACCESSION_NUMBER.id(),
                 new ICellListener<ProteinInfo>()
                     {
                         public void handle(ProteinInfo rowItem)
@@ -136,7 +136,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
             columns.add(new InternalAbundanceColumnDefinition(header, 100, false, sampleID));
         }
         definitions.addColumns(columns);
-        definitions.setGridCellRendererFor(ProteinColDefKind.UNIPROT_ID.id(), LinkRenderer
+        definitions.setGridCellRendererFor(ProteinColDefKind.ACCESSION_NUMBER.id(), LinkRenderer
                 .createLinkRenderer());
         return definitions;
     }

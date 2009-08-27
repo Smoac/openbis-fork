@@ -30,20 +30,20 @@ public class ProteinByExperiment implements IsSerializable, Serializable
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private String uniprotID;
+    private String accessionNumber;
 
     private String description;
 
     private ProteinDetails details;
 
-    public final String getUniprotID()
+    public final String getAccessionNumber()
     {
-        return uniprotID;
+        return accessionNumber;
     }
 
-    public final void setUniprotID(String uniprotID)
+    public final void setAccessionNumber(String accessionNumber)
     {
-        this.uniprotID = uniprotID;
+        this.accessionNumber = accessionNumber;
     }
 
     public final String getDescription()

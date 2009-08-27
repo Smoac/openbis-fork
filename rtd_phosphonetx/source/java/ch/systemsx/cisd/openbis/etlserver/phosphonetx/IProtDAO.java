@@ -77,11 +77,11 @@ public interface IProtDAO extends BaseQuery
     @Update("insert into modifications (mope_id, pos, mass) values (?{1}, ?{2}, ?{3})")
     public void createModification(long modPeptideID, int position, double mass);
 
-    @Select("select * from protein_references where uniprot_id = ?{1}")
-    public ProteinReference tryToGetProteinReference(String uniprotID);
+    @Select("select * from protein_references where accession_number = ?{1}")
+    public ProteinReference tryToGetProteinReference(String accessionNumber);
 
-    @Select("insert into protein_references (uniprot_id, description) values (?{1}, ?{2}) returning id")
-    public long createProteinReference(String uniprotID, String description);
+    @Select("insert into protein_references (accession_number, description) values (?{1}, ?{2}) returning id")
+    public long createProteinReference(String accessionNumber, String description);
 
     @Update("update protein_references set description = ?{2} where id = ?{1}")
     public void updateProteinReferenceDescription(long proteinReferenceID, String description);

@@ -1,12 +1,12 @@
 /* ---------------------------------------------------------------------- */
-/* Script generated with: DeZign for Databases v5.2.2                     */
+/* Script generated with: DeZign for Databases v5.2.3                     */
 /* Target DBMS:           PostgreSQL 8                                    */
 /* Project file:          schema-001.dez                                  */
 /* Project name:                                                          */
 /* Author:                                                                */
 /* Script type:           Database creation script                        */
-/* Created on:            2009-07-15 15:53                                */
-/* Model version:         Version 2009-07-15 1                            */
+/* Created on:            2009-08-27 11:01                                */
+/* Model version:         Version 2009-08-27                              */
 /* ---------------------------------------------------------------------- */
 
 
@@ -32,7 +32,7 @@ CREATE DOMAIN TECH_ID AS BIGINT;
 
 CREATE DOMAIN SHORT_SEQUENCE AS CHARACTER VARYING(1000);
 
-CREATE DOMAIN UNIPROT_ACCESSION_NUMBER AS CHARACTER VARYING(256);
+CREATE DOMAIN ACCESSION_NUMBER AS CHARACTER VARYING(256);
 
 /* ---------------------------------------------------------------------- */
 /* Tables                                                                 */
@@ -172,13 +172,13 @@ CREATE TABLE PROBABILITY_FDR_MAPPINGS (
 
 CREATE TABLE PROTEIN_REFERENCES (
     ID BIGSERIAL  NOT NULL,
-    UNIPROT_ID UNIPROT_ACCESSION_NUMBER  NOT NULL,
+    ACCESSION_NUMBER ACCESSION_NUMBER  NOT NULL,
     DESCRIPTION DESCRIPTION,
     CONSTRAINT PK_PROTEIN_REFERENCES PRIMARY KEY (ID),
-    CONSTRAINT TUC_PROTEIN_REFERENCES_1 UNIQUE (UNIPROT_ID)
+    CONSTRAINT TUC_PROTEIN_REFERENCES_1 UNIQUE (ACCESSION_NUMBER)
 );
 
-CREATE INDEX IDX_PROTEIN_REFERENCES_1 ON PROTEIN_REFERENCES (UNIPROT_ID);
+CREATE INDEX IDX_PROTEIN_REFERENCES_1 ON PROTEIN_REFERENCES (ACCESSION_NUMBER);
 
 /* ---------------------------------------------------------------------- */
 /* Add table "DATABASES"                                                  */

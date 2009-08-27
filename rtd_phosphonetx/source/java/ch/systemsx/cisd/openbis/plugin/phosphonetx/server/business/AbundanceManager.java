@@ -48,14 +48,14 @@ class AbundanceManager
     
     private ProteinWithAbundances getOrCreateProtein(ProteinReferenceWithProbability proteinReference)
     {
-        String accessionNumber = proteinReference.getUniprotID();
+        String accessionNumber = proteinReference.getAccessionNumber();
         ProteinWithAbundances protein = proteins.get(accessionNumber);
         if (protein == null)
         {
             protein = new ProteinWithAbundances();
             protein.setId(proteinReference.getId());
             protein.setDescription(proteinReference.getDescription());
-            protein.setUniprotID(accessionNumber);
+            protein.setAccessionNumber(accessionNumber);
             proteins.put(accessionNumber, protein);
         }
         return protein;

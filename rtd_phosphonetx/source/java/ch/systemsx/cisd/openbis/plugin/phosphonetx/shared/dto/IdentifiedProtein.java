@@ -66,9 +66,9 @@ public class IdentifiedProtein extends AbstractDTOWithID
         return peptideCount;
     }
 
-    public final void setPeptideCount(int uniprotID)
+    public final void setPeptideCount(int accessionNumber)
     {
-        this.peptideCount = uniprotID;
+        this.peptideCount = accessionNumber;
     }
 
     public final String getSequence()

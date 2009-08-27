@@ -88,14 +88,14 @@ public final class PropertyValueRenderers
 
         public Widget getAsWidget(ProteinByExperiment object)
         {
-            String uniprotID = object.getUniprotID();
-            String url = createProteinDescriptionURL(uniprotID);
-            return new ExternalHyperlink(uniprotID, url);
+            String accessionNumber = object.getAccessionNumber();
+            String url = createProteinDescriptionURL(accessionNumber);
+            return new ExternalHyperlink(accessionNumber, url);
         }
 
-        private static String createProteinDescriptionURL(String uniprotID)
+        private static String createProteinDescriptionURL(String accessionNumber)
         {
-            return PROTEIN_DETAILS_PAGE_URL + uniprotID;
+            return PROTEIN_DETAILS_PAGE_URL + accessionNumber;
         }
     }
 

@@ -29,7 +29,7 @@ public class Dict
     
     public static final String AGGREGATE_FUNCTION_LABEL = "aggregate_function_label";
 
-    public static final String UNIPROT_ID = "uniprot_id";
+    public static final String ACCESSION_NUMBER = "accession_number";
 
     public static final String PROTEIN_DESCRIPTION = "protein_description";
 

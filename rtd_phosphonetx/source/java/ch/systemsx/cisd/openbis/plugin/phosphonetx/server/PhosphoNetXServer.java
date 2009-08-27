@@ -143,7 +143,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         {
             throw new UserFailureException("No protein reference found for ID: " + proteinReferenceID);
         }
-        proteinByExperiment.setUniprotID(proteinReference.getUniprotID());
+        proteinByExperiment.setAccessionNumber(proteinReference.getAccessionNumber());
         proteinByExperiment.setDescription(proteinReference.getDescription());
         IProteinDetailsBO proteinDetailsBO = specificBOFactory.createProteinDetailsBO(session);
         proteinDetailsBO.loadByExperimentAndReference(experimentID, proteinReferenceID);

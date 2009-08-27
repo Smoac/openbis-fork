@@ -480,7 +480,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
             final boolean referenceExist)
     {
         ProteinDescription proteinDescription = new ProteinDescription(annotation.getDescription());
-        final String uniprotID = proteinDescription.getUniprotID();
+        final String uniprotID = proteinDescription.getAccessionNumber();
         final String description = proteinDescription.getDescription();
         final String sequence = proteinDescription.getSequence();
         context.checking(new Expectations()
