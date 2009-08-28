@@ -23,6 +23,8 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 
 /**
@@ -68,4 +70,32 @@ public final class AttachmentTranslator
         return result;
     }
 
+    public final static AttachmentPE translate(NewAttachment attachment)
+    {
+        final String fileName = getFileName(attachment.getFilePath());
+        final AttachmentContentPE content = new AttachmentContentPE();
+        content.setValue(attachment.getContent());
+        return createAttachmentPE(attachment, fileName, content);
+    }
+    
+    private static String getFileName(String filePath)
+    {
+        int lastIndexOfSeparator = filePath.replace('\\', '/').lastIndexOf('/');
+        return lastIndexOfSeparator < 0 ? filePath : filePath.substring(lastIndexOfSeparator + 1);
+    }
+
+    private static final AttachmentPE createAttachmentPE(final NewAttachment attachment,
+            final String fileName, final AttachmentContentPE content)
+    {
+        assert fileName != null : "file name not set";
+        assert attachment != null : "attachment not set";
+        assert content != null : "content not set";
+
+        final AttachmentPE result = new AttachmentPE();
+        result.setFileName(fileName);
+        result.setDescription(attachment.getDescription());
+        result.setTitle(attachment.getTitle());
+        result.setAttachmentContent(content);
+        return result;
+    }
 }

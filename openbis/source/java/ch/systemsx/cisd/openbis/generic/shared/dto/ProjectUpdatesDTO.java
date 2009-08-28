@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.List;
+import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractProjectUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
@@ -36,7 +37,7 @@ public class ProjectUpdatesDTO extends AbstractProjectUpdates
     // ----- the data which should be changed:
 
     // new attachments which will be added to the old ones
-    private List<AttachmentPE> attachments;
+    private Collection<NewAttachment> attachments;
 
     public ProjectIdentifier getIdentifier()
     {
@@ -48,12 +49,12 @@ public class ProjectUpdatesDTO extends AbstractProjectUpdates
         this.identifier = identifier;
     }
 
-    public List<AttachmentPE> getAttachments()
+    public Collection<NewAttachment> getAttachments()
     {
         return attachments;
     }
 
-    public void setAttachments(List<AttachmentPE> attachments)
+    public void setAttachments(Collection<NewAttachment> attachments)
     {
         this.attachments = attachments;
     }

@@ -31,6 +31,8 @@ public class NewAttachment implements IsSerializable
     private String title;
 
     private String description;
+    
+    private byte[] content;
 
     public NewAttachment()
     {
@@ -46,6 +48,12 @@ public class NewAttachment implements IsSerializable
     public String getFilePath()
     {
         return filePath;
+    }
+
+    public String getFileName()
+    {
+        int lastIndexOfSeparator = filePath.replace('\\', '/').lastIndexOf('/');
+        return lastIndexOfSeparator < 0 ? filePath : filePath.substring(lastIndexOfSeparator + 1);
     }
 
     public void setFilePath(String filePath)
@@ -71,5 +79,15 @@ public class NewAttachment implements IsSerializable
     public void setDescription(String description)
     {
         this.description = description;
+    }
+
+    public final byte[] getContent()
+    {
+        return content;
+    }
+
+    public final void setContent(byte[] content)
+    {
+        this.content = content;
     }
 }

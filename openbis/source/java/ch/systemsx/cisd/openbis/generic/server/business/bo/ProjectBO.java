@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.GroupIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -219,9 +221,9 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
             throwModifiedEntityException("Project");
         }
         project.setDescription(updates.getDescription());
-        for (AttachmentPE a : updates.getAttachments())
+        for (NewAttachment attachment : updates.getAttachments())
         {
-            addAttachment(a);
+            addAttachment(AttachmentTranslator.translate(attachment));
         }
         String groupCode = updates.getGroupCode();
         if (groupCode != null && groupCode.equals(project.getGroup().getCode()) == false)

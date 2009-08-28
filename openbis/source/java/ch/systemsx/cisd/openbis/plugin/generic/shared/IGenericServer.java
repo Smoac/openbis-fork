@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.shared;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
@@ -123,7 +125,7 @@ public interface IGenericServer extends IPluginCommonServer
     public void registerExperiment(
             String sessionToken,
             @AuthorizationGuard(guardClass = NewExperimentPredicate.class) final NewExperiment experiment,
-            List<AttachmentPE> attachments);
+            final Collection<NewAttachment> attachments);
 
     /**
      * Registers materials in batch.

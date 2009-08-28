@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -159,7 +161,8 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                 }
             });
-        createServer().registerSample(SESSION_TOKEN, newSample, new ArrayList<AttachmentPE>());
+        createServer().registerSample(SESSION_TOKEN, newSample,
+                Collections.<NewAttachment> emptyList());
         context.assertIsSatisfied();
     }
 
@@ -296,7 +299,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
         createServer().registerExperiment(SESSION_TOKEN, newExperiment,
-                new ArrayList<AttachmentPE>());
+                Collections.<NewAttachment> emptyList());
         context.assertIsSatisfied();
     }
 
@@ -344,7 +347,7 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
         createServer().registerExperiment(SESSION_TOKEN, newExperiment,
-                new ArrayList<AttachmentPE>());
+                Collections.<NewAttachment> emptyList());
         context.assertIsSatisfied();
     }
 
@@ -380,7 +383,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         try
         {
             createServer().registerExperiment(SESSION_TOKEN, newExperiment,
-                    new ArrayList<AttachmentPE>());
+                    Collections.<NewAttachment> emptyList());
         } catch (UserFailureException e)
         {
             exceptionThrown = true;
@@ -454,7 +457,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         final List<IEntityProperty> properties = new ArrayList<IEntityProperty>();
         prepareGetSession();
         final Date version = new Date();
-        final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
+        final Collection<NewAttachment> attachments = Collections.<NewAttachment> emptyList();
         final SamplePE sample = new SamplePE();
         Date newModificationDate = new Date(2);
         sample.setModificationDate(newModificationDate);

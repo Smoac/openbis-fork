@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -52,13 +54,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -66,7 +68,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
@@ -375,7 +376,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
-            String description, String leaderId, List<AttachmentPE> attachments)
+            String description, String leaderId, Collection<NewAttachment> attachments)
     {
         logTracking(sessionToken, "register_project", "PROJECT(%s) ATTACHMNETS(%s)",
                 projectIdentifier, attachments.size());
@@ -510,19 +511,19 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 experimentId, fileNames, reason);
     }
 
-    public List<AttachmentPE> listExperimentAttachments(String sessionToken, TechId experimentId)
+    public List<Attachment> listExperimentAttachments(String sessionToken, TechId experimentId)
     {
         logAccess(sessionToken, "list_experiment_attachments", "ID(%s)", experimentId);
         return null;
     }
 
-    public List<AttachmentPE> listSampleAttachments(String sessionToken, TechId sampleId)
+    public List<Attachment> listSampleAttachments(String sessionToken, TechId sampleId)
     {
         logAccess(sessionToken, "list_sample_attachments", "ID(%s)", sampleId);
         return null;
     }
 
-    public List<AttachmentPE> listProjectAttachments(String sessionToken, TechId projectId)
+    public List<Attachment> listProjectAttachments(String sessionToken, TechId projectId)
     {
         logAccess(sessionToken, "list_project_attachments", "ID(%s)", projectId);
         return null;

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -66,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -79,10 +81,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -250,9 +249,9 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier project);
 
     /**
-     * For given sample {@link TechId} returns the corresponding list of {@link ExternalDataPE}.
+     * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
      * 
-     * @return a sorted list of {@link ExternalDataPE}.
+     * @return a sorted list of {@link ExternalData}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -260,9 +259,9 @@ public interface ICommonServer extends IServer
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId);
 
     /**
-     * For given experiment {@link TechId} returns the corresponding list of {@link ExternalDataPE}.
+     * For given experiment {@link TechId} returns the corresponding list of {@link ExternalData}.
      * 
-     * @return a sorted list of {@link ExternalDataPE}.
+     * @return a sorted list of {@link ExternalData}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -466,7 +465,7 @@ public interface ICommonServer extends IServer
     public void registerProject(
             String sessionToken,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ProjectIdentifier projectIdentifier,
-            String description, String leaderId, List<AttachmentPE> attachments);
+            String description, String leaderId, Collection<NewAttachment> attachments);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
@@ -641,7 +640,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<AttachmentPE> listExperimentAttachments(String sessionToken,
+    public List<Attachment> listExperimentAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
     /**
@@ -649,7 +648,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<AttachmentPE> listSampleAttachments(String sessionToken,
+    public List<Attachment> listSampleAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId);
 
     /**
@@ -657,7 +656,7 @@ public interface ICommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public List<AttachmentPE> listProjectAttachments(String sessionToken,
+    public List<Attachment> listProjectAttachments(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId);
 
     /**
@@ -688,7 +687,7 @@ public interface ICommonServer extends IServer
     /**
      * List data set types.
      * 
-     * @return a sorted list of {@link DataSetTypePE}.
+     * @return a sorted list of {@link DataSetType}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)

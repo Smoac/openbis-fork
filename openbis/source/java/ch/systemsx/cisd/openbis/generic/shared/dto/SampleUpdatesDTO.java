@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicSampleUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -37,10 +39,10 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
 
     private SampleIdentifier sampleIdentifier;
 
-    private List<AttachmentPE> attachments;
+    private Collection<NewAttachment> attachments;
 
     public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, List<AttachmentPE> attachments,
+            ExperimentIdentifier experimentIdentifierOrNull, Collection<NewAttachment> attachments,
             Date version, SampleIdentifier sampleIdentifier, String parentIdentifierOrNull,
             String containerIdentifierOrNull)
     {
@@ -70,12 +72,12 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
         this.experimentIdentifierOrNull = experimentIdentifierOrNull;
     }
 
-    public List<AttachmentPE> getAttachments()
+    public Collection<NewAttachment> getAttachments()
     {
         return attachments;
     }
 
-    public void setAttachments(List<AttachmentPE> attachments)
+    public void setAttachments(Collection<NewAttachment> attachments)
     {
         this.attachments = attachments;
     }

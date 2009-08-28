@@ -19,29 +19,34 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.core.IsAnything;
 import org.jmock.Expectations;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.springframework.web.multipart.MultipartFile;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientServiceTest;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -119,7 +124,21 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     will(returnValue(new UploadedFilesBean()));
                     one(httpSession).removeAttribute(sessionKey);
                     one(genericServer).registerSample(with(SESSION_TOKEN), getTranslatedSample(),
-                            with(new ArrayList<AttachmentPE>()));
+                            anyAttachmentCollection());
+                    will(new CustomAction("check sample")
+                        {
+                            @SuppressWarnings("unchecked")
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final NewSample sample = (NewSample) invocation.getParameter(1);
+                                assertEquals("MASTER_PLATE", sample.getSampleType().getCode());
+                                assertEquals("/group1/sample1", sample.getIdentifier());
+                                final Collection<NewAttachment> attachments =
+                                        (Collection<NewAttachment>) invocation.getParameter(2);
+                                assertEquals(0, attachments.size());
+                                return null;
+                            }
+                        });
                 }
 
                 private final NewSample getTranslatedSample()
@@ -127,12 +146,17 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     return with(any(NewSample.class));
                 }
 
+                @SuppressWarnings("unchecked")
+                private final Collection<NewAttachment> anyAttachmentCollection()
+                {
+                    return with(any(Collection.class));
+                }
             });
         genericClientService.registerSample(sessionKey, newSample);
         context.assertIsSatisfied();
     }
 
-    @Test(groups = "broken")
+    @Test
     public final void testRegisterSamples() throws IOException
     {
         final UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
@@ -149,7 +173,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         final List<NewSamplesWithTypes> samplesWithType = new ArrayList<NewSamplesWithTypes>();
         List<NewSample> newSamples = new ArrayList<NewSample>();
         newSamples.add(newSample);
-        samplesWithType.add(new NewSamplesWithTypes(new SampleType(), newSamples));
+        samplesWithType.add(new NewSamplesWithTypes(sampleType, newSamples));
         context.checking(new Expectations()
             {
                 {
@@ -161,16 +185,51 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
                     allowing(httpSession).removeAttribute(sessionKey);
 
-                    one(multipartFile).getBytes();
-                    will(returnValue("identifier\tcontainer\tparent\tprop1\tprop2\nMP1\tMP2\tMP3\tRED\t1"
-                            .getBytes()));
-
-                    one(multipartFile).getOriginalFilename();
+                    exactly(2).of(multipartFile).getOriginalFilename();
                     will(returnValue(fileName));
 
                     one(multipartFile).transferTo(with(any(File.class)));
+                    will(new CustomAction("copy content")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final File target = (File) invocation.getParameter(0);
+                                FileUtilities
+                                        .writeToFile(target,
+                                                "identifier\tcontainer\tparent\tprop1\tprop2\nMP1\tMP2\tMP3\tRED\t1");
+                                return null;
+                            }
+                        });
 
-                    one(genericServer).registerSamples(with(SESSION_TOKEN), with(samplesWithType));
+                    one(genericServer).registerSamples(with(equal(SESSION_TOKEN)),
+                            with(newSampleWithTypesList()));
+                    will(new CustomAction("check sample")
+                        {
+
+                            @SuppressWarnings("unchecked")
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final List<NewSamplesWithTypes> samplesSecions =
+                                        (List<NewSamplesWithTypes>) invocation.getParameter(1);
+                                assertEquals(1, samplesSecions.size());
+                                final NewSamplesWithTypes samples = samplesSecions.get(0);
+                                // Do not compare sampleType, as the registration code doesn't set
+                                // the database instance.
+                                assertEquals(sampleType.getCode(), samples.getSampleType()
+                                        .getCode());
+                                assertEquals(1, samples.getNewSamples().size());
+                                final NewSample sample = samples.getNewSamples().get(0);
+                                assertEquals("MP1", sample.getIdentifier());
+                                assertEquals("MP2", sample.getContainerIdentifier());
+                                assertEquals("MP3", sample.getParentIdentifier());
+                                assertEquals(2, sample.getProperties().length);
+                                final IEntityProperty prop1 = sample.getProperties()[0];
+                                final IEntityProperty prop2 = sample.getProperties()[1];
+                                assertEquals("RED", prop1.getValue());
+                                assertEquals("1", prop2.getValue());
+                                return null;
+                            }
+                        });
                 }
             });
         uploadedFilesBean.addMultipartFile(multipartFile);
@@ -200,12 +259,33 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                     will(returnValue(new UploadedFilesBean()));
                     one(httpSession).removeAttribute(attachmentSessionKey);
                     one(genericServer).registerExperiment(with(SESSION_TOKEN),
-                            getTranslatedExperiment(), with(new ArrayList<AttachmentPE>()));
+                            getTranslatedExperiment(), anyAttachmentCollection());
+                    will(new CustomAction("check experiment")
+                        {
+                            @SuppressWarnings("unchecked")
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final NewExperiment experiment =
+                                        (NewExperiment) invocation.getParameter(1);
+                                assertEquals("SIRNA_HCS", experiment.getExperimentTypeCode());
+                                assertEquals("/group1/project1/exp1", experiment.getIdentifier());
+                                final Collection<NewAttachment> attachments =
+                                        (Collection<NewAttachment>) invocation.getParameter(2);
+                                assertEquals(0, attachments.size());
+                                return null;
+                            }
+                        });
                 }
 
                 private final NewExperiment getTranslatedExperiment()
                 {
                     return with(any(NewExperiment.class));
+                }
+
+                @SuppressWarnings("unchecked")
+                private final Collection<NewAttachment> anyAttachmentCollection()
+                {
+                    return with(any(Collection.class));
                 }
 
             });
@@ -226,6 +306,11 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         newExperiment.setExperimentTypeCode(type);
         newExperiment.setProperties(properties);
         return newExperiment;
+    }
+
+    private IsAnything<List<NewSamplesWithTypes>> newSampleWithTypesList()
+    {
+        return new IsAnything<List<NewSamplesWithTypes>>();
     }
 
     /**

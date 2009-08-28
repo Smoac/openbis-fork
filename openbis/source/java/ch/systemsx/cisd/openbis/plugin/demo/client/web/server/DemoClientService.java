@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.demo.client.web.server;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.annotation.Resource;
 
@@ -30,9 +30,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistration
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientService;
@@ -100,7 +100,7 @@ public final class DemoClientService extends AbstractClientService implements ID
         new AttachmentRegistrationHelper()
             {
                 @Override
-                public void register(List<AttachmentPE> attachments)
+                public void register(Collection<NewAttachment> attachments)
                 {
                     demoServer.registerSample(sessionToken, sample, attachments);
                 }

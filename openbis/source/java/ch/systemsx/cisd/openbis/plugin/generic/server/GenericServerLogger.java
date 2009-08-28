@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -81,7 +83,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     public void registerSample(final String sessionToken, final NewSample newSample,
-            List<AttachmentPE> attachments)
+            final Collection<NewAttachment> attachments)
     {
         logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S) ATTACHMENTS(%S)",
                 newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
@@ -120,7 +122,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     public void registerExperiment(String sessionToken, NewExperiment experiment,
-            List<AttachmentPE> attachments)
+            final Collection<NewAttachment> attachments)
     {
         logTracking(sessionToken, "register_experiment",
                 "EXPERIMENT_TYPE(%s) EXPERIMENT(%S) ATTACHMENTS(%S)", experiment

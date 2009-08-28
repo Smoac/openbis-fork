@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.demo.server;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.annotation.Resource;
 
@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -103,7 +103,7 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     }
 
     public final void registerSample(final String sessionToken, final NewSample newSample,
-            List<AttachmentPE> attachments)
+            final Collection<NewAttachment> attachments)
     {
         throw new NotImplementedException();
     }

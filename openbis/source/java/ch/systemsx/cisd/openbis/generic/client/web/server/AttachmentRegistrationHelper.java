@@ -1,6 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,24 +11,22 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 
 public abstract class AttachmentRegistrationHelper
 {
 
-    abstract public void register(List<AttachmentPE> attachmentPEs);
+    abstract public void register(Collection<NewAttachment> attachmentPEs);
 
     final public void process(String sessionKey, HttpSession httpSession,
-            List<NewAttachment> attachments)
+            List<NewAttachment> attachmentsOrNull)
     {
         UploadedFilesBean uploadedFiles = null;
         try
         {
             uploadedFiles = (UploadedFilesBean) httpSession.getAttribute(sessionKey);
-            Map<String, AttachmentContentPE> contents =
-                    createUploadedFilesContentsMap(uploadedFiles);
-            register(createAttachmentPEs(attachments, contents));
+            final Map<String, NewAttachment> attachmentMap = createAttachmentMap(attachmentsOrNull);
+            fillContent(uploadedFiles, attachmentMap);
+            register(attachmentMap.values());
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -45,73 +43,36 @@ public abstract class AttachmentRegistrationHelper
         }
     }
 
-    private Map<String, AttachmentContentPE> createUploadedFilesContentsMap(
-            UploadedFilesBean uploadedFiles)
+    private Map<String, NewAttachment> createAttachmentMap(
+            final List<NewAttachment> attachmentsOrNull)
     {
-        // fileName -> content
-        Map<String, AttachmentContentPE> result = new HashMap<String, AttachmentContentPE>();
+        // fileName -> attachment
+        Map<String, NewAttachment> result = new HashMap<String, NewAttachment>();
+        if (attachmentsOrNull != null)
+        {
+            for (NewAttachment attachment : attachmentsOrNull)
+            {
+                result.put(attachment.getFileName(), attachment);
+            }
+        }
+        return result;
+    }
+
+    private void fillContent(UploadedFilesBean uploadedFiles, Map<String, NewAttachment> attachments)
+    {
         if (uploadedFiles != null)
         {
             for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
             {
-                String fileName = multipartFile.getOriginalFilename();
-                byte[] content = multipartFile.getBytes();
-                result.put(fileName, createContentPE(content));
-            }
-            if (result.size() != uploadedFiles.size())
-            {
-                throw new UserFailureException("Duplicated file names");
-            }
-        }
-        return result;
-    }
-
-    private final AttachmentContentPE createContentPE(final byte[] content)
-    {
-        final AttachmentContentPE attachmentContent = new AttachmentContentPE();
-        attachmentContent.setValue(content);
-        return attachmentContent;
-    }
-
-    private List<AttachmentPE> createAttachmentPEs(List<NewAttachment> attachments,
-            Map<String, AttachmentContentPE> contents)
-    {
-        List<AttachmentPE> result = new ArrayList<AttachmentPE>();
-        if (attachments == null)
-        {
-            assert contents.isEmpty() : "no attachments specified to fill with content";
-        } else
-        {
-            assert attachments.size() == contents.size() : "data loss";
-
-            for (NewAttachment attachment : attachments)
-            {
-                final String fileName = getFileName(attachment.getFilePath());
-                final AttachmentContentPE content = contents.get(fileName);
-                result.add(createAttachmentPE(attachment, fileName, content));
+                final String fileName = multipartFile.getOriginalFilename();
+                final byte[] content = multipartFile.getBytes();
+                final NewAttachment attachmentOrNull = attachments.get(fileName);
+                if (attachmentOrNull != null)
+                {
+                    attachmentOrNull.setContent(content);
+                }
             }
         }
-        return result;
     }
 
-    private String getFileName(String filePath)
-    {
-        int lastIndexOfSeparator = filePath.replace('\\', '/').lastIndexOf('/');
-        return lastIndexOfSeparator < 0 ? filePath : filePath.substring(lastIndexOfSeparator + 1);
-    }
-
-    private final AttachmentPE createAttachmentPE(final NewAttachment attachment,
-            final String fileName, final AttachmentContentPE content)
-    {
-        assert fileName != null : "file name not set";
-        assert attachment != null : "attachment not set";
-        assert content != null : "content not set";
-
-        final AttachmentPE result = new AttachmentPE();
-        result.setFileName(fileName);
-        result.setDescription(attachment.getDescription());
-        result.setTitle(attachment.getTitle());
-        result.setAttachmentContent(content);
-        return result;
-    }
 }

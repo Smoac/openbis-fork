@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -63,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -140,7 +143,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     public final void registerSample(final String sessionToken, final NewSample newSample,
-            List<AttachmentPE> attachments)
+            final Collection<NewAttachment> attachments)
     {
         assert sessionToken != null : "Unspecified session token.";
         assert newSample != null : "Unspecified new sample.";
@@ -149,9 +152,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.define(newSample);
         sampleBO.save();
-        for (AttachmentPE att : attachments)
+        for (NewAttachment attachment : attachments)
         {
-            sampleBO.addAttachment(att);
+            sampleBO.addAttachment(AttachmentTranslator.translate(attachment));
         }
         sampleBO.save();
     }
@@ -257,7 +260,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     public void registerExperiment(String sessionToken, NewExperiment newExperiment,
-            List<AttachmentPE> attachments)
+            final Collection<NewAttachment> attachments)
     {
         assert sessionToken != null : "Unspecified session token.";
         assert newExperiment != null : "Unspecified new experiment.";
@@ -271,9 +274,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.define(newExperiment);
         experimentBO.save();
-        for (AttachmentPE att : attachments)
+        for (NewAttachment attachment : attachments)
         {
-            experimentBO.addAttachment(att);
+            experimentBO.addAttachment(AttachmentTranslator.translate(attachment));
         }
         experimentBO.save();
 

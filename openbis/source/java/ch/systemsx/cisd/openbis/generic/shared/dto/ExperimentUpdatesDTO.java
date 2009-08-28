@@ -16,10 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.util.List;
+import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicExperimentUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -42,16 +43,16 @@ public class ExperimentUpdatesDTO extends BasicExperimentUpdates
     private ProjectIdentifier projectIdentifier;
 
     // new attachments which will be added to the old ones
-    private List<AttachmentPE> attachments;
+    private Collection<NewAttachment> attachments;
 
     private SampleType sampleType;
 
-    public List<AttachmentPE> getAttachments()
+    public Collection<NewAttachment> getAttachments()
     {
         return attachments;
     }
 
-    public void setAttachments(List<AttachmentPE> attachments)
+    public void setAttachments(Collection<NewAttachment> attachments)
     {
         this.attachments = attachments;
     }

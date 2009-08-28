@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -54,13 +55,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
@@ -154,7 +155,7 @@ public final class GenericClientService extends AbstractClientService implements
         new AttachmentRegistrationHelper()
             {
                 @Override
-                public void register(List<AttachmentPE> attachments)
+                public void register(Collection<NewAttachment> attachments)
                 {
                     genericServer.registerSample(sessionToken, newSample, attachments);
                 }
@@ -265,7 +266,7 @@ public final class GenericClientService extends AbstractClientService implements
         new AttachmentRegistrationHelper()
             {
                 @Override
-                public void register(List<AttachmentPE> attachments)
+                public void register(Collection<NewAttachment> attachments)
                 {
                     genericServer.registerExperiment(sessionToken, experiment, attachments);
                 }
@@ -386,7 +387,7 @@ public final class GenericClientService extends AbstractClientService implements
         new AttachmentRegistrationHelper()
             {
                 @Override
-                public void register(List<AttachmentPE> attachments)
+                public void register(Collection<NewAttachment> attachments)
                 {
                     ExperimentIdentifier convExperimentIdentifierOrNull = null;
                     SampleIdentifier sampleOwner = null;
@@ -448,7 +449,7 @@ public final class GenericClientService extends AbstractClientService implements
         new AttachmentRegistrationHelper()
             {
                 @Override
-                public void register(List<AttachmentPE> attachments)
+                public void register(Collection<NewAttachment> attachments)
                 {
                     ExperimentUpdatesDTO updatesDTO =
                             createExperimentUpdatesDTO(updates, attachments);
@@ -462,7 +463,7 @@ public final class GenericClientService extends AbstractClientService implements
     }
 
     private static ExperimentUpdatesDTO createExperimentUpdatesDTO(ExperimentUpdates updates,
-            List<AttachmentPE> attachments)
+            Collection<NewAttachment> attachments)
     {
         ExperimentUpdatesDTO updatesDTO = new ExperimentUpdatesDTO();
 

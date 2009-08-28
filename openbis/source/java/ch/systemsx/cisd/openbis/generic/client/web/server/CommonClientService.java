@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DAT
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,7 +48,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParam
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
@@ -104,6 +105,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -121,14 +123,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 
@@ -1236,7 +1236,7 @@ public final class CommonClientService extends AbstractClientService implements
         new AttachmentRegistrationHelper()
             {
                 @Override
-                public void register(List<AttachmentPE> attachments)
+                public void register(Collection<NewAttachment> attachments)
                 {
                     final ProjectIdentifier projectIdentifier =
                             new ProjectIdentifierFactory(project.getIdentifier())
@@ -1591,7 +1591,7 @@ public final class CommonClientService extends AbstractClientService implements
         final String sessionToken = getSessionToken();
         try
         {
-            List<AttachmentPE> attachments = null;
+            List<Attachment> attachments = null;
             switch (holderKind)
             {
                 case EXPERIMENT:
@@ -1604,7 +1604,7 @@ public final class CommonClientService extends AbstractClientService implements
                     attachments = commonServer.listProjectAttachments(sessionToken, holderId);
                     break;
             }
-            return AttachmentTranslator.translate(attachments);
+            return attachments;
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1677,7 +1677,7 @@ public final class CommonClientService extends AbstractClientService implements
         new AttachmentRegistrationHelper()
             {
                 @Override
-                public void register(List<AttachmentPE> attachments)
+                public void register(Collection<NewAttachment> attachments)
                 {
                     ProjectUpdatesDTO updatesDTO = translate(updates);
                     updatesDTO.setAttachments(attachments);

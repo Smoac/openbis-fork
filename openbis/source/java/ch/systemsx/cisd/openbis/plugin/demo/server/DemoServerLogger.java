@@ -16,13 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.demo.server;
 
-import java.util.List;
+import java.util.Collection;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -59,7 +59,7 @@ final class DemoServerLogger extends AbstractServerLogger implements IDemoServer
     }
 
     public void registerSample(final String sessionToken, final NewSample newSample,
-            List<AttachmentPE> attachments)
+            final Collection<NewAttachment> attachments)
     {
         logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%s) ATTACHMENTS(%s)",
                 newSample.getSampleType(), newSample.getIdentifier(), attachments.size());

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -96,6 +97,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -148,6 +150,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
@@ -763,15 +766,16 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
-            String description, String leaderId, List<AttachmentPE> attachments)
+            String description, String leaderId, Collection<NewAttachment> attachments)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
         projectBO.define(projectIdentifier, description, leaderId);
         projectBO.save();
-        for (AttachmentPE att : attachments)
+        for (NewAttachment attachment : attachments)
         {
-            projectBO.addAttachment(att);
+            final AttachmentPE attachmentPE = AttachmentTranslator.translate(attachment);
+            projectBO.addAttachment(attachmentPE);
         }
         projectBO.save();
 
@@ -1181,42 +1185,45 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         attachmentBO.deleteHolderAttachments(holder, fileNames, reason);
     }
 
-    public List<AttachmentPE> listExperimentAttachments(String sessionToken, TechId experimentId)
+    public List<Attachment> listExperimentAttachments(String sessionToken, TechId experimentId)
     {
         Session session = getSessionManager().getSession(sessionToken);
         try
         {
             IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
             experimentBO.loadDataByTechId(experimentId);
-            return listHolderAttachments(session, experimentBO.getExperiment());
+            return AttachmentTranslator.translate(listHolderAttachments(session, experimentBO
+                    .getExperiment()));
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
         }
     }
 
-    public List<AttachmentPE> listSampleAttachments(String sessionToken, TechId sampleId)
+    public List<Attachment> listSampleAttachments(String sessionToken, TechId sampleId)
     {
         Session session = getSessionManager().getSession(sessionToken);
         try
         {
             ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
             sampleBO.loadDataByTechId(sampleId);
-            return listHolderAttachments(session, sampleBO.getSample());
+            return AttachmentTranslator.translate(listHolderAttachments(session, sampleBO
+                    .getSample()));
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
         }
     }
 
-    public List<AttachmentPE> listProjectAttachments(String sessionToken, TechId projectId)
+    public List<Attachment> listProjectAttachments(String sessionToken, TechId projectId)
     {
         Session session = getSessionManager().getSession(sessionToken);
         try
         {
             IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
             projectBO.loadDataByTechId(projectId);
-            return listHolderAttachments(session, projectBO.getProject());
+            return AttachmentTranslator.translate(listHolderAttachments(session, projectBO
+                    .getProject()));
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

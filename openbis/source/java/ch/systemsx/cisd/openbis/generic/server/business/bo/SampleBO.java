@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -272,9 +274,9 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         updateExperiment(updates.getExperimentIdentifierOrNull());
         setGeneratedFrom(updates.getSampleIdentifier(), sample, updates.getParentIdentifierOrNull());
         setContainer(updates.getSampleIdentifier(), sample, updates.getContainerIdentifierOrNull());
-        for (AttachmentPE a : updates.getAttachments())
+        for (NewAttachment attachment : updates.getAttachments())
         {
-            addAttachment(a);
+            addAttachment(AttachmentTranslator.translate(attachment));
         }
         dataChanged = true;
     }
