@@ -37,11 +37,6 @@ public class SampleLister implements ISampleLister
         this.dao = dao;
     }
 
-    public boolean canHandle(final ListSampleCriteria criteria)
-    {
-        return dao.isEnabled();
-    }
-
     public List<Sample> list(final ListSampleCriteria criteria)
     {
         return new SampleListingWorker(criteria, dao).load();

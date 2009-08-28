@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -37,11 +38,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentif
 public interface ISampleTable
 {
     /**
+     * Use {@link ISampleLister} instead.<br>
      * Lists sample of a particular type.
      * <p>
      * Container and generator fields will be initialized up to the specified nesting level.
      * </p>
      */
+    @Deprecated
     void loadSamplesByCriteria(final ListSampleCriteriaDTO criteria);
 
     /**

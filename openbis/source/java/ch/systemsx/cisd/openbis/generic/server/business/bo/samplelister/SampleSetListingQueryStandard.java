@@ -29,10 +29,11 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntity
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses=ISampleListingFullQuery.class)
+@Friend(toClasses = ISampleListingFullQuery.class)
 class SampleSetListingQueryStandard implements ISampleSetListingQuery
 {
-
+    // Note: we cannot use the delegate directly, because it cannot implement any interface which
+    // has methods without EODSQL annotations
     private final ISampleListingFullQuery delegate;
 
     public SampleSetListingQueryStandard(final ISampleListingFullQuery query)

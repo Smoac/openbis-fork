@@ -54,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
@@ -128,7 +127,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ListSampleCriteriaDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
@@ -139,7 +137,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
@@ -157,14 +154,12 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ListSampleCriteriaTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.PropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.RoleAssignmentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
@@ -432,44 +427,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-        if (sampleLister.canHandle(criteria))
-        {
-            return sampleLister.list(criteria);
-        } else
-        {
-            final List<SamplePE> samples =
-                    listSamplesSlow(sessionToken, ListSampleCriteriaTranslator.translate(criteria));
-            if (criteria.isExcludeWithoutExperiment())
-            {
-                removeWithoutExperiment(samples);
-            }
-            String baseIndexUrl = criteria.getBaseIndexUrl();
-            return SampleTranslator.translate(samples, baseIndexUrl);
-        }
-    }
-
-    private final List<SamplePE> listSamplesSlow(final String sessionToken,
-            final ListSampleCriteriaDTO criteria)
-    {
-        final Session session = getSessionManager().getSession(sessionToken);
-        final ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
-        sampleTable.loadSamplesByCriteria(criteria);
-        final List<SamplePE> samples = sampleTable.getSamples();
-        Collections.sort(samples);
-        return samples;
-    }
-
-    private void removeWithoutExperiment(final List<SamplePE> samples)
-    {
-        List<SamplePE> samplesWithoutExperiment = new ArrayList<SamplePE>();
-        for (final SamplePE sample : samples)
-        {
-            if (sample.getExperiment() == null)
-            {
-                samplesWithoutExperiment.add(sample);
-            }
-        }
-        samples.removeAll(samplesWithoutExperiment);
+        return sampleLister.list(criteria);
     }
 
     public final List<ExternalData> listSampleExternalData(final String sessionToken,

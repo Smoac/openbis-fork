@@ -31,13 +31,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 
 /**
- * The DAO for business objects implementing {@link ISampleLister}. 
- * Note: Even though this class is public its constructors and instance methods have to be
- * package protected.
+ * The DAO for business objects implementing {@link ISampleLister}. Note: Even though this class is
+ * public its constructors and instance methods have to be package protected.
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses=ISampleListingFullQuery.class)
+@Friend(toClasses = ISampleListingFullQuery.class)
 public final class SampleListerDAO
 {
     /**
@@ -54,13 +53,10 @@ public final class SampleListerDAO
         }
         // H2 does not support set queries ("=ANY()" operator)
         final boolean supportsSetQuery =
-            (DatabaseEngine.H2.getCode().equals(context.getDatabaseEngineCode()) == false);
+                (DatabaseEngine.H2.getCode().equals(context.getDatabaseEngineCode()) == false);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        return new SampleListerDAO(true, supportsSetQuery, context.getDataSource(),
-                homeDatabaseInstance);
+        return new SampleListerDAO(supportsSetQuery, context.getDataSource(), homeDatabaseInstance);
     }
-    
-    private final boolean enabled;
 
     private final ISampleListingFullQuery query;
 
@@ -70,34 +66,19 @@ public final class SampleListerDAO
 
     private final DatabaseInstance databaseInstance;
 
-    SampleListerDAO(final boolean enabled, final boolean supportsSetQuery,
-            final DataSource dataSource, final DatabaseInstancePE databaseInstance)
+    SampleListerDAO(final boolean supportsSetQuery, final DataSource dataSource,
+            final DatabaseInstancePE databaseInstance)
     {
-        this.enabled = enabled;
-        if (enabled)
+        this.query = QueryTool.getQuery(dataSource, ISampleListingFullQuery.class);
+        if (supportsSetQuery)
         {
-            this.query = QueryTool.getQuery(dataSource, ISampleListingFullQuery.class);
-            if (supportsSetQuery)
-            {
-                this.idSetQuery = new SampleSetListingQueryStandard(query);
-            } else
-            {
-                this.idSetQuery = new SampleSetListingQueryFallback(query);
-            }
-            this.databaseInstanceId = databaseInstance.getId();
-            this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstance);
+            this.idSetQuery = new SampleSetListingQueryStandard(query);
         } else
         {
-            this.query = null;
-            this.idSetQuery = null;
-            this.databaseInstanceId = 0;
-            this.databaseInstance = null;
+            this.idSetQuery = new SampleSetListingQueryFallback(query);
         }
-    }
-
-    boolean isEnabled()
-    {
-        return enabled;
+        this.databaseInstanceId = databaseInstance.getId();
+        this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstance);
     }
 
     long getDatabaseInstanceId()

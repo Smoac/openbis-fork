@@ -23,22 +23,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * A role for fast sample listing.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface ISampleLister
 {
-    
+
     /**
-     * A method for fast sample listing.
-     * 
-     * Returns a sorted list of {@link Sample}.
+     * A method for fast sample listing. Returns a sorted list of {@link Sample}.
      */
     public List<Sample> list(ListSampleCriteria criteria);
-    
-    /**
-     * Returns <code>true</code>, if this sample lister can handle the given <var>criteria</var>.
-     */
-    public boolean canHandle(ListSampleCriteria criteria);
-
 }
