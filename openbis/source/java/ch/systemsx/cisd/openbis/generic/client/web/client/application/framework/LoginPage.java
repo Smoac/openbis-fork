@@ -19,11 +19,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import java.util.Date;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -59,9 +62,18 @@ final class LoginPage extends LayoutContainer
 
         verticalPanel.add(new HorizontalPanel());
         verticalPanel.add(new LoginWidget(viewContext));
-
+        verticalPanel.add(createFooter(viewContext));
         add(verticalPanel);
+
         layout();
     }
 
+    private Widget createFooter(IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        HorizontalPanel footer = new HorizontalPanel();
+        final HTML html = new HTML("Click <a href='help.html' target='_blank'>here</a> for help.");
+        footer.add(html);
+        footer.setVerticalAlign(VerticalAlignment.BOTTOM);
+        return footer;
+    }
 }
