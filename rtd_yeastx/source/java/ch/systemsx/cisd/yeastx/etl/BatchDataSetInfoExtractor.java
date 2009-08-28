@@ -19,6 +19,8 @@ package ch.systemsx.cisd.yeastx.etl;
 import java.io.File;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
@@ -58,7 +60,10 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             info.setGroupCode(plainInfo.getGroupCode());
             MLConversionType conversion = getConversion(plainInfo.getConversion());
             info.setConversion(conversion);
-            info.setParentDataSetCode(plainInfo.getParentDataSetCode());
+            if (StringUtils.isNotBlank(plainInfo.getParentDataSetCode()))
+            {
+                info.setParentDataSetCode(plainInfo.getParentDataSetCode());
+            }
             fileNameDecorator.enrich(info, incomingDataSetPath);
             return info;
         } else
