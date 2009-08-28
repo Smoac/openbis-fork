@@ -42,6 +42,8 @@ public class DataSetMappingInformation
     private String groupCode;
 
     private String conversion;
+    
+    private String parentDataSetCode;
 
     private List<NewProperty> properties;
 
@@ -65,6 +67,20 @@ public class DataSetMappingInformation
     public void setSampleCodeOrLabel(String sampleCodeOrLabel)
     {
         this.sampleCodeOrLabel = StringUtils.trimToNull(sampleCodeOrLabel);
+    }
+
+    /**
+     * Returns the code of the parent data set, if any.
+     */
+    public final String getParentDataSetCode()
+    {
+        return parentDataSetCode;
+    }
+
+    @BeanProperty(label="parent", optional = true)
+    public final void setParentDataSetCode(String parentCode)
+    {
+        this.parentDataSetCode = parentCode;
     }
 
     public String getExperimentName()

@@ -36,9 +36,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  */
 public class DataSetInformationParserTest extends AbstractFileSystemTestCase
 {
+    private static final String MANDATORY_HEADER = "file_name sample group\n";
+
     private static final String HEADER =
     // "# user@gmail.com\n+"+
-            "file_name sample group experiment conversion dataset_property_1 dataset_property_2\n";
+            "file_name sample parent group experiment project conversion dataset_property_1 dataset_property_2\n";
 
     private static final String TAB = "\t";
 
@@ -46,12 +48,17 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
     public void testLoadIndexFile()
     {
         File indexFile =
-                writeMappingFile(HEADER + "data.txt sample1 group1 experiment1 fiaML v1 v2");
+                writeMappingFile(HEADER
+                        + "data.txt sample1 parentCode group1 experiment1 project1 fiaML v1 v2");
         List<DataSetMappingInformation> list = tryParse(indexFile);
         AssertJUnit.assertEquals(1, list.size());
         DataSetMappingInformation elem = list.get(0);
         AssertJUnit.assertEquals("group1", elem.getGroupCode());
+        AssertJUnit.assertEquals("parentCode", elem.getParentDataSetCode());
+        AssertJUnit.assertEquals("sample1", elem.getSampleCodeOrLabel());
         AssertJUnit.assertEquals("data.txt", elem.getFileName());
+        AssertJUnit.assertEquals("experiment1", elem.getExperimentName());
+        AssertJUnit.assertEquals("project1", elem.getProjectCode());
         AssertJUnit.assertEquals(2, elem.getProperties().size());
         NewProperty prop1 = elem.getProperties().get(0);
         AssertJUnit.assertEquals("v1", prop1.getValue());
@@ -59,10 +66,24 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testLoadIndexFileMandatoryColumnsOnly()
+    {
+        File indexFile =
+                writeMappingFile(MANDATORY_HEADER
+                        + "data2.txt sample2 group2");
+        List<DataSetMappingInformation> list = tryParse(indexFile);
+        AssertJUnit.assertEquals(1, list.size());
+        DataSetMappingInformation elem = list.get(0);
+        AssertJUnit.assertEquals("group2", elem.getGroupCode());
+        AssertJUnit.assertEquals("sample2", elem.getSampleCodeOrLabel());
+        AssertJUnit.assertEquals("data2.txt", elem.getFileName());
+    }
+
+    @Test
     public void testLoadIndexFileWithMissingFieldValueFails() throws FileNotFoundException,
             IOException
     {
-        File indexFile = writeMappingFile(HEADER + TAB + TAB + TAB + TAB + TAB + TAB);
+        File indexFile = writeMappingFile(HEADER + TAB + TAB + TAB + TAB + TAB + TAB + TAB + TAB);
         List<DataSetMappingInformation> result = tryParse(indexFile);
         AssertJUnit.assertNull("error during parsing expected", result);
         List<String> logLines = readLogFile();

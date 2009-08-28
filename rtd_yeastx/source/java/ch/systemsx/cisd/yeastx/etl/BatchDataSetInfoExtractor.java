@@ -58,6 +58,7 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             info.setGroupCode(plainInfo.getGroupCode());
             MLConversionType conversion = getConversion(plainInfo.getConversion());
             info.setConversion(conversion);
+            info.setParentDataSetCode(plainInfo.getParentDataSetCode());
             fileNameDecorator.enrich(info, incomingDataSetPath);
             return info;
         } else
