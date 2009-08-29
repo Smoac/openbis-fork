@@ -259,6 +259,7 @@ public class CommonTestUtils
         sampleTypePE.setCode(CommonTestUtils.SAMPLE_TYPE);
         sampleTypePE.setGeneratedFromHierarchyDepth(0);
         sampleTypePE.setContainerHierarchyDepth(0);
+        sampleTypePE.setListable(true);
         return sampleTypePE;
     }
 
@@ -281,6 +282,9 @@ public class CommonTestUtils
     public static final ExperimentPE createExperiment(final ExperimentIdentifier ei)
     {
         final ExperimentPE exp = new ExperimentPE();
+        final ExperimentTypePE expType = new ExperimentTypePE();
+        expType.setCode("expType");
+        exp.setExperimentType(expType);
         exp.setCode(ei.getExperimentCode());
         exp.setProject(createProject(new ProjectIdentifier(ei.getDatabaseInstanceCode(), ei
                 .getGroupCode(), ei.getProjectCode())));

@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
 
@@ -54,7 +54,7 @@ public final class DemoSampleViewer extends AbstractViewer<IDemoClientServiceAsy
         return ID_PREFIX + sampleId;
     }
 
-    private final Widget createUI(final SampleGeneration sampleGeneration)
+    private final Widget createUI(final SampleParentWithDerived sampleGeneration)
     {
         return GenericSampleViewer.createPropertyGrid(sampleId, sampleGeneration, viewContext);
     }
@@ -72,7 +72,7 @@ public final class DemoSampleViewer extends AbstractViewer<IDemoClientServiceAsy
     // Helper classes
     //
 
-    public final class SampleInfoCallback extends AbstractAsyncCallback<SampleGeneration>
+    public final class SampleInfoCallback extends AbstractAsyncCallback<SampleParentWithDerived>
     {
         private final DemoSampleViewer sampleViewer;
 
@@ -88,15 +88,15 @@ public final class DemoSampleViewer extends AbstractViewer<IDemoClientServiceAsy
         //
 
         /**
-         * Sets the {@link SampleGeneration} for this <var>generic</var> sample viewer.
+         * Sets the {@link SampleParentWithDerived} for this <var>generic</var> sample viewer.
          * <p>
          * This method triggers the whole <i>GUI</i> construction.
          * </p>
          */
         @Override
-        protected final void process(final SampleGeneration result)
+        protected final void process(final SampleParentWithDerived result)
         {
-            sampleViewer.updateOriginalData(result.getGenerator());
+            sampleViewer.updateOriginalData(result.getParent());
             sampleViewer.removeAll();
             sampleViewer.add(sampleViewer.createUI(result));
             sampleViewer.layout();

@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTr
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
@@ -394,15 +395,5 @@ public abstract class AbstractClientService implements IClientService
         {
             // Just ignore it because we are logging out anyway.
         }
-    }
-
-    /**
-     * Implementation of this interface provides a way to expose the data store base URL.
-     * 
-     * @author Piotr Buczek
-     */
-    public static interface IDataStoreBaseURLProvider
-    {
-        public String getDataStoreBaseURL();
     }
 }

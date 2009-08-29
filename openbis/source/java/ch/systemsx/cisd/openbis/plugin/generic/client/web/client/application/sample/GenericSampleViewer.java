@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialValueEntityProp
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -143,9 +143,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         return ID_PREFIX + sampleId;
     }
 
-    private final Component createRightPanel(SampleGeneration sampleGeneration)
+    private final Component createRightPanel(SampleParentWithDerived sampleGeneration)
     {
-        final Sample generator = sampleGeneration.getGenerator();
+        final Sample generator = sampleGeneration.getParent();
 
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
 
@@ -215,13 +215,13 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     }
 
     private final static Map<String, Object> createProperties(
-            final IMessageProvider messageProvider, final SampleGeneration sampleGeneration)
+            final IMessageProvider messageProvider, final SampleParentWithDerived sampleGeneration)
     {
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
-        final Sample sample = sampleGeneration.getGenerator();
+        final Sample sample = sampleGeneration.getParent();
         final SampleType sampleType = sample.getSampleType();
         final Invalidation invalidation = sample.getInvalidation();
-        final Sample[] generated = sampleGeneration.getGenerated();
+        final Sample[] generated = sampleGeneration.getDerived();
         properties.put(messageProvider.getMessage(Dict.SAMPLE), sample.getCode());
         properties.put(messageProvider.getMessage(Dict.SAMPLE_TYPE), sampleType);
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
@@ -272,7 +272,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         return result == 0 ? 1 : result;
     }
 
-    private final Component createLeftPanel(final SampleGeneration sampleGeneration)
+    private final Component createLeftPanel(final SampleParentWithDerived sampleGeneration)
     {
         final ContentPanel panel = new ContentPanel();
         panel.setScrollMode(Scroll.AUTOY);
@@ -283,7 +283,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     }
 
     public static PropertyGrid createPropertyGrid(final TechId sampleId,
-            final SampleGeneration sampleGeneration, final IViewContext<?> viewContext)
+            final SampleParentWithDerived sampleGeneration, final IViewContext<?> viewContext)
     {
         final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
@@ -312,7 +312,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         return propertyGrid;
     }
 
-    public final void updateProperties(final SampleGeneration sampleGeneration)
+    public final void updateProperties(final SampleParentWithDerived sampleGeneration)
     {
         final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
         propertyGrid.resizeRows(properties.size());
@@ -320,9 +320,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     }
 
     /**
-     * Load the {@link SampleGeneration} information.
+     * Load the {@link SampleParentWithDerived} information.
      */
-    protected void reloadSampleGenerationData(AbstractAsyncCallback<SampleGeneration> callback)
+    protected void reloadSampleGenerationData(AbstractAsyncCallback<SampleParentWithDerived> callback)
     {
         viewContext.getService().getSampleGenerationInfo(sampleId, getBaseIndexURL(), callback);
     }
@@ -332,7 +332,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     //
 
     public static final class SampleGenerationInfoCallback extends
-            AbstractAsyncCallback<SampleGeneration>
+            AbstractAsyncCallback<SampleParentWithDerived>
     {
         private final GenericSampleViewer genericSampleViewer;
 
@@ -349,15 +349,15 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         //
 
         /**
-         * Sets the {@link SampleGeneration} for this <var>generic</var> sample viewer.
+         * Sets the {@link SampleParentWithDerived} for this <var>generic</var> sample viewer.
          * <p>
          * This method triggers the whole <i>GUI</i> construction.
          * </p>
          */
         @Override
-        protected final void process(final SampleGeneration result)
+        protected final void process(final SampleParentWithDerived result)
         {
-            genericSampleViewer.updateOriginalData(result.getGenerator());
+            genericSampleViewer.updateOriginalData(result.getParent());
             genericSampleViewer.removeAll();
             genericSampleViewer.setLayout(new BorderLayout());
             // Left panel
@@ -423,7 +423,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         }
 
         public final class ReloadPropertyGridCallback extends
-                AbstractAsyncCallback<SampleGeneration>
+                AbstractAsyncCallback<SampleParentWithDerived>
         {
             private final GenericSampleViewer genericSampleViewer;
 
@@ -441,9 +441,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
             /** This method triggers reloading of the {@link PropertyGrid} data. */
             @Override
-            protected final void process(final SampleGeneration result)
+            protected final void process(final SampleParentWithDerived result)
             {
-                genericSampleViewer.updateOriginalData(result.getGenerator());
+                genericSampleViewer.updateOriginalData(result.getParent());
                 genericSampleViewer.updateProperties(result);
                 executeSuccessfulUpdateCallback();
             }

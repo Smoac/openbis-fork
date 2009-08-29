@@ -60,14 +60,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -76,10 +72,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.NewMaterialParserObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser;
@@ -127,15 +119,15 @@ public final class GenericClientService extends AbstractClientService implements
     // IGenericClientService
     //
 
-    public final SampleGeneration getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
+    public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final SampleGenerationDTO sampleGenerationDTO =
+            final SampleParentWithDerived sampleParentWithDerived =
                     genericServer.getSampleInfo(sessionToken, sampleId);
-            return SampleTranslator.translate(sampleGenerationDTO, baseIndexURL);
+            return sampleParentWithDerived;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -145,7 +137,7 @@ public final class GenericClientService extends AbstractClientService implements
     public final Sample getSampleInfo(final TechId sampleId, String baseIndexURL)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return getSampleGenerationInfo(sampleId, baseIndexURL).getGenerator();
+        return getSampleGenerationInfo(sampleId, baseIndexURL).getParent();
     }
 
     public final void registerSample(final String sessionKey, final NewSample newSample)
@@ -189,11 +181,8 @@ public final class GenericClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final ExperimentIdentifier identifier =
                     new ExperimentIdentifierFactory(experimentIdentifier).createIdentifier();
-            final ExperimentPE experiment =
-                    genericServer.getExperimentInfo(sessionToken, identifier);
-            return ExperimentTranslator.translate(experiment, baseIndexURL,
-                    ExperimentTranslator.LoadableFields.PROPERTIES,
-                    ExperimentTranslator.LoadableFields.ATTACHMENTS);
+            final Experiment experiment = genericServer.getExperimentInfo(sessionToken, identifier);
+            return experiment;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -206,11 +195,9 @@ public final class GenericClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final ExperimentPE experiment =
+            final Experiment experiment =
                     genericServer.getExperimentInfo(sessionToken, experimentId);
-            return ExperimentTranslator.translate(experiment, baseIndexURL,
-                    ExperimentTranslator.LoadableFields.PROPERTIES,
-                    ExperimentTranslator.LoadableFields.ATTACHMENTS);
+            return experiment;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -223,8 +210,8 @@ public final class GenericClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final MaterialPE material = genericServer.getMaterialInfo(sessionToken, materialId);
-            return MaterialTranslator.translate(material, true);
+            final Material material = genericServer.getMaterialInfo(sessionToken, materialId);
+            return material;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -237,9 +224,8 @@ public final class GenericClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            final ExternalDataPE dataset = genericServer.getDataSetInfo(sessionToken, datasetId);
-            return ExternalDataTranslator.translate(dataset, getDataStoreBaseURL(), baseIndexURL,
-                    false);
+            final ExternalData dataset = genericServer.getDataSetInfo(sessionToken, datasetId);
+            return dataset;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

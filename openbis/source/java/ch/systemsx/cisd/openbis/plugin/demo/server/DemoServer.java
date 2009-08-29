@@ -33,10 +33,11 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.ResourceNames;
 
@@ -81,25 +82,25 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     // IDemoServer
     //
 
-    public final SampleGenerationDTO getSampleInfo(final String sessionToken,
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final SampleIdentifier identifier)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
         final SamplePE sample = sampleBO.getSample();
-        return getSampleTypeSlaveServerPlugin(sample.getSampleType())
-                .getSampleInfo(session, sample);
+        return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
+                .getSampleInfo(session, sample), session.getBaseIndexURL());
     }
 
-    public final SampleGenerationDTO getSampleInfo(final String sessionToken, final TechId sampleId)
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadDataByTechId(sampleId);
         final SamplePE sample = sampleBO.getSample();
-        return getSampleTypeSlaveServerPlugin(sample.getSampleType())
-                .getSampleInfo(session, sample);
+        return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
+                .getSampleInfo(session, sample), session.getBaseIndexURL());
     }
 
     public final void registerSample(final String sessionToken, final NewSample newSample,

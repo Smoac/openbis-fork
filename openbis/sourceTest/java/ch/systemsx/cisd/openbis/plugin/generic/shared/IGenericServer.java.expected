@@ -40,19 +40,19 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
@@ -65,35 +65,35 @@ public interface IGenericServer extends IPluginCommonServer
 {
 
     /**
-     * For given {@link ExperimentIdentifier} returns the corresponding {@link ExperimentPE}.
+     * For given {@link ExperimentIdentifier} returns the corresponding {@link Experiment}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public ExperimentPE getExperimentInfo(
+    public Experiment getExperimentInfo(
             String sessionToken,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier identifier);
 
     /**
-     * For given {@link TechId} returns the corresponding {@link ExperimentPE}.
+     * For given {@link TechId} returns the corresponding {@link Experiment}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public ExperimentPE getExperimentInfo(String sessionToken,
+    public Experiment getExperimentInfo(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId);
 
     /**
-     * For given {@link TechId} returns the corresponding {@link MaterialPE}.
+     * For given {@link TechId} returns the corresponding {@link Material}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public MaterialPE getMaterialInfo(String sessionToken, TechId materialId);
+    public Material getMaterialInfo(String sessionToken, TechId materialId);
 
     /**
-     * For given {@link TechId} returns the corresponding {@link ExternalDataPE}.
+     * For given {@link TechId} returns the corresponding {@link ExternalData}.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public ExternalDataPE getDataSetInfo(String sessionToken,
+    public ExternalData getDataSetInfo(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
 
     /**
@@ -101,7 +101,7 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public AttachmentPE getExperimentFileAttachment(String sessionToken,
+    public AttachmentWithContent getExperimentFileAttachment(String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId,
             String filename, int version) throws UserFailureException;
 
@@ -141,7 +141,7 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public AttachmentPE getSampleFileAttachment(String sessionToken,
+    public AttachmentWithContent getSampleFileAttachment(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId sampleId,
             String fileName, int version);
 
@@ -150,7 +150,7 @@ public interface IGenericServer extends IPluginCommonServer
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public AttachmentPE getProjectFileAttachment(String sessionToken,
+    public AttachmentWithContent getProjectFileAttachment(String sessionToken,
             @AuthorizationGuard(guardClass = ProjectTechIdPredicate.class) TechId projectId,
             String fileName, int version);
 

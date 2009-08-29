@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -63,7 +63,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
     // ISlaveServerPlugin
     //
 
-    public final SampleGenerationDTO getSampleInfo(final Session session, final SamplePE sample)
+    public final SampleParentWithDerivedDTO getSampleInfo(final Session session, final SamplePE sample)
             throws UserFailureException
     {
         assert session != null : "Unspecified session.";
@@ -73,7 +73,7 @@ public final class GenericSampleTypeSlaveServerPlugin implements ISampleTypeSlav
         SampleHierarchyFiller.enrichWithParentAndContainerHierarchy(sample);
         final List<SamplePE> generated =
                 daoFactory.getSampleDAO().listSamplesByGeneratedFrom(sample);
-        return new SampleGenerationDTO(sample, generated);
+        return new SampleParentWithDerivedDTO(sample, generated);
     }
 
     public final void registerSamples(final Session session, final List<NewSample> newSamples)

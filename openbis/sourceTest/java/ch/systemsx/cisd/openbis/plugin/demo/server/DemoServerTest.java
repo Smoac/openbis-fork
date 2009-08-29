@@ -25,11 +25,10 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.plugin.demo.server.IDemoBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.plugin.demo.server.DemoServer;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 
 /**
@@ -72,8 +71,8 @@ public final class DemoServerTest extends AbstractServerTestCase
         prepareGetSession();
         final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
         final SamplePE samplePE = CommonTestUtils.createSample();
-        final SampleGenerationDTO sampleGenerationDTO = new SampleGenerationDTO();
-        sampleGenerationDTO.setGenerator(samplePE);
+        final SampleParentWithDerivedDTO sampleGenerationDTO = new SampleParentWithDerivedDTO();
+        sampleGenerationDTO.setParent(samplePE);
         context.checking(new Expectations()
             {
                 {
@@ -90,10 +89,10 @@ public final class DemoServerTest extends AbstractServerTestCase
                 }
             });
 
-        final SampleGenerationDTO sampleGeneration =
+        final SampleParentWithDerived sampleGeneration =
                 createServer().getSampleInfo(SESSION_TOKEN, sampleIdentifier);
-        assertEquals(samplePE, sampleGeneration.getGenerator());
-        assertEquals(0, sampleGeneration.getGenerated().length);
+        assertEquals(samplePE.getCode(), sampleGeneration.getParent().getCode());
+        assertEquals(0, sampleGeneration.getDerived().length);
         context.assertIsSatisfied();
     }
 }

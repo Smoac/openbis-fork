@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 
 /**
  * Service interface for the <i>demo</i> <i>GWT</i> client.
@@ -34,7 +34,7 @@ public interface IDemoClientServiceAsync extends IClientServiceAsync
 
     /** @see IDemoClientService#getSampleGenerationInfo(TechId, String) */
     public void getSampleGenerationInfo(final TechId sampleId, String baseIndexUrl,
-            final AsyncCallback<SampleGeneration> callback);
+            final AsyncCallback<SampleParentWithDerived> callback);
 
     /**
      * @see IDemoClientService#registerSample(String, NewSample)

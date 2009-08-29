@@ -32,9 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientService;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.ResourceNames;
@@ -77,15 +75,15 @@ public final class DemoClientService extends AbstractClientService implements ID
     // IDemoClientService
     //
 
-    public final SampleGeneration getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
+    public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
             throws UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-            final SampleGenerationDTO sampleGenerationDTO =
+            final SampleParentWithDerived sampleGenerationDTO =
                     demoServer.getSampleInfo(sessionToken, sampleId);
-            return SampleTranslator.translate(sampleGenerationDTO, baseIndexURL);
+            return sampleGenerationDTO;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

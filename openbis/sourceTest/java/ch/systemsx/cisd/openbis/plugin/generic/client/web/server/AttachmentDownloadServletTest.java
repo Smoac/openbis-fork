@@ -33,8 +33,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractFileDownloadSe
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -90,7 +92,9 @@ public final class AttachmentDownloadServletTest
     public final void testListSamples() throws Exception
     {
 
-        final AttachmentPE attachment = CommonTestUtils.createAttachment();
+        final AttachmentPE attachmentPE = CommonTestUtils.createAttachment();
+        final AttachmentWithContent attachment =
+                AttachmentTranslator.translateWithContent(attachmentPE);
         context.checking(new Expectations()
             {
                 {
@@ -117,8 +121,8 @@ public final class AttachmentDownloadServletTest
                 }
             });
         FileContent fileContent = createServlet().getFileContent(servletRequest);
-        AssertJUnit.assertEquals(attachment.getFileName(), fileContent.getFileName());
-        AssertJUnit.assertEquals(attachment.getAttachmentContent().getValue(), fileContent
+        AssertJUnit.assertEquals(attachmentPE.getFileName(), fileContent.getFileName());
+        AssertJUnit.assertEquals(attachmentPE.getAttachmentContent().getValue(), fileContent
                 .getContent());
         context.assertIsSatisfied();
     }

@@ -40,4 +40,6 @@ public final class ComponentNames
     public static final String DSS_FACTORY = "dss-factory";
 
     public static final String COMMON_BUSINESS_OBJECT_FACTORY = "common-business-object-factory";
+    
+    public static final String COMMON_SERVICE = "common-service";
 }

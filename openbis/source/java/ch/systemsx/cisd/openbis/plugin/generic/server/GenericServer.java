@@ -41,22 +41,25 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -66,6 +69,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -111,7 +118,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     // IGenericServer
     //
 
-    public final SampleGenerationDTO getSampleInfo(final String sessionToken,
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final SampleIdentifier identifier)
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -123,11 +130,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         sampleBO.enrichWithAttachments();
         sampleBO.enrichWithPropertyTypes();
         final SamplePE sample = sampleBO.getSample();
-        return getSampleTypeSlaveServerPlugin(sample.getSampleType())
-                .getSampleInfo(session, sample);
+        return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
+                .getSampleInfo(session, sample), session.getBaseIndexURL());
     }
 
-    public final SampleGenerationDTO getSampleInfo(final String sessionToken, final TechId sampleId)
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
+            final TechId sampleId)
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleId != null : "Unspecified sample techId.";
@@ -138,8 +146,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         sampleBO.enrichWithAttachments();
         sampleBO.enrichWithPropertyTypes();
         final SamplePE sample = sampleBO.getSample();
-        return getSampleTypeSlaveServerPlugin(sample.getSampleType())
-                .getSampleInfo(session, sample);
+        return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
+                .getSampleInfo(session, sample), session.getBaseIndexURL());
     }
 
     public final void registerSample(final String sessionToken, final NewSample newSample,
@@ -159,7 +167,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         sampleBO.save();
     }
 
-    public ExperimentPE getExperimentInfo(final String sessionToken,
+    public Experiment getExperimentInfo(final String sessionToken,
             final ExperimentIdentifier identifier)
     {
         final Session session = getSessionManager().getSession(sessionToken);
@@ -168,10 +176,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         experimentBO.enrichWithProperties();
         experimentBO.enrichWithAttachments();
         final ExperimentPE experiment = experimentBO.getExperiment();
-        return experiment;
+        return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
+                ExperimentTranslator.LoadableFields.PROPERTIES,
+                ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
 
-    public ExperimentPE getExperimentInfo(final String sessionToken, final TechId experimentId)
+    public Experiment getExperimentInfo(final String sessionToken, final TechId experimentId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -179,20 +189,22 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         experimentBO.enrichWithProperties();
         experimentBO.enrichWithAttachments();
         final ExperimentPE experiment = experimentBO.getExperiment();
-        return experiment;
+        return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
+                ExperimentTranslator.LoadableFields.PROPERTIES,
+                ExperimentTranslator.LoadableFields.ATTACHMENTS);
     }
 
-    public MaterialPE getMaterialInfo(final String sessionToken, final TechId materialId)
+    public Material getMaterialInfo(final String sessionToken, final TechId materialId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
         materialBO.loadDataByTechId(materialId);
         materialBO.enrichWithProperties();
         final MaterialPE material = materialBO.getMaterial();
-        return material;
+        return MaterialTranslator.translate(material, true);
     }
 
-    public ExternalDataPE getDataSetInfo(final String sessionToken, final TechId datasetId)
+    public ExternalData getDataSetInfo(final String sessionToken, final TechId datasetId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataBO datasetBO = businessObjectFactory.createExternalDataBO(session);
@@ -201,17 +213,19 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         datasetBO.enrichWithChildren();
         datasetBO.enrichWithProperties();
         final ExternalDataPE dataset = datasetBO.getExternalData();
-        return dataset;
+        return ExternalDataTranslator.translate(dataset, getDataStoreBaseURL(), session
+                .getBaseIndexURL(), false);
     }
 
-    public AttachmentPE getExperimentFileAttachment(final String sessionToken,
+    public AttachmentWithContent getExperimentFileAttachment(final String sessionToken,
             final TechId experimentId, final String filename, final int version)
             throws UserFailureException
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.loadDataByTechId(experimentId);
-        return experimentBO.getExperimentFileAttachment(filename, version);
+        return AttachmentTranslator.translateWithContent(experimentBO.getExperimentFileAttachment(
+                filename, version));
     }
 
     public final void registerSamples(final String sessionToken,
@@ -333,22 +347,24 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         materialTable.save();
     }
 
-    public AttachmentPE getProjectFileAttachment(String sessionToken, TechId projectId,
+    public AttachmentWithContent getProjectFileAttachment(String sessionToken, TechId projectId,
             String fileName, int version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
         bo.loadDataByTechId(projectId);
-        return bo.getProjectFileAttachment(fileName, version);
+        return AttachmentTranslator.translateWithContent(bo.getProjectFileAttachment(fileName,
+                version));
     }
 
-    public AttachmentPE getSampleFileAttachment(String sessionToken, TechId sampleId,
+    public AttachmentWithContent getSampleFileAttachment(String sessionToken, TechId sampleId,
             String fileName, int version)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleBO bo = businessObjectFactory.createSampleBO(session);
         bo.loadDataByTechId(sampleId);
-        return bo.getSampleFileAttachment(fileName, version);
+        return AttachmentTranslator.translateWithContent(bo.getSampleFileAttachment(fileName,
+                version));
     }
 
     public List<String> generateCodes(String sessionToken, String prefix, int number)

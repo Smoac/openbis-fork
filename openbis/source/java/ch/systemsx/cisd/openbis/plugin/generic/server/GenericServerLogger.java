@@ -27,21 +27,21 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -69,14 +69,14 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     // IGenericServer
     //
 
-    public final SampleGenerationDTO getSampleInfo(final String sessionToken,
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final SampleIdentifier identifier)
     {
         logAccess(sessionToken, "get_sample_info", "IDENTIFIER(%s)", identifier);
         return null;
     }
 
-    public final SampleGenerationDTO getSampleInfo(final String sessionToken, final TechId sampleId)
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)
     {
         logAccess(sessionToken, "get_sample_info", "ID(%s)", sampleId);
         return null;
@@ -89,26 +89,26 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
     }
 
-    public ExperimentPE getExperimentInfo(final String sessionToken,
+    public Experiment getExperimentInfo(final String sessionToken,
             final ExperimentIdentifier identifier)
     {
         logAccess(sessionToken, "get_experiment_info", "IDENTIFIER(%s)", identifier);
         return null;
     }
 
-    public ExperimentPE getExperimentInfo(final String sessionToken, final TechId experimentId)
+    public Experiment getExperimentInfo(final String sessionToken, final TechId experimentId)
     {
         logAccess(sessionToken, "get_experiment_info", "ID(%s)", experimentId);
         return null;
     }
 
-    public MaterialPE getMaterialInfo(final String sessionToken, final TechId materialId)
+    public Material getMaterialInfo(final String sessionToken, final TechId materialId)
     {
         logAccess(sessionToken, "get_material_info", "ID(%s)", materialId);
         return null;
     }
 
-    public ExternalDataPE getDataSetInfo(final String sessionToken, final TechId datasetId)
+    public ExternalData getDataSetInfo(final String sessionToken, final TechId datasetId)
     {
         logAccess(sessionToken, "get_data_set_info", "ID(%s)", datasetId);
         return null;
@@ -136,7 +136,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
                 materialTypeCode, CollectionUtils.abbreviate(newMaterials, 20));
     }
 
-    public AttachmentPE getExperimentFileAttachment(final String sessionToken,
+    public AttachmentWithContent getExperimentFileAttachment(final String sessionToken,
             final TechId experimentId, final String filename, final int version)
             throws UserFailureException
     {
@@ -145,7 +145,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public AttachmentPE getProjectFileAttachment(String sessionToken, TechId projectId,
+    public AttachmentWithContent getProjectFileAttachment(String sessionToken, TechId projectId,
             String fileName, int version)
     {
         logAccess(sessionToken, "get_attachment", "PROJECT_ID(%s) FILE(%s) VERSION(%s)", projectId,
@@ -153,7 +153,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public AttachmentPE getSampleFileAttachment(String sessionToken, TechId sampleId,
+    public AttachmentWithContent getSampleFileAttachment(String sessionToken, TechId sampleId,
             String fileName, int version)
     {
         logAccess(sessionToken, "get_attachment", "SAMPLE_ID(%s) FILE(%s) VERSION(%s)", sampleId,

@@ -26,8 +26,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -147,20 +147,20 @@ public final class SampleTranslator
         }
     }
 
-    public final static SampleGeneration translate(final SampleGenerationDTO sampleGenerationDTO,
+    public final static SampleParentWithDerived translate(final SampleParentWithDerivedDTO sampleGenerationDTO,
             String baseIndexURL)
     {
-        final SampleGeneration sampleGeneration = new SampleGeneration();
+        final SampleParentWithDerived sampleGeneration = new SampleParentWithDerived();
 
-        sampleGeneration.setGenerator(SampleTranslator.translate(
-                sampleGenerationDTO.getGenerator(), baseIndexURL));
+        sampleGeneration.setParent(SampleTranslator.translate(
+                sampleGenerationDTO.getParent(), baseIndexURL));
 
         final List<Sample> generated = new ArrayList<Sample>();
-        for (SamplePE samplePE : sampleGenerationDTO.getGenerated())
+        for (SamplePE samplePE : sampleGenerationDTO.getDerived())
         {
             generated.add(SampleTranslator.translate(samplePE, baseIndexURL, false));
         }
-        sampleGeneration.setGenerated(generated.toArray(new Sample[generated.size()]));
+        sampleGeneration.setDerived(generated.toArray(new Sample[generated.size()]));
         return sampleGeneration;
     }
 

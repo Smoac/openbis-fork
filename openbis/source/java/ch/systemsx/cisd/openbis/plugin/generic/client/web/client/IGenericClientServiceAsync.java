@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -51,7 +51,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      * @see IGenericClientService#getSampleGenerationInfo(TechId, String)
      */
     public void getSampleGenerationInfo(final TechId sampleId, String baseIndexURL,
-            AsyncCallback<SampleGeneration> asyncCallback);
+            AsyncCallback<SampleParentWithDerived> asyncCallback);
 
     /**
      * @see IGenericClientService#getSampleInfo(TechId, String)

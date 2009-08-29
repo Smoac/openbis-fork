@@ -22,19 +22,19 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
- * A <code>SampleGeneration</code> encapsulates a generator <code>SampleDTO</code> and its generated
- * <code>SampleDTO</code>s.
+ * A <code>SampleParentWithDerivedDTO</code> encapsulates a <code>SamplePE</code> (the parent) and
+ * its derived <code>SamplePE</code>s.
  * 
  * @author Christian Ribeaud
  */
-public final class SampleGenerationDTO implements Serializable
+public final class SampleParentWithDerivedDTO implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
     /**
-     * The <code>Sample</code> parent.
+     * The <code>SamplePE</code> parent.
      */
-    private SamplePE generator;
+    private SamplePE parent;
 
     /**
      * The <code>Sample</code> children.
@@ -42,41 +42,41 @@ public final class SampleGenerationDTO implements Serializable
      * Never <code>null</code> and default value is an empty array.
      * </p>
      */
-    private SamplePE[] generated = SamplePE.EMPTY_ARRAY;
+    private SamplePE[] derived = SamplePE.EMPTY_ARRAY;
 
-    public SampleGenerationDTO()
+    public SampleParentWithDerivedDTO()
     {
 
     }
 
-    public SampleGenerationDTO(final SamplePE generator, final List<SamplePE> generated)
+    public SampleParentWithDerivedDTO(final SamplePE generator, final List<SamplePE> generated)
     {
         assert generator != null : "Generator can not be null.";
         assert generated != null : "Generated can not be null.";
-        setGenerator(generator);
-        setGenerated(generated.toArray(SamplePE.EMPTY_ARRAY));
+        setParent(generator);
+        setDerived(generated.toArray(SamplePE.EMPTY_ARRAY));
     }
 
     /**
      * Never returns <code>null</code> but could return an empty list.
      */
-    public final SamplePE[] getGenerated()
+    public final SamplePE[] getDerived()
     {
-        return generated;
+        return derived;
     }
 
-    public final SamplePE getGenerator()
+    public final SamplePE getParent()
     {
-        return generator;
+        return parent;
     }
 
-    public void setGenerator(final SamplePE generator)
+    public void setParent(final SamplePE generator)
     {
-        this.generator = generator;
+        this.parent = generator;
     }
 
-    public void setGenerated(final SamplePE[] generated)
+    public void setDerived(final SamplePE[] generated)
     {
-        this.generated = generated;
+        this.derived = generated;
     }
 }

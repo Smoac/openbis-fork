@@ -20,7 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 
 /**
  * Service interface for the <i>demo</i> <i>GWT</i> client.
@@ -36,9 +36,9 @@ public interface IDemoClientService extends IClientService
 {
 
     /**
-     * For given {@link TechId} returns corresponding {@link SampleGeneration}.
+     * For given {@link TechId} returns corresponding {@link SampleParentWithDerived}.
      */
-    public SampleGeneration getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
+    public SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
             throws UserFailureException;
 
     /**

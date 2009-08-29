@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentContentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -53,6 +54,23 @@ public final class AttachmentTranslator
         result.setRegistrator(PersonTranslator.translate(attachment.getRegistrator()));
         result.setRegistrationDate(attachment.getRegistrationDate());
         result.setVersion(attachment.getVersion());
+        return result;
+    }
+
+    public final static AttachmentWithContent translateWithContent(final AttachmentPE attachment)
+    {
+        if (attachment == null)
+        {
+            return null;
+        }
+        final AttachmentWithContent result = new AttachmentWithContent();
+        result.setFileName(StringEscapeUtils.escapeHtml(attachment.getFileName()));
+        result.setTitle(StringEscapeUtils.escapeHtml(attachment.getTitle()));
+        result.setDescription(StringEscapeUtils.escapeHtml(attachment.getDescription()));
+        result.setRegistrator(PersonTranslator.translate(attachment.getRegistrator()));
+        result.setRegistrationDate(attachment.getRegistrationDate());
+        result.setVersion(attachment.getVersion());
+        result.setContent(attachment.getAttachmentContent().getValue());
         return result;
     }
 

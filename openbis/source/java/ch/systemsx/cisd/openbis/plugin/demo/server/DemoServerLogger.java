@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
@@ -45,14 +45,14 @@ final class DemoServerLogger extends AbstractServerLogger implements IDemoServer
     // IDemoServer
     //
 
-    public final SampleGenerationDTO getSampleInfo(final String sessionToken,
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final SampleIdentifier identifier)
     {
         logAccess(sessionToken, "get_sample_info", "CODE(%s)", identifier);
         return null;
     }
 
-    public final SampleGenerationDTO getSampleInfo(final String sessionToken, final TechId sampleId)
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)
     {
         logAccess(sessionToken, "get_sample_info", "ID(%s)", sampleId);
         return null;

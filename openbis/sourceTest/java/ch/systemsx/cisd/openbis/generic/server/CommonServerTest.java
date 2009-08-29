@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -124,7 +125,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                         commonBusinessObjectFactory, new LastModificationState());
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
-        server.setDataStoreBaseURL(DATA_STORE_BASE_URL);
+        server.dataStoreBaseURLProvider = new IDataStoreBaseURLProvider()
+        {
+            public String getDataStoreBaseURL()
+            {
+                return DATA_STORE_BASE_URL;
+            }
+        };
         server.setBaseIndexURL(SESSION_TOKEN, BASE_INDEX_URL);
         return server;
     }

@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractFileDownloadServlet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /**
@@ -89,30 +89,30 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
     private FileContent getExperimentFile(final HttpServletRequest request, final int version,
             final String fileName, final TechId experimentId)
     {
-        final AttachmentPE attachment =
+        final AttachmentWithContent attachment =
                 server.getExperimentFileAttachment(getSessionToken(request), experimentId,
                         fileName, version);
-        return new FileContent(attachment.getAttachmentContent().getValue(), attachment
+        return new FileContent(attachment.getContent(), attachment
                 .getFileName());
     }
 
     private FileContent getSampleFile(final HttpServletRequest request, final int version,
             final String fileName, final TechId sampleId)
     {
-        final AttachmentPE attachment =
+        final AttachmentWithContent attachment =
                 server.getSampleFileAttachment(getSessionToken(request), sampleId, fileName,
                         version);
-        return new FileContent(attachment.getAttachmentContent().getValue(), attachment
+        return new FileContent(attachment.getContent(), attachment
                 .getFileName());
     }
 
     private FileContent getProjectFile(final HttpServletRequest request, final int version,
             final String fileName, final TechId projectId)
     {
-        final AttachmentPE attachment =
+        final AttachmentWithContent attachment =
                 server.getProjectFileAttachment(getSessionToken(request), projectId, fileName,
                         version);
-        return new FileContent(attachment.getAttachmentContent().getValue(), attachment
+        return new FileContent(attachment.getContent(), attachment
                 .getFileName());
     }
 }

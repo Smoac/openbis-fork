@@ -30,9 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTec
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -44,7 +44,8 @@ public interface IPluginCommonServer extends IServer
 {
 
     /**
-     * For given <var>sampleIdentifier</var> returns the {@link SamplePE} and its children.
+     * For given <var>sampleIdentifier</var> returns the {@link Sample} and its derived (child)
+     * samples..
      * 
      * @return never <code>null</code>.
      * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample
@@ -52,13 +53,13 @@ public interface IPluginCommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public SampleGenerationDTO getSampleInfo(
+    public SampleParentWithDerived getSampleInfo(
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
 
     /**
-     * For given {@link TechId} returns the {@link SamplePE} and its children.
+     * For given {@link TechId} returns the {@link Sample} and its derived (child) samples.
      * 
      * @return never <code>null</code>.
      * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample
@@ -66,7 +67,7 @@ public interface IPluginCommonServer extends IServer
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public SampleGenerationDTO getSampleInfo(final String sessionToken,
+    public SampleParentWithDerived getSampleInfo(final String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
             throws UserFailureException;
 

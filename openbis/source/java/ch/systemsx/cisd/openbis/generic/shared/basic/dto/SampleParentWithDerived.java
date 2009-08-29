@@ -20,45 +20,55 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 
 /**
- * A <code>SampleGeneration</code> encapsulates a generator <code>Sample</code> and its
- * generated <code>Sample</code>s.
+ * A <code>SampleParentWithDerived</code> encapsulates a <code>Sample</code> (the parent) and its
+ * derived <code>Sample</code>s.
  * 
  * @author Christian Ribeaud
  */
-public final class SampleGeneration implements IsSerializable
+public final class SampleParentWithDerived implements IsSerializable
 {
     /**
      * The parent <code>Sample</code>.
      */
-    private Sample generator;
+    private Sample parent;
 
-    /** The children <code>Sample</code>. */
-    private Sample[] generated = Sample.EMPTY_ARRAY;
+    /** The derived (child) <code>Sample</code>s. */
+    private Sample[] derived = Sample.EMPTY_ARRAY;
+
+    public SampleParentWithDerived()
+    {
+    }
+
+    public SampleParentWithDerived(Sample parent, Sample[] derived)
+    {
+        this.parent = parent;
+        this.derived = derived;
+    }
 
     /**
      * Never returns <code>null</code> but could return an empty array.
      */
-    public final Sample[] getGenerated()
+    public final Sample[] getDerived()
     {
-        if (generated == null)
+        if (derived == null)
         {
             return Sample.EMPTY_ARRAY;
         }
-        return generated;
+        return derived;
     }
 
-    public final void setGenerated(final Sample[] generated)
+    public final void setDerived(final Sample[] generated)
     {
-        this.generated = generated;
+        this.derived = generated;
     }
 
-    public final Sample getGenerator()
+    public final Sample getParent()
     {
-        return generator;
+        return parent;
     }
 
-    public final void setGenerator(final Sample generator)
+    public final void setParent(final Sample generator)
     {
-        this.generator = generator;
+        this.parent = generator;
     }
 }

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -36,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -69,7 +68,8 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
 
-    private String dataStoreBaseURL;
+    @Resource(name = ComponentNames.COMMON_SERVICE)
+    protected IDataStoreBaseURLProvider dataStoreBaseURLProvider;
 
     protected AbstractServer()
     {
@@ -182,16 +182,11 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         return daoFactory;
     }
 
-    public String getDataStoreBaseURL()
+    protected final String getDataStoreBaseURL()
     {
-        return this.dataStoreBaseURL;
+        return dataStoreBaseURLProvider.getDataStoreBaseURL();
     }
-
-    public final void setDataStoreBaseURL(String dataStoreBaseURL)
-    {
-        this.dataStoreBaseURL = dataStoreBaseURL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-    }
-
+    
     //
     // IServer
     //

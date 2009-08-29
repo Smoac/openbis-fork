@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleGeneration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -52,9 +52,9 @@ public interface IGenericClientService extends IClientService
 {
 
     /**
-     * For given {@link TechId} returns corresponding {@link SampleGeneration}.
+     * For given {@link TechId} returns corresponding {@link SampleParentWithDerived}.
      */
-    public SampleGeneration getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
+    public SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
             throws UserFailureException;
 
     /**

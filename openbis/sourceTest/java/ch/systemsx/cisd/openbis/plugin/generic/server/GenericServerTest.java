@@ -33,6 +33,8 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -40,14 +42,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -117,8 +120,8 @@ public final class GenericServerTest extends AbstractServerTestCase
         prepareGetSession();
         final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
         final SamplePE samplePE = CommonTestUtils.createSample();
-        final SampleGenerationDTO sampleGenerationDTO = new SampleGenerationDTO();
-        sampleGenerationDTO.setGenerator(samplePE);
+        final SampleParentWithDerivedDTO sampleGenerationDTO = new SampleParentWithDerivedDTO();
+        sampleGenerationDTO.setParent(samplePE);
         context.checking(new Expectations()
             {
                 {
@@ -138,10 +141,10 @@ public final class GenericServerTest extends AbstractServerTestCase
                 }
             });
 
-        final SampleGenerationDTO sampleGeneration =
+        final SampleParentWithDerived sampleGeneration =
                 createServer().getSampleInfo(SESSION_TOKEN, sampleIdentifier);
-        assertEquals(samplePE, sampleGeneration.getGenerator());
-        assertEquals(0, sampleGeneration.getGenerated().length);
+        assertEquals(samplePE.getCode(), sampleGeneration.getParent().getCode());
+        assertEquals(0, sampleGeneration.getDerived().length);
         context.assertIsSatisfied();
     }
 
@@ -187,8 +190,11 @@ public final class GenericServerTest extends AbstractServerTestCase
                     will(returnValue(experimentPE));
                 }
             });
-        assertEquals(experimentPE, createServer().getExperimentInfo(SESSION_TOKEN,
-                experimentIdentifier));
+        final Experiment experiment =
+                createServer().getExperimentInfo(SESSION_TOKEN, experimentIdentifier);
+        assertEquals(experimentPE.getCode(), experiment.getCode());
+        assertEquals(experimentPE.getExperimentType().getCode(), experiment.getExperimentType()
+                .getCode());
         context.assertIsSatisfied();
     }
 
@@ -212,8 +218,11 @@ public final class GenericServerTest extends AbstractServerTestCase
 
                 }
             });
-        assertEquals(attachmentPE, createServer().getExperimentFileAttachment(SESSION_TOKEN,
-                experimentId, attachmentPE.getFileName(), attachmentPE.getVersion()));
+        final AttachmentWithContent attachment =
+                createServer().getExperimentFileAttachment(SESSION_TOKEN, experimentId,
+                        attachmentPE.getFileName(), attachmentPE.getVersion());
+        assertEquals(attachmentPE.getFileName(), attachment.getFileName());
+        assertEquals(attachmentPE.getAttachmentContent().getValue(), attachment.getContent());
         context.assertIsSatisfied();
     }
 
