@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
-import it.unimi.dsi.fastutil.longs.LongSet;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * A DAO query interface for obtaining sets of samples or sample-related entities based on a set of
- * sample ids.
- * <p>
- * May need different implementations for different database engines.
- * 
- * @author Bernd Rinn
+ * @author Tomasz Pylak
  */
-interface ISampleSetListingQuery
+public interface IDatasetLister
 {
-    /**
-     * Returns the samples for the given <var>sampleIds</var>.
-     */
-    public Iterable<SampleRecord> getSamples(LongSet sampleIds);
+
+    List<ExternalData> listByExperimentTechId(TechId experimentId);
 
 }

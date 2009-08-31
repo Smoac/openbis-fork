@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyTermBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -449,6 +450,17 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadByExperimentTechId(experimentId);
         return getSortedExternalDataFrom(externalDataTable, session.getBaseIndexURL());
+    }
+
+    // FIXME 2009-08-30 Tomasz Pylak: use this method
+    public final List<ExternalData> listExperimentExternalDataNew(final String sessionToken,
+            final TechId experimentId)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final List<ExternalData> datasets = datasetLister.listByExperimentTechId(experimentId);
+        Collections.sort(datasets);
+        return datasets;
     }
 
     private List<ExternalData> getSortedExternalDataFrom(

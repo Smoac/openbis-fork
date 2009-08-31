@@ -32,12 +32,11 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntitySetPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleSetListingQuery;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -51,7 +50,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses={SampleRecord.class, ISampleListingQuery.class})
+@Friend(toClasses =
+    { SampleRecord.class, ISampleListingQuery.class })
 @Test(groups =
     { "db", "sample" })
 public class SampleSetListingQueryTest extends AbstractDAOTest
@@ -74,6 +74,8 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
     private LongSet masterPlateIds;
 
     private LongSet cellPlateIds;
+
+    private IEntitySetPropertyListingQuery propertySetQuery;
 
     private ISampleSetListingQuery setQuery;
 
@@ -109,6 +111,7 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         }
         setQuery = sampleListerDAO.getIdSetQuery();
         query = sampleListerDAO.getQuery();
+        propertySetQuery = sampleListerDAO.getPropertySetQuery();
     }
 
     private static LongSet createSet(long... values)
@@ -136,8 +139,10 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         LongSet ids = createSet(CELL_PLATE_ID_CP_TEST_1, CELL_PLATE_ID_CP_TEST_2);
         PropertyType propertyType =
                 EntityListingTestUtils.findPropertyType(query.getPropertyTypes(), "comment");
-        Iterable<GenericEntityPropertyRecord> properties = setQuery.getEntityPropertyGenericValues(ids);
-        List<GenericEntityPropertyRecord> comments = findProperties(properties, propertyType.getId());
+        Iterable<GenericEntityPropertyRecord> properties =
+                propertySetQuery.getEntityPropertyGenericValues(ids);
+        List<GenericEntityPropertyRecord> comments =
+                findProperties(properties, propertyType.getId());
         assertEquals("There should be exactly one comment for each sample", ids.size(), comments
                 .size());
         findExactlyOneProperty(comments, propertyType.getId(), CELL_PLATE_ID_CP_TEST_1);
@@ -175,8 +180,8 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         return found.get(0);
     }
 
-    private static <T extends BaseEntityPropertyRecord> List<T> findProperties(Iterable<T> properties,
-            long propertyTypeId)
+    private static <T extends BaseEntityPropertyRecord> List<T> findProperties(
+            Iterable<T> properties, long propertyTypeId)
     {
         List<T> found = new ArrayList<T>();
         for (T property : properties)
@@ -195,7 +200,7 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         LongSet ids = createSet(CELL_PLATE_ID_CP_TEST_1, CELL_PLATE_ID_CP_TEST_2);
         PropertyType[] propertyTypes = query.getPropertyTypes();
         List<MaterialEntityPropertyRecord> allProperties =
-                asList(setQuery.getEntityPropertyMaterialValues(ids));
+                asList(propertySetQuery.getEntityPropertyMaterialValues(ids));
 
         ensureSamplesHaveProperties("bacterium", propertyTypes, allProperties);
         ensureSamplesHaveProperties("any_material", propertyTypes, allProperties);
@@ -219,7 +224,7 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
     public void testSamplePropertyVocabularyTermValues()
     {
         int sampleCount = 0;
-        for (VocabularyTermRecord sampleProperty : setQuery
+        for (VocabularyTermRecord sampleProperty : propertySetQuery
                 .getEntityPropertyVocabularyTermValues(masterPlateIds))
         {
             System.out.println(sampleProperty.code);

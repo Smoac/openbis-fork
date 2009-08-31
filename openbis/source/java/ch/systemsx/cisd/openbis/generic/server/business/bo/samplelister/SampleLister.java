@@ -32,14 +32,19 @@ public class SampleLister implements ISampleLister
 {
     private final SampleListerDAO dao;
 
-    public SampleLister(SampleListerDAO dao)
+    public static SampleLister create(SampleListerDAO dao)
+    {
+        return new SampleLister(dao);
+    }
+
+    private SampleLister(SampleListerDAO dao)
     {
         this.dao = dao;
     }
 
     public List<Sample> list(final ListSampleCriteria criteria)
     {
-        return new SampleListingWorker(criteria, dao).load();
+        return SampleListingWorker.create(criteria, dao).load();
     }
 
 }

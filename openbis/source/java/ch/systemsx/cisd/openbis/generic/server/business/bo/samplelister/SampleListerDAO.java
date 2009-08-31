@@ -16,14 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
+import it.unimi.dsi.fastutil.longs.LongSet;
+
 import javax.sql.DataSource;
 
+import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.dbmigration.DatabaseEngine;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertyListingQuery;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntitySetPropertyListingQuery;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.PropertiesSetListingQueryFallback;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser.IEntitiesCountProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -45,22 +55,19 @@ public final class SampleListerDAO
      */
     public static SampleListerDAO createDAO(IDAOFactory daoFactory)
     {
-        PersistencyResources persistencyResources = daoFactory.getPersistencyResources();
-        DatabaseConfigurationContext context = persistencyResources.getContextOrNull();
-        if (context == null)
-        {
-            throw new ConfigurationFailureException("Missing database configuration context.");
-        }
-        // H2 does not support set queries ("=ANY()" operator)
-        final boolean supportsSetQuery =
-                (DatabaseEngine.H2.getCode().equals(context.getDatabaseEngineCode()) == false);
+        DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
+        final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(context);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
         return new SampleListerDAO(supportsSetQuery, context.getDataSource(), homeDatabaseInstance);
     }
 
     private final ISampleListingFullQuery query;
 
-    private final ISampleSetListingQuery idSetQuery;
+    private final ISampleSetListingQuery setQuery;
+
+    private final IEntitySetPropertyListingQuery propertySetQuery;
+
+    private final QueryStrategyChooser strategyChooser;
 
     private final long databaseInstanceId;
 
@@ -70,13 +77,10 @@ public final class SampleListerDAO
             final DatabaseInstancePE databaseInstance)
     {
         this.query = QueryTool.getQuery(dataSource, ISampleListingFullQuery.class);
-        if (supportsSetQuery)
-        {
-            this.idSetQuery = new SampleSetListingQueryStandard(query);
-        } else
-        {
-            this.idSetQuery = new SampleSetListingQueryFallback(query);
-        }
+        this.strategyChooser = createStrategyChooser(query);
+        this.setQuery = createIdSetQuery(supportsSetQuery, query, strategyChooser);
+        this.propertySetQuery = createSetPropertyQuery(supportsSetQuery, query, strategyChooser);
+
         this.databaseInstanceId = databaseInstance.getId();
         this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstance);
     }
@@ -98,7 +102,124 @@ public final class SampleListerDAO
 
     ISampleSetListingQuery getIdSetQuery()
     {
-        return idSetQuery;
+        return setQuery;
     }
 
+    IEntitySetPropertyListingQuery getPropertySetQuery()
+    {
+        return propertySetQuery;
+    }
+
+    private static QueryStrategyChooser createStrategyChooser(final ISampleListingFullQuery query)
+    {
+        return new QueryStrategyChooser(new IEntitiesCountProvider()
+            {
+                public long count()
+                {
+                    return query.getSampleCount();
+                }
+            });
+    }
+
+    private static IEntitySetPropertyListingQuery createSetPropertyQuery(boolean supportsSetQuery,
+            ISampleListingFullQuery query, QueryStrategyChooser strategyChooser)
+    {
+        if (supportsSetQuery)
+        {
+            return asEntitySetPropertyListingQuery(query);
+        } else
+        {
+            return new PropertiesSetListingQueryFallback(asEntityPropertyListingQuery(query),
+                    strategyChooser);
+        }
+    }
+
+    private static IEntityPropertyListingQuery asEntityPropertyListingQuery(
+            final ISampleListingFullQuery query)
+    {
+        return new IEntityPropertyListingQuery()
+            {
+                public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues()
+                {
+                    return query.getEntityPropertyGenericValues();
+                }
+
+                public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
+                        long entityId)
+                {
+                    return query.getEntityPropertyGenericValues(entityId);
+                }
+
+                public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues()
+                {
+                    return query.getEntityPropertyMaterialValues();
+                }
+
+                public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
+                        long sampleId)
+                {
+                    return query.getEntityPropertyMaterialValues(sampleId);
+                }
+
+                public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues()
+                {
+                    return query.getEntityPropertyVocabularyTermValues();
+                }
+
+                public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
+                        long sampleId)
+                {
+                    return query.getEntityPropertyVocabularyTermValues(sampleId);
+                }
+            };
+    }
+
+    private static IEntitySetPropertyListingQuery asEntitySetPropertyListingQuery(
+            final ISampleListingFullQuery query)
+    {
+        return new IEntitySetPropertyListingQuery()
+            {
+                public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
+                        LongSet entityIDs)
+                {
+                    return query.getSamplePropertyGenericValues(entityIDs);
+                }
+
+                public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
+                        LongSet entityIDs)
+                {
+                    return query.getSamplePropertyMaterialValues(entityIDs);
+                }
+
+                public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
+                        LongSet entityIDs)
+                {
+                    return query.getSamplePropertyVocabularyTermValues(entityIDs);
+                }
+            };
+    }
+
+    private static ISampleSetListingQuery createIdSetQuery(boolean supportsSetQuery,
+            ISampleListingFullQuery query, QueryStrategyChooser strategyChooser)
+    {
+        if (supportsSetQuery)
+        {
+            return asSampleSetListingQuery(query);
+        } else
+        {
+            return new SampleSetListingQueryFallback(query, strategyChooser);
+        }
+    }
+
+    private static ISampleSetListingQuery asSampleSetListingQuery(
+            final ISampleListingFullQuery query)
+    {
+        return new ISampleSetListingQuery()
+            {
+                public Iterable<SampleRecord> getSamples(LongSet sampleIds)
+                {
+                    return query.getSamples(sampleIds);
+                }
+            };
+    }
 }

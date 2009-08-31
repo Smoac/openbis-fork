@@ -73,7 +73,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses={ExperimentProjectGroupCodeRecord.class, SampleRecord.class, ISampleListingQuery.class})
+@Friend(toClasses =
+    { ExperimentProjectGroupCodeRecord.class, SampleRecord.class, ISampleListingQuery.class })
 final class SampleListingWorker
 {
     private final static Logger operationLog =
@@ -148,16 +149,19 @@ final class SampleListingWorker
 
     private final Long2ObjectMap<Sample> sampleMap = new Long2ObjectOpenHashMap<Sample>();
 
+    public static SampleListingWorker create(ListSampleCriteria criteria, SampleListerDAO dao)
+    {
+        ISampleListingQuery query = dao.getQuery();
+        ISampleSetListingQuery setQuery = dao.getIdSetQuery();
+        EntityPropertiesEnricher propertiesEnricher =
+                new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
+        return new SampleListingWorker(criteria, dao.getDatabaseInstanceId(), dao
+                .getDatabaseInstance(), query, setQuery, propertiesEnricher);
+    }
+
     //
     // Constructors
     //
-
-    SampleListingWorker(final ListSampleCriteria criteria, final SampleListerDAO dao)
-    {
-        this(criteria, dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), dao.getQuery(), dao
-                .getIdSetQuery(), new EntityPropertiesEnricher(dao.getQuery(), dao
-                .getIdSetQuery()));
-    }
 
     // For unit tests
     SampleListingWorker(final ListSampleCriteria criteria, final long databaseInstanceId,

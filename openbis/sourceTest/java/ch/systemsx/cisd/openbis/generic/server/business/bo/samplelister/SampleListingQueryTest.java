@@ -408,7 +408,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSamplePropertiesGenericValues()
     {
-        List<GenericEntityPropertyRecord> properties = asList(query.getSamplePropertyGenericValues());
+        List<GenericEntityPropertyRecord> properties = asList(query.getEntityPropertyGenericValues());
         assertCorrectSampleAndPropertyTypeReferences(properties);
         for (GenericEntityPropertyRecord property : properties)
         {
@@ -467,7 +467,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSamplePropertiesMaterialValues()
     {
-        List<MaterialEntityPropertyRecord> properties = asList(query.getSamplePropertyMaterialValues());
+        List<MaterialEntityPropertyRecord> properties = asList(query.getEntityPropertyMaterialValues());
         assertCorrectSampleAndPropertyTypeReferences(properties);
         for (MaterialEntityPropertyRecord property : properties)
         {
@@ -479,7 +479,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     private void checkSamplePropertiesMaterialValuesForSample(long entityId)
     {
         DataIterator<MaterialEntityPropertyRecord> properties =
-                query.getSamplePropertyMaterialValues(entityId);
+                query.getEntityPropertyMaterialValues(entityId);
         assertTrue("no material properties found", properties.hasNext());
         for (MaterialEntityPropertyRecord property : properties)
         {
@@ -492,7 +492,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testSamplePropertiesVocabularyTermValues()
     {
         List<VocabularyTermRecord> properties =
-                asList(query.getSamplePropertyVocabularyTermValues());
+                asList(query.getEntityPropertyVocabularyTermValues());
         assertCorrectSampleAndPropertyTypeReferences(properties);
         for (VocabularyTermRecord property : properties)
         {
@@ -504,7 +504,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     private void checkSamplePropertiesVocabularyTermValuesForSample(long entityId)
     {
         DataIterator<VocabularyTermRecord> properties =
-                query.getSamplePropertyVocabularyTermValues(entityId);
+                query.getEntityPropertyVocabularyTermValues(entityId);
         assertTrue("no vocabulary properties found", properties.hasNext());
         for (VocabularyTermRecord property : properties)
         {

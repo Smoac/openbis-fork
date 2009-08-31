@@ -57,6 +57,9 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyTermBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.DatasetLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.DatasetListerDAO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListerDAO;
@@ -73,6 +76,8 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         ICommonBusinessObjectFactory
 {
     private SampleListerDAO sampleListerDAO;
+
+    private DatasetListerDAO datasetListerDAO;
 
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
     {
@@ -102,7 +107,12 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
 
     public ISampleLister createSampleLister(Session session)
     {
-        return new SampleLister(sampleListerDAO);
+        return SampleLister.create(sampleListerDAO);
+    }
+
+    public IDatasetLister createDatasetLister(Session session)
+    {
+        return DatasetLister.create(datasetListerDAO);
     }
 
     public final ISampleBO createSampleBO(final Session session)

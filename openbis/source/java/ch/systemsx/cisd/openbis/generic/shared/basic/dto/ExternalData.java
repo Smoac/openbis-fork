@@ -74,8 +74,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private List<ExternalData> children;
 
-    private List<IEntityProperty> sampleProperties;
-
     private List<IEntityProperty> dataSetProperties;
 
     private DataStore dataStore;
@@ -105,7 +103,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
             setSampleIdentifier(sample.getIdentifier());
             setSampleType(sample.getSampleType());
             setSampleCode(sample.getCode());
-            setSampleProperties(sample.getProperties());
         }
     }
 
@@ -147,16 +144,6 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
     public void setChildren(List<ExternalData> children)
     {
         this.children = children;
-    }
-
-    public List<IEntityProperty> getSampleProperties()
-    {
-        return sampleProperties;
-    }
-
-    private void setSampleProperties(List<IEntityProperty> sampleProperties)
-    {
-        this.sampleProperties = sampleProperties;
     }
 
     public final boolean isDerived()

@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEnti
 public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
 {
     private final IPropertyListingQuery query;
-    
+
     private final IEntitySetPropertyListingQuery setQuery;
 
     public EntityPropertiesEnricher(final IPropertyListingQuery query,
@@ -70,8 +70,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
         // Controlled vocabulary properties
         Long2ObjectMap<String> vocabularyURLMap = null;
         Long2ObjectMap<VocabularyTerm> terms = new Long2ObjectOpenHashMap<VocabularyTerm>();
-        for (VocabularyTermRecord val : setQuery
-                .getEntityPropertyVocabularyTermValues(entityIDs))
+        for (VocabularyTermRecord val : setQuery.getEntityPropertyVocabularyTermValues(entityIDs))
         {
             if (vocabularyURLMap == null)
             {

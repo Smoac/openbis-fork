@@ -16,145 +16,26 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
-import java.util.Iterator;
-
-import net.lemnik.eodsql.DataIterator;
-
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
+import java.util.Iterator;
+
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 
 /**
  * An implementation of {@link ISampleSetListingQuery} that gets the samples one by one.
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses=ISampleListingQuery.class)
+@Friend(toClasses = ISampleListingQuery.class)
 class SampleSetListingQueryOneByOne implements ISampleSetListingQuery
 {
     private final ISampleListingQuery query;
-    
+
     public SampleSetListingQueryOneByOne(final ISampleListingQuery query)
     {
         this.query = query;
-    }
-
-    public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(final LongSet entityIDs)
-    {
-        return new Iterable<GenericEntityPropertyRecord>()
-            {
-                public Iterator<GenericEntityPropertyRecord> iterator()
-                {
-                    final LongIterator outerIt = entityIDs.iterator();
-                    return new Iterator<GenericEntityPropertyRecord>()
-                        {
-                            DataIterator<GenericEntityPropertyRecord> innerIt = null;
-
-                            public boolean hasNext()
-                            {
-                                while ((innerIt == null || innerIt.hasNext() == false)
-                                        && outerIt.hasNext())
-                                {
-                                    innerIt =
-                                            query
-                                                    .getEntityPropertyGenericValues(outerIt
-                                                            .nextLong());
-                                }
-                                return (innerIt != null && innerIt.isClosed() == false);
-                            }
-
-                            public GenericEntityPropertyRecord next()
-                            {
-                                return innerIt.next();
-                            }
-
-                            public void remove() throws UnsupportedOperationException
-                            {
-                                throw new UnsupportedOperationException();
-                            }
-                        };
-                }
-            };
-    }
-
-    public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
-            final LongSet entityIDs)
-    {
-        return new Iterable<MaterialEntityPropertyRecord>()
-            {
-                public Iterator<MaterialEntityPropertyRecord> iterator()
-                {
-                    final LongIterator outerIt = entityIDs.iterator();
-                    return new Iterator<MaterialEntityPropertyRecord>()
-                        {
-                            DataIterator<MaterialEntityPropertyRecord> innerIt = null;
-
-                            public boolean hasNext()
-                            {
-                                while ((innerIt == null || innerIt.hasNext() == false)
-                                        && outerIt.hasNext())
-                                {
-                                    innerIt =
-                                            query.getSamplePropertyMaterialValues(outerIt
-                                                    .nextLong());
-                                }
-                                return (innerIt != null && innerIt.isClosed() == false);
-                            }
-
-                            public MaterialEntityPropertyRecord next()
-                            {
-                                return innerIt.next();
-                            }
-
-                            public void remove() throws UnsupportedOperationException
-                            {
-                                throw new UnsupportedOperationException();
-                            }
-                        };
-                }
-            };
-    }
-
-    public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
-            final LongSet entityIDs)
-    {
-        return new Iterable<VocabularyTermRecord>()
-            {
-                public Iterator<VocabularyTermRecord> iterator()
-                {
-                    final LongIterator outerIt = entityIDs.iterator();
-                    return new Iterator<VocabularyTermRecord>()
-                        {
-                            DataIterator<VocabularyTermRecord> innerIt = null;
-
-                            public boolean hasNext()
-                            {
-                                while ((innerIt == null || innerIt.hasNext() == false)
-                                        && outerIt.hasNext())
-                                {
-                                    innerIt =
-                                            query.getSamplePropertyVocabularyTermValues(outerIt
-                                                    .nextLong());
-                                }
-                                return (innerIt != null && innerIt.isClosed() == false);
-                            }
-
-                            public VocabularyTermRecord next()
-                            {
-                                return innerIt.next();
-                            }
-
-                            public void remove() throws UnsupportedOperationException
-                            {
-                                throw new UnsupportedOperationException();
-                            }
-                        };
-                }
-            };
     }
 
     public Iterable<SampleRecord> getSamples(final LongSet sampleIds)
