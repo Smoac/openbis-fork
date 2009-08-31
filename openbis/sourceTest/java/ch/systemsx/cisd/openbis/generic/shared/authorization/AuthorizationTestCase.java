@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
@@ -249,7 +250,20 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         final SamplePE sample = new SamplePE();
         sample.setGroup(group);
+        sample.setSampleType(createSampleType());
         return sample;
+    }
+
+    /**
+     * Creates sample type.
+     */
+    protected SampleTypePE createSampleType()
+    {
+        SampleTypePE type = new SampleTypePE();
+        type.setContainerHierarchyDepth(0);
+        type.setGeneratedFromHierarchyDepth(0);
+        type.setListable(true);
+        return type;
     }
 
     /**
@@ -259,6 +273,7 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         final SamplePE sample = new SamplePE();
         sample.setDatabaseInstance(databaseInstance);
+        sample.setSampleType(createSampleType());
         return sample;
     }
 
