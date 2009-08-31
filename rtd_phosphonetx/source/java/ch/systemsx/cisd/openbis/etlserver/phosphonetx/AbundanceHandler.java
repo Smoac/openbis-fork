@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
+ * Handler of {@link Parameter} objects of type 'abundance'.
+ * 
  * @author Franz-Josef Elmer
  */
 class AbundanceHandler extends AbstractHandler
@@ -96,7 +98,9 @@ class AbundanceHandler extends AbstractHandler
                     sampleOrError.error = "an unidentified sample: " + parameterName;
                 } else if (list.size() > 1)
                 {
-                    sampleOrError.error = list.size() + " samples are found: " + parameterName;
+                    sampleOrError.error =
+                            "a not uniquely specified sample (" + list.size()
+                                    + " samples are found): " + parameterName;
                 } else
                 {
                     sampleOrError.sample = getOrCreateSample(experiment, list.get(0).getPermId());
