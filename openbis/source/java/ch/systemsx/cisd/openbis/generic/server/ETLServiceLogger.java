@@ -16,17 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
+import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -119,8 +121,14 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
             GroupIdentifier groupIdentifier, String propertyValue)
     {
         logAccess(sessionToken, "get_sample_with_property",
-                "PROPERTY_TYPE(%s) GROUP(%s) PROPERTY_VALUE(%s)", propertyTypeCode, groupIdentifier,
-                propertyValue);
+                "PROPERTY_TYPE(%s) GROUP(%s) PROPERTY_VALUE(%s)", propertyTypeCode,
+                groupIdentifier, propertyValue);
+        return null;
+    }
+
+    public List<DeletedDataSet> listDeletedDataSets(String sessionToken, Date lastDeleted)
+    {
+        logAccess(sessionToken, "listDeletedDataSets", "DATE(%s)", lastDeleted);
         return null;
     }
 

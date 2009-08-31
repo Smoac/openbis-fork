@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -1669,6 +1670,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         bo.loadByTechId(authorizationGroupId);
         bo.removePersons(personsCodes);
         bo.save();
+    }
+
+    public List<DeletedDataSet> listDeletedDataSets(String sessionToken, Date since)
+    {
+        getSessionManager().getSession(sessionToken);
+        return getDAOFactory().getEventDAO().listDeletedDataSets(since);
     }
 
 }

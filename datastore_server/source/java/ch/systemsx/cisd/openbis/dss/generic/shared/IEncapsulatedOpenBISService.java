@@ -16,11 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -61,8 +63,8 @@ public interface IEncapsulatedOpenBISService
      * As side effect, sets <i>data set code</i> in {@link DataSetInformation#getExtractableData()}.
      * </p>
      */
-    public void registerDataSet(final DataSetInformation dataSetInformation, final NewExternalData data)
-            throws UserFailureException;
+    public void registerDataSet(final DataSetInformation dataSetInformation,
+            final NewExternalData data) throws UserFailureException;
 
     /**
      * Tries to return the properties of the top sample (e.g. master plate) registered for the
@@ -95,4 +97,9 @@ public interface IEncapsulatedOpenBISService
      * Returns the home database instance.
      */
     public DatabaseInstancePE getHomeDatabaseInstance();
+
+    /**
+     * List data sets deleted after specified date.
+     */
+    public List<DeletedDataSet> listDeletedDataSets(Date lastDeleted);
 }

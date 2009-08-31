@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Date;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -34,5 +38,10 @@ public interface IEventDAO extends IGenericDAO<EventPE>
      */
     public EventPE tryFind(final String identifier, final EntityType entityType,
             final EventType eventType);
+
+    /**
+     * Lists data sets deleted after specified time.
+     */
+    public List<DeletedDataSet> listDeletedDataSets(Date since);
 
 }

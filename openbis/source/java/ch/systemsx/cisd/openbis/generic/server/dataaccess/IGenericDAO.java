@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.List;
+
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
@@ -76,5 +78,10 @@ public interface IGenericDAO<T extends IIdHolder>
      * @throws DataAccessException if the entity cannot be deleted.
      */
     public void delete(final T entity) throws DataAccessException;
+
+    /**
+     * Returns all entities.
+     */
+    public List<T> listAllEntities() throws DataAccessException;
 
 }

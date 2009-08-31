@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -31,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvi
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -333,6 +335,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private List<SimpleDataSetInformationDTO> primListDataSets()
     {
         return service.listDataSets(sessionToken, dataStoreCode);
+    }
+
+    public List<DeletedDataSet> listDeletedDataSets(Date lastDeleted)
+    {
+        checkSessionToken();
+        try
+        {
+            return service.listDeletedDataSets(sessionToken, lastDeleted);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            return service.listDeletedDataSets(sessionToken, lastDeleted);
+        }
     }
 
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSamplesByPropertyPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -142,5 +144,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleSet.ETL_SERVER)
     public List<SimpleDataSetInformationDTO> listDataSets(final String sessionToken,
             String dataStore) throws UserFailureException;
+
+    /**
+     * List data sets deleted after specified date.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public List<DeletedDataSet> listDeletedDataSets(String sessionToken, Date lastDeleted);
 
 }

@@ -382,8 +382,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 projectIdentifier, attachments.size());
     }
 
-    public List<ExternalData> searchForDataSets(String sessionToken,
-            DataSetSearchCriteria criteria)
+    public List<ExternalData> searchForDataSets(String sessionToken, DataSetSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_datasets");
         return null;

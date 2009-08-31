@@ -16,9 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.jdbc.support.JdbcAccessor;
 
@@ -26,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -71,4 +77,27 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         return result;
     }
 
+    public List<DeletedDataSet> listDeletedDataSets(Date since)
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(EventPE.class);
+        if (since != null)
+        {
+            criteria.add(Restrictions.ge("registrationDate", since));
+        }
+        criteria.add(Restrictions.eq("eventType", EventType.DELETION));
+        criteria.add(Restrictions.eq("entityType", EntityType.DATASET));
+        final List<EventPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%s(%s): data set deletion events(s) have been found.", MethodUtils
+                            .getCurrentMethod().getName(), since, list.size()));
+        }
+        ArrayList<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
+        for (EventPE event : list)
+        {
+            result.add(new DeletedDataSet(event.getIdentifier(), event.getRegistrationDate()));
+        }
+        return result;
+    }
 }

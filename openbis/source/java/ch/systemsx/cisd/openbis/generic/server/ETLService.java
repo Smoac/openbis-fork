@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -453,6 +455,12 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         IExternalDataTable dataSetTable = boFactory.createExternalDataTable(session);
         dataSetTable.loadByDataStore(dataStore);
         return SimpleDataSetHelper.translate(dataSetTable.getExternalData());
+    }
+
+    public List<DeletedDataSet> listDeletedDataSets(String sessionToken, Date lastDeleted)
+    {
+        sessionManager.getSession(sessionToken);
+        return getDAOFactory().getEventDAO().listDeletedDataSets(lastDeleted);
     }
 
 }

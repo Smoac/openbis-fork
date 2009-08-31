@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -153,5 +155,10 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
             operationLog.debug(String.format("%s(%s)", MethodUtils.getCurrentMethod().getName(),
                     entity));
         }
+    }
+
+    public List<T> listAllEntities() throws DataAccessException
+    {
+        return cast(getHibernateTemplate().loadAll(getEntityClass()));
     }
 }
