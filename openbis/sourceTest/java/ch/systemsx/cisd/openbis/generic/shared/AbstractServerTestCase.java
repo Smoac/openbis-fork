@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
@@ -148,6 +149,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IDataSetTypeDAO dataSetTypeDAO;
 
+    protected IExperimentDAO experimentDAO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -167,6 +170,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         externalDataDAO = context.mock(IExternalDataDAO.class);
         permIdDAO = context.mock(IPermIdDAO.class);
         entityTypeDAO = context.mock(IEntityTypeDAO.class);
+        experimentDAO = context.mock(IExperimentDAO.class);
         experimentAttachmentDAO = context.mock(IAttachmentDAO.class);
         projectDAO = context.mock(IProjectDAO.class);
         sampleTypeDAO = context.mock(ISampleTypeDAO.class);
@@ -203,6 +207,10 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(personDAO));
                     allowing(daoFactory).getGroupDAO();
                     will(returnValue(groupDAO));
+                    allowing(daoFactory).getSampleDAO();
+                    will(returnValue(sampleDAO));
+                    allowing(daoFactory).getExperimentDAO();
+                    will(returnValue(experimentDAO));
                     allowing(daoFactory).getRoleAssignmentDAO();
                     will(returnValue(roleAssignmentDAO));
                     allowing(daoFactory).getSampleTypeDAO();
