@@ -56,7 +56,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     private void loadSamplesInBackground()
     {
         final ListSampleDisplayCriteria sampleCriteria =
-                ListSampleDisplayCriteria.createForExperiment(techIdOrNull, getBaseIndexURL());
+                ListSampleDisplayCriteria.createForExperiment(techIdOrNull);
         viewContext.getCommonService().listSamples(sampleCriteria,
                 new ListSamplesCallback(viewContext));
     }
@@ -151,7 +151,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
     @Override
     protected void loadForm()
     {
-        viewContext.getService().getExperimentInfo(techIdOrNull, getBaseIndexURL(),
+        viewContext.getService().getExperimentInfo(techIdOrNull,
                 new ExperimentInfoCallback(viewContext));
     }
 

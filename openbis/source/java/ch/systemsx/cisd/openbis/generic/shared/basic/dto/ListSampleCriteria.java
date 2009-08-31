@@ -44,18 +44,6 @@ public final class ListSampleCriteria implements IsSerializable
 
     private boolean excludeWithoutExperiment;
 
-    private String baseIndexUrl;
-
-    public String getBaseIndexUrl()
-    {
-        return baseIndexUrl;
-    }
-
-    public void setBaseIndexUrl(String baseIndexUrl)
-    {
-        this.baseIndexUrl = baseIndexUrl;
-    }
-
     // --------- filter 2 fields
     private TechId containerSampleId;
 
@@ -64,21 +52,17 @@ public final class ListSampleCriteria implements IsSerializable
 
     // ----
 
-    public static ListSampleCriteria createForContainer(final TechId containerSampleId,
-            String baseIndexUrl)
+    public static ListSampleCriteria createForContainer(final TechId containerSampleId)
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setContainerIdentifier(containerSampleId);
-        criteria.setBaseIndexUrl(baseIndexUrl);
         return criteria;
     }
 
-    public static ListSampleCriteria createForExperiment(final TechId experimentId,
-            String baseIndexUrl)
+    public static ListSampleCriteria createForExperiment(final TechId experimentId)
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setExperimentId(experimentId);
-        criteria.setBaseIndexUrl(baseIndexUrl);
         return criteria;
     }
 

@@ -132,7 +132,7 @@ public class SampleBrowserGrid extends
             final TechId containerSampleId, final String gridId, final SampleType sampleType)
     {
         final ListSampleDisplayCriteria criteria =
-                ListSampleDisplayCriteria.createForContainer(containerSampleId, getBaseIndexURL());
+                ListSampleDisplayCriteria.createForContainer(containerSampleId);
         final String entityTypeCode = sampleType.getCode();
         final SampleBrowserGrid browserGrid =
                 createGridAsComponent(viewContext, gridId, criteria, entityTypeCode);
@@ -147,7 +147,7 @@ public class SampleBrowserGrid extends
             final String gridId, final ExperimentType experimentType)
     {
         final ListSampleDisplayCriteria criteria =
-                ListSampleDisplayCriteria.createForExperiment(experimentId, getBaseIndexURL());
+                ListSampleDisplayCriteria.createForExperiment(experimentId);
         final String entityTypeCode = experimentType.getCode();
 
         final SampleBrowserGrid browserGrid =

@@ -88,7 +88,6 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         final ListSampleCriteria criteria = new ListSampleCriteria();
         final SampleType sampleType = createSampleType("MASTER_PLATE", "DB1");
         criteria.setSampleType(sampleType);
-        criteria.setBaseIndexUrl("base-url.ch");
         return new ListSampleDisplayCriteria(criteria);
     }
 

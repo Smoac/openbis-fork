@@ -35,18 +35,6 @@ public final class ListExperimentsCriteria extends DefaultResultSetConfig<String
 
     private String projectCode;
 
-    private String baseIndexURL;
-
-    public String getBaseIndexURL()
-    {
-        return baseIndexURL;
-    }
-
-    public void setBaseIndexURL(String baseIndexURL)
-    {
-        this.baseIndexURL = baseIndexURL;
-    }
-
     public ExperimentType getExperimentType()
     {
         return experimentType;

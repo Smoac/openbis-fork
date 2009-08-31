@@ -100,7 +100,6 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         criteria.setIncludeGroup(includeGroup);
         criteria.setIncludeInstance(includeInstance);
         criteria.setExcludeWithoutExperiment(excludeWithoutExperiment);
-        criteria.setBaseIndexUrl(GWTUtils.getBaseIndexURL());
         return new ListSampleDisplayCriteria(criteria);
     }
 

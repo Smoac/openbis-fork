@@ -105,7 +105,7 @@ public final class GenericExperimentViewer extends
      */
     protected void reloadData(AbstractAsyncCallback<Experiment> callback)
     {
-        viewContext.getService().getExperimentInfo(experimentId, getBaseIndexURL(), callback);
+        viewContext.getService().getExperimentInfo(experimentId, callback);
     }
 
     @Override

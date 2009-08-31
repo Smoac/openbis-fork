@@ -83,7 +83,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
      * Tests that authorization annotations of
      * {@link IGenericServer#getExperimentInfo(String, ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier)}
      * are obeyed. This is done by a direct invocation of
-     * {@link IGenericClientServiceAsync#getExperimentInfo(String,String, com.google.gwt.user.client.rpc.AsyncCallback)}
+     * {@link IGenericClientServiceAsync#getExperimentInfo(String,com.google.gwt.user.client.rpc.AsyncCallback)}
      * because the normal GUI only list experiments which are accessible by the user.
      */
     public final void testDirectInvocationOfGetExperimentInfoByAnUnauthorizedUser()
@@ -97,7 +97,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                             client.tryToGetViewContext();
                     IGenericClientServiceAsync service =
                             new GenericViewContext(viewContext).getService();
-                    service.getExperimentInfo(CISD_CISD_NEMO + "/" + EXP1, "base-url.ch",
+                    service.getExperimentInfo(CISD_CISD_NEMO + "/" + EXP1,
                             new GetExperimentInfoCallback(viewContext));
                 }
             });

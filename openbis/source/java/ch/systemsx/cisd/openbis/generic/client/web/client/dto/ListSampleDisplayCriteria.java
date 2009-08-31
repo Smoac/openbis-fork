@@ -31,18 +31,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sample> implements
         IsSerializable
 {
-    public static ListSampleDisplayCriteria createForContainer(final TechId containerSampleId,
-            String baseIndexUrl)
+    public static ListSampleDisplayCriteria createForContainer(final TechId containerSampleId)
     {
         return new ListSampleDisplayCriteria(ListSampleCriteria.createForContainer(
-                containerSampleId, baseIndexUrl));
+                containerSampleId));
     }
 
-    public static ListSampleDisplayCriteria createForExperiment(final TechId experimentId,
-            String baseIndexUrl)
+    public static ListSampleDisplayCriteria createForExperiment(final TechId experimentId)
     {
-        return new ListSampleDisplayCriteria(ListSampleCriteria.createForExperiment(experimentId,
-                baseIndexUrl));
+        return new ListSampleDisplayCriteria(ListSampleCriteria.createForExperiment(experimentId));
     }
 
     private ListSampleCriteria criteria;

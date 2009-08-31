@@ -160,8 +160,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
     @Override
     protected void loadForm()
     {
-        viewContext.getService().getSampleInfo(techIdOrNull, getBaseIndexURL(),
-                new SampleInfoCallback(viewContext));
+        viewContext.getService().getSampleInfo(techIdOrNull, new SampleInfoCallback(viewContext));
     }
 
     public final class SampleInfoCallback extends AbstractAsyncCallback<Sample>

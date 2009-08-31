@@ -121,7 +121,7 @@ public final class GenericDataSetViewer extends
      */
     protected void reloadData()
     {
-        viewContext.getService().getDataSetInfo(datasetId, getBaseIndexURL(),
+        viewContext.getService().getDataSetInfo(datasetId,
                 new DataSetInfoCallback(viewContext, this));
     }
 

@@ -48,15 +48,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 public interface IGenericClientServiceAsync extends IClientServiceAsync
 {
     /**
-     * @see IGenericClientService#getSampleGenerationInfo(TechId, String)
+     * @see IGenericClientService#getSampleGenerationInfo(TechId)
      */
-    public void getSampleGenerationInfo(final TechId sampleId, String baseIndexURL,
+    public void getSampleGenerationInfo(final TechId sampleId,
             AsyncCallback<SampleParentWithDerived> asyncCallback);
 
     /**
-     * @see IGenericClientService#getSampleInfo(TechId, String)
+     * @see IGenericClientService#getSampleInfo(TechId)
      */
-    public void getSampleInfo(final TechId sampleId, String baseIndexURL,
+    public void getSampleInfo(final TechId sampleId,
             AsyncCallback<Sample> asyncCallback);
 
     /**
@@ -74,15 +74,15 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             throws UserFailureException;
 
     /**
-     * @see IGenericClientService#getExperimentInfo(String, String)
+     * @see IGenericClientService#getExperimentInfo(String)
      */
-    public void getExperimentInfo(String experimentIdentifier, String baseIndexURL,
+    public void getExperimentInfo(String experimentIdentifier,
             final AsyncCallback<Experiment> experimentInfoCallback);
 
     /**
-     * @see IGenericClientService#getExperimentInfo(TechId, String)
+     * @see IGenericClientService#getExperimentInfo(TechId)
      */
-    public void getExperimentInfo(TechId experimentId, String baseIndexURL,
+    public void getExperimentInfo(TechId experimentId,
             final AsyncCallback<Experiment> experimentInfoCallback);
 
     /**
@@ -92,9 +92,9 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Material> materialInfoCallback);
 
     /**
-     * @see IGenericClientService#getDataSetInfo(TechId, String)
+     * @see IGenericClientService#getDataSetInfo(TechId)
      */
-    public void getDataSetInfo(TechId datasetTechId, String baseIndexURL,
+    public void getDataSetInfo(TechId datasetTechId,
             final AsyncCallback<ExternalData> datasetInfoCallback);
 
     /**

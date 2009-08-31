@@ -119,7 +119,7 @@ public final class GenericClientService extends AbstractClientService implements
     // IGenericClientService
     //
 
-    public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
+    public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -134,10 +134,10 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public final Sample getSampleInfo(final TechId sampleId, String baseIndexURL)
+    public final Sample getSampleInfo(final TechId sampleId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return getSampleGenerationInfo(sampleId, baseIndexURL).getParent();
+        return getSampleGenerationInfo(sampleId).getParent();
     }
 
     public final void registerSample(final String sessionKey, final NewSample newSample)
@@ -173,7 +173,7 @@ public final class GenericClientService extends AbstractClientService implements
 
     }
 
-    public final Experiment getExperimentInfo(final String experimentIdentifier, String baseIndexURL)
+    public final Experiment getExperimentInfo(final String experimentIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -189,7 +189,7 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public final Experiment getExperimentInfo(final TechId experimentId, String baseIndexURL)
+    public final Experiment getExperimentInfo(final TechId experimentId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -218,7 +218,7 @@ public final class GenericClientService extends AbstractClientService implements
         }
     }
 
-    public final ExternalData getDataSetInfo(final TechId datasetId, final String baseIndexURL)
+    public final ExternalData getDataSetInfo(final TechId datasetId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

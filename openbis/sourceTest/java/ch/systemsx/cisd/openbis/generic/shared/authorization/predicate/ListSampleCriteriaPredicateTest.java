@@ -44,7 +44,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
         try
         {
             predicate.doEvaluation(createPerson(), createRoles(false), ListSampleCriteria
-                    .createForExperiment(new TechId(1L), "irrelevant"));
+                    .createForExperiment(new TechId(1L)));
         } catch (final AssertionError e)
         {
             fail = false;
@@ -122,7 +122,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
             });
         predicate.init(provider);
         final ListSampleCriteria criteria =
-                ListSampleCriteria.createForExperiment(new TechId(17L), "doesntmatter");
+                ListSampleCriteria.createForExperiment(new TechId(17L));
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), criteria);
         assertEquals(Status.OK, evaluation);
@@ -143,7 +143,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
             });
         predicate.init(provider);
         final ListSampleCriteria criteria =
-                ListSampleCriteria.createForExperiment(new TechId(17L), "doesntmatter");
+                ListSampleCriteria.createForExperiment(new TechId(17L));
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), criteria);
         assertTrue(evaluation.isError());
@@ -160,14 +160,13 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
                 {
                     one(provider).getSample(new TechId(42L));
                     will(returnValue(createSample(createGroup())));
-                    
+
                     one(provider).tryFindDatabaseInstanceByCode(INSTANCE_CODE);
                     will(returnValue(createDatabaseInstance()));
                 }
             });
         predicate.init(provider);
-        final ListSampleCriteria criteria =
-                ListSampleCriteria.createForContainer(new TechId(42L), "doesntmatter");
+        final ListSampleCriteria criteria = ListSampleCriteria.createForContainer(new TechId(42L));
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), criteria);
         assertEquals(Status.OK, evaluation);
@@ -184,14 +183,14 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
                 {
                     one(provider).getSample(new TechId(42L));
                     will(returnValue(createSample(createAnotherGroup())));
-                    
+
                     one(provider).tryFindDatabaseInstanceByCode(ANOTHER_INSTANCE_CODE);
                     will(returnValue(createAnotherDatabaseInstance()));
                 }
             });
         predicate.init(provider);
         final ListSampleCriteria criteria =
-                ListSampleCriteria.createForContainer(new TechId(42L), "doesntmatter");
+                ListSampleCriteria.createForContainer(new TechId(42L));
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), criteria);
         assertTrue(evaluation.isError());

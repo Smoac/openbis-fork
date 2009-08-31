@@ -310,7 +310,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     protected void reloadSampleGenerationData(
             AbstractAsyncCallback<SampleParentWithDerived> callback)
     {
-        viewContext.getService().getSampleGenerationInfo(sampleId, getBaseIndexURL(), callback);
+        viewContext.getService().getSampleGenerationInfo(sampleId, callback);
     }
 
     //

@@ -89,6 +89,8 @@ final class SampleListingWorker
     private final DatabaseInstance databaseInstance;
 
     private final ListSampleCriteria criteria;
+    
+    private final String baseIndexURL;
 
     //
     // Output
@@ -149,13 +151,14 @@ final class SampleListingWorker
 
     private final Long2ObjectMap<Sample> sampleMap = new Long2ObjectOpenHashMap<Sample>();
 
-    public static SampleListingWorker create(ListSampleCriteria criteria, SampleListerDAO dao)
+    public static SampleListingWorker create(ListSampleCriteria criteria, String baseIndexURL,
+            SampleListerDAO dao)
     {
         ISampleListingQuery query = dao.getQuery();
         ISampleSetListingQuery setQuery = dao.getIdSetQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
-        return new SampleListingWorker(criteria, dao.getDatabaseInstanceId(), dao
+        return new SampleListingWorker(criteria, baseIndexURL, dao.getDatabaseInstanceId(), dao
                 .getDatabaseInstance(), query, setQuery, propertiesEnricher);
     }
 
@@ -164,17 +167,19 @@ final class SampleListingWorker
     //
 
     // For unit tests
-    SampleListingWorker(final ListSampleCriteria criteria, final long databaseInstanceId,
-            final DatabaseInstance databaseInstance, final ISampleListingQuery query,
-            final ISampleSetListingQuery setQuery,
+    SampleListingWorker(final ListSampleCriteria criteria, final String baseIndexURL,
+            final long databaseInstanceId, final DatabaseInstance databaseInstance,
+            final ISampleListingQuery query, final ISampleSetListingQuery setQuery,
             IEntityPropertiesEnricher samplePropertiesEnricherOrNull)
     {
         assert criteria != null;
+        assert baseIndexURL != null;
         assert databaseInstance != null;
         assert query != null;
         assert setQuery != null;
 
         this.criteria = criteria;
+        this.baseIndexURL = baseIndexURL;
         this.databaseInstanceId = databaseInstanceId;
         this.databaseInstance = databaseInstance;
         this.query = query;
@@ -198,14 +203,11 @@ final class SampleListingWorker
             watch.start();
             final Experiment expOrNull = tryLoadExperiment();
             final Group groupOrNull = tryLoadGroup(expOrNull);
-            final String baseIndexURL = criteria.getBaseIndexUrl();
             loadSampleTypes();
-            retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples(), groupOrNull, baseIndexURL);
-            retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples(), groupOrNull, baseIndexURL);
-            retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples(), groupOrNull,
-                    baseIndexURL);
-            retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples(), groupOrNull,
-                    baseIndexURL);
+            retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples(), groupOrNull);
+            retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples(), groupOrNull);
+            retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples(), groupOrNull);
+            retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples(), groupOrNull);
             if (operationLog.isDebugEnabled())
             {
                 watch.stop();
@@ -392,9 +394,8 @@ final class SampleListingWorker
     }
 
     private void retrievePrimaryBasicSamples(final DataIterator<SampleRecord> sampleIteratorOrNull,
-            final Group groupOrNull, final String baseIndexURL)
+            final Group groupOrNull)
     {
-        assert baseIndexURL != null;
         assert sampleList != null;
 
         retrieveBasicSamples(sampleIteratorOrNull, groupOrNull, baseIndexURL, sampleList);

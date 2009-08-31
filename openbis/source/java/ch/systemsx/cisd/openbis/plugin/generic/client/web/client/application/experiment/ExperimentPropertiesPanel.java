@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -157,8 +156,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
 
     private void reloadData(AbstractAsyncCallback<Experiment> callback)
     {
-        viewContext.getService().getExperimentInfo(experimentId, GWTUtils.getBaseIndexURL(),
-                callback);
+        viewContext.getService().getExperimentInfo(experimentId, callback);
     }
 
     public IDatabaseModificationObserverWithCallback getDatabaseModificationObserver()

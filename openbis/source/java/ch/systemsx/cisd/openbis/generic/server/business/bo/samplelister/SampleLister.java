@@ -31,20 +31,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 public class SampleLister implements ISampleLister
 {
     private final SampleListerDAO dao;
+    
+    private final String baseIndexURL;
 
-    public static SampleLister create(SampleListerDAO dao)
+    public static SampleLister create(String baseIndexURL, SampleListerDAO dao)
     {
-        return new SampleLister(dao);
+        return new SampleLister(baseIndexURL, dao);
     }
 
-    private SampleLister(SampleListerDAO dao)
+    private SampleLister(String baseIndexURL, SampleListerDAO dao)
     {
+        this.baseIndexURL = baseIndexURL;
         this.dao = dao;
     }
 
     public List<Sample> list(final ListSampleCriteria criteria)
     {
-        return SampleListingWorker.create(criteria, dao).load();
+        return SampleListingWorker.create(criteria, baseIndexURL, dao).load();
     }
 
 }

@@ -160,7 +160,7 @@ public final class GenericDataSetEditForm extends
     {
         ArrayList<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
-		// TODO 2009-08-01, Piotr Buczek: add other fields specified in LMS-1003
+        // TODO 2009-08-01, Piotr Buczek: add other fields specified in LMS-1003
         fields.add(wrapUnaware(parentField));
         fields.add(wrapUnaware(sampleField.getField()));
         fields.add(wrapUnaware(fileFormatTypeSelectionWidget));
@@ -224,8 +224,7 @@ public final class GenericDataSetEditForm extends
     @Override
     protected void loadForm()
     {
-        viewContext.getService().getDataSetInfo(techIdOrNull, getBaseIndexURL(),
-                new DataSetInfoCallback(viewContext));
+        viewContext.getService().getDataSetInfo(techIdOrNull, new DataSetInfoCallback(viewContext));
 
     }
 
