@@ -146,10 +146,12 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
                             update();
                         }
                     };
-        add(new LabelToolItem(viewContext.getMessage(Dict.FDR_FILTER_LABEL) + ":"));
+        add(new LabelToolItem(viewContext.getMessage(Dict.FDR_FILTER_LABEL)
+                + GenericConstants.LABEL_SEPARATOR));
         fdrComboBox = createFDRComboBox(changedListener);
         add(new AdapterToolItem(fdrComboBox));
-        add(new LabelToolItem(viewContext.getMessage(Dict.AGGREGATE_FUNCTION_LABEL) + ":"));
+        add(new LabelToolItem(viewContext.getMessage(Dict.AGGREGATE_FUNCTION_LABEL)
+                + GenericConstants.LABEL_SEPARATOR));
         aggregateFunctionComboBox = createAggregateFunctionComboBox(changedListener);
         add(new AdapterToolItem(aggregateFunctionComboBox));
     }
@@ -171,6 +173,8 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         comboBox.setDisplayField(SimpleModel.PROPERTY);
         comboBox.setValue(fdr0);
         comboBox.addSelectionChangedListener(changedListener);
+        comboBox.setEnabled(true);
+        comboBox.setWidth(50);
         return comboBox;
     }
 
@@ -193,6 +197,8 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         comboBox.setDisplayField(SimpleModel.PROPERTY);
         comboBox.setValue(defaultModel);
         comboBox.addSelectionChangedListener(changedListener);
+        comboBox.setWidth(100);
+        comboBox.setEnabled(true);
         return comboBox;
     }
 
