@@ -203,6 +203,13 @@ class DatasetMappingUtil
         return false;
     }
 
+    /** @return false if no potential mapping files exist in the specified directory */
+    public static boolean isMappingFilePresent(File batchDir)
+    {
+        List<File> potentialMappingFiles = listPotentialMappingFiles(batchDir);
+        return potentialMappingFiles.size() > 0;
+    }
+
     private static File tryGetMappingFile(File batchDir, LogUtils log)
     {
         List<File> potentialMappingFiles = listPotentialMappingFiles(batchDir);

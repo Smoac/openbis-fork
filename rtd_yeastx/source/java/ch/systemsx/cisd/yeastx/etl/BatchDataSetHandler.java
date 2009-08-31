@@ -240,6 +240,10 @@ public class BatchDataSetHandler implements IDataSetHandler
         {
             return false;
         }
+        if (DatasetMappingUtil.isMappingFilePresent(batchDir) == false)
+        {
+            return false;
+        }
         List<File> files = listAll(batchDir);
         // Do not treat empty directories as faulty.
         // The other reason of this check is that this handler is sometimes no able to delete
