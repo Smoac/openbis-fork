@@ -59,25 +59,29 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
     {
         samples = new ArrayList<SampleWithPropertiesAndAbundance>();
         IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
+        ISampleDAO sampleDAO = getDaoFactory().getSampleDAO();
         DataSet<SampleAbundance> sampleAbundances =
                 proteinQueryDAO.listSampleAbundanceByProtein(proteinID.getId());
-        ISampleDAO sampleDAO = getDaoFactory().getSampleDAO();
-        for (SampleAbundance sampleAbundance : sampleAbundances)
+        try
         {
-            SampleWithPropertiesAndAbundance sample = new SampleWithPropertiesAndAbundance();
-            sample.setAbundance(sampleAbundance.getAbundance());
-            String samplePermID = sampleAbundance.getSamplePermID();
-            SamplePE samplePE = sampleDAO.tryToFindByPermID(samplePermID);
-            if (samplePE == null)
+            for (SampleAbundance sampleAbundance : sampleAbundances)
             {
-                throw new IllegalStateException("No sample with following permanent ID found: "
-                        + samplePermID);
+                SampleWithPropertiesAndAbundance sample = new SampleWithPropertiesAndAbundance();
+                sample.setAbundance(sampleAbundance.getAbundance());
+                String samplePermID = sampleAbundance.getSamplePermID();
+                SamplePE samplePE = sampleDAO.tryToFindByPermID(samplePermID);
+                if (samplePE == null)
+                {
+                    throw new IllegalStateException("No sample with following permanent ID found: "
+                            + samplePermID);
+                }
+                fillSampleData(sample, samplePE);
+                samples.add(sample);
             }
-            fillSampleData(sample, samplePE);
-            samples.add(sample);
+        } finally
+        {
+            sampleAbundances.close();
         }
-        sampleAbundances.close();
-
     }
 
     private final static void fillSampleData(final SampleWithPropertiesAndAbundance result,

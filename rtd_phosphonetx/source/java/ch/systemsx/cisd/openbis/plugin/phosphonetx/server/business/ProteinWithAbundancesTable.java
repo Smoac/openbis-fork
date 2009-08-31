@@ -60,19 +60,24 @@ class ProteinWithAbundancesTable extends AbstractBusinessObject implements
         AbundanceManager abundanceManager = new AbundanceManager();
         proteins = new ArrayList<ProteinWithAbundances>();
         IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
+        ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
         DataSet<ProteinReferenceWithProbability> resultSet =
             dao.listProteinsByExperiment(experimentPermID);
-        ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
-        for (ProteinReferenceWithProbability protein : resultSet)
+        try
         {
-            if (errorModel.passProtein(protein, falseDiscoveryRate))
+            for (ProteinReferenceWithProbability protein : resultSet)
             {
-                abundanceManager.handle(protein);
+                if (errorModel.passProtein(protein, falseDiscoveryRate))
+                {
+                    abundanceManager.handle(protein);
+                }
             }
+            proteins = abundanceManager.getProteinsWithAbundances();
+            sampleIDs = abundanceManager.getSampleIDs();
+        } finally
+        {
+            resultSet.close();
         }
-        resultSet.close();
-        proteins = abundanceManager.getProteinsWithAbundances();
-        sampleIDs = abundanceManager.getSampleIDs();
     }
     
     public Set<Long> getSampleIDs()

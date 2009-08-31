@@ -60,27 +60,32 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
         DataSet<IdentifiedProtein> proteins =
                 proteinQueryDAO.listProteinsByProteinReferenceAndExperiment(experimentPermID,
                         proteinReferenceID.getId());
-        if (proteins.size() == 1)
+        try
         {
-            ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
-            IdentifiedProtein protein = proteins.get(0);
-            errorModel.setFalseDiscoveryRateFor(protein);
-            details = new ProteinDetails();
-            details.setSequence(protein.getSequence());
-            details.setDatabaseNameAndVersion(protein.getDatabaseNameAndVersion());
-            details.setFalseDiscoveryRate(protein.getFalseDiscoveryRate());
-            String dataSetPermID = protein.getDataSetPermID();
-            details.setDataSetPermID(dataSetPermID);
-            DataPE ds = getDaoFactory().getExternalDataDAO().tryToFindDataSetByCode(dataSetPermID);
-            if (ds != null)
+            if (proteins.size() == 1)
             {
-                details.setDataSetTechID(ds.getId());
-                details.setDataSetTypeCode(ds.getDataSetType().getCode());
+                ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
+                IdentifiedProtein protein = proteins.get(0);
+                errorModel.setFalseDiscoveryRateFor(protein);
+                details = new ProteinDetails();
+                details.setSequence(protein.getSequence());
+                details.setDatabaseNameAndVersion(protein.getDatabaseNameAndVersion());
+                details.setFalseDiscoveryRate(protein.getFalseDiscoveryRate());
+                String dataSetPermID = protein.getDataSetPermID();
+                details.setDataSetPermID(dataSetPermID);
+                DataPE ds = getDaoFactory().getExternalDataDAO().tryToFindDataSetByCode(dataSetPermID);
+                if (ds != null)
+                {
+                    details.setDataSetTechID(ds.getId());
+                    details.setDataSetTypeCode(ds.getDataSetType().getCode());
+                }
+                details.setPeptides(loadPeptides(protein));
+                details.setProteinID(new TechId(protein.getProteinID()));
             }
-            details.setPeptides(loadPeptides(protein));
-            details.setProteinID(new TechId(protein.getProteinID()));
+        } finally
+        {
+            proteins.close();
         }
-        proteins.close();
     }
 
     private List<Peptide> loadPeptides(IdentifiedProtein protein)

@@ -102,24 +102,29 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         String experimentPermID = getExperimentPermIDFor(experimentID);
         IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
         DataSet<SimpleSample> samples = dao.listAbundanceRelatedSamplesByExperiment(experimentPermID);
-        List<AbundanceColumnDefinition> columnDefinitions = new ArrayList<AbundanceColumnDefinition>();
-        for (SimpleSample simpleSample : samples)
+        try
         {
-            AbundanceColumnDefinition columnDefinition = new AbundanceColumnDefinition();
-            columnDefinition.setSampleID(simpleSample.getId());
-            String samplePermID = simpleSample.getSamplePermID();
-            SamplePE sample = getDAOFactory().getSampleDAO().tryToFindByPermID(samplePermID);
-            if (sample == null)
+            List<AbundanceColumnDefinition> columnDefinitions = new ArrayList<AbundanceColumnDefinition>();
+            for (SimpleSample simpleSample : samples)
             {
-                throw new UserFailureException("No sample found for perm ID " + samplePermID);
+                AbundanceColumnDefinition columnDefinition = new AbundanceColumnDefinition();
+                columnDefinition.setSampleID(simpleSample.getId());
+                String samplePermID = simpleSample.getSamplePermID();
+                SamplePE sample = getDAOFactory().getSampleDAO().tryToFindByPermID(samplePermID);
+                if (sample == null)
+                {
+                    throw new UserFailureException("No sample found for perm ID " + samplePermID);
+                }
+                columnDefinition.setSampleCode(sample.getCode());
+                columnDefinition.setTreatments(treatmentFinder.findTreatmentsOf(sample));
+                columnDefinitions.add(columnDefinition);
             }
-            columnDefinition.setSampleCode(sample.getCode());
-            columnDefinition.setTreatments(treatmentFinder.findTreatmentsOf(sample));
-            columnDefinitions.add(columnDefinition);
+            return columnDefinitions;
+        } finally
+        {
+            samples.close();
         }
-        samples.close();
         
-        return columnDefinitions;
     }
 
     public Collection<ProteinWithAbundances> listProteinsByExperiment(String sessionToken,

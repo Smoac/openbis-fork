@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,23 +36,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Treatment;
 
 /**
- * 
+ * Helper class which gathers properties in a sample and its ancestor samples defining 
+ * sample treatments. Treatments of the same type will be overridden by descendants.
  *
  * @author Franz-Josef Elmer
  */
 public class TreatmentFinder
 {
-    private static final String TREATMENT_TYPE_CODE = "TREATMENT_TYPE";
-    private static final String TREATMENT_VALUE_CODE = "TREATMENT_VALUE";
+    public static final String TREATMENT_TYPE_CODE = "TREATMENT_TYPE";
+    public static final String TREATMENT_VALUE_CODE = "TREATMENT_VALUE";
     
+    /**
+     * Returns all treatments found for specified sample and its ancestors.
+     */
     public List<Treatment> findTreatmentsOf(SamplePE sample)
     {
-        List<Treatment> treatments = new ArrayList<Treatment>();
+        Map<String, Treatment> treatments = new LinkedHashMap<String, Treatment>();
         findAndAddTreatments(treatments, sample);
-        return treatments;
+        return new ArrayList<Treatment>(treatments.values());
     }
     
-    private void findAndAddTreatments(List<Treatment> treatments, SamplePE sampleOrNull)
+    private void findAndAddTreatments(Map<String, Treatment> treatments, SamplePE sampleOrNull)
     {
         if (sampleOrNull == null)
         {
@@ -85,7 +91,18 @@ public class TreatmentFinder
                 treatment.setValue(value);
             }
         }
-        treatments.addAll(codeTreatmentMap.values());
+        Collection<Treatment> treatmentsToBeAdded = codeTreatmentMap.values();
+        for (Treatment treatment : treatmentsToBeAdded)
+        {
+            Treatment superTreatment = treatments.get(treatment.getType());
+            if (superTreatment == null)
+            {
+                treatments.put(treatment.getType(), treatment);
+            } else
+            {
+                superTreatment.setValue(treatment.getValue());
+            }
+        }
     }
 
     private String getValue(SamplePropertyPE property)
@@ -118,6 +135,7 @@ public class TreatmentFinder
             treatment = new Treatment();
             treatment.setType("");
             treatment.setValue("");
+            treatment.setValueType(EntityDataType.VARCHAR.toString());
             codeTreatmentMap.put(treatmentCode, treatment);
         }
         return treatment;

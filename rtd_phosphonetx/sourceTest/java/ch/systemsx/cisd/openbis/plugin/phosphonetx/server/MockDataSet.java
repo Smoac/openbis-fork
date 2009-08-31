@@ -28,9 +28,16 @@ import net.lemnik.eodsql.DataSet;
 public class MockDataSet<T> extends ArrayList<T> implements DataSet<T>
 {
     private static final long serialVersionUID = 1L;
+    private boolean closeInvoked;
+    
+    public final boolean hasCloseBeenInvoked()
+    {
+        return closeInvoked;
+    }
 
     public void close()
     {
+        closeInvoked = true;
     }
 
     public void disconnect()
