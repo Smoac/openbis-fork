@@ -16,14 +16,34 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
- * Kind of field connected with an entity attribute that can be used in detailed text queries.
+ * Kinds of fields connected with Material attributes that can be used in detailed text queries.
  * 
  * @author Piotr Buczek
  */
-public interface IAttributeSearchFieldKind
+public enum MaterialAttributeSearchFieldKind implements IsSerializable, IAttributeSearchFieldKind
 {
-    String getCode();
+    CODE("Code"),
 
-    String getDescription();
+    MATERIAL_TYPE("Material Type");
+
+    private final String description;
+
+    private MaterialAttributeSearchFieldKind(String description)
+    {
+        this.description = description;
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public String getCode()
+    {
+        return name();
+    }
+
 }

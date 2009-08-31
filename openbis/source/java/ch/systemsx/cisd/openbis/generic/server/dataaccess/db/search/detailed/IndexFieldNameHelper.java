@@ -18,10 +18,11 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed;
 
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.CODE;
 
-import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 
 /**
@@ -29,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  * 
  * @author Piotr Buczek
  */
-// TODO 2009-08-31, Piotr Buczek: write code for remaining entity kinds
 class IndexFieldNameHelper
 {
     // properties
@@ -42,17 +42,6 @@ class IndexFieldNameHelper
 
     // attributes
 
-    static IAttributeSearchFieldKind[] getAllAttributeFieldKinds(EntityKind entityKind)
-    {
-        switch (entityKind)
-        {
-            case DATA_SET:
-                return DataSetAttributeSearchFieldKind.values();
-            default:
-                throw new IllegalArgumentException("not implemented yet");
-        }
-    }
-
     static String getAttributeIndexField(EntityKind entityKind, String attributeCode)
     {
         switch (entityKind)
@@ -60,9 +49,17 @@ class IndexFieldNameHelper
             case DATA_SET:
                 return getDataSetAttributeIndexField(DataSetAttributeSearchFieldKind
                         .valueOf(attributeCode));
-            default:
-                throw new IllegalArgumentException("not implemented yet");
+            case EXPERIMENT:
+                return getExperimentAttributeIndexField(ExperimentAttributeSearchFieldKind
+                        .valueOf(attributeCode));
+            case MATERIAL:
+                return getMaterialAttributeIndexField(MaterialAttributeSearchFieldKind
+                        .valueOf(attributeCode));
+            case SAMPLE:
+                return getSampleAttributeIndexField(SampleAttributeSearchFieldKind
+                        .valueOf(attributeCode));
         }
+        return null; // cannot happen
     }
 
     private static String getDataSetAttributeIndexField(
@@ -70,14 +67,58 @@ class IndexFieldNameHelper
     {
         switch (attributeKind)
         {
-            case DATA_SET_CODE:
+            case CODE:
                 return CODE;
             case DATA_SET_TYPE:
                 return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
             case FILE_TYPE:
                 return SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE + CODE;
-            default:
-                throw InternalErr.error("unknown enum " + attributeKind);
         }
+        return null; // cannot happen
+    }
+
+    private static String getExperimentAttributeIndexField(
+            ExperimentAttributeSearchFieldKind attributeKind)
+    {
+        switch (attributeKind)
+        {
+            case CODE:
+                return CODE;
+            case EXPERIMENT_TYPE:
+                return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
+            case PROJECT:
+                return SearchFieldConstants.PREFIX_PROJECT + CODE;
+            case PROJECT_GROUP:
+                return SearchFieldConstants.PREFIX_PROJECT + SearchFieldConstants.PREFIX_GROUP
+                        + CODE;
+        }
+        return null; // cannot happen
+    }
+
+    private static String getMaterialAttributeIndexField(
+            MaterialAttributeSearchFieldKind attributeKind)
+    {
+        switch (attributeKind)
+        {
+            case CODE:
+                return CODE;
+            case MATERIAL_TYPE:
+                return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
+        }
+        return null; // cannot happen
+    }
+
+    private static String getSampleAttributeIndexField(SampleAttributeSearchFieldKind attributeKind)
+    {
+        switch (attributeKind)
+        {
+            case CODE:
+                return CODE;
+            case SAMPLE_TYPE:
+                return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
+            case GROUP:
+                return SearchFieldConstants.PREFIX_GROUP + CODE;
+        }
+        return null; // cannot happen
     }
 }

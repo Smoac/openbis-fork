@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
@@ -132,8 +133,7 @@ public class DetailedQueryBuilder
     private List<String> getAllAttributeIndexFieldNames()
     {
         List<String> indexFieldNames = new ArrayList<String>();
-        IAttributeSearchFieldKind[] attributeFieldKinds =
-                IndexFieldNameHelper.getAllAttributeFieldKinds(entityKind);
+        IAttributeSearchFieldKind[] attributeFieldKinds = getAllAttributeFieldKinds(entityKind);
         for (IAttributeSearchFieldKind attributeFieldKind : attributeFieldKinds)
         {
             DetailedSearchField attributeField =
@@ -141,6 +141,11 @@ public class DetailedQueryBuilder
             indexFieldNames.add(getSimpleFieldIndexName(attributeField));
         }
         return indexFieldNames;
+    }
+
+    private static IAttributeSearchFieldKind[] getAllAttributeFieldKinds(EntityKind entityKind)
+    {
+        return AttributeSearchFieldKindProvider.getAllAttributeFieldKinds(entityKind);
     }
 
     private List<String> getPropertyIndexFields(DetailedSearchField searchField)

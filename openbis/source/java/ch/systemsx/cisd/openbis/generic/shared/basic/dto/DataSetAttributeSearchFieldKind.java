@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Kinds of fields connected with data set attributes that can be used in detailed text queries.
+ * Kinds of fields connected with Data Set attributes that can be used in detailed text queries.
  * 
  * @author Piotr Buczek
  */
 public enum DataSetAttributeSearchFieldKind implements IsSerializable, IAttributeSearchFieldKind
 {
-    DATA_SET_CODE("Code"),
+    CODE("Code"),
 
     DATA_SET_TYPE("Data Set Type"),
 

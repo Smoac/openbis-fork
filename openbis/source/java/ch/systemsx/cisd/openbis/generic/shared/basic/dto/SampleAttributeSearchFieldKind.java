@@ -16,14 +16,36 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 /**
- * Kind of field connected with an entity attribute that can be used in detailed text queries.
+ * Kinds of fields connected with Sample attributes that can be used in detailed text queries.
  * 
  * @author Piotr Buczek
  */
-public interface IAttributeSearchFieldKind
+public enum SampleAttributeSearchFieldKind implements IsSerializable, IAttributeSearchFieldKind
 {
-    String getCode();
+    CODE("Code"),
 
-    String getDescription();
+    SAMPLE_TYPE("Sample Type"),
+
+    GROUP("Group");
+
+    private final String description;
+
+    private SampleAttributeSearchFieldKind(String description)
+    {
+        this.description = description;
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public String getCode()
+    {
+        return name();
+    }
+
 }

@@ -35,18 +35,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.AttributeSearchFieldKindProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * {@link ComboBox} containing list of detailed search fields loaded from the server (property types) and
- * static ones.
+ * {@link ComboBox} containing list of detailed search fields loaded from the server (property
+ * types) and static ones.
  * 
  * @author Izabela Adamczyk
  * @author Piotr Buczek
@@ -54,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 // TODO 2009-02-13, Tomasz Pylak: fetching of property types is done every time a new widget is
 // created, although all of them are identical. It should be done outside of this class and passed
 // to it.
-// TODO 2009-08-31, Piotr Buczek: write code for remaining entity kinds
 public final class DetailedSearchFieldsSelectionWidget extends
         DropDownList<DetailedSearchFieldComboModel, PropertyType>
 {
@@ -193,7 +192,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
     {
         final List<DetailedSearchFieldComboModel> result =
                 new ArrayList<DetailedSearchFieldComboModel>();
-        for (IAttributeSearchFieldKind attributeFieldKind : getAttributeFieldKinds())
+        for (IAttributeSearchFieldKind attributeFieldKind : getAllAttributeFieldKinds(entityKind))
         {
             DetailedSearchField attributeField =
                     DetailedSearchField.createAttributeField(attributeFieldKind);
@@ -213,15 +212,9 @@ public final class DetailedSearchFieldsSelectionWidget extends
         return result;
     }
 
-    private IAttributeSearchFieldKind[] getAttributeFieldKinds()
+    private static IAttributeSearchFieldKind[] getAllAttributeFieldKinds(EntityKind entityKind)
     {
-        switch (entityKind)
-        {
-            case DATA_SET:
-                return DataSetAttributeSearchFieldKind.values();
-            default:
-                throw new IllegalArgumentException("not yet implemented");
-        }
+        return AttributeSearchFieldKindProvider.getAllAttributeFieldKinds(entityKind);
     }
 
     private void addComplexFieldComboModel(List<DetailedSearchFieldComboModel> result,
