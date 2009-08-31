@@ -21,12 +21,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import java.util.List;
 
-import net.lemnik.eodsql.DataIterator;
-
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
@@ -43,9 +37,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
  */
 public class DatasetLister implements IDatasetLister
 {
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DatasetLister.class);
-
     //
     // Input
     //
@@ -59,10 +50,6 @@ public class DatasetLister implements IDatasetLister
     //
 
     private final IDatasetListingQuery query;
-
-    private final IDatasetSetListingQuery setQuery;
-
-    private final IEntityPropertiesEnricher propertiesEnricherOrNull;
 
     //
     // Working data structures
@@ -101,15 +88,11 @@ public class DatasetLister implements IDatasetLister
         this.databaseInstanceId = databaseInstanceId;
         this.databaseInstance = databaseInstance;
         this.query = query;
-        this.setQuery = setQuery;
-        this.propertiesEnricherOrNull = propertiesEnricherOrNull;
     }
 
     public List<ExternalData> listByExperimentTechId(TechId experimentId)
     {
         loadSmallConnectedTables();
-        DataIterator<DatasetRecord> datasets = query.getDatasetsForExperiment(experimentId.getId());
-
         return null;
     }
 
