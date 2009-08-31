@@ -1,4 +1,5 @@
 package ch.systemsx.cisd.common.evaluator;
+
 /*
  * Copyright 2009 ETH Zuerich, CISD
  *
@@ -75,33 +76,43 @@ public final class Evaluator
      */
     public Evaluator(String expression) throws EvaluatorException
     {
-        this(expression, null);
+        this(expression, null, null);
     }
-    
+
     /**
      * Creates a new {@link Evaluator}.
      * 
      * @param expression The expression to evaluate.
      * @param supportFunctionsOrNull If not <code>null</code>, all public static methods of the
      *            given class will be available to the evaluator as "supporting functions".
+     * @param initialScriptOrNull If not <code>null</code>, this has to be a valid (Python)
+     *            script which is evaluated initially, e.g. to define some new functions. Note: this
+     *            script is trusted, so don't run any unvalidated code here!
      */
-    public Evaluator(String expression, Class<?> supportFunctionsOrNull) throws EvaluatorException
+    public Evaluator(String expression, Class<?> supportFunctionsOrNull, String initialScriptOrNull)
+            throws EvaluatorException
     {
         if (expression.indexOf('\n') >= 0)
         {
             throw new EvaluatorException("Expression '" + expression + "' contains line breaks");
         }
         this.interpreter = new PythonInterpreter();
+        // Security: do not allow file access.
+        interpreter.exec("def open():\n   pass");
         if (supportFunctionsOrNull != null)
         {
             interpreter.exec("from " + supportFunctionsOrNull.getCanonicalName() + " import *");
+        }
+        if (initialScriptOrNull != null)
+        {
+            interpreter.exec(initialScriptOrNull);
         }
         this.expression = expression;
         try
         {
             this.compiledExpression =
-                    __builtin__.compile("__result__=(" + expression + ")", "expression: " + expression,
-                            "exec");
+                    __builtin__.compile("__result__=(" + expression + ")", "expression: "
+                            + expression, "exec");
         } catch (PyException ex)
         {
             throw toEvaluatorException(ex);
@@ -119,7 +130,7 @@ public final class Evaluator
     /**
      * Deletes the variable <var>name</var> from the evaluator's name space.
      */
-    public void del(String name)
+    public void delete(String name)
     {
         interpreter.getLocals().__delitem__(name);
     }
@@ -207,8 +218,8 @@ public final class Evaluator
         } catch (ClassCastException ex)
         {
             final ReturnType type = getType();
-            throw new EvaluatorException("Expected a result of type "
-                    + ReturnType.BIGINT + ", found " + type);
+            throw new EvaluatorException("Expected a result of type " + ReturnType.BIGINT
+                    + ", found " + type);
         }
     }
 
@@ -225,8 +236,8 @@ public final class Evaluator
         } catch (ClassCastException ex)
         {
             final ReturnType type = getType();
-            throw new EvaluatorException("Expected a result of type "
-                    + ReturnType.DOUBLE + ", found " + type);
+            throw new EvaluatorException("Expected a result of type " + ReturnType.DOUBLE
+                    + ", found " + type);
         }
     }
 

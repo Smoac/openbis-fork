@@ -16,12 +16,16 @@
 
 package ch.systemsx.cisd.common.evaluator;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.io.File;
+
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.evaluator.Evaluator.ReturnType;
-
-import static org.testng.AssertJUnit.*;
 
 /**
  * Tests of the {@link Evaluator}.
@@ -39,14 +43,14 @@ public class EvaluatorTest
     @Test
     public void testSimpleExpression()
     {
-        final Evaluator eval = new Evaluator("1+1", null);
+        final Evaluator eval = new Evaluator("1+1");
         assertEquals(2, eval.evalToInt());
     }
 
     @Test
     public void testExpressionWithVariables()
     {
-        final Evaluator eval = new Evaluator("a*b", null);
+        final Evaluator eval = new Evaluator("a*b");
         eval.set("a", 2);
         eval.set("b", 3.1);
         assertEquals(6.2, eval.evalToDouble(), 1e-15);
@@ -55,7 +59,7 @@ public class EvaluatorTest
     @Test
     public void testExpressionWithVariablesMultipleEvaluations()
     {
-        final Evaluator eval = new Evaluator("a*b", null);
+        final Evaluator eval = new Evaluator("a*b");
         eval.set("a", 2);
         eval.set("b", 3.1);
         assertEquals(6.2, eval.evalToDouble(), 1e-15);
@@ -67,20 +71,20 @@ public class EvaluatorTest
     @Test
     public void testVariables()
     {
-        final Evaluator eval = new Evaluator("a", null);
+        final Evaluator eval = new Evaluator("a");
         eval.set("a", 2);
         assertTrue(eval.has("a"));
         assertFalse(eval.has("b"));
-        eval.del("a");
+        eval.delete("a");
         assertFalse(eval.has("a"));
     }
 
     @Test
     public void testBuiltInFunctionEval()
     {
-        final Evaluator eval = new Evaluator("min(1,2)", null);
+        final Evaluator eval = new Evaluator("min(1,2)");
         assertEquals(1, eval.evalToInt());
-        final Evaluator eval2 = new Evaluator("max(1,2)", null);
+        final Evaluator eval2 = new Evaluator("max(1,2)");
         assertEquals(2, eval2.evalToInt());
     }
 
@@ -113,20 +117,28 @@ public class EvaluatorTest
     @Test
     public void testFunctionEval()
     {
-        Evaluator eval = new Evaluator("Min(1,2)", Functions.class);
+        Evaluator eval = new Evaluator("Min(1,2)", Functions.class, null);
         assertEquals(1, eval.evalToInt());
-        eval = new Evaluator("Min([1,2,0.1])", Functions.class);
+        eval = new Evaluator("Min([1,2,0.1])", Functions.class, null);
         assertEquals(0.1, eval.evalToDouble(), 1e-15);
-        eval = new Evaluator("Min(v)", Functions.class);
+        eval = new Evaluator("Min(v)", Functions.class, null);
         eval.set("v", new double[]
             { 1, 2, -99.9, 3 });
         assertEquals(-99.9, eval.evalToDouble(), 1e-15);
     }
 
     @Test
+    public void testInitialScript()
+    {
+        final Evaluator eval =
+                new Evaluator("hello()", null, "def hello():\n   return 'Hello World'");
+        assertEquals("Hello World", eval.evalAsString());
+    }
+
+    @Test
     public void testGetTypeChanging()
     {
-        final Evaluator eval = new Evaluator("a", null);
+        final Evaluator eval = new Evaluator("a");
         eval.set("a", 2);
         assertEquals(ReturnType.INTEGER_OR_BOOLEAN, eval.getType());
         eval.set("a", "2");
@@ -148,14 +160,14 @@ public class EvaluatorTest
     @Test(expectedExceptions = EvaluatorException.class)
     public void testMissingVariable()
     {
-        final Evaluator eval = new Evaluator("a", null);
+        final Evaluator eval = new Evaluator("a");
         eval.evalAsString();
     }
 
     @Test
     public void testInvalidReturnValue()
     {
-        final Evaluator eval = new Evaluator("a", null);
+        final Evaluator eval = new Evaluator("a");
         eval.set("a", true);
         assertEquals(ReturnType.INTEGER_OR_BOOLEAN, eval.getType());
         assertEquals("1", eval.evalAsString());
@@ -167,5 +179,22 @@ public class EvaluatorTest
             assertEquals(ex.getMessage(),
                     "Expected a result of type DOUBLE, found INTEGER_OR_BOOLEAN", ex.getMessage());
         }
+    }
+
+    @Test
+    public void testWriteFails()
+    {
+        final File tagFile = new File("targets/newfile");
+        tagFile.delete();
+        final Evaluator eval =
+                new Evaluator("open('targets/newfile', 'w').write('Should not work')");
+        try
+        {
+            eval.evalAsString();
+        } catch (EvaluatorException ex)
+        {
+            // expected
+        }
+        assertFalse(tagFile.exists());
     }
 }
