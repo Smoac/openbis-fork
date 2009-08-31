@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractGridDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -143,50 +142,36 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         return ID_PREFIX + sampleId;
     }
 
+    private static final String getDisplayIdSuffix(String suffix)
+    {
+        return GENERIC_SAMPLE_VIEWER + "-" + suffix;
+    }
+
     private final Component createRightPanel(SampleParentWithDerived sampleGeneration)
     {
         final Sample generator = sampleGeneration.getParent();
+        String displayIdSuffix = getDisplayIdSuffix(generator.getSampleType().getCode());
 
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
 
         // 'Part of' samples
         containerSamplesSection = new ContainerSamplesSection(viewContext);
-        containerSamplesSection.setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION,
-                GENERIC_SAMPLE_VIEWER);
-        IDelegatedAction showContainerSamplesSectionAction = new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    container.addPanel(containerSamplesSection);
-                }
-            };
-        IDelegatedAction hideContainerSamplesSectionAction = new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    if (container.getItemByItemId(containerSamplesSection.getId()) != null)
-                    {
-                        container.removePanel(containerSamplesSection);
-                    }
-                }
-            };
-        containerSamplesSection.addSamplesGrid(generator,
-                new ContainerSamplesGridDataRefreshCallback(showContainerSamplesSectionAction,
-                        hideContainerSamplesSectionAction));
+        containerSamplesSection
+                .setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, displayIdSuffix);
+        containerSamplesSection.addSamplesGrid(generator);
+        container.addPanel(containerSamplesSection);
         // Data Sets
         final SingleSectionPanel externalDataPanel =
                 createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
         dataSetBrowser =
                 SampleDataSetBrowser.create(viewContext, sampleId, generator.getSampleType());
         externalDataPanel.add(dataSetBrowser.getComponent());
-        externalDataPanel.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION,
-                GENERIC_SAMPLE_VIEWER);
+        externalDataPanel.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, displayIdSuffix);
         container.addPanel(externalDataPanel);
 
         // Attachments
         attachmentsSection = createAttachmentsSection(generator);
-        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION,
-                GENERIC_SAMPLE_VIEWER);
+        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION, displayIdSuffix);
         container.addPanel(attachmentsSection);
 
         container.setLayoutOnChange(true);
@@ -322,7 +307,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     /**
      * Load the {@link SampleParentWithDerived} information.
      */
-    protected void reloadSampleGenerationData(AbstractAsyncCallback<SampleParentWithDerived> callback)
+    protected void reloadSampleGenerationData(
+            AbstractAsyncCallback<SampleParentWithDerived> callback)
     {
         viewContext.getService().getSampleGenerationInfo(sampleId, getBaseIndexURL(), callback);
     }
@@ -452,35 +438,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             protected void finishOnFailure(Throwable caught)
             {
                 genericSampleViewer.setupRemovedEntityView();
-            }
-        }
-
-    }
-
-    public final class ContainerSamplesGridDataRefreshCallback extends
-            AbstractGridDataRefreshCallback<Sample>
-    {
-
-        private final IDelegatedAction showContainerSamplesSectionAction;
-
-        private final IDelegatedAction hideContainerSamplesSectionAction;
-
-        public ContainerSamplesGridDataRefreshCallback(
-                IDelegatedAction showContainerSamplesSectionAction,
-                IDelegatedAction hideContainerSamplesSectionAction)
-        {
-            this.showContainerSamplesSectionAction = showContainerSamplesSectionAction;
-            this.hideContainerSamplesSectionAction = hideContainerSamplesSectionAction;
-        }
-
-        public void postRefresh(boolean wasSuccessful)
-        {
-            if (getGrid().getRowNumber() > 0)
-            {
-                showContainerSamplesSectionAction.execute();
-            } else
-            {
-                hideContainerSamplesSectionAction.execute();
             }
         }
 

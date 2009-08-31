@@ -178,29 +178,32 @@ public final class GenericExperimentViewer extends
         }
     }
 
+    private static final String getDisplayIdSuffix(String suffix)
+    {
+        return GENERIC_EXPERIMENT_VIEWER + "-" + suffix;
+    }
+
     public Component createRightPanel(Experiment result,
             CompositeDatabaseModificationObserverWithMainObserver observer)
     {
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
+        final String displayIdSuffix = getDisplayIdSuffix(result.getExperimentType().getCode());
 
         final ExperimentSamplesSection sampleSection =
                 new ExperimentSamplesSection(viewContext, result);
-        sampleSection
-                .setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, GENERIC_EXPERIMENT_VIEWER);
+        sampleSection.setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, displayIdSuffix);
         container.addPanel(sampleSection);
         observer.addObserver(sampleSection.getDatabaseModificationObserver());
 
         final ExperimentDataSetSection dataSection =
                 new ExperimentDataSetSection(result, viewContext);
-        dataSection
-                .setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, GENERIC_EXPERIMENT_VIEWER);
+        dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, displayIdSuffix);
         container.addPanel(dataSection);
         observer.addObserver(dataSection.getDatabaseModificationObserver());
 
         final AttachmentVersionsSection<Experiment> attachmentsSection =
                 createAttachmentsSection(result);
-        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION,
-                GENERIC_EXPERIMENT_VIEWER);
+        attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION, displayIdSuffix);
         container.addPanel(attachmentsSection);
         observer.addObserver(attachmentsSection.getDatabaseModificationObserver());
 

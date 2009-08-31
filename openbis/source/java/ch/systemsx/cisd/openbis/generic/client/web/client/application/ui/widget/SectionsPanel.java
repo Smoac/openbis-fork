@@ -48,7 +48,13 @@ public class SectionsPanel extends ContentPanel
 
     public void addPanel(final SingleSectionPanel panel)
     {
-        final SectionElement element = new SectionElement(panel, withShowHide, viewContext);
+        addPanel(panel, true);
+    }
+
+    public void addPanel(final SingleSectionPanel panel, boolean pressByDeafult)
+    {
+        final SectionElement element =
+                new SectionElement(panel, withShowHide, viewContext, pressByDeafult);
         element.getButton().addSelectionListener(new SelectionListener<ComponentEvent>()
             {
                 @Override
@@ -125,7 +131,7 @@ public class SectionsPanel extends ContentPanel
         private SingleSectionPanel panel;
 
         public SectionElement(SingleSectionPanel panel, boolean withShowHide,
-                IViewContext<ICommonClientServiceAsync> viewContext)
+                IViewContext<ICommonClientServiceAsync> viewContext, boolean defaultPressedValue)
         {
             panel.setCollapsible(false);
             this.setPanel(panel);
@@ -133,7 +139,7 @@ public class SectionsPanel extends ContentPanel
             Boolean sectionSetting =
                     viewContext.getModel().getSessionContext().getDisplaySettings()
                             .getSectionSettings().get(panel.getDisplayID());
-            boolean pressed = sectionSetting != null ? sectionSetting : true;
+            boolean pressed = sectionSetting != null ? sectionSetting : defaultPressedValue;
             button =
                     createButton(heading, withShowHide, pressed, panel.getDisplayID(), viewContext);
         }

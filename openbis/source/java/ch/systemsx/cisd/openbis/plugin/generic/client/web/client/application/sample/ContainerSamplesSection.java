@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSect
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractGridDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -48,14 +47,12 @@ public class ContainerSamplesSection extends SingleSectionPanel
         this.viewContext = viewContext;
     }
 
-    public void addSamplesGrid(final Sample container,
-            final AbstractGridDataRefreshCallback<Sample> refreshCallback)
+    public void addSamplesGrid(final Sample container)
     {
         TechId containerId = TechId.create(container);
         sampleDisposableGrid =
                 SampleBrowserGrid.createGridForContainerSamples(viewContext.getCommonViewContext(),
-                        containerId, createGridId(containerId), refreshCallback, container
-                                .getSampleType());
+                        containerId, createGridId(containerId), container.getSampleType());
         add(sampleDisposableGrid.getComponent());
     }
 

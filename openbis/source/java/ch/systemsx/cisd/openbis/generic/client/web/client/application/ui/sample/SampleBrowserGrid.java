@@ -52,7 +52,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractGridDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
@@ -130,17 +129,13 @@ public class SampleBrowserGrid extends
 
     public static IDisposableComponent createGridForContainerSamples(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final TechId containerSampleId, final String gridId,
-            final AbstractGridDataRefreshCallback<Sample> refreshCallback,
-            final SampleType sampleType)
+            final TechId containerSampleId, final String gridId, final SampleType sampleType)
     {
         final ListSampleDisplayCriteria criteria =
                 ListSampleDisplayCriteria.createForContainer(containerSampleId, getBaseIndexURL());
         final String entityTypeCode = sampleType.getCode();
         final SampleBrowserGrid browserGrid =
                 createGridAsComponent(viewContext, gridId, criteria, entityTypeCode);
-        refreshCallback.setGrid(browserGrid);
-        browserGrid.setExternalRefreshCallback(refreshCallback);
         browserGrid.updateCriteriaProviderAndRefresh();
         browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         browserGrid.extendBottomToolbar();

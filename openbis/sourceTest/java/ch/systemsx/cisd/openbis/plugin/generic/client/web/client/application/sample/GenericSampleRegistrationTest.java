@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import java.util.List;
+import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
@@ -81,7 +81,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 
     /**
      * Tests that authorization annotations of
-     * {@link IPluginCommonServer#registerSample(String, NewSample, List)} are obeyed.
+     * {@link IPluginCommonServer#registerSample(String, NewSample, Collection)} are obeyed.
      */
     public final void testRegisterSampleByAnUnauthorizedUser()
     {
