@@ -23,7 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
  * Test cases for corresponding {@link NamedDataStrategy} class.

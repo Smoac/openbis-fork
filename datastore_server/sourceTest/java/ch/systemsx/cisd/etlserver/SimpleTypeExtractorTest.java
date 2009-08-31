@@ -22,8 +22,8 @@ import java.util.Properties;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**

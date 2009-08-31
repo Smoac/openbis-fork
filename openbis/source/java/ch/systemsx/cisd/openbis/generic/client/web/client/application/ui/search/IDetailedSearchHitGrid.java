@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * Interface for grids that show results of detailed entity search.

@@ -18,9 +18,9 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
  * Extractor for processor, data set, file format, and locator type.

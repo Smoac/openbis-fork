@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-
 /**
  * The <i>GWT</i> equivalent to {@link LocatorType}.
  * 
@@ -25,4 +24,15 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 public final class LocatorType extends AbstractType
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    public static final String DEFAULT_LOCATOR_TYPE_CODE = "RELATIVE_LOCATION";
+
+    public LocatorType()
+    {
+    }
+
+    public LocatorType(final String code)
+    {
+        setCode(code);
+    }
 }

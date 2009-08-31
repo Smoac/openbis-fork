@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.cifex;
 
+import static ch.systemsx.cisd.etlserver.AbstractDataSetInfoExtractor.extractDataSetProperties;
+
 import java.io.File;
 import java.util.Properties;
 
@@ -28,8 +30,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-
-import static ch.systemsx.cisd.etlserver.AbstractDataSetInfoExtractor.extractDataSetProperties;
 
 /**
  * {@link IDataSetInfoExtractor} extracting group and sample from CIFEX comment.

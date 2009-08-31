@@ -19,20 +19,20 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.EoDException;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 

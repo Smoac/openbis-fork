@@ -28,6 +28,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.NotNull;
+
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**

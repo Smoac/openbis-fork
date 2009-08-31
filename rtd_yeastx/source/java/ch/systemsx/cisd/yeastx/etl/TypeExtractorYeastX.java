@@ -29,9 +29,9 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
  * Implementation of {@link ITypeExtractor} which gets the types from the file extension. Some of

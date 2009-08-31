@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.yeastx.eicml;
 
-import ch.systemsx.cisd.yeastx.db.IGenericDAO;
-
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
+
+import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 
 /**
  * Interface for querying / updating the metabol database.

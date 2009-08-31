@@ -5,7 +5,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleGenerationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -71,9 +71,9 @@ public class BisUtil
     public void getSampleCodeFromId(Long id)
     {
 
-        SampleGenerationDTO sampleInfo =
+        SampleParentWithDerived sampleInfo =
                 genericServer.getSampleInfo(session.getSessionToken(), new TechId(id));
-        System.out.println(sampleInfo.getGenerator().getCode());
+        System.out.println(sampleInfo.getParent().getCode());
 
     }
 

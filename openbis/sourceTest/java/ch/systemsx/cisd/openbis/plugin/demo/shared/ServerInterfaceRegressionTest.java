@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.demo.shared;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.RegressionTestCase;
-import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 
 /**
  * @author Franz-Josef Elmer

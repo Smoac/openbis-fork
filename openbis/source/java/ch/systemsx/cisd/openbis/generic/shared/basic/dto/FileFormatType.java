@@ -26,4 +26,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 public final class FileFormatType extends AbstractType
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    public static final String DEFAULT_FILE_FORMAT_TYPE_CODE = "PROPRIETARY";
+
+    public FileFormatType()
+    {
+    }
+
+    public FileFormatType(final String code)
+    {
+        setCode(code);
+    }
 }

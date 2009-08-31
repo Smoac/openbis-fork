@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
  * A <code>IDataStoreStrategy</code> implementation that creates a named directory and put the

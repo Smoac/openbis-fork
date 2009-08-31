@@ -19,7 +19,7 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
  * This interface implements a strategy for storing data in the <i>store</i> directory.

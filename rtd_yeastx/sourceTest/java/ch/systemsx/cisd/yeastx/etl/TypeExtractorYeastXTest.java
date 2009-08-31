@@ -25,8 +25,8 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
 /**
  * Tests of {@link TypeExtractorYeastX}

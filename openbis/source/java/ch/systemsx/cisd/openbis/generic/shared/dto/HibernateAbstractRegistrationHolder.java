@@ -27,6 +27,7 @@ import javax.persistence.MappedSuperclass;
 
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**

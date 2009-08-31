@@ -21,7 +21,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.test.EqualsHashCodeTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
 /**
  * Test cases for corresponding {@link DatabaseInstanceIdentifier} class.

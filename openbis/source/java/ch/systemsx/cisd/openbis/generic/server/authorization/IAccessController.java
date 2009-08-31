@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 import java.lang.reflect.Method;
 
-
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;

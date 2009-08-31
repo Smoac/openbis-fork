@@ -20,7 +20,6 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.migration.MigrationStepFrom023To024;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.migration.MigrationStepFrom023To024.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.migration.MigrationStepFrom023To024.ExternalData;
 

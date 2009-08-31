@@ -31,6 +31,15 @@ public class DataSetType extends EntityType
 
     private List<DataSetTypePropertyType> dataSetTypePropertyTypes;
 
+    public DataSetType()
+    {
+    }
+
+    public DataSetType(final String code)
+    {
+        setCode(code);
+    }
+
     @Override
     public List<DataSetTypePropertyType> getAssignedPropertyTypes()
     {

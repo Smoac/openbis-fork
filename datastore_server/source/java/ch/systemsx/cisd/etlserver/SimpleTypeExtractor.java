@@ -19,9 +19,9 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 
 /**
