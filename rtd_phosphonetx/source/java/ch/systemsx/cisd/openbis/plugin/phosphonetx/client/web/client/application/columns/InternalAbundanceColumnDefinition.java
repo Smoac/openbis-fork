@@ -60,6 +60,12 @@ public final class InternalAbundanceColumnDefinition extends
         return abundance == null ? ZERO : abundance;
     }
     
+    @Override
+    public boolean isNumeric()
+    {
+        return true;
+    }
+
     private Double tryToGetAbundance(ProteinInfo entity)
     {
         Map<Long, Double> abundances = entity.getAbundances();
