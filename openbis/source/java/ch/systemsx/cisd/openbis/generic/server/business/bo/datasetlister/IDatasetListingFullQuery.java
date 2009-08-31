@@ -52,6 +52,12 @@ public interface IDatasetListingFullQuery extends IDatasetListingQuery
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(LongSet entityIds);
 
+    /**
+     * Returns the total number of all datasets in the database.
+     */
+    @Select(sql = "select count(*) from data")
+    public long getDatasetCount();
+
     //
     // Entity Properties
     //
@@ -101,5 +107,4 @@ public interface IDatasetListingFullQuery extends IDatasetListingQuery
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet entityIds);
-
 }

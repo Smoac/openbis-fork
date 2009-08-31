@@ -45,6 +45,20 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     @Select(sql = "select * from data left outer join external_data on data.id = external_data.data_id where data.expe_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsForExperiment(long experimentId);
 
+    /**
+     * Returns the datasets for the given <var>datasetId</var>.
+     */
+    @Select("select * from data d left outer join external_data e on d.id = e.data_id"
+            + " where d.id=?{1}")
+    public DatasetRecord getDataset(long datasetId);
+
+    /**
+     * Returns all datasets in the database.
+     */
+    @Select(sql = "select * from data d left outer join external_data e on d.id = e.data_id"
+            + " where d.id=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getDatasets();
+
     @Select(sql = "select id, code from data_set_types where dbin_id=?{1}")
     public CodeRecord[] getDatasetTypes(long databaseInstanceId);
 

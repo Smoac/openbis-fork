@@ -182,19 +182,19 @@ public final class SampleListerDAO
                 public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
                         LongSet entityIDs)
                 {
-                    return query.getSamplePropertyGenericValues(entityIDs);
+                    return query.getEntityPropertyGenericValues(entityIDs);
                 }
 
                 public Iterable<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
                         LongSet entityIDs)
                 {
-                    return query.getSamplePropertyMaterialValues(entityIDs);
+                    return query.getEntityPropertyMaterialValues(entityIDs);
                 }
 
                 public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
                         LongSet entityIDs)
                 {
-                    return query.getSamplePropertyVocabularyTermValues(entityIDs);
+                    return query.getEntityPropertyVocabularyTermValues(entityIDs);
                 }
             };
     }

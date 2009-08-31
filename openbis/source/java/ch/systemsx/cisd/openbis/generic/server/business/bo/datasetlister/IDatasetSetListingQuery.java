@@ -18,17 +18,15 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntitySetPropertyListingQuery;
-
 /**
  * A DAO query interface for obtaining sets of datasets or dataset-related entities based on a set
- * of sample ids.
+ * of dataset ids.
  * <p>
  * May need different implementations for different database engines.
  * 
  * @author Tomasz Pylak
  */
-interface IDatasetSetListingQuery extends IEntitySetPropertyListingQuery
+interface IDatasetSetListingQuery
 {
     /**
      * Returns the datasets for the given <var>datasetIds</var>.

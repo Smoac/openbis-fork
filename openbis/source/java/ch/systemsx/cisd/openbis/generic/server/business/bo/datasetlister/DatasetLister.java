@@ -83,7 +83,8 @@ public class DatasetLister implements IDatasetLister
     {
         IDatasetListingQuery query = dao.getQuery();
         IDatasetSetListingQuery setQuery = dao.getIdSetQuery();
-        EntityPropertiesEnricher propertiesEnricher = new EntityPropertiesEnricher(query, setQuery);
+        EntityPropertiesEnricher propertiesEnricher =
+                new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new DatasetLister(dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), query,
                 setQuery, propertiesEnricher);
     }

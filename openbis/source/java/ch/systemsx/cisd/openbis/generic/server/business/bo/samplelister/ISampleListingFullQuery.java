@@ -73,7 +73,7 @@ public interface ISampleListingFullQuery extends ISampleListingQuery
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "   where sp.value is not null and sp.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<GenericEntityPropertyRecord> getSamplePropertyGenericValues(LongSet sampleIds);
+    public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(LongSet sampleIds);
 
     /**
      * Returns all controlled vocabulary property values of all samples specified by
@@ -89,7 +89,7 @@ public interface ISampleListingFullQuery extends ISampleListingQuery
             + "      join controlled_vocabulary_terms cvte on sp.cvte_id=cvte.id"
             + "   where sp.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<VocabularyTermRecord> getSamplePropertyVocabularyTermValues(
+    public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
             LongSet sampleIds);
 
     /**
@@ -104,6 +104,6 @@ public interface ISampleListingFullQuery extends ISampleListingQuery
             + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
             + "      join materials m on sp.mate_prop_id=m.id where sp.samp_id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialEntityPropertyRecord> getSamplePropertyMaterialValues(LongSet sampleIds);
+    public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(LongSet sampleIds);
 
 }
