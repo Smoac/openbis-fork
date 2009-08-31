@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
@@ -78,7 +79,10 @@ public class ColumnDefsAndConfigs<T>
         columnConfig.setSortable(true);
         columnConfig.setId(column.getIdentifier());
         columnConfig.setHeader(column.getHeader());
-
+        if (column.isNumeric())
+        {
+            columnConfig.setAlignment(HorizontalAlignment.RIGHT);
+        }
         columnConfig.setWidth(column.getWidth());
         columnConfig.setHidden(column.isHidden());
         return columnConfig;

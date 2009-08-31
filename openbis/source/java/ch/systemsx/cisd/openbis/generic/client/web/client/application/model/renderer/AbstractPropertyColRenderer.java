@@ -100,6 +100,11 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
         return colDef.isHidden();
     }
 
+    public boolean isNumeric()
+    {
+        return colDef.isNumeric();
+    }
+
     public DataTypeCode getDataTypeCode()
     {
         return colDef.getDataTypeCode();

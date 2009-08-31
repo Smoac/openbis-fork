@@ -72,5 +72,10 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
         return getValue(rowModel);
     }
 
+    public boolean isNumeric()
+    {
+        return false;
+    }
+
     
 }

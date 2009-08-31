@@ -97,6 +97,11 @@ public class DataSetReporterGrid extends
             return false;
         }
 
+        public boolean isNumeric()
+        {
+            return false;
+        }
+
         // GWT only
         @SuppressWarnings("unused")
         private DatasetReportColumnUI()

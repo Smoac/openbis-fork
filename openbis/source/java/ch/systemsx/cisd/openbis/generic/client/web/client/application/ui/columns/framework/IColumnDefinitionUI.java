@@ -14,4 +14,9 @@ public interface IColumnDefinitionUI<T> extends IColumnDefinition<T>
 
     /** Returns <code>true</code> if this column should initially be hidden. */
     boolean isHidden();
+    
+    /**
+     * Returns <code>true</code> if the values of the column are numerically.
+     */
+    boolean isNumeric();
 }
