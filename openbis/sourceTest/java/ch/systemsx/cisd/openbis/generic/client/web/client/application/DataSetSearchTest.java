@@ -20,11 +20,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchRow;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FillSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.FillSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test <i>Data Set Search</i>.
@@ -40,7 +40,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
     {
         loginAndGotoTab();
         FillSearchCriteria fillCriteriaCmd = new FillSearchCriteria();
-        fillCriteriaCmd.addDataSetPropertyCriterion("Comment", "no comment");
+        fillCriteriaCmd.addPropertyCriterion("Comment", "no comment");
         remoteConsole.prepare(fillCriteriaCmd);
 
         final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
@@ -59,7 +59,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
     {
         loginAndGotoTab();
         FillSearchCriteria fillCriteriaCmd = new FillSearchCriteria();
-        fillCriteriaCmd.addSimpleCriterion(DataSetSearchFieldKind.FILE_TYPE, "tiff");
+        fillCriteriaCmd.addAttributeCriterion(DataSetAttributeSearchFieldKind.FILE_TYPE, "tiff");
 
         remoteConsole.prepare(fillCriteriaCmd);
 

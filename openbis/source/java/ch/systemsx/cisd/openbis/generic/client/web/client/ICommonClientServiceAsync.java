@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -77,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleSetCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -397,9 +397,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Void> projectRegistrationCallback);
 
     /**
-     * @see ICommonClientService#searchForDataSets(DataSetSearchCriteria, IResultSetConfig)
+     * @see ICommonClientService#searchForDataSets(DetailedSearchCriteria, IResultSetConfig)
      */
-    public void searchForDataSets(DataSetSearchCriteria criteria,
+    public void searchForDataSets(DetailedSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig,
             final AsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback);
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
 import java.util.List;
 
@@ -31,16 +31,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
- * Allows to specify one criterion.
+ * Allows to specify one detailed search criterion.
  * 
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-public class CriterionWidget extends HorizontalPanel
+public class DetailedSearchCriterionWidget extends HorizontalPanel
 {
 
     private static final String PREFIX = "data_set_search_criterion";
@@ -53,9 +55,9 @@ public class CriterionWidget extends HorizontalPanel
 
     public static final String ADD_BUTTON_ID_PREFIX = ID + "_add";
 
-    private final CriteriaWidget parent;
+    private final DetailedSearchCriteriaWidget parent;
 
-    private final DataSetSearchFieldsSelectionWidget nameField;
+    private final DetailedSearchFieldsSelectionWidget nameField;
 
     private final String idSuffix;
 
@@ -65,14 +67,15 @@ public class CriterionWidget extends HorizontalPanel
 
     private int generatedChildren;
 
-    public CriterionWidget(IViewContext<ICommonClientServiceAsync> viewContext,
-            CriteriaWidget parent, String idSuffix)
+    public DetailedSearchCriterionWidget(IViewContext<ICommonClientServiceAsync> viewContext,
+            DetailedSearchCriteriaWidget parent, String idSuffix, EntityKind entityKind)
     {
-        this(parent, idSuffix, new DataSetSearchFieldsSelectionWidget(viewContext, idSuffix));
+        this(parent, idSuffix, new DetailedSearchFieldsSelectionWidget(viewContext, idSuffix,
+                entityKind));
     }
 
-    private CriterionWidget(final CriteriaWidget parent, String idSuffix,
-            DataSetSearchFieldsSelectionWidget nameField)
+    private DetailedSearchCriterionWidget(final DetailedSearchCriteriaWidget parent,
+            String idSuffix, DetailedSearchFieldsSelectionWidget nameField)
     {
         generatedChildren = 0;
         this.parent = parent;
@@ -134,13 +137,15 @@ public class CriterionWidget extends HorizontalPanel
     }
 
     /**
-     * Adds a new {@link CriterionWidget} coping data from given the <em>name field</em>.
+     * Adds a new {@link DetailedSearchCriterionWidget} coping data from given the
+     * <em>name field</em>.
      */
     private void createNew()
     {
-        CriterionWidget newCriterion =
-                new CriterionWidget(parent, getChildId(), new DataSetSearchFieldsSelectionWidget(
-                        nameField, getChildId()));
+        DetailedSearchCriterionWidget newCriterion =
+                new DetailedSearchCriterionWidget(parent, getChildId(),
+                        new DetailedSearchFieldsSelectionWidget(nameField, getChildId(), nameField
+                                .getEntityKind()));
         parent.addCriterion(newCriterion);
         generatedChildren++;
     }
@@ -160,17 +165,17 @@ public class CriterionWidget extends HorizontalPanel
     }
 
     /**
-     * Returns {@link DataSetSearchCriterion} for selected <em>name</em> and <em>value</em>. If
+     * Returns {@link DetailedSearchCriterion} for selected <em>name</em> and <em>value</em>. If
      * either <em>name</em> or <em>value</em> is not specified, returns null.
      */
-    public DataSetSearchCriterion tryGetValue()
+    public DetailedSearchCriterion tryGetValue()
     {
 
         final String selectedValue = valueField.getValue();
-        final DataSetSearchField selectedFieldName = nameField.tryGetSelectedField();
+        final DetailedSearchField selectedFieldName = nameField.tryGetSelectedField();
         if (selectedFieldName != null && StringUtils.isBlank(selectedValue) == false)
         {
-            return new DataSetSearchCriterion(selectedFieldName, selectedValue);
+            return new DetailedSearchCriterion(selectedFieldName, selectedValue);
         }
         return null;
 
@@ -178,7 +183,7 @@ public class CriterionWidget extends HorizontalPanel
 
     public String tryGetDescription()
     {
-        DataSetSearchCriterion criterion = tryGetValue();
+        DetailedSearchCriterion criterion = tryGetValue();
         String name = nameField.tryGetSelectedCode();
         if (criterion == null || name == null)
         {

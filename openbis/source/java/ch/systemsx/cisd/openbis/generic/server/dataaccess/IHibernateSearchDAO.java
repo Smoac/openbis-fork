@@ -21,8 +21,8 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 
@@ -44,5 +44,5 @@ public interface IHibernateSearchDAO
             throws DataAccessException;
 
     /** search for datasets using the specified criteria */
-    public List<ExternalDataPE> searchForDataSets(DataSetSearchCriteria criteria);
+    public List<ExternalDataPE> searchForDataSets(DetailedSearchCriteria criteria);
 }

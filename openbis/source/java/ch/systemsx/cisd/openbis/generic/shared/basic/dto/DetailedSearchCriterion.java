@@ -17,59 +17,59 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Describes search criteria specific to data set search.
- * 
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-public class DataSetSearchCriteria implements IsSerializable, Serializable
+public class DetailedSearchCriterion implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private List<DataSetSearchCriterion> criteria;
+    private DetailedSearchField field;
 
-    private SearchCriteriaConnection connection;
+    private String value;
 
-    public DataSetSearchCriteria()
+    public DetailedSearchCriterion()
     {
     }
 
-    public List<DataSetSearchCriterion> getCriteria()
+    public DetailedSearchCriterion(DetailedSearchField field, String value)
     {
-        return criteria;
+        this.field = field;
+        this.value = value;
     }
 
-    public void setCriteria(List<DataSetSearchCriterion> criteria)
+    public DetailedSearchField getField()
     {
-        this.criteria = criteria;
+        return field;
     }
 
-    public SearchCriteriaConnection getConnection()
+    public void setField(DetailedSearchField field)
     {
-        return connection;
+        this.field = field;
     }
 
-    public void setConnection(SearchCriteriaConnection connection)
+    public String getValue()
     {
-        this.connection = connection;
+        return value;
+    }
+
+    public void setValue(String value)
+    {
+        this.value = value;
     }
 
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder();
-        for (final DataSetSearchCriterion element : getCriteria())
-        {
-            if (sb.length() > 0)
-            {
-                sb.append(" " + getConnection().name() + " ");
-            }
-            sb.append(element);
-        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(getField());
+        sb.append(": ");
+        sb.append(getValue());
         return sb.toString();
     }
+
 }

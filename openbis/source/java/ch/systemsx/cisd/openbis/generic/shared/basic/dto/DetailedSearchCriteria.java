@@ -17,58 +17,60 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
+ * Describes detailed search criteria specific to an entity.
+ * 
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-public class DataSetSearchCriterion implements IsSerializable, Serializable
+public class DetailedSearchCriteria implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private DataSetSearchField field;
+    private List<DetailedSearchCriterion> criteria;
 
-    private String value;
+    private SearchCriteriaConnection connection;
 
-    public DataSetSearchCriterion()
+    public DetailedSearchCriteria()
     {
     }
 
-    public DataSetSearchCriterion(DataSetSearchField field, String value)
+    public List<DetailedSearchCriterion> getCriteria()
     {
-        this.field = field;
-        this.value = value;
+        return criteria;
     }
 
-    public DataSetSearchField getField()
+    public void setCriteria(List<DetailedSearchCriterion> criteria)
     {
-        return field;
+        this.criteria = criteria;
     }
 
-    public void setField(DataSetSearchField field)
+    public SearchCriteriaConnection getConnection()
     {
-        this.field = field;
+        return connection;
     }
 
-    public String getValue()
+    public void setConnection(SearchCriteriaConnection connection)
     {
-        return value;
-    }
-
-    public void setValue(String value)
-    {
-        this.value = value;
+        this.connection = connection;
     }
 
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getField());
-        sb.append(": ");
-        sb.append(getValue());
+        final StringBuilder sb = new StringBuilder();
+        for (final DetailedSearchCriterion element : getCriteria())
+        {
+            if (sb.length() > 0)
+            {
+                sb.append(" " + getConnection().name() + " ");
+            }
+            sb.append(element);
+        }
         return sb.toString();
     }
-
 }

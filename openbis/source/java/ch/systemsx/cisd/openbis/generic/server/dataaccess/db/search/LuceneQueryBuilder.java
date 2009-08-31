@@ -16,13 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search;
 
-import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.CODE;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
@@ -31,150 +26,21 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.BooleanClause.Occur;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.DetailedQueryBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 
 /**
  * @author Tomasz Pylak
  */
 public class LuceneQueryBuilder
 {
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, LuceneQueryBuilder.class);
-
     /** @throws UserFailureException when some search patterns are incorrect */
-    public static Query createQuery(DataSetSearchCriteria dataSetCriteria)
-            throws UserFailureException
+    public static Query createDetailedSearchQuery(DetailedSearchCriteria searchCriteria,
+            EntityKind entityKind)
     {
-        List<DataSetSearchCriterion> criteria = dataSetCriteria.getCriteria();
-        Occur occureCondition = createOccureCondition(dataSetCriteria.getConnection());
-
-        Analyzer analyzer = createSearchAnalyzer();
-        BooleanQuery resultQuery = new BooleanQuery();
-        for (DataSetSearchCriterion criterion : criteria)
-        {
-            List<String> fieldNames = getIndexFieldNames(criterion.getField());
-            String searchPattern = LuceneQueryBuilder.adaptQuery(criterion.getValue());
-
-            Query luceneQuery = parseQuery(fieldNames, searchPattern, analyzer);
-            resultQuery.add(luceneQuery, occureCondition);
-        }
-        operationLog.debug("Lucene datasets query: " + resultQuery.toString());
-        return resultQuery;
-    }
-
-    private static Occur createOccureCondition(SearchCriteriaConnection connection)
-    {
-        switch (connection)
-        {
-            case MATCH_ALL:
-                return Occur.MUST;
-            case MATCH_ANY:
-                return Occur.SHOULD;
-            default:
-                throw InternalErr.error("unknown enum " + connection);
-        }
-    }
-
-    private static List<String> getIndexFieldNames(DataSetSearchField searchField)
-    {
-        DataSetSearchFieldKind fieldKind = searchField.getKind();
-        switch (fieldKind)
-        {
-            case ANY_DATA_SET_PROPERTY:
-                return getDataSetPropertyIndexFields(searchField);
-            case ANY_FIELD:
-                List<String> fields = new ArrayList<String>();
-                fields.addAll(getDataSetPropertyIndexFields(searchField));
-                fields.addAll(getAllIndexSimpleFieldNames());
-                return fields;
-            default:
-                return Arrays.asList(getSimpleFieldIndexName(searchField));
-        }
-    }
-
-    private static String getSimpleFieldIndexName(DataSetSearchField searchField)
-    {
-        String indexFieldName = tryGetIndexFieldName(searchField);
-        assert indexFieldName != null;
-        return indexFieldName;
-    }
-
-    private static List<String> getAllIndexSimpleFieldNames()
-    {
-        List<DataSetSearchFieldKind> simpleFieldKinds = DataSetSearchFieldKind.getSimpleFields();
-        List<String> fields = new ArrayList<String>();
-        for (DataSetSearchFieldKind simpleFieldKind : simpleFieldKinds)
-        {
-            DataSetSearchField simpleField = DataSetSearchField.createSimpleField(simpleFieldKind);
-            fields.add(getSimpleFieldIndexName(simpleField));
-        }
-        return fields;
-    }
-
-    private static List<String> getDataSetPropertyIndexFields(DataSetSearchField searchField)
-    {
-        return getPropertyIndexFields(searchField.getAllDataSetPropertyCodesOrNull(),
-                EntityKind.DATA_SET);
-    }
-
-    private static List<String> getPropertyIndexFields(List<String> allPropertyCodes,
-            EntityKind kind)
-    {
-        List<String> fields = new ArrayList<String>();
-        assert allPropertyCodes != null;
-        for (String propertyCode : allPropertyCodes)
-        {
-            DataSetSearchField searchField;
-            switch (kind)
-            {
-                case DATA_SET:
-                    searchField = DataSetSearchField.createDataSetProperty(propertyCode);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported entity kind");
-            }
-            String fieldIndex = tryGetIndexFieldName(searchField);
-            fields.add(fieldIndex);
-        }
-        return fields;
-    }
-
-    // returns the field name in the index for the specified dataset query field
-    private static String tryGetIndexFieldName(DataSetSearchField searchField)
-    {
-        DataSetSearchFieldKind fieldKind = searchField.getKind();
-        switch (fieldKind)
-        {
-            case DATA_SET_CODE:
-                return CODE;
-            case DATA_SET_TYPE:
-                return SearchFieldConstants.PREFIX_ENTITY_TYPE + CODE;
-            case DATA_SET_PROPERTY:
-                return getPropertyIndexField(searchField.getPropertyCode());
-            case FILE_TYPE:
-                return SearchFieldConstants.PREFIX_FILE_FORMAT_TYPE + CODE;
-            case ANY_DATA_SET_PROPERTY:
-            case ANY_FIELD:
-                return null;
-            default:
-                throw InternalErr.error("unknown enum " + fieldKind);
-        }
-    }
-
-    private static String getPropertyIndexField(String propertyCode)
-    {
-        assert propertyCode != null : "property code is null";
-        return SearchFieldConstants.PREFIX_PROPERTIES + propertyCode;
+        return DetailedQueryBuilder.createQuery(searchCriteria, entityKind);
     }
 
     public static String adaptQuery(String userQuery)

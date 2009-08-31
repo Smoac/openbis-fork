@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
 import java.util.List;
 
@@ -12,23 +12,24 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 
 /**
- * Contains a button opening {@link DataSetSearchWindow}.
+ * Contains a button opening {@link DetailedSearchWindow}.
  * 
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-class DataSetSearchToolbar extends ToolBar
+public class DetailedSearchToolbar extends ToolBar
 {
     private LabelToolItem description;
 
-    private final DataSetSearchHitGrid grid;
+    private final IDetailedSearchHitGrid grid;
 
-    private final DataSetSearchWindow searchWindow;
+    private final DetailedSearchWindow searchWindow;
 
-    public DataSetSearchToolbar(final DataSetSearchHitGrid grid, String buttonName,
-            final DataSetSearchWindow searchWindow)
+    public DetailedSearchToolbar(final IDetailedSearchHitGrid grid, String buttonName,
+            final DetailedSearchWindow searchWindow)
     {
         this.grid = grid;
         this.searchWindow = searchWindow;
@@ -44,7 +45,7 @@ class DataSetSearchToolbar extends ToolBar
             }));
     }
 
-    public void updateSearchResults(DataSetSearchCriteria searchCriteria, String searchDescription,
+    public void updateSearchResults(DetailedSearchCriteria searchCriteria, String searchDescription,
             List<PropertyType> availablePropertyTypes)
     {
         grid.refresh(searchCriteria, availablePropertyTypes);

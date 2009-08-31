@@ -27,18 +27,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.IDetailedSearchHitGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchToolbar;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchWindow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 
 /**
  * Grid with data set search results.
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetSearchHitGrid extends AbstractExternalDataGrid
+public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements IDetailedSearchHitGrid
 {
 
     // browser consists of the grid and the paging toolbar
@@ -51,15 +55,15 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         DataSetSearchHitGrid grid = new DataSetSearchHitGrid(viewContext);
-        final DataSetSearchWindow searchWindow = new DataSetSearchWindow(viewContext);
-        final DataSetSearchToolbar toolbar =
-                new DataSetSearchToolbar(grid, viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY),
+        final DetailedSearchWindow searchWindow = new DetailedSearchWindow(viewContext, EntityKind.DATA_SET);
+        final DetailedSearchToolbar toolbar =
+                new DetailedSearchToolbar(grid, viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY),
                         searchWindow);
         searchWindow.setUpdateListener(toolbar);
         return grid.asDisposableWithToolbar(toolbar);
     }
 
-    private DataSetSearchCriteria chosenSearchCriteria;
+    private DetailedSearchCriteria chosenSearchCriteria;
 
     private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -74,7 +78,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid
         viewContext.getService().searchForDataSets(chosenSearchCriteria, resultSetConfig, callback);
     }
 
-    public void refresh(DataSetSearchCriteria newCriteria, List<PropertyType> propertyTypes)
+    public void refresh(DetailedSearchCriteria newCriteria, List<PropertyType> propertyTypes)
     {
         chosenSearchCriteria = newCriteria;
         if (criteria != null)

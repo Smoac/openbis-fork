@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,15 +22,19 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Criterion;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.MatchCriteriaRadio;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchFieldKind;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for filling {@link CriteriaWidget}.
+ * A {@link AbstractDefaultTestCommand} extension for filling {@link DetailedSearchCriteriaWidget}.
  * 
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
 public final class FillSearchCriteria extends AbstractDefaultTestCommand
 {
@@ -45,7 +49,7 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
         criteria = new ArrayList<Criterion>();
         criteriaDefined = false;
         matchAll();
-        addCallbackClass(DataSetSearchFieldsSelectionWidget.ListPropertyTypesCallback.class);
+        addCallbackClass(DetailedSearchFieldsSelectionWidget.ListPropertyTypesCallback.class);
     }
 
     public FillSearchCriteria matchAll()
@@ -60,23 +64,21 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
         return this;
     }
 
-    public FillSearchCriteria addSimpleCriterion(DataSetSearchFieldKind name, String value)
+    public FillSearchCriteria addAttributeCriterion(IAttributeSearchFieldKind attribute,
+            String value)
     {
-        return addCriterion(name, null, value);
+        return addCriterion(attribute.getDescription(), value);
     }
 
-    public FillSearchCriteria addDataSetPropertyCriterion(String name, String value)
+    public FillSearchCriteria addPropertyCriterion(String name, String value)
     {
-        return addCriterion(DataSetSearchFieldKind.DATA_SET_PROPERTY, name, value);
+        final String field = DetailedSearchFieldKind.PROPERTY.getDescription() + " '" + name + "'";
+        return addCriterion(field, value);
     }
 
-    private FillSearchCriteria addCriterion(DataSetSearchFieldKind fieldKind,
-            String propertyOrNull, String value)
+    private FillSearchCriteria addCriterion(String name, String value)
     {
-        final String field =
-                fieldKind.description()
-                        + (propertyOrNull == null ? "" : " '" + propertyOrNull + "'");
-        criteria.add(new Criterion(field, value));
+        criteria.add(new Criterion(name, value));
         criteriaDefined = true;
         return this;
     }
@@ -102,19 +104,20 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
         }
         for (int i = 0; i < criteria.size(); i++)
         {
-            final DataSetSearchFieldsSelectionWidget selector =
-                    (DataSetSearchFieldsSelectionWidget) GWTTestUtil
-                            .getWidgetWithID(DataSetSearchFieldsSelectionWidget.ID
-                                    + DataSetSearchFieldsSelectionWidget.SUFFIX
-                                    + CriteriaWidget.FIRST_ID_SUFFIX + getSuffix(i));
+            final DetailedSearchFieldsSelectionWidget selector =
+                    (DetailedSearchFieldsSelectionWidget) GWTTestUtil
+                            .getWidgetWithID(DetailedSearchFieldsSelectionWidget.ID
+                                    + DetailedSearchFieldsSelectionWidget.SUFFIX
+                                    + DetailedSearchCriteriaWidget.FIRST_ID_SUFFIX + getSuffix(i));
             GWTUtils.setSelectedItem(selector, ModelDataPropertyNames.CODE, criteria.get(i)
                     .getName());
-            GWTTestUtil.setTextField(CriterionWidget.VALUE_FIELD_ID_PREFIX
-                    + CriteriaWidget.FIRST_ID_SUFFIX + getSuffix(i), criteria.get(i).getValue());
-            GWTTestUtil.clickButtonWithID(CriterionWidget.ADD_BUTTON_ID_PREFIX
-                    + CriteriaWidget.FIRST_ID_SUFFIX);
+            GWTTestUtil.setTextField(DetailedSearchCriterionWidget.VALUE_FIELD_ID_PREFIX
+                    + DetailedSearchCriteriaWidget.FIRST_ID_SUFFIX + getSuffix(i), criteria.get(i)
+                    .getValue());
+            GWTTestUtil.clickButtonWithID(DetailedSearchCriterionWidget.ADD_BUTTON_ID_PREFIX
+                    + DetailedSearchCriteriaWidget.FIRST_ID_SUFFIX);
         }
-        GWTTestUtil.clickButtonWithID(DataSetSearchWindow.SEARCH_BUTTON_ID);
+        GWTTestUtil.clickButtonWithID(DetailedSearchWindow.SEARCH_BUTTON_ID);
     }
 
     private final String getSuffix(int i)

@@ -45,12 +45,12 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchFieldKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -205,28 +205,28 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     // ----------------- test serach for datasets
 
-    private static DataSetSearchCriteria createOrDatasetQuery(DataSetSearchCriterion... criteria)
+    private static DetailedSearchCriteria createOrDatasetQuery(DetailedSearchCriterion... criteria)
     {
         return createDatasetQuery(SearchCriteriaConnection.MATCH_ANY, criteria);
     }
 
-    private static DataSetSearchCriteria createAndDatasetQuery(DataSetSearchCriterion... criteria)
+    private static DetailedSearchCriteria createAndDatasetQuery(DetailedSearchCriterion... criteria)
     {
         return createDatasetQuery(SearchCriteriaConnection.MATCH_ALL, criteria);
     }
 
-    private static DataSetSearchCriteria createDatasetQuery(SearchCriteriaConnection connection,
-            DataSetSearchCriterion[] criteria)
+    private static DetailedSearchCriteria createDatasetQuery(SearchCriteriaConnection connection,
+            DetailedSearchCriterion[] criteria)
     {
-        DataSetSearchCriteria result = new DataSetSearchCriteria();
+        DetailedSearchCriteria result = new DetailedSearchCriteria();
         result.setConnection(connection);
         result.setCriteria(Arrays.asList(criteria));
         return result;
     }
 
-    private static DataSetSearchCriterion mkCriterion(DataSetSearchField field, String value)
+    private static DetailedSearchCriterion mkCriterion(DetailedSearchField field, String value)
     {
-        return new DataSetSearchCriterion(field, value);
+        return new DetailedSearchCriterion(field, value);
     }
 
     private List<String> fetchPropertyTypeCodes()
@@ -240,7 +240,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         return codes;
     }
 
-    private List<ExternalDataPE> searchForDatasets(DataSetSearchCriteria criteria)
+    private List<ExternalDataPE> searchForDatasets(DetailedSearchCriteria criteria)
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
         return hibernateSearchDAO.searchForDataSets(criteria);
@@ -248,8 +248,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
 
     // NOTE: such a check depends strongly on the test database content. Use it only when the better
     // way to check the results is much harder.
-    private void assertCorrectDatasetsFound(DataSetSearchCriteria criteria,
-            DSLoc... expectedLocations)
+    private void assertCorrectDatasetsFound(DetailedSearchCriteria criteria, DSLoc... expectedLocations)
     {
         List<ExternalDataPE> dataSets = searchForDatasets(criteria);
         AssertJUnit.assertEquals(expectedLocations.length, dataSets.size());
@@ -289,54 +288,54 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         }
     }
 
-    private static DataSetSearchField createAnySearchField(List<String> propertyTypes)
+    private static DetailedSearchField createAnySearchField(List<String> propertyTypes)
     {
-        return DataSetSearchField.createAnyField(propertyTypes);
+        return DetailedSearchField.createAnyField(propertyTypes);
     }
 
-    private DataSetSearchCriterion createAnyFieldCriterion()
+    private DetailedSearchCriterion createAnyFieldCriterion()
     {
         List<String> propertyTypes = fetchPropertyTypeCodes();
         return mkCriterion(createAnySearchField(propertyTypes), "*3*");
     }
 
-    private DataSetSearchCriterion createSimpleFieldCriterion()
+    private DetailedSearchCriterion createSimpleFieldCriterion()
     {
-        return mkCriterion(DataSetSearchField.createSimpleField(DataSetSearchFieldKind.FILE_TYPE),
-                "TIFF");
+        return mkCriterion(DetailedSearchField
+                .createAttributeField(DataSetAttributeSearchFieldKind.FILE_TYPE), "TIFF");
     }
 
     @Test
     public final void testSearchForDataSetsAnyField()
     {
-        DataSetSearchCriterion criterion = createAnyFieldCriterion();
-        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
+        DetailedSearchCriterion criterion = createAnyFieldCriterion();
+        DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC4, DSLoc.LOC5);
     }
 
     @Test
     public final void testSearchForDataSetsSimpleField()
     {
-        DataSetSearchCriterion criterion = createSimpleFieldCriterion();
-        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
+        DetailedSearchCriterion criterion = createSimpleFieldCriterion();
+        DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC3, DSLoc.LOC4);
     }
 
     @Test
     public final void testSearchForDataSetsComplexAndQuery()
     {
-        DataSetSearchCriterion criterion1 = createAnyFieldCriterion();
-        DataSetSearchCriterion criterion2 = createSimpleFieldCriterion();
-        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion1, criterion2);
+        DetailedSearchCriterion criterion1 = createAnyFieldCriterion();
+        DetailedSearchCriterion criterion2 = createSimpleFieldCriterion();
+        DetailedSearchCriteria criteria = createAndDatasetQuery(criterion1, criterion2);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC4);
     }
 
     @Test
     public final void testSearchForDataSetsComplexOrQuery()
     {
-        DataSetSearchCriterion criterion1 = createAnyFieldCriterion();
-        DataSetSearchCriterion criterion2 = createSimpleFieldCriterion();
-        DataSetSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
+        DetailedSearchCriterion criterion1 = createAnyFieldCriterion();
+        DetailedSearchCriterion criterion2 = createSimpleFieldCriterion();
+        DetailedSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3, DSLoc.LOC4,
                 DSLoc.LOC5);
     }
@@ -451,10 +450,10 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     public final void testSearchForDataSetsAfterPropertiesUpdate() throws InterruptedException
     {
         String propertyCode = "COMMENT";
-        DataSetSearchCriterion criterion =
-                mkCriterion(DataSetSearchField.createDataSetProperty(propertyCode), "no comment");
+        DetailedSearchCriterion criterion =
+                mkCriterion(DetailedSearchField.createPropertyField(propertyCode), "no comment");
 
-        DataSetSearchCriteria criteria = createAndDatasetQuery(criterion);
+        DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3, DSLoc.LOC4,
                 DSLoc.LOC5);
 

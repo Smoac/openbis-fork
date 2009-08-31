@@ -61,10 +61,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -399,7 +400,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    public List<ExternalDataPE> searchForDataSets(final DataSetSearchCriteria criteria)
+    public List<ExternalDataPE> searchForDataSets(final DetailedSearchCriteria criteria)
     {
         final List<ExternalDataPE> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
@@ -419,10 +420,10 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         return list;
     }
 
-    private List<ExternalDataPE> searchForDataSets(Session session,
-            DataSetSearchCriteria datasetSearchCriteria)
+    private List<ExternalDataPE> searchForDataSets(Session session, DetailedSearchCriteria searchCriteria)
     {
-        Query query = LuceneQueryBuilder.createQuery(datasetSearchCriteria);
+        Query query =
+                LuceneQueryBuilder.createDetailedSearchQuery(searchCriteria, EntityKind.DATA_SET);
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, ExternalDataPE.class);

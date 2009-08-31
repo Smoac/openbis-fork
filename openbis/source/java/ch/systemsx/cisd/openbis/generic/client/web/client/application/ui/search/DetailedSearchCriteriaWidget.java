@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,32 +24,35 @@ import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriterion;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 
 /**
- * Widget for {@link DataSetSearchCriteria} management.
+ * Widget for {@link DetailedSearchCriteria} management.
  * 
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-public class CriteriaWidget extends VerticalPanel
+public class DetailedSearchCriteriaWidget extends VerticalPanel
 {
 
     public static final String FIRST_ID_SUFFIX = "_first";
 
-    private final List<CriterionWidget> criteriaWidgets;
+    private final List<DetailedSearchCriterionWidget> criteriaWidgets;
 
     private final MatchCriteriaRadio matchRadios;
 
-    public CriteriaWidget(IViewContext<ICommonClientServiceAsync> viewContext)
+    public DetailedSearchCriteriaWidget(IViewContext<ICommonClientServiceAsync> viewContext,
+            EntityKind entityKind)
     {
         setLayoutOnChange(true);
-        criteriaWidgets = new ArrayList<CriterionWidget>();
+        criteriaWidgets = new ArrayList<DetailedSearchCriterionWidget>();
         add(matchRadios =
                 new MatchCriteriaRadio(viewContext.getMessage(Dict.MATCH_ALL), viewContext
                         .getMessage(Dict.MATCH_ANY)));
-        addCriterion(new CriterionWidget(viewContext, this, FIRST_ID_SUFFIX));
+        addCriterion(new DetailedSearchCriterionWidget(viewContext, this, FIRST_ID_SUFFIX, entityKind));
     }
 
     private void enableRemovalIfOneExists(final boolean enable)
@@ -61,9 +64,9 @@ public class CriteriaWidget extends VerticalPanel
     }
 
     /**
-     * Adds given {@link CriterionWidget} to the panel.
+     * Adds given {@link DetailedSearchCriterionWidget} to the panel.
      */
-    void addCriterion(CriterionWidget criterion)
+    void addCriterion(DetailedSearchCriterionWidget criterion)
     {
         enableRemovalIfOneExists(true);
         criteriaWidgets.add(criterion);
@@ -73,10 +76,11 @@ public class CriteriaWidget extends VerticalPanel
     }
 
     /**
-     * Removes given {@link CriterionWidget} from the panel, unless it is the only one that left. In
-     * this case the state of chosen {@link CriterionWidget} is set to initial value (reset).
+     * Removes given {@link DetailedSearchCriterionWidget} from the panel, unless it is the only one that
+     * left. In this case the state of chosen {@link DetailedSearchCriterionWidget} is set to initial value
+     * (reset).
      */
-    void removeCriterion(CriterionWidget w)
+    void removeCriterion(DetailedSearchCriterionWidget w)
     {
         if (criteriaWidgets.size() > 1)
         {
@@ -98,13 +102,13 @@ public class CriteriaWidget extends VerticalPanel
      * @return <b>search criteria</b> extracted from criteria widgets and "match" radio buttons<br>
      *         <b>null</b> if no criteria were selected
      */
-    public DataSetSearchCriteria tryGetCriteria()
+    public DetailedSearchCriteria tryGetCriteria()
     {
 
-        List<DataSetSearchCriterion> criteria = new ArrayList<DataSetSearchCriterion>();
-        for (CriterionWidget cw : criteriaWidgets)
+        List<DetailedSearchCriterion> criteria = new ArrayList<DetailedSearchCriterion>();
+        for (DetailedSearchCriterionWidget cw : criteriaWidgets)
         {
-            DataSetSearchCriterion value = cw.tryGetValue();
+            DetailedSearchCriterion value = cw.tryGetValue();
             if (value != null)
             {
                 criteria.add(value);
@@ -112,7 +116,7 @@ public class CriteriaWidget extends VerticalPanel
         }
         if (criteria.size() > 0)
         {
-            final DataSetSearchCriteria result = new DataSetSearchCriteria();
+            final DetailedSearchCriteria result = new DetailedSearchCriteria();
             result.setConnection(matchRadios.getSelected());
             result.setCriteria(criteria);
             return result;
@@ -128,7 +132,7 @@ public class CriteriaWidget extends VerticalPanel
         sb.append(matchRadios.getSelectedLabel());
         sb.append(": ");
         boolean first = true;
-        for (CriterionWidget cw : criteriaWidgets)
+        for (DetailedSearchCriterionWidget cw : criteriaWidgets)
         {
             String desc = cw.tryGetDescription();
             if (desc != null)
@@ -153,8 +157,8 @@ public class CriteriaWidget extends VerticalPanel
     public void reset()
     {
         matchRadios.reset();
-        List<CriterionWidget> list = new ArrayList<CriterionWidget>(criteriaWidgets);
-        for (CriterionWidget cw : list)
+        List<DetailedSearchCriterionWidget> list = new ArrayList<DetailedSearchCriterionWidget>(criteriaWidgets);
+        for (DetailedSearchCriterionWidget cw : list)
         {
             removeCriterion(cw);
         }

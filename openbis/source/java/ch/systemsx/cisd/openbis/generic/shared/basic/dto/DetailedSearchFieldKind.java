@@ -14,24 +14,34 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
+package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchField;
-
-public class DataSetSearchFieldComboModel extends BaseModelData
+/**
+ * General kinds of fields that can be used in detailed text query for an entity.
+ * 
+ * @author Piotr Buczek
+ */
+public enum DetailedSearchFieldKind implements IsSerializable
 {
-    private static final long serialVersionUID = 1L;
+    ANY_FIELD("Any Field"),
 
-    public DataSetSearchFieldComboModel(String code, DataSetSearchField field)
+    ANY_PROPERTY("Any Property"),
+
+    PROPERTY("Property"),
+
+    ATTRIBUTE("");
+
+    private final String description;
+
+    private DetailedSearchFieldKind(String description)
     {
-        set(ModelDataPropertyNames.CODE, code);
-        set(ModelDataPropertyNames.OBJECT, field);
+        this.description = description;
     }
 
-    public DataSetSearchField getField()
+    public String getDescription()
     {
-        return get(ModelDataPropertyNames.OBJECT);
+        return description;
     }
 }

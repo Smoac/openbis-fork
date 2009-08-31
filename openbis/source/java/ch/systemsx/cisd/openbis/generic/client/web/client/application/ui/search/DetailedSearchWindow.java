@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search;
 
 import java.util.List;
 
@@ -14,15 +14,18 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetSearchCriteria;
 
 /**
- * Shows {@link CriteriaWidget}, allowing to specify search criteria.
+ * Shows {@link DetailedSearchCriteriaWidget}, allowing to specify detailed search criteria.
  * 
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-public class DataSetSearchWindow extends Dialog
+public class DetailedSearchWindow extends Dialog
 {
     public static final String SEARCH_BUTTON_ID = DataSetSearchHitGrid.BROWSER_ID + "search_button";
 
@@ -32,18 +35,20 @@ public class DataSetSearchWindow extends Dialog
 
     private static final int WIDTH = 550;
 
-    private CriteriaWidget criteriaWidget;
+    private DetailedSearchCriteriaWidget criteriaWidget;
 
-    private DataSetSearchToolbar updateListener;
+    private DetailedSearchToolbar updateListener;
 
-    public DataSetSearchWindow(final IViewContext<ICommonClientServiceAsync> viewContext)
+    public DetailedSearchWindow(final IViewContext<ICommonClientServiceAsync> viewContext,
+            final EntityKind entityKind)
     {
         setSize(WIDTH, HEIGHT);
         setModal(true);
         setScrollMode(Scroll.AUTOY);
         setLayout(new FitLayout());
         setResizable(false);
-        add(criteriaWidget = new CriteriaWidget(viewContext), new FitData(MARGIN));
+        add(criteriaWidget = new DetailedSearchCriteriaWidget(viewContext, entityKind),
+                new FitData(MARGIN));
         final ButtonBar bar = new ButtonBar();
         bar.add(new Button(viewContext.getMessage(Dict.BUTTON_CANCEL),
                 new SelectionListener<ButtonEvent>()
@@ -72,7 +77,8 @@ public class DataSetSearchWindow extends Dialog
                                 {
                                     List<PropertyType> availablePropertyTypes =
                                             criteriaWidget.getAvailablePropertyTypes();
-                                    DataSetSearchCriteria criteria = criteriaWidget.tryGetCriteria();
+                                    DetailedSearchCriteria criteria =
+                                            criteriaWidget.tryGetCriteria();
                                     String criteriaDescription =
                                             criteriaWidget.getCriteriaDescription();
                                     updateListener.updateSearchResults(criteria,
@@ -87,7 +93,7 @@ public class DataSetSearchWindow extends Dialog
         setButtons("");
     }
 
-    public void setUpdateListener(DataSetSearchToolbar toolbar)
+    public void setUpdateListener(DetailedSearchToolbar toolbar)
     {
         this.updateListener = toolbar;
     }
