@@ -24,10 +24,7 @@ import java.util.List;
 
 import net.lemnik.eodsql.DataIterator;
 
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
@@ -47,11 +44,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 /**
  * @author Tomasz Pylak
  */
+@Friend(toClasses =
+    { DatasetRecord.class })
 public class DatasetLister implements IDatasetLister
 {
-    private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, DatasetLister.class);
-
     //
     // Input
     //
@@ -66,7 +62,7 @@ public class DatasetLister implements IDatasetLister
 
     private final IDatasetListingQuery query;
 
-    private final IDatasetSetListingQuery setQuery;
+    // private final IDatasetSetListingQuery setQuery;
 
     private final IEntityPropertiesEnricher propertiesEnricher;
 
@@ -107,7 +103,7 @@ public class DatasetLister implements IDatasetLister
         this.databaseInstanceId = databaseInstanceId;
         this.databaseInstance = databaseInstance;
         this.query = query;
-        this.setQuery = setQuery;
+        // this.setQuery = setQuery;
         this.propertiesEnricher = propertiesEnricher;
     }
 
