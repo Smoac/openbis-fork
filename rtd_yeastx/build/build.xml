@@ -20,15 +20,8 @@
 		<mkdir dir="${dist}" />
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
-		<unjar src="${libraries}/eodsql/eodsql.jar"
-		       dest="${classes}">
-		    <patternset>
-		        <exclude name="META-INF"/>
-		    </patternset>
-		</unjar>
 		<recursive-jar destfile="${jar.file}">
 			<fileset dir="${classes}">
-				<include name="net/lemnik/eodsql/**" />
 				<include name="ch/systemsx/cisd/yeastx/**/*.class" />
 				<include name="${build.info.filename}" />
 			</fileset>
