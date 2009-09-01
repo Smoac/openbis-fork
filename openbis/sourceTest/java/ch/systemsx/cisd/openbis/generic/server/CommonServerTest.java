@@ -1219,7 +1219,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         prepareGetSession();
         final MaterialType materialType =
-                MaterialTypeTranslator.translate(CommonTestUtils.createMaterialType());
+                MaterialTypeTranslator.translate(CommonTestUtils.createMaterialType(), null);
         context.checking(new Expectations()
             {
                 {

@@ -52,9 +52,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 
 /**
  * @author Franz-Josef Elmer
@@ -229,7 +228,7 @@ public class DatasetDownloadServlet extends HttpServlet
             throws UnsupportedEncodingException, IOException
     {
         String dataSetCode = requestParams.getDataSetCode();
-        ExternalDataPE dataSet = tryToGetDataSet(session, dataSetCode);
+        ExternalData dataSet = tryToGetDataSet(session, dataSetCode);
         if (dataSet == null)
         {
             throw new UserFailureException("Unknown data set '" + dataSetCode + "'.");
@@ -314,7 +313,7 @@ public class DatasetDownloadServlet extends HttpServlet
     }
 
     private void renderPage(IRendererFactory rendererFactory, HttpServletResponse response,
-            ExternalDataPE dataSet, RenderingContext renderingContext, RequestParams requestParams)
+            ExternalData dataSet, RenderingContext renderingContext, RequestParams requestParams)
             throws IOException
     {
         File file = renderingContext.getFile();
@@ -332,7 +331,7 @@ public class DatasetDownloadServlet extends HttpServlet
     }
 
     private void createPage(IRendererFactory rendererFactory, HttpServletResponse response,
-            ExternalDataPE dataSet, RenderingContext renderingContext, File file)
+            ExternalData dataSet, RenderingContext renderingContext, File file)
             throws IOException
     {
         if (operationLog.isInfoEnabled())
@@ -379,7 +378,7 @@ public class DatasetDownloadServlet extends HttpServlet
         }
     }
 
-    private void deliverFile(final HttpServletResponse response, ExternalDataPE dataSet, File file,
+    private void deliverFile(final HttpServletResponse response, ExternalData dataSet, File file,
             boolean plainTextMode) throws IOException, FileNotFoundException
     {
         long size = file.length();
@@ -419,7 +418,7 @@ public class DatasetDownloadServlet extends HttpServlet
         if (sessionIdOrNull != null)
         {
             IEncapsulatedOpenBISService dataSetService = applicationContext.getDataSetService();
-            ExternalDataPE dataSet = dataSetService.tryGetDataSet(sessionIdOrNull, dataSetCode);
+            ExternalData dataSet = dataSetService.tryGetDataSet(sessionIdOrNull, dataSetCode);
             if (operationLog.isInfoEnabled())
             {
                 String actionDesc = (dataSet != null) ? "obtained from" : "not found in";
@@ -436,10 +435,10 @@ public class DatasetDownloadServlet extends HttpServlet
         }
     }
 
-    private File createDataSetRootDirectory(ExternalDataPE dataSet)
+    private File createDataSetRootDirectory(ExternalData dataSet)
     {
         String path = dataSet.getLocation();
-        LocatorTypePE locatorType = dataSet.getLocatorType();
+        LocatorType locatorType = dataSet.getLocatorType();
         if (locatorType.getCode().equals(LocatorType.DEFAULT_LOCATOR_TYPE_CODE))
         {
             path = applicationContext.getConfigParameters().getStorePath() + "/" + path;
@@ -453,24 +452,24 @@ public class DatasetDownloadServlet extends HttpServlet
         return dataSetRootDirectory;
     }
 
-    private void putDataSetToMap(HttpSession session, String dataSetCode, ExternalDataPE dataSet)
+    private void putDataSetToMap(HttpSession session, String dataSetCode, ExternalData dataSet)
     {
         getDataSets(session).put(dataSetCode, dataSet);
     }
 
-    private ExternalDataPE tryToGetDataSet(HttpSession session, String dataSetCode)
+    private ExternalData tryToGetDataSet(HttpSession session, String dataSetCode)
     {
         return getDataSets(session).get(dataSetCode);
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, ExternalDataPE> getDataSets(HttpSession session)
+    private Map<String, ExternalData> getDataSets(HttpSession session)
     {
-        Map<String, ExternalDataPE> map =
-                (Map<String, ExternalDataPE>) session.getAttribute(DATA_SET_KEY);
+        Map<String, ExternalData> map =
+                (Map<String, ExternalData>) session.getAttribute(DATA_SET_KEY);
         if (map == null)
         {
-            map = new HashMap<String, ExternalDataPE>();
+            map = new HashMap<String, ExternalData>();
             session.setAttribute(DATA_SET_KEY, map);
         }
         return map;

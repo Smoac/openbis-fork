@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Parameter;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -38,17 +37,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  */
 class AbundanceHandler extends AbstractHandler
 {
-    @Private static final String MZXML_FILENAME = "MZXML_FILENAME";
-    
+    @Private
+    static final String MZXML_FILENAME = "MZXML_FILENAME";
+
     private static final class SampleOrError
     {
         Sample sample;
+
         String error;
     }
-    
+
     private final IEncapsulatedOpenBISService openbisService;
+
     private final GroupIdentifier groupIdentifier;
+
     private final Experiment experiment;
+
     private final Map<String, SampleOrError> samplesOrErrors = new HashMap<String, SampleOrError>();
 
     AbundanceHandler(IEncapsulatedOpenBISService openbisService, IProtDAO dao,
@@ -65,12 +69,13 @@ class AbundanceHandler extends AbstractHandler
         Sample sample = getOrCreateSample(parameter.getName().toUpperCase(), proteinName);
         try
         {
-            dao.createAbundance(proteinID, sample.getId(), Double.parseDouble(parameter.getValue()));
+            dao
+                    .createAbundance(proteinID, sample.getId(), Double.parseDouble(parameter
+                            .getValue()));
         } catch (NumberFormatException ex)
         {
             throw new UserFailureException("Abundance of sample '" + parameter.getName()
-                    + "' of protein '" + proteinName + "' is not a number: "
-                    + parameter.getValue());
+                    + "' of protein '" + proteinName + "' is not a number: " + parameter.getValue());
         }
     }
 
@@ -80,12 +85,13 @@ class AbundanceHandler extends AbstractHandler
         if (sampleOrError == null)
         {
             SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(groupIdentifier, parameterName);
-            SamplePE samplePE = openbisService.tryGetSampleWithExperiment(sampleIdentifier);
+                    new SampleIdentifier(groupIdentifier, parameterName);
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                    openbisService.tryGetSampleWithExperiment(sampleIdentifier);
             sampleOrError = new SampleOrError();
-            if (samplePE != null)
+            if (sample != null)
             {
-                sampleOrError.sample = getOrCreateSample(experiment, samplePE.getPermId());
+                sampleOrError.sample = getOrCreateSample(experiment, sample.getPermId());
             } else
             {
                 List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample> list =
@@ -111,7 +117,7 @@ class AbundanceHandler extends AbstractHandler
         if (sampleOrError.error != null)
         {
             throw new UserFailureException("Protein '" + proteinName
-                            + "' has an abundance value for " + sampleOrError.error);
+                    + "' has an abundance value for " + sampleOrError.error);
         }
         return sampleOrError.sample;
     }

@@ -25,10 +25,10 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.Template;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
  * An <code>IDirectoryRenderer</code> implementation which renders on HTML pages.
@@ -95,15 +95,15 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         this.writer = writer;
     }
 
-    public void printHeader(final ExternalDataPE dataSet)
+    public void printHeader(final ExternalData dataSet)
     {
         final String datasetCode = dataSet.getCode();
-        final String sampleCode = dataSet.getAssociatedSampleCode();
-        final ExperimentPE experiment = dataSet.getExperiment();
+        final String sampleCode = dataSet.getSampleCode();
+        final Experiment experiment = dataSet.getExperiment();
         final String experimentCode = experiment.getCode();
-        final ProjectPE project = experiment.getProject();
+        final Project project = experiment.getProject();
         final String projectCode = project.getCode();
-        final GroupPE group = project.getGroup();
+        final Group group = project.getGroup();
         final String groupCode = group.getCode();
         final Template template = HEADER_TEMPLATE.createFreshCopy();
         template.bind("group", groupCode);

@@ -25,12 +25,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -49,7 +49,7 @@ public class DataSetInformation implements Serializable
     /** The sample code (aka <i>barcode</i>). <b>CAN NOT</b> be <code>null</code>. */
     private String sampleCode;
 
-    private SamplePropertyPE[] properties = SamplePropertyPE.EMPTY_ARRAY;
+    private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
 
     /**
      * The database instance <i>UUID</i>.
@@ -70,7 +70,7 @@ public class DataSetInformation implements Serializable
     private ExperimentIdentifier experimentIdentifier;
 
     /** sample with properties, enriched with connected experiment with properties. */
-    private transient SamplePE sample;
+    private transient Sample sample;
 
     private BooleanOrUnknown isCompleteFlag = BooleanOrUnknown.U;
 
@@ -117,12 +117,12 @@ public class DataSetInformation implements Serializable
      * 
      * @return never <code>null</code> but could return an empty array.
      */
-    public final SamplePropertyPE[] getProperties()
+    public final IEntityProperty[] getProperties()
     {
         return properties;
     }
 
-    public final void setProperties(final SamplePropertyPE[] properties)
+    public final void setProperties(final IEntityProperty[] properties)
     {
         this.properties = properties;
     }
@@ -166,17 +166,17 @@ public class DataSetInformation implements Serializable
     /**
      * Returns the basic information about the experiment.
      */
-    public ExperimentPE getExperiment()
+    public Experiment getExperiment()
     {
         return sample == null ? null : sample.getExperiment();
     }
 
-    public SamplePE getSample()
+    public Sample getSample()
     {
         return sample;
     }
 
-    public void setSample(final SamplePE sample)
+    public void setSample(final Sample sample)
     {
         this.sample = sample;
     }

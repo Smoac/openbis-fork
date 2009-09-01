@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * Extractor and parser of the plate geometry from an array of properties.
@@ -34,7 +34,7 @@ public class PlateDimensionParser
      * @throws IllegalArgumentException if either their isn't such a property or it has an invalid
      *             value.
      */
-    public static PlateDimension getPlateDimension(final EntityPropertyPE[] properties)
+    public static PlateDimension getPlateDimension(final IEntityProperty[] properties)
     {
         final PlateDimension plateDimension = tryToGetPlateDimension(properties);
         if (plateDimension == null)
@@ -51,7 +51,7 @@ public class PlateDimensionParser
      * @return <code>null</code> if their isn't such a property.
      * @throws IllegalArgumentException if the property for the plate geometry has an invalid value.
      */
-    public static PlateDimension tryToGetPlateDimension(final EntityPropertyPE[] properties)
+    public static PlateDimension tryToGetPlateDimension(final IEntityProperty[] properties)
     {
         assert properties != null : "Unspecified properties";
         final String plateGeometryString =
@@ -101,20 +101,18 @@ public class PlateDimensionParser
         }
     }
 
-    private static String tryFindProperty(final EntityPropertyPE[] properties,
+    private static String tryFindProperty(final IEntityProperty[] properties,
             final String propertyCode)
     {
-        for (final EntityPropertyPE property : properties)
+        for (final IEntityProperty property : properties)
         {
-            final PropertyTypePE propertyType =
-                    property.getEntityTypePropertyType().getPropertyType();
+            final PropertyType propertyType = property.getPropertyType();
             if (propertyType.getCode().equals(propertyCode))
             {
-                return property.tryGetUntypedValue();
+                return property.tryGetAsString();
             }
         }
         return null;
     }
-
 
 }

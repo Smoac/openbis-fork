@@ -30,12 +30,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -102,16 +102,15 @@ final class DataStrategyStore implements IDataStrategyStore
                 incomingDataSetPathForLogging, sampleIdentifier);
     }
 
-    private final static ExperimentIdentifier createExperimentIdentifier(
-            final ExperimentPE experiment)
+    private final static ExperimentIdentifier createExperimentIdentifier(final Experiment experiment)
     {
         ExperimentIdentifier experimentIdentifier;
         experimentIdentifier = new ExperimentIdentifier();
         experimentIdentifier.setExperimentCode(experiment.getCode());
-        final ProjectPE project = experiment.getProject();
+        final Project project = experiment.getProject();
         assert project != null : "Unspecified project";
         experimentIdentifier.setProjectCode(project.getCode());
-        final GroupPE group = project.getGroup();
+        final Group group = project.getGroup();
         assert group != null : "Unspecified group";
         experimentIdentifier.setGroupCode(group.getCode());
         return experimentIdentifier;
@@ -131,8 +130,8 @@ final class DataStrategyStore implements IDataStrategyStore
             return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
         }
         final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
-        final SamplePE sample = tryGetSample(sampleIdentifier);
-        final ExperimentPE experiment = (sample == null) ? null : sample.getExperiment();
+        final Sample sample = tryGetSample(sampleIdentifier);
+        final Experiment experiment = (sample == null) ? null : sample.getExperiment();
         if (experiment == null)
         {
             notificationLog.error(createNotificationMessage(dataSetInfo, incomingDataSetPath));
@@ -148,11 +147,11 @@ final class DataStrategyStore implements IDataStrategyStore
         final ExperimentIdentifier experimentIdentifier = createExperimentIdentifier(experiment);
         dataSetInfo.setExperimentIdentifier(experimentIdentifier);
 
-        final SamplePropertyPE[] properties =
+        final IEntityProperty[] properties =
                 limsService.getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
         if (properties == null)
         {
-            final PersonPE registrator = experiment.getRegistrator();
+            final Person registrator = experiment.getRegistrator();
             assert registrator != null : "Registrator must be known";
             final String message = createInvalidSampleCodeMessage(dataSetInfo);
             final String recipientMail = registrator.getEmail();
@@ -182,7 +181,7 @@ final class DataStrategyStore implements IDataStrategyStore
         return dataStoreStrategies.get(DataStoreStrategyKey.IDENTIFIED);
     }
 
-    private SamplePE tryGetSample(final SampleIdentifier sampleIdentifier)
+    private Sample tryGetSample(final SampleIdentifier sampleIdentifier)
     {
         try
         {

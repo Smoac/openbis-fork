@@ -109,9 +109,6 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
 
     private List<DataPE> dataSets = new ArrayList<DataPE>();
 
-    private ProcessingInstructionDTO[] processingInstructions =
-            ProcessingInstructionDTO.EMPTY_ARRAY;
-
     private Date lastDataSetDate;
 
     private ExperimentIdentifier experimentIdentifier;
@@ -408,17 +405,6 @@ public class ExperimentPE extends AttachmentHolderPE implements IEntityPropertie
         }
         child.setExperimentInternal(this);
         getExperimentDataSets().add(child);
-    }
-
-    @Transient
-    public ProcessingInstructionDTO[] getProcessingInstructions()
-    {
-        return processingInstructions;
-    }
-
-    public void setProcessingInstructions(final ProcessingInstructionDTO[] processingInstructions)
-    {
-        this.processingInstructions = processingInstructions;
     }
 
     @Transient

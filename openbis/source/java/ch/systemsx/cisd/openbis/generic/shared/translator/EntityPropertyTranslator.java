@@ -18,13 +18,16 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
  * Translates {@link EntityPropertyPE} to {@link IEntityProperty}.
@@ -38,12 +41,13 @@ public final class EntityPropertyTranslator
         // Can not be instantiated.
     }
 
-    public final static IEntityProperty translate(final EntityPropertyPE propertyPE)
+    public final static IEntityProperty translate(final EntityPropertyPE propertyPE,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         final DataTypeCode typeCode = PropertyTranslatorUtils.getDataTypeCode(propertyPE);
         final IEntityProperty result = PropertyTranslatorUtils.createEntityProperty(typeCode);
         result.setPropertyType(PropertyTypeTranslator.translate(propertyPE
-                .getEntityTypePropertyType().getPropertyType()));
+                .getEntityTypePropertyType().getPropertyType(), cacheOrNull));
         switch (typeCode)
         {
             case CONTROLLEDVOCABULARY:
@@ -60,7 +64,8 @@ public final class EntityPropertyTranslator
         return result;
     }
 
-    public final static List<IEntityProperty> translate(final Set<? extends EntityPropertyPE> list)
+    public final static List<IEntityProperty> translate(final Set<? extends EntityPropertyPE> list,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         if (list == null)
         {
@@ -69,7 +74,23 @@ public final class EntityPropertyTranslator
         final List<IEntityProperty> result = new ArrayList<IEntityProperty>();
         for (final EntityPropertyPE property : list)
         {
-            result.add(translate(property));
+            result.add(translate(property, cacheOrNull));
+        }
+        return result;
+    }
+
+    public final static IEntityProperty[] translate(final EntityPropertyPE[] list,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
+    {
+        if (list == null)
+        {
+            return null;
+        }
+        final IEntityProperty[] result = new IEntityProperty[list.length];
+        int idx = 0;
+        for (final EntityPropertyPE property : list)
+        {
+            result[idx++] = translate(property, cacheOrNull);
         }
         return result;
     }

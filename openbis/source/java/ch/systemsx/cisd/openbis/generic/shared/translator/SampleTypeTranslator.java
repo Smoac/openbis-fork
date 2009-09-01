@@ -18,10 +18,13 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 
 /**
@@ -36,7 +39,8 @@ public class SampleTypeTranslator
         // Can not be instantiated.
     }
 
-    public static SampleType translate(final SampleTypePE sampleTypePE)
+    public static SampleType translate(final SampleTypePE sampleTypePE,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         final SampleType result = new SampleType();
         result.setCode(StringEscapeUtils.escapeHtml(sampleTypePE.getCode()));
@@ -45,23 +49,24 @@ public class SampleTypeTranslator
         result.setGeneratedFromHierarchyDepth(sampleTypePE.getGeneratedFromHierarchyDepth());
         result.setContainerHierarchyDepth(sampleTypePE.getContainerHierarchyDepth());
         result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(sampleTypePE
-                .getSampleTypePropertyTypes(), result));
+                .getSampleTypePropertyTypes(), result, cacheOrNull));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(sampleTypePE
                 .getDatabaseInstance()));
         return result;
 
     }
 
-    public static List<SampleType> translate(final List<SampleTypePE> sampleTypes)
+    public static List<SampleType> translate(final List<SampleTypePE> sampleTypes,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         final List<SampleType> result = new ArrayList<SampleType>();
         for (final SampleTypePE sampleTypePE : sampleTypes)
         {
-            result.add(SampleTypeTranslator.translate(sampleTypePE));
+            result.add(SampleTypeTranslator.translate(sampleTypePE, cacheOrNull));
         }
         return result;
     }
-    
+
     public static SampleTypePE translate(final SampleType sampleType)
     {
         final SampleTypePE result = new SampleTypePE();

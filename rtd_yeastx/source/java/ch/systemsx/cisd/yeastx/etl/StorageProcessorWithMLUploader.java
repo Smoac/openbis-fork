@@ -23,7 +23,7 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * @author Tomasz Pylak
@@ -39,7 +39,7 @@ public final class StorageProcessorWithMLUploader extends AbstractDelegatingStor
     }
 
     @Override
-    public File storeData(final SamplePE sample, final DataSetInformation dataSetInformation,
+    public File storeData(final Sample sample, final DataSetInformation dataSetInformation,
             final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDir)
     {

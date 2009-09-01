@@ -21,9 +21,7 @@ import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +46,6 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.IStoreItemFilter;
 import ch.systemsx.cisd.common.filesystem.LastModificationChecker;
-import ch.systemsx.cisd.common.filesystem.PathPrefixPrepender;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.filesystem.QuietPeriodFileFilter;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
@@ -68,7 +65,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
  * The main class of the ETL server.
@@ -221,14 +218,6 @@ public final class ETLDaemon
 
     private static void startupServer(final Parameters parameters)
     {
-        final Map<String, IProcessorFactory> processorFactories =
-                new LinkedHashMap<String, IProcessorFactory>();
-        final Map<String, Properties> processorProperties = parameters.getProcessorProperties();
-        for (final Map.Entry<String, Properties> entry : processorProperties.entrySet())
-        {
-            processorFactories.put(entry.getKey(), StandardProcessorFactory
-                    .create(entry.getValue()));
-        }
         final ThreadParameters[] threads = parameters.getThreads();
         IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
         final Properties properties = parameters.getProperties();
@@ -238,7 +227,7 @@ public final class ETLDaemon
         for (final ThreadParameters threadParameters : threads)
         {
             createProcessingThread(parameters, threadParameters, openBISService,
-                    processorFactories, highwaterMarkWatcher, notifySuccessfulRegistration);
+                    highwaterMarkWatcher, notifySuccessfulRegistration);
         }
     }
 
@@ -250,11 +239,11 @@ public final class ETLDaemon
 
     @Private
     final static void migrateStoreRootDir(final File storeRootDir,
-            final DatabaseInstancePE databaseInstancePE)
+            final DatabaseInstance databaseInstance)
     {
         final File[] instanceDirs =
                 storeRootDir.listFiles((FilenameFilter) new NameFileFilter("Instance_"
-                        + databaseInstancePE.getCode()));
+                        + databaseInstance.getCode()));
         final int size = instanceDirs.length;
         assert size == 0 || size == 1 : "Wrong size of instance directories.";
         final String absolutePath = storeRootDir.getAbsolutePath();
@@ -265,7 +254,7 @@ public final class ETLDaemon
         } else
         {
             final File instanceDir = instanceDirs[0];
-            final File newName = new File(storeRootDir, "Instance_" + databaseInstancePE.getUuid());
+            final File newName = new File(storeRootDir, "Instance_" + databaseInstance.getUuid());
             instanceDir.renameTo(newName);
             operationLog.info(String.format("Following instance directory '%s' has been "
                     + "renamed to '%s' in store root directory '%s'.", instanceDir.getName(),
@@ -334,7 +323,6 @@ public final class ETLDaemon
     private final static void createProcessingThread(final Parameters parameters,
             final ThreadParameters threadParameters,
             final IEncapsulatedOpenBISService authorizedLimsService,
-            final Map<String, IProcessorFactory> processorFactories,
             final HighwaterMarkWatcher highwaterMarkWatcher,
             final boolean notifySuccessfulRegistration)
     {
@@ -352,11 +340,9 @@ public final class ETLDaemon
                         mailProperties, highwaterMarkWatcher, notifySuccessfulRegistration,
                         threadParameters.useIsFinishedMarkerFile(), threadParameters
                                 .deleteUnidentified());
-        pathHandler.setProcessorFactories(processorFactories);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
-                        incomingDataDirectory, processorFactories.values(), parameters
-                                .reprocessFaultyDatasets());
+                        incomingDataDirectory, parameters.reprocessFaultyDatasets());
         FileFilter fileFilter =
                 createFileFilter(incomingDataDirectory, threadParameters.useIsFinishedMarkerFile(),
                         parameters);
@@ -470,31 +456,12 @@ public final class ETLDaemon
 
     private final static HighwaterMarkDirectoryScanningHandler createDirectoryScanningHandler(
             final IStopSignaler stopSignaler, final HighwaterMarkWatcher highwaterMarkWatcher,
-            final File incomingDataDirectory, final Iterable<IProcessorFactory> processorFactories,
-            boolean reprocessFaultyDatasets)
+            final File incomingDataDirectory, boolean reprocessFaultyDatasets)
     {
         final IDirectoryScanningHandler faultyPathHandler =
                 createFaultyPathHandler(stopSignaler, incomingDataDirectory,
                         reprocessFaultyDatasets);
-        final List<File> list = new ArrayList<File>();
-        list.add(incomingDataDirectory);
-        for (final IProcessorFactory processorFactory : processorFactories)
-        {
-            final PathPrefixPrepender pathPrefixPrepender =
-                    processorFactory.getPathPrefixPrepender();
-            File file = pathPrefixPrepender.tryGetDirectoryForAbsolutePaths();
-            if (file != null)
-            {
-                list.add(file);
-            }
-            file = pathPrefixPrepender.tryGetDirectoryForRelativePaths();
-            if (file != null)
-            {
-                list.add(file);
-            }
-        }
-        return new HighwaterMarkDirectoryScanningHandler(faultyPathHandler, highwaterMarkWatcher,
-                list.toArray(new File[0]));
+        return new HighwaterMarkDirectoryScanningHandler(faultyPathHandler, highwaterMarkWatcher);
     }
 
     private static IDirectoryScanningHandler createFaultyPathHandler(

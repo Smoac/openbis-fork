@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -28,11 +29,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -78,8 +81,8 @@ public class ExternalDataTranslator
         externalData.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         externalData.setDataProducerCode(StringEscapeUtils.escapeHtml(externalDataPE
                 .getDataProducerCode()));
-        externalData.setDataSetType(DataSetTypeTranslator
-                .translate(externalDataPE.getDataSetType()));
+        externalData.setDataSetType(DataSetTypeTranslator.translate(
+                externalDataPE.getDataSetType(), new HashMap<PropertyTypePE, PropertyType>()));
         externalData.setDerived(externalDataPE.isDerived());
         externalData
                 .setFileFormatType(TypeTranslator.translate(externalDataPE.getFileFormatType()));
@@ -110,7 +113,7 @@ public class ExternalDataTranslator
         if (HibernateUtils.isInitialized(externalDataPE.getProperties()))
         {
             externalData.setDataSetProperties(EntityPropertyTranslator.translate(externalDataPE
-                    .getProperties()));
+                    .getProperties(), new HashMap<PropertyTypePE, PropertyType>()));
         } else
         {
             externalData.setDataSetProperties(new ArrayList<IEntityProperty>());
@@ -145,7 +148,8 @@ public class ExternalDataTranslator
                 .escapeHtml(samplePE.getSampleIdentifier().toString()));
         if (loadSampleProperties)
         {
-            sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties()));
+            sample.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
+                    new HashMap<PropertyTypePE, PropertyType>()));
         }
         return sample;
     }
@@ -171,7 +175,8 @@ public class ExternalDataTranslator
     {
         externalData.setId(HibernateUtils.getId(dataPE));
         externalData.setCode(StringEscapeUtils.escapeHtml(dataPE.getCode()));
-        externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType()));
+        externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
+                new HashMap<PropertyTypePE, PropertyType>()));
         return externalData;
     }
 }

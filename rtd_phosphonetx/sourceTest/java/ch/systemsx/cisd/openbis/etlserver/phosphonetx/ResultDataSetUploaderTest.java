@@ -56,11 +56,9 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryDataFilt
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryHeader;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -252,9 +250,10 @@ public class ResultDataSetUploaderTest extends AssertJUnit
             {
                 {
                     one(service).tryGetSampleWithExperiment(sampleIdentifier);
-                    SamplePE samplePE = new SamplePE();
-                    samplePE.setPermId(CELL_LYSATE_PERM_ID1);
-                    will(returnValue(samplePE));
+                    ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                            new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
+                    sample.setPermId(CELL_LYSATE_PERM_ID1);
+                    will(returnValue(sample));
 
                     one(dao).tryToGetSampleByPermID(CELL_LYSATE_PERM_ID1);
                     will(returnValue(null));
@@ -589,15 +588,17 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     {
         DataSetInformation info = new DataSetInformation();
         info.setDataSetCode(DATA_SET_CODE);
-        SamplePE sample = new SamplePE();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
         sample.setPermId(SAMPLE_PERM_ID);
-        ExperimentPE experiment = new ExperimentPE();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experiment =
+                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment();
         experiment.setPermId(EXPERIMENT_PERM_ID);
         sample.setExperiment(experiment);
-        GroupPE group = new GroupPE();
-        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
+        Group group = new Group();
+        DatabaseInstance databaseInstance = new DatabaseInstance();
         databaseInstance.setCode(DB_INSTANCE);
-        group.setDatabaseInstance(databaseInstance);
+        group.setInstance(databaseInstance);
         group.setCode(GROUP_CODE);
         sample.setGroup(group);
         info.setSample(sample);

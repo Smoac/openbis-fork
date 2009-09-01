@@ -27,7 +27,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -271,7 +270,7 @@ class DatasetMappingResolver
         SampleIdentifier sampleIdentifier = createSampleIdentifier(sampleCode, mapping);
         try
         {
-            SamplePE sample = openbisService.tryGetSampleWithExperiment(sampleIdentifier);
+            Sample sample = openbisService.tryGetSampleWithExperiment(sampleIdentifier);
             return sample != null && sample.getExperiment() != null;
         } catch (UserFailureException e)
         {

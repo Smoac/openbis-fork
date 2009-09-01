@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -25,53 +26,58 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
- * Translates {@link DataSetTypePropertyTypePE} to
- * {@link DataSetTypePropertyType}.
+ * Translates {@link DataSetTypePropertyTypePE} to {@link DataSetTypePropertyType}.
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetTypePropertyTypeTranslator {
+public class DataSetTypePropertyTypeTranslator
+{
 
-	static private class DataSetTypePropertyTypeTranslatorHelper
-			extends
-			AbstractEntityTypePropertyTypeTranslator<DataSetType, DataSetTypePropertyType, DataSetTypePropertyTypePE> {
-		@Override
-		void setSpecificFields(DataSetTypePropertyType result,
-				DataSetTypePropertyTypePE etptPE) {
-		}
+    static private class DataSetTypePropertyTypeTranslatorHelper
+            extends
+            AbstractEntityTypePropertyTypeTranslator<DataSetType, DataSetTypePropertyType, DataSetTypePropertyTypePE>
+    {
+        @Override
+        void setSpecificFields(DataSetTypePropertyType result, DataSetTypePropertyTypePE etptPE)
+        {
+        }
 
-		@Override
-		DataSetType translate(EntityTypePE entityTypePE) {
-			return DataSetTypeTranslator
-					.translate((DataSetTypePE) entityTypePE);
-		}
+        @Override
+        DataSetType translate(EntityTypePE entityTypePE,
+                Map<PropertyTypePE, PropertyType> cacheOrNull)
+        {
+            return DataSetTypeTranslator.translate((DataSetTypePE) entityTypePE, cacheOrNull);
+        }
 
-		@Override
-		DataSetTypePropertyType create() {
-			return new DataSetTypePropertyType();
-		}
-	}
+        @Override
+        DataSetTypePropertyType create()
+        {
+            return new DataSetTypePropertyType();
+        }
+    }
 
-	public static List<DataSetTypePropertyType> translate(
-			Set<DataSetTypePropertyTypePE> DataSetTypePropertyTypes,
-			PropertyType result) {
-		return new DataSetTypePropertyTypeTranslatorHelper().translate(
-				DataSetTypePropertyTypes, result);
-	}
+    public static List<DataSetTypePropertyType> translate(
+            Set<DataSetTypePropertyTypePE> DataSetTypePropertyTypes, PropertyType result)
+    {
+        return new DataSetTypePropertyTypeTranslatorHelper().translate(DataSetTypePropertyTypes,
+                result, null);
+    }
 
-	public static DataSetTypePropertyType translate(
-			DataSetTypePropertyTypePE entityTypePropertyType) {
-		return new DataSetTypePropertyTypeTranslatorHelper()
-				.translate(entityTypePropertyType);
-	}
+    public static DataSetTypePropertyType translate(DataSetTypePropertyTypePE entityTypePropertyType)
+    {
+        return new DataSetTypePropertyTypeTranslatorHelper()
+                .translate(entityTypePropertyType, null);
+    }
 
-	public static List<DataSetTypePropertyType> translate(
-			Set<DataSetTypePropertyTypePE> DataSetTypePropertyTypes,
-			DataSetType result) {
-		return new DataSetTypePropertyTypeTranslatorHelper().translate(
-				DataSetTypePropertyTypes, result);
-	}
+    public static List<DataSetTypePropertyType> translate(
+            Set<DataSetTypePropertyTypePE> DataSetTypePropertyTypes, DataSetType result,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
+    {
+        return new DataSetTypePropertyTypeTranslatorHelper().translate(DataSetTypePropertyTypes,
+                result, cacheOrNull);
+    }
 
 }

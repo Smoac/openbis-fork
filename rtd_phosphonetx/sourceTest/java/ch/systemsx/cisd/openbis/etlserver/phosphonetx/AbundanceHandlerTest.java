@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Experiment;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Parameter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -207,9 +206,9 @@ public class AbundanceHandlerTest extends AssertJUnit
 
     private void prepareCreateSampleIdentifiedByCode()
     {
-        SamplePE samplePE = new SamplePE();
-        samplePE.setPermId(SAMPLE_PERM_ID);
-        prepareGetSample(samplePE);
+        Sample sample = new Sample();
+        sample.setPermId(SAMPLE_PERM_ID);
+        prepareGetSample(sample);
         prepareCreateSample();
     }
 
@@ -252,7 +251,7 @@ public class AbundanceHandlerTest extends AssertJUnit
             });
     }
     
-    private void prepareGetSample(final SamplePE sample)
+    private void prepareGetSample(final Sample sample)
     {
         context.checking(new Expectations()
             {

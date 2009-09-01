@@ -19,8 +19,6 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -60,19 +58,18 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -90,9 +87,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 {
 
     private static final String SAMPLE_CODE = "sample1";
-
-    private static final String LOG_MSG_OF_DATA_FORMAT_MISMATCH =
-            "Configuration Error: no processing initiated for data set";
 
     private static final String FOLDER_NAME = "folder";
 
@@ -213,13 +207,9 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private IMailClient mailClient;
 
-    private IProcessorFactory processorFactory;
-
-    private IProcessor processor;
-
     private BufferedAppender logRecorder;
 
-    private DatabaseInstancePE homeDatabaseInstance;
+    private DatabaseInstance homeDatabaseInstance;
 
     @BeforeTest
     public void init()
@@ -263,10 +253,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         storageProcessor = context.mock(IStorageProcessor.class);
         limsService = context.mock(IETLLIMSService.class);
         mailClient = context.mock(IMailClient.class);
-        processorFactory = context.mock(IProcessorFactory.class);
-        processor = context.mock(IProcessor.class);
-        final Map<String, IProcessorFactory> map = new HashMap<String, IProcessorFactory>();
-        map.put(EXAMPLE_PROCESSOR_ID, processorFactory);
         final IETLServerPlugin plugin =
                 new ETLServerPlugin(new MockDataSetInfoExtractor(dataSetInfoExtractor),
                         typeExtractor, storageProcessor);
@@ -279,13 +265,12 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 new TransferredDataSetHandler("dss", storageProcessor, plugin,
                         authorizedLimsService, mailClient, true, true, false);
 
-        handler.setProcessorFactories(map);
         dataSetInformation = new DataSetInformation();
         final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
         experimentIdentifier.setExperimentCode("experiment1".toUpperCase());
         experimentIdentifier.setProjectCode("project1".toUpperCase());
         experimentIdentifier.setGroupCode("group1".toUpperCase());
-        homeDatabaseInstance = new DatabaseInstancePE();
+        homeDatabaseInstance = new DatabaseInstance();
         homeDatabaseInstance.setCode("my-instance");
         homeDatabaseInstance.setUuid("1111-2222");
         dataSetInformation.setInstanceCode(homeDatabaseInstance.getCode());
@@ -342,40 +327,31 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     }
 
     // crates sample connected to an experiment
-    private final static SamplePE createBaseSample(final DataSetInformation dataSetInformation)
+    private final static Sample createBaseSample(final DataSetInformation dataSetInformation)
     {
-        final ExperimentPE baseExperiment = createExperiment(dataSetInformation);
-        SamplePE sample = new SamplePE();
+        final Experiment baseExperiment = createExperiment(dataSetInformation);
+        Sample sample = new Sample();
         sample.setCode("code");
         sample.setExperiment(baseExperiment);
         return sample;
     }
 
-    private final static ExperimentPE createExperiment(final DataSetInformation dataSetInformation)
+    private final static Experiment createExperiment(final DataSetInformation dataSetInformation)
     {
-        final ExperimentPE baseExperiment = new ExperimentPE();
+        final Experiment baseExperiment = new Experiment();
         final ExperimentIdentifier experimentIdentifier =
                 dataSetInformation.getExperimentIdentifier();
         baseExperiment.setCode(experimentIdentifier.getExperimentCode());
-        final GroupPE group = new GroupPE();
+        final Group group = new Group();
         group.setCode(experimentIdentifier.getGroupCode());
-        final ProjectPE project = new ProjectPE();
+        final Project project = new Project();
         project.setCode(experimentIdentifier.getProjectCode());
         project.setGroup(group);
         baseExperiment.setProject(project);
-        final PersonPE person = new PersonPE();
+        final Person person = new Person();
         person.setEmail("john.doe@somewhere.com");
         baseExperiment.setRegistrator(person);
-        baseExperiment.setProcessingInstructions(new ProcessingInstructionDTO[]
-            { create() });
         return baseExperiment;
-    }
-
-    private final static ProcessingInstructionDTO create()
-    {
-        final ProcessingInstructionDTO processingInstruction = new ProcessingInstructionDTO();
-        processingInstruction.setProcedureTypeCode(EXAMPLE_PROCESSOR_ID);
-        return processingInstruction;
     }
 
     @AfterMethod
@@ -387,7 +363,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context.assertIsSatisfied();
     }
 
-    private final void prepareForStrategy(final File dataSet, final SamplePE samplePE)
+    private final void prepareForStrategy(final File dataSet, final Sample sample)
     {
         context.checking(new Expectations()
             {
@@ -409,7 +385,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     atLeast(1).of(limsService).tryGetSampleWithExperiment(SESSION_TOKEN,
                             dataSetInformation.getSampleIdentifier());
-                    will(returnValue(samplePE));
+                    will(returnValue(sample));
 
                     allowing(typeExtractor).getDataSetType(dataSet);
                     will(returnValue(DATA_SET_TYPE));
@@ -418,15 +394,15 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     }
 
     private final void prepareForStrategyIDENTIFIED(final File dataSet,
-            final NewExternalData targetData, final SamplePE samplePE)
+            final NewExternalData targetData, final Sample sample)
     {
-        prepareForStrategy(dataSet, samplePE);
+        prepareForStrategy(dataSet, sample);
         context.checking(new Expectations()
             {
                 {
                     one(limsService).tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
                             dataSetInformation.getSampleIdentifier());
-                    will(returnValue(new SamplePropertyPE[0]));
+                    will(returnValue(new IEntityProperty[0]));
                 }
             });
     }
@@ -565,10 +541,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     @Test
     public final void testMoveIdentifiedDataSetFile()
     {
-        final SamplePE baseSample = createBaseSample(dataSetInformation);
-        final ExperimentPE baseExperiment = baseSample.getExperiment();
-        baseExperiment.setProcessingInstructions(new ProcessingInstructionDTO[]
-            { create() });
+        final Sample baseSample = createBaseSample(dataSetInformation);
+        final Experiment baseExperiment = baseSample.getExperiment();
         final File baseDir = targetFolder;
         prepareForStrategyIDENTIFIED(data1, targetData1, baseSample);
         prepareForRegistration(data1);
@@ -588,14 +562,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                             mailClient, data1, baseDir);
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
-
-                    one(processorFactory).createProcessor();
-                    will(returnValue(processor));
-                    allowing(processor).getRequiredInputDataFormat();
-                    will(returnValue(StorageFormat.BDS_DIRECTORY));
-                    one(processor).initiateProcessing(
-                            baseExperiment.getProcessingInstructions()[0], dataSetInformation,
-                            finalDataSetPath);
                 }
             });
         final LogMonitoringAppender appender =
@@ -617,10 +583,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     @Test
     public final void testMoveIdentifiedDataSetFileToBDSContainerWithOriginalData()
     {
-        final SamplePE baseSample = createBaseSample(dataSetInformation);
-        final ExperimentPE baseExperiment = baseSample.getExperiment();
-        baseExperiment.setProcessingInstructions(new ProcessingInstructionDTO[]
-            { create() });
+        final Sample baseSample = createBaseSample(dataSetInformation);
+        final Experiment baseExperiment = baseSample.getExperiment();
         final File baseDir = targetFolder;
         prepareForStrategyIDENTIFIED(data1, targetData1, baseSample);
         prepareForRegistration(data1);
@@ -640,17 +604,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                             mailClient, data1, baseDir);
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
-
-                    one(processorFactory).createProcessor();
-                    will(returnValue(processor));
-                    allowing(processor).getRequiredInputDataFormat();
-                    will(returnValue(StorageFormat.PROPRIETARY));
-                    one(storageProcessor).tryGetProprietaryData(finalDataSetPath);
-                    final File finalOriginalDataSetPath = new File(finalDataSetPath, "original");
-                    will(returnValue(finalOriginalDataSetPath));
-                    one(processor).initiateProcessing(
-                            baseExperiment.getProcessingInstructions()[0], dataSetInformation,
-                            finalOriginalDataSetPath);
                 }
             });
         final LogMonitoringAppender appender =
@@ -665,106 +618,13 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     }
 
     @Test
-    public final void testMoveIdentifiedDataSetFileButMismatchOfDataFormat()
-    {
-        final SamplePE baseSample = createBaseSample(dataSetInformation);
-        final ExperimentPE baseExperiment = baseSample.getExperiment();
-        baseExperiment.setProcessingInstructions(new ProcessingInstructionDTO[]
-            { create() });
-        final File baseDir = targetFolder;
-        targetData1.setStorageFormat(StorageFormat.PROPRIETARY);
-        prepareForStrategyIDENTIFIED(data1, targetData1, baseSample);
-        prepareForRegistration(data1);
-        context.checking(new Expectations()
-            {
-                {
-                    one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
-                            with(equal(dataSetInformation.getSampleIdentifier())),
-                            with(new ExternalDataMatcher(targetData1)));
-
-                    checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
-                            baseExperiment.getRegistrator().getEmail());
-
-                    allowing(storageProcessor).getStorageFormat();
-                    will(returnValue(StorageFormat.PROPRIETARY));
-                    one(storageProcessor).storeData(baseSample, dataSetInformation, typeExtractor,
-                            mailClient, data1, baseDir);
-                    final File finalDataSetPath = new File(baseDir, DATA1_NAME);
-                    will(returnValue(finalDataSetPath));
-
-                    one(processorFactory).createProcessor();
-                    will(returnValue(processor));
-                    allowing(processor).getRequiredInputDataFormat();
-                    will(returnValue(StorageFormat.BDS_DIRECTORY));
-
-                }
-            });
-        final LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
-                        LOG_MSG_OF_DATA_FORMAT_MISMATCH);
-        handler.handle(isFinishedData1);
-        final File dataSetPath = createDatasetDir(baseDir);
-        assertEquals(true, dataSetPath.isDirectory());
-        appender.verifyLogHasHappened();
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public final void testMoveIdentifiedDataSetFileButMismatchOfDataFormat2()
-    {
-        final SamplePE baseSample = createBaseSample(dataSetInformation);
-        final ExperimentPE baseExperiment = baseSample.getExperiment();
-        baseExperiment.setProcessingInstructions(new ProcessingInstructionDTO[]
-            { create() });
-        final File baseDir = targetFolder;
-        prepareForStrategyIDENTIFIED(data1, targetData1, baseSample);
-        prepareForRegistration(data1);
-        context.checking(new Expectations()
-            {
-                {
-                    one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),
-                            with(equal(dataSetInformation.getSampleIdentifier())),
-                            with(new ExternalDataMatcher(targetData1)));
-
-                    checkSuccessEmailNotification(this, dataSetInformation, DATA_SET_CODE,
-                            baseExperiment.getRegistrator().getEmail());
-
-                    allowing(storageProcessor).getStorageFormat();
-                    will(returnValue(StorageFormat.BDS_DIRECTORY));
-                    one(storageProcessor).storeData(baseSample, dataSetInformation, typeExtractor,
-                            mailClient, data1, baseDir);
-                    final File finalDataSetPath = new File(baseDir, DATA1_NAME);
-                    will(returnValue(finalDataSetPath));
-
-                    one(storageProcessor).tryGetProprietaryData(finalDataSetPath);
-                    will(returnValue(null));
-
-                    one(processorFactory).createProcessor();
-                    will(returnValue(processor));
-
-                    allowing(processor).getRequiredInputDataFormat();
-                    will(returnValue(StorageFormat.PROPRIETARY));
-
-                }
-            });
-        final LogMonitoringAppender appender =
-                LogMonitoringAppender.addAppender(LogCategory.NOTIFY,
-                        LOG_MSG_OF_DATA_FORMAT_MISMATCH);
-        handler.handle(isFinishedData1);
-        final File dataSetPath = createDatasetDir(baseDir);
-        assertEquals(true, dataSetPath.isDirectory());
-        appender.verifyLogHasHappened();
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public final void testMoveInvalidDataSetFile()
     {
         assertEquals(new File(workingDirectory, DATA1_NAME), data1);
         assertEquals(new File(new File(workingDirectory, FOLDER_NAME), DATA2_NAME), data2);
         assert data1.exists() && data2.exists();
-        final SamplePE baseSample = createBaseSample(dataSetInformation);
-        final ExperimentPE baseExperiment = baseSample.getExperiment();
+        final Sample baseSample = createBaseSample(dataSetInformation);
+        final Experiment baseExperiment = baseSample.getExperiment();
         prepareForStrategy(data1, baseSample);
         context.checking(new Expectations()
             {
@@ -825,15 +685,12 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     @Test
     public final void testMoveIdentifiedDataSetFolderButStoreDataFailed()
     {
-        final SamplePE baseSample = createBaseSample(dataSetInformation);
+        final Sample baseSample = createBaseSample(dataSetInformation);
         final File baseDir = targetFolder;
         prepareForStrategyIDENTIFIED(folder, targetData1, baseSample);
         context.checking(new Expectations()
             {
                 {
-                    one(processorFactory).createProcessor();
-                    will(returnValue(processor));
-
                     one(typeExtractor).getProcessorType(folder);
                     will(returnValue(EXAMPLE_PROCESSOR_ID));
 
@@ -888,7 +745,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     @Test
     public void testMoveIdentifiedDataSetFolderButWebServiceRegistrationFailed()
     {
-        final SamplePE baseSample = createBaseSample(dataSetInformation);
+        final Sample baseSample = createBaseSample(dataSetInformation);
         final File baseDir = targetFolder;
         targetData1.setStorageFormat(null);
         prepareForStrategyIDENTIFIED(folder, targetData1, baseSample);
@@ -896,8 +753,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context.checking(new Expectations()
             {
                 {
-                    one(processorFactory).createProcessor();
-                    will(returnValue(processor));
                     one(storageProcessor).storeData(baseSample, dataSetInformation, typeExtractor,
                             mailClient, folder, baseDir);
                     will(returnValue(new File(baseDir, DATA1_NAME)));

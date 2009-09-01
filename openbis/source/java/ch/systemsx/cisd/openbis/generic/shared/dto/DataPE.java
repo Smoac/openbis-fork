@@ -249,13 +249,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         this.sample = sample;
     }
 
-    @Transient
-    public String getAssociatedSampleCode()
-    {
-        SamplePE samplePE = getSample();
-        return samplePE != null ? samplePE.getCode() : null;
-    }
-
     /**
      * Returns the date when the measurement / calculation that produced this external data set has
      * been performed.

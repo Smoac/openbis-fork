@@ -18,11 +18,14 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
  * Translates {@link DataSetTypePE} to {@link DataSetType}.
@@ -36,7 +39,8 @@ public class DataSetTypeTranslator
     {
     }
 
-    public static DataSetType translate(DataSetTypePE entityTypeOrNull)
+    public static DataSetType translate(DataSetTypePE entityTypeOrNull,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         if (entityTypeOrNull == null)
         {
@@ -48,20 +52,21 @@ public class DataSetTypeTranslator
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
                 .getDatabaseInstance()));
         result.setDataSetTypePropertyTypes(DataSetTypePropertyTypeTranslator.translate(
-                entityTypeOrNull.getDataSetTypePropertyTypes(), result));
+                entityTypeOrNull.getDataSetTypePropertyTypes(), result, cacheOrNull));
         return result;
     }
 
-    public static List<DataSetType> translate(List<DataSetTypePE> dataSetTypes)
+    public static List<DataSetType> translate(List<DataSetTypePE> dataSetTypes,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         final List<DataSetType> result = new ArrayList<DataSetType>();
         for (final DataSetTypePE dataSetType : dataSetTypes)
         {
-            result.add(DataSetTypeTranslator.translate(dataSetType));
+            result.add(DataSetTypeTranslator.translate(dataSetType, cacheOrNull));
         }
         return result;
     }
-    
+
     public static DataSetTypePE translate(DataSetType type)
     {
         final DataSetTypePE result = new DataSetTypePE();

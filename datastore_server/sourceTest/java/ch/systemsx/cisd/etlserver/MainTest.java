@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 
 /**
  * Test cases for corresponding {@link ETLDaemon} class.
@@ -47,9 +47,9 @@ public final class MainTest extends AbstractFileSystemTestCase
 
     private static final String DATASET_PREFIX = "Dataset_";
 
-    private final static DatabaseInstancePE createDatabaseInstance()
+    private final static DatabaseInstance createDatabaseInstance()
     {
-        final DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
+        final DatabaseInstance databaseInstancePE = new DatabaseInstance();
         databaseInstancePE.setCode("XXX");
         databaseInstancePE.setUuid("1111-2222");
         return databaseInstancePE;
@@ -63,7 +63,7 @@ public final class MainTest extends AbstractFileSystemTestCase
                         + "CISD");
         instanceDir.mkdirs();
         assertTrue(instanceDir.exists());
-        final DatabaseInstancePE databaseInstancePE = createDatabaseInstance();
+        final DatabaseInstance databaseInstancePE = createDatabaseInstance();
         // Not same code
         ETLDaemon.migrateStoreRootDir(workingDirectory, databaseInstancePE);
         assertTrue(instanceDir.exists());

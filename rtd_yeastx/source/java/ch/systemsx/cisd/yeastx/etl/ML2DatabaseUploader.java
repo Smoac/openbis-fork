@@ -18,8 +18,8 @@ package ch.systemsx.cisd.yeastx.etl;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -28,9 +28,9 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.eicml.EICML2Database;
@@ -47,9 +47,9 @@ public class ML2DatabaseUploader
     private static final String DATABASE_PROPERTIES_PREFIX = "database.";
 
     private final EICML2Database eicML2Database;
-    
+
     private final FIAML2Database fiaML2Database;
-    
+
     private final String uniqueSampleNamePropertyCode;
 
     private final String uniqueExperimentNamePropertyCode;
@@ -114,31 +114,30 @@ public class ML2DatabaseUploader
     private DMDataSetDTO createBacklink(DataSetInformation dataSetInformation)
     {
         String datasetPermId = dataSetInformation.getDataSetCode();
-        SamplePE sample = dataSetInformation.getSample();
-        ExperimentPE experiment = sample.getExperiment();
+        Sample sample = dataSetInformation.getSample();
+        Experiment experiment = sample.getExperiment();
         String experimentName = findExperimentName(experiment.getProperties());
         String sampleName = findSampleName(sample.getProperties());
         return new DMDataSetDTO(datasetPermId, sample.getPermId(), sampleName, experiment
                 .getPermId(), experimentName);
     }
 
-    private String findSampleName(Set<? extends EntityPropertyPE> properties)
+    private String findSampleName(List<? extends IEntityProperty> properties)
     {
         return findProperty(properties, uniqueSampleNamePropertyCode);
     }
 
-    private String findExperimentName(Set<? extends EntityPropertyPE> properties)
+    private String findExperimentName(List<? extends IEntityProperty> properties)
     {
         return findProperty(properties, uniqueExperimentNamePropertyCode);
     }
 
-    private static String findProperty(Set<? extends EntityPropertyPE> properties,
+    private static String findProperty(List<? extends IEntityProperty> properties,
             String propertyTypeCode)
     {
-        for (EntityPropertyPE property : properties)
+        for (IEntityProperty property : properties)
         {
-            String currentPropertyCode =
-                    property.getEntityTypePropertyType().getPropertyType().getCode();
+            final String currentPropertyCode = property.getPropertyType().getCode();
             if (currentPropertyCode.equalsIgnoreCase(propertyTypeCode))
             {
                 return property.getValue();

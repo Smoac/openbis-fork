@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -25,8 +26,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -88,7 +91,8 @@ public final class SampleTranslator
         // because getId() on HibernateProxy object always returns null
         result.setId(HibernateUtils.getId(samplePE));
         result.setIdentifier(StringEscapeUtils.escapeHtml(samplePE.getIdentifier()));
-        result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType()));
+        result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType(),
+                new HashMap<PropertyTypePE, PropertyType>()));
         if (withDetails)
         {
             result.setGroup(GroupTranslator.translate(samplePE.getGroup()));
@@ -140,20 +144,21 @@ public final class SampleTranslator
     {
         if (samplePE.isPropertiesInitialized())
         {
-            result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties()));
+            result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
+                    new HashMap<PropertyTypePE, PropertyType>()));
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());
         }
     }
 
-    public final static SampleParentWithDerived translate(final SampleParentWithDerivedDTO sampleGenerationDTO,
-            String baseIndexURL)
+    public final static SampleParentWithDerived translate(
+            final SampleParentWithDerivedDTO sampleGenerationDTO, String baseIndexURL)
     {
         final SampleParentWithDerived sampleGeneration = new SampleParentWithDerived();
 
-        sampleGeneration.setParent(SampleTranslator.translate(
-                sampleGenerationDTO.getParent(), baseIndexURL));
+        sampleGeneration.setParent(SampleTranslator.translate(sampleGenerationDTO.getParent(),
+                baseIndexURL));
 
         final List<Sample> generated = new ArrayList<Sample>();
         for (SamplePE samplePE : sampleGenerationDTO.getDerived())

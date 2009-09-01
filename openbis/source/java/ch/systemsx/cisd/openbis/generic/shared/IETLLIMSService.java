@@ -28,15 +28,14 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSamplesByPropertyPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -53,7 +52,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public DatabaseInstancePE getHomeDatabaseInstance(final String sessionToken);
+    public DatabaseInstance getHomeDatabaseInstance(final String sessionToken);
 
     /**
      * Registers a Data Store Server for the specified info.
@@ -72,7 +71,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public SamplePE tryGetSampleWithExperiment(
+    public Sample tryGetSampleWithExperiment(
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
@@ -88,7 +87,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public SamplePropertyPE[] tryToGetPropertiesOfTopSampleRegisteredFor(
+    public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
@@ -116,7 +115,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)
+    public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException;
 
     /**

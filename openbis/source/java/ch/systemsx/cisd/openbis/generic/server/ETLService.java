@@ -16,20 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
@@ -37,18 +33,20 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SimpleDataSetHelper;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
@@ -56,15 +54,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -73,20 +73,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public class ETLService extends AbstractServer<IETLService> implements IETLService
 {
-    @Private
-    static final String PROCESSING_PATH = "$processing-path-for-";
-
-    @Private
-    static final String PROCESSING_PATH_TEMPLATE = PROCESSING_PATH + "%s";
-
-    @Private
-    static final String PROCESSING_PARAMETERS_TEMPLATE = "$processing-parameters-for-%s";
-
-    @Private
-    static final String PROCESSING_DESCRIPTION_TEMPLATE = "$processing-description-for-%s";
-
-    private static final String ENCODING = "utf-8";
-
     private final ISessionManager<Session> sessionManager;
 
     private final IDAOFactory daoFactory;
@@ -116,7 +102,12 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return IServer.VERSION;
     }
 
-    public DatabaseInstancePE getHomeDatabaseInstance(String sessionToken)
+    public DatabaseInstance getHomeDatabaseInstance(String sessionToken)
+    {
+        return DatabaseInstanceTranslator.translate(getHomeDatabaseInstance());
+    }
+
+    private DatabaseInstancePE getHomeDatabaseInstance()
     {
         return daoFactory.getHomeDatabaseInstance();
     }
@@ -135,7 +126,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         if (dataStore == null)
         {
             dataStore = new DataStorePE();
-            dataStore.setDatabaseInstance(getHomeDatabaseInstance(sessionToken));
+            dataStore.setDatabaseInstance(getHomeDatabaseInstance());
         }
         dataStore.setCode(info.getDataStoreCode());
         dataStore.setDownloadUrl(info.getDownloadUrl());
@@ -259,8 +250,8 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return daoFactory.getPermIdDAO().createPermId();
     }
 
-    public SamplePE tryGetSampleWithExperiment(String sessionToken,
-            SampleIdentifier sampleIdentifier) throws UserFailureException
+    public Sample tryGetSampleWithExperiment(String sessionToken, SampleIdentifier sampleIdentifier)
+            throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
@@ -270,9 +261,9 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         if (sample != null)
         {
             HibernateUtils.initialize(sample.getProperties());
-            enrichWithPropertiesAndProcessingInstructions(sample.getExperiment());
+            enrichWithProperties(sample.getExperiment());
         }
-        return sample;
+        return SampleTranslator.translate(sample, session.getBaseIndexURL());
     }
 
     private ExperimentPE tryLoadExperimentBySampleIdentifier(final Session session,
@@ -290,81 +281,16 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return sample;
     }
 
-    private void enrichWithPropertiesAndProcessingInstructions(ExperimentPE experiment)
+    private void enrichWithProperties(ExperimentPE experiment)
     {
         if (experiment == null)
         {
             return;
         }
         HibernateUtils.initialize(experiment.getProperties());
-        final List<ProcessingInstructionDTO> instructions =
-                new ArrayList<ProcessingInstructionDTO>();
-        final IAttachmentDAO experimentAttachmentDAO = daoFactory.getAttachmentDAO();
-        final List<AttachmentPE> attachments = experimentAttachmentDAO.listAttachments(experiment);
-        for (final AttachmentPE attachment : attachments)
-        {
-            final String fileName = attachment.getFileName();
-            if (fileName.startsWith(PROCESSING_PATH))
-            {
-                final ProcessingInstructionDTO processingInstruction =
-                        new ProcessingInstructionDTO();
-                BeanUtils.fillBean(ProcessingInstructionDTO.class, processingInstruction,
-                        attachment);
-                processingInstruction.setProcedureTypeCode(fileName.substring(PROCESSING_PATH
-                        .length()));
-                instructions.add(processingInstruction);
-            }
-        }
-        for (final ProcessingInstructionDTO instruction : instructions)
-        {
-            final String procedureType = instruction.getProcedureTypeCode();
-            instruction.setPath(loadText(experiment, PROCESSING_PATH_TEMPLATE, procedureType));
-            instruction.setDescription(loadText(experiment, PROCESSING_DESCRIPTION_TEMPLATE,
-                    procedureType));
-            instruction.setParameters(load(experiment, PROCESSING_PARAMETERS_TEMPLATE,
-                    procedureType));
-        }
-        experiment.setProcessingInstructions(instructions.toArray(new ProcessingInstructionDTO[0]));
     }
 
-    private final String createKey(final String template, final String procedureTypeCode)
-    {
-        return String.format(template, procedureTypeCode);
-    }
-
-    private final String createText(final byte[] textBytes)
-    {
-        try
-        {
-            return textBytes == null ? null : new String(textBytes, ENCODING);
-        } catch (UnsupportedEncodingException ex)
-        {
-            throw new EnvironmentFailureException("Unsupported character encoding: " + ENCODING);
-        }
-    }
-
-    private final String loadText(final ExperimentPE experiment, final String template,
-            final String procedureTypeCode)
-    {
-        final byte[] value = load(experiment, template, procedureTypeCode);
-        return createText(value);
-    }
-
-    private final byte[] load(final ExperimentPE experiment, final String template,
-            final String procedureTypeCode)
-    {
-        final String key = createKey(template, procedureTypeCode);
-        final IAttachmentDAO experimentAttachmentDAO = daoFactory.getAttachmentDAO();
-        final AttachmentPE attachment =
-                experimentAttachmentDAO.tryFindAttachmentByOwnerAndFileName(experiment, key);
-        if (attachment != null)
-        {
-            return attachment.getAttachmentContent().getValue();
-        }
-        return null;
-    }
-
-    public SamplePropertyPE[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
+    public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -381,10 +307,11 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         SamplePE top = sample.getTop();
         if (top == null)
         {
-            return new SamplePropertyPE[0];
+            return new IEntityProperty[0];
         }
         HibernateUtils.initialize(top.getProperties());
-        return top.getProperties().toArray(new SamplePropertyPE[0]);
+        return EntityPropertyTranslator.translate(top.getProperties().toArray(
+                new SamplePropertyPE[0]), new HashMap<PropertyTypePE, PropertyType>());
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
@@ -416,7 +343,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert dataSetCode != null : "Data set code not specified.";
     }
 
-    public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)
+    public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -427,7 +354,8 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
         externalDataBO.loadByCode(dataSetCode);
         externalDataBO.enrichWithParentsAndExperiment();
-        return externalDataBO.getExternalData();
+        return ExternalDataTranslator.translate(externalDataBO.getExternalData(),
+                dataStoreBaseURLProvider.getDataStoreBaseURL(), session.getBaseIndexURL());
     }
 
     public List<Sample> listSamplesByCriteria(String sessionToken,

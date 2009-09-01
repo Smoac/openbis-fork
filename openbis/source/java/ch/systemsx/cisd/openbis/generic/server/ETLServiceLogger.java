@@ -21,16 +21,16 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
@@ -54,7 +54,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
-    public DatabaseInstancePE getHomeDatabaseInstance(String sessionToken)
+    public DatabaseInstance getHomeDatabaseInstance(String sessionToken)
     {
         return null;
     }
@@ -82,21 +82,21 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                 externalData);
     }
 
-    public SamplePE tryGetSampleWithExperiment(String sessionToken,
+    public Sample tryGetSampleWithExperiment(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         logAccess(sessionToken, "get_sample_with_experiment", "SAMPLE(%s)", sampleIdentifier);
         return null;
     }
 
-    public SamplePropertyPE[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
+    public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         logAccess(sessionToken, "get_properties_of_top_sample", "SAMPLE(%s)", sampleIdentifier);
         return null;
     }
 
-    public ExternalDataPE tryGetDataSet(String sessionToken, String dataSetCode)
+    public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException
     {
         logAccess(sessionToken, "try_get_data_set", "DATA_SET(%s)", dataSetCode);

@@ -48,14 +48,14 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author Franz-Josef Elmer
@@ -170,7 +170,7 @@ public class DatasetDownloadServletTest
     public void testInitialDoGet() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalDataPE externalData = createExternalData();
+        final ExternalData externalData = createExternalData();
         prepareParseRequestURL();
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, "");
@@ -213,8 +213,8 @@ public class DatasetDownloadServletTest
     public void testInitialDoGetButDataSetNotFoundInStore() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalDataPE externalData = createExternalData();
-        LocatorTypePE locatorType = new LocatorTypePE();
+        final ExternalData externalData = createExternalData();
+        LocatorType locatorType = new LocatorType();
         locatorType.setCode("unknown");
         externalData.setLocatorType(locatorType);
         prepareParseRequestURL();
@@ -246,7 +246,7 @@ public class DatasetDownloadServletTest
     public void testDoGetButUnknownDataSetCode() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalDataPE externalData = createExternalData();
+        final ExternalData externalData = createExternalData();
         prepareParseRequestURL();
         prepareForObtainingDataSetFromServer(externalData);
         context.checking(new Expectations()
@@ -286,7 +286,7 @@ public class DatasetDownloadServletTest
     public void testDoGetSubFolder() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalDataPE externalData = createExternalData();
+        final ExternalData externalData = createExternalData();
         prepareParseRequestURLNoSession();
         prepareForGettingDataSetFromSession(externalData, ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
         prepareForCreatingHTML(writer);
@@ -309,7 +309,7 @@ public class DatasetDownloadServletTest
     @Test
     public void testDoGetFile() throws Exception
     {
-        final ExternalDataPE externalData = createExternalData();
+        final ExternalData externalData = createExternalData();
         prepareParseRequestURLNoSession();
         prepareForGettingDataSetFromSession(externalData, EXAMPLE_FILE_NAME);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -345,7 +345,7 @@ public class DatasetDownloadServletTest
     public void testDoGetNonExistingFile() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalDataPE externalData = createExternalData();
+        final ExternalData externalData = createExternalData();
         prepareParseRequestURLNoSession();
         prepareForGettingDataSetFromSession(externalData, "blabla");
         context.checking(new Expectations()
@@ -441,7 +441,7 @@ public class DatasetDownloadServletTest
     public void testDoGetForPathInfoStartingWithSeparator() throws Exception
     {
         final StringWriter writer = new StringWriter();
-        final ExternalDataPE externalData = createExternalData();
+        final ExternalData externalData = createExternalData();
         prepareParseRequestURL();
         prepareForObtainingDataSetFromServer(externalData);
         context.checking(new Expectations()
@@ -467,7 +467,7 @@ public class DatasetDownloadServletTest
         context.assertIsSatisfied();
     }
 
-    private void prepareForGettingDataSetFromSession(final ExternalDataPE externalData,
+    private void prepareForGettingDataSetFromSession(final ExternalData externalData,
             final String path)
     {
         context.checking(new Expectations()
@@ -477,7 +477,7 @@ public class DatasetDownloadServletTest
                     will(returnValue(httpSession));
 
                     one(httpSession).getAttribute(DatasetDownloadServlet.DATA_SET_KEY);
-                    Map<String, ExternalDataPE> map = new HashMap<String, ExternalDataPE>();
+                    Map<String, ExternalData> map = new HashMap<String, ExternalData>();
                     map.put(externalData.getCode(), externalData);
                     will(returnValue(map));
 
@@ -507,7 +507,7 @@ public class DatasetDownloadServletTest
             });
     }
 
-    private void prepareForObtainingDataSetFromServer(final ExternalDataPE externalData)
+    private void prepareForObtainingDataSetFromServer(final ExternalData externalData)
     {
         context.checking(new Expectations()
             {
@@ -541,25 +541,25 @@ public class DatasetDownloadServletTest
             });
     }
 
-    private ExternalDataPE createExternalData()
+    private ExternalData createExternalData()
     {
-        GroupPE group = new GroupPE();
+        Group group = new Group();
         group.setCode(GROUP_CODE);
-        ProjectPE project = new ProjectPE();
+        Project project = new Project();
         project.setCode(PROJECT_CODE);
         project.setGroup(group);
-        ExperimentPE experiment = new ExperimentPE();
+        Experiment experiment = new Experiment();
         experiment.setCode(EXPERIMENT_CODE);
         experiment.setProject(project);
-        final ExternalDataPE externalData = new ExternalDataPE();
+        final ExternalData externalData = new ExternalData();
         externalData.setExperiment(experiment);
         externalData.setCode(EXAMPLE_DATA_SET_CODE);
-        SamplePE samplePE = new SamplePE();
-        samplePE.setCode(SAMPLE_CODE);
-        externalData.setSampleAcquiredFrom(samplePE);
-        LocatorTypePE locatorTypePE = new LocatorTypePE();
-        locatorTypePE.setCode(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
-        externalData.setLocatorType(locatorTypePE);
+        Sample sample = new Sample();
+        sample.setCode(SAMPLE_CODE);
+        externalData.setSample(sample);
+        LocatorType locatorType = new LocatorType();
+        locatorType.setCode(LocatorType.DEFAULT_LOCATOR_TYPE_CODE);
+        externalData.setLocatorType(locatorType);
         externalData.setLocation(EXAMPLE_DATA_SET_FOLDER_NAME);
         return externalData;
     }

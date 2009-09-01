@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -59,11 +58,10 @@ import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -130,10 +128,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private boolean deleteUnidentified = false;
 
-    private Map<String, IProcessorFactory> processorFactories =
-            Collections.<String, IProcessorFactory> emptyMap();
-
-    private DatabaseInstancePE homeDatabaseInstance;
+    private DatabaseInstance homeDatabaseInstance;
 
     private IDataSetHandler dataSetHandler;
 
@@ -181,12 +176,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         this.fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         this.useIsFinishedMarkerFile = useIsFinishedMarkerFile;
         this.deleteUnidentified = deleteUnidentified;
-    }
-
-    public final void setProcessorFactories(final Map<String, IProcessorFactory> processorFactories)
-    {
-        assert processorFactories != null : "Unspecified processor factory map.";
-        this.processorFactories = processorFactories;
     }
 
     /**
@@ -263,7 +252,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         return true;
     }
 
-    private DatabaseInstancePE getHomeDatabaseInstance()
+    private DatabaseInstance getHomeDatabaseInstance()
     {
         if (homeDatabaseInstance == null)
         {
@@ -426,12 +415,11 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
          */
         final List<DataSetInformation> registerDataSet()
         {
-            final SamplePE sample = dataSetInformation.getSample();
+            final Sample sample = dataSetInformation.getSample();
             String processorID = typeExtractor.getProcessorType(incomingDataSetFile);
-            final IProcessor processorOrNull = tryCreateProcessor(processorID);
             try
             {
-                registerDataSetAndInitiateProcessing(sample, processorID, processorOrNull);
+                registerDataSetAndInitiateProcessing(sample, processorID);
                 logAndNotifySuccessfulRegistration(sample.getExperiment().getRegistrator()
                         .getEmail());
                 if (fileOperations.exists(incomingDataSetFile)
@@ -491,10 +479,10 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         }
 
         /**
-         * Registers the data set and, if possible, initiates the processing.
+         * Registers the data set.
          */
-        private void registerDataSetAndInitiateProcessing(final SamplePE sample,
-                final String procedureTypeCode, final IProcessor processorOrNull)
+        private void registerDataSetAndInitiateProcessing(final Sample sample,
+                final String procedureTypeCode)
         {
             final File markerFile = createProcessingMarkerFile();
             try
@@ -530,56 +518,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                     errorMessageTemplate = DATA_SET_REGISTRATION_FAILURE_TEMPLATE;
                     plainRegisterDataSet(data, relativePath, availableFormat, isCompleteFlag);
                     clean();
-                    if (processorOrNull == null)
-                    {
-                        return;
-                    }
-                    final StorageFormat requiredFormat =
-                            processorOrNull.getRequiredInputDataFormat();
-                    boolean canInitiateProcessing = requiredFormat.equals(availableFormat);
-                    if (canInitiateProcessing == false
-                            && availableFormatMayContainRequiredFormat(availableFormat,
-                                    requiredFormat))
-                    {
-                        // Special case: Check whether we can actually get back the original data.
-                        dataFile = storageProcessor.tryGetProprietaryData(dataFile);
-                        if (dataFile != null)
-                        {
-                            canInitiateProcessing = true;
-                        }
-                    }
-                    if (canInitiateProcessing == false)
-                    {
-                        operationLog.error(String.format(
-                                "Configuration Error: mismatch in data set format for data set '%s' between storage "
-                                        + "processor and processor (storage processor:"
-                                        + " %s, processor: %s) -> No processing initiated.",
-                                dataSetInformation, availableFormat, requiredFormat));
-                        notificationLog.error(String.format(
-                                "Configuration Error: no processing initiated for data set '%s'",
-                                dataSetInformation));
-                        return;
-                    }
-                    final ProcessingInstructionDTO processingInstructionOrNull =
-                            tryToGetAppropriateProcessingInstruction(sample.getExperiment()
-                                    .getProcessingInstructions(), procedureTypeCode);
-                    if (processingInstructionOrNull != null)
-                    {
-                        try
-                        {
-                            processorOrNull.initiateProcessing(processingInstructionOrNull,
-                                    dataSetInformation, dataFile);
-                        } catch (final RuntimeException e)
-                        {
-                            operationLog.error(
-                                    "Exception thrown when initiate processing for data set '"
-                                            + dataSetInformation + "'.", e);
-                            notificationLog
-                                    .error("Couldn't initiate processing a data set for sample '"
-                                            + dataSetInformation.getSampleIdentifier()
-                                            + "' for some reason. For more details see log of the ETL Server.");
-                        }
-                    }
                 } finally
                 {
                     getRegistrationLock().unlock();
@@ -606,13 +544,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                         "Cannot create marker file '%s'.", markerFile.getPath());
             }
             return markerFile;
-        }
-
-        private boolean availableFormatMayContainRequiredFormat(
-                final StorageFormat availableFormat, final StorageFormat requiredFormat)
-        {
-            return StorageFormat.PROPRIETARY.equals(requiredFormat)
-                    && StorageFormat.BDS_DIRECTORY.equals(availableFormat);
         }
 
         /**
@@ -754,33 +685,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                         baseDirectory.getAbsolutePath(), incomingDataSetFile);
             }
             return baseDirectory;
-        }
-
-        private IProcessor tryCreateProcessor(final String processorID)
-        {
-            final IProcessorFactory processorFactory = processorFactories.get(processorID);
-            if (processorFactory == null)
-            {
-                return null;
-            }
-            return processorFactory.createProcessor();
-        }
-
-        private ProcessingInstructionDTO tryToGetAppropriateProcessingInstruction(
-                final ProcessingInstructionDTO[] processingInstructions,
-                final String procedureTypeCode)
-        {
-            if (processingInstructions != null)
-            {
-                for (final ProcessingInstructionDTO instruction : processingInstructions)
-                {
-                    if (instruction.getProcedureTypeCode().equals(procedureTypeCode))
-                    {
-                        return instruction;
-                    }
-                }
-            }
-            return null;
         }
 
         private final NewExternalData updateExternalData(NewExternalData data, final String relativePath,

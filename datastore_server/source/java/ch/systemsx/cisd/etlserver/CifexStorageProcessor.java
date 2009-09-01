@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -85,7 +85,7 @@ public class CifexStorageProcessor extends AbstractStorageProcessor
         return StorageFormat.PROPRIETARY;
     }
 
-    public File storeData(SamplePE sample, DataSetInformation dataSetInformation,
+    public File storeData(Sample sample, DataSetInformation dataSetInformation,
             ITypeExtractor typeExtractor, IMailClient mailClient, File incomingDataSetDirectory,
             File rootDir)
     {

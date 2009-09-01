@@ -22,14 +22,13 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -45,7 +44,7 @@ public interface IEncapsulatedOpenBISService
     /**
      * Tries to get the data set for the specified data set code.
      */
-    public ExternalDataPE tryGetDataSet(final String sessionToken, final String dataSetCode)
+    public ExternalData tryGetDataSet(final String sessionToken, final String dataSetCode)
             throws UserFailureException;
 
     /**
@@ -54,7 +53,7 @@ public interface IEncapsulatedOpenBISService
      * 
      * @return <code>null</code> if no sample could be found for given <var>sampleIdentifier</var>.
      */
-    public SamplePE tryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
+    public Sample tryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
 
     /**
@@ -73,7 +72,7 @@ public interface IEncapsulatedOpenBISService
      * @return <code>null</code> if no appropriated sample found. Returns an empty array if a a
      *         sample found with no properties.
      */
-    public SamplePropertyPE[] getPropertiesOfTopSampleRegisteredFor(
+    public IEntityProperty[] getPropertiesOfTopSampleRegisteredFor(
             final SampleIdentifier sampleIdentifier) throws UserFailureException;
 
     /** See {@link IETLLIMSService#listSamplesByCriteria(String, ListSamplesByPropertyCriteria)} */
@@ -96,7 +95,7 @@ public interface IEncapsulatedOpenBISService
     /**
      * Returns the home database instance.
      */
-    public DatabaseInstancePE getHomeDatabaseInstance();
+    public DatabaseInstance getHomeDatabaseInstance();
 
     /**
      * List data sets deleted after specified date.

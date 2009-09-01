@@ -18,13 +18,16 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -39,12 +42,14 @@ public class MaterialTypeTranslator
     {
     }
 
-    public static MaterialType translate(MaterialTypePE entityTypeOrNull)
+    public static MaterialType translate(MaterialTypePE entityTypeOrNull,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
-        return translate(entityTypeOrNull, true);
+        return translate(entityTypeOrNull, true, cacheOrNull);
     }
 
-    public static MaterialType translate(MaterialTypePE entityTypeOrNull, boolean withProperties)
+    public static MaterialType translate(MaterialTypePE entityTypeOrNull, boolean withProperties,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         if (entityTypeOrNull == null)
         {
@@ -60,7 +65,7 @@ public class MaterialTypeTranslator
             unsetMaterialTypes(entityTypeOrNull.getMaterialTypePropertyTypes());
         }
         result.setMaterialTypePropertyTypes(MaterialTypePropertyTypeTranslator.translate(
-                entityTypeOrNull.getMaterialTypePropertyTypes(), result));
+                entityTypeOrNull.getMaterialTypePropertyTypes(), result, cacheOrNull));
         return result;
     }
 
@@ -73,12 +78,13 @@ public class MaterialTypeTranslator
             }
     }
 
-    public final static List<MaterialType> translate(final List<MaterialTypePE> materialTypes)
+    public final static List<MaterialType> translate(final List<MaterialTypePE> materialTypes,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         final List<MaterialType> result = new ArrayList<MaterialType>(materialTypes.size());
         for (final MaterialTypePE materialType : materialTypes)
         {
-            result.add(translate(materialType));
+            result.add(translate(materialType, cacheOrNull));
         }
         return result;
     }

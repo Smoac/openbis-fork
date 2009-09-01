@@ -72,10 +72,9 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.etlserver.HCSImageCheckList.FullLocation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 
@@ -242,7 +241,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         assert experimentIdentifier.getProjectCode() != null : "Project code is null";
     }
 
-    private final IDataStructureV1_1 createDataStructure(final ExperimentPE experiment,
+    private final IDataStructureV1_1 createDataStructure(final Experiment experiment,
             final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
             final File incomingDataSetPath, final File rootDir)
     {
@@ -254,7 +253,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         structure.setExperimentIdentifier(createExperimentIdentifier(dataSetInformation));
         structure.setExperimentRegistrationTimestamp(new ExperimentRegistrationTimestamp(experiment
                 .getRegistrationDate()));
-        final PersonPE registrator = experiment.getRegistrator();
+        final Person registrator = experiment.getRegistrator();
         final String firstName = registrator.getFirstName();
         final String lastName = registrator.getLastName();
         final String email = registrator.getEmail();
@@ -265,7 +264,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         {
             structure.addFormatParameter(formatParameter);
         }
-        final SamplePropertyPE[] sampleProperties = dataSetInformation.getProperties();
+        final IEntityProperty[] sampleProperties = dataSetInformation.getProperties();
         final PlateDimension plateDimension =
                 PlateDimensionParser.tryToGetPlateDimension(sampleProperties);
         if (plateDimension == null)
@@ -414,9 +413,11 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
     // AbstractStorageProcessor
     //
 
-    public final File storeData(final SamplePE sample, final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDirectory)
+    public final File storeData(
+            final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample,
+            final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
+            final IMailClient mailClient, final File incomingDataSetDirectory,
+            final File rootDirectory)
     {
         checkDataSetInformation(dataSetInformation);
         assert rootDirectory != null : "Root directory can not be null.";

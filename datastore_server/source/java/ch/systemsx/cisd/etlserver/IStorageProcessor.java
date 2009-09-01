@@ -21,7 +21,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -58,7 +58,7 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
      *         <var>rootDir</var>. Never returns <code>null</code> but prefers to throw an exception
      *         in case of unexpected behavior.
      */
-    public File storeData(final SamplePE sample, final DataSetInformation dataSetInformation,
+    public File storeData(final Sample sample, final DataSetInformation dataSetInformation,
             final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDir);
 
@@ -80,7 +80,7 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
 
     /**
      * Performs a rollback of
-     * {@link #storeData(SamplePE, DataSetInformation, ITypeExtractor, IMailClient, File, File)} The
+     * {@link #storeData(Sample, DataSetInformation, ITypeExtractor, IMailClient, File, File)} The
      * data created in <code>directory</code> will also be removed.
      * <p>
      * Call to this method is safe as implementations should try/catch exceptions that could occur

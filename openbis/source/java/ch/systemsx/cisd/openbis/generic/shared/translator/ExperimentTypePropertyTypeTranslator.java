@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -25,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
  * A {@link ExperimentTypePropertyType} &lt;---&gt; {@link ExperimentTypePropertyTypePE} translator.
@@ -49,7 +51,8 @@ public final class ExperimentTypePropertyTypeTranslator
         }
 
         @Override
-        ExperimentType translate(EntityTypePE entityTypePE)
+        ExperimentType translate(EntityTypePE entityTypePE,
+                Map<PropertyTypePE, PropertyType> cacheOrNull)
         {
             return ExperimentTranslator.translate((ExperimentTypePE) entityTypePE);
         }
@@ -65,19 +68,20 @@ public final class ExperimentTypePropertyTypeTranslator
             Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes, ExperimentType result)
     {
         return new ExperimentTypePropertyTypeTranslatorHelper().translate(
-                experimentTypePropertyTypes, result);
+                experimentTypePropertyTypes, result, null);
     }
 
     public static List<ExperimentTypePropertyType> translate(
             Set<ExperimentTypePropertyTypePE> experimentTypePropertyTypes, PropertyType result)
     {
         return new ExperimentTypePropertyTypeTranslatorHelper().translate(
-                experimentTypePropertyTypes, result);
+                experimentTypePropertyTypes, result, null);
     }
 
     public static ExperimentTypePropertyType translate(
             ExperimentTypePropertyTypePE entityTypePropertyType)
     {
-        return new ExperimentTypePropertyTypeTranslatorHelper().translate(entityTypePropertyType);
+        return new ExperimentTypePropertyTypeTranslatorHelper().translate(entityTypePropertyType,
+                null);
     }
 }

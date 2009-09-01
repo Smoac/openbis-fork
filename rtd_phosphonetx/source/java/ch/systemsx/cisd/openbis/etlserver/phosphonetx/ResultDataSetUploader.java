@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummaryDataFilter;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sample;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
@@ -161,13 +161,13 @@ class ResultDataSetUploader extends AbstractHandler
         return experiment;
     }
 
-    private void addToDatabase(DataSet dataSet, Experiment experiment, GroupPE group,
+    private void addToDatabase(DataSet dataSet, Experiment experiment, Group group,
             ProteinSummary summary)
     {
         long dataSetID = dataSet.getId();
         Long databaseID = dataSet.getDatabaseID();
         GroupIdentifier groupIdentifier =
-                new GroupIdentifier(group.getDatabaseInstance().getCode(), group.getCode());
+                new GroupIdentifier(group.getInstance().getCode(), group.getCode());
         AbundanceHandler abundanceHandler =
                 new AbundanceHandler(openbisService, dao, groupIdentifier, experiment);
         createProbabilityToFDRMapping(dataSetID, summary);

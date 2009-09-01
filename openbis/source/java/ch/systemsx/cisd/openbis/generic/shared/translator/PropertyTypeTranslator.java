@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -39,20 +40,31 @@ public final class PropertyTypeTranslator
         // Can not be instantiated.
     }
 
-    public final static List<PropertyType> translate(final List<PropertyTypePE> propertyTypes)
+    public final static List<PropertyType> translate(final List<PropertyTypePE> propertyTypes,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         final List<PropertyType> result = new ArrayList<PropertyType>();
         for (final PropertyTypePE propType : propertyTypes)
         {
-            result.add(PropertyTypeTranslator.translate(propType));
+            result.add(PropertyTypeTranslator.translate(propType, cacheOrNull));
         }
         return result;
     }
 
     public final static PropertyType translate(final PropertyTypePE propertyType,
-            MaterialType materialType)
+            MaterialType materialType, Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
+        final PropertyType cachedOrNull =
+                (cacheOrNull == null) ? null : cacheOrNull.get(propertyType);
+        if (cachedOrNull != null)
+        {
+            return cachedOrNull;
+        }
         final PropertyType result = new PropertyType();
+        if (cacheOrNull != null)
+        {
+            cacheOrNull.put(propertyType, result);
+        }
         result.setId(HibernateUtils.getId(propertyType));
         result.setCode(StringEscapeUtils.escapeHtml(propertyType.getCode()));
         result.setSimpleCode(StringEscapeUtils.escapeHtml(propertyType.getSimpleCode()));
@@ -62,12 +74,12 @@ public final class PropertyTypeTranslator
         result.setDataType(DataTypeTranslator.translate(propertyType.getType()));
         result.setVocabulary(VocabularyTranslator.translate(propertyType.getVocabulary()));
         result.setMaterialType(MaterialTypeTranslator.translate(propertyType.getMaterialType(),
-                false));
+                false, cacheOrNull));
         result.setDescription(StringEscapeUtils.escapeHtml(propertyType.getDescription()));
         result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(propertyType
-                .getSampleTypePropertyTypes(), result));
+                .getSampleTypePropertyTypes(), result, cacheOrNull));
         result.setMaterialTypePropertyTypes(MaterialTypePropertyTypeTranslator.translate(
-                propertyType.getMaterialTypePropertyTypes(), result));
+                propertyType.getMaterialTypePropertyTypes(), result, cacheOrNull));
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
                 propertyType.getExperimentTypePropertyTypes(), result));
         result.setDataSetTypePropertyTypes(DataSetTypePropertyTypeTranslator.translate(propertyType
@@ -75,8 +87,9 @@ public final class PropertyTypeTranslator
         return result;
     }
 
-    public final static PropertyType translate(final PropertyTypePE propertyType)
+    public final static PropertyType translate(final PropertyTypePE propertyType,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
-        return translate(propertyType, null);
+        return translate(propertyType, null, cacheOrNull);
     }
 }

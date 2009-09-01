@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -422,7 +423,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         checkSession(sessionToken);
         final List<SampleTypePE> sampleTypes = getDAOFactory().getSampleTypeDAO().listSampleTypes();
         Collections.sort(sampleTypes);
-        return SampleTypeTranslator.translate(sampleTypes);
+        return SampleTypeTranslator.translate(sampleTypes,
+                new HashMap<PropertyTypePE, PropertyType>());
     }
 
     public final List<Sample> listSamples(final String sessionToken,
@@ -499,7 +501,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             propertyTypeTable.load();
         final List<PropertyTypePE> propertyTypes = propertyTypeTable.getPropertyTypes();
         Collections.sort(propertyTypes);
-        return PropertyTypeTranslator.translate(propertyTypes);
+        return PropertyTypeTranslator.translate(propertyTypes,
+                new HashMap<PropertyTypePE, PropertyType>());
     }
 
     public final List<MatchingEntity> listMatchingEntities(final String sessionToken,
@@ -547,7 +550,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         final List<MaterialTypePE> materialTypes =
                 listEntityTypes(sessionToken, EntityKind.MATERIAL);
-        return MaterialTypeTranslator.translate(materialTypes);
+        return MaterialTypeTranslator.translate(materialTypes,
+                new HashMap<PropertyTypePE, PropertyType>());
     }
 
     private <T extends EntityTypePE> List<T> listEntityTypes(String sessionToken,
@@ -1258,7 +1262,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public List<DataSetType> listDataSetTypes(String sessionToken)
     {
         final List<DataSetTypePE> dataSetTypes = listEntityTypes(sessionToken, EntityKind.DATA_SET);
-        return DataSetTypeTranslator.translate(dataSetTypes);
+        return DataSetTypeTranslator.translate(dataSetTypes,
+                new HashMap<PropertyTypePE, PropertyType>());
     }
 
     public LastModificationState getLastModificationState(String sessionToken)

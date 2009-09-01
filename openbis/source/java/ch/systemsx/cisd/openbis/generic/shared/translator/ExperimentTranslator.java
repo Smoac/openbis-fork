@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -26,8 +27,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -101,7 +104,8 @@ public final class ExperimentTranslator
     {
         if (experiment.isPropertiesInitialized())
         {
-            result.setProperties(EntityPropertyTranslator.translate(experiment.getProperties()));
+            result.setProperties(EntityPropertyTranslator.translate(experiment.getProperties(),
+                    new HashMap<PropertyTypePE, PropertyType>()));
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());
@@ -129,7 +133,7 @@ public final class ExperimentTranslator
                 .getDatabaseInstance()));
         return result;
     }
-    
+
     public final static List<ExperimentType> translate(final List<ExperimentTypePE> experimentTypes)
     {
         final List<ExperimentType> result = new ArrayList<ExperimentType>(experimentTypes.size());

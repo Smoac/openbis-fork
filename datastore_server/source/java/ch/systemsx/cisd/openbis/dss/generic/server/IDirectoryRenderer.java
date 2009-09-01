@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
  * Interface of a renderer of a directory.
@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  */
 public interface IDirectoryRenderer extends IWriterInjector
 {
-    public void printHeader(ExternalDataPE dataSet);
+    public void printHeader(ExternalData dataSet);
 
     public void printLinkToParentDirectory(String relativePath);
 

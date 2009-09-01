@@ -19,19 +19,13 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.io.IOException;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.PathPrefixPrepender;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProcessingInstructionDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -41,37 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  */
 public final class StandardProcessorTest extends AbstractFileSystemTestCase
 {
-    private final static class AbsolutPathMatcher extends BaseMatcher<String>
-    {
-        private final String absolutePath;
-
-        AbsolutPathMatcher(final String absolutePath)
-        {
-            this.absolutePath = absolutePath;
-        }
-
-        //
-        // BaseMatcher
-        //
-
-        public final void describeTo(final Description description)
-        {
-            description.appendText(absolutePath);
-        }
-
-        public final boolean matches(final Object item)
-        {
-            if (item instanceof String == false)
-            {
-                return false;
-            }
-            final String path = (String) item;
-            return path.replace('\\', '/').equals(absolutePath.replace('\\', '/'));
-        }
-    }
-
-    private static final String PROCESSING_PATH = "processing";
-
     private static final String PREFIX_FOR_RELATIVE_PATH = "rel";
 
     private static final String PREFIX_FOR_ABSOLUTE_PATH = null;
@@ -88,8 +51,6 @@ public final class StandardProcessorTest extends AbstractFileSystemTestCase
 
     private PathPrefixPrepender pathPrefixPrepender;
 
-    private IFile iFile;
-
     @Override
     @BeforeMethod
     public final void setUp() throws IOException
@@ -97,7 +58,6 @@ public final class StandardProcessorTest extends AbstractFileSystemTestCase
         super.setUp();
         context = new Mockery();
         fileFactory = context.mock(IFileFactory.class);
-        iFile = context.mock(IFile.class);
         pathPrefixPrepender = createPathPrefixPrepender();
         processor = createStandardProcessor();
     }
@@ -125,13 +85,6 @@ public final class StandardProcessorTest extends AbstractFileSystemTestCase
                 PARAMETERS_FILE_NAME, FINISHED_FILE_NAME_TEMPLATE, "_");
     }
 
-    private final ProcessingInstructionDTO createProcessingInstruction()
-    {
-        final ProcessingInstructionDTO processingInstruction = new ProcessingInstructionDTO();
-        processingInstruction.setPath(PROCESSING_PATH);
-        return processingInstruction;
-    }
-
     @Test
     public final void testInitiateProcessingWithNullParameters()
     {
@@ -143,63 +96,6 @@ public final class StandardProcessorTest extends AbstractFileSystemTestCase
         {
             // Nothing to do here.
         }
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public final void testInitiateProcessingWithNotSuitableDirectory()
-    {
-        final File dataSet = new File("dataSet");
-        final String absolutePath =
-                new File(new File(workingDirectory, PREFIX_FOR_RELATIVE_PATH), PROCESSING_PATH)
-                        .getAbsolutePath();
-        context.checking(new Expectations()
-            {
-                {
-                    one(fileFactory).create(with(new AbsolutPathMatcher(absolutePath)));
-                    will(returnValue(iFile));
-
-                    one(iFile).check();
-                    will(throwException(new ConfigurationFailureException("")));
-                }
-            });
-        try
-        {
-            processor.initiateProcessing(createProcessingInstruction(), new DataSetInformation(),
-                    dataSet);
-            fail("Configuration failure exception.");
-        } catch (final ConfigurationFailureException ex)
-        {
-            // Nothing to do here.
-        }
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public final void testInitiateProcessing()
-    {
-        final String dataSetName = "dataSet";
-        final File dataSet = new File(dataSetName);
-        final String absolutePath =
-                new File(new File(workingDirectory, PREFIX_FOR_RELATIVE_PATH), PROCESSING_PATH)
-                        .getAbsolutePath();
-        final DataSetInformation dataSetInformation = new DataSetInformation();
-        final String dataSetCode = "data-set-code";
-        dataSetInformation.setDataSetCode(dataSetCode);
-        final String dataSetFullName = dataSetCode + "_" + dataSetName;
-        context.checking(new Expectations()
-            {
-                {
-                    one(fileFactory).create(with(new AbsolutPathMatcher(absolutePath)));
-                    will(returnValue(iFile));
-
-                    one(iFile).check();
-
-                    one(fileFactory).create(iFile, dataSetFullName);
-                    one(fileFactory).create(iFile, ".MARKER_is_finished_" + dataSetFullName);
-                }
-            });
-        processor.initiateProcessing(createProcessingInstruction(), dataSetInformation, dataSet);
         context.assertIsSatisfied();
     }
 

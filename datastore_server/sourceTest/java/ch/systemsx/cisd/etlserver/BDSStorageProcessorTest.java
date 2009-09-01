@@ -58,17 +58,17 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 
 /**
@@ -157,29 +157,29 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         dataSetInformation.setExperimentIdentifier(experimentIdentifier);
         dataSetInformation.setSampleCode("S");
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
-        final SamplePropertyPE plateGeometry =
-                createSamplePropertyPE(PlateDimensionParser.PLATE_GEOMETRY_PROPERTY_NAME,
-                        EntityDataType.VARCHAR, "_16X24");
-        dataSetInformation.setProperties(new SamplePropertyPE[]
+        final IEntityProperty plateGeometry =
+                createSampleProperty(PlateDimensionParser.PLATE_GEOMETRY_PROPERTY_NAME,
+                        DataTypeCode.VARCHAR, "_16X24");
+        dataSetInformation.setProperties(new IEntityProperty[]
             { plateGeometry });
         return dataSetInformation;
     }
 
-    private final static SamplePropertyPE createSamplePropertyPE(final String code,
-            final EntityDataType dataType, final String value)
+    private final static IEntityProperty createSampleProperty(final String code,
+            final DataTypeCode dataType, final String value)
     {
-        final SamplePropertyPE propertyPE = new SamplePropertyPE();
-        final SampleTypePropertyTypePE entityTypePropertyTypePE = new SampleTypePropertyTypePE();
-        final PropertyTypePE propertyTypePE = new PropertyTypePE();
-        propertyTypePE.setCode(code);
-        propertyTypePE.setLabel(code);
-        final DataTypePE type = new DataTypePE();
+        final IEntityProperty property = new EntityProperty();
+        final SampleTypePropertyType entityTypePropertyType = new SampleTypePropertyType();
+        final PropertyType propertyType = new PropertyType();
+        propertyType.setCode(code);
+        propertyType.setLabel(code);
+        final DataType type = new DataType();
         type.setCode(dataType);
-        propertyTypePE.setType(type);
-        entityTypePropertyTypePE.setPropertyType(propertyTypePE);
-        propertyPE.setEntityTypePropertyType(entityTypePropertyTypePE);
-        propertyPE.setValue(value);
-        return propertyPE;
+        propertyType.setDataType(type);
+        entityTypePropertyType.setPropertyType(propertyType);
+        property.setPropertyType(propertyType);
+        property.setValue(value);
+        return property;
     }
 
     private final File createOriginalDataInDir() throws IOException
@@ -193,24 +193,25 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         return dir;
     }
 
-    static final SamplePE createSample()
+    static final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample createSample()
     {
-        SamplePE sample = new SamplePE();
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample =
+                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample();
         sample.setExperiment(createExperiment());
         return sample;
     }
 
-    static final ExperimentPE createExperiment()
+    static final Experiment createExperiment()
     {
-        final ExperimentPE baseExperiment = new ExperimentPE();
+        final Experiment baseExperiment = new Experiment();
         baseExperiment.setRegistrationDate(REGISTRATION_DATE);
-        final PersonPE person = new PersonPE();
+        final Person person = new Person();
         person.setFirstName("Joe");
         person.setLastName("Doe");
         person.setEmail(EXAMPLE_EMAIL);
-        final GroupPE group = new GroupPE();
+        final Group group = new Group();
         group.setCode(EXAMPLE_GROUP);
-        final ProjectPE project = new ProjectPE();
+        final Project project = new Project();
         project.setGroup(group);
         baseExperiment.setProject(project);
         baseExperiment.setRegistrator(person);
@@ -348,8 +349,8 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         assertEquals(0, workingDirectory.list().length);
         final File incomingDataSetDirectory = createOriginalDataInDir();
         assertEquals(true, incomingDataSetDirectory.exists());
-        final SamplePE baseSample = createSample();
-        final ExperimentPE baseExperiment = baseSample.getExperiment();
+        final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
+        final Experiment baseExperiment = baseSample.getExperiment();
         final DataSetInformation dataSetInformation = createDataSetInformation();
         prepareMailClient(format);
         final File dataFile =
@@ -405,7 +406,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final File incomingDirectoryData = createOriginalDataInDir();
         // incoming/NEMO.EXP1==CP001A-3AB in 'workingDirectory'
         assert incomingDirectoryData.exists();
-        final SamplePE baseSample = createSample();
+        final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
         final DataSetInformation dataSetInformation = createDataSetInformation();
         // NEMO.EXP1==CP001A-3AB in 'workingDirectory'
         prepareMailClient(format);
@@ -428,7 +429,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final Properties properties = createProperties(format);
         final BDSStorageProcessor storageProcessor = new BDSStorageProcessor(properties);
         final File incomingDirectoryData = createOriginalDataInDir();
-        final SamplePE baseSample = createSample();
+        final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
         final DataSetInformation dataSetInformation = createDataSetInformation();
         prepareMailClient(format);
         final File storeData =
@@ -457,7 +458,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         properties.setProperty(CONTAINS_ORIGINAL_DATA_KEY, Utilities.Boolean.FALSE.toString());
         final BDSStorageProcessor storageProcessor = new BDSStorageProcessor(properties);
         final File incomingDirectoryData = createOriginalDataInDir();
-        final SamplePE baseSample = createSample();
+        final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
         final DataSetInformation dataSetInformation = createDataSetInformation();
         prepareMailClient(HCSImageFormatV1_0.HCS_IMAGE_1_0);
         final File storeData =

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -25,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
  * Translates {@link MaterialTypePropertyTypePE} to {@link MaterialTypePropertyType}.
@@ -44,9 +46,10 @@ public class MaterialTypePropertyTypeTranslator
         }
 
         @Override
-        MaterialType translate(EntityTypePE entityTypePE)
+        MaterialType translate(EntityTypePE entityTypePE,
+                Map<PropertyTypePE, PropertyType> cacheOrNull)
         {
-            return MaterialTypeTranslator.translate((MaterialTypePE) entityTypePE);
+            return MaterialTypeTranslator.translate((MaterialTypePE) entityTypePE, cacheOrNull);
         }
 
         @Override
@@ -57,23 +60,27 @@ public class MaterialTypePropertyTypeTranslator
     }
 
     public static List<MaterialTypePropertyType> translate(
-            Set<MaterialTypePropertyTypePE> materialTypePropertyTypes, PropertyType result)
+            Set<MaterialTypePropertyTypePE> materialTypePropertyTypes, PropertyType result,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         return new MaterialTypePropertyTypeTranslatorHelper().translate(materialTypePropertyTypes,
-                result);
+                result, cacheOrNull);
     }
 
     public static MaterialTypePropertyType translate(
-            MaterialTypePropertyTypePE entityTypePropertyType)
+            MaterialTypePropertyTypePE entityTypePropertyType,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
-        return new MaterialTypePropertyTypeTranslatorHelper().translate(entityTypePropertyType);
+        return new MaterialTypePropertyTypeTranslatorHelper().translate(entityTypePropertyType,
+                cacheOrNull);
     }
 
     public static List<MaterialTypePropertyType> translate(
-            Set<MaterialTypePropertyTypePE> materialTypePropertyTypes, MaterialType result)
+            Set<MaterialTypePropertyTypePE> materialTypePropertyTypes, MaterialType result,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         return new MaterialTypePropertyTypeTranslatorHelper().translate(materialTypePropertyTypes,
-                result);
+                result, cacheOrNull);
     }
 
 }

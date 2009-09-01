@@ -32,16 +32,15 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvi
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -83,7 +82,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private Integer version;
 
-    private DatabaseInstancePE homeDatabaseInstance;
+    private DatabaseInstance homeDatabaseInstance;
 
     private DatastoreServiceDescriptions pluginTaskDescriptions;
 
@@ -178,7 +177,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    private final SamplePE primTryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
+    private final Sample primTryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
     {
         return service.tryGetSampleWithExperiment(sessionToken, sampleIdentifier);
     }
@@ -189,7 +188,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         service.registerDataSet(sessionToken, dataSetInformation.getSampleIdentifier(), data);
     }
 
-    private final SamplePropertyPE[] primGetPropertiesOfSampleRegisteredFor(
+    private final IEntityProperty[] primGetPropertiesOfSampleRegisteredFor(
             final SampleIdentifier sampleIdentifier)
     {
         return service.tryToGetPropertiesOfTopSampleRegisteredFor(sessionToken, sampleIdentifier);
@@ -207,10 +206,10 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     //
-    // IEncapsulatedLimsService
+    // IEncapsulatedOpenBISService
     //
 
-    synchronized public final SamplePE tryGetSampleWithExperiment(
+    synchronized public final Sample tryGetSampleWithExperiment(
             final SampleIdentifier sampleIdentifier)
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
@@ -248,7 +247,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    synchronized public final SamplePropertyPE[] getPropertiesOfTopSampleRegisteredFor(
+    synchronized public final IEntityProperty[] getPropertiesOfTopSampleRegisteredFor(
             final SampleIdentifier sampleIdentifier) throws UserFailureException
     {
         assert sampleIdentifier != null : "Given sample identifier can not be null.";
@@ -288,7 +287,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return version;
     }
 
-    synchronized public final DatabaseInstancePE getHomeDatabaseInstance()
+    synchronized public final DatabaseInstance getHomeDatabaseInstance()
     {
         checkSessionToken();
         if (homeDatabaseInstance == null)
@@ -311,7 +310,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    synchronized public ExternalDataPE tryGetDataSet(String sToken, String dataSetCode)
+    synchronized public ExternalData tryGetDataSet(String sToken, String dataSetCode)
             throws UserFailureException
     {
         checkSessionToken();

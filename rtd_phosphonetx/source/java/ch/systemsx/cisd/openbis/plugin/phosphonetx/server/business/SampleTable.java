@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import net.lemnik.eodsql.DataSet;
@@ -27,6 +28,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
@@ -90,7 +93,8 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
         result.setId(HibernateUtils.getId(samplePE));
         result.setCode(StringEscapeUtils.escapeHtml(samplePE.getCode()));
         result.setIdentifier(StringEscapeUtils.escapeHtml(samplePE.getIdentifier()));
-        result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType()));
+        result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType(),
+                new HashMap<PropertyTypePE, PropertyType>()));
         setProperties(result, samplePE);
     }
 
@@ -99,7 +103,8 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
     {
         if (samplePE.isPropertiesInitialized())
         {
-            result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties()));
+            result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
+                    new HashMap<PropertyTypePE, PropertyType>()));
         } else
         {
             result.setProperties(new ArrayList<IEntityProperty>());
