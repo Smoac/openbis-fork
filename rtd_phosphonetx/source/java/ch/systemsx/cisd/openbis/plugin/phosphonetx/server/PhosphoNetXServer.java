@@ -18,7 +18,9 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -43,6 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IDataSetProte
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinDetailsBO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSequenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinWithAbundancesTable;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleIDProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.TreatmentFinder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
@@ -56,7 +59,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSeque
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SimpleSample;
 
 /**
  * @author Franz-Josef Elmer
@@ -98,31 +100,35 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
             String sessionToken, TechId experimentID) throws UserFailureException
     {
-        getSessionManager().getSession(sessionToken);
+        Session session = getSessionManager().getSession(sessionToken);
         String experimentPermID = getExperimentPermIDFor(experimentID);
         IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
-        DataSet<SimpleSample> samples = dao.listAbundanceRelatedSamplesByExperiment(experimentPermID);
+        DataSet<String> samplePermIDs =
+                dao.listAbundanceRelatedSamplePermIDsByExperiment(experimentPermID);
         try
         {
-            List<AbundanceColumnDefinition> columnDefinitions = new ArrayList<AbundanceColumnDefinition>();
-            for (SimpleSample simpleSample : samples)
+            Map<Long, AbundanceColumnDefinition> columnDefinitions =
+                    new LinkedHashMap<Long, AbundanceColumnDefinition>();
+            ISampleIDProvider idProvider = specificBOFactory.createSampleIDProvider(session);
+            for (String samplePermID : samplePermIDs)
             {
-                AbundanceColumnDefinition columnDefinition = new AbundanceColumnDefinition();
-                columnDefinition.setSampleID(simpleSample.getId());
-                String samplePermID = simpleSample.getSamplePermID();
-                SamplePE sample = getDAOFactory().getSampleDAO().tryToFindByPermID(samplePermID);
-                if (sample == null)
+                long sampleID = idProvider.getSampleIDOrParentSampleID(samplePermID);
+                AbundanceColumnDefinition columnDefinition = columnDefinitions.get(sampleID);
+                if (columnDefinition == null)
                 {
-                    throw new UserFailureException("No sample found for perm ID " + samplePermID);
+                    columnDefinition = new AbundanceColumnDefinition();
+                    columnDefinition.setSampleID(sampleID);
+                    SamplePE sample =
+                            getDAOFactory().getSampleDAO().getByTechId(new TechId(sampleID));
+                    columnDefinition.setSampleCode(sample.getCode());
+                    columnDefinition.setTreatments(treatmentFinder.findTreatmentsOf(sample));
+                    columnDefinitions.put(sampleID, columnDefinition);
                 }
-                columnDefinition.setSampleCode(sample.getCode());
-                columnDefinition.setTreatments(treatmentFinder.findTreatmentsOf(sample));
-                columnDefinitions.add(columnDefinition);
             }
-            return columnDefinitions;
+            return new ArrayList<AbundanceColumnDefinition>(columnDefinitions.values());
         } finally
         {
-            samples.close();
+            samplePermIDs.close();
         }
         
     }

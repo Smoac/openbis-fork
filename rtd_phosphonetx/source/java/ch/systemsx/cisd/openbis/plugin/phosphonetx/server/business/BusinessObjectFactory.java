@@ -61,4 +61,9 @@ public class BusinessObjectFactory implements IBusinessObjectFactory
         return new SampleTable(daoFactory, specificDAOFactory, session);
     }
 
+    public ISampleIDProvider createSampleIDProvider(Session session)
+    {
+        return new SampleIDProvider(daoFactory.getSampleDAO());
+    }
+
 }

@@ -24,8 +24,11 @@ import net.lemnik.eodsql.ResultColumn;
  *
  * @author Franz-Josef Elmer
  */
-public class SampleAbundance extends SimpleSample
+public class SampleAbundance extends AbstractDTOWithID
 {
+    @ResultColumn("perm_id")
+    private String samplePermID;
+
     @ResultColumn("value")
     private double abundance;
     
@@ -39,4 +42,14 @@ public class SampleAbundance extends SimpleSample
         this.abundance = abundance;
     }
 
+    public final String getSamplePermID()
+    {
+        return samplePermID;
+    }
+    
+    public final void setSamplePermID(String samplePermID)
+    {
+        this.samplePermID = samplePermID;
+    }
+    
 }

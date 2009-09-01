@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.Collection;
-import java.util.Set;
 
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
@@ -36,6 +35,6 @@ public interface IProteinWithAbundancesTable
     
     public Collection<ProteinWithAbundances> getProteinsWithAbundances();
 
-    public Set<Long> getSampleIDs();
+    public Collection<Long> getSampleIDs();
 
 }

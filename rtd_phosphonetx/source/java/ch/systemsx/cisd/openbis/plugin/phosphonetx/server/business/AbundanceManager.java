@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
@@ -33,19 +34,33 @@ class AbundanceManager
     private final Map<String, ProteinWithAbundances> proteins =
             new LinkedHashMap<String, ProteinWithAbundances>();
     
+    private final ISampleIDProvider sampleIDProvider;
+    
     private final Set<Long> sampleIDs = new LinkedHashSet<Long>();
+
+    AbundanceManager(ISampleDAO sampleDAO)
+    {
+        this(new SampleIDProvider(sampleDAO));
+    }
+    
+    AbundanceManager(ISampleIDProvider sampleIDProvider)
+    {
+        this.sampleIDProvider = sampleIDProvider;
+        
+    }
 
     public void handle(ProteinReferenceWithProbability proteinReference)
     {
         ProteinWithAbundances protein = getOrCreateProtein(proteinReference);
-        Long sampleID = proteinReference.getSampleID();
-        if (sampleID != null)
+        String samplePermID = proteinReference.getSamplePermID();
+        if (samplePermID != null)
         {
+            long sampleID = sampleIDProvider.getSampleIDOrParentSampleID(samplePermID);
             sampleIDs.add(sampleID);
             protein.addAbundanceFor(sampleID, proteinReference.getAbundance());
         }
     }
-    
+
     private ProteinWithAbundances getOrCreateProtein(ProteinReferenceWithProbability proteinReference)
     {
         String accessionNumber = proteinReference.getAccessionNumber();
@@ -66,7 +81,7 @@ class AbundanceManager
         return proteins.values();
     }
 
-    public final Set<Long> getSampleIDs()
+    public final Collection<Long> getSampleIDs()
     {
         return sampleIDs;
     }

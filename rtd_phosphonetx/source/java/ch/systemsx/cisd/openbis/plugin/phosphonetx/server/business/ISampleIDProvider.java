@@ -14,29 +14,22 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
-import net.lemnik.eodsql.ResultColumn;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
+ * Provides the ID of a sample or its parent.
  *
  * @author Franz-Josef Elmer
  */
-public class SimpleSample extends AbstractDTOWithID
+public interface ISampleIDProvider
 {
-
-    @ResultColumn("perm_id")
-    private String samplePermID;
-
-    public final String getSamplePermID()
-    {
-        return samplePermID;
-    }
-
-    public final void setSamplePermID(String samplePermID)
-    {
-        this.samplePermID = samplePermID;
-    }
+    /**
+     * Returns the ID of the specified sample or the ID of its parent if it exist.
+     * 
+     * @throws UserFailureException if no sample could be found.
+     */
+    public long getSampleIDOrParentSampleID(String samplePermID);
 
 }

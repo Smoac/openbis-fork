@@ -34,4 +34,6 @@ public interface IBusinessObjectFactory
     public IProteinDetailsBO createProteinDetailsBO(Session session);
     
     public ISampleTable createSampleTable(Session session);
+    
+    public ISampleIDProvider createSampleIDProvider(Session session);
 }

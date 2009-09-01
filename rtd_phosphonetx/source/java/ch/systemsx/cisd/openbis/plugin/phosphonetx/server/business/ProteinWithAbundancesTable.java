@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
 
 import net.lemnik.eodsql.DataSet;
 
@@ -38,7 +37,7 @@ class ProteinWithAbundancesTable extends AbstractBusinessObject implements
         IProteinWithAbundancesTable
 {
     private Collection<ProteinWithAbundances> proteins;
-    private Set<Long> sampleIDs;
+    private Collection<Long> sampleIDs;
 
     ProteinWithAbundancesTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory,
             Session session)
@@ -57,7 +56,7 @@ class ProteinWithAbundancesTable extends AbstractBusinessObject implements
 
     public void load(String experimentPermID, double falseDiscoveryRate)
     {
-        AbundanceManager abundanceManager = new AbundanceManager();
+        AbundanceManager abundanceManager = new AbundanceManager(getDaoFactory().getSampleDAO());
         proteins = new ArrayList<ProteinWithAbundances>();
         IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
         ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
@@ -80,7 +79,7 @@ class ProteinWithAbundancesTable extends AbstractBusinessObject implements
         }
     }
     
-    public Set<Long> getSampleIDs()
+    public Collection<Long> getSampleIDs()
     {
         if (sampleIDs == null)
         {

@@ -17,13 +17,13 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.Collection;
-import java.util.Set;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.MockDataSet;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
@@ -40,7 +40,8 @@ public class ProteinWithAbundancesTableTest extends AbstractServerTestCase
 {
     private static final Double ABUNDANCE = new Double(47.11);
     private static final long PROTEIN_ID = 41L;
-    private static final long SAMPLE_ID = 4711L;
+    private static final String SAMPLE_PERM_ID = "s47-11";
+    private static final long SAMPLE_ID = 4711;
     private static final long DATA_SET_ID = 42L;
     private static final String EXPERIMENT_ID = "abc-234";
     private static final double FALSE_DISCOVERY_RATE = 0.25;
@@ -96,7 +97,7 @@ public class ProteinWithAbundancesTableTest extends AbstractServerTestCase
             new MockDataSet<ProteinReferenceWithProbability>();
         ProteinReferenceWithProbability proteinReference = new ProteinReferenceWithProbability();
         proteinReference.setDataSetID(DATA_SET_ID);
-        proteinReference.setSampleID(SAMPLE_ID);
+        proteinReference.setSamplePermID(SAMPLE_PERM_ID);
         proteinReference.setAccessionNumber(ACCESSION_NUMBER);
         proteinReference.setId(PROTEIN_ID);
         proteinReference.setAbundance(ABUNDANCE);
@@ -112,19 +113,24 @@ public class ProteinWithAbundancesTableTest extends AbstractServerTestCase
         mapping.setFalseDiscoveryRate(1);
         mappings.add(mapping);
         context.checking(new Expectations()
-        {
             {
-                one(proteinDAO).listProteinsByExperiment(EXPERIMENT_ID);
-                will(returnValue(dataSet));
-                
-                one(proteinDAO).getProbabilityFDRMapping(DATA_SET_ID);
-                will(returnValue(mappings));
-            }
-        });
+                {
+                    one(proteinDAO).listProteinsByExperiment(EXPERIMENT_ID);
+                    will(returnValue(dataSet));
+
+                    one(proteinDAO).getProbabilityFDRMapping(DATA_SET_ID);
+                    will(returnValue(mappings));
+
+                    one(sampleDAO).tryToFindByPermID(SAMPLE_PERM_ID);
+                    SamplePE samplePE = new SamplePE();
+                    samplePE.setId(SAMPLE_ID);
+                    will(returnValue(samplePE));
+                }
+            });
         
         table.load(EXPERIMENT_ID, FALSE_DISCOVERY_RATE);
         
-        Set<Long> sampleIDs = table.getSampleIDs();
+        Collection<Long> sampleIDs = table.getSampleIDs();
         assertEquals(1, sampleIDs.size());
         Long sampleID = sampleIDs.iterator().next();
         assertEquals(SAMPLE_ID, sampleID.longValue());
