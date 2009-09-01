@@ -20,11 +20,11 @@ import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-
-import net.lemnik.eodsql.DataIterator;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.time.StopWatch;
@@ -89,7 +89,7 @@ final class SampleListingWorker
     private final DatabaseInstance databaseInstance;
 
     private final ListSampleCriteria criteria;
-    
+
     private final String baseIndexURL;
 
     //
@@ -204,6 +204,7 @@ final class SampleListingWorker
             final Experiment expOrNull = tryLoadExperiment();
             final Group groupOrNull = tryLoadGroup(expOrNull);
             loadSampleTypes();
+            retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds(), groupOrNull);
             retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples(), groupOrNull);
             retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples(), groupOrNull);
             retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples(), groupOrNull);
@@ -322,7 +323,17 @@ final class SampleListingWorker
                 : sampleTypeOrNull.getCode();
     }
 
-    private DataIterator<SampleRecord> tryGetIteratorForGroupSamples()
+    private Iterable<SampleRecord> tryGetIteratorForSamplesByIds()
+    {
+        Collection<Long> ids = criteria.getSampleIds();
+        if (ids == null)
+        {
+            return null;
+        }
+        return setQuery.getSamples(new LongOpenHashSet(ids));
+    }
+
+    private Iterable<SampleRecord> tryGetIteratorForGroupSamples()
     {
         if (criteria.isIncludeGroup() == false)
         {
@@ -356,7 +367,7 @@ final class SampleListingWorker
         }
     }
 
-    private DataIterator<SampleRecord> tryGetIteratorForExperimentSamples()
+    private Iterable<SampleRecord> tryGetIteratorForExperimentSamples()
     {
         final TechId experimentTechId = criteria.getExperimentId();
         if (experimentTechId == null)
@@ -366,7 +377,7 @@ final class SampleListingWorker
         return query.getSamplesForExperiment(experimentTechId.getId());
     }
 
-    private DataIterator<SampleRecord> tryGetIteratorForContainedSamples()
+    private Iterable<SampleRecord> tryGetIteratorForContainedSamples()
     {
         final TechId containerTechId = criteria.getContainerSampleId();
         if (containerTechId == null)
@@ -376,7 +387,7 @@ final class SampleListingWorker
         return query.getSamplesForContainer(containerTechId.getId());
     }
 
-    private DataIterator<SampleRecord> tryGetIteratorForSharedSamples()
+    private Iterable<SampleRecord> tryGetIteratorForSharedSamples()
     {
         if (criteria.isIncludeInstance() == false)
         {
@@ -393,7 +404,7 @@ final class SampleListingWorker
         }
     }
 
-    private void retrievePrimaryBasicSamples(final DataIterator<SampleRecord> sampleIteratorOrNull,
+    private void retrievePrimaryBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull,
             final Group groupOrNull)
     {
         assert sampleList != null;

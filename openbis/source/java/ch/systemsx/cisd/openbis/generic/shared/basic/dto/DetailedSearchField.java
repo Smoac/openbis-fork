@@ -34,7 +34,7 @@ public class DetailedSearchField implements IsSerializable, Serializable
 
     private DetailedSearchFieldKind kind;
 
-    private String codeOrNull; // simple field code / property code
+    private String codeOrNull; // attribute code / property code
 
     private List<String> allEntityPropertyCodesOrNull;
 

@@ -772,6 +772,21 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
+    public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
+            final List<Long> sampleIds = searchDAO.searchForSampleIds(criteria);
+            final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+            return sampleLister.list(ListSampleCriteria.createForSampleIds(sampleIds));
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities relatedEntities)
     {

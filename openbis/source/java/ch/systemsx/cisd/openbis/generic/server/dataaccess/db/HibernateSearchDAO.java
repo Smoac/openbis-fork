@@ -49,6 +49,7 @@ import org.hibernate.search.SearchFactory;
 import org.hibernate.search.engine.DocumentBuilder;
 import org.hibernate.search.reader.ReaderProvider;
 import org.hibernate.search.store.DirectoryProvider;
+import org.hibernate.transform.BasicTransformerAdapter;
 import org.hibernate.transform.ResultTransformer;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
@@ -67,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
@@ -172,8 +174,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         hibernateQuery.setReadOnly(true);
 
         MyHighlighter highlighter = new MyHighlighter(query, indexReader, analyzer);
-        hibernateQuery.setResultTransformer(createResultTransformer(searchableEntity, fieldName,
-                highlighter, dataProvider));
+        hibernateQuery.setResultTransformer(new MatchingEntityResultTransformer(searchableEntity,
+                fieldName, highlighter, dataProvider));
         final List<MatchingEntity> result = AbstractDAO.cast(hibernateQuery.list());
         return filterNulls(result);
     }
@@ -204,113 +206,231 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    private static ResultTransformer createResultTransformer(
-            final SearchableEntity searchableEntity, final String fieldName,
-            final MyHighlighter highlighter, final HibernateSearchDataProvider dataProvider)
+    //
+    // Data Sets
+    //
+
+    public List<ExternalDataPE> searchForDataSets(final DetailedSearchCriteria criteria)
     {
-        return new ResultTransformer()
-            {
-                private static final long serialVersionUID = 1L;
-
-                @SuppressWarnings("unchecked")
-                public List transformList(List collection)
-                {
-                    throw new IllegalStateException("This method should not be called");
-                }
-
-                public Object transformTuple(Object[] tuple, String[] aliases)
-                {
-                    final int documentId = (Integer) tuple[0];
-                    final Document doc = (Document) tuple[1];
-
-                    String matchingText = null;
-                    try
+        final List<ExternalDataPE> list =
+                AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
                     {
-                        String content = doc.get(fieldName);
-                        if (content != null)
+                        public final Object doInHibernate(final Session session)
+                                throws HibernateException, SQLException
                         {
-                            // NOTE: this may be imprecise if there are multiple fields with the
-                            // same code. The first value will be taken.
-                            matchingText =
-                                    highlighter.getBestFragment(content, fieldName, documentId);
-                        } else
-                        {
-                            // in some cases (e.g. attachments) we do not store content in the index
-                            matchingText = "[content]";
+                            return searchForDataSets(session, criteria);
                         }
-                    } catch (IOException ex)
-                    {
-                        logSearchHighlightingError(ex);
-                    }
-                    return createMatchingEntity(doc, matchingText);
-                }
+                    }));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%d matching datasets have been found for search criteria '%s'.", list.size(),
+                    criteria.toString()));
+        }
+        return list;
+    }
 
-                private MatchingEntity createMatchingEntity(final Document doc,
-                        final String matchingText)
+    private List<ExternalDataPE> searchForDataSets(Session session,
+            DetailedSearchCriteria searchCriteria)
+    {
+        Query query =
+                LuceneQueryBuilder.createDetailedSearchQuery(searchCriteria, EntityKind.DATA_SET);
+        final FullTextSession fullTextSession = Search.getFullTextSession(session);
+        final FullTextQuery hibernateQuery =
+                fullTextSession.createFullTextQuery(query, ExternalDataPE.class);
+
+        Criteria criteria = getSession().createCriteria(ExternalDataPE.class);
+        criteria.setFetchMode("parents", FetchMode.JOIN);
+        criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
+        criteria.setFetchMode("sampleInternal", FetchMode.JOIN);
+        hibernateQuery.setCriteriaQuery(criteria);
+
+        List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());
+        initializeDatasetProperties(datasets);
+        datasets = filterNulls(datasets);
+        return datasets;
+    }
+
+    private void initializeDatasetProperties(List<ExternalDataPE> datasets)
+    {
+        for (ExternalDataPE dataset : datasets)
+        {
+            HibernateUtils.initialize(dataset.getProperties());
+        }
+    }
+
+    //
+    // Samples
+    //
+
+    public List<Long> searchForSampleIds(final DetailedSearchCriteria criteria)
+    {
+        final List<Long> list =
+                AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
+                    {
+                        public final Object doInHibernate(final Session session)
+                                throws HibernateException, SQLException
+                        {
+                            return searchForSampleIds(session, criteria);
+                        }
+                    }));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "%d matching samples have been found for search criteria '%s'.", list.size(),
+                    criteria.toString()));
+        }
+        return list;
+    }
+
+    private List<Long> searchForSampleIds(Session session, DetailedSearchCriteria searchCriteria)
+    {
+        Query query =
+                LuceneQueryBuilder.createDetailedSearchQuery(searchCriteria, EntityKind.SAMPLE);
+        final FullTextSession fullTextSession = Search.getFullTextSession(session);
+        final FullTextQuery hibernateQuery =
+                fullTextSession.createFullTextQuery(query, SamplePE.class);
+
+        hibernateQuery.setProjection(FullTextQuery.ID); // TODO check DB hits
+        hibernateQuery.setReadOnly(true);
+        hibernateQuery.setResultTransformer(new PassThroughOneObjectTupleResultTransformer());
+
+        List<Long> samples = AbstractDAO.cast(hibernateQuery.list());
+        samples = filterNulls(samples);
+        return samples;
+    }
+
+    // 
+    // Helpers
+    // 
+
+    private static class PassThroughOneObjectTupleResultTransformer extends BasicTransformerAdapter
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public Object transformTuple(Object[] tuple, String[] aliases)
+        {
+            assert tuple.length == 1 : "tuple should consist of exactly one object";
+            return tuple[0];
+        }
+
+    }
+
+    private static class MatchingEntityResultTransformer implements ResultTransformer
+    {
+        private final SearchableEntity searchableEntity;
+
+        private final String fieldName;
+
+        private final MyHighlighter highlighter;
+
+        private final HibernateSearchDataProvider dataProvider;
+
+        private static final long serialVersionUID = 1L;
+
+        public MatchingEntityResultTransformer(final SearchableEntity searchableEntity,
+                final String fieldName, final MyHighlighter highlighter,
+                final HibernateSearchDataProvider dataProvider)
+        {
+            this.searchableEntity = searchableEntity;
+            this.fieldName = fieldName;
+            this.highlighter = highlighter;
+            this.dataProvider = dataProvider;
+        }
+
+        @SuppressWarnings("unchecked")
+        public List transformList(List collection)
+        {
+            throw new IllegalStateException("This method should not be called");
+        }
+
+        public Object transformTuple(Object[] tuple, String[] aliases)
+        {
+            final int documentId = (Integer) tuple[0];
+            final Document doc = (Document) tuple[1];
+
+            String matchingText = null;
+            try
+            {
+                String content = doc.get(fieldName);
+                if (content != null)
                 {
-                    final MatchingEntity result = new MatchingEntity();
-
-                    // search properties
-                    result.setFieldDescription(fieldName);
-                    result.setTextFragment(matchingText);
-
-                    // IIdentifiable properties
-                    result.setCode(getFieldValue(doc, SearchFieldConstants.CODE));
-                    result.setId(Long.parseLong(getFieldValue(doc, SearchFieldConstants.ID)));
-                    result.setIdentifier(getFieldValue(doc, SearchFieldConstants.IDENTIFIER));
-
-                    // entity kind
-                    result.setEntityKind(DtoConverters.convertEntityKind(searchableEntity
-                            .getEntityKind()));
-
-                    // entity type
-                    BasicEntityType entityType = new BasicEntityType();
-                    entityType.setCode(getFieldValue(doc, SearchFieldConstants.PREFIX_ENTITY_TYPE
-                            + SearchFieldConstants.CODE));
-                    result.setEntityType(entityType);
-
-                    // group
-                    Map<String, Group> groupsById = dataProvider.getGroupsById();
-                    Field groupFieldOrNull = doc.getField(getGroupIdFieldName());
-                    if (groupFieldOrNull != null)
-                    {
-                        Group group = groupsById.get(groupFieldOrNull.stringValue());
-                        result.setGroup(group);
-                    }
-
-                    // registrator
-                    Person registrator = new Person();
-                    registrator.setFirstName(getFieldValue(doc,
-                            SearchFieldConstants.PREFIX_REGISTRATOR
-                                    + SearchFieldConstants.PERSON_FIRST_NAME));
-                    registrator.setLastName(getFieldValue(doc,
-                            SearchFieldConstants.PREFIX_REGISTRATOR
-                                    + SearchFieldConstants.PERSON_LAST_NAME));
-                    registrator.setEmail(getFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
-                            + SearchFieldConstants.PERSON_EMAIL));
-                    result.setRegistrator(registrator);
-
-                    return result;
-                }
-
-                private String getFieldValue(final Document document, final String searchFieldName)
+                    // NOTE: this may be imprecise if there are multiple fields with the
+                    // same code. The first value will be taken.
+                    matchingText = highlighter.getBestFragment(content, fieldName, documentId);
+                } else
                 {
-                    return document.getField(searchFieldName).stringValue();
+                    // in some cases (e.g. attachments) we do not store content in the index
+                    matchingText = "[content]";
                 }
+            } catch (IOException ex)
+            {
+                logSearchHighlightingError(ex);
+            }
+            return createMatchingEntity(doc, matchingText);
+        }
 
-                private String getGroupIdFieldName()
-                {
-                    String groupId = SearchFieldConstants.PREFIX_GROUP + SearchFieldConstants.ID;
-                    if (searchableEntity.equals(SearchableEntity.EXPERIMENT))
-                    {
-                        return SearchFieldConstants.PREFIX_PROJECT + groupId;
-                    } else
-                    {
-                        return groupId;
-                    }
-                }
+        private MatchingEntity createMatchingEntity(final Document doc, final String matchingText)
+        {
+            final MatchingEntity result = new MatchingEntity();
 
-            };
+            // search properties
+            result.setFieldDescription(fieldName);
+            result.setTextFragment(matchingText);
+
+            // IIdentifiable properties
+            result.setCode(getFieldValue(doc, SearchFieldConstants.CODE));
+            result.setId(Long.parseLong(getFieldValue(doc, SearchFieldConstants.ID)));
+            result.setIdentifier(getFieldValue(doc, SearchFieldConstants.IDENTIFIER));
+
+            // entity kind
+            result.setEntityKind(DtoConverters.convertEntityKind(searchableEntity.getEntityKind()));
+
+            // entity type
+            BasicEntityType entityType = new BasicEntityType();
+            entityType.setCode(getFieldValue(doc, SearchFieldConstants.PREFIX_ENTITY_TYPE
+                    + SearchFieldConstants.CODE));
+            result.setEntityType(entityType);
+
+            // group
+            Map<String, Group> groupsById = dataProvider.getGroupsById();
+            Field groupFieldOrNull = doc.getField(getGroupIdFieldName());
+            if (groupFieldOrNull != null)
+            {
+                Group group = groupsById.get(groupFieldOrNull.stringValue());
+                result.setGroup(group);
+            }
+
+            // registrator
+            Person registrator = new Person();
+            registrator.setFirstName(getFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
+                    + SearchFieldConstants.PERSON_FIRST_NAME));
+            registrator.setLastName(getFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
+                    + SearchFieldConstants.PERSON_LAST_NAME));
+            registrator.setEmail(getFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
+                    + SearchFieldConstants.PERSON_EMAIL));
+            result.setRegistrator(registrator);
+
+            return result;
+        }
+
+        private String getFieldValue(final Document document, final String searchFieldName)
+        {
+            return document.getField(searchFieldName).stringValue();
+        }
+
+        private String getGroupIdFieldName()
+        {
+            String groupId = SearchFieldConstants.PREFIX_GROUP + SearchFieldConstants.ID;
+            if (searchableEntity.equals(SearchableEntity.EXPERIMENT))
+            {
+                return SearchFieldConstants.PREFIX_PROJECT + groupId;
+            } else
+            {
+                return groupId;
+            }
+        }
     }
 
     private static void logSearchHighlightingError(IOException ex)
@@ -399,53 +519,4 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             readerProvider.closeReader(indexReader);
         }
     }
-
-    public List<ExternalDataPE> searchForDataSets(final DetailedSearchCriteria criteria)
-    {
-        final List<ExternalDataPE> list =
-                AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
-                    {
-                        public final Object doInHibernate(final Session session)
-                                throws HibernateException, SQLException
-                        {
-                            return searchForDataSets(session, criteria);
-                        }
-                    }));
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format(
-                    "%d matching datasets have been found for search criteria '%s'.", list.size(),
-                    criteria.toString()));
-        }
-        return list;
-    }
-
-    private List<ExternalDataPE> searchForDataSets(Session session, DetailedSearchCriteria searchCriteria)
-    {
-        Query query =
-                LuceneQueryBuilder.createDetailedSearchQuery(searchCriteria, EntityKind.DATA_SET);
-        final FullTextSession fullTextSession = Search.getFullTextSession(session);
-        final FullTextQuery hibernateQuery =
-                fullTextSession.createFullTextQuery(query, ExternalDataPE.class);
-
-        Criteria criteria = getSession().createCriteria(ExternalDataPE.class);
-        criteria.setFetchMode("parents", FetchMode.JOIN);
-        criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-        criteria.setFetchMode("sampleInternal", FetchMode.JOIN);
-        hibernateQuery.setCriteriaQuery(criteria);
-
-        List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());
-        initializeDatasetProperties(datasets);
-        datasets = filterNulls(datasets);
-        return datasets;
-    }
-
-    private void initializeDatasetProperties(List<ExternalDataPE> datasets)
-    {
-        for (ExternalDataPE dataset : datasets)
-        {
-            HibernateUtils.initialize(dataset.getProperties());
-        }
-    }
-
 }

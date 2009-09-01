@@ -45,4 +45,7 @@ public interface IHibernateSearchDAO
 
     /** search for datasets using the specified criteria */
     public List<ExternalDataPE> searchForDataSets(DetailedSearchCriteria criteria);
+
+    /** search for sample ids using the specified criteria */
+    public List<Long> searchForSampleIds(DetailedSearchCriteria criteria);
 }

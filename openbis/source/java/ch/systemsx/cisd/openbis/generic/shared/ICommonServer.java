@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalD
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.SampleValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
@@ -474,6 +475,14 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = ExternalDataValidator.class)
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria);
+
+    /**
+     * Performs an <i>Hibernate Search</i> based on given parameters.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    @ReturnValueFilter(validatorClass = SampleValidator.class)
+    public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria);
 
     /**
      * Returns all data sets related to specified entities.

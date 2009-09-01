@@ -388,6 +388,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
+    {
+        logAccess(sessionToken, "search_for_samples");
+        return null;
+    }
+
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities entities)
     {
