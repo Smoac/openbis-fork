@@ -251,6 +251,7 @@ var common = {
   MATERIAL_MENU_TYPES: "Types",
    
   menu_sample: "Sample",
+  SAMPLE_MENU_SEARCH: "Search",
   SAMPLE_MENU_BROWSE: "Browse",
   SAMPLE_MENU_NEW: "New",
   SAMPLE_MENU_IMPORT: "Import",
@@ -380,9 +381,10 @@ var common = {
  project_registration: "Project Registration",
   
  //
- // Data Set Search
+ // Detailed Search
  //
  data_set_search: "Data Set Search",
+ sample_search: "Sample Search",
  match_all: "Match all criteria",
  match_any: "Match any criteria",
  button_change_query : "Change Search Criteria",
