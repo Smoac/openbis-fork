@@ -212,10 +212,11 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         this.browserGrid = browserGrid;
     }
 
-    private void update()
+    void update()
     {
         if (experiment != null)
         {
+            browserGrid.setLoadMaskImmediately(true);
             double falseDiscoveryRate = getSelection(fdrComboBox, 0.0);
             AggregateFunction aggregateFunction =
                     getSelection(aggregateFunctionComboBox, DEFAULT_AGGREGATE_FUNCTION);

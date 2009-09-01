@@ -106,7 +106,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         abundanceColumnDefinitions = definitions;
         refresh(null, true);
     }
-
+    
     @Override
     protected IColumnDefinitionKind<ProteinInfo>[] getStaticColumnsDefinition()
     {
@@ -172,6 +172,12 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
             AbstractAsyncCallback<String> callback)
     {
         specificViewContext.getService().prepareExportProteins(exportCriteria, callback);
+    }
+
+    @Override
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        toolbar.update();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
