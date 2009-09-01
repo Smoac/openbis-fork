@@ -35,7 +35,7 @@ import ch.rinn.restrictions.Friend;
  */
 @Friend(toClasses =
     { IEntityPropertyListingQuery.class })
-class PropertiesSetListingQueryFullTableScan implements IEntitySetPropertyListingQuery
+class PropertiesSetListingQueryFullTableScan implements IEntityPropertySetListingQuery
 {
     private final IEntityPropertyListingQuery query;
 

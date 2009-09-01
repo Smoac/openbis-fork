@@ -34,7 +34,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntitySetPropertyListingQuery;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertySetListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
@@ -75,7 +75,7 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
 
     private LongSet cellPlateIds;
 
-    private IEntitySetPropertyListingQuery propertySetQuery;
+    private IEntityPropertySetListingQuery propertySetQuery;
 
     private ISampleSetListingQuery setQuery;
 
@@ -84,7 +84,7 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
     @BeforeClass(alwaysRun = true)
     public void init()
     {
-        SampleListerDAO sampleListerDAO = SampleListerDAO.createDAO(daoFactory);
+        SampleListerDAO sampleListerDAO = SampleListerDAO.create(daoFactory);
         dbInstanceId = sampleListerDAO.getDatabaseInstanceId();
         dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
         group = daoFactory.getGroupDAO().listGroups().get(0);

@@ -104,7 +104,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @BeforeClass(alwaysRun = true)
     public void init()
     {
-        SampleListerDAO sampleListerDAO = SampleListerDAO.createDAO(daoFactory);
+        SampleListerDAO sampleListerDAO = SampleListerDAO.create(daoFactory);
         dbInstanceId = sampleListerDAO.getDatabaseInstanceId();
         dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
         group = daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance("CISD", dbInstance);

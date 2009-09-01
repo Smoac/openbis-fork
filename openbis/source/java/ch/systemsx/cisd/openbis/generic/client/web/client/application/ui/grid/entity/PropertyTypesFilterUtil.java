@@ -80,7 +80,7 @@ public class PropertyTypesFilterUtil
             Set<BasicEntityType> entityTypes)
     {
         Set<String> entityTypesCodes = extractCodes(entityTypes);
-        List<PropertyType> result = new ArrayList<PropertyType>();
+        Set<PropertyType> result = new HashSet<PropertyType>();
         for (final PropertyType propertyType : propertyTypes)
         {
             List<? extends EntityTypePropertyType<?>> assignments =
@@ -95,7 +95,7 @@ public class PropertyTypesFilterUtil
                 }
             }
         }
-        return result;
+        return new ArrayList<PropertyType>(result);
     }
 
     private static Set<String> extractCodes(Set<BasicEntityType> entityTypes)

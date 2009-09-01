@@ -55,8 +55,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     /**
      * Returns all datasets in the database.
      */
-    @Select(sql = "select * from data d left outer join external_data e on d.id = e.data_id"
-            + " where d.id=?{1}", fetchSize = FETCH_SIZE)
+    @Select(sql = "select * from data d left outer join external_data e on d.id = e.data_id", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets();
 
     @Select(sql = "select id, code from data_set_types where dbin_id=?{1}")
@@ -68,8 +67,8 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     @Select(sql = "select id, code from file_format_types where dbin_id=?{1}")
     public CodeRecord[] getFileFormatTypes(long databaseInstanceId);
 
-    @Select(sql = "select id, code from locator_types where dbin_id=?{1}")
-    public CodeRecord[] getLocatorTypes(long databaseInstanceId);
+    @Select(sql = "select id, code from locator_types")
+    public CodeRecord[] getLocatorTypes();
 
     // private Experiment experiment;
     //

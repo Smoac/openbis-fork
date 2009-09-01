@@ -42,10 +42,10 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
 {
     private final IPropertyListingQuery query;
 
-    private final IEntitySetPropertyListingQuery setQuery;
+    private final IEntityPropertySetListingQuery setQuery;
 
     public EntityPropertiesEnricher(final IPropertyListingQuery query,
-            final IEntitySetPropertyListingQuery setQuery)
+            final IEntityPropertySetListingQuery setQuery)
     {
         this.query = query;
         this.setQuery = setQuery;

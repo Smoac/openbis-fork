@@ -16,26 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
+import it.unimi.dsi.fastutil.longs.LongIterator;
+import it.unimi.dsi.fastutil.longs.LongSet;
+
 import java.util.Iterator;
 
 import net.lemnik.eodsql.DataIterator;
 
-import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.longs.LongSet;
-
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 
 /**
- * An implementation of {@link IEntitySetPropertyListingQuery} that gets the entity properties one
+ * An implementation of {@link IEntityPropertySetListingQuery} that gets the entity properties one
  * by one.
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses = IEntitySetPropertyListingQuery.class)
-class PropertiesSetListingQueryOneByOne implements IEntitySetPropertyListingQuery
+@Friend(toClasses =
+    { IEntityPropertySetListingQuery.class, IEntityPropertyListingQuery.class })
+class PropertiesSetListingQueryOneByOne implements IEntityPropertySetListingQuery
 {
     private final IEntityPropertyListingQuery query;
 

@@ -19,24 +19,39 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import net.lemnik.eodsql.DataIterator;
+
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * @author Tomasz Pylak
  */
 public class DatasetLister implements IDatasetLister
 {
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, DatasetLister.class);
+
     //
     // Input
     //
@@ -50,6 +65,10 @@ public class DatasetLister implements IDatasetLister
     //
 
     private final IDatasetListingQuery query;
+
+    private final IDatasetSetListingQuery setQuery;
+
+    private final IEntityPropertiesEnricher propertiesEnricher;
 
     //
     // Working data structures
@@ -79,7 +98,7 @@ public class DatasetLister implements IDatasetLister
     // For unit tests
     DatasetLister(final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final IDatasetListingQuery query, final IDatasetSetListingQuery setQuery,
-            IEntityPropertiesEnricher propertiesEnricherOrNull)
+            IEntityPropertiesEnricher propertiesEnricher)
     {
         assert databaseInstance != null;
         assert query != null;
@@ -88,12 +107,76 @@ public class DatasetLister implements IDatasetLister
         this.databaseInstanceId = databaseInstanceId;
         this.databaseInstance = databaseInstance;
         this.query = query;
+        this.setQuery = setQuery;
+        this.propertiesEnricher = propertiesEnricher;
     }
 
     public List<ExternalData> listByExperimentTechId(TechId experimentId)
     {
         loadSmallConnectedTables();
-        return null;
+        DataIterator<DatasetRecord> datasets = query.getDatasetsForExperiment(experimentId.getId());
+        final Long2ObjectMap<ExternalData> resultMap = createDatasets(datasets);
+        propertiesEnricher.enrich(resultMap.keySet(), new IEntityPropertiesHolderResolver()
+            {
+                public ExternalData get(long id)
+                {
+                    return resultMap.get(id);
+                }
+            });
+
+        return asList(resultMap);
+    }
+
+    private static <T> List<T> asList(Long2ObjectMap<T> items)
+    {
+        List<T> result = new ArrayList<T>();
+        org.apache.commons.collections.CollectionUtils.addAll(result, items.values().iterator());
+        return result;
+    }
+
+    private Long2ObjectMap<ExternalData> createDatasets(DataIterator<DatasetRecord> records)
+    {
+        Long2ObjectMap<ExternalData> datasets = new Long2ObjectOpenHashMap<ExternalData>();
+        for (DatasetRecord record : records)
+        {
+            datasets.put(record.id, createDataset(record));
+        }
+        return datasets;
+    }
+
+    private ExternalData createDataset(DatasetRecord record)
+    {
+        ExternalData dataset = new ExternalData();
+        dataset.setCode(record.code);
+        dataset.setComplete(BooleanOrUnknown.tryToResolve(BooleanOrUnknown
+                .valueOf(record.is_complete)));
+        dataset.setDataProducerCode(record.data_producer_code);
+        dataset.setDataSetType(dataSetTypes.get(record.dsty_id));
+        dataset.setDataStore(dataStores.get(record.dast_id));
+        dataset.setDerived(record.is_derived);
+
+        dataset.setFileFormatType(fileFormatTypes.get(record.ffty_id));
+        dataset.setId(record.id);
+        dataset.setLocation(record.location);
+        dataset.setLocatorType(locatorTypes.get(record.loty_id));
+        dataset.setProductionDate(record.production_timestamp);
+        dataset.setRegistrationDate(record.registration_timestamp);
+        dataset.setDataSetProperties(new ArrayList<IEntityProperty>());
+        Sample sample = new Sample();
+        SampleType sampleType = new SampleType();
+        sampleType.setCode("sampleType");
+        sampleType.setDatabaseInstance(databaseInstance);
+        sample.setSampleType(sampleType);
+        dataset.setSample(sample);
+        // dataset.setInvalidation(record.); // from sample
+        // dataset.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL,
+        // EntityKind.DATA_SET, record.code));
+        // dataset.setParent(record.);
+        // dataset.setExperiment(record.);
+        // dataset.setRegistrator(record.);
+        // dataset.setSample(record.);
+
+        return dataset;
     }
 
     private void loadSmallConnectedTables()
@@ -111,7 +194,7 @@ public class DatasetLister implements IDatasetLister
         }
 
         locatorTypes.clear();
-        for (CodeRecord code : query.getLocatorTypes(databaseInstanceId))
+        for (CodeRecord code : query.getLocatorTypes())
         {
             locatorTypes.put(code.id, createLocatorType(code));
         }

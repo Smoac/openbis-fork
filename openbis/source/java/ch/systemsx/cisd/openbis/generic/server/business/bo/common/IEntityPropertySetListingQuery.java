@@ -23,7 +23,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
  *
  * @author Franz-Josef Elmer
  */
-public interface IEntitySetPropertyListingQuery
+public interface IEntityPropertySetListingQuery
 {
 
     /**

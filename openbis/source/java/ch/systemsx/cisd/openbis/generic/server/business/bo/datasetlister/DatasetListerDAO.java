@@ -28,7 +28,7 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertyListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntitySetPropertyListingQuery;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertySetListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.PropertiesSetListingQueryFallback;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser;
@@ -46,14 +46,15 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses = IDatasetListingFullQuery.class)
+@Friend(toClasses =
+    { IDatasetListingFullQuery.class, IEntityPropertyListingQuery.class })
 public final class DatasetListerDAO
 {
     /**
      * Creates a new instance based on {@link PersistencyResources} and home
      * {@link DatabaseInstancePE} of specified DAO factory.
      */
-    public static DatasetListerDAO createDAO(IDAOFactory daoFactory)
+    public static DatasetListerDAO create(IDAOFactory daoFactory)
     {
         DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
         final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(context);
@@ -65,7 +66,7 @@ public final class DatasetListerDAO
 
     private final IDatasetSetListingQuery setQuery;
 
-    private final IEntitySetPropertyListingQuery propertySetQuery;
+    private final IEntityPropertySetListingQuery propertySetQuery;
 
     private final QueryStrategyChooser strategyChooser;
 
@@ -105,7 +106,7 @@ public final class DatasetListerDAO
         return setQuery;
     }
 
-    IEntitySetPropertyListingQuery getPropertySetQuery()
+    IEntityPropertySetListingQuery getPropertySetQuery()
     {
         return propertySetQuery;
     }
@@ -121,7 +122,7 @@ public final class DatasetListerDAO
             });
     }
 
-    private static IEntitySetPropertyListingQuery createSetPropertyQuery(boolean supportsSetQuery,
+    private static IEntityPropertySetListingQuery createSetPropertyQuery(boolean supportsSetQuery,
             IDatasetListingFullQuery query, QueryStrategyChooser strategyChooser)
     {
         if (supportsSetQuery)
@@ -174,10 +175,10 @@ public final class DatasetListerDAO
             };
     }
 
-    private static IEntitySetPropertyListingQuery asEntitySetPropertyListingQuery(
+    private static IEntityPropertySetListingQuery asEntitySetPropertyListingQuery(
             final IDatasetListingFullQuery query)
     {
-        return new IEntitySetPropertyListingQuery()
+        return new IEntityPropertySetListingQuery()
             {
                 public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
                         LongSet entityIDs)

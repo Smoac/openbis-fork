@@ -100,7 +100,7 @@ public interface IDatasetListingFullQuery extends IDatasetListingQuery
      * 
      * @param entityIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "select sp.ds_id as entity_id, etpt.prty_id, m.id, m.code, m.maty_id"
+    @Select(sql = "select pr.ds_id as entity_id, etpt.prty_id, m.id, m.code, m.maty_id"
             + "      from data_set_properties pr"
             + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
             + "      join materials m on pr.mate_prop_id=m.id where pr.ds_id = any(?{1})", parameterBindings =

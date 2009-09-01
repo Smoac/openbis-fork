@@ -28,7 +28,7 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertyListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntitySetPropertyListingQuery;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertySetListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.PropertiesSetListingQueryFallback;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser;
@@ -46,14 +46,15 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses = ISampleListingFullQuery.class)
+@Friend(toClasses =
+    { ISampleListingFullQuery.class, IEntityPropertyListingQuery.class })
 public final class SampleListerDAO
 {
     /**
      * Creates a new instance based on {@link PersistencyResources} and home
      * {@link DatabaseInstancePE} of specified DAO factory.
      */
-    public static SampleListerDAO createDAO(IDAOFactory daoFactory)
+    public static SampleListerDAO create(IDAOFactory daoFactory)
     {
         DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
         final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(context);
@@ -65,7 +66,7 @@ public final class SampleListerDAO
 
     private final ISampleSetListingQuery setQuery;
 
-    private final IEntitySetPropertyListingQuery propertySetQuery;
+    private final IEntityPropertySetListingQuery propertySetQuery;
 
     private final QueryStrategyChooser strategyChooser;
 
@@ -105,7 +106,7 @@ public final class SampleListerDAO
         return setQuery;
     }
 
-    IEntitySetPropertyListingQuery getPropertySetQuery()
+    IEntityPropertySetListingQuery getPropertySetQuery()
     {
         return propertySetQuery;
     }
@@ -121,12 +122,12 @@ public final class SampleListerDAO
             });
     }
 
-    private static IEntitySetPropertyListingQuery createSetPropertyQuery(boolean supportsSetQuery,
+    private static IEntityPropertySetListingQuery createSetPropertyQuery(boolean supportsSetQuery,
             ISampleListingFullQuery query, QueryStrategyChooser strategyChooser)
     {
         if (supportsSetQuery)
         {
-            return asEntitySetPropertyListingQuery(query);
+            return asEntityPropertySetListingQuery(query);
         } else
         {
             return new PropertiesSetListingQueryFallback(asEntityPropertyListingQuery(query),
@@ -174,10 +175,10 @@ public final class SampleListerDAO
             };
     }
 
-    private static IEntitySetPropertyListingQuery asEntitySetPropertyListingQuery(
+    private static IEntityPropertySetListingQuery asEntityPropertySetListingQuery(
             final ISampleListingFullQuery query)
     {
-        return new IEntitySetPropertyListingQuery()
+        return new IEntityPropertySetListingQuery()
             {
                 public Iterable<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
                         LongSet entityIDs)

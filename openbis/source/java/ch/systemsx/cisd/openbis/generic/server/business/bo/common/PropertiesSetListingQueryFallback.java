@@ -21,17 +21,17 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import ch.rinn.restrictions.Friend;
 
 /**
- * A fallback implementation of {@link IEntitySetPropertyListingQuery} for database engines who
+ * A fallback implementation of {@link IEntityPropertySetListingQuery} for database engines who
  * don't support querying for identifier sets.
  * 
  * @author Bernd Rinn
  */
 @Friend(toClasses = IEntityPropertyListingQuery.class)
-public class PropertiesSetListingQueryFallback implements IEntitySetPropertyListingQuery
+public class PropertiesSetListingQueryFallback implements IEntityPropertySetListingQuery
 {
-    private final IEntitySetPropertyListingQuery oneByOneDelegate;
+    private final IEntityPropertySetListingQuery oneByOneDelegate;
 
-    private final IEntitySetPropertyListingQuery fullTableScanDelegate;
+    private final IEntityPropertySetListingQuery fullTableScanDelegate;
 
     private final QueryStrategyChooser strategyChooser;
 

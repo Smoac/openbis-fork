@@ -75,14 +75,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFactory implements
         ICommonBusinessObjectFactory
 {
-    private SampleListerDAO sampleListerDAO;
+    private final SampleListerDAO sampleListerDAO;
 
-    private DatasetListerDAO datasetListerDAO;
+    private final DatasetListerDAO datasetListerDAO;
 
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
     {
         super(daoFactory, dssFactory);
-        sampleListerDAO = SampleListerDAO.createDAO(daoFactory);
+        this.sampleListerDAO = SampleListerDAO.create(daoFactory);
+        this.datasetListerDAO = DatasetListerDAO.create(daoFactory);
     }
 
     public final IAttachmentBO createAttachmentBO(final Session session)
