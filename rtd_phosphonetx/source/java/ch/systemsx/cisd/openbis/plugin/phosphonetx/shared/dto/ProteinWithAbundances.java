@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,7 +29,7 @@ public class ProteinWithAbundances extends ProteinReference
 {
     private static final double[] EMPTY_ARRAY = new double[0];
     
-    private final Map<Long, double[]> abundances = new HashMap<Long, double[]>();
+    private final Map<Long, double[]> abundances = new LinkedHashMap<Long, double[]>();
     
     public void addAbundanceFor(long sampleID, double abundance)
     {

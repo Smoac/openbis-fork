@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWi
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
- * 
+ * Implementation based of {@link IDAOFactory} and {@link IPhosphoNetXDAOFactory}.
  *
  * @author Franz-Josef Elmer
  */

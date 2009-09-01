@@ -22,12 +22,16 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
- * 
+ * Business object for loading proteins together with their abundances.
  *
  * @author Franz-Josef Elmer
  */
 public interface IProteinWithAbundancesTable
 {
+    /**
+     * Loads proteins of all data sets registered for the specified experiment. All proteins
+     * are filtered out if their false discovery rate is larger then the specifie one.
+     */
     public void load(String experimentPermID, double falseDiscoveryRate);
     
     public Collection<ProteinWithAbundances> getProteinsWithAbundances();
