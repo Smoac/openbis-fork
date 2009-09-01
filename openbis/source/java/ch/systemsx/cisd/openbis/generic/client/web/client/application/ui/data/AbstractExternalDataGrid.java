@@ -140,7 +140,7 @@ public abstract class AbstractExternalDataGrid
                             return rowItem.getParent();
                         }
                     });
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT.id(),
+        ICellListener<ExternalData> experimentClickListener =
                 new OpenEntityDetailsTabCellClickListener()
                     {
                         @Override
@@ -148,7 +148,11 @@ public abstract class AbstractExternalDataGrid
                         {
                             return rowItem.getExperiment();
                         }
-                    });
+                    };
+        registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT.id(),
+                experimentClickListener);
+        registerLinkClickListenerFor(CommonExternalDataColDefKind.EXPERIMENT_IDENTIFIER.id(),
+                experimentClickListener);
         ICellListener<ExternalData> sampleClickListener =
                 new OpenEntityDetailsTabCellClickListener()
                     {
@@ -306,11 +310,11 @@ public abstract class AbstractExternalDataGrid
         return getColumnsFactory().createModel(entity);
     }
 
-	protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
+    protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
     {
         return getColumnsFactory().createColumnsSchema(viewContext, criteria.tryGetPropertyTypes());
     }
-    
+
     @Override
     protected ColumnDefsAndConfigs<ExternalData> createColumnsDefinition()
     {
