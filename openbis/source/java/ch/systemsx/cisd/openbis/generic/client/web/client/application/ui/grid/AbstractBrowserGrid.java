@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
@@ -240,6 +241,23 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         grid.setLoadMask(true);
     }
 
+    /**
+     * Shows/hides the load mask immediately.
+     * 
+     * @param loadMask Load mask is shown if <code>true</code> otherwise it is hidden.
+     */
+    public void setLoadMaskImmediately(boolean loadMask)
+    {
+        if (loadMask)
+        {
+            grid.el().mask(GXT.MESSAGES.loadMask_msg());
+        } else
+        {
+            grid.el().unmask();
+        }
+
+    }
+    
     /**
      * Registers the specified listener for clicks on links in the specified column.
      * 
