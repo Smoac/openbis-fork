@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server;
+package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
 import java.util.Collection;
@@ -23,8 +23,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -34,78 +32,55 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.etlserver.IMaintenanceTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.DataSetHierarchyHelper;
+import ch.systemsx.cisd.openbis.dss.generic.server.SoftLinkMaker;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * Creates in {@link #HIERARCHY_ROOT_DIR_KEY} the hierarchical structure of data sets registered in
- * openBIS for given data store and located in {@link #STOREROOT_DIR_KEY}. The structure building
- * procedure is run for the first time after {@link #HIERARCHY_BUILD_DELAY_KEY} seconds and is
- * executed every {@link #HIERARCHY_REBUILD_INTERVAL_KEY} seconds.
+ * Creates the hierarchical structure of data sets registered in openBIS for given data store.
  * 
  * @author Izabela Adamczyk
  */
-public class HierarchicalStorageDaemon
+public class HierarchicalStorageUpdater implements IMaintenanceTask
 {
-    private static final String REBUILDING_HIERARCHICAL_STORAGE = "Rebuilding hierarchical storage";
-
-    private static final String DAEMON_NOT_STARTED_FORMAT =
-            "No '%s' property defined - hierarchical storage daemon not started.";
-
-    private static final String DEAMON_STARTED_FORMAT =
-            "Hierarchical storage daemon is running (rebuild interval = %s, first build delay = %s, store root = '%s', hierarchy root = '%s')";
-
-    private static final int ONE_DAY_IN_SEC = 60 * 60 * 24;
-
     public static final String STOREROOT_DIR_KEY = "storeroot-dir";
-
-    public static final String HIERARCHY_REBUILD_INTERVAL_KEY = "hierarchy-rebuild-interval";
-
-    public static final String HIERARCHY_BUILD_DELAY_KEY = "hierarchy-build-delay";
 
     public static final String HIERARCHY_ROOT_DIR_KEY = "hierarchy-root-dir";
 
+    private static final String REBUILDING_HIERARCHICAL_STORAGE = "Rebuilding hierarchical storage";
+
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, HierarchicalStorageDaemon.class);
+            LogFactory.getLogger(LogCategory.OPERATION, HierarchicalStorageUpdater.class);
 
     private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, HierarchicalStorageDaemon.class);
+            LogFactory.getLogger(LogCategory.MACHINE, HierarchicalStorageUpdater.class);
 
-    /**
-     * Creates a thread refreshing hierarchical storage.
-     */
-    public static void main(String[] args)
+    private IEncapsulatedOpenBISService openBISService;
+
+    private String storeRoot;
+
+    private String hierarchyRoot;
+
+    public void setUp(String pluginName)
     {
         LogInitializer.init();
         Properties properties = PropertyParametersUtil.loadServiceProperties();
-        final String storeRoot = PropertyUtils.getProperty(properties, STOREROOT_DIR_KEY);
-        if (storeRoot == null)
-        {
-            logInfo(String.format(DAEMON_NOT_STARTED_FORMAT, STOREROOT_DIR_KEY));
-            return;
-        }
-        final String hierarchyRoot = PropertyUtils.getProperty(properties, HIERARCHY_ROOT_DIR_KEY);
-        if (hierarchyRoot == null)
-        {
-            logInfo(String.format(DAEMON_NOT_STARTED_FORMAT, HIERARCHY_ROOT_DIR_KEY));
-            return;
-        }
-        long rebuildInterval =
-                PropertyUtils.getLong(properties, HIERARCHY_REBUILD_INTERVAL_KEY, ONE_DAY_IN_SEC);
-        long buildDelay =
-                PropertyUtils.getLong(properties, HIERARCHY_BUILD_DELAY_KEY, ONE_DAY_IN_SEC);
-        final IEncapsulatedOpenBISService openBISService = ServiceProvider.getOpenBISService();
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(new Runnable()
-            {
-                public void run()
-                {
-                    rebuildHierarchy(new File(storeRoot), openBISService, new File(hierarchyRoot));
-                }
-            }, buildDelay, rebuildInterval, TimeUnit.SECONDS);
-        logInfo(String.format(DEAMON_STARTED_FORMAT, rebuildInterval, buildDelay, storeRoot,
-                hierarchyRoot));
+        storeRoot = PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY);
+        hierarchyRoot =
+                PropertyUtils.getMandatoryProperty(properties, pluginName + "."
+                        + HIERARCHY_ROOT_DIR_KEY);
+        openBISService = ServiceProvider.getOpenBISService();
+        operationLog.info("Plugin initialized with: store root = " + storeRoot
+                + ", hierarchy root = " + hierarchyRoot);
+    }
+
+    public void execute()
+    {
+        rebuildHierarchy(new File(storeRoot), openBISService, new File(hierarchyRoot));
     }
 
     /**

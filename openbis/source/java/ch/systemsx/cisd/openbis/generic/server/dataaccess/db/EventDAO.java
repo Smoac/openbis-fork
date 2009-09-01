@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -82,7 +82,7 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         final DetachedCriteria criteria = DetachedCriteria.forClass(EventPE.class);
         if (since != null)
         {
-            criteria.add(Restrictions.ge("registrationDate", since));
+            criteria.add(Restrictions.gt("registrationDate", since));
         }
         criteria.add(Restrictions.eq("eventType", EventType.DELETION));
         criteria.add(Restrictions.eq("entityType", EntityType.DATASET));

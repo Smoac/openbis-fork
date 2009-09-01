@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
  * 
  * @author Izabela Adamczyk
  */
-class DataSetHierarchyHelper
+public class DataSetHierarchyHelper
 {
 
     /**

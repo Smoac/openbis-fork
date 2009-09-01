@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic;
-
-import ch.systemsx.cisd.etlserver.ETLDaemon;
-import ch.systemsx.cisd.openbis.dss.generic.server.HierarchicalStorageDaemon;
+package ch.systemsx.cisd.etlserver;
 
 /**
- * Main class starting {@link ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer},
- * {@link ETLDaemon} and {@link HierarchicalStorageDaemon}.
+ * The interface that should be implemented by all maintenance tasks.
  * 
- * @author Franz-Josef Elmer
+ * @author Izabela Adamczyk
  */
-public class DataStoreServer
+public interface IMaintenanceTask
 {
-    public static void main(String[] args)
-    {
-        ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer.main(args);
-        ETLDaemon.main(args);
-    }
+
+    /**
+     * Performs the maintenance task.
+     */
+    public void execute();
+
+    /**
+     * Prepares the task for execution and checks that it has been configured correctly.
+     */
+    public void setUp(String pluginName);
+
 }

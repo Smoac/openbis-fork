@@ -11,7 +11,7 @@ import ch.systemsx.cisd.base.utilities.OSUtilities;
  * 
  * @author Izabela Adamczyk
  */
-class SoftLinkMaker
+public class SoftLinkMaker
 {
 
     private File lnExec;

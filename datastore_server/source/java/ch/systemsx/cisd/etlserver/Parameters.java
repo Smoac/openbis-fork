@@ -63,6 +63,11 @@ public class Parameters
     /** property with thread names separated by delimiter */
     private static final String INPUT_THREAD_NAMES = "inputs";
 
+    /**
+     * property with maintenance plugin names separated by delimiter
+     */
+    private static final String MAINTENANCE_PLUGINS = "maintenance-plugins";
+
     @Option(name = "s", longName = "server-url", metaVar = "URL", usage = "URL of the server")
     private String serverURL;
 
@@ -129,6 +134,8 @@ public class Parameters
 
     private final Map<String, Properties> processorProperties;
 
+    private MaintenanceTaskParameters[] maintenancePlugins;
+
     @Option(longName = "help", skipForExample = true, usage = "Prints out a description of the options.")
     void printHelp(final boolean exit)
     {
@@ -177,6 +184,7 @@ public class Parameters
             this.threads = createThreadParameters(serviceProperties);
             this.mailProperties = createMailProperties(serviceProperties);
             this.timingParameters = TimingParameters.create(serviceProperties);
+            this.maintenancePlugins = createMaintenancePlugins(serviceProperties);
 
             initCommandLineParametersFromProperties();
 
@@ -189,6 +197,11 @@ public class Parameters
             // Only reached in unit tests.
             throw new AssertionError(ex.getMessage());
         }
+    }
+
+    public MaintenanceTaskParameters[] getMaintenancePlugins()
+    {
+        return maintenancePlugins;
     }
 
     private void ensureParametersCorrect()
@@ -250,6 +263,31 @@ public class Parameters
         {
             return asThreadParameters(sectionsProperties);
         }
+    }
+
+    private static MaintenanceTaskParameters[] createMaintenancePlugins(
+            final Properties serviceProperties)
+    {
+        SectionProperties[] sectionsProperties =
+                PropertyParametersUtil.extractSectionProperties(serviceProperties,
+                        MAINTENANCE_PLUGINS, true);
+        return asMaintenanceParameters(sectionsProperties);
+    }
+
+    private static MaintenanceTaskParameters[] asMaintenanceParameters(
+            SectionProperties[] sectionProperties)
+    {
+        final MaintenanceTaskParameters[] maintenanceParameters =
+                new MaintenanceTaskParameters[sectionProperties.length];
+        for (int i = 0; i < maintenanceParameters.length; i++)
+        {
+            SectionProperties section = sectionProperties[i];
+            operationLog.info("Create parameters for maintenance plugin '" + section.getKey()
+                    + "'.");
+            maintenanceParameters[i] =
+                    new MaintenanceTaskParameters(section.getProperties(), section.getKey());
+        }
+        return maintenanceParameters;
     }
 
     private static ThreadParameters[] asThreadParameters(SectionProperties[] sectionProperties)

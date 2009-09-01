@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

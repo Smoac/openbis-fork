@@ -139,6 +139,15 @@ public class EventDAOTest extends AbstractDAOTest
         assertCorrectResult(numberOfDataSets, result);
     }
 
+    @Test
+    public void testListDeletedDataSetsWithoutSince() throws Exception
+    {
+        saveEvent(EventType.DELETION, EntityType.DATASET, KEEP_ME + 1, BEFORE);
+        saveEvent(EventType.DELETION, EntityType.DATASET, KEEP_ME + 2, SINCE);
+        List<DeletedDataSet> result = listDataDeletionEvents(SINCE);
+        assertCorrectResult(0, result);
+    }
+
     private void saveEvent(EventType eventType, EntityType entityType, String identifier, Date date)
     {
         String description = eventType.name() + " " + entityType.name();

@@ -546,7 +546,24 @@ public final class ETLDaemon
         QueueingPathRemoverService.start(shredderQueueFile);
         printInitialLogMessage(parameters);
         startupServer(parameters);
+        startupMaintenancePlugins(parameters.getMaintenancePlugins());
         operationLog.info("Data Store Server ready and waiting for data.");
+    }
+
+    private static void startupMaintenancePlugins(MaintenanceTaskParameters[] maintenancePlugins)
+    {
+
+        List<MaintenancePlugin> plugins = new ArrayList<MaintenancePlugin>();
+        for (MaintenanceTaskParameters parameters : maintenancePlugins)
+        {
+            MaintenancePlugin plugin = new MaintenancePlugin(parameters);
+            plugins.add(plugin);
+        }
+        for (MaintenancePlugin plugin : plugins)
+        {
+            plugin.start();
+        }
+
     }
 
 }
