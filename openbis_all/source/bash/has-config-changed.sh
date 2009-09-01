@@ -4,6 +4,7 @@
 # Returns 0 if configuration is the one stored in the template file, 1 otherwise.
 
 is_update_needed="false"
+CONFIG_DIR=~/config
 
 function compare_configs {
 	local config_template=$1
@@ -24,8 +25,8 @@ function compare_configs {
 	fi
 }
 
-compare_configs datastore_server-service.properties sprint/datastore_server/etc/service.properties
-compare_configs service.properties sprint/openBIS-server/apache-tomcat/webapps/openbis/WEB-INF/classes/service.properties
+compare_configs $CONFIG_DIR/datastore_server-service.properties ~/sprint/datastore_server/etc/service.properties
+compare_configs $CONFIG_DIR/service.properties ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/WEB-INF/classes/service.properties
 
 if [ "$is_update_needed" = "true" ]; then
   exit 1
