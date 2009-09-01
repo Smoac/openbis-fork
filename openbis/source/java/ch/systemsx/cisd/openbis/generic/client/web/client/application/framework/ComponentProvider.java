@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
@@ -464,6 +465,23 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return DataSetSearchHitGrid.BROWSER_ID;
+                }
+            };
+    }
+
+    public ITabItemFactory getSampleSearch()
+    {
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    IDisposableComponent browser = SampleSearchHitGrid.create(viewContext);
+                    return createTab(Dict.SAMPLE_SEARCH, browser);
+                }
+
+                public String getId()
+                {
+                    return SampleSearchHitGrid.SEARCH_BROWSER_ID;
                 }
             };
     }

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 public class SampleLister implements ISampleLister
 {
     private final SampleListerDAO dao;
-    
+
     private final String baseIndexURL;
 
     public static SampleLister create(String baseIndexURL, SampleListerDAO dao)
@@ -45,7 +45,7 @@ public class SampleLister implements ISampleLister
         this.dao = dao;
     }
 
-    public List<Sample> list(final ListSampleCriteria criteria)
+    public List<Sample> list(final ListOrSearchSampleCriteria criteria)
     {
         return SampleListingWorker.create(criteria, baseIndexURL, dao).load();
     }

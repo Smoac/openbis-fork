@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -88,7 +89,7 @@ final class SampleListingWorker
 
     private final DatabaseInstance databaseInstance;
 
-    private final ListSampleCriteria criteria;
+    private final ListOrSearchSampleCriteria criteria;
 
     private final String baseIndexURL;
 
@@ -151,8 +152,8 @@ final class SampleListingWorker
 
     private final Long2ObjectMap<Sample> sampleMap = new Long2ObjectOpenHashMap<Sample>();
 
-    public static SampleListingWorker create(ListSampleCriteria criteria, String baseIndexURL,
-            SampleListerDAO dao)
+    public static SampleListingWorker create(ListOrSearchSampleCriteria criteria,
+            String baseIndexURL, SampleListerDAO dao)
     {
         ISampleListingQuery query = dao.getQuery();
         ISampleSetListingQuery setQuery = dao.getIdSetQuery();
@@ -167,7 +168,7 @@ final class SampleListingWorker
     //
 
     // For unit tests
-    SampleListingWorker(final ListSampleCriteria criteria, final String baseIndexURL,
+    SampleListingWorker(final ListOrSearchSampleCriteria criteria, final String baseIndexURL,
             final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final ISampleListingQuery query, final ISampleSetListingQuery setQuery,
             IEntityPropertiesEnricher samplePropertiesEnricherOrNull)

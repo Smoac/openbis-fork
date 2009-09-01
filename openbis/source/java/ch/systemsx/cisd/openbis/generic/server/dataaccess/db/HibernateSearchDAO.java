@@ -170,6 +170,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 fullTextSession.createFullTextQuery(query, searchableEntity
                         .getMatchingEntityClass());
 
+        // takes data only from Lucene index without hitting DB
         hibernateQuery.setProjection(FullTextQuery.DOCUMENT_ID, FullTextQuery.DOCUMENT);
         hibernateQuery.setReadOnly(true);
 
@@ -283,6 +284,11 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         return list;
     }
 
+    /**
+     * Returns a list ids of samples that match given criteria.<br>
+     * <br>
+     * Takes data only from Lucene index without hitting DB.
+     */
     private List<Long> searchForSampleIds(Session session, DetailedSearchCriteria searchCriteria)
     {
         Query query =
@@ -291,7 +297,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         final FullTextQuery hibernateQuery =
                 fullTextSession.createFullTextQuery(query, SamplePE.class);
 
-        hibernateQuery.setProjection(FullTextQuery.ID); // TODO check DB hits
+        hibernateQuery.setProjection(FullTextQuery.ID);
         hibernateQuery.setReadOnly(true);
         hibernateQuery.setResultTransformer(new PassThroughOneObjectTupleResultTransformer());
 

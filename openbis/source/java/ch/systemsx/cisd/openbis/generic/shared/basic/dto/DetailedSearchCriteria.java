@@ -59,6 +59,11 @@ public class DetailedSearchCriteria implements IsSerializable, Serializable
         this.connection = connection;
     }
 
+    public boolean isEmpty()
+    {
+        return criteria == null || criteria.isEmpty();
+    }
+
     @Override
     public String toString()
     {

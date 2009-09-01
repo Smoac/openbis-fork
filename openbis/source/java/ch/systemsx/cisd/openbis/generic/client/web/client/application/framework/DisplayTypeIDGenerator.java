@@ -37,6 +37,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     DATA_SET_SEARCH_RESULT_GRID("data-set-search-result-grid"),
 
+    SAMPLE_SEARCH_RESULT_GRID("sample-search-result-grid"),
+
     RELATED_DATA_SET_GRID("related-data-set-grid"),
 
     DATA_SET_REPORTING_GRID("data-set-reporting-grid"),

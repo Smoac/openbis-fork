@@ -54,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityDisplayCriteriaKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
@@ -103,7 +104,8 @@ public class SampleBrowserGrid extends
                 new SampleBrowserToolbar(viewContext, addShared, excludeWithoutExperiment);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, true, false)
+                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, true,
+                        false)
                     {
                         @Override
                         protected void showEntityViewer(Sample sample, boolean editMode)
@@ -121,7 +123,8 @@ public class SampleBrowserGrid extends
         final SampleBrowserToolbar toolbar = new SampleBrowserToolbar(viewContext, true, false);
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, true, false);
+                new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, true,
+                        false);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithToolbar(toolbar);
@@ -168,7 +171,7 @@ public class SampleBrowserGrid extends
         // be loaded
         boolean refreshAutomatically = false;
         final SampleBrowserGrid browserGrid =
-                new SampleBrowserGrid(viewContext, criteriaProvider, gridId, false,
+                new SampleBrowserGrid(viewContext, criteriaProvider, gridId, BROWSER_ID, false,
                         refreshAutomatically)
                     {
                         @Override
@@ -198,7 +201,7 @@ public class SampleBrowserGrid extends
      * types which should be used to build the grid property columns. It is also able to refresh
      * these properties from the server.
      */
-    private static class SampleCriteriaProvider implements ISampleCriteriaProvider
+    protected static class SampleCriteriaProvider implements ISampleCriteriaProvider
     {
         private final ICriteriaProvider<PropertyTypesCriteria> propertyTypeProvider;
 
@@ -278,9 +281,9 @@ public class SampleBrowserGrid extends
     // criteria to filter samples
     private final ISampleCriteriaProvider propertyTypesAndCriteriaProvider;
 
-    private SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            ISampleCriteriaProvider criteriaProvider, String gridId, boolean showHeader,
-            boolean refreshAutomatically)
+    protected SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+            ISampleCriteriaProvider criteriaProvider, String gridId, String browserId,
+            boolean showHeader, boolean refreshAutomatically)
     {
         super(viewContext, gridId, showHeader, refreshAutomatically);
         this.propertyTypesAndCriteriaProvider = criteriaProvider;
@@ -299,7 +302,7 @@ public class SampleBrowserGrid extends
                             new OpenEntityDetailsTabAction(entity, viewContext).execute();
                         }
                     });
-        setId(BROWSER_ID);
+        setId(browserId);
     }
 
     @Override
@@ -309,7 +312,7 @@ public class SampleBrowserGrid extends
     }
 
     // adds show, show-details and invalidate buttons
-    private void extendBottomToolbar()
+    protected void extendBottomToolbar()
     {
         addEntityOperationsLabel();
 
@@ -361,7 +364,7 @@ public class SampleBrowserGrid extends
     @Override
     protected EntityType tryToGetEntityType()
     {
-        return criteria == null ? null : criteria.getSampleType();
+        return criteria == null ? null : criteria.tryGetSampleType();
     }
 
     @Override
@@ -420,9 +423,10 @@ public class SampleBrowserGrid extends
     }
 
     @Override
-    protected final String createHeader()
+    protected String createHeader()
     {
-        return doCreateHeader(criteria.getCriteria());
+        assert criteria.getCriteriaKind() == ListEntityDisplayCriteriaKind.BROWSE : "browse criteria expected";
+        return doCreateHeader(criteria.getBrowseCriteria());
     }
 
     private static final String doCreateHeader(ListSampleCriteria criteria)
@@ -472,7 +476,7 @@ public class SampleBrowserGrid extends
 
         ColumnDefsAndConfigs<Sample> schema =
                 SampleModelFactory.createColumnsSchema(viewContext, propertyTypes, criteria
-                        .getSampleType());
+                        .tryGetSampleType());
         schema.setGridCellRendererFor(CommonSampleColDefKind.SHOW_DETAILS_LINK.id(),
                 createShowDetailsLinkCellRenderer());
         return schema;
@@ -495,8 +499,8 @@ public class SampleBrowserGrid extends
         {
             return true;
         }
-        EntityType newEntityType = newCriteria.getSampleType();
-        EntityType prevEntityType = (criteria == null ? null : criteria.getSampleType());
+        EntityType newEntityType = newCriteria.tryGetSampleType();
+        EntityType prevEntityType = (criteria == null ? null : criteria.tryGetSampleType());
         return hasColumnsDefinitionChanged(newEntityType, prevEntityType);
     }
 

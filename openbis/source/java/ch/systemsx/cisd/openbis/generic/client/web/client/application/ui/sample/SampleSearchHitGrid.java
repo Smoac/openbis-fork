@@ -15,49 +15,45 @@
  * 
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.DetailedSearchWindow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.IDetailedSearchHitGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
- * Grid with detailed data set search results.
+ * Grid with detailed sample search results.
  * 
- * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
-        IDetailedSearchHitGrid
+public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedSearchHitGrid
 {
-
     // browser consists of the grid and the paging toolbar
-    public static final String BROWSER_ID =
-            GenericConstants.ID_PREFIX + "data-set-search-hit-browser";
+    public static final String SEARCH_BROWSER_ID =
+            GenericConstants.ID_PREFIX + "sample-search-hit-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "-grid";
+    public static final String SEARCH_GRID_ID = SEARCH_BROWSER_ID + "-grid";
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        DataSetSearchHitGrid grid = new DataSetSearchHitGrid(viewContext);
+        ISampleCriteriaProvider criteriaProvider =
+                new SampleCriteriaProvider(viewContext, ListSampleDisplayCriteria.createForSearch());
+        SampleSearchHitGrid grid = new SampleSearchHitGrid(viewContext, criteriaProvider);
         final DetailedSearchWindow searchWindow =
-                new DetailedSearchWindow(viewContext, EntityKind.DATA_SET);
+                new DetailedSearchWindow(viewContext, EntityKind.SAMPLE);
         final DetailedSearchToolbar toolbar =
                 new DetailedSearchToolbar(grid, viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY),
                         searchWindow);
@@ -65,46 +61,47 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
         return grid.asDisposableWithToolbar(toolbar);
     }
 
-    private DetailedSearchCriteria chosenSearchCriteria;
-
-    private DataSetSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
+    private SampleSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
+            final ISampleCriteriaProvider criteriaProvider)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_SEARCH_RESULT_GRID);
-    }
-
-    @Override
-    protected void listDatasets(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
-            final AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback)
-    {
-        viewContext.getService().searchForDataSets(chosenSearchCriteria, resultSetConfig, callback);
+        super(viewContext, criteriaProvider, SEARCH_GRID_ID, SEARCH_BROWSER_ID, false, false);
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_SEARCH_RESULT_GRID);
+        updateCriteriaProviderAndRefresh();
+        extendBottomToolbar();
     }
 
     public void refresh(DetailedSearchCriteria newCriteria, List<PropertyType> propertyTypes)
     {
-        chosenSearchCriteria = newCriteria;
-        if (criteria != null)
-        {
-            criteria.setPropertyTypes(propertyTypes);
-        }
+        ListSampleDisplayCriteria criteriaOrNull = tryGetDisplayCriteria();
+        assert criteriaOrNull != null;
+        criteriaOrNull.updateSearchCriteria(newCriteria);
         refresh();
     }
 
     @Override
     protected void refresh()
     {
-        if (chosenSearchCriteria == null)
+        if (isAnySearchCriteriaSet())
         {
-            return;
+            super.refresh();
         }
-        super.refresh();
+    }
+
+    private boolean isAnySearchCriteriaSet()
+    {
+        ListSampleDisplayCriteria criteriaOrNull = tryGetDisplayCriteria();
+        return criteriaOrNull != null && (criteriaOrNull.getSearchCriteria().isEmpty() == false);
     }
 
     @Override
-    protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()
+    protected String createHeader()
     {
-        List<PropertyType> propertyTypes = criteria == null ? null : criteria.tryGetPropertyTypes();
-        return DataSetSearchHitModel.createColumnsSchema(viewContext, propertyTypes);
+        return null;
+    }
+
+    private ListSampleDisplayCriteria tryGetDisplayCriteria()
+    {
+        return getCriteriaProvider().tryGetCriteria();
     }
 
 }

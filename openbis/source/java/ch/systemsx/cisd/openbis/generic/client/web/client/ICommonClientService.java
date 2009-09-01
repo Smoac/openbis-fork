@@ -179,7 +179,7 @@ public interface ICommonClientService extends IClientService
     public List<SampleType> listSampleTypes() throws UserFailureException;
 
     /**
-     * Returns a list of samples for given sample type.
+     * Returns a list of samples matching given criteria.
      */
     public ResultSetWithEntityTypes<Sample> listSamples(final ListSampleDisplayCriteria criteria)
             throws UserFailureException;
@@ -474,7 +474,8 @@ public interface ICommonClientService extends IClientService
     /**
      * Returns {@link ExternalData} fulfilling given {@link DetailedSearchCriteria}.
      */
-    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(DetailedSearchCriteria criteria,
+    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
+            DetailedSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws UserFailureException;
 

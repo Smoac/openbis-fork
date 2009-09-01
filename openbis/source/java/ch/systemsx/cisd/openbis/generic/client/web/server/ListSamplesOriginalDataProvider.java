@@ -2,26 +2,27 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * A {@link IOriginalDataProvider} implementation for listing samples.
+ * A {@link IOriginalDataProvider} implementation for listing (browsing or searching) samples.
  * 
  * @author Christian Ribeaud
+ * @author Piotr Buczek
  */
 final class ListSamplesOriginalDataProvider extends AbstractOriginalDataProvider<Sample>
 {
 
-    private final ListSampleCriteria listCriteria;
+    private final ListSampleDisplayCriteria criteria;
 
     ListSamplesOriginalDataProvider(final ICommonServer commonServer, final String sessionToken,
-            final ListSampleCriteria listCriteria)
+            final ListSampleDisplayCriteria criteria)
     {
         super(commonServer, sessionToken);
-        this.listCriteria = listCriteria;
+        this.criteria = criteria;
     }
 
     //
@@ -30,7 +31,14 @@ final class ListSamplesOriginalDataProvider extends AbstractOriginalDataProvider
 
     public final List<Sample> getOriginalData()
     {
-        return commonServer.listSamples(sessionToken, listCriteria);
+        switch (criteria.getCriteriaKind())
+        {
+            case BROWSE:
+                return commonServer.listSamples(sessionToken, criteria.getBrowseCriteria());
+            case SEARCH:
+                return commonServer.searchForSamples(sessionToken, criteria.getSearchCriteria());
+        }
+        return null; // not possible
     }
 
 }

@@ -498,10 +498,11 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         return listEntitiesWithTypes(listCriteria, new ListSamplesOriginalDataProvider(
-                commonServer, sessionToken, listCriteria.getCriteria()));
+                commonServer, sessionToken, listCriteria));
     }
 
-    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(DetailedSearchCriteria criteria,
+    public ResultSetWithEntityTypes<ExternalData> searchForDataSets(
+            DetailedSearchCriteria criteria,
             final IResultSetConfig<String, ExternalData> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {

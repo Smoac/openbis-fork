@@ -16,25 +16,22 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
- * Criteria for listing <i>samples</i>. This class offers 4 kinds of filters, but only one can be
+ * Criteria for listing <i>samples</i>. This class offers 3 kinds of filters, but only one can be
  * used at the same time: <br>
  * filter 1: samples of particular type in a specified group and/or shared <br>
  * filter 2: samples belonging to a container sample<br>
  * filter 3: samples from the experiment<br>
- * filter 4: samples with given ids (result of search)
  * 
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
  * @author Piotr Buczek
  */
-public final class ListSampleCriteria implements IsSerializable
+public class ListSampleCriteria implements IsSerializable
 {
     // --------- filter 1 fields
     private SampleType sampleType;
@@ -53,15 +50,12 @@ public final class ListSampleCriteria implements IsSerializable
     // --------- filter 3 fields
     private TechId experimentId;
 
-    // --------- filter 4 fields
-    private List<Long> sampleIds;
-
     // ----
 
     public static ListSampleCriteria createForContainer(final TechId containerSampleId)
     {
         final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setContainerIdentifier(containerSampleId);
+        criteria.setContainerId(containerSampleId);
         return criteria;
     }
 
@@ -72,19 +66,12 @@ public final class ListSampleCriteria implements IsSerializable
         return criteria;
     }
 
-    public static ListSampleCriteria createForSampleIds(final List<Long> sampleIds)
-    {
-        final ListSampleCriteria criteria = new ListSampleCriteria();
-        criteria.setSampleIds(sampleIds);
-        return criteria;
-    }
-
-    public final TechId getContainerSampleId()
+    public TechId getContainerSampleId()
     {
         return containerSampleId;
     }
 
-    private final void setContainerIdentifier(final TechId containerSampleId)
+    private final void setContainerId(final TechId containerSampleId)
     {
         this.containerSampleId = containerSampleId;
     }
@@ -149,13 +136,4 @@ public final class ListSampleCriteria implements IsSerializable
         this.experimentId = experimentId;
     }
 
-    public List<Long> getSampleIds()
-    {
-        return sampleIds;
-    }
-
-    private void setSampleIds(List<Long> sampleIds)
-    {
-        this.sampleIds = sampleIds;
-    }
 }

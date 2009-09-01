@@ -19,22 +19,26 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
- * Criteria for listing <i>samples</i> and displaying them in the grid.
+ * Criteria for listing <i>samples</i> and displaying them in the grid.<br>
+ * <br>
+ * Used either for browsing or for searching.
  * 
  * @author Tomasz Pylak
+ * @author Piotr Buczek
  */
 public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sample> implements
         IsSerializable
 {
     public static ListSampleDisplayCriteria createForContainer(final TechId containerSampleId)
     {
-        return new ListSampleDisplayCriteria(ListSampleCriteria.createForContainer(
-                containerSampleId));
+        return new ListSampleDisplayCriteria(ListSampleCriteria
+                .createForContainer(containerSampleId));
     }
 
     public static ListSampleDisplayCriteria createForExperiment(final TechId experimentId)
@@ -42,34 +46,93 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
         return new ListSampleDisplayCriteria(ListSampleCriteria.createForExperiment(experimentId));
     }
 
-    private ListSampleCriteria criteria;
-
-    public ListSampleDisplayCriteria(ListSampleCriteria criteria)
+    public static ListSampleDisplayCriteria createForSearch()
     {
-        this.criteria = criteria;
+        return createForSearch(new DetailedSearchCriteria());
     }
 
-    public ListSampleCriteria getCriteria()
+    private static ListSampleDisplayCriteria createForSearch(
+            final DetailedSearchCriteria searchCriteria)
     {
-        return criteria;
+        return new ListSampleDisplayCriteria(searchCriteria);
     }
 
+    private ListEntityDisplayCriteriaKind criteriaKind;
+
+    // either search criteria or list criteria is set
+    private DetailedSearchCriteria searchCriteriaOrNull;
+
+    private ListSampleCriteria listCriteriaOrNull;
+
+    private ListSampleDisplayCriteria(final DetailedSearchCriteria searchCriteria)
+    {
+        assert searchCriteria != null : "search criteria not set";
+        this.criteriaKind = ListEntityDisplayCriteriaKind.SEARCH;
+        this.setSearchCriteriaOrNull(searchCriteria);
+    }
+
+    public ListSampleDisplayCriteria(final ListSampleCriteria listCriteria)
+    {
+        assert listCriteria != null : "list criteria not set";
+        this.criteriaKind = ListEntityDisplayCriteriaKind.BROWSE;
+        this.setListCriteriaOrNull(listCriteria);
+    }
+
+    public ListEntityDisplayCriteriaKind getCriteriaKind()
+    {
+        return criteriaKind;
+    }
+
+    public ListSampleCriteria getBrowseCriteria()
+    {
+        assert getCriteriaKind() == ListEntityDisplayCriteriaKind.BROWSE : "not a browse criteria";
+        return getListCriteriaOrNull();
+    }
+
+    public DetailedSearchCriteria getSearchCriteria()
+    {
+        assert getCriteriaKind() == ListEntityDisplayCriteriaKind.SEARCH : "not a search criteria";
+        return getSearchCriteriaOrNull();
+    }
+
+    public void updateSearchCriteria(final DetailedSearchCriteria newSearchCriteria)
+    {
+        assert getCriteriaKind() == ListEntityDisplayCriteriaKind.SEARCH : "not a search criteria";
+        assert newSearchCriteria != null : "new search criteria not set";
+        setSearchCriteriaOrNull(newSearchCriteria);
+    }
+
+    private ListSampleCriteria getListCriteriaOrNull()
+    {
+        return listCriteriaOrNull;
+    }
+
+    private void setListCriteriaOrNull(ListSampleCriteria listCriteriaOrNull)
+    {
+        this.listCriteriaOrNull = listCriteriaOrNull;
+    }
+
+    private DetailedSearchCriteria getSearchCriteriaOrNull()
+    {
+        return searchCriteriaOrNull;
+    }
+
+    private void setSearchCriteriaOrNull(DetailedSearchCriteria searchCriteriaOrNull)
+    {
+        this.searchCriteriaOrNull = searchCriteriaOrNull;
+    }
+
+    public SampleType tryGetSampleType()
+    {
+        return listCriteriaOrNull != null ? listCriteriaOrNull.getSampleType() : null;
+    }
+
+    //
     // GWT only
+    //
     @SuppressWarnings("unused")
     private ListSampleDisplayCriteria()
     {
-    }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setCriteria(ListSampleCriteria criteria)
-    {
-        this.criteria = criteria;
-    }
-
-    public SampleType getSampleType()
-    {
-        return criteria.getSampleType();
     }
 
 }

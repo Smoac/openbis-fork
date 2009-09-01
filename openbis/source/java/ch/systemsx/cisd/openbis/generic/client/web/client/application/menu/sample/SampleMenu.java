@@ -38,6 +38,8 @@ public class SampleMenu extends TopMenuItem
         super(messageProvider.getMessage(Dict.MENU_SAMPLE));
 
         Menu menu = new Menu();
+		menu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_SEARCH, messageProvider,
+                componentProvider.getSampleSearch()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE, messageProvider,
                 componentProvider.getSampleBrowser()));
         menu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_NEW, messageProvider,

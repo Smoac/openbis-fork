@@ -94,6 +94,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LastModificationState;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -429,7 +430,22 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-        return sampleLister.list(criteria);
+        return sampleLister.list(new ListOrSearchSampleCriteria(criteria));
+    }
+
+    public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
+            final List<Long> sampleIds = searchDAO.searchForSampleIds(criteria);
+            final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+            return sampleLister.list(new ListOrSearchSampleCriteria(sampleIds));
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
     }
 
     public final List<ExternalData> listSampleExternalData(final String sessionToken,
@@ -766,21 +782,6 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                         .getBaseIndexURL(), false));
             }
             return list;
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
-    }
-
-    public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
-    {
-        final Session session = getSessionManager().getSession(sessionToken);
-        try
-        {
-            IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
-            final List<Long> sampleIds = searchDAO.searchForSampleIds(criteria);
-            final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-            return sampleLister.list(ListSampleCriteria.createForSampleIds(sampleIds));
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

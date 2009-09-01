@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
+package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * A role for fast sample listing.
+ * Enumeration of display criteria kinds that can be used to list entities.<br>
+ * <br>
+ * Display criteria for entities can consist of either detailed search criterions or simple browsing
+ * criterions.
  * 
- * @author Bernd Rinn
+ * @author Piotr Buczek
  */
-public interface ISampleLister
+public enum ListEntityDisplayCriteriaKind implements IsSerializable
 {
-
-    /**
-     * Returns a sorted list of {@link Sample}s that match given criteria.
-     */
-    public List<Sample> list(ListOrSearchSampleCriteria criteria);
-
+    SEARCH, BROWSE
 }
