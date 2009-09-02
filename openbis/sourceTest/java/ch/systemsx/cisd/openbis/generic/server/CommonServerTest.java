@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -82,7 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
@@ -126,12 +127,12 @@ public final class CommonServerTest extends AbstractServerTestCase
         server.setSampleTypeSlaveServerPlugin(sampleTypeSlaveServerPlugin);
         server.setDataSetTypeSlaveServerPlugin(dataSetTypeSlaveServerPlugin);
         server.dataStoreBaseURLProvider = new IDataStoreBaseURLProvider()
-        {
-            public String getDataStoreBaseURL()
             {
-                return DATA_STORE_BASE_URL;
-            }
-        };
+                public String getDataStoreBaseURL()
+                {
+                    return DATA_STORE_BASE_URL;
+                }
+            };
         server.setBaseIndexURL(SESSION_TOKEN, BASE_INDEX_URL);
         return server;
     }
@@ -615,7 +616,9 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    one(daoFactory)
+                            .getEntityTypeDAO(
+                                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT);
                     will(returnValue(entityTypeDAO));
 
                     one(entityTypeDAO).listEntityTypes();
@@ -966,7 +969,9 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
+                    one(daoFactory)
+                            .getEntityTypeDAO(
+                                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL);
                     will(returnValue(entityTypeDAO));
 
                     one(entityTypeDAO).tryToFindEntityTypeByCode(type.getCode());
@@ -1016,7 +1021,9 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getEntityTypeDAO(EntityKind.SAMPLE);
+                    one(daoFactory)
+                            .getEntityTypeDAO(
+                                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.SAMPLE);
                     will(returnValue(entityTypeDAO));
 
                     one(entityTypeDAO).tryToFindEntityTypeByCode(type.getCode());
@@ -1066,7 +1073,9 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
+                    one(daoFactory)
+                            .getEntityTypeDAO(
+                                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT);
                     will(returnValue(entityTypeDAO));
 
                     one(entityTypeDAO).tryToFindEntityTypeByCode(type.getCode());
@@ -1116,7 +1125,9 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getEntityTypeDAO(EntityKind.DATA_SET);
+                    one(daoFactory)
+                            .getEntityTypeDAO(
+                                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.DATA_SET);
                     will(returnValue(entityTypeDAO));
 
                     one(entityTypeDAO).tryToFindEntityTypeByCode(type.getCode());
@@ -1145,7 +1156,7 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(SESSION,
-                            entityKind);
+                            DtoConverters.convertEntityKind(entityKind));
                     will(returnValue(entityTypePropertyTypeBO));
 
                     one(entityTypePropertyTypeBO).createAssignment(propertyTypeCode,
@@ -1170,7 +1181,7 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(SESSION,
-                            entityKind);
+                            DtoConverters.convertEntityKind(entityKind));
                     will(returnValue(entityTypePropertyTypeBO));
 
                     one(entityTypePropertyTypeBO).loadAssignment(propertyTypeCode, entityTypeCode);
@@ -1195,7 +1206,7 @@ public final class CommonServerTest extends AbstractServerTestCase
             {
                 {
                     one(commonBusinessObjectFactory).createEntityTypePropertyTypeBO(SESSION,
-                            entityKind);
+                            DtoConverters.convertEntityKind(entityKind));
                     will(returnValue(entityTypePropertyTypeBO));
 
                     one(entityTypePropertyTypeBO).loadAssignment(propertyTypeCode, entityTypeCode);
@@ -1245,7 +1256,9 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
+                    one(daoFactory)
+                            .getEntityTypeDAO(
+                                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.MATERIAL);
                     will(returnValue(entityTypeDAO));
 
                     one(entityTypeDAO).listEntityTypes();

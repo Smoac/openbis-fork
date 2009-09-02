@@ -129,7 +129,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 
 /**
@@ -950,9 +949,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            return commonServer.assignPropertyType(sessionToken, DtoConverters
-                    .convertEntityKind(entityKind), propertyTypeCode, entityTypeCode, isMandatory,
-                    defaultValue);
+            return commonServer.assignPropertyType(sessionToken, entityKind, propertyTypeCode,
+                    entityTypeCode, isMandatory, defaultValue);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -967,9 +965,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.updatePropertyTypeAssignment(sessionToken, DtoConverters
-                    .convertEntityKind(entityKind), propertyTypeCode, entityTypeCode, isMandatory,
-                    defaultValue);
+            commonServer.updatePropertyTypeAssignment(sessionToken, entityKind, propertyTypeCode,
+                    entityTypeCode, isMandatory, defaultValue);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -983,8 +980,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            commonServer.unassignPropertyType(sessionToken, DtoConverters
-                    .convertEntityKind(entityKind), propertyTypeCode, entityTypeCode);
+            commonServer.unassignPropertyType(sessionToken, entityKind, propertyTypeCode,
+                    entityTypeCode);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -998,8 +995,8 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             final String sessionToken = getSessionToken();
-            return commonServer.countPropertyTypedEntities(sessionToken, DtoConverters
-                    .convertEntityKind(entityKind), propertyTypeCode, entityTypeCode);
+            return commonServer.countPropertyTypedEntities(sessionToken, entityKind,
+                    propertyTypeCode, entityTypeCode);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -1749,10 +1746,7 @@ public final class CommonClientService extends AbstractClientService implements
         try
         {
             String sessionToken = getSessionToken();
-            ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind kind =
-                    ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind
-                            .valueOf(entityKind.name());
-            return commonServer.getTemplateColumns(sessionToken, kind, type, autoGenerate,
+            return commonServer.getTemplateColumns(sessionToken, entityKind, type, autoGenerate,
                     withExperiments);
         } catch (final UserFailureException e)
         {

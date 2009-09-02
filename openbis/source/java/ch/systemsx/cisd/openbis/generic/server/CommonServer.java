@@ -83,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
@@ -150,7 +151,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
@@ -558,7 +558,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             EntityKind entityKind)
     {
         checkSession(sessionToken);
-        final List<T> types = getDAOFactory().getEntityTypeDAO(entityKind).listEntityTypes();
+        final List<T> types =
+                getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind))
+                        .listEntityTypes();
         Collections.sort(types);
         return types;
     }
@@ -629,11 +631,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         Session session = getSessionManager().getSession(sessionToken);
 
+        final ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind kind =
+                DtoConverters.convertEntityKind(entityKind);
         IEntityTypePropertyTypeBO etptBO =
-                businessObjectFactory.createEntityTypePropertyTypeBO(session, entityKind);
+                businessObjectFactory.createEntityTypePropertyTypeBO(session, kind);
         etptBO.createAssignment(propertyTypeCode, entityTypeCode, isMandatory, defaultValue);
         return String.format("%s property type '%s' successfully assigned to %s type '%s'",
-                isMandatory ? "Mandatory" : "Optional", propertyTypeCode, entityKind.getLabel(),
+                isMandatory ? "Mandatory" : "Optional", propertyTypeCode, kind.getLabel(),
                 entityTypeCode);
     }
 
@@ -645,7 +649,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         Session session = getSessionManager().getSession(sessionToken);
 
         IEntityTypePropertyTypeBO etptBO =
-                businessObjectFactory.createEntityTypePropertyTypeBO(session, entityKind);
+                businessObjectFactory.createEntityTypePropertyTypeBO(session, DtoConverters
+                        .convertEntityKind(entityKind));
         etptBO.loadAssignment(propertyTypeCode, entityTypeCode);
         etptBO.updateLoadedAssignment(isMandatory, defaultValue);
     }
@@ -657,7 +662,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         Session session = getSessionManager().getSession(sessionToken);
 
         IEntityTypePropertyTypeBO etptBO =
-                businessObjectFactory.createEntityTypePropertyTypeBO(session, entityKind);
+                businessObjectFactory.createEntityTypePropertyTypeBO(session, DtoConverters
+                        .convertEntityKind(entityKind));
         etptBO.loadAssignment(propertyTypeCode, entityTypeCode);
         etptBO.deleteLoadedAssignment();
     }
@@ -669,7 +675,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         Session session = getSessionManager().getSession(sessionToken);
 
         IEntityTypePropertyTypeBO etptBO =
-                businessObjectFactory.createEntityTypePropertyTypeBO(session, entityKind);
+                businessObjectFactory.createEntityTypePropertyTypeBO(session, DtoConverters
+                        .convertEntityKind(entityKind));
         etptBO.loadAssignment(propertyTypeCode, entityTypeCode);
         return etptBO.getLoadedAssignment().getPropertyValues().size();
     }
@@ -950,7 +957,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         checkSession(sessionToken);
         try
         {
-            IEntityTypeDAO entityTypeDAO = getDAOFactory().getEntityTypeDAO(entityKind);
+            IEntityTypeDAO entityTypeDAO =
+                    getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind));
             EntityTypePE entityTypePE =
                     entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
             entityTypePE.setDescription(entityType.getDescription());
@@ -1283,8 +1291,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
-            final ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind entityKind,
-            final String permId)
+            final EntityKind entityKind, final String permId)
     {
         getSessionManager().getSession(sessionToken);
         switch (entityKind)
@@ -1293,11 +1300,23 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 return createInformationHolder(entityKind, permId, getDAOFactory()
                         .getExternalDataDAO().tryToFindDataSetByCode(permId));
             case SAMPLE:
-                return createInformationHolder(entityKind, permId, getDAOFactory().getPermIdDAO()
-                        .tryToFindByPermId(permId, EntityKind.SAMPLE));
+                return createInformationHolder(
+                        entityKind,
+                        permId,
+                        getDAOFactory()
+                                .getPermIdDAO()
+                                .tryToFindByPermId(
+                                        permId,
+                                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.SAMPLE));
             case EXPERIMENT:
-                return createInformationHolder(entityKind, permId, getDAOFactory().getPermIdDAO()
-                        .tryToFindByPermId(permId, EntityKind.EXPERIMENT));
+                return createInformationHolder(
+                        entityKind,
+                        permId,
+                        getDAOFactory()
+                                .getPermIdDAO()
+                                .tryToFindByPermId(
+                                        permId,
+                                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT));
             case MATERIAL:
                 break;
         }
@@ -1344,7 +1363,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         for (String code : codes)
         {
             IEntityTypeBO bo = businessObjectFactory.createEntityTypeBO(session);
-            bo.load(entityKind, code);
+            bo.load(DtoConverters.convertEntityKind(entityKind), code);
             bo.delete();
         }
     }
@@ -1411,7 +1430,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if (entityKind.equals(EntityKind.SAMPLE) && SampleType.isDefinedInFileSampleTypeCode(type))
         {
-            types.addAll(getDAOFactory().getEntityTypeDAO(entityKind).listEntityTypes());
+            types.addAll(getDAOFactory().getEntityTypeDAO(
+                    DtoConverters.convertEntityKind(entityKind)).listEntityTypes());
         } else
         {
             types.add(findEntityType(entityKind, type));
@@ -1490,7 +1510,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     private EntityTypePE findEntityType(EntityKind entityKind, String type)
     {
         EntityTypePE typeOrNull =
-                getDAOFactory().getEntityTypeDAO(entityKind).tryToFindEntityTypeByCode(type);
+                getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind))
+                        .tryToFindEntityTypeByCode(type);
         if (typeOrNull == null)
         {
             throw new UserFailureException("Unknown " + entityKind.name() + " type '" + type + "'");
