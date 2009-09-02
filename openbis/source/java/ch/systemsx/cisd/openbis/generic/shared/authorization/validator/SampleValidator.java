@@ -46,10 +46,12 @@ public final class SampleValidator extends AbstractValidator<Sample>
     public final boolean doValidation(final PersonPE person, final Sample value)
     {
         final Group group = value.getGroup();
-        if (group == null)
+        if (group != null)
+        {
+            return groupValidator.isValid(person, group);
+        } else
         {
             return databaseInstanceValidator.isValid(person, value.getDatabaseInstance());
         }
-        return groupValidator.isValid(person, group);
     }
 }

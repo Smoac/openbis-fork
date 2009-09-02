@@ -42,7 +42,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
     }
 
     @Test
-    public void testIsValiSharedWithTheRightInstance()
+    public void testIsValidSharedWithTheRightInstance()
     {
         SampleValidator validator = new SampleValidator();
         PersonPE person = createPersonWithRoleAssignments();
@@ -51,7 +51,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
     }
 
     @Test
-    public void testIsValiSharedWithTheWrongInstance()
+    public void testIsValidSharedWithTheWrongInstance()
     {
         SampleValidator validator = new SampleValidator();
         PersonPE person = createPersonWithRoleAssignments();
