@@ -21,9 +21,12 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -32,6 +35,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.PropertyTypeModel;
@@ -83,6 +88,19 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
+
+        final Button addButton =
+                new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Property Type"),
+                        new SelectionListener<ComponentEvent>()
+                            {
+                                @Override
+                                public void componentSelected(ComponentEvent ce)
+                                {
+                                    DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
+                                            viewContext).getPropertyTypeRegistration());
+                                }
+                            });
+        addButton(addButton);
 
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                 new ISelectedEntityInvoker<BaseEntityModel<PropertyType>>()
