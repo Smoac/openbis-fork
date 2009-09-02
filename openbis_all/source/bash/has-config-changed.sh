@@ -28,6 +28,8 @@ function compare_configs {
 compare_configs $CONFIG_DIR/datastore_server-service.properties ~/sprint/datastore_server/etc/service.properties
 compare_configs $CONFIG_DIR/service.properties ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/WEB-INF/classes/service.properties
 
+rm  .dss_changed
+
 if [ "$is_update_needed" = "true" ]; then
   exit 1
 else

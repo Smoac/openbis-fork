@@ -7,11 +7,17 @@
 # the Java option -Djavax.net.ssl.trustStore=openBIS.keystore in the start up scripts will
 # be removed assuming that ~/.keystore does not contains a self-signed certificate.
 
+CONFIG_DIR=~/config
+KEYSTORE=~/.keystore
+SERVERS_DIR_ALIAS=sprint
 VER=SNAPSHOT
+
+DB_NAME=openbis_productive
+
+
 if [ $1 ]; then
     VER=$1
 fi
-SERVERS_DIR_ALIAS=sprint
 SERVERS_VER=$SERVERS_DIR_ALIAS-$VER
 
 if [ -d $SERVERS_DIR_ALIAS-* ]; then
@@ -20,11 +26,9 @@ if [ -d $SERVERS_DIR_ALIAS-* ]; then
 	SERVERS_PREV_VER=$SERVERS_DIR_ALIAS-$PREV_VER
 	cd ..
 else
-	echo Warning: no previous servers instalation found.
+	echo Warning: no previous servers installation found. Initial installation?
 	SERVERS_PREV_VER=unknown
 fi
-
-KEYSTORE=~/.keystore
 
 # Unalias rm and cp commands
 unalias rm
@@ -37,7 +41,6 @@ if [ -e $SERVERS_PREV_VER ]; then
 fi
 
 echo Making a database dump...
-DB_NAME=openbis_productive
 DB_SNAPSHOT=db_snapshots/$SERVERS_PREV_VER-$DB_NAME.sql
 pg_dump -U postgres -O $DB_NAME > $DB_SNAPSHOT
 tar -cf - $DB_SNAPSHOT | bzip2 > $DB_SNAPSHOT.tar.bz2
@@ -52,7 +55,7 @@ ln -s $SERVERS_VER $SERVERS_DIR_ALIAS
 cd $SERVERS_DIR_ALIAS
 unzip ../openBIS-server*$VER*
 cd openBIS-server
-./install.sh --nostartup $PWD ../../service.properties ../../openbis.conf
+./install.sh --nostartup $PWD $CONFIG_DIR/service.properties $CONFIG_DIR/openbis.conf
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE apache-tomcat/openBIS.keystore
   sed 's/-Djavax.net.ssl.trustStore=openBIS.keystore //g' apache-tomcat/bin/startup.sh > new-startup.sh
@@ -65,7 +68,7 @@ echo Installing datastore server...
 cd ..
 unzip ../datastore_server*$VER*
 cd datastore_server
-cp -p ~/datastore_server-service.properties etc/service.properties
+cp -p $CONFIG_DIR/datastore_server-service.properties etc/service.properties
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE etc/openBIS.keystore
   cp -Rf ~/old/$SERVERS_PREV_VER/datastore_server/data/store/* data/store
@@ -76,7 +79,7 @@ chmod 744 datastore_server.sh
 export JAVA_HOME=/usr
 #./datastore_server.sh start
 
-echo Doing some cleaning...
+#echo Doing some cleaning...
 cd
 mv -f *.zip tmp
 rm -rf openbis
