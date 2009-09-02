@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IC
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -106,30 +105,13 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
         addEntityOperationsLabel();
 
         String showRelatedDatasetsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_RELATED_DATASETS);
-
         Button showRelatedDatasetsButton =
                 new Button(showRelatedDatasetsTitle, new SelectionListener<ButtonEvent>()
                     {
                         @Override
                         public void componentSelected(ButtonEvent ce)
                         {
-                            final List<MatchingEntity> selectedEntities = getSelectedBaseObjects();
-                            final TableExportCriteria<MatchingEntity> displayedEntities =
-                                    createTableExportCriteria();
-                            if (selectedEntities.isEmpty())
-                            {
-                                // no entity selected - show datasets related to all displayed
-                                RelatedDataSetCriteria criteria =
-                                        RelatedDataSetCriteria
-                                                .createDisplayedEntities(displayedEntities);
-                                ShowRelatedDatasetsDialog.showRelatedDatasetsTab(viewContext,
-                                        criteria);
-                            } else
-                            {
-                                // > 0 entity selected - show dialog with all/selected radio
-                                new ShowRelatedDatasetsDialog(viewContext, selectedEntities,
-                                        displayedEntities).show();
-                            }
+                            showRelatedDataSets(viewContext, MatchingEntitiesPanel.this);
                         }
                     });
         showRelatedDatasetsButton.setId(SHOW_RELATED_DATASETS_BUTTON_ID);

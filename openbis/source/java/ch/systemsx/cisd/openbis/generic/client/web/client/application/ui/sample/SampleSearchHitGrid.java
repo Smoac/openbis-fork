@@ -19,6 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.Button;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -46,6 +50,9 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
 
     public static final String SEARCH_GRID_ID = SEARCH_BROWSER_ID + "-grid";
 
+    public static final String SHOW_RELATED_DATASETS_BUTTON_ID =
+            SEARCH_GRID_ID + "_show-related-datasets-button";
+
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -68,6 +75,25 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
         setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_SEARCH_RESULT_GRID);
         updateCriteriaProviderAndRefresh();
         extendBottomToolbar();
+    }
+
+    @Override
+    protected void addEntityOperationButtons()
+    {
+        String showRelatedDatasetsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_RELATED_DATASETS);
+        Button showRelatedDatasetsButton =
+                new Button(showRelatedDatasetsTitle, new SelectionListener<ButtonEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            showRelatedDataSets(viewContext, SampleSearchHitGrid.this);
+                        }
+                    });
+        showRelatedDatasetsButton.setId(SHOW_RELATED_DATASETS_BUTTON_ID);
+        addButton(showRelatedDatasetsButton);
+
+        super.addEntityOperationButtons();
     }
 
     public void refresh(DetailedSearchCriteria newCriteria, List<PropertyType> propertyTypes)

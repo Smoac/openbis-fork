@@ -315,7 +315,12 @@ public class SampleBrowserGrid extends
     protected void extendBottomToolbar()
     {
         addEntityOperationsLabel();
+        addEntityOperationButtons();
+        addEntityOperationsSeparator();
+    }
 
+    protected void addEntityOperationButtons()
+    {
         final Button addButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Sample"),
                         new SelectionListener<ComponentEvent>()
@@ -352,8 +357,6 @@ public class SampleBrowserGrid extends
                         }
                     }));
         allowMultipleSelection(); // we allow deletion of multiple samples
-
-        addEntityOperationsSeparator();
     }
 
     private void addGridRefreshListener(SampleBrowserToolbar topToolbar)

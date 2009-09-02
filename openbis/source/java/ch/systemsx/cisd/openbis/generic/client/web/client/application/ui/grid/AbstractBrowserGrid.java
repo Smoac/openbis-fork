@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowRelatedDatasetsDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
@@ -84,10 +85,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IResultUpdater;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
@@ -257,7 +260,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
 
     }
-    
+
     /**
      * Registers the specified listener for clicks on links in the specified column.
      * 
@@ -1402,6 +1405,37 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
 
         protected abstract Dialog createDialog(List<T> data, IBrowserGridActionInvoker invoker);
+    }
+
+    /**
+     * If user selected some entities in given browser first a dialog is shown where he can select
+     * between showing data sets related to selected/displayed entities. Then a tab is displayed
+     * where these related data sets are listed.<br>
+     * <br>
+     * If no entities were selected in given browser the tab is displayed where data sets related to
+     * all entities displayed in the grid are listed.
+     */
+    // NOTE: This method cannot be externalized from AbstractBrowserGrid because it uses some
+    // AbstractBrowserGrid's protected methods
+    protected static final <E extends IEntityInformationHolder> void showRelatedDataSets(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final AbstractBrowserGrid<E, ? extends BaseEntityModel<E>> browser)
+    {
+        final List<? extends IEntityInformationHolder> selectedEntities =
+                browser.getSelectedBaseObjects();
+        final TableExportCriteria<? extends IEntityInformationHolder> displayedEntities =
+                browser.createTableExportCriteria();
+        if (selectedEntities.isEmpty())
+        {
+            // no entity selected - show datasets related to all displayed
+            RelatedDataSetCriteria relatedCriteria =
+                    RelatedDataSetCriteria.createDisplayedEntities(displayedEntities);
+            ShowRelatedDatasetsDialog.showRelatedDatasetsTab(viewContext, relatedCriteria);
+        } else
+        {
+            // > 0 entity selected - show dialog with all/selected radio
+            new ShowRelatedDatasetsDialog(viewContext, selectedEntities, displayedEntities).show();
+        }
     }
 
 }
