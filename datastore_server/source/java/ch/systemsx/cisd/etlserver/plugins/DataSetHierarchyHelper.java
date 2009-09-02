@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server;
+package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
 import java.util.HashSet;
