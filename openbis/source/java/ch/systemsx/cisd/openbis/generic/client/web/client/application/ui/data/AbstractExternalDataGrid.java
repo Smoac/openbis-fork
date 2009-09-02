@@ -383,7 +383,7 @@ public abstract class AbstractExternalDataGrid
         {
             return true; // first selection
         }
-        return newPropertyTypes.equals(prevPropertyTypes);
+        return newPropertyTypes.equals(prevPropertyTypes) == false;
     }
 
     @Override
