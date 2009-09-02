@@ -31,8 +31,6 @@ final class ListRelatedDataSetOriginalDataProvider extends
 
     public final List<ExternalData> getOriginalData()
     {
-        System.err.println("getOriginalData");
-
         final List<ExternalData> hits = commonServer.listRelatedDataSets(sessionToken, entities);
         return hits;
     }

@@ -813,7 +813,6 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities relatedEntities)
     {
-        System.out.println("listRelatedDataSets");
         final Session session = getSessionManager().getSession(sessionToken);
         try
         {
