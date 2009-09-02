@@ -461,7 +461,8 @@ public final class ETLDaemon
         final IDirectoryScanningHandler faultyPathHandler =
                 createFaultyPathHandler(stopSignaler, incomingDataDirectory,
                         reprocessFaultyDatasets);
-        return new HighwaterMarkDirectoryScanningHandler(faultyPathHandler, highwaterMarkWatcher);
+        return new HighwaterMarkDirectoryScanningHandler(faultyPathHandler, highwaterMarkWatcher,
+                incomingDataDirectory);
     }
 
     private static IDirectoryScanningHandler createFaultyPathHandler(
