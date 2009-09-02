@@ -302,13 +302,14 @@ final class SampleListingWorker
         this.singleSampleTypeMode = (sampleTypeCodeOrNull != null);
         if (singleSampleTypeMode)
         {
-            final SampleType sampleType = query.getSampleType(sampleTypeCodeOrNull);
+            final SampleType sampleType =
+                    query.getSampleType(databaseInstanceId, sampleTypeCodeOrNull);
             sampleTypes.put(sampleType.getId(), sampleType);
             this.maxSampleParentResolutionDepth = sampleType.getGeneratedFromHierarchyDepth();
             this.maxSampleContainerResolutionDepth = sampleType.getContainerHierarchyDepth();
         } else
         {
-            for (SampleType type : query.getSampleTypes())
+            for (SampleType type : query.getSampleTypes(databaseInstanceId))
             {
                 sampleTypes.put(type.getId(), type);
                 maxSampleContainerResolutionDepth =

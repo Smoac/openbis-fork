@@ -20,10 +20,14 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -50,11 +54,13 @@ public class SecondaryEntityListingQueryTest extends AbstractDAOTest
     private SecondaryEntityDAO dao;
 
     @BeforeClass(alwaysRun = true)
-    public void init()
+    public void init() throws SQLException
     {
         firstExperiment = daoFactory.getExperimentDAO().listExperiments().get(0);
         firstPerson = daoFactory.getPersonDAO().getPerson(1);
-        dao = SecondaryEntityDAO.create(daoFactory);
+        final Connection conn =
+            DatabaseContextUtils.getDatabaseContext(daoFactory).getDataSource().getConnection();
+        dao = SecondaryEntityDAO.create(daoFactory, conn);
     }
 
     @Test

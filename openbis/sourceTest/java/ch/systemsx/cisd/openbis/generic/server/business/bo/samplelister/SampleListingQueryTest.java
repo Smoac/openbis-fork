@@ -24,6 +24,8 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +43,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
@@ -97,9 +100,11 @@ public class SampleListingQueryTest extends AbstractDAOTest
     private ISampleListingQuery query;
 
     @BeforeClass(alwaysRun = true)
-    public void init()
+    public void init() throws SQLException
     {
-        SampleListerDAO sampleListerDAO = SampleListerDAO.create(daoFactory);
+        final Connection conn =
+                DatabaseContextUtils.getDatabaseContext(daoFactory).getDataSource().getConnection();
+        SampleListerDAO sampleListerDAO = SampleListerDAO.create(daoFactory, conn);
         dbInstanceId = sampleListerDAO.getDatabaseInstanceId();
         dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
         group = daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance("CISD", dbInstance);
@@ -131,10 +136,10 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test(groups = "slow")
     public void testQuerySamples()
     {
-        final long listableSamplesInTestDB = query.getSampleCount();
+        final long listableSamplesInTestDB = query.getSampleCount(dbInstanceId);
         assertTrue(listableSamplesInTestDB > 0);
         int sampleCount = 0;
-        for (SampleRecord sample : query.getSamples())
+        for (SampleRecord sample : query.getSamples(dbInstanceId))
         {
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
@@ -336,14 +341,14 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSampleType()
     {
-        SampleType sampleType = query.getSampleType(SAMPLE_TYPE_CODE_MASTER_PLATE);
+        SampleType sampleType = query.getSampleType(dbInstanceId, SAMPLE_TYPE_CODE_MASTER_PLATE);
         assertEquals(SAMPLE_TYPE_CODE_MASTER_PLATE, sampleType.getCode());
     }
 
     @Test
     public void testSampleTypes()
     {
-        List<SampleType> sampleTypes = Arrays.asList(query.getSampleTypes());
+        List<SampleType> sampleTypes = Arrays.asList(query.getSampleTypes(dbInstanceId));
         findCode(sampleTypes, SAMPLE_TYPE_CODE_MASTER_PLATE);
         findCode(sampleTypes, SAMPLE_TYPE_CODE_CELL_PLATE);
     }
@@ -375,7 +380,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testSamplePropertiesGenericValues()
     {
         List<GenericEntityPropertyRecord> properties =
-                asList(query.getEntityPropertyGenericValues());
+                asList(query.getAllEntityPropertyGenericValues(dbInstanceId));
         assertCorrectSampleAndPropertyTypeReferences(properties);
         for (GenericEntityPropertyRecord property : properties)
         {
@@ -389,7 +394,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     {
         assertTrue(properties.size() > 0);
         Set<Long> propertyTypesIds = extractIds(Arrays.asList(query.getPropertyTypes()));
-        Set<Long> sampleIds = extractVOIds(asList(query.getSamples()));
+        Set<Long> sampleIds = extractVOIds(asList(query.getSamples(dbInstanceId)));
         for (BaseEntityPropertyRecord property : properties)
         {
             assertTrue("Property type not found " + property.prty_id, propertyTypesIds
@@ -436,7 +441,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testSamplePropertiesMaterialValues()
     {
         List<MaterialEntityPropertyRecord> properties =
-                asList(query.getEntityPropertyMaterialValues());
+                asList(query.getAllEntityPropertyMaterialValues(dbInstanceId));
         assertCorrectSampleAndPropertyTypeReferences(properties);
         for (MaterialEntityPropertyRecord property : properties)
         {
@@ -461,7 +466,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testSamplePropertiesVocabularyTermValues()
     {
         List<VocabularyTermRecord> properties =
-                asList(query.getEntityPropertyVocabularyTermValues());
+                asList(query.getAllEntityPropertyVocabularyTermValues(dbInstanceId));
         assertCorrectSampleAndPropertyTypeReferences(properties);
         for (VocabularyTermRecord property : properties)
         {

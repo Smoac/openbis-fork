@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
@@ -48,9 +52,11 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     private long datasetId;
 
     @BeforeClass(alwaysRun = true)
-    public void init()
+    public void init() throws SQLException
     {
-        DatasetListerDAO dao = DatasetListerDAO.create(daoFactory);
+        final Connection conn =
+                DatabaseContextUtils.getDatabaseContext(daoFactory).getDataSource().getConnection();
+        DatasetListerDAO dao = DatasetListerDAO.create(daoFactory, conn);
         dbInstanceId = dao.getDatabaseInstanceId();
         firstExperiment = daoFactory.getExperimentDAO().listExperiments().get(0);
         // TODO 2009-09-01, Tomasz Pylak: get the real dataset id

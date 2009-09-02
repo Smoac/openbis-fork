@@ -56,8 +56,8 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     /**
      * Returns the total number of all samples in the database.
      */
-    @Select(sql = "select count(*) from samples s")
-    public long getSampleCount();
+    @Select(sql = "select count(*) from samples s left join groups g on s.grou_id=g.id where s.dbin_id=?{1} or g.dbin_id=?{1}")
+    public long getSampleCount(long dbInstanceId);
 
     /**
      * Returns the sample for the given <var>sampleId</var>.
@@ -74,8 +74,8 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, "
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
-            + "   from samples s", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getSamples();
+            + "   from samples s left join groups g on s.grou_id=g.id where s.dbin_id=?{1} or g.dbin_id=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamples(long dbInstanceId);
 
     //
     // Samples for group
@@ -203,14 +203,14 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
      * result is already HTML escaped.
      */
     @Select(sql = "select id, code, generated_from_depth, part_of_depth from sample_types"
-            + "      where code=?{1}", resultSetBinding = SampleTypeDataObjectBinding.class)
-    public SampleType getSampleType(String sampleCode);
+            + "      where code=?{2} and dbin_id=?{1}", resultSetBinding = SampleTypeDataObjectBinding.class)
+    public SampleType getSampleType(long dbInstanceId, String sampleCode);
 
     /**
      * Returns all sample types.
      */
-    @Select(sql = "select id, code, generated_from_depth, part_of_depth from sample_types", resultSetBinding = SampleTypeDataObjectBinding.class)
-    public SampleType[] getSampleTypes();
+    @Select(sql = "select id, code, generated_from_depth, part_of_depth from sample_types where dbin_id=?{1}", resultSetBinding = SampleTypeDataObjectBinding.class)
+    public SampleType[] getSampleTypes(long dbInstanceId);
 
     /**
      * Returns all generic property values of the sample with <var>entityId</var>.
@@ -218,15 +218,16 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     @Select("select pr.samp_id as entity_id, etpt.prty_id, pr.value from sample_properties pr"
             + "      join sample_type_property_types etpt on pr.stpt_id=etpt.id"
             + "   where pr.value is not null and pr.samp_id=?{1}")
-    public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(long entityId);
+    public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(long sampleId);
 
     /**
      * Returns all generic property values of all samples.
      */
     @Select(sql = "select pr.samp_id as entity_id, etpt.prty_id, pr.value from sample_properties pr"
             + "      join sample_type_property_types etpt on pr.stpt_id=etpt.id"
-            + "   where pr.value is not null", fetchSize = FETCH_SIZE)
-    public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues();
+            + "      join property_types pt on etpt.prty_id=pt.id"
+            + "   where pr.value is not null and pt.dbin_id=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<GenericEntityPropertyRecord> getAllEntityPropertyGenericValues(long dbInstanceId);
 
     /**
      * Returns all controlled vocabulary property values of the sample with <var>sampleId</var>.
@@ -244,8 +245,9 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     @Select(sql = "select pr.samp_id as entity_id, etpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
             + "      from sample_properties pr"
             + "      join sample_type_property_types etpt on pr.stpt_id=etpt.id"
-            + "      join controlled_vocabulary_terms cvte on pr.cvte_id=cvte.id", fetchSize = FETCH_SIZE)
-    public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues();
+            + "      join property_types pt on etpt.prty_id=pt.id"
+            + "      join controlled_vocabulary_terms cvte on pr.cvte_id=cvte.id and pt.dbin_id=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<VocabularyTermRecord> getAllEntityPropertyVocabularyTermValues(long dbInstanceId);
 
     /**
      * Returns all material-type property values of the sample with <var>sampleId</var>
@@ -262,7 +264,8 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     @Select(sql = "select pr.samp_id as entity_id, etpt.prty_id, m.id, m.code, m.maty_id"
             + "      from sample_properties pr"
             + "      join sample_type_property_types etpt on pr.stpt_id=etpt.id"
-            + "      join materials m on pr.mate_prop_id=m.id", fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues();
+            + "      join property_types pt on etpt.prty_id=pt.id"
+            + "      join materials m on pr.mate_prop_id=m.id and pt.dbin_id=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialEntityPropertyRecord> getAllEntityPropertyMaterialValues(long dbInstanceId);
 
 }

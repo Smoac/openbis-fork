@@ -37,11 +37,15 @@ import ch.rinn.restrictions.Friend;
     { SampleRecord.class, ISampleListingQuery.class })
 class SampleSetListingQueryFullTableScan implements ISampleSetListingQuery
 {
+    private final long databaseInstanceId;
+
     private final ISampleListingQuery query;
 
-    public SampleSetListingQueryFullTableScan(final ISampleListingQuery query)
+    public SampleSetListingQueryFullTableScan(final ISampleListingQuery query,
+            final long databaseInstanceId)
     {
         this.query = query;
+        this.databaseInstanceId = databaseInstanceId;
     }
 
     public Iterable<SampleRecord> getSamples(final LongSet sampleIds)
@@ -50,7 +54,7 @@ class SampleSetListingQueryFullTableScan implements ISampleSetListingQuery
             {
                 public Iterator<SampleRecord> iterator()
                 {
-                    return new FilterIterator<SampleRecord>(query.getSamples(),
+                    return new FilterIterator<SampleRecord>(query.getSamples(databaseInstanceId),
                             new Predicate<SampleRecord>()
                                 {
                                     public boolean evaluate(SampleRecord sample)

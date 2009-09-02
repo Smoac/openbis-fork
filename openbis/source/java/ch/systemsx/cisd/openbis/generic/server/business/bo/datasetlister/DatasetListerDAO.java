@@ -57,10 +57,20 @@ public final class DatasetListerDAO
      */
     public static DatasetListerDAO create(IDAOFactory daoFactory)
     {
+        return create(daoFactory, null);
+    }
+
+    /**
+     * Creates a new instance based on {@link PersistencyResources} and home
+     * {@link DatabaseInstancePE} of specified DAO factory.
+     */
+    public static DatasetListerDAO create(IDAOFactory daoFactory, Connection connOrNull)
+    {
         DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
         final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(context);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+        final Connection connection =
+                (connOrNull != null) ? connOrNull : DatabaseContextUtils.getConnection(daoFactory);
         return new DatasetListerDAO(supportsSetQuery, connection, homeDatabaseInstance);
     }
 

@@ -56,10 +56,22 @@ public final class SampleListerDAO
      */
     public static SampleListerDAO create(IDAOFactory daoFactory)
     {
+        return create(daoFactory, null);
+    }
+
+    /**
+     * Creates a new instance based on {@link PersistencyResources} and home
+     * {@link DatabaseInstancePE} of specified DAO factory.
+     * <p>
+     * <i>For unit tests only.</i>
+     */
+    public static SampleListerDAO create(IDAOFactory daoFactory, Connection connOrNull)
+    {
         DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
         final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(context);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+        final Connection connection =
+                (connOrNull != null) ? connOrNull : DatabaseContextUtils.getConnection(daoFactory);
         return new SampleListerDAO(supportsSetQuery, connection, homeDatabaseInstance);
     }
 
@@ -79,9 +91,12 @@ public final class SampleListerDAO
             final DatabaseInstancePE databaseInstance)
     {
         this.query = QueryTool.getQuery(connection, ISampleListingFullQuery.class);
-        this.strategyChooser = createStrategyChooser(query);
-        this.setQuery = createIdSetQuery(supportsSetQuery, query, strategyChooser);
-        this.propertySetQuery = createSetPropertyQuery(supportsSetQuery, query, strategyChooser);
+        this.strategyChooser = createStrategyChooser(query, databaseInstance.getId());
+        this.setQuery =
+                createIdSetQuery(supportsSetQuery, query, strategyChooser, databaseInstance.getId());
+        this.propertySetQuery =
+                createSetPropertyQuery(supportsSetQuery, query, strategyChooser, databaseInstance
+                        .getId());
 
         this.databaseInstanceId = databaseInstance.getId();
         this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstance);
@@ -112,38 +127,40 @@ public final class SampleListerDAO
         return propertySetQuery;
     }
 
-    private static QueryStrategyChooser createStrategyChooser(final ISampleListingFullQuery query)
+    private static QueryStrategyChooser createStrategyChooser(final ISampleListingFullQuery query,
+            final long databaseInstanceId)
     {
         return new QueryStrategyChooser(new IEntitiesCountProvider()
             {
                 public long count()
                 {
-                    return query.getSampleCount();
+                    return query.getSampleCount(databaseInstanceId);
                 }
             });
     }
 
     private static IEntityPropertySetListingQuery createSetPropertyQuery(boolean supportsSetQuery,
-            ISampleListingFullQuery query, QueryStrategyChooser strategyChooser)
+            ISampleListingFullQuery query, QueryStrategyChooser strategyChooser,
+            final long databaseInstanceId)
     {
         if (supportsSetQuery)
         {
             return asEntityPropertySetListingQuery(query);
         } else
         {
-            return new PropertiesSetListingQueryFallback(asEntityPropertyListingQuery(query),
-                    strategyChooser);
+            return new PropertiesSetListingQueryFallback(asEntityPropertyListingQuery(query,
+                    databaseInstanceId), strategyChooser);
         }
     }
 
     private static IEntityPropertyListingQuery asEntityPropertyListingQuery(
-            final ISampleListingFullQuery query)
+            final ISampleListingFullQuery query, final long databaseInstanceId)
     {
         return new IEntityPropertyListingQuery()
             {
                 public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues()
                 {
-                    return query.getEntityPropertyGenericValues();
+                    return query.getAllEntityPropertyGenericValues(databaseInstanceId);
                 }
 
                 public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
@@ -154,7 +171,7 @@ public final class SampleListerDAO
 
                 public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues()
                 {
-                    return query.getEntityPropertyMaterialValues();
+                    return query.getAllEntityPropertyMaterialValues(databaseInstanceId);
                 }
 
                 public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
@@ -165,7 +182,7 @@ public final class SampleListerDAO
 
                 public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues()
                 {
-                    return query.getEntityPropertyVocabularyTermValues();
+                    return query.getAllEntityPropertyVocabularyTermValues(databaseInstanceId);
                 }
 
                 public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
@@ -202,14 +219,15 @@ public final class SampleListerDAO
     }
 
     private static ISampleSetListingQuery createIdSetQuery(boolean supportsSetQuery,
-            ISampleListingFullQuery query, QueryStrategyChooser strategyChooser)
+            ISampleListingFullQuery query, QueryStrategyChooser strategyChooser,
+            final long databaseInstanceId)
     {
         if (supportsSetQuery)
         {
             return asSampleSetListingQuery(query);
         } else
         {
-            return new SampleSetListingQueryFallback(query, strategyChooser);
+            return new SampleSetListingQueryFallback(query, strategyChooser, databaseInstanceId);
         }
     }
 

@@ -60,8 +60,18 @@ public class SecondaryEntityDAO
      */
     public static SecondaryEntityDAO create(IDAOFactory daoFactory)
     {
+        return create(daoFactory, null);
+    }
+
+    /**
+     * Creates a new instance based on {@link PersistencyResources} and home
+     * {@link DatabaseInstancePE} of specified DAO factory.
+     */
+    public static SecondaryEntityDAO create(IDAOFactory daoFactory, Connection connOrNull)
+    {
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+        final Connection connection =
+                (connOrNull != null) ? connOrNull : DatabaseContextUtils.getConnection(daoFactory);
         return new SecondaryEntityDAO(connection, homeDatabaseInstance);
     }
 

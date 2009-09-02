@@ -37,11 +37,12 @@ class SampleSetListingQueryFallback implements ISampleSetListingQuery
     private final QueryStrategyChooser strategyChooser;
 
     public SampleSetListingQueryFallback(final ISampleListingQuery query,
-            QueryStrategyChooser strategyChooser)
+            QueryStrategyChooser strategyChooser, final long databaseInstanceId)
     {
         this.strategyChooser = strategyChooser;
         this.oneByOneDelegate = new SampleSetListingQueryOneByOne(query);
-        this.fullTableScanDelegate = new SampleSetListingQueryFullTableScan(query);
+        this.fullTableScanDelegate =
+                new SampleSetListingQueryFullTableScan(query, databaseInstanceId);
     }
 
     public Iterable<SampleRecord> getSamples(final LongSet sampleIds)
