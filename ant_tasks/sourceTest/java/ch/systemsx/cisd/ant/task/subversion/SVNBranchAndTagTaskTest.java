@@ -377,7 +377,8 @@ public class SVNBranchAndTagTaskTest
         final String repositoryRoot = "http://host/repos";
         final String groupName = "group";
         final String projectName = "testProject";
-        final String tagName = "S42";
+        final String tagName = "S42.0";
+        final String branchName = "S42.x";
         final Map<String, List<String>> listMap = new HashMap<String, List<String>>();
         final String tagUrl =
                 StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
@@ -387,6 +388,10 @@ public class SVNBranchAndTagTaskTest
         folders.add("42/");
         folders.add("S43/");
         listMap.put(tagUrl, folders);
+        final String branchUrl =
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
+                        "branches/sprint"), "/");
+        listMap.put(branchUrl, Collections.singletonList("S42.x/"));
         final Map<String, String> catMap = new HashMap<String, String>();
         final MockSVNRepositoryActions svn = new MockSVNRepositoryActions(listMap, catMap);
         final SVNBranchAndTagTask task = new SVNBranchAndTagTask()
@@ -404,33 +409,94 @@ public class SVNBranchAndTagTaskTest
         task.setSprintTag(tagName);
         task.execute();
         final String sourceMainUrl =
-            StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName, "trunk"),
-            "/");
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
+                        "branches/sprint", branchName), "/");
         final String targetUrl =
                 StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
-                        "tags/sprint", tagName), "/");
-        final String targetBuildResourcesUrl =
-            targetUrl + "/" + SVNUtilities.BUILD_RESOURCES_PROJECT;
-        final String targetMainUrl =
-            StringUtils.join(Arrays.asList(targetUrl, projectName),
-            "/");
+                        "tags/sprint", branchName, tagName), "/");
         final String logMessage = "Create tag '" + tagName + "'";
 
+        assertEquals(0, svn.mkdirList.size());
+
+        final Set<CopyItem> expectedCopySet =
+                new HashSet<CopyItem>(Arrays.asList(new CopyItem(sourceMainUrl,
+                        SVNUtilities.HEAD_REVISION, targetUrl, logMessage)));
+        assertEquals(expectedCopySet, new HashSet<CopyItem>(svn.copyList));
+    }
+
+    @Test
+    public void testCreateSprintBranchAndTagWithSubversion()
+    {
+        final String repositoryRoot = "http://host/repos";
+        final String groupName = "group";
+        final String projectName = "testProject";
+        final String branchName = "S42.x";
+        final String tagName = "S42.0";
+        final Map<String, List<String>> listMap = new HashMap<String, List<String>>();
+        final String tagUrl =
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
+                        "tags/sprint"), "/");
+        List<String> folders = new ArrayList<String>();
+        folders.add("S41/");
+        folders.add("42/");
+        folders.add("S43/");
+        listMap.put(tagUrl, folders);
+        final String branchUrl =
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
+                        "branches/sprint"), "/");
+        listMap.put(branchUrl, Collections.<String> emptyList());
+        final Map<String, String> catMap = new HashMap<String, String>();
+        final MockSVNRepositoryActions svn = new MockSVNRepositoryActions(listMap, catMap);
+        final SVNBranchAndTagTask task = new SVNBranchAndTagTask()
+            {
+                @Override
+                ISVNActions createSVNActions()
+                {
+                    return svn;
+                }
+            };
+        task.setProject(new Project()); // Required for log not to throw a NPE.
+        task.setRepositoryRoot(repositoryRoot);
+        task.setGroup(groupName);
+        task.setName(projectName);
+        task.setSprintTag(tagName);
+        task.setBranchIfNecessary(true);
+        task.execute();
+        final String sourceMainUrl =
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName, "trunk"),
+                        "/");
+        final String targetUrlBranch =
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
+                        "branches/sprint", branchName), "/");
+        final String targetUrlTag =
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
+                        "tags/sprint", branchName, tagName), "/");
+        final String targetBuildResourcesUrl =
+                targetUrlBranch + "/" + SVNUtilities.BUILD_RESOURCES_PROJECT;
+        final String targetMainUrl =
+                StringUtils.join(Arrays.asList(targetUrlBranch, projectName), "/");
+        final String logMessageBranch = "Create branch '" + branchName + "'";
+        final String logMessageTag = "Create tag '" + tagName + "'";
+
         assertEquals(1, svn.mkdirList.size());
+        assertEquals("http://host/repos/group/testProject/branches/sprint/S42.x", svn.mkdirList
+                .get(0).path);
 
         final String sourceBuildResourcesUrl =
                 StringUtils.join(Arrays.asList(repositoryRoot, groupName,
                         SVNUtilities.BUILD_RESOURCES_PROJECT, "trunk"), "/");
         final Set<CopyItem> expectedCopySet =
                 new HashSet<CopyItem>(Arrays.asList(new CopyItem(sourceBuildResourcesUrl,
-                        SVNUtilities.HEAD_REVISION, targetBuildResourcesUrl, logMessage), new CopyItem(
-                        sourceMainUrl, SVNUtilities.HEAD_REVISION, targetMainUrl,
-                        logMessage)));
+                        SVNUtilities.HEAD_REVISION, targetBuildResourcesUrl, logMessageBranch),
+                        new CopyItem(sourceMainUrl, SVNUtilities.HEAD_REVISION, targetMainUrl,
+                                logMessageBranch), new CopyItem(targetUrlBranch,
+                                SVNUtilities.HEAD_REVISION, targetUrlTag, logMessageTag)));
         assertEquals(expectedCopySet, new HashSet<CopyItem>(svn.copyList));
     }
 
-    @Test
-    public void testCreateSprintTagWithSubversion()
+    @Test(expectedExceptions =
+        { BuildException.class })
+    public void testCreateSprintBranchAndTagButTagDoesntStartBranch()
     {
         final String repositoryRoot = "http://host/repos";
         final String groupName = "group";
@@ -445,6 +511,10 @@ public class SVNBranchAndTagTaskTest
         folders.add("42/");
         folders.add("S43/");
         listMap.put(tagUrl, folders);
+        final String branchUrl =
+                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
+                        "branches/sprint"), "/");
+        listMap.put(branchUrl, Collections.<String> emptyList());
         final Map<String, String> catMap = new HashMap<String, String>();
         final MockSVNRepositoryActions svn = new MockSVNRepositoryActions(listMap, catMap);
         final SVNBranchAndTagTask task = new SVNBranchAndTagTask()
@@ -460,31 +530,8 @@ public class SVNBranchAndTagTaskTest
         task.setGroup(groupName);
         task.setName(projectName);
         task.setSprintTag(tagName);
+        task.setBranchIfNecessary(true);
         task.execute();
-        final String sourceMainUrl =
-            StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName, "trunk"),
-            "/");
-        final String targetUrl =
-                StringUtils.join(Arrays.asList(repositoryRoot, groupName, projectName,
-                        "tags/sprint", tagName), "/");
-        final String targetBuildResourcesUrl =
-            targetUrl + "/" + SVNUtilities.BUILD_RESOURCES_PROJECT;
-        final String targetMainUrl =
-            StringUtils.join(Arrays.asList(targetUrl, projectName),
-            "/");
-        final String logMessage = "Create tag '" + tagName + "'";
-
-        assertEquals(1, svn.mkdirList.size());
-
-        final String sourceBuildResourcesUrl =
-                StringUtils.join(Arrays.asList(repositoryRoot, groupName,
-                        SVNUtilities.BUILD_RESOURCES_PROJECT, "trunk"), "/");
-        final Set<CopyItem> expectedCopySet =
-                new HashSet<CopyItem>(Arrays.asList(new CopyItem(sourceBuildResourcesUrl,
-                        SVNUtilities.HEAD_REVISION, targetBuildResourcesUrl, logMessage), new CopyItem(
-                        sourceMainUrl, SVNUtilities.HEAD_REVISION, targetMainUrl,
-                        logMessage)));
-        assertEquals(expectedCopySet, new HashSet<CopyItem>(svn.copyList));
     }
 
     @Test(expectedExceptions =

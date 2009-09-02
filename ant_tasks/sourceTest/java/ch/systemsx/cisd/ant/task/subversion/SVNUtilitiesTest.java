@@ -93,19 +93,39 @@ public class SVNUtilitiesTest
     }
 
     @Test
-    public void testGetBranchForTag()
+    public void testGetBranchForTagRelease()
     {
-        assertEquals("0.9.x", SVNUtilities.getBranchForTag("0.9.0"));
-        assertEquals("1.0.x", SVNUtilities.getBranchForTag("1.0.10"));
-        assertEquals("8.04.x", SVNUtilities.getBranchForTag("8.04.10"));
+        assertEquals("0.9.x", SVNUtilities.getBranchForTagRelease("0.9.0"));
+        assertEquals("1.0.x", SVNUtilities.getBranchForTagRelease("1.0.10"));
+        assertEquals("8.04.x", SVNUtilities.getBranchForTagRelease("8.04.10"));
     }
 
     @Test
-    public void testGetFirstTagForBranch()
+    public void testGetBranchForTagSprint()
     {
-        assertEquals("0.9.0", SVNUtilities.getFirstTagForBranch("0.9.x"));
-        assertEquals("1.5.0", SVNUtilities.getFirstTagForBranch("1.5.x"));
-        assertEquals("8.04.0", SVNUtilities.getFirstTagForBranch("8.04.x"));
+        assertEquals("S4.x", SVNUtilities.getBranchForTagSprint("S4.0"));
+        assertEquals("S11.x", SVNUtilities.getBranchForTagSprint("S11.0"));
+        assertEquals("S12.x", SVNUtilities.getBranchForTagSprint("S12.10"));
+    }
+
+    @Test
+    public void testGetFirstTagForReleaseBranch()
+    {
+        assertEquals("0.9.0", SVNUtilities.getFirstTagForBranch(
+                SVNProjectVersionType.RELEASE_BRANCH, "0.9.x"));
+        assertEquals("1.5.0", SVNUtilities.getFirstTagForBranch(
+                SVNProjectVersionType.RELEASE_BRANCH, "1.5.x"));
+        assertEquals("8.04.0", SVNUtilities.getFirstTagForBranch(
+                SVNProjectVersionType.RELEASE_BRANCH, "8.04.x"));
+    }
+
+    @Test
+    public void testGetFirstTagForSprintBranch()
+    {
+        assertEquals("S9.0", SVNUtilities.getFirstTagForBranch(
+                SVNProjectVersionType.SPRINT_BRANCH, "S9.x"));
+        assertEquals("S15.0", SVNUtilities.getFirstTagForBranch(
+                SVNProjectVersionType.SPRINT_BRANCH, "S15.x"));
     }
 
 }

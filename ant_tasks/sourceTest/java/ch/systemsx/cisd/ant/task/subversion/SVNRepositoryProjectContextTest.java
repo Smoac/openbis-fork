@@ -65,21 +65,13 @@ public class SVNRepositoryProjectContextTest
     {
         final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
 
-        def.setSprintTag("S42");
+        def.setSprintTag("S42.0");
         assert SPRINT_TAG == def.getVersionType();
-        assertEquals("S42", def.getVersion());
+        assertEquals("S42.0", def.getVersion());
 
-        def.setSprintTag("S365");
+        def.setSprintTag("S365.5");
         assert SPRINT_TAG == def.getVersionType();
-        assertEquals("S365", def.getVersion());
-    }
-
-    @Test(expectedExceptions =
-        { UserFailureException.class })
-    public void testFailSprintVersionTypeTag()
-    {
-        final SVNRepositoryProjectContext def = new SVNRepositoryProjectContext();
-            def.setSprintTag("S365.42");
+        assertEquals("S365.5", def.getVersion());
     }
 
     @Test
