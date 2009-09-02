@@ -591,19 +591,6 @@ function assert_empty_in_out_folders {
     assert_dir_empty $DATA/analysis-copy
 }
 
-function assert_correct_content_of_processing_dir {
-    echo ==== assert correct content of processing-dir ====
-    
-    local data_set=$DATA/processing-dir/microX-3VCP1_microX_200801011213_3VCP1
-    assert_same_content $TEST_DATA/3VCP1 $data_set
-    assert_same_content $TEMPLATE/openBIS-client/testdata/register-experiments/processing-parameters.txt \
-                        $DATA/processing-dir/processing-parameters-from-openbis
-    local bds_container=`find_dataset_dir ".*-3VCP1$"`
-    local data_set2=$bds_container/data/original/microX_200801011213_3VCP1
-    assert_same_inode $data_set/TIFF/blabla_3VCP1_K13_8_w460.tif $data_set2/TIFF/blabla_3VCP1_K13_8_w460.tif
-    assert_same_inode $data_set/TIFF/blabla_3VCP1_M03_2_w530.tif $data_set2/TIFF/blabla_3VCP1_M03_2_w530.tif
-}
-
 function assert_correct_content_of_plate_3VCP1_in_store {
     local cell_plate=3VCP1
     echo ==== assert correct content of plate 3VCP1 in store ====
@@ -741,7 +728,6 @@ function assert_correct_content {
     assert_dir_exists $DATA/out-raw/microX_200801011213_3VCP1/TIFF
     assert_pattern_present $DATA/out-raw/.faulty_paths 1 ".*data/out-raw/.MARKER_is_finished_microX_200801011213_3VCP1"
     assert_pattern_present $WORK/datamover-raw/data-completed-info.txt 5 "Data complete.*3VCP[0-9]" 
-    assert_correct_content_of_processing_dir
     assert_correct_content_of_plate_3VCP1_in_store
     assert_correct_content_of_invalid_plate_in_store 3VCP4
     assert_correct_content_of_image_analysis_data 3VCP1 ".*-19.*3VCP1$"
