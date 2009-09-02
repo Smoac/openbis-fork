@@ -14,7 +14,8 @@ DS_DESTINATION=~/sprint/datastore_server/lib
 [ -d $DROPBOX_FIA_DIR ] || mkdir -p $DROPBOX_FIA_DIR 
 [ -d $DROPBOX_EIC_DIR ] || mkdir -p $DROPBOX_EIC_DIR 
 
-if [ -f $DS_LOCATION ] then
+if [ -f $DS_LOCATION ]; then
   cp $DS_LOCATION $DS_DESTINATION 
 else
   echo $DS_LOCATION not present! 
+fi
