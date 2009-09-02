@@ -40,6 +40,12 @@ if [ -e $SERVERS_PREV_VER ]; then
 	./$SERVERS_PREV_VER/datastore_server/datastore_server.sh stop
 fi
 
+echo Saving the config and properties files...
+cp ~/sprint/datastore_server/etc/service.properties $CONFIG_DIR/datastore_server-service.properties
+cp ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/WEB-INF/classes/service.properties $CONFIG_DIR/service.properties 
+cp ~/sprint/openBIS-server/apache-tomcat/etc/openbis.conf $CONFIG_DIR/openbis.conf
+
+
 echo Making a database dump...
 DB_SNAPSHOT=db_snapshots/$SERVERS_PREV_VER-$DB_NAME.sql
 pg_dump -U postgres -O $DB_NAME > $DB_SNAPSHOT
