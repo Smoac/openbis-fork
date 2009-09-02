@@ -38,7 +38,6 @@ import ch.systemsx.cisd.common.process.InputStreamReaderGobbler;
  */
 class SVNUtilities
 {
-
     static final String DEFAULT_GROUP = "cisd";
 
     static final String DEFAULT_REPOSITORY_ROOT = "svn+ssh://svncisd.ethz.ch/repos";
@@ -58,17 +57,17 @@ class SVNUtilities
 
     private static final String RELEASE_PATTERN_PREFIX = "(([0-9]+\\.)[0-9]+)\\.";
 
-    /** The regular expression that a release tag has to match. */
-    static final String RELEASE_TAG_PATTERN_STRING = RELEASE_PATTERN_PREFIX + "[0-9]+";
+    /** A pattern that release branches must match. */
+    static final Pattern releaseBranchPattern = Pattern.compile(RELEASE_PATTERN_PREFIX + "x");
 
-    /** The prefix for the sprint tagging. */
-    private static final String SPRINT_PATTERN_PREFIX = "S";
+    /** A pattern that release tags must match. */
+    static final Pattern releaseTagPattern = Pattern.compile(RELEASE_PATTERN_PREFIX + "[0-9]+");
 
-    /** Pattern which matches the sprint tagging */
-    static final String SPRINT_TAG_PATTERN_STRING = SPRINT_PATTERN_PREFIX + "[0-9]+(\\.[0-9])?";
+    /** A pattern that sprint branches must match. */
+    static final Pattern sprintBranchPattern = Pattern.compile("(S[0-9]+)\\.x");
 
-    /** The regular expression that a release branch has to match. */
-    static final String RELEASE_BRANCH_PATTERN_STRING = RELEASE_PATTERN_PREFIX + "x";
+    /** A pattern that sprint tags must match. */
+    static final Pattern sprintTagPattern = Pattern.compile("(S[0-9]+)\\.[0-9]+");
 
     /**
      * A class that holds the information about an operating system process when it is finished.
@@ -363,18 +362,47 @@ class SVNUtilities
         }
     }
 
-    static String getBranchForTag(final String tagName)
+    static String getBranchForTagRelease(final String tagName)
     {
-        final Matcher tagMatcher = Pattern.compile(RELEASE_TAG_PATTERN_STRING).matcher(tagName);
+        final Matcher tagMatcher = releaseTagPattern.matcher(tagName);
         final boolean matches = tagMatcher.matches();
         assert matches;
         return String.format("%s.x", tagMatcher.group(1));
     }
 
-    static String getFirstTagForBranch(final String branchName)
+    static String getBranchForTagSprint(final String tagName)
     {
-        final Matcher branchMatcher =
-                Pattern.compile(RELEASE_BRANCH_PATTERN_STRING).matcher(branchName);
+        final Matcher tagMatcher = sprintTagPattern.matcher(tagName);
+        final boolean matches = tagMatcher.matches();
+        assert matches;
+        return String.format("%s.x", tagMatcher.group(1));
+    }
+
+    static String getFirstTagForBranch(final SVNProjectVersionType type, final String branchName)
+    {
+        if (SVNProjectVersionType.RELEASE_BRANCH.equals(type))
+        {
+            return SVNUtilities.getFirstTagForReleaseBranch(branchName);
+        } else if (SVNProjectVersionType.SPRINT_BRANCH.equals(type))
+        {
+            return SVNUtilities.getFirstTagForSprintBranch(branchName);
+        } else
+        {
+            throw new IllegalArgumentException("Not a release or Sprint branch.");
+        }
+    }
+    
+    static String getFirstTagForReleaseBranch(final String branchName)
+    {
+        final Matcher branchMatcher = releaseBranchPattern.matcher(branchName);
+        final boolean matches = branchMatcher.matches();
+        assert matches;
+        return String.format("%s.0", branchMatcher.group(1));
+    }
+
+    static String getFirstTagForSprintBranch(final String branchName)
+    {
+        final Matcher branchMatcher = sprintBranchPattern.matcher(branchName);
         final boolean matches = branchMatcher.matches();
         assert matches;
         return String.format("%s.0", branchMatcher.group(1));

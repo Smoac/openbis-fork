@@ -23,5 +23,5 @@ package ch.systemsx.cisd.ant.task.subversion;
  */
 public enum SVNProjectVersionType
 {
-    TRUNK, RELEASE_BRANCH, FEATURE_BRANCH, RELEASE_TAG, SPRINT_TAG
+    TRUNK, RELEASE_BRANCH, FEATURE_BRANCH, SPRINT_BRANCH, RELEASE_TAG, SPRINT_TAG
 }

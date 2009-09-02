@@ -62,6 +62,8 @@ public class SVNBranchAndTagTask extends Task
 
         private final String tagRepositoryUrl;
 
+        private final SVNProjectVersionType versionType;
+
         SVNRepositoryProjectContextAntWrapper(final SVNRepositoryProjectContext context)
                 throws BuildException
         {
@@ -77,6 +79,7 @@ public class SVNBranchAndTagTask extends Task
             }
             try
             {
+                this.versionType = context.getVersionType();
                 this.version = context.getVersion();
                 this.revision = context.getRevision();
                 this.repositoryUrl = context.getRepositoryUrl();
@@ -85,7 +88,8 @@ public class SVNBranchAndTagTask extends Task
                     final SVNRepositoryProjectContext tagContext =
                             new SVNRepositoryProjectContext();
                     assign(tagContext, context);
-                    tagContext.setReleaseTag(SVNUtilities.getFirstTagForBranch(this.version));
+                    tagContext.setReleaseTag(SVNUtilities.getFirstTagForBranch(context
+                            .getVersionType(), this.version));
                     this.tagRepositoryUrl = SVNUtilities.getParent(tagContext.getRepositoryUrl());
                 } else
                 {
@@ -110,6 +114,11 @@ public class SVNBranchAndTagTask extends Task
             context.setRepositoryRoot(contextToAssignFrom.getRepositoryRoot());
             context.setGroup(contextToAssignFrom.getGroup());
             context.setProjectName(contextToAssignFrom.getProjectName());
+        }
+
+        SVNProjectVersionType getVersionType()
+        {
+            return versionType;
         }
 
         ISVNProjectPathProvider getPathProvider()
@@ -141,8 +150,8 @@ public class SVNBranchAndTagTask extends Task
     /**
      * Requires the following properties:
      * <ul>
-     * <li> projectname - the name of the project in the subversion repository to branch from </li>
-     * <li> branch - the name of the branch to create </li>
+     * <li>projectname - the name of the project in the subversion repository to branch from</li>
+     * <li>branch - the name of the branch to create</li>
      * </ul>
      */
     @Override
@@ -162,13 +171,15 @@ public class SVNBranchAndTagTask extends Task
         switch (versionTypeToCreate)
         {
             case RELEASE_TAG:
-                createTagInSvn(svn, source, createBranchContext(destinationContext), destination,
-                        branchIfNecessary);
+                createTagInSvn(svn, source, createReleaseBranchContext(destinationContext),
+                        destination, branchIfNecessary);
                 break;
             case SPRINT_TAG:
-                createTagInSvn(svn, source, destination);
+                createTagInSvn(svn, source, createSprintBranchContext(destinationContext),
+                        destination, branchIfNecessary);
                 break;
             case RELEASE_BRANCH:
+            case SPRINT_BRANCH:
             case FEATURE_BRANCH:
                 createBranchInSvn(svn, source, destination);
                 break;
@@ -189,7 +200,8 @@ public class SVNBranchAndTagTask extends Task
             if (branchIfNecessary)
             {
                 if (false == tag.getVersion().equals(
-                        SVNUtilities.getFirstTagForBranch(branch.getVersion())))
+                        SVNUtilities.getFirstTagForBranch(branch.getVersionType(), branch
+                                .getVersion())))
                 {
                     throw new BuildException(
                             "Supposed to create branch for tag but tag doesn't start a branch (tag='"
@@ -206,22 +218,6 @@ public class SVNBranchAndTagTask extends Task
         final String logMessage = "Create tag '" + tagName + "'";
         svn.copy(branch.getRepositoryUrl(), branch.getRevision(), tag.getRepositoryUrl(),
                 logMessage);
-    }
-
-    /**
-     * This method only creates a tag with the content from the source. It does not create a branch!
-     */
-    private static void createTagInSvn(final ISVNActions svn,
-            final SVNRepositoryProjectContextAntWrapper source,
-            final SVNRepositoryProjectContextAntWrapper tag) throws BuildException
-    {
-        try
-        {
-            copyDependentProjectInSvn(svn, source, tag, "tag");
-        } catch (final SVNException ex)
-        {
-            throw new BuildException(ex);
-        }
     }
 
     /**
@@ -300,14 +296,29 @@ public class SVNBranchAndTagTask extends Task
         }
     }
 
-    private static SVNRepositoryProjectContextAntWrapper createBranchContext(
+    private static SVNRepositoryProjectContextAntWrapper createReleaseBranchContext(
             final SVNRepositoryProjectContext tagContext) throws BuildException
     {
         try
         {
-            final String branchName = SVNUtilities.getBranchForTag(tagContext.getVersion());
+            final String branchName = SVNUtilities.getBranchForTagRelease(tagContext.getVersion());
             final SVNRepositoryProjectContext context = new SVNRepositoryProjectContext();
             context.setReleaseBranch(branchName);
+            return new SVNRepositoryProjectContextAntWrapper(context, tagContext);
+        } catch (final UserFailureException ex)
+        {
+            throw new BuildException(ex);
+        }
+    }
+
+    private static SVNRepositoryProjectContextAntWrapper createSprintBranchContext(
+            final SVNRepositoryProjectContext tagContext) throws BuildException
+    {
+        try
+        {
+            final String branchName = SVNUtilities.getBranchForTagSprint(tagContext.getVersion());
+            final SVNRepositoryProjectContext context = new SVNRepositoryProjectContext();
+            context.setSprintBranch(branchName);
             return new SVNRepositoryProjectContextAntWrapper(context, tagContext);
         } catch (final UserFailureException ex)
         {

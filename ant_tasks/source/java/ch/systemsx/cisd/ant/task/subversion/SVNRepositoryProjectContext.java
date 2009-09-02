@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.ant.task.subversion;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.ant.common.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -29,18 +28,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  */
 class SVNRepositoryProjectContext
 {
-    /** A pattern that release branches must match. */
-    private static final Pattern releaseBranchPattern =
-            Pattern.compile(SVNUtilities.RELEASE_BRANCH_PATTERN_STRING);
-
-    /** A pattern that release tags must match. */
-    private static final Pattern releaseTagPattern =
-            Pattern.compile(SVNUtilities.RELEASE_TAG_PATTERN_STRING);
-
-    /** A pattern that sprint tags must match. */
-    private static final Pattern sprintTagPattern =
-            Pattern.compile(SVNUtilities.SPRINT_TAG_PATTERN_STRING);
-
     /** The root of the repository url, including the protocol. */
     private String repositoryRoot = SVNUtilities.DEFAULT_REPOSITORY_ROOT;
 
@@ -169,7 +156,35 @@ class SVNRepositoryProjectContext
      */
     public boolean isReleaseBranch(String versionName)
     {
-        return releaseBranchPattern.matcher(versionName).matches();
+        return SVNUtilities.releaseBranchPattern.matcher(versionName).matches();
+    }
+
+    /**
+     * Sets the {@link SVNProjectVersionType} to {@link SVNProjectVersionType#RELEASE_BRANCH} and
+     * the version to <var>branchName</var>.
+     * 
+     * @throws UserFailureException If the <var>branchName</var> does not match the pattern for
+     *             release branches.
+     */
+    public void setSprintBranch(String branchName) throws UserFailureException
+    {
+        assert branchName != null;
+
+        if (false == isSprintBranch(branchName))
+        {
+            throw new UserFailureException("Branch name '" + branchName
+                    + "' does not match the pattern.");
+        }
+        this.versionType = SVNProjectVersionType.SPRINT_BRANCH;
+        this.version = branchName;
+    }
+
+    /**
+     * @return <code>true</code> if <var>versionName</var> is a sprint branch.
+     */
+    public boolean isSprintBranch(String versionName)
+    {
+        return SVNUtilities.sprintBranchPattern.matcher(versionName).matches();
     }
 
     /**
@@ -221,7 +236,7 @@ class SVNRepositoryProjectContext
      */
     public boolean isReleaseTag(String versionName)
     {
-        return releaseTagPattern.matcher(versionName).matches();
+        return SVNUtilities.releaseTagPattern.matcher(versionName).matches();
     }
 
     /**
@@ -249,7 +264,7 @@ class SVNRepositoryProjectContext
      */
     public boolean isSprintTag(String versionName)
     {
-        return sprintTagPattern.matcher(versionName).matches();
+        return SVNUtilities.sprintTagPattern.matcher(versionName).matches();
     }
 
     /**
@@ -310,12 +325,22 @@ class SVNRepositoryProjectContext
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
                         getProjectName(), "branches/release", getVersion()), "/");
             case RELEASE_TAG:
-                final String branchName = SVNUtilities.getBranchForTag(getVersion());
+                {
+                final String branchName = SVNUtilities.getBranchForTagRelease(getVersion());
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
                         getProjectName(), "tags/release", branchName, getVersion()), "/");
-            case SPRINT_TAG:
+                }
+            case SPRINT_BRANCH:
+                {
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
-                        getProjectName(), "tags/sprint", getVersion()), "/");
+                        getProjectName(), "branches/sprint", getVersion()), "/");
+                }
+            case SPRINT_TAG:
+                {
+                final String branchName = SVNUtilities.getBranchForTagSprint(getVersion());
+                return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
+                        getProjectName(), "tags/sprint", branchName, getVersion()), "/");
+                }
             case FEATURE_BRANCH:
                 return StringUtils.join(Arrays.asList(getRepositoryRoot(), getGroup(),
                         getProjectName(), "branches/feature", getVersion()), "/");
