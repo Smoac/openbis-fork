@@ -49,7 +49,8 @@ public class BasicEntityType extends AbstractType
             return false;
         }
         final BasicEntityType that = (BasicEntityType) obj;
-        return getCode().equals(that.getCode()) && databaseInstance.equals(that.databaseInstance);
+        return getCode().equals(that.getCode())
+                && (databaseInstance == null || databaseInstance.equals(that.databaseInstance));
     }
 
     @Override
