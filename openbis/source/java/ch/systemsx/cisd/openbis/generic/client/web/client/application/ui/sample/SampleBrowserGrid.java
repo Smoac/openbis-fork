@@ -371,6 +371,13 @@ public class SampleBrowserGrid extends
     }
 
     @Override
+    protected void refresh()
+    {
+        previousPropertyTypes = propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
+        super.refresh();
+    }
+
+    @Override
     protected void listEntities(DefaultResultSetConfig<String, Sample> resultSetConfig,
             final AbstractAsyncCallback<ResultSet<Sample>> callback)
     {
@@ -382,6 +389,8 @@ public class SampleBrowserGrid extends
                         {
                             propertyTypesAndCriteriaProvider.setEntityTypes(result
                                     .getAvailableEntityTypes());
+                            previousPropertyTypes =
+                                    propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
                             callback.onSuccess(result.getResultSet());
                             refreshColumnsSettingsIfNecessary();
                         }
