@@ -74,7 +74,6 @@ public abstract class AbstractEntityProperty implements IEntityProperty
 
     public void setValue(String value)
     {
-        throw new UnsupportedOperationException();
     }
 
     public Material getMaterial()
@@ -84,7 +83,6 @@ public abstract class AbstractEntityProperty implements IEntityProperty
 
     public void setMaterial(Material material)
     {
-        throw new UnsupportedOperationException();
     }
 
     public VocabularyTerm getVocabularyTerm()
@@ -94,7 +92,6 @@ public abstract class AbstractEntityProperty implements IEntityProperty
 
     public void setVocabularyTerm(VocabularyTerm vocabularyTerm)
     {
-        throw new UnsupportedOperationException();
     }
 
     // 

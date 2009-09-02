@@ -111,6 +111,7 @@
         <property name="interceptorNames">
             <list>
                 <value>exception-translator</value>
+                <value>hibernate-transformer</value>
             </list>
         </property>
     </bean>
@@ -124,6 +125,8 @@
         </property>
     </bean>
 
+    <bean id="hibernate-transformer" class="ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer" />
+    
     <!-- 
         // Transaction
     -->
