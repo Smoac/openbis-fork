@@ -2,6 +2,10 @@
 # Finishes sprint installation of yeastx software
 # Warning: all changes to this file should be transfered to SVN repository
 
+DSS=sprint/datastore_server
+CONFIG_DIR=~/config
+
+
 function copy_or_die {
   SRC=$1
   DEST=$2
@@ -14,9 +18,7 @@ function copy_or_die {
 	fi
 }
 
-DSS=sprint/datastore_server
-
-copy_or_die ~/eicmlDropboxProcessingPlugin.properties $DSS/etc/
-copy_or_die ~/fiamlDropboxProcessingPlugin.properties $DSS/etc/
-copy_or_die ~/datastore_server-plugins.jar $DSS/lib/
+copy_or_die $CONFIG_DIR/eicmlDropboxProcessingPlugin.properties $DSS/etc/
+copy_or_die $CONFIG_DIR/fiamlDropboxProcessingPlugin.properties $DSS/etc/
+copy_or_die $CONFIG_DIR/datastore_server-plugins.jar $DSS/lib/
 
