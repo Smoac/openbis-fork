@@ -373,8 +373,8 @@ public class SampleBrowserGrid extends
     @Override
     protected void refresh()
     {
-        previousPropertyTypes = propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
         super.refresh();
+        previousPropertyTypes = propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
     }
 
     @Override
@@ -389,10 +389,10 @@ public class SampleBrowserGrid extends
                         {
                             propertyTypesAndCriteriaProvider.setEntityTypes(result
                                     .getAvailableEntityTypes());
-                            previousPropertyTypes =
-                                    propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
                             callback.onSuccess(result.getResultSet());
                             refreshColumnsSettingsIfNecessary();
+                            previousPropertyTypes =
+                                    propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
                         }
                     };
 
