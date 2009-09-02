@@ -61,6 +61,7 @@ public class MetabolDatabaseUpdater implements IMaintenanceTask
     {
         LogInitializer.init();
         context = DBUtils.createDefaultDBContext();
+        DBUtils.init(context);
         try
         {
             connection = context.getDataSource().getConnection();
