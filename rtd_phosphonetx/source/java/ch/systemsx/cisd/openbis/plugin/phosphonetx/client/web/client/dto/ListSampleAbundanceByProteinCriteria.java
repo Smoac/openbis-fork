@@ -30,15 +30,15 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPr
 public class ListSampleAbundanceByProteinCriteria extends
         DefaultResultSetConfig<String, SampleWithPropertiesAndAbundance> implements IsSerializable
 {
-    private TechId proteinID;
+    private TechId proteinReferenceID;
 
-    public final TechId getProteinID()
+    public final TechId getProteinReferenceID()
     {
-        return proteinID;
+        return proteinReferenceID;
     }
 
-    public final void setProteinID(TechId proteinID)
+    public final void setProteinReferenceID(TechId proteinReferenceID)
     {
-        this.proteinID = proteinID;
+        this.proteinReferenceID = proteinReferenceID;
     }
 }

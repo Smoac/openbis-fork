@@ -38,12 +38,12 @@ public class ProteinSamplesSection extends SingleSectionPanel
     private IDisposableComponent sampleDisposableGrid;
 
     public ProteinSamplesSection(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            final TechId proteinID)
+            final TechId proteinReferenceID)
     {
         super("Samples");
         sampleDisposableGrid =
-                SampleAbundanceBrowserGrid.createGridForProteinSamples(viewContext, proteinID,
-                        createGridId(proteinID));
+                SampleAbundanceBrowserGrid.createGridForProteinSamples(viewContext, proteinReferenceID,
+                        createGridId(proteinReferenceID));
         add(sampleDisposableGrid.getComponent());
     }
 

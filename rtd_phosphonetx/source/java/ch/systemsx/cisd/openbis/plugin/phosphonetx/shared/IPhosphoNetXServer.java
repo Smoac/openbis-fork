@@ -74,6 +74,6 @@ public interface IPhosphoNetXServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     public List<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
-            String sessionToken, TechId proteinID) throws UserFailureException;
+            String sessionToken, TechId proteinReferenceID) throws UserFailureException;
 
 }

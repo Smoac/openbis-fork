@@ -83,8 +83,12 @@ public interface IProteinQueryDAO extends BaseQuery
     @Select("select * from peptides where prot_id = ?{1}")
     public DataSet<IdentifiedPeptide> listIdentifiedPeptidesByProtein(long proteinID);
     
-    @Select("select a.id, perm_id, value from abundances as a join samples as s on a.samp_id = s.id "
-            + "where a.prot_id = ?{1}")
-    public DataSet<SampleAbundance> listSampleAbundanceByProtein(long proteinID);
+    @Select("select distinct a.id, perm_id, value " 
+            + "from abundances as a left join proteins as p on a.prot_id = p.id "
+            + "                     left join identified_proteins as i on i.prot_id = p.id "
+            + "                     left join sequences as s on i.sequ_id = s.id "
+            + "                     left join samples on a.samp_id = samples.id "
+            + "where s.prre_id = ?{1}")
+    public DataSet<SampleAbundance> listSampleAbundanceByProtein(long proteinReferenceID);
     
 }

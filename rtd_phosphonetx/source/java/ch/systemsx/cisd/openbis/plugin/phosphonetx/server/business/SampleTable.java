@@ -27,7 +27,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -47,10 +46,12 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
 {
     private List<SampleWithPropertiesAndAbundance> samples =
             new ArrayList<SampleWithPropertiesAndAbundance>();
+    private SampleIDProvider sampleIDProvider;
 
     SampleTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory, Session session)
     {
         super(daoFactory, specificDAOFactory, session);
+        sampleIDProvider = new SampleIDProvider(daoFactory.getSampleDAO());
     }
 
     public List<SampleWithPropertiesAndAbundance> getSamples()
@@ -58,13 +59,13 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
         return samples;
     }
 
-    public void loadSamplesWithAbundance(TechId proteinID)
+    public void loadSamplesWithAbundance(TechId proteinReferenceID)
     {
         samples = new ArrayList<SampleWithPropertiesAndAbundance>();
         IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
         ISampleDAO sampleDAO = getDaoFactory().getSampleDAO();
         DataSet<SampleAbundance> sampleAbundances =
-                proteinQueryDAO.listSampleAbundanceByProtein(proteinID.getId());
+                proteinQueryDAO.listSampleAbundanceByProtein(proteinReferenceID.getId());
         try
         {
             for (SampleAbundance sampleAbundance : sampleAbundances)
@@ -72,12 +73,8 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
                 SampleWithPropertiesAndAbundance sample = new SampleWithPropertiesAndAbundance();
                 sample.setAbundance(sampleAbundance.getAbundance());
                 String samplePermID = sampleAbundance.getSamplePermID();
-                SamplePE samplePE = sampleDAO.tryToFindByPermID(samplePermID);
-                if (samplePE == null)
-                {
-                    throw new IllegalStateException("No sample with following permanent ID found: "
-                            + samplePermID);
-                }
+                long sampleID = sampleIDProvider.getSampleIDOrParentSampleID(samplePermID);
+                SamplePE samplePE = sampleDAO.getByTechId(new TechId(sampleID));
                 fillSampleData(sample, samplePE);
                 samples.add(sample);
             }
@@ -95,20 +92,7 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
         result.setIdentifier(StringEscapeUtils.escapeHtml(samplePE.getIdentifier()));
         result.setSampleType(SampleTypeTranslator.translate(samplePE.getSampleType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
-        setProperties(result, samplePE);
+        result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
+                new HashMap<PropertyTypePE, PropertyType>()));
     }
-
-    private static void setProperties(final SampleWithPropertiesAndAbundance result,
-            final SamplePE samplePE)
-    {
-        if (samplePE.isPropertiesInitialized())
-        {
-            result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
-                    new HashMap<PropertyTypePE, PropertyType>()));
-        } else
-        {
-            result.setProperties(new ArrayList<IEntityProperty>());
-        }
-    }
-
 }

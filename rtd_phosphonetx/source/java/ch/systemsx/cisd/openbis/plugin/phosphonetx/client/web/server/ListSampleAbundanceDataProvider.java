@@ -35,19 +35,20 @@ class ListSampleAbundanceDataProvider implements IOriginalDataProvider<SampleWit
 
     private final String sessionToken;
 
-    private final TechId proteinID;
+    private final TechId proteinReferenceID;
 
-    ListSampleAbundanceDataProvider(IPhosphoNetXServer server, String sessionToken, TechId proteinID)
+    ListSampleAbundanceDataProvider(IPhosphoNetXServer server, String sessionToken,
+            TechId proteinReferenceID)
     {
         this.server = server;
         this.sessionToken = sessionToken;
-        this.proteinID = proteinID;
+        this.proteinReferenceID = proteinReferenceID;
     }
 
 
     public List<SampleWithPropertiesAndAbundance> getOriginalData() throws UserFailureException
     {
-        return server.listSamplesWithAbundanceByProtein(sessionToken, proteinID);
+        return server.listSamplesWithAbundanceByProtein(sessionToken, proteinReferenceID);
     }
 
 }

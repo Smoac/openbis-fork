@@ -86,12 +86,12 @@ public class SampleAbundanceBrowserGrid
     private final IViewContext<IPhosphoNetXClientServiceAsync> phosphoViewContext;
 
     public static IDisposableComponent createGridForProteinSamples(
-            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext, final TechId proteinID,
-            final String gridId)
+            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
+            final TechId proteinReferenceID, final String gridId)
     {
         final ListSampleAbundanceByProteinCriteria criteria =
                 new ListSampleAbundanceByProteinCriteria();
-        criteria.setProteinID(proteinID);
+        criteria.setProteinReferenceID(proteinReferenceID);
 
         ISampleAbundanceCriteriaProvider criteriaProvider =
                 new SampleAbundanceCriteriaProvider(viewContext, criteria);
