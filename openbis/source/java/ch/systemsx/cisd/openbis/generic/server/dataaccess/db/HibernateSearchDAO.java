@@ -410,11 +410,11 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
             // registrator
             Person registrator = new Person();
-            registrator.setFirstName(getFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
+            registrator.setFirstName(tryGetFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
                     + SearchFieldConstants.PERSON_FIRST_NAME));
-            registrator.setLastName(getFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
+            registrator.setLastName(tryGetFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
                     + SearchFieldConstants.PERSON_LAST_NAME));
-            registrator.setEmail(getFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
+            registrator.setEmail(tryGetFieldValue(doc, SearchFieldConstants.PREFIX_REGISTRATOR
                     + SearchFieldConstants.PERSON_EMAIL));
             result.setRegistrator(registrator);
 
@@ -424,6 +424,12 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         private String getFieldValue(final Document document, final String searchFieldName)
         {
             return document.getField(searchFieldName).stringValue();
+        }
+
+        private String tryGetFieldValue(final Document document, final String searchFieldName)
+        {
+            Field fieldOrNull = document.getField(searchFieldName);
+            return fieldOrNull == null ? null : fieldOrNull.stringValue();
         }
 
         private String getGroupIdFieldName()
