@@ -144,7 +144,7 @@
       </not>
     </condition>
     <branch-and-tag-project repositoryRoot="${repositoryRoot}" group="${group}" name="${name}" 
-                            sprintTag="${tag}" branchIfNecessary="false" />
+                            sprintTag="${tag}" branchIfNecessary="true" />
   </target>
  
   <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
