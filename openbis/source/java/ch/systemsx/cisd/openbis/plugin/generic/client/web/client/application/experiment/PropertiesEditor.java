@@ -24,12 +24,14 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * @author Izabela Adamczyk
@@ -83,12 +85,24 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     {
         List<DatabaseModificationAwareField<?>> result =
                 new ArrayList<DatabaseModificationAwareField<?>>();
+        List<PropertyType> propertyTypes = getPropertyTypes(entityTypesPropertyTypes);
+
         for (final S stpt : entityTypesPropertyTypes)
         {
-            result.add(createPropertyField(stpt, initialProperties.get(stpt.getPropertyType()
-                    .getCode())));
+            String value = initialProperties.get(stpt.getPropertyType().getCode());
+            result.add(createPropertyField(stpt, value, propertyTypes));
         }
         return result;
+    }
+
+    private List<PropertyType> getPropertyTypes(List<S> entityTypesPropertyTypes)
+    {
+        List<PropertyType> propertyTypes = new ArrayList<PropertyType>();
+        for (final S stpt : entityTypesPropertyTypes)
+        {
+            propertyTypes.add(stpt.getPropertyType());
+        }
+        return propertyTypes;
     }
 
     private Map<String, String> createInitialProperties(final List<IEntityProperty> properties)
@@ -101,12 +115,14 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         return result;
     }
 
-    private final DatabaseModificationAwareField<?> createPropertyField(final S etpt, String value)
+    private final DatabaseModificationAwareField<?> createPropertyField(final S etpt, String value,
+            List<PropertyType> propertyTypes)
     {
         assert viewContext != null;
         final DatabaseModificationAwareField<?> field;
         final boolean isMandatory = etpt.isMandatory();
-        final String label = etpt.getPropertyType().getLabel();
+        final String label =
+                PropertyTypeRenderer.getDisplayName(etpt.getPropertyType(), propertyTypes);
         final String propertyTypeCode = etpt.getPropertyType().getCode();
         field =
                 PropertyFieldFactory.createField(etpt.getPropertyType(), isMandatory, label,
