@@ -36,23 +36,22 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -109,6 +108,8 @@ final class SampleListingWorker
 
     private final IEntityPropertiesEnricher samplePropertiesEnricherOrNull;
 
+    private final SecondaryEntityDAO referencedEntityDAO;
+
     //
     // Working data structures
     //
@@ -153,14 +154,14 @@ final class SampleListingWorker
     private final Long2ObjectMap<Sample> sampleMap = new Long2ObjectOpenHashMap<Sample>();
 
     public static SampleListingWorker create(ListOrSearchSampleCriteria criteria,
-            String baseIndexURL, SampleListerDAO dao)
+            String baseIndexURL, SampleListerDAO dao, SecondaryEntityDAO referencedEntityDAO)
     {
         ISampleListingQuery query = dao.getQuery();
         ISampleSetListingQuery setQuery = dao.getIdSetQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new SampleListingWorker(criteria, baseIndexURL, dao.getDatabaseInstanceId(), dao
-                .getDatabaseInstance(), query, setQuery, propertiesEnricher);
+                .getDatabaseInstance(), query, setQuery, propertiesEnricher, referencedEntityDAO);
     }
 
     //
@@ -171,7 +172,8 @@ final class SampleListingWorker
     SampleListingWorker(final ListOrSearchSampleCriteria criteria, final String baseIndexURL,
             final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final ISampleListingQuery query, final ISampleSetListingQuery setQuery,
-            IEntityPropertiesEnricher samplePropertiesEnricherOrNull)
+            IEntityPropertiesEnricher samplePropertiesEnricherOrNull,
+            SecondaryEntityDAO referencedEntityDAO)
     {
         assert criteria != null;
         assert baseIndexURL != null;
@@ -186,6 +188,7 @@ final class SampleListingWorker
         this.query = query;
         this.setQuery = setQuery;
         this.samplePropertiesEnricherOrNull = samplePropertiesEnricherOrNull;
+        this.referencedEntityDAO = referencedEntityDAO;
     }
 
     //
@@ -262,11 +265,13 @@ final class SampleListingWorker
         {
             return null;
         }
-        final long id = experimentTechId.getId();
-        final ExperimentProjectGroupCodeRecord codes =
-                query.getExperimentAndProjectAndGroupCodeForId(id);
-        final Experiment experiment = createExperiment(id, codes, null);
-        experiments.put(id, experiment);
+        return createAndSaveExperiment(experimentTechId.getId(), null);
+    }
+
+    private Experiment createAndSaveExperiment(final long experimentId, final Group groupOrNull)
+    {
+        final Experiment experiment = referencedEntityDAO.getExperiment(experimentId);
+        experiments.put(experimentId, experiment);
         return experiment;
     }
 
@@ -520,52 +525,23 @@ final class SampleListingWorker
         Experiment experiment = experiments.get(row.expe_id);
         if (experiment == null)
         {
-            final ExperimentProjectGroupCodeRecord codes =
-                    query.getExperimentAndProjectCodeForId(row.expe_id);
-            experiment = createExperiment(row.expe_id, codes, groupOrNull);
+            experiment = createAndSaveExperiment(row.expe_id, groupOrNull);
         }
-        return experiment;
-    }
-
-    private Experiment createExperiment(final long experimentId,
-            final ExperimentProjectGroupCodeRecord codes, final Group groupOrNull)
-    {
-        final Group group;
-        if (groupOrNull != null)
-        {
-            group = groupOrNull;
-        } else
-        {
-            group = new Group();
-            group.setCode(StringEscapeUtils.escapeHtml(codes.g_code));
-            group.setInstance(databaseInstance);
-        }
-        final Experiment experiment = new Experiment();
-        experiment.setId(experimentId);
-        experiment.setCode(StringEscapeUtils.escapeHtml(codes.e_code));
-        experiment.setIdentifier(new ExperimentIdentifier(null, group.getCode(), codes.p_code,
-                codes.e_code).toString());
-        final Project project = new Project();
-        project.setCode(StringEscapeUtils.escapeHtml(codes.p_code));
-        project.setGroup(group);
-        experiment.setProject(project);
-        final ExperimentType experimentType = new ExperimentType();
-        experimentType.setCode(StringEscapeUtils.escapeHtml(codes.et_code));
-        experiment.setExperimentType(experimentType);
         return experiment;
     }
 
     private Person getOrCreateRegistrator(SampleRecord row)
     {
-        Person registrator = persons.get(row.pers_id_registerer);
+        return getOrCreateRegistrator(row.pers_id_registerer);
+    }
+
+    private Person getOrCreateRegistrator(long personId)
+    {
+        Person registrator = persons.get(personId);
         if (registrator == null)
         {
-            registrator = query.getPersonById(row.pers_id_registerer);
-            registrator.setUserId(StringEscapeUtils.escapeHtml(registrator.getUserId()));
-            registrator.setEmail(StringEscapeUtils.escapeHtml(registrator.getEmail()));
-            registrator.setFirstName(StringEscapeUtils.escapeHtml(registrator.getFirstName()));
-            registrator.setLastName(StringEscapeUtils.escapeHtml(registrator.getLastName()));
-            persons.put(row.pers_id_registerer, registrator);
+            registrator = referencedEntityDAO.getPerson(personId);
+            persons.put(personId, registrator);
         }
         return registrator;
     }

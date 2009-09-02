@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity;
 
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.rinn.restrictions.Private;
 
 /**
- * A class for fast dataset listing.
+ * Basic information about a referenced sample.
  * 
  * @author Tomasz Pylak
  */
-public interface IDatasetLister
+@Private
+public class SampleReferenceRecord
 {
-    /** @return datasets connected to the experiment with the specified id */
-    List<ExternalData> listByExperimentTechId(TechId experimentId);
+    public long id;
 
-    /** @return datasets connected to the sample with the specified id */
-    List<ExternalData> listBySampleTechId(TechId sampleId);
+    public String perm_id;
 
+    public String s_code;
+
+    public Long inva_id;
+
+    public String st_code;
+
+    public String g_code;
 }

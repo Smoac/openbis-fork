@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser;
 
 /**
@@ -27,7 +28,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyC
  * 
  * @author Tomasz Pylak
  */
-@Friend(toClasses = IDatasetListingQuery.class)
+@Friend(toClasses =
+    { IDatasetListingQuery.class, DatasetRelationRecord.class })
 class DatasetSetListingQueryFallback implements IDatasetSetListingQuery
 {
     private final IDatasetSetListingQuery oneByOneDelegate;
@@ -53,5 +55,11 @@ class DatasetSetListingQueryFallback implements IDatasetSetListingQuery
         {
             return oneByOneDelegate.getDatasets(sampleIds);
         }
+    }
+
+    public Iterable<DatasetRelationRecord> getDatasetParents(LongSet entityIds)
+    {
+        // TODO 2009-09-01, Tomasz Pylak: implement me! (h2)
+        throw new NotImplementedException();
     }
 }

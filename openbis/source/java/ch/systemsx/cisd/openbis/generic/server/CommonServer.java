@@ -471,7 +471,18 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     // FIXME 2009-08-30 Tomasz Pylak: use this method
-    public final List<ExternalData> listExperimentExternalDataNew(final String sessionToken,
+    public final List<ExternalData> listSampleExternalDataFast(final String sessionToken,
+            final TechId sampleId)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final List<ExternalData> datasets = datasetLister.listBySampleTechId(sampleId);
+        Collections.sort(datasets);
+        return datasets;
+    }
+
+    // FIXME 2009-08-30 Tomasz Pylak: use this method
+    public final List<ExternalData> listExperimentExternalDataFast(final String sessionToken,
             final TechId experimentId)
     {
         final Session session = getSessionManager().getSession(sessionToken);

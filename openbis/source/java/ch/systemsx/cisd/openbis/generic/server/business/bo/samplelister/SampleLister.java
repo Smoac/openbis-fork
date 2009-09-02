@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
@@ -32,22 +33,27 @@ public class SampleLister implements ISampleLister
 {
     private final SampleListerDAO dao;
 
+    private final SecondaryEntityDAO referencedEntityDAO;
+
     private final String baseIndexURL;
 
-    public static SampleLister create(String baseIndexURL, SampleListerDAO dao)
+    public static SampleLister create(String baseIndexURL, SampleListerDAO dao,
+            SecondaryEntityDAO referencedEntityDAO)
     {
-        return new SampleLister(baseIndexURL, dao);
+        return new SampleLister(baseIndexURL, dao, referencedEntityDAO);
     }
 
-    private SampleLister(String baseIndexURL, SampleListerDAO dao)
+    private SampleLister(String baseIndexURL, SampleListerDAO dao,
+            SecondaryEntityDAO referencedEntityDAO)
     {
         this.baseIndexURL = baseIndexURL;
         this.dao = dao;
+        this.referencedEntityDAO = referencedEntityDAO;
     }
 
     public List<Sample> list(final ListOrSearchSampleCriteria criteria)
     {
-        return SampleListingWorker.create(criteria, baseIndexURL, dao).load();
+        return SampleListingWorker.create(criteria, baseIndexURL, dao, referencedEntityDAO).load();
     }
 
 }

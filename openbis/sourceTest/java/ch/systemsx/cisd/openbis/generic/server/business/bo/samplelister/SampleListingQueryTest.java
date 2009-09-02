@@ -44,18 +44,16 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -65,7 +63,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses={SampleRecord.class, ExperimentProjectGroupCodeRecord.class, ISampleListingQuery.class})
+@Friend(toClasses =
+    { SampleRecord.class, ExperimentProjectGroupCodeRecord.class, ISampleListingQuery.class })
 @Test(groups =
     { "db", "sample" })
 public class SampleListingQueryTest extends AbstractDAOTest
@@ -95,10 +94,6 @@ public class SampleListingQueryTest extends AbstractDAOTest
 
     private SamplePE firstMasterPlate;
 
-    private ExperimentPE firstExperiment;
-
-    private PersonPE firstPerson;
-
     private ISampleListingQuery query;
 
     @BeforeClass(alwaysRun = true)
@@ -116,8 +111,6 @@ public class SampleListingQueryTest extends AbstractDAOTest
         firstMasterPlate =
                 daoFactory.getSampleDAO().listSamplesWithPropertiesByTypeAndDatabaseInstance(
                         masterPlateType, dbInstance).get(0);
-        firstExperiment = daoFactory.getExperimentDAO().listExperiments().get(0);
-        firstPerson = daoFactory.getPersonDAO().getPerson(1);
         query = sampleListerDAO.getQuery();
     }
 
@@ -237,7 +230,6 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertNull(sample2.samp_id_part_of);
     }
 
-
     private Long getSampleTypeId(String sampleTypeCode)
     {
         return daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode).getId();
@@ -342,31 +334,6 @@ public class SampleListingQueryTest extends AbstractDAOTest
     }
 
     @Test
-    public void testGetExperiment()
-    {
-        ExperimentProjectGroupCodeRecord expFull =
-                query.getExperimentAndProjectAndGroupCodeForId(firstExperiment.getId());
-        assertEquals(firstExperiment.getCode(), expFull.e_code);
-        ProjectPE project = firstExperiment.getProject();
-        assertEquals(project.getCode(), expFull.p_code);
-        assertEquals(project.getGroup().getCode(), expFull.g_code);
-        assertEquals(firstExperiment.getEntityType().getCode(), expFull.et_code);
-
-        ExperimentProjectGroupCodeRecord expNoGroup =
-                query.getExperimentAndProjectCodeForId(firstExperiment.getId());
-        assertNull(expNoGroup.g_code);
-        expFull.g_code = null;
-        assertTrue(EqualsBuilder.reflectionEquals(expNoGroup, expFull));
-    }
-
-    @Test
-    public void testPerson()
-    {
-        Person person = query.getPersonById(firstPerson.getId());
-        assertEquals(firstPerson.getFirstName(), person.getFirstName());
-    }
-
-    @Test
     public void testSampleType()
     {
         SampleType sampleType = query.getSampleType(SAMPLE_TYPE_CODE_MASTER_PLATE);
@@ -407,7 +374,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSamplePropertiesGenericValues()
     {
-        List<GenericEntityPropertyRecord> properties = asList(query.getEntityPropertyGenericValues());
+        List<GenericEntityPropertyRecord> properties =
+                asList(query.getEntityPropertyGenericValues());
         assertCorrectSampleAndPropertyTypeReferences(properties);
         for (GenericEntityPropertyRecord property : properties)
         {
@@ -426,7 +394,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
         {
             assertTrue("Property type not found " + property.prty_id, propertyTypesIds
                     .contains(property.prty_id));
-            assertTrue("Sample not found " + property.entity_id, sampleIds.contains(property.entity_id));
+            assertTrue("Sample not found " + property.entity_id, sampleIds
+                    .contains(property.entity_id));
         }
     }
 
@@ -466,7 +435,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSamplePropertiesMaterialValues()
     {
-        List<MaterialEntityPropertyRecord> properties = asList(query.getEntityPropertyMaterialValues());
+        List<MaterialEntityPropertyRecord> properties =
+                asList(query.getEntityPropertyMaterialValues());
         assertCorrectSampleAndPropertyTypeReferences(properties);
         for (MaterialEntityPropertyRecord property : properties)
         {

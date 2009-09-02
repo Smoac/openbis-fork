@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,22 +33,25 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class })
+    { DatasetRecord.class, DatasetRelationRecord.class })
 public class DatasetLister implements IDatasetLister
 {
     //
@@ -62,9 +68,11 @@ public class DatasetLister implements IDatasetLister
 
     private final IDatasetListingQuery query;
 
-    // private final IDatasetSetListingQuery setQuery;
+    private final IDatasetSetListingQuery setQuery;
 
     private final IEntityPropertiesEnricher propertiesEnricher;
+
+    private final SecondaryEntityDAO referencedEntityDAO;
 
     //
     // Working data structures
@@ -81,20 +89,20 @@ public class DatasetLister implements IDatasetLister
     private final Long2ObjectMap<LocatorType> locatorTypes =
             new Long2ObjectOpenHashMap<LocatorType>();
 
-    public static DatasetLister create(DatasetListerDAO dao)
+    public static DatasetLister create(DatasetListerDAO dao, SecondaryEntityDAO referencedEntityDAO)
     {
         IDatasetListingQuery query = dao.getQuery();
         IDatasetSetListingQuery setQuery = dao.getIdSetQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new DatasetLister(dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), query,
-                setQuery, propertiesEnricher);
+                setQuery, propertiesEnricher, referencedEntityDAO);
     }
 
     // For unit tests
     DatasetLister(final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final IDatasetListingQuery query, final IDatasetSetListingQuery setQuery,
-            IEntityPropertiesEnricher propertiesEnricher)
+            IEntityPropertiesEnricher propertiesEnricher, SecondaryEntityDAO referencedEntityDAO)
     {
         assert databaseInstance != null;
         assert query != null;
@@ -103,15 +111,204 @@ public class DatasetLister implements IDatasetLister
         this.databaseInstanceId = databaseInstanceId;
         this.databaseInstance = databaseInstance;
         this.query = query;
-        // this.setQuery = setQuery;
+        this.setQuery = setQuery;
         this.propertiesEnricher = propertiesEnricher;
+        this.referencedEntityDAO = referencedEntityDAO;
+    }
+
+    public List<ExternalData> listBySampleTechId(TechId sampleId)
+    {
+        try
+        {
+            return enrichDatasets(query.getDatasetsForSample(sampleId.getId()));
+        } finally
+        {
+            // Commit transaction, no need to rollback even when failed as it is readonly.
+            query.commit();
+        }
     }
 
     public List<ExternalData> listByExperimentTechId(TechId experimentId)
     {
+        try
+        {
+            return enrichDatasets(query.getDatasetsForExperiment(experimentId.getId()));
+        } finally
+        {
+            // Commit transaction, no need to rollback even when failed as it is readonly.
+            query.commit();
+        }
+    }
+
+    private List<ExternalData> enrichDatasets(DataIterator<DatasetRecord> datasets)
+    {
         loadSmallConnectedTables();
-        DataIterator<DatasetRecord> datasets = query.getDatasetsForExperiment(experimentId.getId());
-        final Long2ObjectMap<ExternalData> resultMap = createDatasets(datasets);
+        List<DatasetRecord> datasetRecords = asList(datasets);
+        final Long2ObjectMap<ExternalData> datasetMap = createPrimaryDatasets(datasetRecords);
+        enrichWithProperties(datasetMap);
+        enrichWithParents(datasetMap);
+        enrichWithExperiments(datasetMap);
+        enrichWithSamples(datasetMap);
+        return asList(datasetMap);
+    }
+
+    // assumes that the connection to the sample has been already established and sample has the
+    // id set. Should be called after enrichWithParents to ensure that parents invalidation field
+    // will be properly set.
+    private void enrichWithSamples(Long2ObjectMap<ExternalData> datasetMap)
+    {
+        LongSet ids = extractSampleIds(datasetMap);
+        Long2ObjectMap<Sample> samples = referencedEntityDAO.getSamples(ids);
+        for (ExternalData dataset : datasetMap.values())
+        {
+            long sampleId = dataset.getSample().getId();
+            Sample sample = samples.get(sampleId);
+            dataset.setSample(sample);
+            enrichWithInvalidation(dataset, sample);
+        }
+    }
+
+    private void enrichWithInvalidation(ExternalData dataset, Sample sample)
+    {
+        Invalidation invalidation = sample.getInvalidation();
+        dataset.setInvalidation(invalidation);
+        ExternalData parent = dataset.getParent();
+        if (parent != null)
+        {
+            parent.setInvalidation(invalidation);
+        }
+    }
+
+    private static LongSet extractSampleIds(Long2ObjectMap<ExternalData> datasetMap)
+    {
+        LongSet ids = new LongOpenHashSet();
+        for (ExternalData dataset : datasetMap.values())
+        {
+            long sampleId = dataset.getSample().getId();
+            ids.add(sampleId);
+        }
+        return ids;
+    }
+
+    // assumes that the connection to experiment has been already established and experiment has the
+    // id set.
+    private void enrichWithExperiments(Long2ObjectMap<ExternalData> datasetMap)
+    {
+        Long2ObjectMap<Experiment> experimentMap = new Long2ObjectOpenHashMap<Experiment>();
+
+        for (ExternalData dataset : datasetMap.values())
+        {
+            long experimentId = dataset.getExperiment().getId();
+            Experiment experiment = experimentMap.get(experimentId);
+            if (experiment == null)
+            {
+                experiment = referencedEntityDAO.getExperiment(experimentId);
+                experimentMap.put(experimentId, experiment);
+            }
+            dataset.setExperiment(experiment);
+        }
+    }
+
+    /**
+     * @param datasetMap datasets for which parents have to be resolved.
+     * @param datasetCache the original information about datasets,
+     */
+    private void enrichWithParents(final Long2ObjectMap<ExternalData> datasetMap)
+    {
+        LongSet datasetIds = extractIds(datasetMap);
+        Long2ObjectMap<ExternalData> parentsMap = resolveParents(datasetIds, datasetMap);
+        for (ExternalData dataset : datasetMap.values())
+        {
+            ExternalData parent = parentsMap.get(dataset.getId());
+            dataset.setParent(parent);
+        }
+    }
+
+    private static <T> List<T> asList(Iterable<T> items)
+    {
+        List<T> result = new ArrayList<T>();
+        for (T item : items)
+        {
+            result.add(item);
+        }
+        return result;
+    }
+
+    /**
+     * Returns a map from a child id to its parent dataset for the specified dataset ids.<br>
+     * Uses datasetCache not to resolve datasets which have already been resolved.
+     */
+    private Long2ObjectMap<ExternalData> resolveParents(LongSet datasetIds,
+            Long2ObjectMap<ExternalData> datasetCache)
+    {
+        List<DatasetRelationRecord> datasetParents = asList(setQuery.getDatasetParents(datasetIds));
+        Long2ObjectMap<ExternalData> parentsMap =
+                fetchUnknownDatasetParents(datasetParents, datasetCache);
+
+        Long2ObjectMap<ExternalData> childToParentMap = new Long2ObjectOpenHashMap<ExternalData>();
+        for (DatasetRelationRecord relation : datasetParents)
+        {
+            long parentId = relation.data_id_parent;
+            ExternalData parentDataset = getCachedItem(parentId, parentsMap, datasetCache);
+            assert parentDataset != null : "inconsistent parent dataset " + parentId;
+            childToParentMap.put(relation.data_id_child, parentDataset);
+        }
+        return childToParentMap;
+    }
+
+    // takes item from the cache. First checks in the first map, but if an item is not present looks
+    // in the second map
+    private static <T> T getCachedItem(long id, Long2ObjectMap<T> map1, Long2ObjectMap<T> map2)
+    {
+        T item = map1.get(id);
+        if (item == null)
+        {
+            item = map2.get(id);
+        }
+        return item;
+    }
+
+    /**
+     * Returns a map dataset_id -> dataset for all datasets which are parents and are not contained
+     * in a cache.
+     */
+    private Long2ObjectMap<ExternalData> fetchUnknownDatasetParents(
+            Iterable<DatasetRelationRecord> datasetParents,
+            Long2ObjectMap<ExternalData> datasetCache)
+    {
+        LongSet parentIds = extractUnknownParentIds(datasetParents, datasetCache);
+        Iterable<DatasetRecord> unknownParents = setQuery.getDatasets(parentIds);
+        Long2ObjectMap<ExternalData> parentsMap = createBasicDatasets(unknownParents);
+        return parentsMap;
+    }
+
+    private static LongSet extractUnknownParentIds(Iterable<DatasetRelationRecord> datasetParents,
+            Long2ObjectMap<ExternalData> datasetCache)
+    {
+        LongSet result = new LongOpenHashSet();
+        for (DatasetRelationRecord record : datasetParents)
+        {
+            long parentId = record.data_id_parent;
+            if (datasetCache.containsKey(parentId) == false)
+            {
+                result.add(parentId);
+            }
+        }
+        return result;
+    }
+
+    private static LongSet extractIds(Long2ObjectMap<ExternalData> datasetMap)
+    {
+        LongSet result = new LongOpenHashSet();
+        for (ExternalData dataset : datasetMap.values())
+        {
+            result.add(dataset.getId());
+        }
+        return result;
+    }
+
+    private void enrichWithProperties(final Long2ObjectMap<ExternalData> resultMap)
+    {
         propertiesEnricher.enrich(resultMap.keySet(), new IEntityPropertiesHolderResolver()
             {
                 public ExternalData get(long id)
@@ -119,8 +316,6 @@ public class DatasetLister implements IDatasetLister
                     return resultMap.get(id);
                 }
             });
-
-        return asList(resultMap);
     }
 
     private static <T> List<T> asList(Long2ObjectMap<T> items)
@@ -130,47 +325,63 @@ public class DatasetLister implements IDatasetLister
         return result;
     }
 
-    private Long2ObjectMap<ExternalData> createDatasets(DataIterator<DatasetRecord> records)
+    private Long2ObjectMap<ExternalData> createPrimaryDatasets(Iterable<DatasetRecord> records)
     {
         Long2ObjectMap<ExternalData> datasets = new Long2ObjectOpenHashMap<ExternalData>();
         for (DatasetRecord record : records)
         {
-            datasets.put(record.id, createDataset(record));
+            datasets.put(record.id, createPrimaryDataset(record));
         }
         return datasets;
     }
 
-    private ExternalData createDataset(DatasetRecord record)
+    private Long2ObjectMap<ExternalData> createBasicDatasets(Iterable<DatasetRecord> records)
     {
-        ExternalData dataset = new ExternalData();
-        dataset.setCode(record.code);
+        Long2ObjectMap<ExternalData> datasets = new Long2ObjectOpenHashMap<ExternalData>();
+        for (DatasetRecord record : records)
+        {
+            datasets.put(record.id, createBasicDataset(record));
+        }
+        return datasets;
+    }
+
+    private ExternalData createPrimaryDataset(DatasetRecord record)
+    {
+        ExternalData dataset = createBasicDataset(record);
         dataset.setComplete(BooleanOrUnknown.tryToResolve(BooleanOrUnknown
                 .valueOf(record.is_complete)));
-        dataset.setDataProducerCode(record.data_producer_code);
-        dataset.setDataSetType(dataSetTypes.get(record.dsty_id));
+        dataset.setDataProducerCode(escapeHtml(record.data_producer_code));
         dataset.setDataStore(dataStores.get(record.dast_id));
         dataset.setDerived(record.is_derived);
 
         dataset.setFileFormatType(fileFormatTypes.get(record.ffty_id));
-        dataset.setId(record.id);
-        dataset.setLocation(record.location);
+        dataset.setLocation(escapeHtml(record.location));
         dataset.setLocatorType(locatorTypes.get(record.loty_id));
         dataset.setProductionDate(record.production_timestamp);
         dataset.setRegistrationDate(record.registration_timestamp);
         dataset.setDataSetProperties(new ArrayList<IEntityProperty>());
+
         Sample sample = new Sample();
-        SampleType sampleType = new SampleType();
-        sampleType.setCode("sampleType");
-        sampleType.setDatabaseInstance(databaseInstance);
-        sample.setSampleType(sampleType);
+        sample.setId(record.samp_id);
         dataset.setSample(sample);
-        // dataset.setInvalidation(record.); // from sample
+
+        Experiment experiment = new Experiment();
+        experiment.setId(record.expe_id);
+        dataset.setExperiment(experiment);
+
+        return dataset;
+    }
+
+    private ExternalData createBasicDataset(DatasetRecord record)
+    {
+        ExternalData dataset = new ExternalData();
+        dataset.setCode(escapeHtml(record.code));
+        dataset.setDataSetType(dataSetTypes.get(record.dsty_id));
+        dataset.setId(record.id);
+
+        // TODO 2009-09-02, Tomasz Pylak: set dataset permanent links
         // dataset.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL,
         // EntityKind.DATA_SET, record.code));
-        // dataset.setParent(record.);
-        // dataset.setExperiment(record.);
-        // dataset.setRegistrator(record.);
-        // dataset.setSample(record.);
 
         return dataset;
     }
@@ -202,31 +413,36 @@ public class DatasetLister implements IDatasetLister
         }
     }
 
+    private static void setCode(Code<?> codeHolder, CodeRecord codeRecord)
+    {
+        codeHolder.setCode(escapeHtml(codeRecord.code));
+    }
+
     private static DataStore createDataStore(CodeRecord codeRecord)
     {
         DataStore result = new DataStore();
-        result.setCode(codeRecord.code);
+        setCode(result, codeRecord);
         return result;
     }
 
     private static LocatorType createLocatorType(CodeRecord codeRecord)
     {
         LocatorType result = new LocatorType();
-        result.setCode(codeRecord.code);
+        setCode(result, codeRecord);
         return result;
     }
 
     private static FileFormatType createFileFormatType(CodeRecord codeRecord)
     {
         FileFormatType result = new FileFormatType();
-        result.setCode(codeRecord.code);
+        setCode(result, codeRecord);
         return result;
     }
 
     private DataSetType createDataSetType(CodeRecord codeRecord)
     {
         DataSetType result = new DataSetType();
-        result.setCode(codeRecord.code);
+        setCode(result, codeRecord);
         result.setDatabaseInstance(databaseInstance);
         return result;
     }

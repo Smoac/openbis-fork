@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.asList;
+import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.createSet;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
@@ -112,11 +113,6 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         setQuery = sampleListerDAO.getIdSetQuery();
         query = sampleListerDAO.getQuery();
         propertySetQuery = sampleListerDAO.getPropertySetQuery();
-    }
-
-    private static LongSet createSet(long... values)
-    {
-        return new LongOpenHashSet(values);
     }
 
     @Test

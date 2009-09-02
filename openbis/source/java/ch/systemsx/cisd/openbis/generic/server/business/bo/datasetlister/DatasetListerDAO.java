@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { IDatasetListingFullQuery.class, IEntityPropertyListingQuery.class })
+    { IDatasetListingFullQuery.class, IEntityPropertyListingQuery.class, DatasetRelationRecord.class })
 public final class DatasetListerDAO
 {
     /**
@@ -220,6 +220,11 @@ public final class DatasetListerDAO
                 public Iterable<DatasetRecord> getDatasets(LongSet sampleIds)
                 {
                     return query.getDatasets(sampleIds);
+                }
+
+                public Iterable<DatasetRelationRecord> getDatasetParents(LongSet entityIds)
+                {
+                    return query.getDatasetParents(entityIds);
                 }
             };
     }

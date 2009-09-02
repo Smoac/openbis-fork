@@ -40,10 +40,16 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     public static final int FETCH_SIZE = 1000;
 
     /**
-     * Returns the datasets for the given <var>experimentId</var>.
+     * Returns the datasets for the given experiment id.
      */
     @Select(sql = "select * from data left outer join external_data on data.id = external_data.data_id where data.expe_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsForExperiment(long experimentId);
+
+    /**
+     * Returns the datasets for the given sample id.
+     */
+    @Select(sql = "select * from data left outer join external_data on data.id = external_data.data_id where data.samp_id=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getDatasetsForSample(long sampleId);
 
     /**
      * Returns the datasets for the given <var>datasetId</var>.
@@ -70,14 +76,6 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     @Select(sql = "select id, code from locator_types")
     public CodeRecord[] getLocatorTypes();
 
-    // private Experiment experiment;
-    //
-    // private Sample sample;
-    //
-    // private Set<ExternalData> parents;
-    //
-    // private Set<ExternalData> children;
-
     // ------------- Properties
 
     /**
@@ -91,7 +89,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     /**
      * Returns all generic property values of all samples.
      */
-    @Select(sql = "select pr.ds_id as entity_idetpt.t.prty_id, pr.value from data_set_properties pr"
+    @Select(sql = "select pr.ds_id as entity_id, etpt.prty_id, pr.value from data_set_properties pr"
             + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
             + "   where pr.value is not null", fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues();
@@ -104,7 +102,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
             + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
             + "      join controlled_vocabulary_terms cvte on pr.cvte_id=cvte.id"
             + "   where pr.ds_id=?{1}")
-    public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(long sampleId);
+    public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(long entityId);
 
     /**
      * Returns all controlled vocabulary property values of all samples.
@@ -122,7 +120,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
             + "      from data_set_properties pr"
             + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
             + "      join materials m on pr.mate_prop_id=m.id where pr.ds_id=?{1}")
-    public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(long sampleId);
+    public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(long entityId);
 
     /**
      * Returns all material-type property values of all samples.

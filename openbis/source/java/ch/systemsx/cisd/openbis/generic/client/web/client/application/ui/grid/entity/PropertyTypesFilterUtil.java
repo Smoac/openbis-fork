@@ -88,7 +88,7 @@ public class PropertyTypesFilterUtil
             for (EntityTypePropertyType<?> assignment : assignments)
             {
                 // TODO 2009-08-27, Tomasz Pylak: use entityTypes equality when sample types
-                // obtained from sample listenr will be filled with database instance as well.
+                // obtained from sample lister will be filled with database instance as well.
                 if (entityTypesCodes.contains(assignment.getEntityType().getCode()))
                 {
                     result.add(propertyType);

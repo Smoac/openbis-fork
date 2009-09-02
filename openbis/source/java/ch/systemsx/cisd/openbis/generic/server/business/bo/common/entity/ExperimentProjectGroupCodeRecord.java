@@ -1,9 +1,9 @@
-package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity;
 
 import ch.rinn.restrictions.Private;
 
 /**
- * A r representing an experiment, project and group code.
+ * A class representing an experiment, project and group code.
  */
 @Private
 public class ExperimentProjectGroupCodeRecord

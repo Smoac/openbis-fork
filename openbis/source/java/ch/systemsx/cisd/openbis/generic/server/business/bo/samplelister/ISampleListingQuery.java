@@ -33,19 +33,20 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityP
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * A {@link TransactionQuery} interface for obtaining large sets of sample-related entities from the
  * database.
  * <p>
- * This interface is intended to be used only in this package. The <code>public</code> modifier
- * is needed for creating a dynamic proxy by the EOD SQL library.
+ * This interface is intended to be used only in this package. The <code>public</code> modifier is
+ * needed for creating a dynamic proxy by the EOD SQL library.
  * 
  * @author Bernd Rinn
  */
-@Friend(toClasses={ExperimentProjectGroupCodeRecord.class})
+@Friend(toClasses =
+    { ExperimentProjectGroupCodeRecord.class })
 @Private
 public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQuery
 {
@@ -177,42 +178,6 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "   from samples s where s.dbin_id=?{1} and s.saty_id=?{2} order by s.code", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSharedSamplesForSampleType(long dbInstanceId,
             long sampleTypeId);
-
-    //
-    // Experiments
-    //
-
-    /**
-     * Returns the code of an experiment and its project by the experiment <var>id</var>.
-     * 
-     * @param experimentId The id of the experiment to get the code for.
-     */
-    @Select("select e.code as e_code, et.code as et_code, p.code as p_code from experiments e "
-            + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
-            + "where e.id=?{1}")
-    public ExperimentProjectGroupCodeRecord getExperimentAndProjectCodeForId(long experimentId);
-
-    /**
-     * Returns the code of an experiment and its project by the experiment <var>id</var>.
-     * 
-     * @param experimentId The id of the experiment to get the code for.
-     */
-    @Select("select e.code as e_code, et.code as et_code, p.code as p_code, g.code as g_code from experiments e "
-            + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
-            + "join groups g on p.grou_id=g.id where e.id=?{1}")
-    public ExperimentProjectGroupCodeRecord getExperimentAndProjectAndGroupCodeForId(long experimentId);
-
-    //
-    // Persons
-    //
-
-    /**
-     * Returns the person for the given <var>personId</var>
-     * 
-     * @param personId The id of the Person you want to get.
-     */
-    @Select("select first_name as firstName, last_name as lastName, email, user_id as userId from persons where id=?{1}")
-    public Person getPersonById(long personId);
 
     //
     // Types

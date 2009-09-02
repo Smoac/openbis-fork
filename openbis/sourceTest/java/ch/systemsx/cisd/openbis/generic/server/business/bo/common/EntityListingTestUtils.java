@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
 import static org.testng.AssertJUnit.fail;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 /**
  * @author Tomasz Pylak
  */
-@Friend(toClasses=CodeRecord.class)
+@Friend(toClasses = CodeRecord.class)
 public class EntityListingTestUtils
 {
     public static PropertyType findPropertyType(PropertyType[] propertyTypes,
@@ -79,6 +81,11 @@ public class EntityListingTestUtils
         }
         fail("No sample type with the given code found " + code);
         return null; // for compiler
+    }
+
+    public static LongSet createSet(long... values)
+    {
+        return new LongOpenHashSet(values);
     }
 
 }

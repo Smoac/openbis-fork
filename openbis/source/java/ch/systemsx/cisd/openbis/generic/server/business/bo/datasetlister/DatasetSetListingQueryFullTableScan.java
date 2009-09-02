@@ -24,17 +24,18 @@ import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.iterators.FilterIterator;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 
 /**
  * An implementation of {@link IDatasetSetListingQuery} which gets all all rows and then filters
- * them down by sample id. This will be a faster way of getting the datasets then getting them one by
- * one (as {@link DatasetSetListingQueryOneByOne} does) when a the requested datasets are a
+ * them down by sample id. This will be a faster way of getting the datasets then getting them one
+ * by one (as {@link DatasetSetListingQueryOneByOne} does) when a the requested datasets are a
  * considerable part of all datasets.
  * 
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class, IDatasetListingQuery.class })
+    { DatasetRecord.class, DatasetRelationRecord.class, IDatasetListingQuery.class })
 class DatasetSetListingQueryFullTableScan implements IDatasetSetListingQuery
 {
     private final IDatasetListingQuery query;
@@ -60,6 +61,12 @@ class DatasetSetListingQueryFullTableScan implements IDatasetSetListingQuery
                                 });
                 }
             };
+    }
+
+    public Iterable<DatasetRelationRecord> getDatasetParents(LongSet entityIds)
+    {
+        // TODO 2009-09-01, Tomasz Pylak: implement me! (h2)
+        throw new NotImplementedException();
     }
 
 }

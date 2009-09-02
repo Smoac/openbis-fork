@@ -16,29 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
-import it.unimi.dsi.fastutil.longs.LongSet;
-
-import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
 
 /**
- * A DAO query interface for obtaining sets of datasets or dataset-related entities based on a set
- * of dataset ids.
- * <p>
- * May need different implementations for different database engines.
+ * Stores relation between datasets.
  * 
  * @author Tomasz Pylak
  */
-@Friend(toClasses =
-    { DatasetRelationRecord.class })
-interface IDatasetSetListingQuery
+@Private
+public class DatasetRelationRecord
 {
-    /**
-     * Returns the datasets for the given <var>datasetIds</var>.
-     */
-    public Iterable<DatasetRecord> getDatasets(LongSet datasetIds);
+    public long data_id_parent;
 
-    /**
-     * Returns the parent datasets of the specified datasets.
-     */
-    public Iterable<DatasetRelationRecord> getDatasetParents(LongSet entityIds);
+    public long data_id_child;
 }

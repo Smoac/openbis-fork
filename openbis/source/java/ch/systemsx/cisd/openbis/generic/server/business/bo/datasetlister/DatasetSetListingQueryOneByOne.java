@@ -22,13 +22,15 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.Iterator;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 
 /**
  * An implementation of {@link IDatasetSetListingQuery} that gets the datasets one by one.
  * 
  * @author Tomasz Pylak
  */
-@Friend(toClasses = IDatasetListingQuery.class)
+@Friend(toClasses =
+    { IDatasetListingQuery.class, DatasetRelationRecord.class })
 class DatasetSetListingQueryOneByOne implements IDatasetSetListingQuery
 {
     private final IDatasetListingQuery query;
@@ -64,6 +66,12 @@ class DatasetSetListingQueryOneByOne implements IDatasetSetListingQuery
                         };
                 }
             };
+    }
+
+    public Iterable<DatasetRelationRecord> getDatasetParents(LongSet entityIds)
+    {
+        // TODO 2009-09-01, Tomasz Pylak: implement me! (h2)
+        throw new NotImplementedException();
     }
 
 }
