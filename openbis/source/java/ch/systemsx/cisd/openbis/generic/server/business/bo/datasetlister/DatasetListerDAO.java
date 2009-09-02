@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import javax.sql.DataSource;
+import java.sql.Connection;
 
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
@@ -47,7 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { IDatasetListingFullQuery.class, IEntityPropertyListingQuery.class, DatasetRelationRecord.class })
+    { IDatasetListingFullQuery.class, IEntityPropertyListingQuery.class,
+            DatasetRelationRecord.class })
 public final class DatasetListerDAO
 {
     /**
@@ -59,7 +60,8 @@ public final class DatasetListerDAO
         DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
         final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(context);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        return new DatasetListerDAO(supportsSetQuery, context.getDataSource(), homeDatabaseInstance);
+        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+        return new DatasetListerDAO(supportsSetQuery, connection, homeDatabaseInstance);
     }
 
     private final IDatasetListingFullQuery query;
@@ -74,10 +76,10 @@ public final class DatasetListerDAO
 
     private final DatabaseInstance databaseInstance;
 
-    DatasetListerDAO(final boolean supportsSetQuery, final DataSource dataSource,
+    DatasetListerDAO(final boolean supportsSetQuery, final Connection connection,
             final DatabaseInstancePE databaseInstance)
     {
-        this.query = QueryTool.getQuery(dataSource, IDatasetListingFullQuery.class);
+        this.query = QueryTool.getQuery(connection, IDatasetListingFullQuery.class);
         this.strategyChooser = createStrategyChooser(query);
         this.setQuery = createIdSetQuery(supportsSetQuery, query, strategyChooser);
         this.propertySetQuery = createSetPropertyQuery(supportsSetQuery, query, strategyChooser);

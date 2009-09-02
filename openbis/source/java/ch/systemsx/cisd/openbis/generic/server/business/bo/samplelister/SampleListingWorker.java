@@ -249,8 +249,8 @@ final class SampleListingWorker
             return sampleList;
         } finally
         {
-            // Commit transaction, no need to rollback even when failed as it is readonly.
-            query.commit();
+            // query.close(false);
+            // referencedEntityDAO.close();
         }
     }
 

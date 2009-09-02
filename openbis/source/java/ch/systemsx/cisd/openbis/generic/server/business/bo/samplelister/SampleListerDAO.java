@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import javax.sql.DataSource;
+import java.sql.Connection;
 
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
@@ -59,7 +59,8 @@ public final class SampleListerDAO
         DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
         final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(context);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        return new SampleListerDAO(supportsSetQuery, context.getDataSource(), homeDatabaseInstance);
+        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+        return new SampleListerDAO(supportsSetQuery, connection, homeDatabaseInstance);
     }
 
     private final ISampleListingFullQuery query;
@@ -74,10 +75,10 @@ public final class SampleListerDAO
 
     private final DatabaseInstance databaseInstance;
 
-    SampleListerDAO(final boolean supportsSetQuery, final DataSource dataSource,
+    SampleListerDAO(final boolean supportsSetQuery, Connection connection,
             final DatabaseInstancePE databaseInstance)
     {
-        this.query = QueryTool.getQuery(dataSource, ISampleListingFullQuery.class);
+        this.query = QueryTool.getQuery(connection, ISampleListingFullQuery.class);
         this.strategyChooser = createStrategyChooser(query);
         this.setQuery = createIdSetQuery(supportsSetQuery, query, strategyChooser);
         this.propertySetQuery = createSetPropertyQuery(supportsSetQuery, query, strategyChooser);

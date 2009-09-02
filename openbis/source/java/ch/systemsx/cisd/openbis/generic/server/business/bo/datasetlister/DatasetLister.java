@@ -123,8 +123,7 @@ public class DatasetLister implements IDatasetLister
             return enrichDatasets(query.getDatasetsForSample(sampleId.getId()));
         } finally
         {
-            // Commit transaction, no need to rollback even when failed as it is readonly.
-            query.commit();
+            closeConnections();
         }
     }
 
@@ -135,9 +134,14 @@ public class DatasetLister implements IDatasetLister
             return enrichDatasets(query.getDatasetsForExperiment(experimentId.getId()));
         } finally
         {
-            // Commit transaction, no need to rollback even when failed as it is readonly.
-            query.commit();
+            closeConnections();
         }
+    }
+
+    private void closeConnections()
+    {
+        // query.close(false);
+        // referencedEntityDAO.close();
     }
 
     private List<ExternalData> enrichDatasets(DataIterator<DatasetRecord> datasets)

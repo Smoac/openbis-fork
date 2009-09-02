@@ -90,7 +90,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         return persistencyResources;
     }
 
-    protected SessionFactory getSessionFactory()
+    public SessionFactory getSessionFactory()
     {
         return persistencyResources.getSessionFactoryOrNull();
     }

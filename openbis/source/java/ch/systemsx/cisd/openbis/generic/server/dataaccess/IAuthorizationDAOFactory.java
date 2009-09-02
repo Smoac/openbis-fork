@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import org.hibernate.SessionFactory;
+
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
@@ -77,4 +79,10 @@ public interface IAuthorizationDAOFactory
      * Disables interaction with the second level cache for the current Hibernate session.
      */
     public void disableSecondLevelCacheForSession();
+    
+    /**
+     * Returns the Hibernate session factory.
+     */
+    public SessionFactory getSessionFactory();
+
 }

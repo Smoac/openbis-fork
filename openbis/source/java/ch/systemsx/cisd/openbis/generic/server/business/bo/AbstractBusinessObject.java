@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -72,6 +73,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
 
         this.daoFactory = daoFactory;
         this.session = session;
+    }
+
+    public SessionFactory getSessionFactory()
+    {
+        return daoFactory.getSessionFactory();
     }
 
     protected final PersonPE findRegistrator()

@@ -21,13 +21,12 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import javax.sql.DataSource;
+import java.sql.Connection;
 
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
@@ -61,19 +60,19 @@ public class SecondaryEntityDAO
      */
     public static SecondaryEntityDAO create(IDAOFactory daoFactory)
     {
-        DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        return new SecondaryEntityDAO(context.getDataSource(), homeDatabaseInstance);
+        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+        return new SecondaryEntityDAO(connection, homeDatabaseInstance);
     }
 
     private final ISecondaryEntityListingQuery query;
 
     private final DatabaseInstance databaseInstance;
 
-    private SecondaryEntityDAO(final DataSource dataSource,
+    private SecondaryEntityDAO(final Connection connection,
             final DatabaseInstancePE databaseInstance)
     {
-        this.query = QueryTool.getQuery(dataSource, ISecondaryEntityListingQuery.class);
+        this.query = QueryTool.getQuery(connection, ISecondaryEntityListingQuery.class);
         this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstance);
     }
 
@@ -203,5 +202,4 @@ public class SecondaryEntityDAO
         sampleType.setDatabaseInstance(databaseInstance);
         return sampleType;
     }
-
 }

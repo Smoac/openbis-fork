@@ -76,18 +76,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFactory implements
         ICommonBusinessObjectFactory
 {
-    private final SampleListerDAO sampleListerDAO;
 
-    private final DatasetListerDAO datasetListerDAO;
-
-    private final SecondaryEntityDAO referencedEntityDAO;
+    private final IDAOFactory daoFactory;
 
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
     {
         super(daoFactory, dssFactory);
-        this.sampleListerDAO = SampleListerDAO.create(daoFactory);
-        this.datasetListerDAO = DatasetListerDAO.create(daoFactory);
-        this.referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
+        this.daoFactory = daoFactory;
     }
 
     public final IAttachmentBO createAttachmentBO(final Session session)
@@ -112,11 +107,16 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
 
     public ISampleLister createSampleLister(Session session)
     {
+        SampleListerDAO sampleListerDAO = SampleListerDAO.create(daoFactory);
+        SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
         return SampleLister.create(session.getBaseIndexURL(), sampleListerDAO, referencedEntityDAO);
     }
 
     public IDatasetLister createDatasetLister(Session session)
     {
+        DatasetListerDAO datasetListerDAO = DatasetListerDAO.create(daoFactory);
+        SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
+
         return DatasetLister.create(datasetListerDAO, referencedEntityDAO);
     }
 
