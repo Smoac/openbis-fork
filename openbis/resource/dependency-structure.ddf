@@ -94,15 +94,16 @@ check layeringOf generic.server.1 generic.server.2 generic.server.3 generic.serv
 check sets [bo.common]
 
 [bo.samplelister] = ${bo}.samplelister.*
-check sets [bo.samplelister]
+[bo.datasetlister] = ${bo}.datasetlister.*
+check sets [bo.samplelister] [bo.datasetlister]
 
-[not-referring-bo.common] = * excluding [bo.samplelister]
+[not-referring-bo.common] = * excluding [bo.samplelister] [bo.datasetlister]
 check sets [not-referring-bo.common]
 
 check [not-referring-bo.common] independentOf [bo.common]
 
 layer bo.1 = [bo.common]
-layer bo.2 = [bo.samplelister]
+layer bo.2 = [bo.samplelister] [bo.datasetlister]
 
 check layeringOf bo.1 bo.2
 
