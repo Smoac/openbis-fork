@@ -71,6 +71,7 @@ final class LoginPage extends LayoutContainer
     private Widget createFooter(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         HorizontalPanel footer = new HorizontalPanel();
+        footer.setStyleName("login-help");
         final HTML html = new HTML("Click <a href='help.html' target='_blank'>here</a> for help.");
         footer.add(html);
         footer.setVerticalAlign(VerticalAlignment.BOTTOM);
