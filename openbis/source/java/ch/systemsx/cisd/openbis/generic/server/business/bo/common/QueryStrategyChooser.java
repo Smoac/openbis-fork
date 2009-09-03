@@ -59,7 +59,6 @@ public class QueryStrategyChooser
 
     public boolean useFullTableScan(final LongSet entityIDs)
     {
-        System.out.println("h222222222222222222");
         return entityIDs.size() >= getNumberOfEntities() * FULL_TABLE_SCAN_THRESHOLD;
     }
 }
