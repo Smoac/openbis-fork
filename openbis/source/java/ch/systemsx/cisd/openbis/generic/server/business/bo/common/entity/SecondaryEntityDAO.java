@@ -27,6 +27,7 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
@@ -60,29 +61,27 @@ public class SecondaryEntityDAO
      */
     public static SecondaryEntityDAO create(IDAOFactory daoFactory)
     {
-        return create(daoFactory, null);
+        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+        ISecondaryEntityListingQuery query =
+                QueryTool.getQuery(connection, ISecondaryEntityListingQuery.class);
+        return create(daoFactory, query);
     }
 
-    /**
-     * Creates a new instance based on {@link PersistencyResources} and home
-     * {@link DatabaseInstancePE} of specified DAO factory.
-     */
-    public static SecondaryEntityDAO create(IDAOFactory daoFactory, Connection connOrNull)
+    @Private
+    static SecondaryEntityDAO create(IDAOFactory daoFactory, ISecondaryEntityListingQuery query)
     {
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        final Connection connection =
-                (connOrNull != null) ? connOrNull : DatabaseContextUtils.getConnection(daoFactory);
-        return new SecondaryEntityDAO(connection, homeDatabaseInstance);
+        return new SecondaryEntityDAO(query, homeDatabaseInstance);
     }
 
     private final ISecondaryEntityListingQuery query;
 
     private final DatabaseInstance databaseInstance;
 
-    private SecondaryEntityDAO(final Connection connection,
+    private SecondaryEntityDAO(final ISecondaryEntityListingQuery query,
             final DatabaseInstancePE databaseInstance)
     {
-        this.query = QueryTool.getQuery(connection, ISecondaryEntityListingQuery.class);
+        this.query = query;
         this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstance);
     }
 

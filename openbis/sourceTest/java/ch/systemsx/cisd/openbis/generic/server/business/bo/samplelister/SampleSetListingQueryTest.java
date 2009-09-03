@@ -24,7 +24,6 @@ import static org.testng.AssertJUnit.fail;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,6 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertySetListingQuery;
@@ -88,9 +86,7 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        final Connection conn =
-                DatabaseContextUtils.getDatabaseContext(daoFactory).getDataSource().getConnection();
-        SampleListerDAO sampleListerDAO = SampleListerDAO.create(daoFactory, conn);
+        SampleListerDAO sampleListerDAO = SampleListingQueryTest.createSampleListerDAO(daoFactory);
         dbInstanceId = sampleListerDAO.getDatabaseInstanceId();
         dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
         group = daoFactory.getGroupDAO().listGroups().get(0);

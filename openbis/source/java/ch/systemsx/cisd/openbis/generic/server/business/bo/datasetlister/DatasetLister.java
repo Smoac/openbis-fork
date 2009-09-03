@@ -34,11 +34,14 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityProperti
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
@@ -61,6 +64,8 @@ public class DatasetLister implements IDatasetLister
     private final long databaseInstanceId;
 
     private final DatabaseInstance databaseInstance;
+
+    private final String baseIndexURL;
 
     //
     // Working interfaces
@@ -89,20 +94,30 @@ public class DatasetLister implements IDatasetLister
     private final Long2ObjectMap<LocatorType> locatorTypes =
             new Long2ObjectOpenHashMap<LocatorType>();
 
-    public static DatasetLister create(DatasetListerDAO dao, SecondaryEntityDAO referencedEntityDAO)
+    public static IDatasetLister create(IDAOFactory daoFactory, String baseIndexURL)
+    {
+        DatasetListerDAO dao = DatasetListerDAO.create(daoFactory);
+        SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
+
+        return create(dao, referencedEntityDAO, baseIndexURL);
+    }
+
+    static IDatasetLister create(DatasetListerDAO dao, SecondaryEntityDAO referencedEntityDAO,
+            String baseIndexURL)
     {
         IDatasetListingQuery query = dao.getQuery();
         IDatasetSetListingQuery setQuery = dao.getIdSetQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new DatasetLister(dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), query,
-                setQuery, propertiesEnricher, referencedEntityDAO);
+                setQuery, propertiesEnricher, referencedEntityDAO, baseIndexURL);
     }
 
     // For unit tests
     DatasetLister(final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final IDatasetListingQuery query, final IDatasetSetListingQuery setQuery,
-            IEntityPropertiesEnricher propertiesEnricher, SecondaryEntityDAO referencedEntityDAO)
+            IEntityPropertiesEnricher propertiesEnricher, SecondaryEntityDAO referencedEntityDAO,
+            String baseIndexURL)
     {
         assert databaseInstance != null;
         assert query != null;
@@ -114,34 +129,17 @@ public class DatasetLister implements IDatasetLister
         this.setQuery = setQuery;
         this.propertiesEnricher = propertiesEnricher;
         this.referencedEntityDAO = referencedEntityDAO;
+        this.baseIndexURL = baseIndexURL;
     }
 
     public List<ExternalData> listBySampleTechId(TechId sampleId)
     {
-        try
-        {
-            return enrichDatasets(query.getDatasetsForSample(sampleId.getId()));
-        } finally
-        {
-            closeConnections();
-        }
+        return enrichDatasets(query.getDatasetsForSample(sampleId.getId()));
     }
 
     public List<ExternalData> listByExperimentTechId(TechId experimentId)
     {
-        try
-        {
-            return enrichDatasets(query.getDatasetsForExperiment(experimentId.getId()));
-        } finally
-        {
-            closeConnections();
-        }
-    }
-
-    private void closeConnections()
-    {
-        // query.close(false);
-        // referencedEntityDAO.close();
+        return enrichDatasets(query.getDatasetsForExperiment(experimentId.getId()));
     }
 
     private List<ExternalData> enrichDatasets(DataIterator<DatasetRecord> datasets)
@@ -382,10 +380,8 @@ public class DatasetLister implements IDatasetLister
         dataset.setCode(escapeHtml(record.code));
         dataset.setDataSetType(dataSetTypes.get(record.dsty_id));
         dataset.setId(record.id);
-
-        // TODO 2009-09-02, Tomasz Pylak: set dataset permanent links
-        // dataset.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL,
-        // EntityKind.DATA_SET, record.code));
+        dataset.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.DATA_SET,
+                record.code));
 
         return dataset;
     }

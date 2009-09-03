@@ -16,15 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityListingQueryTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -41,24 +40,31 @@ public class DatasetListerTest extends AbstractDAOTest
 {
     private ExperimentPE firstExperiment;
 
-    private DatasetLister lister;
+    private IDatasetLister lister;
 
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        final Connection conn =
-            DatabaseContextUtils.getDatabaseContext(daoFactory).getDataSource().getConnection();
-        DatasetListerDAO dao = DatasetListerDAO.create(daoFactory, conn);
-        SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory, conn);
-        lister = DatasetLister.create(dao, referencedEntityDAO);
+        DatasetListerDAO datasetListerDAO =
+                DatasetListingQueryTest.createDatasetListerDAO(daoFactory);
+        SecondaryEntityDAO secondaryEntityDAO =
+                SecondaryEntityListingQueryTest.createSecondaryEntityDAO(daoFactory);
+        lister = DatasetLister.create(datasetListerDAO, secondaryEntityDAO, "www");
         firstExperiment = daoFactory.getExperimentDAO().listExperiments().get(0);
     }
 
     @Test
-    public void testDataset()
+    public void testListByExperimentTechId()
     {
         // NOTE: test stub
         lister.listByExperimentTechId(new TechId(firstExperiment.getId()));
+    }
+
+    @Test
+    public void testListBySampleTechId()
+    {
+        // NOTE: test stub
+        lister.listBySampleTechId(new TechId(1L));
     }
 
 }

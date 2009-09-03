@@ -16,16 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
@@ -35,7 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class, ExperimentProjectGroupCodeRecord.class, IDatasetListingQuery.class })
+    { DatasetRecord.class, ExperimentProjectGroupCodeRecord.class, IDatasetListingQuery.class,
+            DatasetListerDAO.class })
 @Test(groups =
     { "db", "dataset" })
 // TODO 2009-09-01, Tomasz Pylak: replace test stubs. Now they test only that the sql is
@@ -54,14 +55,19 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        final Connection conn =
-                DatabaseContextUtils.getDatabaseContext(daoFactory).getDataSource().getConnection();
-        DatasetListerDAO dao = DatasetListerDAO.create(daoFactory, conn);
+        DatasetListerDAO dao = createDatasetListerDAO(daoFactory);
         dbInstanceId = dao.getDatabaseInstanceId();
         firstExperiment = daoFactory.getExperimentDAO().listExperiments().get(0);
         // TODO 2009-09-01, Tomasz Pylak: get the real dataset id
         datasetId = 1;
         query = dao.getQuery();
+    }
+
+    public static DatasetListerDAO createDatasetListerDAO(IDAOFactory daoFactory)
+    {
+        IDatasetListingFullQuery query =
+                EntityListingTestUtils.createQuery(daoFactory, IDatasetListingFullQuery.class);
+        return DatasetListerDAO.create(daoFactory, query);
     }
 
     @Test

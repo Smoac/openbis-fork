@@ -24,6 +24,7 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
@@ -57,21 +58,20 @@ public final class DatasetListerDAO
      */
     public static DatasetListerDAO create(IDAOFactory daoFactory)
     {
-        return create(daoFactory, null);
+        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+        IDatasetListingFullQuery query =
+                QueryTool.getQuery(connection, IDatasetListingFullQuery.class);
+        return create(daoFactory, query);
     }
 
-    /**
-     * Creates a new instance based on {@link PersistencyResources} and home
-     * {@link DatabaseInstancePE} of specified DAO factory.
-     */
-    public static DatasetListerDAO create(IDAOFactory daoFactory, Connection connOrNull)
+    @Private
+    // only for tests
+    static DatasetListerDAO create(IDAOFactory daoFactory, IDatasetListingFullQuery query)
     {
         DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
         final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(context);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        final Connection connection =
-                (connOrNull != null) ? connOrNull : DatabaseContextUtils.getConnection(daoFactory);
-        return new DatasetListerDAO(supportsSetQuery, connection, homeDatabaseInstance);
+        return new DatasetListerDAO(supportsSetQuery, query, homeDatabaseInstance);
     }
 
     private final IDatasetListingFullQuery query;
@@ -86,10 +86,10 @@ public final class DatasetListerDAO
 
     private final DatabaseInstance databaseInstance;
 
-    DatasetListerDAO(final boolean supportsSetQuery, final Connection connection,
+    DatasetListerDAO(final boolean supportsSetQuery, IDatasetListingFullQuery query,
             final DatabaseInstancePE databaseInstance)
     {
-        this.query = QueryTool.getQuery(connection, IDatasetListingFullQuery.class);
+        this.query = query;
         this.strategyChooser = createStrategyChooser(query);
         this.setQuery = createIdSetQuery(supportsSetQuery, query, strategyChooser);
         this.propertySetQuery = createSetPropertyQuery(supportsSetQuery, query, strategyChooser);

@@ -20,15 +20,14 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -41,7 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { ExperimentProjectGroupCodeRecord.class, ISecondaryEntityListingQuery.class })
+    { ExperimentProjectGroupCodeRecord.class, ISecondaryEntityListingQuery.class,
+            SecondaryEntityDAO.class })
 @Test(groups =
     { "db", "misc" })
 public class SecondaryEntityListingQueryTest extends AbstractDAOTest
@@ -58,9 +58,14 @@ public class SecondaryEntityListingQueryTest extends AbstractDAOTest
     {
         firstExperiment = daoFactory.getExperimentDAO().listExperiments().get(0);
         firstPerson = daoFactory.getPersonDAO().getPerson(1);
-        final Connection conn =
-            DatabaseContextUtils.getDatabaseContext(daoFactory).getDataSource().getConnection();
-        dao = SecondaryEntityDAO.create(daoFactory, conn);
+        dao = createSecondaryEntityDAO(daoFactory);
+    }
+
+    public static SecondaryEntityDAO createSecondaryEntityDAO(IDAOFactory daoFactory)
+    {
+        ISecondaryEntityListingQuery query =
+                EntityListingTestUtils.createQuery(daoFactory, ISecondaryEntityListingQuery.class);
+        return SecondaryEntityDAO.create(daoFactory, query);
     }
 
     @Test

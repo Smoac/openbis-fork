@@ -57,13 +57,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyTermBO;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.DatasetLister;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.DatasetListerDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleLister;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleListerDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -76,7 +73,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFactory implements
         ICommonBusinessObjectFactory
 {
-
     private final IDAOFactory daoFactory;
 
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory)
@@ -107,17 +103,12 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
 
     public ISampleLister createSampleLister(Session session)
     {
-        SampleListerDAO sampleListerDAO = SampleListerDAO.create(daoFactory);
-        SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
-        return SampleLister.create(session.getBaseIndexURL(), sampleListerDAO, referencedEntityDAO);
+        return SampleLister.create(daoFactory, session.getBaseIndexURL());
     }
 
     public IDatasetLister createDatasetLister(Session session)
     {
-        DatasetListerDAO datasetListerDAO = DatasetListerDAO.create(daoFactory);
-        SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
-
-        return DatasetLister.create(datasetListerDAO, referencedEntityDAO);
+        return DatasetLister.create(daoFactory, session.getBaseIndexURL());
     }
 
     public final ISampleBO createSampleBO(final Session session)

@@ -35,8 +35,7 @@ public class DatabaseContextUtils
     @SuppressWarnings("deprecation")
     public static Connection getConnection(IDAOFactory daoFactory)
     {
-        Connection connection = daoFactory.getSessionFactory().getCurrentSession().connection();
-        return connection;
+        return daoFactory.getSessionFactory().getCurrentSession().connection();
     }
 
     /**

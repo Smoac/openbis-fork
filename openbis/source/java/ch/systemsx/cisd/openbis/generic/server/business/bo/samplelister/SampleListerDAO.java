@@ -24,6 +24,7 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
@@ -56,23 +57,19 @@ public final class SampleListerDAO
      */
     public static SampleListerDAO create(IDAOFactory daoFactory)
     {
-        return create(daoFactory, null);
+        Connection connection = DatabaseContextUtils.getConnection(daoFactory);
+        ISampleListingFullQuery query =
+                QueryTool.getQuery(connection, ISampleListingFullQuery.class);
+        return create(daoFactory, query);
     }
 
-    /**
-     * Creates a new instance based on {@link PersistencyResources} and home
-     * {@link DatabaseInstancePE} of specified DAO factory.
-     * <p>
-     * <i>For unit tests only.</i>
-     */
-    public static SampleListerDAO create(IDAOFactory daoFactory, Connection connOrNull)
+    @Private
+    static SampleListerDAO create(IDAOFactory daoFactory, ISampleListingFullQuery query)
     {
         DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
         final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(context);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        final Connection connection =
-                (connOrNull != null) ? connOrNull : DatabaseContextUtils.getConnection(daoFactory);
-        return new SampleListerDAO(supportsSetQuery, connection, homeDatabaseInstance);
+        return new SampleListerDAO(supportsSetQuery, query, homeDatabaseInstance);
     }
 
     private final ISampleListingFullQuery query;
@@ -87,10 +84,10 @@ public final class SampleListerDAO
 
     private final DatabaseInstance databaseInstance;
 
-    SampleListerDAO(final boolean supportsSetQuery, Connection connection,
+    SampleListerDAO(final boolean supportsSetQuery, ISampleListingFullQuery query,
             final DatabaseInstancePE databaseInstance)
     {
-        this.query = QueryTool.getQuery(connection, ISampleListingFullQuery.class);
+        this.query = query;
         this.strategyChooser = createStrategyChooser(query, databaseInstance.getId());
         this.setQuery =
                 createIdSetQuery(supportsSetQuery, query, strategyChooser, databaseInstance.getId());

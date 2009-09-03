@@ -201,57 +201,50 @@ final class SampleListingWorker
      */
     public List<Sample> load()
     {
-        try
+        final StopWatch watch = new StopWatch();
+        watch.start();
+        final Experiment expOrNull = tryLoadExperiment();
+        final Group groupOrNull = tryLoadGroup(expOrNull);
+        loadSampleTypes();
+        retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds(), groupOrNull);
+        retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples(), groupOrNull);
+        retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples(), groupOrNull);
+        retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples(), groupOrNull);
+        retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples(), groupOrNull);
+        if (operationLog.isDebugEnabled())
         {
-            final StopWatch watch = new StopWatch();
+            watch.stop();
+            operationLog.debug(String.format("Basic retrieval of %d samples took %s s", sampleList
+                    .size(), watch.toString()));
+            watch.reset();
             watch.start();
-            final Experiment expOrNull = tryLoadExperiment();
-            final Group groupOrNull = tryLoadGroup(expOrNull);
-            loadSampleTypes();
-            retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds(), groupOrNull);
-            retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples(), groupOrNull);
-            retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples(), groupOrNull);
-            retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples(), groupOrNull);
-            retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples(), groupOrNull);
+        }
+
+        // Only enrich the "primary" samples (matching the criteria) with properties, not
+        // dependent samples.
+        if (samplePropertiesEnricherOrNull != null)
+        {
+            samplePropertiesEnricherOrNull.enrich(sampleMap.keySet(),
+                    new IEntityPropertiesHolderResolver()
+                        {
+                            public Sample get(long id)
+                            {
+                                return sampleMap.get(id);
+                            }
+                        });
             if (operationLog.isDebugEnabled())
             {
                 watch.stop();
-                operationLog.debug(String.format("Basic retrieval of %d samples took %s s",
-                        sampleList.size(), watch.toString()));
-                watch.reset();
-                watch.start();
+                operationLog.debug(String.format("Enrichment with properties took %s s", watch
+                        .toString()));
             }
-
-            // Only enrich the "primary" samples (matching the criteria) with properties, not
-            // dependent samples.
-            if (samplePropertiesEnricherOrNull != null)
-            {
-                samplePropertiesEnricherOrNull.enrich(sampleMap.keySet(),
-                        new IEntityPropertiesHolderResolver()
-                            {
-                                public Sample get(long id)
-                                {
-                                    return sampleMap.get(id);
-                                }
-                            });
-                if (operationLog.isDebugEnabled())
-                {
-                    watch.stop();
-                    operationLog.debug(String.format("Enrichment with properties took %s s", watch
-                            .toString()));
-                }
-            }
-
-            retrieveDependentSamplesRecursively();
-            resolveParents();
-            resolveContainers();
-
-            return sampleList;
-        } finally
-        {
-            // query.close(false);
-            // referencedEntityDAO.close();
         }
+
+        retrieveDependentSamplesRecursively();
+        resolveParents();
+        resolveContainers();
+
+        return sampleList;
     }
 
     //

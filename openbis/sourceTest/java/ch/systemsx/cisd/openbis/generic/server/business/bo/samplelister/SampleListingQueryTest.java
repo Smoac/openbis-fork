@@ -24,7 +24,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,11 +42,12 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -67,7 +67,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { SampleRecord.class, ExperimentProjectGroupCodeRecord.class, ISampleListingQuery.class })
+    { SampleRecord.class, ExperimentProjectGroupCodeRecord.class, ISampleListingQuery.class,
+            SampleListerDAO.class })
 @Test(groups =
     { "db", "sample" })
 public class SampleListingQueryTest extends AbstractDAOTest
@@ -102,9 +103,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        final Connection conn =
-                DatabaseContextUtils.getDatabaseContext(daoFactory).getDataSource().getConnection();
-        SampleListerDAO sampleListerDAO = SampleListerDAO.create(daoFactory, conn);
+        SampleListerDAO sampleListerDAO = createSampleListerDAO(daoFactory);
         dbInstanceId = sampleListerDAO.getDatabaseInstanceId();
         dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
         group = daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance("CISD", dbInstance);
@@ -117,6 +116,13 @@ public class SampleListingQueryTest extends AbstractDAOTest
                 daoFactory.getSampleDAO().listSamplesWithPropertiesByTypeAndDatabaseInstance(
                         masterPlateType, dbInstance).get(0);
         query = sampleListerDAO.getQuery();
+    }
+
+    public static SampleListerDAO createSampleListerDAO(IDAOFactory daoFactory)
+    {
+        ISampleListingFullQuery query =
+                EntityListingTestUtils.createQuery(daoFactory, ISampleListingFullQuery.class);
+        return SampleListerDAO.create(daoFactory, query);
     }
 
     private Map<Long, SamplePE> createIdMap(final List<SamplePE> sampleList, boolean dropNonListable)

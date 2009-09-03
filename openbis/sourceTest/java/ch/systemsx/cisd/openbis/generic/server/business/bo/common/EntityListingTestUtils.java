@@ -23,7 +23,12 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.QueryTool;
+
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -33,6 +38,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 @Friend(toClasses = CodeRecord.class)
 public class EntityListingTestUtils
 {
+    public static <T extends BaseQuery> T createQuery(IDAOFactory daoFactory, Class<T> clazz)
+    {
+        DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
+        T query = QueryTool.getQuery(context.getDataSource(), clazz);
+        return query;
+    }
+
     public static PropertyType findPropertyType(PropertyType[] propertyTypes,
             String propertyTypeCode)
     {
