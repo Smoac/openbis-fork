@@ -50,9 +50,14 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     public DataSetCommandExecutor(File store)
     {
         this.store = store;
-        File queueFile = new File(store, "commandQueue");
+        File queueFile = getCommandQueueFile(store);
         commandQueue =
                 ExtendedBlockingQueueFactory.<IDataSetCommand> createPersistRecordBased(queueFile);
+    }
+
+    private static File getCommandQueueFile(File store)
+    {
+        return new File(store, "commandQueue");
     }
 
     public void start()
@@ -76,8 +81,8 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                             command.execute(store);
                             if (operationLog.isInfoEnabled())
                             {
-                                operationLog.info("Finished executing " + description
-                                        + " after " + stopWatch);
+                                operationLog.info("Finished executing " + description + " after "
+                                        + stopWatch);
                             }
                             commandQueue.take();
                         }
@@ -124,4 +129,27 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
         }
         commandQueue.add(command);
     }
+
+    /**
+     * Writes the list of items in the command store of the given <var>store</var> directory to
+     * stdout.
+     */
+    public static void listQueuedCommands(File store)
+    {
+        final File queueFile = getCommandQueueFile(store);
+        final IExtendedBlockingQueue<IDataSetCommand> commandQueue =
+                ExtendedBlockingQueueFactory.<IDataSetCommand> createPersistRecordBased(queueFile);
+        if (commandQueue.isEmpty())
+        {
+            System.out.println("Command queue is empty.");
+        } else
+        {
+            System.out.println("Found " + commandQueue.size() + " items in command queue:");
+            for (final IDataSetCommand cmd : commandQueue)
+            {
+                System.out.println(cmd.getDescription());
+            }
+        }
+    }
+
 }

@@ -25,6 +25,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
+import ch.systemsx.cisd.openbis.dss.generic.server.CommandQueueLister;
 
 /**
  * Main class starting {@link ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer},
@@ -61,6 +62,19 @@ public class DataStoreServer
     public static void main(String[] args)
     {
         initLog();
+        final boolean showShredder = (args.length > 0 && args[0].equals("--show-shredder"));
+        if (showShredder)
+        {
+            ETLDaemon.listShredder();
+            System.exit(0);
+        }
+        final boolean showCommandQueue =
+                (args.length > 0 && args[0].equals("--show-command-queue"));
+        if (showCommandQueue)
+        {
+            CommandQueueLister.listQueuedCommand();
+            System.exit(0);
+        }
         // Initialize the shredder _before_ the DataSetCommandExecutor which uses it.
         QueueingPathRemoverService.start(ETLDaemon.shredderQueueFile);
         ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer.main(args);

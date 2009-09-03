@@ -97,27 +97,20 @@ public final class ETLDaemon
         parameters.log();
     }
 
-    private static boolean checkListShredder(final String[] args)
+    public static void listShredder()
     {
-        if (args.length > 0 && args[0].equals("--show-shredder"))
+        final List<File> shredderItems =
+                QueueingPathRemoverService.listShredderItems(shredderQueueFile);
+        if (shredderItems.isEmpty())
         {
-            final List<File> shredderItems =
-                    QueueingPathRemoverService.listShredderItems(shredderQueueFile);
-            if (shredderItems.isEmpty())
-            {
-                System.out.println("Shredder is empty.");
-            } else
-            {
-                System.out.println("Found " + shredderItems.size() + " items in shredder:");
-                for (final File f : shredderItems)
-                {
-                    System.out.println(f.getAbsolutePath());
-                }
-            }
-            return true;
+            System.out.println("Shredder is empty.");
         } else
         {
-            return false;
+            System.out.println("Found " + shredderItems.size() + " items in shredder:");
+            for (final File f : shredderItems)
+            {
+                System.out.println(f.getAbsolutePath());
+            }
         }
     }
 
@@ -481,10 +474,6 @@ public final class ETLDaemon
 
     public final static void main(final String[] args)
     {
-        if (checkListShredder(args))
-        {
-            System.exit(0);
-        }
         final Parameters parameters = new Parameters(args);
         TimingParameters.setDefault(parameters.getTimingParameters());
         if (QueueingPathRemoverService.isRunning() == false)

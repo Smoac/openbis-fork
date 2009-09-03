@@ -242,8 +242,11 @@ case "$command" in
   show-shredder)
     ${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE --show-shredder
     ;;
+  show-command-queue)
+    ${JAVA_BIN} ${ALL_JAVA_OPTS} -jar $JAR_FILE --show-command-queue
+    ;;
   *)
-    echo $"Usage: $0 {start|stop|restart|status|help|version|show-shredder}"
+    echo $"Usage: $0 {start|stop|restart|status|help|version|show-shredder|show-command-queue}"
     exit 200
     ;;
 esac

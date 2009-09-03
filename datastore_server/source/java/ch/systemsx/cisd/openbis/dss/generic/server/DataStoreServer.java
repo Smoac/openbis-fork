@@ -189,7 +189,7 @@ public class DataStoreServer
         }
     }
 
-    private final static ConfigParameters getConfigParameters()
+    final static ConfigParameters getConfigParameters()
     {
         final Properties properties;
         if (new File(SERVICE_PROPERTIES_FILE).exists() == false)
