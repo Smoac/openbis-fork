@@ -74,6 +74,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
  */
 public final class ETLDaemon
 {
+    public static final File shredderQueueFile = new File(".shredder");
+
     static final String STOREROOT_DIR_KEY = "storeroot-dir";
 
     static final String NOTIFY_SUCCESSFUL_REGISTRATION = "notify-successful-registration";
@@ -83,8 +85,6 @@ public final class ETLDaemon
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, ETLDaemon.class);
-
-    private static final File shredderQueueFile = new File(".shredder");
 
     private static final UncaughtExceptionHandler loggingExceptionHandler =
             new UncaughtExceptionHandler()
@@ -511,7 +511,10 @@ public final class ETLDaemon
         initLog();
         final Parameters parameters = new Parameters(args);
         TimingParameters.setDefault(parameters.getTimingParameters());
-        QueueingPathRemoverService.start(shredderQueueFile);
+        if (QueueingPathRemoverService.isRunning() == false)
+        {
+            QueueingPathRemoverService.start(shredderQueueFile);
+        }
         printInitialLogMessage(parameters);
         startupServer(parameters);
         startupMaintenancePlugins(parameters.getMaintenancePlugins());

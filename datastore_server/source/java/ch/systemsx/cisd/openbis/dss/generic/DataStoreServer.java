@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic;
 
+import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 
 /**
@@ -28,6 +29,8 @@ public class DataStoreServer
 {
     public static void main(String[] args)
     {
+        // Initialize the shredder _before_ the DataSetCommandExecutor which uses it.
+        QueueingPathRemoverService.start(ETLDaemon.shredderQueueFile);
         ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer.main(args);
         ETLDaemon.main(args);
     }
