@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 /**
  * @author Franz-Josef Elmer
  */
-class DataSetCommandExecuter implements IDataSetCommandExecutor
+class DataSetCommandExecutor implements IDataSetCommandExecutor
 {
     private final File store;
 
@@ -43,7 +43,7 @@ class DataSetCommandExecuter implements IDataSetCommandExecutor
 
     private final Logger operationLog;
 
-    public DataSetCommandExecuter(File store)
+    public DataSetCommandExecutor(File store)
     {
         this.store = store;
         File queueFile = new File(store, "commandQueue");

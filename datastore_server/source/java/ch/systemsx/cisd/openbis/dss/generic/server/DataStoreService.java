@@ -66,7 +66,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             {
                 public IDataSetCommandExecutor create(File store)
                 {
-                    return new DataSetCommandExecuter(store);
+                    return new DataSetCommandExecutor(store);
                 }
             }, mailClientParameters, pluginTaskParameters);
     }
