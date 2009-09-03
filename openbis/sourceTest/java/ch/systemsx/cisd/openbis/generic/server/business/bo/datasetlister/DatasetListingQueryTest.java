@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  */
 @Friend(toClasses =
     { DatasetRecord.class, ExperimentProjectGroupCodeRecord.class, IDatasetListingQuery.class,
-            DatasetListerDAO.class })
+            DatasetListerDAO.class, IDatasetListingFullQuery.class })
 @Test(groups =
     { "db", "dataset" })
 // TODO 2009-09-01, Tomasz Pylak: replace test stubs. Now they test only that the sql is
