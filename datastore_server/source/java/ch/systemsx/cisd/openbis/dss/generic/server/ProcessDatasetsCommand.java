@@ -23,7 +23,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPlug
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Command which processes datasets using the specified plugin instance.
+ * Command which processes datasets using the specified plugin instance. This is essentially an
+ * adapter to {@link IProcessingPluginTask}.
  * 
  * @author Tomasz Pylak
  */
@@ -44,5 +45,20 @@ public class ProcessDatasetsCommand implements IDataSetCommand
     public void execute(File store)
     {
         task.process(datasets);
+    }
+
+    public String getDescription()
+    {
+        final StringBuilder b = new StringBuilder();
+        b.append("Perform processing '");
+        b.append(task.getDescription());
+        b.append("' on data sets: ");
+        for (DatasetDescription dataset : datasets)
+        {
+            b.append(dataset.getDatasetCode());
+            b.append(',');
+        }
+        b.setLength(b.length() - 1);
+        return b.toString();
     }
 }

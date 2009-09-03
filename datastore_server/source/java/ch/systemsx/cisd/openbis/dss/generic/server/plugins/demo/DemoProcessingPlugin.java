@@ -49,4 +49,9 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
         }
         System.out.println("Processing done.");
     }
+
+    public String getDescription()
+    {
+        return "time is passing...";
+    }
 }

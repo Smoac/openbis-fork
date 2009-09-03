@@ -57,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
+ * A command which zips the given data sets and uploads the ZIP file to CIFEX.
+ * 
  * @author Franz-Josef Elmer
  */
 class UploadingCommand implements IDataSetCommand
@@ -455,6 +457,19 @@ class UploadingCommand implements IDataSetCommand
         String smtpPassword = mailClientParameters.getSmtpPassword();
         IMailClient mailClient = new MailClient(from, smtpHost, smtpUser, smtpPassword);
         mailClient.sendMessage("[Data Set Server] Uploading failed", message, null, userEMail);
+    }
+
+    public String getDescription()
+    {
+        final StringBuilder b = new StringBuilder();
+        b.append("Upload data sets to CIFEX: ");
+        for (ExternalDataPE dataset : dataSets)
+        {
+            b.append(dataset.getCode());
+            b.append(',');
+        }
+        b.setLength(b.length() - 1);
+        return b.toString();
     }
 
 }

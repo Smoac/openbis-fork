@@ -30,4 +30,9 @@ interface IDataSetCommand extends Serializable
      * Executes the command in the provided data store. 
      */
     void execute(File store);
+    
+    /**
+     * Returns a textual description of this command.
+     */
+    String getDescription();
 }

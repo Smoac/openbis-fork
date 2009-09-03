@@ -31,9 +31,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxH
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
+ * The base class for processing plugins that employ a {@link AbstractDatasetDropboxHandler}.
+ * 
  * @author Tomasz Pylak
  */
-public class AbstractDropboxProcessingPlugin extends AbstractDatastorePlugin implements
+abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastorePlugin implements
         IProcessingPluginTask
 {
     private static final long serialVersionUID = 1L;
@@ -89,4 +91,5 @@ public class AbstractDropboxProcessingPlugin extends AbstractDatastorePlugin imp
         datasetInfo.setDataSetCode(dataset.getDatasetCode());
         return datasetInfo;
     }
+
 }

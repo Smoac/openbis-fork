@@ -22,7 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 
 /**
- * 
+ * A command for deleting data sets, based on their location relative to the data store root.
  *
  * @author Franz-Josef Elmer
  */
@@ -43,6 +43,19 @@ class DeletionCommand implements IDataSetCommand
         {
             QueueingPathRemoverService.removeRecursively(new File(store, location));
         }
+    }
+
+    public String getDescription()
+    {
+        final StringBuilder b = new StringBuilder();
+        b.append("Delete data set paths: ");
+        for (String dataset : dataSetLocations)
+        {
+            b.append(dataset);
+            b.append(',');
+        }
+        b.setLength(b.length() - 1);
+        return b.toString();
     }
 
 }

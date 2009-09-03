@@ -37,11 +37,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  */
 class DataSetCommandExecutor implements IDataSetCommandExecutor
 {
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, DataSetCommandExecutor.class);
+
+    private final static Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, DataSetCommandExecutor.class);
+
     private final File store;
 
     private final IExtendedBlockingQueue<IDataSetCommand> commandQueue;
-
-    private final Logger operationLog;
 
     public DataSetCommandExecutor(File store)
     {
@@ -49,7 +53,6 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
         File queueFile = new File(store, "commandQueue");
         commandQueue =
                 ExtendedBlockingQueueFactory.<IDataSetCommand> createPersistRecordBased(queueFile);
-        operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
     }
 
     public void start()
@@ -58,20 +61,23 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
             {
                 public void run()
                 {
+                    String description = "?";
                     try
                     {
                         while (true)
                         {
-                            IDataSetCommand command = commandQueue.peekWait();
-                            if (operationLog.isDebugEnabled())
+                            final IDataSetCommand command = commandQueue.peekWait();
+                            description = command.getDescription();
+                            if (operationLog.isInfoEnabled())
                             {
-                                operationLog.debug("Executing " + command);
+                                operationLog.info("Executing " + description);
                             }
-                            StopWatch stopWatch = new StopWatch();
+                            final StopWatch stopWatch = new StopWatch();
                             command.execute(store);
-                            if (operationLog.isDebugEnabled())
+                            if (operationLog.isInfoEnabled())
                             {
-                                operationLog.debug("Finished " + command + " after " + stopWatch);
+                                operationLog.info("Finished executing " + description
+                                        + " after " + stopWatch);
                             }
                             commandQueue.take();
                         }
@@ -81,9 +87,12 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                     } catch (InterruptedExceptionUnchecked ex)
                     {
                         // Exit thread.
+                    } catch (RuntimeException ex)
+                    {
+                        notificationLog.error("Error executing command '" + description);
                     }
                 }
-            }, "Data Set Comamand Execution");
+            }, "Data Set Command Execution");
         thread.setDaemon(true);
         thread.start();
     }

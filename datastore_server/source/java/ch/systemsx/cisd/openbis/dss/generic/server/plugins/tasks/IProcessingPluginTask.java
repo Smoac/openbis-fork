@@ -29,7 +29,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public interface IProcessingPluginTask extends Serializable
 {
     /**
-     * Processes anynchronously the specified datasets.
+     * Processes asynchronously the specified datasets.
      */
     void process(List<DatasetDescription> datasets);
+    
+    /**
+     * Returns a textual description of this task.
+     */
+    String getDescription();
 }
