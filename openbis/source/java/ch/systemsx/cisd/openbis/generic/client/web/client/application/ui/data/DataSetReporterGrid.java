@@ -58,6 +58,12 @@ public class DataSetReporterGrid extends
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
+    /**
+     * Do not display more than this amount of columns in the report, web browsers have problem with
+     * it
+     */
+    private static final int MAX_SHOWN_COLUMNS = 200;
+
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext,
             TableModelReference tableModelReference, DatastoreServiceDescription service)
@@ -72,9 +78,12 @@ public class DataSetReporterGrid extends
     {
         List<IColumnDefinitionUI<TableModelRow>> columns =
                 new ArrayList<IColumnDefinitionUI<TableModelRow>>();
+        int i = 0;
         for (TableModelColumnHeader columnHeader : header)
         {
-            columns.add(new DatasetReportColumnUI(columnHeader));
+            boolean isHidden = (i > MAX_SHOWN_COLUMNS);
+            columns.add(new DatasetReportColumnUI(columnHeader, isHidden));
+            i++;
         }
         return columns;
     }
@@ -82,9 +91,12 @@ public class DataSetReporterGrid extends
     public static class DatasetReportColumnUI extends DataSetReportColumnDefinition implements
             IColumnDefinitionUI<TableModelRow>
     {
-        public DatasetReportColumnUI(TableModelColumnHeader columnHeader)
+        private boolean isHidden;
+
+        public DatasetReportColumnUI(TableModelColumnHeader columnHeader, boolean isHidden)
         {
             super(columnHeader);
+            this.isHidden = isHidden;
         }
 
         public int getWidth()
@@ -94,7 +106,7 @@ public class DataSetReporterGrid extends
 
         public boolean isHidden()
         {
-            return false;
+            return isHidden;
         }
 
         public boolean isNumeric()
@@ -106,7 +118,7 @@ public class DataSetReporterGrid extends
         @SuppressWarnings("unused")
         private DatasetReportColumnUI()
         {
-            super(null);
+            this(null, false);
         }
     }
 
