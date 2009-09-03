@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -24,8 +25,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * @author Tomasz Pylak
  */
-abstract class AbstractDatastorePlugin
+abstract class AbstractDatastorePlugin implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final File storeRoot;
 
     protected final Properties properties;
