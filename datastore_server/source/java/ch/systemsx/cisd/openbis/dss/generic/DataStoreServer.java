@@ -16,7 +16,14 @@
 
 package ch.systemsx.cisd.openbis.dss.generic;
 
+import java.lang.Thread.UncaughtExceptionHandler;
+
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 
 /**
@@ -27,8 +34,33 @@ import ch.systemsx.cisd.etlserver.ETLDaemon;
  */
 public class DataStoreServer
 {
+    private static final Logger notificationLog =
+            LogFactory.getLogger(LogCategory.NOTIFY, DataStoreServer.class);
+
+    private static final UncaughtExceptionHandler loggingExceptionHandler =
+            new UncaughtExceptionHandler()
+                {
+
+                    //
+                    // UncaughtExceptionHandler
+                    //
+
+                    public final void uncaughtException(final Thread t, final Throwable e)
+                    {
+                        notificationLog.error("An exception has occurred [thread: '" + t.getName()
+                                + "'].", e);
+                    }
+                };
+
+    private static void initLog()
+    {
+        LogInitializer.init();
+        Thread.setDefaultUncaughtExceptionHandler(loggingExceptionHandler);
+    }
+
     public static void main(String[] args)
     {
+        initLog();
         // Initialize the shredder _before_ the DataSetCommandExecutor which uses it.
         QueueingPathRemoverService.start(ETLDaemon.shredderQueueFile);
         ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer.main(args);

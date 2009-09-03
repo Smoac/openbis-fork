@@ -19,7 +19,6 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -55,7 +54,6 @@ import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.IExitHandler;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.common.utilities.IStopSignaler;
@@ -86,29 +84,8 @@ public final class ETLDaemon
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, ETLDaemon.class);
 
-    private static final UncaughtExceptionHandler loggingExceptionHandler =
-            new UncaughtExceptionHandler()
-                {
-
-                    //
-                    // UncaughtExceptionHandler
-                    //
-
-                    public final void uncaughtException(final Thread t, final Throwable e)
-                    {
-                        notificationLog.error("An exception has occurred [thread: '" + t.getName()
-                                + "'].", e);
-                    }
-                };
-
     @Private
     static IExitHandler exitHandler = SystemExit.SYSTEM_EXIT;
-
-    private static void initLog()
-    {
-        LogInitializer.init();
-        Thread.setDefaultUncaughtExceptionHandler(loggingExceptionHandler);
-    }
 
     private static void printInitialLogMessage(final Parameters parameters)
     {
@@ -508,7 +485,6 @@ public final class ETLDaemon
         {
             System.exit(0);
         }
-        initLog();
         final Parameters parameters = new Parameters(args);
         TimingParameters.setDefault(parameters.getTimingParameters());
         if (QueueingPathRemoverService.isRunning() == false)
