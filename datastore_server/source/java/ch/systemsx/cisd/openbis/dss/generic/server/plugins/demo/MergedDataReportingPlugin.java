@@ -50,6 +50,7 @@ public class MergedDataReportingPlugin extends AbstractDatastorePlugin implement
         IReportingPluginTask
 {
 
+    private static final long serialVersionUID = 1L;
     /** pattern for files that should be excluded (e.g. data set properties files) */
     public final static String EXCLUDED_FILE_NAMES_PATTERN = ".*\\.tsv";
 

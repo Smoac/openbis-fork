@@ -37,6 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class DatasetModificationReportingPlugin extends AbstractDatastorePlugin implements
         IReportingPluginTask
 {
+    private static final long serialVersionUID = 1L;
+
     public DatasetModificationReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
