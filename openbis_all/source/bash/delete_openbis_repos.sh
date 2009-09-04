@@ -13,8 +13,7 @@ echo "Server URL from datastore_server service.properties is :"
 echo ""
 grep server-url ~/sprint/datastore_server/etc/service.properties
 echo ""
-echo "Server DNS is :"
-host `uname -n`
+echo "Server DNS is : `uname -n`"
 echo ""
 echo "Answer y to continue, followed by [ENTER]:"
 read ans
