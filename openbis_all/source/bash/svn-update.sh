@@ -3,7 +3,7 @@
 # Updates all scripts available in the current directory to the version found in SVN.
 
 SVN=svncisd.ethz.ch/repos/cisd/openbis_all/trunk/source/bash
-wget -r -l1 -A.sh http://$SVN/
+wget -vn -r -l1 -A.sh http://$SVN/
 mv $SVN/* .
 chmod 700 *.sh
 RM=`echo $SVN | cut -d / -f1`
