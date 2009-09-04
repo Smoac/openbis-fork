@@ -191,6 +191,11 @@ public class BatchDataSetHandler implements IDataSetHandler
     // Returns true if file is writable afterwards.
     private boolean acquireWriteAccess(File batchDir, File file, LogUtils log)
     {
+        if (file.exists() == false)
+        {
+            log.error("File '%s' does not exist.", file.getPath());
+            return false; // someone could deleted the file in the meantime
+        }
         if (isWritable(batchDir) == false)
         {
             String path =
