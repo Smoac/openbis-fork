@@ -1261,6 +1261,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             List<PagingColumnFilter<T>> previousFilterWidgetsOrNull, ToolBar filterToolbar,
             IMessageProvider messageProvider)
     {
+        System.err.println("rebuildFilterToolbar");
         filterToolbar.removeAll();
         if (filterWidgets.size() == 0)
         {
@@ -1268,14 +1269,35 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
 
         filterToolbar.add(new LabelToolItem(messageProvider.getMessage(Dict.FILTERS) + ": "));
+
+        Map<String, PagingColumnFilter<T>> previousFiltersByColumnId =
+                new HashMap<String, PagingColumnFilter<T>>();
+        if (previousFilterWidgetsOrNull != null)
+        {
+            for (PagingColumnFilter<T> filter : previousFilterWidgetsOrNull)
+            {
+                previousFiltersByColumnId.put(filter.getFilteredColumnId(), filter);
+            }
+        }
+
         for (PagingColumnFilter<T> filterWidget : filterWidgets)
         {
             filterToolbar.add(new AdapterToolItem(filterWidget));
-        }
-        if (previousFilterWidgetsOrNull != null)
-        {
-            // TODO 2009--, Tomasz Pylak: fill the new filters with the values entered in the
-            // previous filters
+
+            // restore previous value if set
+            PagingColumnFilter<T> previousFilterWidgetOrNull =
+                    previousFiltersByColumnId.get(filterWidget.getFilteredColumnId());
+            if (previousFilterWidgetOrNull != null)
+            {
+                String previousValue = previousFilterWidgetOrNull.getRawValue();
+                if (previousValue != "")
+                {
+                    filterWidget.setRawValue(previousFilterWidgetOrNull.getRawValue());
+                    filterWidget.validate(); // a hack to show previous value as black text
+                    // simply setting value does not work:
+                    // filterWidget.setValue(previousFilterWidgetOrNull.getValue());
+                }
+            }
         }
     }
 
