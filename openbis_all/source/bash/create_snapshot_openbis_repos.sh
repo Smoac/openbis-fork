@@ -46,7 +46,8 @@ if [ $? -ne 0 ]; then
   rm -fR "$TMPROOT"
   exit 1
 fi
-pg_dump -U postgres -O -d $DB_NAME > "$TMPDIR/database.sql"
+#pg_dump -U postgres -O -d $DB_NAME > "$TMPDIR/database.sql"
+pg_dump -U postgres -O $DB_NAME > "$TMPDIR/database.sql"
 if [ $? -ne 0 ]; then
   echo "Error dumping database! (No snapshot created)"
   rm -fR "$TMPROOT"
