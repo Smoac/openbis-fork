@@ -219,16 +219,20 @@ public final class ETLDaemon
         final String absolutePath = storeRootDir.getAbsolutePath();
         if (size == 0)
         {
-            operationLog.info(String.format("No instance directory has been renamed "
+            if (operationLog.isDebugEnabled())
+            operationLog.debug(String.format("No instance directory has been renamed "
                     + "in store root directory '%s'.", absolutePath));
         } else
         {
             final File instanceDir = instanceDirs[0];
             final File newName = new File(storeRootDir, "Instance_" + databaseInstance.getUuid());
             instanceDir.renameTo(newName);
-            operationLog.info(String.format("Following instance directory '%s' has been "
-                    + "renamed to '%s' in store root directory '%s'.", instanceDir.getName(),
-                    newName.getName(), absolutePath));
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format("Following instance directory '%s' has been "
+                        + "renamed to '%s' in store root directory '%s'.", instanceDir.getName(),
+                        newName.getName(), absolutePath));
+            }
         }
     }
 
