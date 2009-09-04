@@ -20,13 +20,14 @@ import java.io.File;
 
 /**
  * Factory of {@link IDataSetCommandExecutor} operating on a specified data store.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 interface IDataSetCommandExecutorFactory
 {
     /**
-     * Creates command executor for the specified data store.
+     * Creates command executor for the specified data store. The file of the command queue will be
+     * located in <var>commandQueueDir</var>.
      */
-    IDataSetCommandExecutor create(File store);
+    IDataSetCommandExecutor create(File store, File commandQueueDir);
 }

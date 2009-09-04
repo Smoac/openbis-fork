@@ -47,10 +47,10 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
 
     private final IExtendedBlockingQueue<IDataSetCommand> commandQueue;
 
-    public DataSetCommandExecutor(File store)
+    public DataSetCommandExecutor(File store, File queueDir)
     {
         this.store = store;
-        File queueFile = getCommandQueueFile(store);
+        File queueFile = getCommandQueueFile(queueDir);
         commandQueue =
                 ExtendedBlockingQueueFactory.<IDataSetCommand> createPersistRecordBased(queueFile);
     }

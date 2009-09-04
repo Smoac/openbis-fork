@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPlug
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -56,6 +57,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private final PluginTaskProviders pluginTaskParameters;
 
     private File storeRoot;
+    
+    private File commandQueueDirOrNull;
 
     private IDataSetCommandExecutor commandExecuter;
 
@@ -64,9 +67,9 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     {
         this(sessionTokenManager, new IDataSetCommandExecutorFactory()
             {
-                public IDataSetCommandExecutor create(File store)
+                public IDataSetCommandExecutor create(File store, File queueDir)
                 {
-                    return new DataSetCommandExecutor(store);
+                    return new DataSetCommandExecutor(store, queueDir);
                 }
             }, mailClientParameters, pluginTaskParameters);
     }
@@ -84,6 +87,17 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     public final void setStoreRoot(File storeRoot)
     {
         this.storeRoot = storeRoot;
+    }
+
+    public final void setCommandQueueDir(String queueDirOrNull)
+    {
+        if (StringUtils.isBlank(queueDirOrNull))
+        {
+            this.commandQueueDirOrNull = null;
+        } else
+        {
+            this.commandQueueDirOrNull = new File(queueDirOrNull);
+        }
     }
 
     public void afterPropertiesSet()
@@ -111,7 +125,11 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 operationLog.info("Creates root directory of the data store: " + storeRootPath);
             }
         }
-        commandExecuter = commandExecutorFactory.create(storeRoot);
+        if (commandQueueDirOrNull == null)
+        {
+            commandQueueDirOrNull = storeRoot;
+        }
+        commandExecuter = commandExecutorFactory.create(storeRoot, commandQueueDirOrNull);
         commandExecuter.start();
     }
 

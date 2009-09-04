@@ -46,6 +46,7 @@
                 </constructor-arg>
                 <constructor-arg ref="plugin-tasks" />
                 <property name="storeRoot" value="${storeroot-dir}"/>
+                <property name="commandQueueDir" value="${commandqueue-dir}"/>
             </bean>
         </property>
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.generic.shared.IDataStoreService" />

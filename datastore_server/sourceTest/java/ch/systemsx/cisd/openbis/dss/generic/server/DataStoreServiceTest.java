@@ -283,7 +283,7 @@ public class DataStoreServiceTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(commandExecutorFactory).create(TEST_STORE);
+                    one(commandExecutorFactory).create(TEST_STORE, TEST_STORE);
                     will(returnValue(commandExecutor));
 
                     one(commandExecutor).start();
