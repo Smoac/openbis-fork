@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
  * Query methods for retrieving property types, material types, and vocabulary URL templates.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface IPropertyListingQuery
@@ -37,12 +37,10 @@ public interface IPropertyListingQuery
             + "    from property_types pt join data_types dt on pt.daty_id=dt.id", resultSetBinding = PropertyTypeDataObjectBinding.class)
     public PropertyType[] getPropertyTypes();
 
-
     /**
      * Returns id and url template of all vocabularies.
      */
-    @Select("select id, code from controlled_vocabularies")
-    // TODO 2009-08-18, Tomasz Pylak: add support for internal vocabularies
+    @Select("select id, source_uri as code from controlled_vocabularies")
     public CodeRecord[] getVocabularyURLTemplates();
 
     /**
