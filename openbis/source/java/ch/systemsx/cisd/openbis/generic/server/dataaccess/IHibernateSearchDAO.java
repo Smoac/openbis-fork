@@ -23,7 +23,6 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.HibernateSearchDataProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -43,9 +42,6 @@ public interface IHibernateSearchDAO
     public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
             final String searchTerm, final HibernateSearchDataProvider dataProvider)
             throws DataAccessException;
-
-    /** search for datasets using the specified criteria */
-    public List<ExternalDataPE> searchForDataSets(DetailedSearchCriteria criteria);
 
     /** search for entity ids using the specified criteria */
     public List<Long> searchForEntityIds(DetailedSearchCriteria criteria, EntityKind entityKind);
