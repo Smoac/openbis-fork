@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,11 +37,14 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -279,34 +284,51 @@ public final class ExternalDataTableTest extends AbstractBOTest
         return ExternalDataTable.createDeletionEvent(dataset, person, reason);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testUploadDataSets()
     {
-        final ExternalDataPE d1 = createDataSet("d1", dss1);
-        final ExternalDataPE d2 = createDataSet("d2", dss2);
+        final ExternalDataPE d1PE = createDataSet("d1", dss1);
+        final ExternalDataPE d2PE = createDataSet("d2", dss2);
         final DataSetUploadContext uploadContext = new DataSetUploadContext();
         uploadContext.setCifexURL("cifexURL");
         uploadContext.setUserID(EXAMPLE_SESSION.getUserName());
         uploadContext.setPassword("pwd");
         uploadContext.setUserEMail(EXAMPLE_SESSION.getPrincipal().getEmail());
-        uploadContext.setComment(ExternalDataTable.createUploadComment(Arrays.asList(d1, d2)));
+        uploadContext.setComment(ExternalDataTable.createUploadComment(Arrays.asList(d1PE, d2PE)));
         context.checking(new Expectations()
             {
                 {
-                    prepareFindFullDatasets(d1, true);
-                    prepareFindFullDatasets(d2, true);
+                    prepareFindFullDatasets(d1PE, true);
+                    prepareFindFullDatasets(d2PE, true);
 
-                    List<String> d2Locations = Arrays.asList(d2.getLocation());
+                    List<String> d2Locations = Arrays.asList(d2PE.getLocation());
                     one(dataStoreService2).getKnownDataSets(dss2.getSessionToken(), d2Locations);
                     will(returnValue(d2Locations));
 
-                    one(dataStoreService2).uploadDataSetsToCIFEX(dss2.getSessionToken(),
-                            Arrays.asList(d2), uploadContext);
+                    one(dataStoreService2).uploadDataSetsToCIFEX(with(equal(dss2.getSessionToken())),
+                            with(new BaseMatcher<List>() {
+
+                                public boolean matches(Object item)
+                                {
+                                    List<ExternalData> list = (List<ExternalData>) item;
+                                    if (list.size() != 1)
+                                    {
+                                        return false;
+                                    }
+                                    ExternalData data = list.get(0);
+                                    return d2PE.getCode().equals(data.getCode());
+                                }
+
+                                public void describeTo(Description description)
+                                {
+                                    description.appendText("Data set d2");
+                                }}), with(same(uploadContext)));
                 }
             });
 
         ExternalDataTable externalDataTable = createExternalDataTable();
-        externalDataTable.loadByDataSetCodes(Arrays.asList(d1.getCode(), d2.getCode()));
+        externalDataTable.loadByDataSetCodes(Arrays.asList(d1PE.getCode(), d2PE.getCode()));
         String message = externalDataTable.uploadLoadedDataSetsToCIFEX(uploadContext);
 
         assertEquals(
@@ -373,10 +395,15 @@ public final class ExternalDataTableTest extends AbstractBOTest
         data.setLocation("here/" + code);
         ExperimentPE experiment = new ExperimentPE();
         experiment.setCode("exp1");
+        experiment.setExperimentType(new ExperimentTypePE());
         ProjectPE project = new ProjectPE();
         project.setCode("p1");
         GroupPE group = new GroupPE();
         group.setCode("g1");
+        DatabaseInstancePE instance = new DatabaseInstancePE();
+        instance.setCode("instance");
+        instance.setOriginalSource(true);
+        group.setDatabaseInstance(instance);
         project.setGroup(group);
         experiment.setProject(project);
         data.setExperiment(experiment);

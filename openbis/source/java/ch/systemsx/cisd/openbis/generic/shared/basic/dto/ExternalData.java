@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -54,9 +56,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     private String producerCode;
 
-    private ExternalData parent;
-
-    private String parentCode;
+    private Collection<ExternalData> parents;
 
     private String location;
 
@@ -208,26 +208,34 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
 
     public ExternalData getParent()
     {
-        return parent;
+        if (parents == null)
+        {
+            return null;
+        }
+        final Iterator<ExternalData> it = parents.iterator();
+        if (it.hasNext())
+        {
+            return parents.iterator().next();
+        } else
+        {
+            return null;
+        }
     }
 
-    public void setParent(ExternalData parent)
+    public Collection<ExternalData> getParents()
     {
-        this.parent = parent;
-        if (parent != null)
-        {
-            setParentCode(parent.getCode());
-        }
+        return parents;
+    }
+
+    public void setParents(Collection<ExternalData> parents)
+    {
+        this.parents = parents;
     }
 
     public final String getParentCode()
     {
-        return parentCode;
-    }
-
-    public final void setParentCode(final String parentCode)
-    {
-        this.parentCode = parentCode;
+        final ExternalData parent = getParent();
+        return (parent == null) ? null : parent.getCode();
     }
 
     public final String getLocation()

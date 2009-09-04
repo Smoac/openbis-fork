@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * Executor of commands operating on data sets in a data store. Commands are expected to be executed
@@ -49,7 +49,7 @@ interface IDataSetCommandExecutor
      *            failed.
      */
     void scheduleUploadingDataSetsToCIFEX(ICIFEXRPCServiceFactory cifexServiceFactory,
-            MailClientParameters mailClientParameters, List<ExternalDataPE> dataSets,
+            MailClientParameters mailClientParameters, List<ExternalData> dataSets,
             DataSetUploadContext uploadContext);
 
     /** Schedules the specified processing task for provided datasets */

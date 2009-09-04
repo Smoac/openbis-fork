@@ -46,15 +46,19 @@ import ch.systemsx.cisd.cifex.rpc.UploadState;
 import ch.systemsx.cisd.cifex.rpc.UploadStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 
 /**
  * @author Franz-Josef Elmer
@@ -147,9 +151,11 @@ public class UploadingCommandTest extends AssertJUnit
         uploadContext.setFileName(ZIP_FILENAME);
         createTestData(LOCATION1);
         ds2 = createTestData(LOCATION2);
-        ExternalDataPE dataSet1 = createDataSet("1", LOCATION1);
-        ExternalDataPE dataSet2 = createDataSet("2", LOCATION2);
-        List<ExternalDataPE> dataSets = Arrays.<ExternalDataPE> asList(dataSet1, dataSet2);
+        ExternalData dataSet1 =
+                ExternalDataTranslator.translate(createDataSet("1", LOCATION1), "?", "?");
+        ExternalData dataSet2 =
+                ExternalDataTranslator.translate(createDataSet("2", LOCATION2), "?", "?");
+        List<ExternalData> dataSets = Arrays.<ExternalData> asList(dataSet1, dataSet2);
         command = new UploadingCommand(factory, mailClientParameters, dataSets, uploadContext);
         command.deleteAfterUploading = false;
     }
@@ -165,6 +171,7 @@ public class UploadingCommandTest extends AssertJUnit
         externalData.setDataSetType(dataSetTypePE);
         externalData.setExperiment(createExperiment());
         externalData.setParent(createParent("parent"));
+        externalData.setDataStore(new DataStorePE());
         return externalData;
     }
 
@@ -192,6 +199,10 @@ public class UploadingCommandTest extends AssertJUnit
         project.setCode("p1");
         GroupPE group = new GroupPE();
         group.setCode("g1");
+        DatabaseInstancePE instance = new DatabaseInstancePE();
+        instance.setCode("instance");
+        instance.setOriginalSource(true);
+        group.setDatabaseInstance(instance);
         project.setGroup(group);
         experiment.setProject(project);
         return experiment;

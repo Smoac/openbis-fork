@@ -26,9 +26,9 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -47,14 +47,13 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.TokenGenerator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * A command which zips the given data sets and uploads the ZIP file to CIFEX.
@@ -150,7 +149,7 @@ class UploadingCommand implements IDataSetCommand
             addRow("sample", key, value);
         }
 
-        void sample(String key, PersonPE person)
+        void sample(String key, Person person)
         {
             addRow("sample", key, person);
         }
@@ -165,7 +164,7 @@ class UploadingCommand implements IDataSetCommand
             addRow("experiment", key, value);
         }
 
-        void experiment(String key, PersonPE person)
+        void experiment(String key, Person person)
         {
             addRow("experiment", key, person);
         }
@@ -175,7 +174,7 @@ class UploadingCommand implements IDataSetCommand
             addRow("experiment", key, date);
         }
 
-        private void addRow(String category, String key, PersonPE person)
+        private void addRow(String category, String key, Person person)
         {
             StringBuilder stringBuilder = new StringBuilder();
             if (person != null)
@@ -223,7 +222,7 @@ class UploadingCommand implements IDataSetCommand
 
     private final ICIFEXRPCServiceFactory cifexServiceFactory;
 
-    private final List<ExternalDataPE> dataSets;
+    private final List<ExternalData> dataSets;
 
     private final String fileName;
 
@@ -243,7 +242,7 @@ class UploadingCommand implements IDataSetCommand
     boolean deleteAfterUploading = true;
 
     UploadingCommand(ICIFEXRPCServiceFactory cifexServiceFactory,
-            MailClientParameters mailClientParameters, List<ExternalDataPE> dataSets,
+            MailClientParameters mailClientParameters, List<ExternalData> dataSets,
             DataSetUploadContext context)
     {
         this.cifexServiceFactory = cifexServiceFactory;
@@ -302,7 +301,7 @@ class UploadingCommand implements IDataSetCommand
         {
             outputStream = new FileOutputStream(zipFile);
             zipOutputStream = new ZipOutputStream(outputStream);
-            for (ExternalDataPE dataSet : dataSets)
+            for (ExternalData dataSet : dataSets)
             {
                 String location = dataSet.getLocation();
                 File dataSetFile = new File(store, location);
@@ -354,21 +353,21 @@ class UploadingCommand implements IDataSetCommand
         }
     }
 
-    private String createMetaData(ExternalDataPE dataSet)
+    private String createMetaData(ExternalData dataSet)
     {
         MetaDataBuilder builder = new MetaDataBuilder();
         builder.dataSet("code", dataSet.getCode());
         builder.dataSet("production_timestamp", dataSet.getProductionDate());
         builder.dataSet("producer_code", dataSet.getDataProducerCode());
         builder.dataSet("data_set_type", dataSet.getDataSetType().getCode());
-        builder.dataSet("is_measured", dataSet.isMeasured());
+        builder.dataSet("is_measured", dataSet.isDerived() == false);
         builder.dataSet("is_complete", BooleanOrUnknown.T.equals(dataSet.getComplete()));
 
         StringBuilder stringBuilder = new StringBuilder();
-        Set<DataPE> parents = dataSet.getParents();
+        Collection<ExternalData> parents = dataSet.getParents();
         if (parents.isEmpty() == false)
         {
-            for (DataPE parent : parents)
+            for (ExternalData parent : parents)
             {
                 if (stringBuilder.length() > 0)
                 {
@@ -378,18 +377,18 @@ class UploadingCommand implements IDataSetCommand
             }
         }
         builder.dataSet("parent_codes", stringBuilder.toString());
-        SamplePE sample = dataSet.getSample();
+        Sample sample = dataSet.getSample();
         if (sample != null)
         {
             builder.sample("type_code", sample.getSampleType().getCode());
             builder.sample("code", sample.getCode());
-            GroupPE group = sample.getGroup();
+            Group group = sample.getGroup();
             builder.sample("group_code", group == null ? "(shared)" : group.getCode());
             builder.sample("registration_timestamp", sample.getRegistrationDate());
             builder.sample("registrator", sample.getRegistrator());
         }
-        ExperimentPE experiment = dataSet.getExperiment();
-        ProjectPE project = experiment.getProject();
+        Experiment experiment = dataSet.getExperiment();
+        Project project = experiment.getProject();
         builder.experiment("group_code", project.getGroup().getCode());
         builder.experiment("project_code", project.getCode());
         builder.experiment("experiment_code", experiment.getCode());
@@ -399,11 +398,11 @@ class UploadingCommand implements IDataSetCommand
         return builder.toString();
     }
 
-    private String createRootPath(ExternalDataPE dataSet)
+    private String createRootPath(ExternalData dataSet)
     {
-        SamplePE sample = dataSet.getSample();
-        ExperimentPE experiment = sample == null ? dataSet.getExperiment() : sample.getExperiment();
-        ProjectPE project = experiment.getProject();
+        Sample sample = dataSet.getSample();
+        Experiment experiment = sample == null ? dataSet.getExperiment() : sample.getExperiment();
+        Project project = experiment.getProject();
         project.getGroup().getCode();
         return project.getGroup().getCode() + "/" + project.getCode() + "/" + experiment.getCode()
                 + "/" + (sample == null ? "" : sample.getCode() + "/") + dataSet.getCode();
@@ -463,7 +462,7 @@ class UploadingCommand implements IDataSetCommand
     {
         final StringBuilder b = new StringBuilder();
         b.append("Upload data sets to CIFEX: ");
-        for (ExternalDataPE dataset : dataSets)
+        for (ExternalData dataset : dataSets)
         {
             b.append(dataset.getCode());
             b.append(',');

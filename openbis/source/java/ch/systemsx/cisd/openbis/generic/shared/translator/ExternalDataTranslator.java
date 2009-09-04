@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -74,7 +76,6 @@ public class ExternalDataTranslator
             final LoadableFields... withExperimentFields)
     {
         SamplePE sample = externalDataPE.getSample();
-        DataPE parent = externalDataPE.tryGetParent();
         ExternalData externalData = new ExternalData();
         externalData.setId(HibernateUtils.getId(externalDataPE));
         externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
@@ -89,8 +90,12 @@ public class ExternalDataTranslator
         externalData.setInvalidation(tryToGetInvalidation(sample));
         externalData.setLocation(StringEscapeUtils.escapeHtml(externalDataPE.getLocation()));
         externalData.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
-        externalData
-                .setParent(parent == null ? null : fillExternalData(new ExternalData(), parent));
+        final Collection<ExternalData> parents = new HashSet<ExternalData>();
+        externalData.setParents(parents);
+        for (DataPE parentPE : externalDataPE.getParents())
+        {
+            parents.add(fillExternalData(new ExternalData(), parentPE));
+        }
         setChildren(externalDataPE, externalData);
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setModificationDate(externalDataPE.getModificationDate());

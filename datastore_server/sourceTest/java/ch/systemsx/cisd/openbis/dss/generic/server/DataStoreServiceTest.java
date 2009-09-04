@@ -36,8 +36,8 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * @author Franz-Josef Elmer
@@ -223,7 +223,7 @@ public class DataStoreServiceTest extends AssertJUnit
     @Test
     public void testUploadDataSetsForInvalidPassword()
     {
-        final List<ExternalDataPE> dataSets = new ArrayList<ExternalDataPE>();
+        final List<ExternalData> dataSets = new ArrayList<ExternalData>();
         final DataSetUploadContext uploadContext = new DataSetUploadContext();
         uploadContext.setCifexURL(CIFEX_URL);
         uploadContext.setUserID("user");
@@ -254,7 +254,7 @@ public class DataStoreServiceTest extends AssertJUnit
     @Test
     public void testUploadDataSets()
     {
-        final List<ExternalDataPE> dataSets = new ArrayList<ExternalDataPE>();
+        final List<ExternalData> dataSets = new ArrayList<ExternalData>();
         final DataSetUploadContext uploadContext = new DataSetUploadContext();
         uploadContext.setCifexURL(CIFEX_URL);
         uploadContext.setUserID("user");

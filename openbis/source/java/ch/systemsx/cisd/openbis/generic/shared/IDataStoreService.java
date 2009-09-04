@@ -19,10 +19,10 @@ package ch.systemsx.cisd.openbis.generic.shared;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * Service interface of Data Store Server.
@@ -35,7 +35,7 @@ public interface IDataStoreService
     /**
      * Every time this interface and related DTO's are changed, we should increment this number.
      */
-    public static final int VERSION = 3; // for release S61
+    public static final int VERSION = 4; // for release S64
 
     /**
      * Returns the version of this service.
@@ -71,7 +71,7 @@ public interface IDataStoreService
      * @param context Context data needed for uploading.
      * @throws InvalidAuthenticationException if <code>sessionToken</code> is invalid.
      */
-    public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalDataPE> dataSets,
+    public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalData> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException;
 
     /** Runs the reporting task with the specified id for provided datasets */

@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -51,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -320,8 +322,9 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     {
         IDataStoreService service = dssFactory.create(dataStore.getRemoteUrl());
         String sessionToken = dataStore.getSessionToken();
-        List<ExternalDataPE> cleanDataSets =
-                HibernateTransformer.HIBERNATE_BEAN_REPLICATOR.get().copy(dataSets);
+        List<ExternalData> cleanDataSets =
+                ExternalDataTranslator.translate(HibernateTransformer.HIBERNATE_BEAN_REPLICATOR
+                        .get().copy(dataSets), "?", "?");
         service.uploadDataSetsToCIFEX(sessionToken, cleanDataSets, context);
     }
 

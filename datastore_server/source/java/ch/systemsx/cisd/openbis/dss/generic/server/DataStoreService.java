@@ -33,10 +33,10 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPlugi
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * Implementation of {@link IDataStoreService} which will be accessed remotely by the opneBIS
@@ -151,7 +151,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         commandExecuter.scheduleDeletionOfDataSets(dataSetLocations);
     }
 
-    public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalDataPE> dataSets,
+    public void uploadDataSetsToCIFEX(String sessionToken, List<ExternalData> dataSets,
             DataSetUploadContext context) throws InvalidAuthenticationException
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);

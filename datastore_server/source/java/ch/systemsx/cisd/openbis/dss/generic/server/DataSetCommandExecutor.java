@@ -28,9 +28,9 @@ import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 
 /**
  * @author Franz-Josef Elmer
@@ -108,7 +108,7 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     }
 
     public void scheduleUploadingDataSetsToCIFEX(ICIFEXRPCServiceFactory cifexServiceFactory,
-            MailClientParameters mailClientParameters, List<ExternalDataPE> dataSets,
+            MailClientParameters mailClientParameters, List<ExternalData> dataSets,
             DataSetUploadContext uploadContext)
     {
         scheduleCommand(new UploadingCommand(cifexServiceFactory, mailClientParameters, dataSets,

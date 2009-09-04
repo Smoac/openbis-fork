@@ -24,7 +24,9 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
@@ -222,11 +224,11 @@ public class DatasetLister implements IDatasetLister
     private void enrichWithParents(final Long2ObjectMap<ExternalData> datasetMap)
     {
         LongSet datasetIds = extractIds(datasetMap);
-        Long2ObjectMap<ExternalData> parentsMap = resolveParents(datasetIds, datasetMap);
+        Long2ObjectMap<Set<ExternalData>> parentsMap = resolveParents(datasetIds, datasetMap);
         for (ExternalData dataset : datasetMap.values())
         {
-            ExternalData parent = parentsMap.get(dataset.getId());
-            dataset.setParent(parent);
+            final Set<ExternalData> parent = parentsMap.get(dataset.getId());
+            dataset.setParents(parent);
         }
     }
 
@@ -244,20 +246,27 @@ public class DatasetLister implements IDatasetLister
      * Returns a map from a child id to its parent dataset for the specified dataset ids.<br>
      * Uses datasetCache not to resolve datasets which have already been resolved.
      */
-    private Long2ObjectMap<ExternalData> resolveParents(LongSet datasetIds,
+    private Long2ObjectMap<Set<ExternalData>> resolveParents(LongSet datasetIds,
             Long2ObjectMap<ExternalData> datasetCache)
     {
-        List<DatasetRelationRecord> datasetParents = asList(setQuery.getDatasetParents(datasetIds));
-        Long2ObjectMap<ExternalData> parentsMap =
+        final List<DatasetRelationRecord> datasetParents = asList(setQuery.getDatasetParents(datasetIds));
+        final Long2ObjectMap<ExternalData> parentsMap =
                 fetchUnknownDatasetParents(datasetParents, datasetCache);
 
-        Long2ObjectMap<ExternalData> childToParentMap = new Long2ObjectOpenHashMap<ExternalData>();
+        final Long2ObjectMap<Set<ExternalData>> childToParentMap =
+                new Long2ObjectOpenHashMap<Set<ExternalData>>();
         for (DatasetRelationRecord relation : datasetParents)
         {
             long parentId = relation.data_id_parent;
             ExternalData parentDataset = getCachedItem(parentId, parentsMap, datasetCache);
             assert parentDataset != null : "inconsistent parent dataset " + parentId;
-            childToParentMap.put(relation.data_id_child, parentDataset);
+            Set<ExternalData> parents = childToParentMap.get(relation.data_id_child);
+            if (parents == null)
+            {
+                parents = new HashSet<ExternalData>();
+                childToParentMap.put(relation.data_id_child, parents);
+            }
+            parents.add(parentDataset);
         }
         return childToParentMap;
     }
