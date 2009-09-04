@@ -378,8 +378,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testVocabuaryURLTemplates()
     {
-        CodeRecord[] vocabularyURLTemplates = query.getVocabularyURLTemplates();
-        findCode(Arrays.asList(vocabularyURLTemplates), "GENDER");
+        query.getVocabularyURLTemplates();
     }
 
     @Test
