@@ -64,7 +64,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         putPluginProperties(props, plugin2, pluginLabel2, datasetCodes2, DemoReportingPlugin.class);
 
         PluginTaskProvider<IReportingPluginTask> factories = createReportingPluginsFactories(props);
-        factories.check();
+        factories.check(false);
         factories.logConfigurations();
         IReportingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1, STORE_ROOT);
         pluginInstance1.createReport(createDatasetDescriptions());
@@ -133,7 +133,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 
         PluginTaskProvider<IProcessingPluginTask> factories =
                 createProcessingPluginsFactories(props);
-        factories.check();
+        factories.check(true);
         factories.logConfigurations();
         IProcessingPluginTask pluginInstance1 = factories.createPluginInstance(plugin1, STORE_ROOT);
         pluginInstance1.process(createDatasetDescriptions());

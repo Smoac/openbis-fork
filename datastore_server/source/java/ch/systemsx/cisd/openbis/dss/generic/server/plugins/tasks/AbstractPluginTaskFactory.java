@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +31,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
@@ -145,10 +151,45 @@ public abstract class AbstractPluginTaskFactory<T>
         operationLog.info(String.format("%s.%s = %s", description.getKey(), propertyName, value));
     }
 
-    /** Ensures that the factory configuration is correct and it is able to create plugins instances */
-    public void check()
+    /**
+     * Ensures that the factory configuration is correct and it is able to create plugins instances
+     * 
+     * @param checkIfSerializable if true it will be checked that the plugiin instance can be
+     *            serialized and deserialized
+     */
+    public void check(boolean checkIfSerializable)
     {
-        createPluginInstance(new File(".")); // just to see if it is possible
+        T pluginInstance = createPluginInstance(new File(".")); // just to see if it is possible
+        if (checkIfSerializable)
+        {
+            checkInstanceSerializable(pluginInstance);
+        }
+    }
+
+    private void checkInstanceSerializable(T pluginInstance)
+    {
+        try
+        {
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(outStream);
+            out.writeObject(pluginInstance);
+            byte[] byteArray = outStream.toByteArray();
+
+            InputStream inStream = new ByteArrayInputStream(byteArray);
+            ObjectInputStream in = new ObjectInputStream(inStream);
+            in.readObject(); // read the object back
+        } catch (Exception ex)
+        {
+            throwSerializationError(pluginInstance, ex.getMessage());
+        }
+
+    }
+
+    private void throwSerializationError(T pluginInstance, String message)
+    {
+        throw UserFailureException.fromTemplate(
+                "Plugin '%s' has problems with serialization/deserialization: %s", pluginInstance
+                        .getClass().getName(), message);
     }
 
     /** @return description of a plugin task. It is the same for all plugin instances. */

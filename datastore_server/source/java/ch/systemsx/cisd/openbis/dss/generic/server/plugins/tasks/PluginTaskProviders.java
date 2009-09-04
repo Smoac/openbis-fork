@@ -70,8 +70,8 @@ public class PluginTaskProviders
 
     private void check()
     {
-        processingPlugins.check();
-        reportingPlugins.check();
+        processingPlugins.check(true);
+        reportingPlugins.check(false);
     }
 
     public void logConfigurations()

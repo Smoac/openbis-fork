@@ -65,11 +65,11 @@ public class PluginTaskProvider<P>
     }
 
     /** checks that all factories can produce plugins */
-    public void check()
+    public void check(boolean checkIfSerializable)
     {
         for (AbstractPluginTaskFactory<P> factory : factories.values())
         {
-            factory.check();
+            factory.check(checkIfSerializable);
         }
     }
 
