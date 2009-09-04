@@ -124,7 +124,7 @@ public class SampleUploadSectionsParser
                             return new NewSampleParserObjectFactory(sampleType, propertyMapper,
                                     isAutoGenerateCodes == false, allowExperiments);
                         }
-                    });
+                    }, true);
         return tabFileLoader;
     }
 
@@ -246,8 +246,11 @@ public class SampleUploadSectionsParser
                         tabFileLoader.load(new DelegatedReader(stringReader, multipartFile
                                 .getOriginalFilename()
                                 + sectionInFile));
-                newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
-                sampleCounter += loadedSamples.size();
+                if (loadedSamples.size() > 0)
+                {
+                    newSamples.add(new NewSamplesWithTypes(typeFromSection, loadedSamples));
+                    sampleCounter += loadedSamples.size();
+                }
             }
             results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
                     .format("%d sample(s) found and registered.", sampleCounter)));

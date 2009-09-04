@@ -44,9 +44,12 @@ public final class BisTabFileLoader<T> extends TabFileLoader<T>
     private static final String ERROR_IN_FILE_MESSAGE_FORMAT =
             "A problem has occurred while parsing file '%s':\n  %s";
 
-    public BisTabFileLoader(final IParserObjectFactoryFactory<T> factory)
+    private final boolean acceptEmptyFiles;
+
+    public BisTabFileLoader(final IParserObjectFactoryFactory<T> factory, boolean acceptEmptyFiles)
     {
         super(factory);
+        this.acceptEmptyFiles = acceptEmptyFiles;
     }
 
     private final static void translateParsingException(final ParsingException parsingException,
@@ -81,7 +84,7 @@ public final class BisTabFileLoader<T> extends TabFileLoader<T>
         try
         {
             final List<T> list = super.load(namedReader);
-            if (list.size() == 0)
+            if (acceptEmptyFiles == false && list.size() == 0)
             {
                 throw new UserFailureException("Given file '" + namedReader.getReaderName()
                         + "' is empty or does not contain any meaningful information.");

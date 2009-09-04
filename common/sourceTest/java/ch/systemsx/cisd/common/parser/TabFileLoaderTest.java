@@ -115,7 +115,7 @@ public final class TabFileLoaderTest
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
         List<ABC> list = loader.load(new StringReader(""));
 
-        assertEquals(0, list.size());
+        assertEmptyResult(list);
     }
 
     @Test
@@ -124,10 +124,17 @@ public final class TabFileLoaderTest
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
         List<ABC> list = loader.load(new StringReader("A\tB\tC\n"));
 
+        assertEmptyResult(list);
+    }
+
+    private void assertEmptyResult(List<ABC> list)
+    {
         assertEquals(list.toString(), 0, list.size());
     }
 
     @Test
+    // if the header is followed by some amount of tabs, we ignore the same amount of tabs in lines
+    // below
     public void testSkipAdditionalLineSeparators()
     {
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
@@ -183,16 +190,26 @@ public final class TabFileLoaderTest
         loadAndCheck("#blabla\n" + "#blubub\n");
     }
 
+    @Test
+    public void testSkipEscapingQuotesInComments()
+    {
+        String header =
+                "\"#Comment surrounded by quotes with \"\"double quotes\"\" inside.\"\n"
+                        + "#another \"comment\"\n";
+        loadAndCheck(header);
+    }
+
     private void loadAndCheck(String preamble)
     {
         TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
-        List<ABC> list =
-                loader.load(new StringReader(preamble + "A\tB\tC\n" + "a1\tb1\tc1\n"
-                        + "a2\tb2\tc2\n"));
+        String values1 = "a1\tb1\tc1\n";
+        // here we check quotes escaping in non-comment lines
+        String values2 = "\"a2\t\"\"b2\"\"\tc2\"\n";
+        List<ABC> list = loader.load(new StringReader(preamble + "A\tB\tC\n" + values1 + values2));
 
         assertEquals(list.toString(), 2, list.size());
         assertEquals("a1b1c1", list.get(0).toString());
-        assertEquals("a2b2c2", list.get(1).toString());
+        assertEquals("a2\"b2\"c2", list.get(1).toString());
     }
 
 }

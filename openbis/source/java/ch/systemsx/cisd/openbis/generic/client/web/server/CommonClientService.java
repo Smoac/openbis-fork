@@ -1144,7 +1144,7 @@ public final class CommonClientService extends AbstractClientService implements
                                     {
                                         return new VocabularyTermObjectFactory(propertyMapper);
                                     }
-                                });
+                                }, false);
             return tabFileLoader;
         }
 

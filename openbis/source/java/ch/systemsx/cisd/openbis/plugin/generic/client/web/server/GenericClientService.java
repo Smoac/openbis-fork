@@ -325,7 +325,7 @@ public final class GenericClientService extends AbstractClientService implements
                                     {
                                         return new NewMaterialParserObjectFactory(propertyMapper);
                                     }
-                                });
+                                }, false);
             final List<NewMaterial> newMaterials = new ArrayList<NewMaterial>();
             final List<BatchRegistrationResult> results =
                     new ArrayList<BatchRegistrationResult>(uploadedFiles.size());

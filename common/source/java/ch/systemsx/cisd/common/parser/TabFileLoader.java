@@ -128,11 +128,10 @@ public class TabFileLoader<T>
         boolean previousLineHasColumnHeaders = false;
         while (lineIterator.hasNext())
         {
-            previousLineHasColumnHeaders =
-                    (previousLine != null) && COMMENT_PREFIX.equals(previousLine.getText());
+            previousLineHasColumnHeaders = (previousLine != null) && isComment(previousLine);
             previousLine = line;
             line = lineIterator.next();
-            if (line.getText().startsWith(COMMENT_PREFIX) == false)
+            if (startsWithComment(line) == false)
             {
                 break;
             }
@@ -145,7 +144,7 @@ public class TabFileLoader<T>
         final String headerLine;
         if (previousLineHasColumnHeaders && (previousLine != null /* just for eclipse */))
         {
-            headerLine = previousLine.getText().substring(1);
+            headerLine = trimComment(previousLine);
         } else
         {
             headerLine = line.getText();
@@ -165,6 +164,30 @@ public class TabFileLoader<T>
                 createContentIterator(firstContentLine, lineIterator, lastEmptyHeadersToSkip);
         final ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
         return parser.parse(contentLineIterator, filter, headerLength);
+    }
+
+    private static boolean startsWithComment(Line line)
+    {
+        String text = line.getText();
+        return text.startsWith(COMMENT_PREFIX);
+    }
+
+    private static String trimComment(Line previousLine)
+    {
+        String text = previousLine.getText();
+        if (text.startsWith(COMMENT_PREFIX))
+        {
+            return text.substring(COMMENT_PREFIX.length());
+        } else
+        {
+            return text;
+        }
+    }
+
+    private static boolean isComment(Line line)
+    {
+        String text = line.getText();
+        return COMMENT_PREFIX.equals(text);
     }
 
     /**
@@ -303,6 +326,8 @@ public class TabFileLoader<T>
 
     private final static class TabFileLineIterator implements Iterator<Line>
     {
+        private static final String QUOTE = "" + '"';
+
         private final LineIterator lineIterator;
 
         private int lineNumber;
@@ -323,7 +348,26 @@ public class TabFileLoader<T>
 
         public final Line next()
         {
-            return new Line(++lineNumber, lineIterator.nextLine());
+            String text = unescapeQuotes(lineIterator.nextLine());
+            System.out.println("line " + lineNumber + ": " + text);
+            return new Line(++lineNumber, text);
+        }
+
+        // if the line contains quotes, Excel escapes them surrounding the whole line in quotes and
+        // doubling all quotes inside.
+        private static String unescapeQuotes(String text)
+        {
+            // skips tabs at the end if line is quoted - see multisection tsv files problem
+            String trimmedText = text.trim();
+            if (trimmedText.length() > 1 && trimmedText.startsWith(QUOTE)
+                    && trimmedText.endsWith(QUOTE))
+            {
+                String unquoted = trimmedText.substring(1, trimmedText.length() - 1);
+                return unquoted.replaceAll(QUOTE + QUOTE, QUOTE);
+            } else
+            {
+                return text;
+            }
         }
 
         public final boolean hasNext()
