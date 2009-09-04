@@ -37,8 +37,6 @@ import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.TokenGroup;
 import org.apache.lucene.search.highlight.TokenSources;
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -66,12 +64,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * Implementation of {@link IHibernateSearchDAO} for databases.
@@ -192,57 +188,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         {
             logSearchHighlightingError(ex);
             return query;
-        }
-    }
-
-    // Data Sets TODO 2009-009-04, Piotr Buczek: remove when LMS-1162 is finished
-
-    public List<ExternalDataPE> searchForDataSets(final DetailedSearchCriteria criteria)
-    {
-        final List<ExternalDataPE> list =
-                AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
-                    {
-                        public final Object doInHibernate(final Session session)
-                                throws HibernateException, SQLException
-                        {
-                            return searchForDataSets(session, criteria);
-                        }
-                    }));
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format(
-                    "%d matching datasets have been found for search criteria '%s'.", list.size(),
-                    criteria.toString()));
-        }
-        return list;
-    }
-
-    private List<ExternalDataPE> searchForDataSets(Session session,
-            DetailedSearchCriteria searchCriteria)
-    {
-        Query query =
-                LuceneQueryBuilder.createDetailedSearchQuery(searchCriteria, EntityKind.DATA_SET);
-        final FullTextSession fullTextSession = Search.getFullTextSession(session);
-        final FullTextQuery hibernateQuery =
-                fullTextSession.createFullTextQuery(query, ExternalDataPE.class);
-
-        Criteria criteria = getSession().createCriteria(ExternalDataPE.class);
-        criteria.setFetchMode("parents", FetchMode.JOIN);
-        criteria.setFetchMode("experimentInternal", FetchMode.JOIN);
-        criteria.setFetchMode("sampleInternal", FetchMode.JOIN);
-        hibernateQuery.setCriteriaQuery(criteria);
-
-        List<ExternalDataPE> datasets = AbstractDAO.cast(hibernateQuery.list());
-        initializeDatasetProperties(datasets);
-        datasets = filterNulls(datasets);
-        return datasets;
-    }
-
-    private void initializeDatasetProperties(List<ExternalDataPE> datasets)
-    {
-        for (ExternalDataPE dataset : datasets)
-        {
-            HibernateUtils.initialize(dataset.getProperties());
         }
     }
 

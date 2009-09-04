@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchF
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchCriteriaConnection;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
@@ -59,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
  * Test cases for corresponding {@link HibernateSearchDAO} class.
@@ -240,15 +242,40 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         return codes;
     }
 
+    /**
+     * Returns a list of datasets mathing given criteria.<br>
+     * <br>
+     * Only eager connections are loaded.
+     */
     private List<ExternalDataPE> searchForDatasets(DetailedSearchCriteria criteria)
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
-        return hibernateSearchDAO.searchForDataSets(criteria);
+        List<Long> datasetIds =
+                hibernateSearchDAO.searchForEntityIds(criteria, DtoConverters
+                        .convertEntityKind(EntityKind.DATA_SET));
+        final List<ExternalDataPE> result = new ArrayList<ExternalDataPE>();
+        for (Long datasetId : datasetIds)
+        {
+            result.add(getDataSetById(datasetId));
+        }
+        return result;
+    }
+
+    // NOTE: depends on proper implementation of ExternalDataDAO.
+    //
+    // HibernateSearhDAO returns only dataset ids, which are too strongly connected with database
+    // content and should not be directly tested in asserts. Using ExternalDataDAO we can check
+    // if dataset with given id is in fact in the DB and use dataset attributes in asserts instead
+    // of using ids.
+    private ExternalDataPE getDataSetById(Long datasetId)
+    {
+        return daoFactory.getExternalDataDAO().getByTechId(new TechId(datasetId));
     }
 
     // NOTE: such a check depends strongly on the test database content. Use it only when the better
     // way to check the results is much harder.
-    private void assertCorrectDatasetsFound(DetailedSearchCriteria criteria, DSLoc... expectedLocations)
+    private void assertCorrectDatasetsFound(DetailedSearchCriteria criteria,
+            DSLoc... expectedLocations)
     {
         List<ExternalDataPE> dataSets = searchForDatasets(criteria);
         AssertJUnit.assertEquals(expectedLocations.length, dataSets.size());
