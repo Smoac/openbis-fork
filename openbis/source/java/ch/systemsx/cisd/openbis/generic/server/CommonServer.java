@@ -441,7 +441,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         try
         {
             IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
-            final List<Long> sampleIds = searchDAO.searchForSampleIds(criteria);
+            final Collection<Long> sampleIds =
+                    searchDAO.searchForEntityIds(criteria, DtoConverters
+                            .convertEntityKind(EntityKind.SAMPLE));
             final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
             return sampleLister.list(new ListOrSearchSampleCriteria(sampleIds));
         } catch (final DataAccessException ex)
@@ -796,14 +798,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         try
         {
             IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
-            final List<ExternalDataPE> searchHits = searchDAO.searchForDataSets(criteria);
-            final List<ExternalData> list = new ArrayList<ExternalData>(searchHits.size());
-            for (final ExternalDataPE hit : searchHits)
-            {
-                list.add(ExternalDataTranslator.translate(hit, getDataStoreBaseURL(), session
-                        .getBaseIndexURL(), false));
-            }
-            return list;
+            final Collection<Long> datasetIds =
+                    searchDAO.searchForEntityIds(criteria, DtoConverters
+                            .convertEntityKind(EntityKind.DATA_SET));
+            final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+            return datasetLister.listByDatasetIds(datasetIds);
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);
@@ -1310,23 +1309,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 return createInformationHolder(entityKind, permId, getDAOFactory()
                         .getExternalDataDAO().tryToFindDataSetByCode(permId));
             case SAMPLE:
-                return createInformationHolder(
-                        entityKind,
-                        permId,
-                        getDAOFactory()
-                                .getPermIdDAO()
-                                .tryToFindByPermId(
-                                        permId,
-                                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.SAMPLE));
             case EXPERIMENT:
-                return createInformationHolder(
-                        entityKind,
-                        permId,
-                        getDAOFactory()
-                                .getPermIdDAO()
-                                .tryToFindByPermId(
-                                        permId,
-                                        ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind.EXPERIMENT));
+                return createInformationHolder(entityKind, permId, getDAOFactory().getPermIdDAO()
+                        .tryToFindByPermId(permId, DtoConverters.convertEntityKind(entityKind)));
             case MATERIAL:
                 break;
         }

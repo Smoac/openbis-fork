@@ -63,14 +63,13 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -100,6 +99,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     //
     // IHibernateSearchDAO
     //
+
+    // simple search for MatchingEntities
 
     public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
             final String searchTerm, final HibernateSearchDataProvider dataProvider)
@@ -181,19 +182,6 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         return filterNulls(result);
     }
 
-    private static <T> List<T> filterNulls(List<T> list)
-    {
-        List<T> result = new ArrayList<T>();
-        for (T elem : list)
-        {
-            if (elem != null)
-            {
-                result.add(elem);
-            }
-        }
-        return result;
-    }
-
     // we need this for higlighter when wildcards are used
     private static Query rewriteQuery(IndexReader indexReader, Query query)
     {
@@ -207,9 +195,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    //
-    // Data Sets
-    //
+    // Data Sets TODO 2009-009-04, Piotr Buczek: remove when LMS-1162 is finished
 
     public List<ExternalDataPE> searchForDataSets(final DetailedSearchCriteria criteria)
     {
@@ -260,11 +246,10 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
         }
     }
 
-    //
-    // Samples
-    //
+    // detailed search
 
-    public List<Long> searchForSampleIds(final DetailedSearchCriteria criteria)
+    public List<Long> searchForEntityIds(final DetailedSearchCriteria criteria,
+            final EntityKind entityKind)
     {
         final List<Long> list =
                 AbstractDAO.cast((List<?>) getHibernateTemplate().execute(new HibernateCallback()
@@ -272,7 +257,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                         public final Object doInHibernate(final Session session)
                                 throws HibernateException, SQLException
                         {
-                            return searchForSampleIds(session, criteria);
+                            return searchForEntityIds(session, criteria, entityKind);
                         }
                     }));
         if (operationLog.isDebugEnabled())
@@ -285,25 +270,25 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     }
 
     /**
-     * Returns a list ids of samples that match given criteria.<br>
+     * Returns a list ids of entities of given kind that match given criteria.<br>
      * <br>
      * Takes data only from Lucene index without hitting DB.
      */
-    private List<Long> searchForSampleIds(Session session, DetailedSearchCriteria searchCriteria)
+    private List<Long> searchForEntityIds(Session session, DetailedSearchCriteria searchCriteria,
+            EntityKind entityKind)
     {
-        Query query =
-                LuceneQueryBuilder.createDetailedSearchQuery(searchCriteria, EntityKind.SAMPLE);
+        Query query = LuceneQueryBuilder.createDetailedSearchQuery(searchCriteria, entityKind);
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         final FullTextQuery hibernateQuery =
-                fullTextSession.createFullTextQuery(query, SamplePE.class);
+                fullTextSession.createFullTextQuery(query, entityKind.getEntityClass());
 
         hibernateQuery.setProjection(FullTextQuery.ID);
         hibernateQuery.setReadOnly(true);
         hibernateQuery.setResultTransformer(new PassThroughOneObjectTupleResultTransformer());
 
-        List<Long> samples = AbstractDAO.cast(hibernateQuery.list());
-        samples = filterNulls(samples);
-        return samples;
+        List<Long> entityIds = AbstractDAO.cast(hibernateQuery.list());
+        entityIds = filterNulls(entityIds);
+        return entityIds;
     }
 
     // 
@@ -443,6 +428,19 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                 return groupId;
             }
         }
+    }
+
+    private static <T> List<T> filterNulls(List<T> list)
+    {
+        List<T> result = new ArrayList<T>();
+        for (T elem : list)
+        {
+            if (elem != null)
+            {
+                result.add(elem);
+            }
+        }
+        return result;
     }
 
     private static void logSearchHighlightingError(IOException ex)

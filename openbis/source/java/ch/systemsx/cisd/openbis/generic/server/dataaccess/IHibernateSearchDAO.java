@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * <i>Data Access Object</i> for accessing <i>Hibernate Search</i>.
@@ -46,6 +47,6 @@ public interface IHibernateSearchDAO
     /** search for datasets using the specified criteria */
     public List<ExternalDataPE> searchForDataSets(DetailedSearchCriteria criteria);
 
-    /** search for sample ids using the specified criteria */
-    public List<Long> searchForSampleIds(DetailedSearchCriteria criteria);
+    /** search for entity ids using the specified criteria */
+    public List<Long> searchForEntityIds(DetailedSearchCriteria criteria, EntityKind entityKind);
 }

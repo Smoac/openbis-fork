@@ -29,7 +29,8 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.DetailedQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
  * @author Tomasz Pylak
@@ -40,7 +41,8 @@ public class LuceneQueryBuilder
     public static Query createDetailedSearchQuery(DetailedSearchCriteria searchCriteria,
             EntityKind entityKind)
     {
-        return DetailedQueryBuilder.createQuery(searchCriteria, entityKind);
+        return DetailedQueryBuilder.createQuery(searchCriteria, DtoConverters
+                .convertEntityKind(entityKind));
     }
 
     public static String adaptQuery(String userQuery)

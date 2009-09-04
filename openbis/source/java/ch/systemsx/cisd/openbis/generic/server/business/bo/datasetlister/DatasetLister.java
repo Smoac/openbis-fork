@@ -23,9 +23,8 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-
-import net.lemnik.eodsql.DataIterator;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
@@ -142,7 +141,12 @@ public class DatasetLister implements IDatasetLister
         return enrichDatasets(query.getDatasetsForExperiment(experimentId.getId()));
     }
 
-    private List<ExternalData> enrichDatasets(DataIterator<DatasetRecord> datasets)
+    public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds)
+    {
+        return enrichDatasets(setQuery.getDatasets(new LongOpenHashSet(datasetIds)));
+    }
+
+    private List<ExternalData> enrichDatasets(Iterable<DatasetRecord> datasets)
     {
         loadSmallConnectedTables();
         List<DatasetRecord> datasetRecords = asList(datasets);
@@ -446,4 +450,5 @@ public class DatasetLister implements IDatasetLister
         result.setDatabaseInstance(databaseInstance);
         return result;
     }
+
 }

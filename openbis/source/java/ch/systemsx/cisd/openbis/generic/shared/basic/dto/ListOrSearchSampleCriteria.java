@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.util.List;
+import java.util.Collection;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
@@ -31,7 +31,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 {
     private ListSampleCriteria listCriteria;
 
-    private List<Long> sampleIds;
+    private Collection<Long> sampleIds;
 
     /** Creates criteria that delegates to given {@link ListSampleCriteria}. */
     public ListOrSearchSampleCriteria(ListSampleCriteria listCriteria)
@@ -41,7 +41,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     }
 
     /** Creates criteria for detailed search of samples with given ids. */
-    public ListOrSearchSampleCriteria(final List<Long> sampleIds)
+    public ListOrSearchSampleCriteria(final Collection<Long> sampleIds)
     {
         assert sampleIds != null;
         this.sampleIds = sampleIds;
@@ -49,7 +49,7 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 
     // search
 
-    public List<Long> getSampleIds()
+    public Collection<Long> getSampleIds()
     {
         return sampleIds;
     }

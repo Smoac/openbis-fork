@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -34,4 +35,6 @@ public interface IDatasetLister
     /** @return datasets connected to the sample with the specified id */
     List<ExternalData> listBySampleTechId(TechId sampleId);
 
+    /** @return datasets with given ids */
+    List<ExternalData> listByDatasetIds(Collection<Long> datasetIds);
 }
