@@ -30,6 +30,8 @@ public class SampleRecord extends CodeRecord
     public String perm_id;
 
     public Long expe_id;
+    
+    public Long grou_id;
 
     public Long samp_id_generated_from;
 

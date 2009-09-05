@@ -152,6 +152,8 @@ final class SampleListingWorker
     private int maxSampleContainerResolutionDepth;
 
     private final Long2ObjectMap<Sample> sampleMap = new Long2ObjectOpenHashMap<Sample>();
+    
+    private final Long2ObjectMap<Group> groupMap = new Long2ObjectOpenHashMap<Group>();
 
     public static SampleListingWorker create(ListOrSearchSampleCriteria criteria,
             String baseIndexURL, SampleListerDAO dao, SecondaryEntityDAO referencedEntityDAO)
@@ -204,13 +206,29 @@ final class SampleListingWorker
         final StopWatch watch = new StopWatch();
         watch.start();
         final Experiment expOrNull = tryLoadExperiment();
-        final Group groupOrNull = tryLoadGroup(expOrNull);
+        final boolean oneGroupPerSample = isOneGroupPerSamples();
+        final Group groupOrNull;
+        if (oneGroupPerSample)
+        {
+            groupOrNull = null;
+            final Group[] groups = referencedEntityDAO.getAllGroups(databaseInstanceId);
+            for (Group group : groups)
+            {
+                groupMap.put(group.getId(), group);
+            }
+        } else
+        {
+            groupOrNull = tryLoadGroup(expOrNull);
+        }
         loadSampleTypes();
-        retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds(), groupOrNull);
-        retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples(), groupOrNull);
-        retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples(), groupOrNull);
-        retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples(), groupOrNull);
-        retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples(), groupOrNull);
+        retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds(), groupOrNull, oneGroupPerSample);
+        retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples(), groupOrNull, oneGroupPerSample);
+        retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples(), groupOrNull,
+                oneGroupPerSample);
+        retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples(), groupOrNull,
+                oneGroupPerSample);
+        retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples(), groupOrNull,
+                oneGroupPerSample);
         if (operationLog.isDebugEnabled())
         {
             watch.stop();
@@ -266,6 +284,11 @@ final class SampleListingWorker
         final Experiment experiment = referencedEntityDAO.getExperiment(experimentId);
         experiments.put(experimentId, experiment);
         return experiment;
+    }
+
+    private boolean isOneGroupPerSamples()
+    {
+        return criteria.getContainerSampleId() != null || criteria.getSampleIds() != null;
     }
 
     private Group tryLoadGroup(final Experiment expOrNull)
@@ -405,21 +428,22 @@ final class SampleListingWorker
     }
 
     private void retrievePrimaryBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull,
-            final Group groupOrNull)
+            final Group groupOrNull, final boolean oneGroupPerSample)
     {
         assert sampleList != null;
 
-        retrieveBasicSamples(sampleIteratorOrNull, groupOrNull, baseIndexURL, sampleList);
+        retrieveBasicSamples(sampleIteratorOrNull, groupOrNull, baseIndexURL, sampleList,
+                oneGroupPerSample);
     }
 
     private void retrieveDependentBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull)
     {
-        retrieveBasicSamples(sampleIteratorOrNull, null, null, null);
+        retrieveBasicSamples(sampleIteratorOrNull, null, null, null, false);
     }
 
     private void retrieveBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull,
             final Group groupOrNull, final String baseIndexURLOrNull,
-            final List<Sample> sampleListOrNull)
+            final List<Sample> sampleListOrNull, final boolean oneGroupPerSample)
     {
         if (sampleIteratorOrNull == null)
         {
@@ -428,7 +452,9 @@ final class SampleListingWorker
         final boolean primarySample = (sampleListOrNull != null);
         for (SampleRecord row : sampleIteratorOrNull)
         {
-            final Sample sample = createSample(row, groupOrNull, baseIndexURLOrNull, primarySample);
+            final Sample sample =
+                    createSample(row, groupOrNull, oneGroupPerSample, baseIndexURLOrNull,
+                            primarySample);
             sampleMap.put(sample.getId(), sample);
             if (sampleListOrNull != null)
             {
@@ -438,7 +464,8 @@ final class SampleListingWorker
     }
 
     private Sample createSample(SampleRecord row, final Group groupOrNull,
-            final String baseIndexURLOrNull, final boolean primarySample)
+            final boolean oneGroupPerSample, final String baseIndexURLOrNull,
+            final boolean primarySample)
     {
         final Sample sample = new Sample();
         sample.setId(row.id);
@@ -447,18 +474,22 @@ final class SampleListingWorker
         sample.setSampleType(sampleTypes.get(row.saty_id));
         if (primarySample)
         {
-            if (groupOrNull != null)
+            if (oneGroupPerSample)
             {
-                sample.setGroup(groupOrNull);
-                final GroupIdentifier groupId =
-                        new GroupIdentifier(databaseInstance.getCode(), groupOrNull.getCode());
-                sample.setIdentifier(new SampleIdentifier(groupId, sample.getCode()).toString());
+                if (row.grou_id == null)
+                {
+                    setDatabaseInstance(sample);
+                }
+                else {
+                    setGroup(sample, groupMap.get(row.grou_id));
+                }
+            }
+            else if (groupOrNull != null)
+            {
+                setGroup(sample, groupOrNull);
             } else
             {
-                sample.setDatabaseInstance(databaseInstance);
-                final DatabaseInstanceIdentifier dbId =
-                        new DatabaseInstanceIdentifier(databaseInstance.getCode());
-                sample.setIdentifier(new SampleIdentifier(dbId, sample.getCode()).toString());
+                setDatabaseInstance(sample);
             }
             sample.setPermId(StringEscapeUtils.escapeHtml(row.perm_id));
             sample.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURLOrNull,
@@ -497,6 +528,24 @@ final class SampleListingWorker
                     primarySample);
         }
         return sample;
+    }
+
+    private void setGroup(final Sample sample, final Group group)
+    {
+        sample.setGroup(group);
+        final GroupIdentifier groupId =
+                new GroupIdentifier(databaseInstance.getCode(), group.getCode());
+        sample
+                .setIdentifier(new SampleIdentifier(groupId, sample.getCode())
+                        .toString());
+    }
+
+    private void setDatabaseInstance(final Sample sample)
+    {
+        sample.setDatabaseInstance(databaseInstance);
+        final DatabaseInstanceIdentifier dbId =
+                new DatabaseInstanceIdentifier(databaseInstance.getCode());
+        sample.setIdentifier(new SampleIdentifier(dbId, sample.getCode()).toString());
     }
 
     private void addToRequested(long newId, long oldId, int initialDepth, boolean primarySample)

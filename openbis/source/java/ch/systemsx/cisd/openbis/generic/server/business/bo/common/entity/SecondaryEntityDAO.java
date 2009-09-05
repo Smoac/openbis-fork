@@ -23,6 +23,8 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.Connection;
 
+import org.springframework.dao.EmptyResultDataAccessException;
+
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
@@ -64,13 +66,13 @@ public class SecondaryEntityDAO
         Connection connection = DatabaseContextUtils.getConnection(daoFactory);
         ISecondaryEntityListingQuery query =
                 QueryTool.getQuery(connection, ISecondaryEntityListingQuery.class);
-        return create(daoFactory, query);
+        return create(daoFactory.getHomeDatabaseInstance(), query);
     }
 
     @Private
-    static SecondaryEntityDAO create(IDAOFactory daoFactory, ISecondaryEntityListingQuery query)
+    public static SecondaryEntityDAO create(DatabaseInstancePE homeDatabaseInstance,
+            ISecondaryEntityListingQuery query)
     {
-        DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
         return new SecondaryEntityDAO(query, homeDatabaseInstance);
     }
 
@@ -89,6 +91,10 @@ public class SecondaryEntityDAO
     {
         final ExperimentProjectGroupCodeRecord record =
                 query.getExperimentAndProjectAndGroupCodeForId(experimentId);
+        if (record == null)
+        {
+            throw new EmptyResultDataAccessException(1);
+        }
         return createExperiment(experimentId, record);
     }
 
@@ -117,11 +123,20 @@ public class SecondaryEntityDAO
     public Person getPerson(long personId)
     {
         Person registrator = query.getPersonById(personId);
+        if (registrator == null)
+        {
+            throw new EmptyResultDataAccessException(1);
+        }
         registrator.setUserId(escapeHtml(registrator.getUserId()));
         registrator.setEmail(escapeHtml(registrator.getEmail()));
         registrator.setFirstName(escapeHtml(registrator.getFirstName()));
         registrator.setLastName(escapeHtml(registrator.getLastName()));
         return registrator;
+    }
+
+    public Group[] getAllGroups(long databaseInstanceId)
+    {
+        return query.getAllGroups(databaseInstanceId);
     }
 
     // TODO 2009-09-01, Tomasz Pylak: implement a version for h2

@@ -51,7 +51,7 @@ public interface ISampleListingFullQuery extends ISampleListingQuery
      * <p>
      * <em>Do not call directly, call via {@link ISampleSetListingQuery}</em>
      */
-    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, "
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, "
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s where s.id = any(?{1})", parameterBindings =

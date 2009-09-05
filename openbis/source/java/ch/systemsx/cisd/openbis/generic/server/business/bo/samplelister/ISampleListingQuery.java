@@ -62,7 +62,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     /**
      * Returns the sample for the given <var>sampleId</var>.
      */
-    @Select("select s.id, s.perm_id, s.code, s.expe_id, "
+    @Select("select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, "
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s where s.id=?{1}")
@@ -71,7 +71,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     /**
      * Returns all samples in the database.
      */
-    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, "
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, "
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s left join groups g on s.grou_id=g.id where s.dbin_id=?{1} or g.dbin_id=?{1}", fetchSize = FETCH_SIZE)
@@ -149,7 +149,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     /**
      * Returns the samples for the given <var>sampleContainerId</var>.
      */
-    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, "
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, "
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
             + "   from samples s where s.samp_id_part_of=?{1}", fetchSize = FETCH_SIZE)

@@ -65,7 +65,7 @@ public class SecondaryEntityListingQueryTest extends AbstractDAOTest
     {
         ISecondaryEntityListingQuery query =
                 EntityListingTestUtils.createQuery(daoFactory, ISecondaryEntityListingQuery.class);
-        return SecondaryEntityDAO.create(daoFactory, query);
+        return SecondaryEntityDAO.create(daoFactory.getHomeDatabaseInstance(), query);
     }
 
     @Test
