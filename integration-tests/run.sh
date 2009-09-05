@@ -61,7 +61,7 @@ function run_lsof {
 # Tries to find PostgreSQL executable and returns its absolute path.
 # If not found, then exits the script with an appropriate error message.
 function run_psql {
-	for prg in psql psql82 psql83; do
+	for prg in psql psql84 psql83; do
 		exe=`locate_file $prg $BIN_PATHS`
 		if [ $exe ]; then
 			echo $exe
@@ -209,7 +209,7 @@ function install_openbis_server {
     local install_openbis=$1
     psql_cmd=`run_psql`
     $psql_cmd -U postgres -c "drop database $DATABASE"
-    $psql_cmd -U postgres -c "create database $DATABASE with owner $USER encoding = 'UNICODE'"
+    $psql_cmd -U postgres -c "create database $DATABASE with owner $USER template = template0 encoding = 'UNICODE'"
     $psql_cmd -U $USER -d $DATABASE -f $TEMPLATE/$OPENBIS_SERVER_NAME/test_database.sql
 
     if [ $install_openbis == "true" ]; then
