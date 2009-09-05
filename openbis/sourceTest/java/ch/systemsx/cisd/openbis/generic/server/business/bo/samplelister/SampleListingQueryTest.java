@@ -208,6 +208,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
         int sampleCount = 0;
         for (SampleRecord sample : query.getGroupSamples(dbInstanceId, groupCode))
         {
+            // Note: query.getGroupSamples() doesn't query for grou_id as it is not used by the business code
+            sample.grou_id = groupId;
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
@@ -259,6 +261,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
         int sampleCount = 0;
         for (SampleRecord sample : query.getSamplesForExperiment(experimentId))
         {
+            // Note: getSamplesForExperiment() doesn't query for grou_id as it is not used by the business code
+            sample.grou_id = groupId;
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
@@ -279,6 +283,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
         int sampleCount = 0;
         for (SampleRecord sample : query.getGroupSamplesWithExperiment(dbInstanceId, groupCode))
         {
+            // Note: getGroupSamplesWithExperiment() doesn't query for grou_id as it is not used by the business code
+            sample.grou_id = groupId;
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
             assertTrue(msg, EqualsBuilder.reflectionEquals(sample, sample2));
