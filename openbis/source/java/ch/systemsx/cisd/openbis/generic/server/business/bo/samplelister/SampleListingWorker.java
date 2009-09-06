@@ -214,6 +214,7 @@ final class SampleListingWorker
             final Group[] groups = referencedEntityDAO.getAllGroups(databaseInstanceId);
             for (Group group : groups)
             {
+                group.setInstance(databaseInstance);
                 groupMap.put(group.getId(), group);
             }
         } else
