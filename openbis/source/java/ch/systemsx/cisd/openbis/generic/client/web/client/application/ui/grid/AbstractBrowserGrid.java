@@ -1261,7 +1261,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             List<PagingColumnFilter<T>> previousFilterWidgetsOrNull, ToolBar filterToolbar,
             IMessageProvider messageProvider)
     {
-        System.err.println("rebuildFilterToolbar");
         filterToolbar.removeAll();
         if (filterWidgets.size() == 0)
         {
