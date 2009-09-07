@@ -18,11 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 
 /**
  * {@link ColumnModel} extension allowing to move columns.
@@ -50,14 +47,8 @@ public class MoveableColumnModel extends ColumnModel
             ColumnConfig c = config.get(fromIndex);
             config.remove(fromIndex);
             config.add(toIndex, c);
-            triggerColumnMoveEvent(fromIndex, toIndex);
+            // one event is triggered when all columns are set
         }
-    }
-
-    private void triggerColumnMoveEvent(int fromIndex, int toIndex)
-    {
-        ColumnModelEvent e = new MoveableColumnModelEvent(this, fromIndex, toIndex);
-        fireEvent(AppEvents.ColumnMove, e);
     }
 
 }

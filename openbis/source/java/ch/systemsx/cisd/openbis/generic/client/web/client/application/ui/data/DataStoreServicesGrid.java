@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 /**
  * Implements {@link DatastoreServiceDescription} listing functionality.
  * 
- * @author Pitor Buczek
+ * @author Piotr Buczek
  */
 class DataStoreServicesGrid extends ContentPanel
 {

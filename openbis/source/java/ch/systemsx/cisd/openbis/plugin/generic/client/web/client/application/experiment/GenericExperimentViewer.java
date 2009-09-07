@@ -183,7 +183,7 @@ public final class GenericExperimentViewer extends
         return GENERIC_EXPERIMENT_VIEWER + "-" + suffix;
     }
 
-    public Component createRightPanel(Experiment result,
+    private Component createRightPanel(Experiment result,
             CompositeDatabaseModificationObserverWithMainObserver observer)
     {
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());

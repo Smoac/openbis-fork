@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -71,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowRelatedDatasetsDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
@@ -1107,10 +1109,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                         createApplyFiltersDelagator().execute();
                     }
                     updateColumnsSettingsModel(getColumnModel(), result);
+                    // settings will be automatically stored because of event handling
                     refreshColumnsSettings();
                     refreshColumnHeaderWidths();
-                    viewContext.getDisplaySettingsManager().storeSettings(getGridDisplayTypeID(),
-                            createDisplaySettingsUpdater());
                 }
             };
         List<ColumnDataModel> settingsModel =
@@ -1203,6 +1204,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return columnsIds;
     }
 
+    /**
+     * Updates specified model (<code>cm</code>) with settings from <code>columnModels</code>.<br>
+     * <br>
+     * Fires {@link AppEvents.ColumnSettingsChanged} event when finished.
+     */
     private static void updateColumnsSettingsModel(final MoveableColumnModel cm,
             List<ColumnDataModel> columnModels)
     {
@@ -1214,6 +1220,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             cm.setHidden(oldIndex, m.isVisible() == false);
             cm.move(oldIndex, newIndex++);
         }
+        cm.fireEvent(AppEvents.ColumnSettingsChanged, new ColumnModelEvent(cm));
     }
 
     private static List<ColumnDataModel> createColumnsSettingsModel(ColumnModel cm,

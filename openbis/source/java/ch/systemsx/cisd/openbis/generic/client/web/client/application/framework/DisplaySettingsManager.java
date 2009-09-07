@@ -108,26 +108,31 @@ public class DisplaySettingsManager
                     storeSettings(displayTypeID, grid);
                 }
 
-                /** Is specified event a fake width change event that does not change width? */
+                /**
+                 * Is specified <code>event</code> a fake width change event that does not change
+                 * width?
+                 */
                 private boolean isFakeWidthChangeEvent(ColumnModelEvent event)
                 {
                     if (event.type == Events.WidthChange)
                     {
-                        int oldWidth =
-                                displaySettings.getColumnSettings().get(displayTypeID).get(
-                                        event.colIndex).getWidth();
-                        int newWidth = event.width;
-                        return oldWidth == newWidth;
-                    } else
-                    {
-                        return false;
+                        List<ColumnSetting> colSettings =
+                                displaySettings.getColumnSettings().get(displayTypeID);
+                        if (colSettings != null && colSettings.get(event.colIndex) != null)
+                        {
+                            int oldWidth = colSettings.get(event.colIndex).getWidth();
+                            int newWidth = event.width;
+                            return oldWidth == newWidth;
+                        }
                     }
+
+                    return false;
                 }
             };
         ColumnModel columnModel = grid.getColumnModel();
-        columnModel.addListener(Events.HiddenChange, listener);
+        columnModel.addListener(Events.HiddenChange, listener); // needed?
         columnModel.addListener(Events.WidthChange, listener);
-        columnModel.addListener(AppEvents.ColumnMove, listener);
+        columnModel.addListener(AppEvents.ColumnSettingsChanged, listener);
     }
 
     /**
@@ -282,4 +287,5 @@ public class DisplaySettingsManager
         }
         return columnSettings;
     }
+
 }

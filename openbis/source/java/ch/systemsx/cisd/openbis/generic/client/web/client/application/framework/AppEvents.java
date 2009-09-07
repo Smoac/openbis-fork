@@ -51,7 +51,7 @@ public class AppEvents
     // opens a new browser window with a specified URL
     public static final int OPEN_URL_EVENT = STARTING_VALUE + 50;
 
-    public static final int ColumnMove = STARTING_VALUE + 60;
+    public static final int ColumnSettingsChanged = STARTING_VALUE + 60;
 
     public static final int CloseViewer = STARTING_VALUE + 70;
 }
