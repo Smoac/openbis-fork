@@ -146,7 +146,7 @@ class LogUtils
     private void sendErrorMessage(IMailClient mailClient, String notificationEmail)
     {
         String subject = String.format(ERROR_NOTIFICATION_EMAIL_SUBJECT, loggingDir.getName());
-        mailClient.sendMessage(subject, createErrorNotificationContent(), null, notificationEmail);
+        mailClient.sendMessage(subject, createErrorNotificationContent(), null, null, notificationEmail);
     }
 
     private String createErrorNotificationContent()
