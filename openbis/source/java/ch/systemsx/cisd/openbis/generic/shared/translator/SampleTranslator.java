@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -102,7 +103,7 @@ public final class SampleTranslator
             result.setRegistrationDate(samplePE.getRegistrationDate());
             setProperties(result, samplePE);
             result.setExperiment(ExperimentTranslator.translate(samplePE.getExperiment(),
-                    baseIndexURL));
+                    baseIndexURL, LoadableFields.PROPERTIES));
             List<Attachment> attachments;
             if (samplePE.attachmentsInitialized() == false)
             {
