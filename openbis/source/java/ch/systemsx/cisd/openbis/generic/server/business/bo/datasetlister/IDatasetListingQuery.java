@@ -20,6 +20,7 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTerm
  * 
  * @author Tomasz Pylak
  */
+@Private
 public interface IDatasetListingQuery extends TransactionQuery, IPropertyListingQuery
 {
     public static final int FETCH_SIZE = 1000;

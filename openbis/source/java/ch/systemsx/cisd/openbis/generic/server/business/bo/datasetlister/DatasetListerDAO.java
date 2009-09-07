@@ -26,6 +26,7 @@ import net.lemnik.eodsql.QueryTool;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.AbstractDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertyListingQuery;
@@ -37,9 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTerm
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser.IEntitiesCountProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 
 /**
  * The DAO for business objects implementing {@link IDatasetLister}. Note: Even though this class is
@@ -50,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
 @Friend(toClasses =
     { IDatasetListingFullQuery.class, IEntityPropertyListingQuery.class,
             DatasetRelationRecord.class })
-public final class DatasetListerDAO
+public final class DatasetListerDAO extends AbstractDAO
 {
     /**
      * Creates a new instance based on {@link PersistencyResources} and home
@@ -82,30 +81,14 @@ public final class DatasetListerDAO
 
     private final QueryStrategyChooser strategyChooser;
 
-    private final long databaseInstanceId;
-
-    private final DatabaseInstance databaseInstance;
-
     DatasetListerDAO(final boolean supportsSetQuery, IDatasetListingFullQuery query,
             final DatabaseInstancePE databaseInstance)
     {
+        super(databaseInstance);
         this.query = query;
         this.strategyChooser = createStrategyChooser(query);
         this.setQuery = createIdSetQuery(supportsSetQuery, query, strategyChooser);
         this.propertySetQuery = createSetPropertyQuery(supportsSetQuery, query, strategyChooser);
-
-        this.databaseInstanceId = databaseInstance.getId();
-        this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstance);
-    }
-
-    long getDatabaseInstanceId()
-    {
-        return databaseInstanceId;
-    }
-
-    DatabaseInstance getDatabaseInstance()
-    {
-        return databaseInstance;
     }
 
     IDatasetListingQuery getQuery()

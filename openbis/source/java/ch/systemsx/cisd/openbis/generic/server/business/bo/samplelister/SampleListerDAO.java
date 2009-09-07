@@ -26,6 +26,7 @@ import net.lemnik.eodsql.QueryTool;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.AbstractDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertyListingQuery;
@@ -37,9 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTerm
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser.IEntitiesCountProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 
 /**
  * The DAO for business objects implementing {@link ISampleLister}. Note: Even though this class is
@@ -49,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
  */
 @Friend(toClasses =
     { ISampleListingFullQuery.class, IEntityPropertyListingQuery.class })
-public final class SampleListerDAO
+public final class SampleListerDAO extends AbstractDAO
 {
     /**
      * Creates a new instance based on {@link PersistencyResources} and home
@@ -80,13 +79,10 @@ public final class SampleListerDAO
 
     private final QueryStrategyChooser strategyChooser;
 
-    private final long databaseInstanceId;
-
-    private final DatabaseInstance databaseInstance;
-
     SampleListerDAO(final boolean supportsSetQuery, ISampleListingFullQuery query,
             final DatabaseInstancePE databaseInstance)
     {
+        super(databaseInstance);
         this.query = query;
         this.strategyChooser = createStrategyChooser(query, databaseInstance.getId());
         this.setQuery =
@@ -94,19 +90,6 @@ public final class SampleListerDAO
         this.propertySetQuery =
                 createSetPropertyQuery(supportsSetQuery, query, strategyChooser, databaseInstance
                         .getId());
-
-        this.databaseInstanceId = databaseInstance.getId();
-        this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstance);
-    }
-
-    long getDatabaseInstanceId()
-    {
-        return databaseInstanceId;
-    }
-
-    DatabaseInstance getDatabaseInstance()
-    {
-        return databaseInstance;
     }
 
     ISampleListingQuery getQuery()

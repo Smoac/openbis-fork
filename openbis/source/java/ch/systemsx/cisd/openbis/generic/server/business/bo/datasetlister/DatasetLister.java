@@ -55,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class, DatasetRelationRecord.class })
+    { DatasetRecord.class, DatasetRelationRecord.class, IDatasetListingQuery.class })
 public class DatasetLister implements IDatasetLister
 {
     //
