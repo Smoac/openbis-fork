@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +126,10 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
                     columnDefinitions.put(sampleID, columnDefinition);
                 }
             }
-            return new ArrayList<AbundanceColumnDefinition>(columnDefinitions.values());
+            List<AbundanceColumnDefinition> definitions =
+                    new ArrayList<AbundanceColumnDefinition>(columnDefinitions.values());
+            Collections.sort(definitions);
+            return definitions;
         } finally
         {
             samplePermIDs.close();

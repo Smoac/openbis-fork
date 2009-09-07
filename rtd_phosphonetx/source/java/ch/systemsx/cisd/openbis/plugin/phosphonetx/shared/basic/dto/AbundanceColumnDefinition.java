@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -28,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  *
  * @author Franz-Josef Elmer
  */
-public class AbundanceColumnDefinition implements Serializable, IsSerializable
+public class AbundanceColumnDefinition implements Serializable, IsSerializable, Comparable<AbundanceColumnDefinition>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
     
@@ -66,5 +67,34 @@ public class AbundanceColumnDefinition implements Serializable, IsSerializable
     public final void setTreatments(List<Treatment> treatments)
     {
         this.treatments = treatments;
+    }
+
+    public int compareTo(AbundanceColumnDefinition that)
+    {
+        if (this.treatments != null && that.treatments != null)
+        {
+            int sizeDiff = this.treatments.size() - that.treatments.size();
+            if (sizeDiff != 0)
+            {
+                return sizeDiff;
+            }
+            Collections.sort(this.treatments);
+            Collections.sort(that.treatments);
+            for (int i = 0, n = treatments.size(); i < n; i++)
+            {
+                Treatment thisTreatment = this.treatments.get(i);
+                Treatment thatTreatment = that.treatments.get(i);
+                int diff = thisTreatment.compareTo(thatTreatment);
+                if (diff != 0)
+                {
+                    return diff;
+                }
+            }
+        }
+        if (this.sampleCode != null && that.sampleCode != null)
+        {
+            return this.sampleCode.compareTo(that.sampleCode);
+        }
+        return 0;
     }
 }

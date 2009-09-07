@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  *
  * @author Franz-Josef Elmer
  */
-public class Treatment implements Serializable, IsSerializable
+public class Treatment implements Serializable, IsSerializable, Comparable<Treatment>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -70,6 +70,32 @@ public class Treatment implements Serializable, IsSerializable
     public final String getLabel()
     {
         return value + " " + type;
+    }
+
+    public int compareTo(Treatment that)
+    {
+        if (this.type.compareTo(that.type) != 0)
+        {
+            return this.type.compareTo(that.type);
+        }
+        double thisNumber = convert(this.value);
+        double thatNumber = convert(that.value);
+        if (Double.isNaN(thisNumber) || Double.isNaN(thatNumber))
+        {
+            return this.value.compareTo(that.value);
+        }
+        return Double.compare(thisNumber, thatNumber);
+    }
+    
+    private double convert(String numberOrString)
+    {
+        try
+        {
+            return Double.parseDouble(numberOrString);
+        } catch (NumberFormatException e)
+        {
+            return Double.NaN;
+        }
     }
 
     @Override
