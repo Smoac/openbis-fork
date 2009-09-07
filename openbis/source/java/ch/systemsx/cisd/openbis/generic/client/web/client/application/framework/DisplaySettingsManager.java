@@ -99,7 +99,29 @@ public class DisplaySettingsManager
             {
                 public void handleEvent(ColumnModelEvent event)
                 {
+                    // When FAKE width change event is fired display settings are NOT updated.
+                    // check: AbstractBrowserGrid.refreshColumnHeaderWidths()
+                    if (isFakeWidthChangeEvent(event))
+                    {
+                        return;
+                    }
                     storeSettings(displayTypeID, grid);
+                }
+
+                /** Is specified event a fake width change event that does not change width? */
+                private boolean isFakeWidthChangeEvent(ColumnModelEvent event)
+                {
+                    if (event.type == Events.WidthChange)
+                    {
+                        int oldWidth =
+                                displaySettings.getColumnSettings().get(displayTypeID).get(
+                                        event.colIndex).getWidth();
+                        int newWidth = event.width;
+                        return oldWidth == newWidth;
+                    } else
+                    {
+                        return false;
+                    }
                 }
             };
         ColumnModel columnModel = grid.getColumnModel();
