@@ -225,7 +225,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
                     new AbundanceColumnDefinitionsCallback(viewContext, browserGrid, experimentID,
                             falseDiscoveryRate, aggregateFunction);
             viewContext.getService().getAbundanceColumnDefinitionsForProteinByExperiment(
-                    experimentID, callback);
+                    experimentID, null, callback);
         }
     }
 

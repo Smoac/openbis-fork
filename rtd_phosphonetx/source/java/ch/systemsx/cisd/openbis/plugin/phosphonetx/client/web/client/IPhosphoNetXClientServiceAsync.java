@@ -40,9 +40,13 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPr
  */
 public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
 {
-    /** @see IPhosphoNetXClientService#getAbundanceColumnDefinitionsForProteinByExperiment(TechId) */
-    public void getAbundanceColumnDefinitionsForProteinByExperiment(
-            TechId experimentID, AsyncCallback<List<AbundanceColumnDefinition>> callback);
+    /**
+     * @see IPhosphoNetXClientService#getAbundanceColumnDefinitionsForProteinByExperiment(TechId,
+     *      String)
+     */
+    public void getAbundanceColumnDefinitionsForProteinByExperiment(TechId experimentID,
+            String treatmentTypeOrNull,
+            AsyncCallback<List<AbundanceColumnDefinition>> callback);
 
     /** @see IPhosphoNetXClientService#listProteinsByExperiment(ListProteinByExperimentCriteria) */
     public void listProteinsByExperiment(ListProteinByExperimentCriteria criteria,

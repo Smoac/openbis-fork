@@ -81,9 +81,9 @@ public class TreatmentFinder
                     throw new UserFailureException("Data type of property type '" + code
                             + "' must be a vocabulary.");
                 }
-                String label = getLabelOrCode(vocabularyTerm);
                 Treatment treatment = getOrCreateTreatment(codeTreatmentMap, treatmentCode);
-                treatment.setType(label);
+                treatment.setType(getLabelOrCode(vocabularyTerm));
+                treatment.setTypeCode(vocabularyTerm.getCode());
             } else if (code.startsWith(TREATMENT_VALUE_CODE))
             {
                 String treatmentCode = code.substring(TREATMENT_VALUE_CODE.length());
@@ -137,6 +137,7 @@ public class TreatmentFinder
         {
             treatment = new Treatment();
             treatment.setType("");
+            treatment.setTypeCode("");
             treatment.setValue("");
             treatment.setValueType(EntityDataType.VARCHAR.toString());
             codeTreatmentMap.put(treatmentCode, treatment);

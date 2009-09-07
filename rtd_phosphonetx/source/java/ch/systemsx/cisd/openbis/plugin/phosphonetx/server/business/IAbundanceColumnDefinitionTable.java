@@ -16,26 +16,20 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IBusinessObjectFactory
+public interface IAbundanceColumnDefinitionTable
 {
-    public IAbundanceColumnDefinitionTable createAbundanceColumnDefinitionTable(Session session);
-    
-    public IProteinWithAbundancesTable createProteinWithAbundancesTable(Session session);
-    
-    public IProteinSequenceTable createProteinSequenceTable(Session session);
-    
-    public IDataSetProteinTable createDataSetProteinTable(Session session);
-    
-    public IProteinDetailsBO createProteinDetailsBO(Session session);
-    
-    public ISampleTable createSampleTable(Session session);
-    
-    public ISampleIDProvider createSampleIDProvider(Session session);
+    public void add(String samplePermID);
+
+    public List<AbundanceColumnDefinition> getSortedAndAggregatedDefinitions(
+            String treatmentTypeOrNull);
+
 }

@@ -44,9 +44,12 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
     }
 
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
-            String sessionToken, TechId experimentID) throws UserFailureException
+            String sessionToken, TechId experimentID, String treatmentTypeOrNull)
+            throws UserFailureException
     {
-        logAccess(sessionToken, "get_abundance_colum_definitions", "EXPERIMENT_ID(%s)", experimentID);
+        logAccess(sessionToken, "get_abundance_colum_definitions",
+                "EXPERIMENT_ID(%s) TREATMENT_TYPE(%s)", experimentID,
+                treatmentTypeOrNull);
         return null;
     }
 

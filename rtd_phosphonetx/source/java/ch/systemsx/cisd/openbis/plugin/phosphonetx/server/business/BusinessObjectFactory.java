@@ -36,6 +36,12 @@ public class BusinessObjectFactory implements IBusinessObjectFactory
         this.specificDAOFactory = specificDAOFactory;
     }
 
+    public IAbundanceColumnDefinitionTable createAbundanceColumnDefinitionTable(Session session)
+    {
+        return new AbundanceColumnDefinitionTable(daoFactory, specificDAOFactory,
+                createSampleIDProvider(session), session);
+    }
+
     public IProteinWithAbundancesTable createProteinWithAbundancesTable(Session session)
     {
         return new ProteinWithAbundancesTable(daoFactory, specificDAOFactory, session);

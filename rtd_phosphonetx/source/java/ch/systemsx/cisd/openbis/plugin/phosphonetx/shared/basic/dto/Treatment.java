@@ -35,6 +35,8 @@ public class Treatment implements Serializable, IsSerializable, Comparable<Treat
     
     private String type;
     
+    private String typeCode;
+    
     private String valueType;
 
     public final String getValue()
@@ -67,6 +69,16 @@ public class Treatment implements Serializable, IsSerializable, Comparable<Treat
         this.type = type;
     }
     
+    public final String getTypeCode()
+    {
+        return typeCode;
+    }
+
+    public final void setTypeCode(String typeCode)
+    {
+        this.typeCode = typeCode;
+    }
+
     public final String getLabel()
     {
         return value + " " + type;

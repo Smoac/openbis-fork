@@ -72,10 +72,11 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     }
 
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
-            TechId experimentID)
+            TechId experimentID, String treatmentTypeOrNull)
     {
         final String sessionToken = getSessionToken();
-        return server.getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken, experimentID);
+        return server.getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken,
+                experimentID, treatmentTypeOrNull);
     }
 
     public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria)

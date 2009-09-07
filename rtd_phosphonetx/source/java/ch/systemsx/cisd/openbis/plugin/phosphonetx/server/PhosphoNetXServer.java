@@ -16,12 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -38,17 +34,15 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.AccessionNumberBuilder;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IAbundanceColumnDefinitionTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IDataSetProteinTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinDetailsBO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSequenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinWithAbundancesTable;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleIDProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleTable;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.TreatmentFinder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
@@ -74,8 +68,6 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     @Resource(name = ResourceNames.PHOSPHONETX_BO_FACTORY)
     private IBusinessObjectFactory specificBOFactory;
 
-    private final TreatmentFinder treatmentFinder = new TreatmentFinder();
-
     public PhosphoNetXServer()
     {
         super();
@@ -99,7 +91,8 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
-            String sessionToken, TechId experimentID) throws UserFailureException
+            String sessionToken, TechId experimentID, String treatmentTypeOrNull)
+            throws UserFailureException
     {
         Session session = getSessionManager().getSession(sessionToken);
         String experimentPermID = getExperimentPermIDFor(experimentID);
@@ -108,33 +101,17 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
                 dao.listAbundanceRelatedSamplePermIDsByExperiment(experimentPermID);
         try
         {
-            Map<Long, AbundanceColumnDefinition> columnDefinitions =
-                    new LinkedHashMap<Long, AbundanceColumnDefinition>();
-            ISampleIDProvider idProvider = specificBOFactory.createSampleIDProvider(session);
+            IAbundanceColumnDefinitionTable table =
+                    specificBOFactory.createAbundanceColumnDefinitionTable(session);
             for (String samplePermID : samplePermIDs)
             {
-                long sampleID = idProvider.getSampleIDOrParentSampleID(samplePermID);
-                AbundanceColumnDefinition columnDefinition = columnDefinitions.get(sampleID);
-                if (columnDefinition == null)
-                {
-                    columnDefinition = new AbundanceColumnDefinition();
-                    columnDefinition.setSampleID(sampleID);
-                    SamplePE sample =
-                            getDAOFactory().getSampleDAO().getByTechId(new TechId(sampleID));
-                    columnDefinition.setSampleCode(sample.getCode());
-                    columnDefinition.setTreatments(treatmentFinder.findTreatmentsOf(sample));
-                    columnDefinitions.put(sampleID, columnDefinition);
-                }
+                table.add(samplePermID);
             }
-            List<AbundanceColumnDefinition> definitions =
-                    new ArrayList<AbundanceColumnDefinition>(columnDefinitions.values());
-            Collections.sort(definitions);
-            return definitions;
+            return table.getSortedAndAggregatedDefinitions(treatmentTypeOrNull);
         } finally
         {
             samplePermIDs.close();
         }
-        
     }
 
     public Collection<ProteinWithAbundances> listProteinsByExperiment(String sessionToken,

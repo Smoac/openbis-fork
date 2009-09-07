@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.TreatmentFinder.TREATMENT_TYPE_CODE;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.TreatmentFinder.TREATMENT_VALUE_CODE;
-
+import java.util.Arrays;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -29,16 +27,9 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IAbundanceColumnDefinitionTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleIDProvider;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
@@ -53,8 +44,6 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
     private static final TechId EXPERIMENT_ID = new TechId(42L);
     private static final String EXPERIMENT_PERM_ID = "e123-45";
     private static final String SAMPLE_PERM_ID = "s34-56";
-    private static final long SAMPLE_ID = 4711;
-    private static final String SAMPLE_CODE = "S42";
     
     private IPhosphoNetXDAOFactory phosphoNetXDAOFactory;
     private IBusinessObjectFactory boFactory;
@@ -62,7 +51,7 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
     private IProteinQueryDAO proteinDAO;
     private PhosphoNetXServer server;
-    private ISampleIDProvider sampleIDProvider;
+    private IAbundanceColumnDefinitionTable abundanceColumnDefinitionTable;
     
     @Override
     @BeforeMethod
@@ -71,11 +60,10 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
         super.setUp();
         phosphoNetXDAOFactory = context.mock(IPhosphoNetXDAOFactory.class);
         boFactory = context.mock(IBusinessObjectFactory.class);
-        sampleIDProvider = context.mock(ISampleIDProvider.class);
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
         proteinDAO = context.mock(IProteinQueryDAO.class);
-        
+        abundanceColumnDefinitionTable = context.mock(IAbundanceColumnDefinitionTable.class);
         server =
                 new PhosphoNetXServer(sessionManager, daoFactory, phosphoNetXDAOFactory, boFactory,
                         sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
@@ -89,126 +77,12 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
     }
 
     @Test
-    public void testGetNoAbundanceColumnDefinitions()
+    public void testGetAbundanceColumnDefinitionsForProteinByExperiment()
     {
         prepareGetSession();
-        prepareGetExperimentPermID();
-        MockDataSet<String> mockDataSet = new MockDataSet<String>();
-        prepareListAbundanceRelatedSamples(mockDataSet);
-        
-        List<AbundanceColumnDefinition> definitions =
-            server.getAbundanceColumnDefinitionsForProteinByExperiment(SESSION_TOKEN,
-                    EXPERIMENT_ID);
-        assertEquals(0, definitions.size());
-        assertEquals(true, mockDataSet.hasCloseBeenInvoked());
-        context.assertIsSatisfied();
-    }
-    
-    @Test
-    public void testGetOneAbundanceColumnDefinitionWithoutTreatments()
-    {
-        prepareGetSession();
-        prepareGetExperimentPermID();
-        MockDataSet<String> mockDataSet = new MockDataSet<String>();
+        final MockDataSet<String> mockDataSet = new MockDataSet<String>();
         mockDataSet.add(SAMPLE_PERM_ID);
-        prepareListAbundanceRelatedSamples(mockDataSet);
-        prepareFindSample(createSample());
-        
-        List<AbundanceColumnDefinition> definitions =
-            server.getAbundanceColumnDefinitionsForProteinByExperiment(SESSION_TOKEN,
-                    EXPERIMENT_ID);
-        assertEquals(1, definitions.size());
-        assertEquals(SAMPLE_CODE, definitions.get(0).getSampleCode());
-        assertEquals(0, definitions.get(0).getTreatments().size());
-        
-        assertEquals(true, mockDataSet.hasCloseBeenInvoked());
-        context.assertIsSatisfied();
-    }
-    
-    @Test
-    public void testGetOneAbundanceColumnDefinitionWithOneTreatment()
-    {
-        prepareGetSession();
-        prepareGetExperimentPermID();
-        MockDataSet<String> mockDataSet = new MockDataSet<String>();
-        mockDataSet.add(SAMPLE_PERM_ID);
-        prepareListAbundanceRelatedSamples(mockDataSet);
-        final SamplePE samplePE = createSample();
-        addTreatment(samplePE, "", "abc");
-        prepareFindSample(samplePE);
-        
-        List<AbundanceColumnDefinition> definitions =
-            server.getAbundanceColumnDefinitionsForProteinByExperiment(SESSION_TOKEN,
-                    EXPERIMENT_ID);
-        assertEquals(1, definitions.size());
-        assertEquals(SAMPLE_CODE, definitions.get(0).getSampleCode());
-        assertEquals(1, definitions.get(0).getTreatments().size());
-        assertEquals("abc", definitions.get(0).getTreatments().get(0).getValue());
-        assertEquals("PH", definitions.get(0).getTreatments().get(0).getType());
-        
-        assertEquals(true, mockDataSet.hasCloseBeenInvoked());
-        context.assertIsSatisfied();
-    }
-    
-    @Test
-    public void testGetAbundanceColumnDefinitionForTwoSamplesWithSameParent()
-    {
-        prepareGetSession();
-        prepareGetExperimentPermID();
-        MockDataSet<String> mockDataSet = new MockDataSet<String>();
-        mockDataSet.add(SAMPLE_PERM_ID);
-        mockDataSet.add(SAMPLE_PERM_ID + "a");
-        prepareListAbundanceRelatedSamples(mockDataSet);
-        final SamplePE samplePE = createSample();
-        addTreatment(samplePE, "", "abc");
-        prepareFindSample(samplePE);
-        
-        List<AbundanceColumnDefinition> definitions =
-            server.getAbundanceColumnDefinitionsForProteinByExperiment(SESSION_TOKEN,
-                    EXPERIMENT_ID);
-        assertEquals(1, definitions.size());
-        assertEquals(SAMPLE_CODE, definitions.get(0).getSampleCode());
-        assertEquals(1, definitions.get(0).getTreatments().size());
-        assertEquals("abc", definitions.get(0).getTreatments().get(0).getValue());
-        assertEquals("PH", definitions.get(0).getTreatments().get(0).getType());
-        
-        assertEquals(true, mockDataSet.hasCloseBeenInvoked());
-        context.assertIsSatisfied();
-    }
-
-    private void prepareFindSample(final SamplePE samplePE)
-    {
-        context.checking(new Expectations()
-        {
-            {
-                one(sampleDAO).getByTechId(new TechId(SAMPLE_ID));
-                will(returnValue(samplePE));
-            }
-        });
-    }
-    
-    private void prepareListAbundanceRelatedSamples(final MockDataSet<String> mockDataSet)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(proteinDAO).listAbundanceRelatedSamplePermIDsByExperiment(EXPERIMENT_PERM_ID);
-                    will(returnValue(mockDataSet));
-                    
-                    one(boFactory).createSampleIDProvider(SESSION);
-                    will(returnValue(sampleIDProvider));
-                    
-                    for (String samplePermID : mockDataSet)
-                    {
-                        one(sampleIDProvider).getSampleIDOrParentSampleID(samplePermID);
-                        will(returnValue(SAMPLE_ID));
-                    }
-                }
-            });
-    }
-    
-    private void prepareGetExperimentPermID()
-    {
+        final List<AbundanceColumnDefinition> result = Arrays.asList();
         context.checking(new Expectations()
             {
                 {
@@ -216,41 +90,26 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
                     ExperimentPE experimentPE = new ExperimentPE();
                     experimentPE.setPermId(EXPERIMENT_PERM_ID);
                     will(returnValue(experimentPE));
+                    
+                    one(proteinDAO).listAbundanceRelatedSamplePermIDsByExperiment(EXPERIMENT_PERM_ID);
+                    will(returnValue(mockDataSet));
+                    
+                    one(boFactory).createAbundanceColumnDefinitionTable(SESSION);
+                    will(returnValue(abundanceColumnDefinitionTable));
+                    
+                    one(abundanceColumnDefinitionTable).add(SAMPLE_PERM_ID);
+                    
+                    one(abundanceColumnDefinitionTable).getSortedAndAggregatedDefinitions("PH");
+                    will(returnValue(result));
                 }
             });
+        
+        List<AbundanceColumnDefinition> definitions =
+            server.getAbundanceColumnDefinitionsForProteinByExperiment(SESSION_TOKEN,
+                    EXPERIMENT_ID, "PH");
+        assertSame(result, definitions);
+        assertEquals(true, mockDataSet.hasCloseBeenInvoked());
+        context.assertIsSatisfied();
     }
     
-    private SamplePE createSample()
-    {
-        SamplePE samplePE = new SamplePE();
-        samplePE.setCode(SAMPLE_CODE);
-        return samplePE;
-    }
-    
-    private void addTreatment(SamplePE sample, String type, String value)
-    {
-        SamplePropertyPE sampleProperty = new SamplePropertyPE();
-        sampleProperty.setEntityTypePropertyType(createSTPT(TREATMENT_TYPE_CODE + type));
-        VocabularyTermPE term = new VocabularyTermPE();
-        term.setCode("PH");
-        sampleProperty.setUntypedValue(null, term, null);
-        sample.addProperty(sampleProperty);
-
-        sampleProperty = new SamplePropertyPE();
-        sampleProperty.setEntityTypePropertyType(createSTPT(TREATMENT_VALUE_CODE + type));
-        sampleProperty.setUntypedValue(value, null, null);
-        sample.addProperty(sampleProperty);
-    }
-
-    private SampleTypePropertyTypePE createSTPT(String code)
-    {
-        SampleTypePropertyTypePE stpt = new SampleTypePropertyTypePE();
-        PropertyTypePE propertyType = new PropertyTypePE();
-        propertyType.setSimpleCode(code);
-        DataTypePE dataType = new DataTypePE();
-        dataType.setCode(EntityDataType.VARCHAR);
-        propertyType.setType(dataType);
-        stpt.setPropertyType(propertyType);
-        return stpt;
-    }
 }

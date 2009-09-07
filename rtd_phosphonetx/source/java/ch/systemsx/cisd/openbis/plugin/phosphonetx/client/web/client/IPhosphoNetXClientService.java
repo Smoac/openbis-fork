@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPr
 public interface IPhosphoNetXClientService extends IClientService
 {
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
-            TechId experimentID);
+            TechId experimentID, String treatmentTypeOrNull);
     
     public ResultSet<ProteinInfo> listProteinsByExperiment(ListProteinByExperimentCriteria criteria)
             throws UserFailureException;

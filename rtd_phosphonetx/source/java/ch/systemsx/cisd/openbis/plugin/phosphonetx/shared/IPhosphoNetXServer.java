@@ -46,7 +46,7 @@ public interface IPhosphoNetXServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
             String sessionToken, @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
-            TechId experimentID) throws UserFailureException; 
+            TechId experimentID, String treatmentTypeOrNull) throws UserFailureException; 
     
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
