@@ -30,7 +30,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * THIS CLASS MIGHT LEAD TO A LOST OF PERSONAL SETTINGS. In all cases deserialisation leads to an
  * exception the default settings is used.
  * <p>
- * Note: This class has to be Java serializable and GWT serializable.
+ * NOTE: This class has to be Java serializable and GWT serializable.
+ * <p>
+ * NOTE: Object of this class should be alwayes managed by DisplaySettingsManager on client side.
  * 
  * @author Franz-Josef Elmer
  */
@@ -43,16 +45,15 @@ public class DisplaySettings implements Serializable, IsSerializable
 
     private Map<String, Boolean> sectionSettings = new HashMap<String, Boolean>();
 
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
     public final Map<String, List<ColumnSetting>> getColumnSettings()
     {
         return columnSettings;
     }
 
-    public final void setColumnSettings(Map<String, List<ColumnSetting>> columnSettings)
-    {
-        this.columnSettings = columnSettings;
-    }
-
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
     public Map<String, Boolean> getSectionSettings()
     {
         if (sectionSettings == null)
@@ -62,8 +63,18 @@ public class DisplaySettings implements Serializable, IsSerializable
         return sectionSettings;
     }
 
-    public final void setSectionSettings(Map<String, Boolean> sectionSettings)
+    // for serialization
+
+    @SuppressWarnings("unused")
+    private final void setColumnSettings(Map<String, List<ColumnSetting>> columnSettings)
+    {
+        this.columnSettings = columnSettings;
+    }
+
+    @SuppressWarnings("unused")
+    private final void setSectionSettings(Map<String, Boolean> sectionSettings)
     {
         this.sectionSettings = sectionSettings;
     }
+
 }

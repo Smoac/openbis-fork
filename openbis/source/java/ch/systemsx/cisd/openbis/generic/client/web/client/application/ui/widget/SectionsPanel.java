@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSect
  * 
  * @author Izabela Adamczyk
  */
+// TODO 2009-09-07, Piotr Buczek: refresh settings
 public class SectionsPanel extends ContentPanel
 {
     List<SectionElement> elements = new ArrayList<SectionElement>();
@@ -136,10 +137,10 @@ public class SectionsPanel extends ContentPanel
             panel.setCollapsible(false);
             this.setPanel(panel);
             String heading = panel.getHeading();
-            Boolean sectionSetting =
-                    viewContext.getModel().getSessionContext().getDisplaySettings()
-                            .getSectionSettings().get(panel.getDisplayID());
-            boolean pressed = sectionSetting != null ? sectionSetting : defaultPressedValue;
+            Boolean sectionSettings =
+                    viewContext.getDisplaySettingsManager()
+                            .getSectionSettings(panel.getDisplayID());
+            boolean pressed = sectionSettings != null ? sectionSettings : defaultPressedValue;
             button =
                     createButton(heading, withShowHide, pressed, panel.getDisplayID(), viewContext);
         }

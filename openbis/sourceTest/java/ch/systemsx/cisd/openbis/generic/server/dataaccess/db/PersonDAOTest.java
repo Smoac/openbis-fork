@@ -180,25 +180,26 @@ public final class PersonDAOTest extends AbstractDAOTest
         final Long id = personDTO.getId();
         assertEquals(personDTO, personDAO.getPerson(id));
     }
-    
+
+    @SuppressWarnings("deprecation")
     @Test
     public void testUpdate()
     {
         IPersonDAO personDAO = daoFactory.getPersonDAO();
         List<PersonPE> persons = personDAO.listPersons();
         assertEquals(false, persons.isEmpty());
-        
+
         PersonPE person = persons.get(0);
         assertEquals(0, person.getDisplaySettings().getColumnSettings().size());
-        
+
         DisplaySettings displaySettings = new DisplaySettings();
         ColumnSetting columnSetting = new ColumnSetting();
         columnSetting.setColumnID("column1");
         displaySettings.getColumnSettings().put("id", Arrays.asList(columnSetting));
         person.setDisplaySettings(displaySettings);
-        
+
         personDAO.updatePerson(person);
-        
+
         PersonPE reloadedPerson = personDAO.tryFindPersonByUserId(person.getUserId());
         displaySettings = reloadedPerson.getDisplaySettings();
         Map<String, List<ColumnSetting>> columnSettings = displaySettings.getColumnSettings();

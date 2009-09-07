@@ -156,7 +156,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         Boolean refreshColumnsNeeded = updateCriteria();
         if (refreshColumnsNeeded != null && refreshColumnsNeeded.booleanValue())
         {
-            super.refreshColumnsAndFilters();
+            super.recreateColumnModelAndRefreshColumnsWithFilters();
         }
     }
 

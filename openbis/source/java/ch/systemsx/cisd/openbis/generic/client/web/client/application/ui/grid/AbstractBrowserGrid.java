@@ -34,6 +34,7 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -236,6 +237,36 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         setLayout(new FitLayout());
         add(contentPanel);
+
+        addRefreshDisplaySettingsListener();
+    }
+
+    private void addRefreshDisplaySettingsListener()
+    {
+        addListener(Events.AfterLayout, new Listener<BaseEvent>()
+            {
+                private Long lastColumnSettingsRefreshTime;
+
+                public void handleEvent(BaseEvent be)
+                {
+
+                    final Long lastColumnSettingsModificationTimeOrNull =
+                            viewContext.getDisplaySettingsManager()
+                                    .tryGetColumnsSettingsModificationTime(getGridDisplayTypeID());
+                    if (lastColumnSettingsRefreshTime == null)
+                    {
+                        // No need to refresh when grid is displayed for the first time.
+                        lastColumnSettingsRefreshTime = lastColumnSettingsModificationTimeOrNull;
+                    } else if (lastColumnSettingsModificationTimeOrNull > lastColumnSettingsRefreshTime)
+                    {
+                    	// Columns/filter settings have been modified in other browser of the same type.
+                    	// Refresh this browser settings.
+                        refreshColumnsAndFiltersWithCurrentModel();
+                        lastColumnSettingsRefreshTime = lastColumnSettingsModificationTimeOrNull;
+                    }
+                }
+
+            });
     }
 
     /** Refreshes the grid without showing the loading progress bar */
@@ -855,7 +886,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         setHeader(headerOrNull);
         if (columnDefinitions == null || refreshColumnsDefinition)
         {
-            refreshColumnsAndFilters();
+            recreateColumnModelAndRefreshColumnsWithFilters();
         }
         reloadData();
         refreshColumnHeaderWidths();
@@ -872,22 +903,33 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    protected final void refreshColumnsAndFilters()
+    protected final void recreateColumnModelAndRefreshColumnsWithFilters()
     {
         ColumnDefsAndConfigs<T> defsAndConfigs = createColumnsDefinition();
         this.columnDefinitions = defsAndConfigs.getColumnDefs();
         ColumnModel columnModel = createColumnModel(defsAndConfigs.getColumnConfigs());
 
-        GridDisplaySettings settings = tryApplyDisplaySettings(columnModel);
+        refreshColumnsAndFilters(columnModel);
+    }
+
+    private void refreshColumnsAndFiltersWithCurrentModel()
+    {
+        refreshColumnsAndFilters(getColumnModel());
+    }
+
+    private void refreshColumnsAndFilters(ColumnModel columnModel)
+    {
+        ColumnModel newColumnModel = columnModel;
+        GridDisplaySettings settings = tryApplyDisplaySettings(newColumnModel);
         if (settings != null)
         {
-            columnModel = createColumnModel(settings.getColumnConfigs());
+            newColumnModel = createColumnModel(settings.getColumnConfigs());
             rebuildFiltersFromIds(settings.getFilteredColumnIds());
         } else
         {
             rebuildFilters(getInitialFilters());
         }
-        changeColumnModel(columnModel);
+        changeColumnModel(newColumnModel);
 
         refreshColumnHeaderWidths();
         hideLoadingMask();
