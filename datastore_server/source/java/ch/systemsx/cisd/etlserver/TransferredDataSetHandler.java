@@ -590,7 +590,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 if (StringUtils.isBlank(email) == false)
                 {
                     mailClient.sendMessage(String.format(EMAIL_SUBJECT_TEMPLATE, dataSetInformation
-                            .getExperimentIdentifier().getExperimentCode()), msg, null, email);
+                            .getExperimentIdentifier().getExperimentCode()), msg, null, null, email);
                 }
             }
         }
@@ -663,7 +663,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                     String email = dataSetInfo.tryGetUploadingUserEmail();
                     if (StringUtils.isBlank(email) == false)
                     {
-                        mailClient.sendMessage(errorMessage, e.getMessage(), null, email);
+                        mailClient.sendMessage(errorMessage, e.getMessage(), null, null, email);
                     }
                 }
                 throw e;

@@ -505,7 +505,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
                                                 + "[well=[x=24,y=9],tile=[x=2,y=3]], [well=[x=24,y=8],tile=[x=3,y=3]], "
                                                 + "[well=[x=7,y=6],tile=[x=1,y=2]], [well=[x=7,y=5],tile=[x=2,y=2]], "
                                                 + "[well=[x=7,y=4],tile=[x=3,y=2]], [well=[x=14,y=6],tile=[x=3,y=1]], "
-                                                + "... (3445 left)])", null, EXAMPLE_EMAIL);
+                                                + "... (3445 left)])", null, null, EXAMPLE_EMAIL);
                     }
                 });
         }

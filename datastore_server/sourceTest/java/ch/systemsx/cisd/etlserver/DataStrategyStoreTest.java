@@ -251,7 +251,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                     one(mailClient).sendMessage(
                             with(equal(String.format(DataStrategyStore.SUBJECT_FORMAT, dataSetInfo
                                     .getExperimentIdentifier()))), with(any(String.class)),
-                            with(equal(replyTo)), with(equal(new String[]
+                            with(equal(replyTo)), null, with(equal(new String[]
                                 { email })));
                 }
             });

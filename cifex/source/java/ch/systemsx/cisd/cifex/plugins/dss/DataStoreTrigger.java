@@ -99,7 +99,7 @@ public class DataStoreTrigger implements ITrigger
         {
             console.sendMessage("Data set upload failed", String.format(
                     "Upload of data set (file: '%s', comment: '%s') failed. ('%s')", sourceFile,
-                    request.getComment(), ex.getMessage()), null, request.getUploadingUserEmail());
+                    request.getComment(), ex.getMessage()), null, null, request.getUploadingUserEmail());
         }
     }
 

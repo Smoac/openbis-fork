@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 final class MockMailClient implements IMailClient
@@ -27,7 +28,7 @@ final class MockMailClient implements IMailClient
 
     String[] recipients;
 
-    public void sendMessage(String subj, String contentText, String replyTo, String... emails)
+    public void sendMessage(String subj, String contentText, String replyTo, From fromOrNull, String... emails)
             throws EnvironmentFailureException
     {
         this.subject = subj;

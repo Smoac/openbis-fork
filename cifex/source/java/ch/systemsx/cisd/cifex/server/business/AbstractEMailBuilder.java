@@ -22,6 +22,7 @@ import java.net.URLEncoder;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
@@ -115,7 +116,7 @@ abstract class AbstractEMailBuilder
     {
         assert url != null : "Missing URL.";
         mailClient.sendMessage("[CIFEX] " + createSubject(), createContent() + FOOTER,
-                getLongRegistratorDescription(), email);
+                getLongRegistratorDescription(), new From(getLongRegistratorDescription()), email);
     }
 
     protected final void addGreeting(final StringBuilder builder)

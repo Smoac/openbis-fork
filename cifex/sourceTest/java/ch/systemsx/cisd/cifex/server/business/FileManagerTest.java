@@ -51,6 +51,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
@@ -387,13 +388,14 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                                 will(returnValue(false));
                             }
                         });
+                    String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/index.html?fileId=%d&user=%s", fileId,
                                             receivingUserCode))),
-                            with(Matchers.containsString(requestUserCode + " <"
-                                    + emailOfRequestUser + ">")), with(equal(new String[]
+                            with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
+                            with(equal(new String[]
                                 { emailOfUserToShareWith })));
                 }
             });
@@ -446,13 +448,14 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                                 will(returnValue(false));
                             }
                         });
+                    String replyTo = requestUserCode + " <" + emailOfRequestUser + ">";
                     one(mailClient).sendMessage(
                             with(Matchers.containsString(requestUserCode)),
                             with(Matchers.containsString(url
                                     + String.format("/index.html?fileId=%d&user=%s", fileId,
                                             receivingUserCode))),
-                            with(Matchers.containsString(requestUserCode + " <"
-                                    + emailOfRequestUser + ">")), with(equal(new String[]
+                            with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
+                            with(equal(new String[]
                                 { emailOfUserToShareWith })));
                 }
             });
@@ -462,6 +465,28 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                         .singleton(file), comment);
         assertEquals(0, invalidUsers.size());
         context.assertIsSatisfied();
+    }
+
+    class FromMatcher extends BaseMatcher<From>
+    {
+
+        private final String from;
+
+        public FromMatcher(String from)
+        {
+            this.from = from;
+        }
+
+        public boolean matches(Object item)
+        {
+            From fromItem = (From) item;
+            return from.equals(fromItem.getValue());
+        }
+
+        public void describeTo(Description description)
+        {
+            description.appendText(from);
+        }
     }
 
     @Test
@@ -521,7 +546,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                             with(Matchers.containsString(url
                                     + String.format("/index.html?fileId=%d&user=%s", fileId,
                                             firstReceivingUserCode))),
-                            with(Matchers.containsString(replyTo)), with(equal(new String[]
+                            with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
+                            with(equal(new String[]
                                 { emailOfFirstUserToShareWith })));
                     one(fileDAO).createSharingLink(fileId, secondReceivingUserId);
                     one(mailClient).sendMessage(
@@ -529,7 +555,8 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                             with(Matchers.containsString(url
                                     + String.format("/index.html?fileId=%d&user=%s", fileId,
                                             secondReceivingUserCode))),
-                            with(Matchers.containsString(replyTo)), with(equal(new String[]
+                            with(Matchers.containsString(replyTo)), with(new FromMatcher(replyTo)),
+                            with(equal(new String[]
                                 { emailOfSecondUserToShareWith })));
                 }
             });
@@ -593,7 +620,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                             with(Matchers.containsString(url
                                     + String.format("/index.html?fileId=%d&user=%s", fileId,
                                             receivingUserCode))), with(equal(replyTo)),
-                            with(equal(new String[]
+                            with(new FromMatcher(replyTo)), with(equal(new String[]
                                 { emailOfReceivingUserLowerCase })));
                 }
             });

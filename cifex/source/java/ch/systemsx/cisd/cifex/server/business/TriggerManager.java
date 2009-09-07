@@ -52,6 +52,7 @@ import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -166,9 +167,9 @@ class TriggerManager implements ITriggerManager
         }
 
         public void sendMessage(String subject, String content, String replyTo,
-                String... recipients) throws EnvironmentFailureException
+                From fromOrNull, String... recipients) throws EnvironmentFailureException
         {
-            mailClient.sendMessage(subject, content, replyTo, recipients);
+            mailClient.sendMessage(subject, content, replyTo, null, recipients);
         }
 
         void deleteDismissables()
@@ -551,7 +552,7 @@ class TriggerManager implements ITriggerManager
                                             + th.getClass().getSimpleName() + ": "
                                             + th.getMessage();
                             mailClient.sendMessage("Your request '" + request.getFileName() + "'",
-                                    msg, null, request.getUploadingUserEmail());
+                                    msg, null, null, request.getUploadingUserEmail());
                             throw CheckedExceptionTunnel.wrapIfNecessary(th);
                         } finally
                         {

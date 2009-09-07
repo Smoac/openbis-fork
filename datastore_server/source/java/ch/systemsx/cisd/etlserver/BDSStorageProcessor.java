@@ -366,7 +366,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
                     try
                     {
                         mailClientOrNull.sendMessage("Incomplete data set '" + dataSetFileName
-                                + "'", message, null, email);
+                                + "'", message, null, null, email);
                     } catch (final EnvironmentFailureException e)
                     {
                         notificationLog.error("Couldn't send the following e-mail to '" + email

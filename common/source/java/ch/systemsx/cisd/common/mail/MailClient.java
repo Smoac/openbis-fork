@@ -43,11 +43,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 /**
  * A small mail client that simplifies the sending of emails using of <i>JavaMail API</i>.
  * <p>
- * Just instantiate this class and use {@link #sendMessage(String, String, String, String[])} to
- * send the email via SMTP.
+ * Just instantiate this class and use {@link #sendMessage(String, String, String, From, String[])}
+ * to send the email via SMTP.
  * </p>
- * If the SMTP host starts with <code>file://</code> the mail is not send to a real SMTP server
- * but it is stored in a file in the directory specified by the relative path following this prefix.
+ * If the SMTP host starts with <code>file://</code> the mail is not send to a real SMTP server but
+ * it is stored in a file in the directory specified by the relative path following this prefix.
  * 
  * @author Christian Ribeaud
  */
@@ -151,16 +151,18 @@ public final class MailClient extends Authenticator implements IMailClient
     }
 
     /**
-     * Sends a mail with given <var>subject</var> and <var>content</var> to given <var>recipients</var>.
+     * Sends a mail with given <var>subject</var> and <var>content</var> to given
+     * <var>recipients</var>.
      * 
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
-    public final void sendMessage(String subject, String content, String replyTo,
+    public final void sendMessage(String subject, String content, String replyTo, From fromOrNull,
             String... recipients) throws EnvironmentFailureException
     {
+        String fromPerMail = fromOrNull != null ? fromOrNull.getValue() : from;
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Sending message from '" + from + "' to recipients '"
+            operationLog.info("Sending message from '" + fromPerMail + "' to recipients '"
                     + Arrays.asList(recipients) + "'");
         }
         int len = recipients.length;
@@ -172,7 +174,7 @@ public final class MailClient extends Authenticator implements IMailClient
         MimeMessage msg = new MimeMessage(createSession());
         try
         {
-            msg.setFrom(createInternetAddress(from));
+            msg.setFrom(createInternetAddress(fromPerMail));
             if (replyTo != null)
             {
                 InternetAddress[] replyToAddress =

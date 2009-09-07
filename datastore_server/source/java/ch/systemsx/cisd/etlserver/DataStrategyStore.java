@@ -198,7 +198,7 @@ final class DataStrategyStore implements IDataStrategyStore
         final String subject = String.format(SUBJECT_FORMAT, experimentIdentifier);
         try
         {
-            mailClient.sendMessage(subject, message, null, recipientMail);
+            mailClient.sendMessage(subject, message, null, null, recipientMail);
         } catch (final EnvironmentFailureException ex)
         {
             operationLog.error(ex.getMessage());

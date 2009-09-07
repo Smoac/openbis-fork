@@ -40,7 +40,7 @@ public final class MailClientTest extends AbstractFileSystemTestCase
 
         MailClient mailClient = new MailClient("sender", "file://" + path);
         mailClient.sendMessage("some message", "Hello world\nHow are you today?", "user@reply.com",
-                "a@b.c", "d@e.f");
+                null, "a@b.c", "d@e.f");
 
         assert emailFolder.exists();
         assert emailFolder.isDirectory();
@@ -53,7 +53,7 @@ public final class MailClientTest extends AbstractFileSystemTestCase
                         + "Hello world\nHow are you today?\n", FileUtilities.loadToString(files[0]));
 
         // second mail
-        mailClient.sendMessage("Greetings", "Hello world!", null);
+        mailClient.sendMessage("Greetings", "Hello world!", null, null);
         files = emailFolder.listFiles();
         Arrays.sort(files);
         assertEquals(2, files.length);
@@ -61,5 +61,19 @@ public final class MailClientTest extends AbstractFileSystemTestCase
         assertEquals("email1", files[1].getName());
         assertEquals("Subj: Greetings\n" + "From: sender\n" + "To:   \n" + "Reply-To: sender\n"
                 + "Content:\n" + "Hello world!\n", FileUtilities.loadToString(files[1]));
+
+        // third mail - 'from' overwritten
+        mailClient.sendMessage("Greetings", "Hello world!", null, new From("user@from.com"));
+        files = emailFolder.listFiles();
+        Arrays.sort(files);
+        assertEquals(3, files.length);
+        assertEquals("email", files[0].getName());
+        assertEquals("email1", files[1].getName());
+        assertEquals("email2", files[2].getName());
+        assertEquals("Subj: Greetings\n" + "From: user@from.com\n" + "To:   \n"
+                + "Reply-To: user@from.com\n" + "Content:\n" + "Hello world!\n", FileUtilities
+                .loadToString(files[2]));
+
     }
+
 }

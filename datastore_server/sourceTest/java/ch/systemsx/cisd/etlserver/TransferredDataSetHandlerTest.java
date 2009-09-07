@@ -460,7 +460,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         expectations.one(mailClient).sendMessage(
                 String.format(TransferredDataSetHandler.EMAIL_SUBJECT_TEMPLATE, dataSet
                         .getExperimentIdentifier().getExperimentCode()),
-                getNotificationEmailContent(dataSet, dataSetCode), null, recipient);
+                getNotificationEmailContent(dataSet, dataSetCode), null, null, recipient);
     }
 
     @Test
@@ -640,7 +640,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     final String body =
                             DataStrategyStore.createInvalidSampleCodeMessage(dataSetInformation);
                     final String email = baseExperiment.getRegistrator().getEmail();
-                    one(mailClient).sendMessage(subject, body, null, email);
+                    one(mailClient).sendMessage(subject, body, null, null, email);
                 }
             });
         handler.handle(isFinishedData1);

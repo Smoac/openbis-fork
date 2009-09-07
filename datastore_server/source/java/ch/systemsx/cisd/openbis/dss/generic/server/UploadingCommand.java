@@ -455,7 +455,7 @@ class UploadingCommand implements IDataSetCommand
         String smtpUser = mailClientParameters.getSmtpUser();
         String smtpPassword = mailClientParameters.getSmtpPassword();
         IMailClient mailClient = new MailClient(from, smtpHost, smtpUser, smtpPassword);
-        mailClient.sendMessage("[Data Set Server] Uploading failed", message, null, userEMail);
+        mailClient.sendMessage("[Data Set Server] Uploading failed", message, null, null, userEMail);
     }
 
     public String getDescription()
