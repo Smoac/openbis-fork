@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,7 +54,9 @@ public class TreatmentFinder
     {
         Map<String, Treatment> treatments = new LinkedHashMap<String, Treatment>();
         findAndAddTreatments(treatments, sample);
-        return new ArrayList<Treatment>(treatments.values());
+        List<Treatment> treatmentList = new ArrayList<Treatment>(treatments.values());
+        Collections.sort(treatmentList);
+        return treatmentList;
     }
     
     private void findAndAddTreatments(Map<String, Treatment> treatments, SamplePE sampleOrNull)

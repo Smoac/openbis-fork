@@ -77,7 +77,7 @@ public class AbundanceColumnDefinitionTest extends AssertJUnit
     @Test
     public void testCompareTwoDefinitonsWithOneNumericalTreatment()
     {
-        AbundanceColumnDefinition d1 = create("abc", treatment("pH", "7.5"));
+        AbundanceColumnDefinition d1 = create("abc", treatment("pH", "7.5"), treatment("T", "yes"));
         AbundanceColumnDefinition d2 = create("abc", treatment("pH", "9e-1"));
         
         assertEquals(true, d1.compareTo(d2) > 0);

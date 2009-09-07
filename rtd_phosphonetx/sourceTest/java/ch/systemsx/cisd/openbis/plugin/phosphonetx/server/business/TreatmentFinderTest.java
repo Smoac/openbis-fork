@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.TreatmentFinder.TREATMENT_TYPE_CODE;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.TreatmentFinder.TREATMENT_VALUE_CODE;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.testng.AssertJUnit;
@@ -56,14 +55,9 @@ public class TreatmentFinderTest extends AssertJUnit
         List<Treatment> treatments = new TreatmentFinder().findTreatmentsOf(sample);
         
         assertEquals(3, treatments.size());
-        HashMap<String, Treatment> map = new HashMap<String, Treatment>();
-        for (Treatment treatment : treatments)
-        {
-            map.put(treatment.getType(), treatment);
-        }
-        assertTreatment("7", "pH", map.get("pH"));
-        assertTreatment("20", "PLASMA", map.get("PLASMA"));
-        assertTreatment("HIV", "VIRUS", EntityDataType.MATERIAL, map.get("VIRUS"));
+        assertTreatment("7", "pH", treatments.get(0));
+        assertTreatment("20", "PLASMA", treatments.get(1));
+        assertTreatment("HIV", "VIRUS", EntityDataType.MATERIAL, treatments.get(2));
     }
 
     @Test
@@ -82,8 +76,8 @@ public class TreatmentFinderTest extends AssertJUnit
         List<Treatment> treatments = new TreatmentFinder().findTreatmentsOf(sample);
         
         assertEquals(2, treatments.size());
-        assertTreatment("20", "PLASMA", treatments.get(0));
-        assertTreatment("7", "pH", treatments.get(1));
+        assertTreatment("7", "pH", treatments.get(0));
+        assertTreatment("20", "PLASMA", treatments.get(1));
     }
     
     @Test
@@ -135,10 +129,12 @@ public class TreatmentFinderTest extends AssertJUnit
     private void assertTreatment(String expectedValue, String expectedType,
             EntityDataType expectedDataType, Treatment treatment)
     {
-        assertEquals(expectedValue, treatment.getValue());
-        assertEquals(expectedDataType.toString(), treatment.getValueType());
-        assertEquals(expectedType, treatment.getType());
-        assertEquals(expectedValue + " " + expectedType, treatment.getLabel());
+        assertEquals("Actual treatment: " + treatment, expectedValue, treatment.getValue());
+        assertEquals("Actual treatment: " + treatment, expectedDataType.toString(), treatment
+                .getValueType());
+        assertEquals("Actual treatment: " + treatment, expectedType, treatment.getType());
+        assertEquals("Actual treatment: " + treatment, expectedValue + " " + expectedType,
+                treatment.getLabel());
     }
     
     private void addTreatment(SamplePE sample, String treatmentCodePostfix, String treatmentType,

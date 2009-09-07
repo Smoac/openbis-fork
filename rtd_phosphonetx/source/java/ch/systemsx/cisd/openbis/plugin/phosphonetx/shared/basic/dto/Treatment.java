@@ -74,9 +74,10 @@ public class Treatment implements Serializable, IsSerializable, Comparable<Treat
 
     public int compareTo(Treatment that)
     {
-        if (this.type.compareTo(that.type) != 0)
+        int typeComparisonResult = this.type.toLowerCase().compareTo(that.type.toLowerCase());
+        if (typeComparisonResult != 0)
         {
-            return this.type.compareTo(that.type);
+            return typeComparisonResult;
         }
         double thisNumber = convert(this.value);
         double thatNumber = convert(that.value);

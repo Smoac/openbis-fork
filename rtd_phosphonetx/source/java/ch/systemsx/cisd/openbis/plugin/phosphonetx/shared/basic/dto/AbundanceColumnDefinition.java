@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -73,14 +72,7 @@ public class AbundanceColumnDefinition implements Serializable, IsSerializable, 
     {
         if (this.treatments != null && that.treatments != null)
         {
-            int sizeDiff = this.treatments.size() - that.treatments.size();
-            if (sizeDiff != 0)
-            {
-                return sizeDiff;
-            }
-            Collections.sort(this.treatments);
-            Collections.sort(that.treatments);
-            for (int i = 0, n = treatments.size(); i < n; i++)
+            for (int i = 0, n = Math.min(this.treatments.size(), that.treatments.size()); i < n; i++)
             {
                 Treatment thisTreatment = this.treatments.get(i);
                 Treatment thatTreatment = that.treatments.get(i);
@@ -89,6 +81,11 @@ public class AbundanceColumnDefinition implements Serializable, IsSerializable, 
                 {
                     return diff;
                 }
+            }
+            int sizeDiff = this.treatments.size() - that.treatments.size();
+            if (sizeDiff != 0)
+            {
+                return sizeDiff;
             }
         }
         if (this.sampleCode != null && that.sampleCode != null)
