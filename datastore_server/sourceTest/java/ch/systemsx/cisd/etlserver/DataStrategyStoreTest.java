@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -248,10 +249,11 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                     will(returnValue(null));
 
                     String replyTo = null;
+                    From nullFrom = null;
                     one(mailClient).sendMessage(
                             with(equal(String.format(DataStrategyStore.SUBJECT_FORMAT, dataSetInfo
                                     .getExperimentIdentifier()))), with(any(String.class)),
-                            with(equal(replyTo)), null, with(equal(new String[]
+                            with(equal(replyTo)), with(equal(nullFrom)), with(equal(new String[]
                                 { email })));
                 }
             });
