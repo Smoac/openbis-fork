@@ -18,7 +18,15 @@ body,div,td {
  * Login
  *****************************/
 
-.login-help{
+.login-header {
+  position: absolute;
+  width: 100%;
+  top: 10;
+  left: 10;
+  right: 10;
+}
+
+.login-help {
   position: absolute;
   width: 100%;
   bottom: 10;
@@ -34,7 +42,7 @@ body,div,td {
 }
 
 .login-page {
-    background-color: white;
+  background-color: white;
 }
 
 .login-widget {

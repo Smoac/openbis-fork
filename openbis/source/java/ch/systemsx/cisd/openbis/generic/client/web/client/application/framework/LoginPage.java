@@ -50,6 +50,8 @@ final class LoginPage extends LayoutContainer
         verticalPanel.setWidth(600);
         verticalPanel.setHorizontalAlign(HorizontalAlignment.CENTER);
 
+        verticalPanel.add(getBannersPage());
+
         final HorizontalPanel headerPanel = new HorizontalPanel();
         headerPanel.setSpacing(10);
         headerPanel.add(viewContext.getImageBundle().getLogo().createImage());
@@ -76,5 +78,12 @@ final class LoginPage extends LayoutContainer
         footer.add(html);
         footer.setVerticalAlign(VerticalAlignment.BOTTOM);
         return footer;
+    }
+
+    private HTML getBannersPage()
+    {
+        HTML html = new HtmlPage("loginHeader");
+        html.setStyleName("login-header");
+        return html;
     }
 }
