@@ -137,7 +137,6 @@ public class DisplaySettingsManager
                 }
             };
         ColumnModel columnModel = grid.getColumnModel();
-        columnModel.addListener(Events.HiddenChange, listener); // needed?
         columnModel.addListener(Events.WidthChange, listener);
         columnModel.addListener(AppEvents.ColumnSettingsChanged, listener);
     }
