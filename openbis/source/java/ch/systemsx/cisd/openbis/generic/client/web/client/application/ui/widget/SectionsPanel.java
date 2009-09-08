@@ -3,7 +3,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -21,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSect
  * 
  * @author Izabela Adamczyk
  */
-// TODO 2009-09-07, Piotr Buczek: refresh settings
 public class SectionsPanel extends ContentPanel
 {
     List<SectionElement> elements = new ArrayList<SectionElement>();
@@ -45,6 +47,67 @@ public class SectionsPanel extends ContentPanel
         toolbar = new ToolBar();
         setHeaderVisible(false);
         setTopComponent(toolbar);
+
+        addRefreshDisplaySettingsListener();
+    }
+
+    private void addRefreshDisplaySettingsListener()
+    {
+        // all sections are refreshed in one go
+        addListener(Events.AfterLayout, new Listener<BaseEvent>()
+            {
+                private Long lastRefreshCheckTime;
+
+                public void handleEvent(BaseEvent be)
+                {
+                    if (isRefreshNeeded())
+                    {
+                        lastRefreshCheckTime = System.currentTimeMillis();
+                        updateSettings();
+                        refreshLayout();
+                    }
+                    lastRefreshCheckTime = System.currentTimeMillis();
+                }
+
+                /** checks if update of section settings and refresh of layout is needed */
+                private boolean isRefreshNeeded()
+                {
+                    boolean result = false;
+                    for (SectionElement sectionElement : elements)
+                    {
+                        final String sectionID = sectionElement.getPanel().getDisplayID();
+                        final Long lastModificationTimeOrNull =
+                                viewContext.getDisplaySettingsManager()
+                                        .tryGetSectionSettingsModificationTime(sectionID);
+                        if (lastRefreshCheckTime == null)
+                        {
+                            // No need to refresh when sections are displayed for the first time.
+                            return false;
+                        } else if (lastModificationTimeOrNull != null
+                                && lastModificationTimeOrNull > lastRefreshCheckTime)
+                        {
+                            // Section settings have been modified in another browser of the
+                            // same type. Refresh of section settings is needed.
+                            return true;
+                        }
+                    }
+                    return result;
+                }
+
+                /** updates all section settings */
+                private void updateSettings()
+                {
+                    for (SectionElement sectionElement : elements)
+                    {
+                        final String sectionID = sectionElement.getPanel().getDisplayID();
+                        Boolean newSettings =
+                                viewContext.getDisplaySettingsManager().getSectionSettings(
+                                        sectionID);
+                        sectionElement.getButton().toggle(newSettings);
+                    }
+                }
+
+            });
     }
 
     public void addPanel(final SingleSectionPanel panel)
@@ -61,21 +124,27 @@ public class SectionsPanel extends ContentPanel
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    removeAll();
-                    for (SectionElement el : elements)
-                    {
-                        if (el.getButton().pressed)
-                        {
-                            internalAdd(el);
-                        }
-                    }
-                    layout();
+                    refreshLayout();
                 }
             });
         elements.add(element);
         addToToolbar(element.getButton());
-        if (element.getButton().pressed)
+        if (element.getButton().isPressed())
             internalAdd(element);
+    }
+
+    /** removes all sections and adds them once again with with refreshed state */
+    private void refreshLayout()
+    {
+        removeAll();
+        for (SectionElement el : elements)
+        {
+            if (el.getButton().isPressed())
+            {
+                internalAdd(el);
+            }
+        }
+        layout();
     }
 
     private void addToToolbar(ToggleToolItem bb)
@@ -155,7 +224,7 @@ public class SectionsPanel extends ContentPanel
             this.panel = panel;
         }
 
-        ContentPanel getPanel()
+        SingleSectionPanel getPanel()
         {
             return panel;
         }
@@ -173,19 +242,37 @@ public class SectionsPanel extends ContentPanel
         {
             final ToggleToolItem result =
                     new ToggleToolItem(getHeading(heading, withShowHide, pressed));
-            result.pressed = pressed;
+            initializePressedState(result, pressed);
+
+            // when user clicks toggle button we store changed settings
             result.addSelectionListener(new SelectionListener<ComponentEvent>()
                 {
                     @Override
                     public void componentSelected(ComponentEvent ce)
                     {
-                        result.pressed = (result.pressed == false);
-                        result.setText(getHeading(heading, withShowHide, result.pressed));
                         viewContext.getDisplaySettingsManager().storeSectionSettings(displayId,
-                                result.pressed);
+                                result.isPressed());
                     }
                 });
+            // heading needs to be updated also when we refresh settings using toggle
+            result.addListener(Events.Toggle, new Listener<BaseEvent>()
+                {
+                    public void handleEvent(BaseEvent be)
+                    {
+                        result.setText(getHeading(heading, withShowHide, result.isPressed()));
+                    }
+                });
+
             return result;
+        }
+
+        private static void initializePressedState(ToggleToolItem result, boolean pressed)
+        {
+            // because of strange ToggleToolItem implementation need to initialize both:
+            // - 'pressed' value
+            result.pressed = pressed;
+            // - internal button pressed state using 'toggle(boolean)'
+            result.toggle(pressed);
         }
     }
 
