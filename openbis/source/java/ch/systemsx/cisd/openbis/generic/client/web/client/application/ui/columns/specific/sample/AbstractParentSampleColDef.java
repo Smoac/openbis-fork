@@ -29,8 +29,6 @@ abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sampl
 
     abstract protected String getIdentifierPrefix();
 
-    private static final String IDENTIFIER_SEPARATOR = "/";
-
     private int/* the level which should be shown */level;
 
     AbstractParentSampleColDef(int level, String headerText)
@@ -45,7 +43,7 @@ abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sampl
         Sample parent = tryGetParentSample(sample);
         if (parent != null)
         {
-            return printShortIdentifier(parent);
+            return parent.getIdentifier();
         } else
         {
             return null;
@@ -69,14 +67,4 @@ abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sampl
         return parent;
     }
 
-    private final static String printShortIdentifier(final Sample sample)
-    {
-        if (sample.getDatabaseInstance() != null)
-        {
-            return IDENTIFIER_SEPARATOR + sample.getCode();
-        } else
-        {
-            return sample.getCode();
-        }
-    }
 }

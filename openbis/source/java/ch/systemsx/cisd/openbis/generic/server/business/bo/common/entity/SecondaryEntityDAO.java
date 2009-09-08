@@ -139,6 +139,11 @@ public class SecondaryEntityDAO
         return query.getAllGroups(databaseInstanceId);
     }
 
+    public long getGroupIdForCode(String groupCode)
+    {
+        return query.getGroupIdForCode(groupCode);
+    }
+
     // TODO 2009-09-01, Tomasz Pylak: implement a version for h2
     public Long2ObjectMap<Sample> getSamples(LongSet sampleIds)
     {

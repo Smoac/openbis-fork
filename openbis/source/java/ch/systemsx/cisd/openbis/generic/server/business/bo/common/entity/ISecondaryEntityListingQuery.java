@@ -88,5 +88,11 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
      */
     @Select("select id, code from groups where dbin_id=?{1}")
     public Group[] getAllGroups(long databaseInstanceId);
+    
+    /**
+     * Returns the technical id of a group for given <var>groupCode</code>.
+     */
+    @Select("select id from groups where code=?{1}")
+    public long getGroupIdForCode(String groupCode);
 
 }

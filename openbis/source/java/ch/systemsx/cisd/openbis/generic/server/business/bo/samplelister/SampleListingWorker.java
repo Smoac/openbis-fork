@@ -220,6 +220,11 @@ final class SampleListingWorker
         } else
         {
             groupOrNull = tryLoadGroup(expOrNull);
+            if (groupOrNull != null)
+            {
+                // For use by dependent samples.
+                groupMap.put(groupOrNull.getId(), groupOrNull);
+            }
         }
         loadSampleTypes();
         retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds(), groupOrNull, oneGroupPerSample);
@@ -303,10 +308,13 @@ final class SampleListingWorker
             final Group group = new Group();
             group.setCode(StringEscapeUtils.escapeHtml(criteria.getGroupCode()));
             group.setInstance(databaseInstance);
+            group.setId(referencedEntityDAO.getGroupIdForCode(group.getCode()));
             return group;
         } else if (expOrNull != null)
         {
-            return expOrNull.getProject().getGroup();
+            final Group group = expOrNull.getProject().getGroup();
+            group.setId(referencedEntityDAO.getGroupIdForCode(group.getCode()));
+            return group;
         } else
         {
             throw new IllegalStateException("No group definition available.");
@@ -439,7 +447,7 @@ final class SampleListingWorker
 
     private void retrieveDependentBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull)
     {
-        retrieveBasicSamples(sampleIteratorOrNull, null, null, null, false);
+        retrieveBasicSamples(sampleIteratorOrNull, null, null, null, true);
     }
 
     private void retrieveBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull,
@@ -473,25 +481,25 @@ final class SampleListingWorker
         sample.setCode(IdentifierHelper.convertCode(row.code, null));
         sample.setSubCode(IdentifierHelper.convertSubCode(row.code));
         sample.setSampleType(sampleTypes.get(row.saty_id));
-        if (primarySample)
+        if (oneGroupPerSample)
         {
-            if (oneGroupPerSample)
-            {
-                if (row.grou_id == null)
-                {
-                    setDatabaseInstance(sample);
-                }
-                else {
-                    setGroup(sample, groupMap.get(row.grou_id));
-                }
-            }
-            else if (groupOrNull != null)
-            {
-                setGroup(sample, groupOrNull);
-            } else
+            if (row.grou_id == null)
             {
                 setDatabaseInstance(sample);
             }
+            else {
+                setGroup(sample, groupMap.get(row.grou_id));
+            }
+        }
+        else if (groupOrNull != null)
+        {
+            setGroup(sample, groupOrNull);
+        } else
+        {
+            setDatabaseInstance(sample);
+        }
+        if (primarySample)
+        {
             sample.setPermId(StringEscapeUtils.escapeHtml(row.perm_id));
             sample.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURLOrNull,
                     EntityKind.SAMPLE, row.perm_id));
