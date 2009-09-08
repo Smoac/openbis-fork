@@ -231,12 +231,6 @@ public class DisplaySettingsManagerTest extends AssertJUnit
     }
 
     @Test
-    public void testUpdateAfterHiddenChangedEvent()
-    {
-        testUpdateAfterEvent(Events.HiddenChange);
-    }
-
-    @Test
     public void testUpdateAfterWidthChangedEvent()
     {
         testUpdateAfterEvent(Events.WidthChange);
