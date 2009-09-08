@@ -45,7 +45,9 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     private final IPageController pageController;
 
     private final Timer timer;
-    
+
+    private DisplaySettingsManager displaySettingsManager;
+
     private IClientPluginFactoryProvider clientPluginFactoryProvider;
 
     private IMessageProvider messageProvider;
@@ -101,14 +103,18 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     public DisplaySettingsManager getDisplaySettingsManager()
     {
-        DisplaySettings displaySettings = viewModel.getSessionContext().getDisplaySettings();
-        return new DisplaySettingsManager(displaySettings, new IUpdater()
-            {
-                public void update()
+        if (displaySettingsManager == null)
+        {
+            DisplaySettings displaySettings = viewModel.getSessionContext().getDisplaySettings();
+            displaySettingsManager = new DisplaySettingsManager(displaySettings, new IUpdater()
                 {
-                    timer.schedule(10000);
-                }
-            });
+                    public void update()
+                    {
+                        timer.schedule(10000);
+                    }
+                });
+        }
+        return displaySettingsManager;
     }
 
     public final IGenericImageBundle getImageBundle()
@@ -153,7 +159,6 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     {
         return getService();
     }
-
 
     public void addMessageSource(String messageSource)
     {

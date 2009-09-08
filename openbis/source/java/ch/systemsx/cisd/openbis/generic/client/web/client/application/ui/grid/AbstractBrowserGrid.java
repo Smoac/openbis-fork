@@ -245,7 +245,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         addListener(Events.AfterLayout, new Listener<BaseEvent>()
             {
-                private Long lastColumnSettingsRefreshTime;
+                private Long lastRefreshCheckTime;
 
                 public void handleEvent(BaseEvent be)
                 {
@@ -253,17 +253,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     final Long lastColumnSettingsModificationTimeOrNull =
                             viewContext.getDisplaySettingsManager()
                                     .tryGetColumnsSettingsModificationTime(getGridDisplayTypeID());
-                    if (lastColumnSettingsRefreshTime == null)
+                    if (lastRefreshCheckTime == null)
                     {
-                        // No need to refresh when grid is displayed for the first time.
-                        lastColumnSettingsRefreshTime = lastColumnSettingsModificationTimeOrNull;
-                    } else if (lastColumnSettingsModificationTimeOrNull > lastColumnSettingsRefreshTime)
+                        // No need to refresh if grid is displayed for the first time.
+                    } else if (lastColumnSettingsModificationTimeOrNull != null
+                            && lastColumnSettingsModificationTimeOrNull > lastRefreshCheckTime)
                     {
-                    	// Columns/filter settings have been modified in other browser of the same type.
-                    	// Refresh this browser settings.
+                        // Grid settings have been modified in another browser of the same type.
+                        // Refresh this browser settings.
                         refreshColumnsAndFiltersWithCurrentModel();
-                        lastColumnSettingsRefreshTime = lastColumnSettingsModificationTimeOrNull;
                     }
+                    lastRefreshCheckTime = System.currentTimeMillis();
                 }
 
             });
