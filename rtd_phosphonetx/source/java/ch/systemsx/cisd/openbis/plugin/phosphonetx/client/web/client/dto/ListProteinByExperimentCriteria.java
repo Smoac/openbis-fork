@@ -31,6 +31,7 @@ public class ListProteinByExperimentCriteria extends DefaultResultSetConfig<Stri
     private TechId experimentID;
     private double falseDiscoveryRate;
     private AggregateFunction aggregateFunction;
+    private String treatmentTypeCode;
 
     public final TechId getExperimentID()
     {
@@ -60,6 +61,16 @@ public class ListProteinByExperimentCriteria extends DefaultResultSetConfig<Stri
     public void setAggregateFunction(AggregateFunction aggregateFunction)
     {
         this.aggregateFunction = aggregateFunction;
+    }
+
+    public final String getTreatmentTypeCode()
+    {
+        return treatmentTypeCode;
+    }
+
+    public final void setTreatmentTypeCode(String treatmentTypeCode)
+    {
+        this.treatmentTypeCode = treatmentTypeCode;
     }
     
 }

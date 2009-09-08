@@ -268,11 +268,11 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             AggregateFunction aggregateFunction =
                     getSelection(aggregateFunctionComboBox, DEFAULT_AGGREGATE_FUNCTION);
             TechId experimentID = TechId.create(experiment);
-            AsyncCallback<List<AbundanceColumnDefinition>> callback =
-                    new AbundanceColumnDefinitionsCallback(viewContext, browserGrid, experimentID,
-                            falseDiscoveryRate, aggregateFunction);
             VocabularyTermModel value = treatmentTypeComboBox.getValue();
             String treatmentTypeCode = value == null ? null : value.getTerm().getCode();
+            AsyncCallback<List<AbundanceColumnDefinition>> callback =
+                    new AbundanceColumnDefinitionsCallback(viewContext, browserGrid, experimentID,
+                            falseDiscoveryRate, aggregateFunction, treatmentTypeCode);
             viewContext.getService().getAbundanceColumnDefinitionsForProteinByExperiment(
                     experimentID, treatmentTypeCode, callback);
         }
@@ -295,21 +295,26 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
         private final AggregateFunction aggregateFunction;
 
+        private final String treatmentTypeCode;
+
         public AbundanceColumnDefinitionsCallback(IViewContext<?> viewContext,
                 ProteinByExperimentBrowserGrid browserGrid, TechId experimentID,
-                double falseDiscoveryRate, AggregateFunction aggregateFunction)
+                double falseDiscoveryRate, AggregateFunction aggregateFunction,
+                String treatmentTypeCode)
         {
             super(viewContext);
             this.browserGrid = browserGrid;
             this.experimentID = experimentID;
             this.falseDiscoveryRate = falseDiscoveryRate;
             this.aggregateFunction = aggregateFunction;
+            this.treatmentTypeCode = treatmentTypeCode;
         }
 
         @Override
         protected void process(List<AbundanceColumnDefinition> result)
         {
-            browserGrid.update(experimentID, falseDiscoveryRate, aggregateFunction, result);
+            browserGrid.update(experimentID, falseDiscoveryRate, aggregateFunction,
+                    treatmentTypeCode, result);
         }
 
     }

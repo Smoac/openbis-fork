@@ -97,12 +97,14 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     }
 
     void update(TechId experimentID, double falseDiscoveryRate,
-            AggregateFunction aggregateFunction, List<AbundanceColumnDefinition> definitions)
+            AggregateFunction aggregateFunction, String treatmentTypeCode,
+            List<AbundanceColumnDefinition> definitions)
     {
         criteria = new ListProteinByExperimentCriteria();
         criteria.setExperimentID(experimentID);
         criteria.setFalseDiscoveryRate(falseDiscoveryRate);
         criteria.setAggregateFunction(aggregateFunction);
+        criteria.setTreatmentTypeCode(treatmentTypeCode);
         abundanceColumnDefinitions = definitions;
         refresh(null, true);
     }
