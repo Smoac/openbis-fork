@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,26 +76,29 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
         return result;
     }
 
-    public List<DeletedDataSet> listDeletedDataSets(Date since)
+    public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull)
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(EventPE.class);
-        if (since != null)
+        if (lastSeenDeletionEventIdOrNull != null)
         {
-            criteria.add(Restrictions.gt("registrationDate", since));
+            criteria.add(Restrictions.gt("id", lastSeenDeletionEventIdOrNull));
         }
         criteria.add(Restrictions.eq("eventType", EventType.DELETION));
         criteria.add(Restrictions.eq("entityType", EntityType.DATASET));
         final List<EventPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
+            String lastDesc =
+                    lastSeenDeletionEventIdOrNull == null ? "all" : "id > "
+                            + lastSeenDeletionEventIdOrNull;
             operationLog.debug(String.format(
-                    "%s(%s): data set deletion events(s) have been found.", MethodUtils
-                            .getCurrentMethod().getName(), since, list.size()));
+                    "%s(%d): data set deletion events(s) have been found.", MethodUtils
+                            .getCurrentMethod().getName(), lastDesc, list.size()));
         }
         ArrayList<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
         for (EventPE event : list)
         {
-            result.add(new DeletedDataSet(event.getIdentifier(), event.getRegistrationDate()));
+            result.add(new DeletedDataSet(event.getIdentifier(), event.getId()));
         }
         return result;
     }

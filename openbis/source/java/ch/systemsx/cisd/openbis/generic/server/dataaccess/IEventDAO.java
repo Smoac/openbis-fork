@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
@@ -40,8 +39,8 @@ public interface IEventDAO extends IGenericDAO<EventPE>
             final EventType eventType);
 
     /**
-     * Lists data sets deleted after specified time.
+     * Lists deleted data sets with the deletion event id greater than the specified one.
      */
-    public List<DeletedDataSet> listDeletedDataSets(Date since);
+    public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull);
 
 }

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -98,7 +97,8 @@ public interface IEncapsulatedOpenBISService
     public DatabaseInstance getHomeDatabaseInstance();
 
     /**
-     * List data sets deleted after specified date.
+     * List data sets deleted after the last seen deletion event. If event id is null all deleted
+     * datasets will be returned.
      */
-    public List<DeletedDataSet> listDeletedDataSets(Date lastDeleted);
+    public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull);
 }

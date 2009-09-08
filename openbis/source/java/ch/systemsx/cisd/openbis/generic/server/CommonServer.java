@@ -1724,10 +1724,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         bo.save();
     }
 
-    public List<DeletedDataSet> listDeletedDataSets(String sessionToken, Date since)
+    public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
+            Long lastSeenDeletionEventIdOrNull)
     {
         getSessionManager().getSession(sessionToken);
-        return getDAOFactory().getEventDAO().listDeletedDataSets(since);
+        return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
     }
 
     public List<Filter> listFilters(String sessionToken, String gridId)

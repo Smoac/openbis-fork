@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -385,10 +384,11 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return SimpleDataSetHelper.translate(dataSetTable.getExternalData());
     }
 
-    public List<DeletedDataSet> listDeletedDataSets(String sessionToken, Date lastDeleted)
+    public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
+            Long lastSeenDeletionEventIdOrNull)
     {
         sessionManager.getSession(sessionToken);
-        return getDAOFactory().getEventDAO().listDeletedDataSets(lastDeleted);
+        return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
     }
 
 }

@@ -40,6 +40,7 @@ public class PluginTaskProviders
 
     private final PluginTaskProvider<IProcessingPluginTask> processingPlugins;
 
+    /** for external injections */
     public static PluginTaskProviders create()
     {
         Properties properties = PropertyParametersUtil.loadServiceProperties();

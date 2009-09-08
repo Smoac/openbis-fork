@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -82,8 +81,8 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                 externalData);
     }
 
-    public Sample tryGetSampleWithExperiment(String sessionToken,
-            SampleIdentifier sampleIdentifier) throws UserFailureException
+    public Sample tryGetSampleWithExperiment(String sessionToken, SampleIdentifier sampleIdentifier)
+            throws UserFailureException
     {
         logAccess(sessionToken, "get_sample_with_experiment", "SAMPLE(%s)", sampleIdentifier);
         return null;
@@ -126,10 +125,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
-    public List<DeletedDataSet> listDeletedDataSets(String sessionToken, Date lastDeleted)
+    public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
+            Long lastSeenDeletionEventIdOrNull)
     {
-        logAccess(sessionToken, "listDeletedDataSets", "DATE(%s)", lastDeleted);
+        logAccess(sessionToken, "listDeletedDataSets", "LAST_SEEN_EVENT(%s)",
+                (lastSeenDeletionEventIdOrNull == null ? "all" : "id > "
+                        + lastSeenDeletionEventIdOrNull));
         return null;
     }
-
 }

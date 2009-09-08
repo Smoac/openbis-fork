@@ -38,6 +38,6 @@ public class MaintenancePlugin
                 {
                     task.execute();
                 }
-            }, 0L, parameters.getInterval() * 1000);
+            }, 0L, parameters.getIntervalSeconds() * 1000);
     }
 }

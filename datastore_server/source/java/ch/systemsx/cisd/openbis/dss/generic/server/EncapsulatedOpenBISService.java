@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -336,16 +335,16 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.listDataSets(sessionToken, dataStoreCode);
     }
 
-    public List<DeletedDataSet> listDeletedDataSets(Date lastDeleted)
+    public List<DeletedDataSet> listDeletedDataSets(Long lastSeenDeletionEventIdOrNull)
     {
         checkSessionToken();
         try
         {
-            return service.listDeletedDataSets(sessionToken, lastDeleted);
+            return service.listDeletedDataSets(sessionToken, lastSeenDeletionEventIdOrNull);
         } catch (final InvalidSessionException ex)
         {
             authenticate();
-            return service.listDeletedDataSets(sessionToken, lastDeleted);
+            return service.listDeletedDataSets(sessionToken, lastSeenDeletionEventIdOrNull);
         }
     }
 

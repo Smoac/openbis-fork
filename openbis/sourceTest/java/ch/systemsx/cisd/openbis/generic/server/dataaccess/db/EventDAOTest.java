@@ -38,13 +38,13 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class EventDAOTest extends AbstractDAOTest
 {
 
-    private static final long SINCE_LONG = 1000000L;
+    private static final long SINCE_LONG = 10;
 
-    private static final Date BEFORE = new Date(SINCE_LONG - 1000000);
+    private static final long BEFORE = SINCE_LONG - 5;
 
-    private static final Date SINCE = new Date(SINCE_LONG);
+    private static final long SINCE = SINCE_LONG;
 
-    private static final Date AFTER = new Date(SINCE_LONG + 1000000);
+    private static final long AFTER = SINCE_LONG + 5;
 
     private static final String KEEP_ME = "KEEP-ME";
 
@@ -59,9 +59,9 @@ public class EventDAOTest extends AbstractDAOTest
         }
     }
 
-    private List<DeletedDataSet> listDataDeletionEvents(Date parameter)
+    private List<DeletedDataSet> listDataDeletionEvents(Long lastSeenDeletionEventIdOrNull)
     {
-        return daoFactory.getEventDAO().listDeletedDataSets(parameter);
+        return daoFactory.getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
     }
 
     @Test
@@ -148,19 +148,19 @@ public class EventDAOTest extends AbstractDAOTest
         assertCorrectResult(0, result);
     }
 
-    private void saveEvent(EventType eventType, EntityType entityType, String identifier, Date date)
+    private void saveEvent(EventType eventType, EntityType entityType, String identifier,
+            long eventId)
     {
         String description = eventType.name() + " " + entityType.name();
         PersonPE person = getSystemPerson();
         Long personId = HibernateUtils.getId(person);
-        // Done via SQL because it's not possible to set the value of 'date' field in EventPE to
-        // chosen date
+        // TODO 2009-09-04, Tomasz Pylak: change to hibernate
         simpleJdbcTemplate
                 .update(
                         "insert into events "
                                 + "(id, event_type, description, reason, pers_id_registerer, registration_timestamp, identifier, entity_type) "
-                                + "values(nextval('event_id_seq'), ?, ?, ?, ?, ?, ?, ?)", eventType
-                                .name(), description, description, personId, date, identifier,
-                        entityType.name());
+                                + "values(?, ?, ?, ?, ?, ?, ?, ?)", eventId, eventType.name(),
+                        description, description, personId, new Date(), identifier, entityType
+                                .name());
     }
 }

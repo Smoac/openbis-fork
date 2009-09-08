@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -46,33 +45,42 @@ public class MetabolDatabaseUpdater implements IMaintenanceTask
 
     private static final String SYNCHRONIZATION_TABLE = "EVENTS";
 
-    private static final String SYNCHRONIZATION_TIMESTAMP = "EVENT_DATE";
+    private static final String LAST_SEEN_EVENT_ID = "LAST_SEEN_DELETION_EVENT_ID";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, MetabolDatabaseUpdater.class);
 
+    private final IEncapsulatedOpenBISService openBISService;
+
+    private final DatabaseConfigurationContext context;
+
     private Connection connection;
 
-    private IEncapsulatedOpenBISService openBISService;
-
-    private DatabaseConfigurationContext context;
-
-    public void setUp(String pluginName)
+    public MetabolDatabaseUpdater()
     {
         LogInitializer.init();
         context = DBUtils.createDefaultDBContext();
         DBUtils.init(context);
+        checkDatabseConnection();
+        openBISService = ServiceProvider.getOpenBISService();
+    }
+
+    public void setUp(String pluginName)
+    {
+        operationLog.info("Plugin initialized: " + pluginName);
+    }
+
+    private void checkDatabseConnection()
+    {
         try
         {
             connection = context.getDataSource().getConnection();
-            getPreviousSynchronizationDate();
+            tryGetPreviousLastSeenEventId();
             connection.close();
         } catch (SQLException ex)
         {
             throw new ConfigurationFailureException("Initialization failed", ex);
         }
-        openBISService = ServiceProvider.getOpenBISService();
-        operationLog.info("Plugin initialized");
     }
 
     public void execute()
@@ -81,15 +89,15 @@ public class MetabolDatabaseUpdater implements IMaintenanceTask
         try
         {
             connection = context.getDataSource().getConnection();
-            Date previousSyncDate = getPreviousSynchronizationDate();
+            Long lastSeenEventId = tryGetPreviousLastSeenEventId();
             List<DeletedDataSet> deletedDataSets =
-                    openBISService.listDeletedDataSets(previousSyncDate);
+                    openBISService.listDeletedDataSets(lastSeenEventId);
             if (deletedDataSets.size() > 0)
             {
                 boolean autoCommit = connection.getAutoCommit();
                 connection.setAutoCommit(false);
                 deleteDatasets(deletedDataSets);
-                updateSynchronizationDate(previousSyncDate, deletedDataSets);
+                updateSynchronizationDate(lastSeenEventId, deletedDataSets);
                 connection.commit();
                 connection.setAutoCommit(autoCommit);
             }
@@ -102,30 +110,39 @@ public class MetabolDatabaseUpdater implements IMaintenanceTask
 
     private void deleteDatasets(List<DeletedDataSet> deletedDataSets) throws SQLException
     {
+        operationLog.info(String.format(
+                "Synchronizing deletions of %d datasets with the metabolomics database.",
+                deletedDataSets.size()));
         connection.createStatement().execute(
                 String.format("DELETE FROM data_sets WHERE perm_id IN (%s)",
                         joinIds(deletedDataSets)));
     }
 
-    private void updateSynchronizationDate(Date previousSyncDate, List<DeletedDataSet> deleted)
+    private void updateSynchronizationDate(Long lastSeenEventIdOrNull, List<DeletedDataSet> deleted)
             throws SQLException
     {
-        Date newSynchncDate = previousSyncDate;
+        Long maxEventId = lastSeenEventIdOrNull;
         for (DeletedDataSet dds : deleted)
         {
-            Date date = dds.getDeletionDate();
-            if (newSynchncDate == null || date.after(newSynchncDate))
+            long eventId = dds.getEventId();
+            if (maxEventId == null || eventId > maxEventId)
             {
-                newSynchncDate = date;
+                maxEventId = eventId;
             }
         }
-        if (previousSyncDate == null || newSynchncDate.after(previousSyncDate))
+        if (lastSeenEventIdOrNull == null || maxEventId > lastSeenEventIdOrNull)
         {
-            PreparedStatement statement =
-                    connection.prepareStatement("INSERT INTO " + SYNCHRONIZATION_TABLE + " ("
-                            + SYNCHRONIZATION_TIMESTAMP + ") VALUES('" + newSynchncDate + "')");
-            statement.executeUpdate();
+            // we store only the last update time, so all the others can be deleted
+            executeSql("delete from events");
+            executeSql("INSERT INTO " + SYNCHRONIZATION_TABLE + " (" + LAST_SEEN_EVENT_ID
+                    + ") VALUES('" + maxEventId + "')");
         }
+    }
+
+    private void executeSql(String sql) throws SQLException
+    {
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.executeUpdate();
     }
 
     private String joinIds(List<DeletedDataSet> deleted)
@@ -143,21 +160,21 @@ public class MetabolDatabaseUpdater implements IMaintenanceTask
         return ids;
     }
 
-    private Date getPreviousSynchronizationDate() throws SQLException
+    private long tryGetPreviousLastSeenEventId() throws SQLException
     {
-        Date lastDeleted = null;
+        Long maxLastSeenEventId = null;
         ResultSet result =
                 connection.createStatement().executeQuery(
-                        "SELECT MAX(" + SYNCHRONIZATION_TIMESTAMP + ") AS "
-                                + SYNCHRONIZATION_TIMESTAMP + " FROM " + SYNCHRONIZATION_TABLE);
+                        "SELECT MAX(" + LAST_SEEN_EVENT_ID + ") AS " + LAST_SEEN_EVENT_ID
+                                + " FROM " + SYNCHRONIZATION_TABLE);
         while (result.next())
         {
-            if (lastDeleted == null
-                    || lastDeleted.before(result.getTimestamp(SYNCHRONIZATION_TIMESTAMP)))
+            long newLastSeenEventId = result.getLong(LAST_SEEN_EVENT_ID);
+            if (maxLastSeenEventId == null || maxLastSeenEventId < newLastSeenEventId)
             {
-                lastDeleted = result.getTimestamp(SYNCHRONIZATION_TIMESTAMP);
+                maxLastSeenEventId = newLastSeenEventId;
             }
         }
-        return lastDeleted;
+        return maxLastSeenEventId;
     }
 }

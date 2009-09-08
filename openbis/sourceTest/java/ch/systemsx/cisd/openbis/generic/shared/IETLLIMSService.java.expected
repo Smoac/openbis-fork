@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -149,6 +148,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public List<DeletedDataSet> listDeletedDataSets(String sessionToken, Date lastDeleted);
+    public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
+            Long lastSeenDeletionEventIdOrNull);
 
 }

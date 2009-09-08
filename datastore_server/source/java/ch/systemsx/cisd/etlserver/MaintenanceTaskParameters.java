@@ -44,7 +44,7 @@ public class MaintenanceTaskParameters
         className = PropertyUtils.getProperty(properties, CLASS_KEY);
     }
 
-    public long getInterval()
+    public long getIntervalSeconds()
     {
         return interval;
     }

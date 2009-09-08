@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * Describes a deleted data set.
@@ -28,11 +27,11 @@ public class DeletedDataSet implements Serializable
 {
     private String identifier;
 
-    private Date deletionDate;
+    private long eventId;
 
-    public DeletedDataSet(String identifier, Date deleted)
+    public DeletedDataSet(String identifier, long eventId)
     {
-        this.deletionDate = deleted;
+        this.eventId = eventId;
         this.identifier = identifier;
     }
 
@@ -50,14 +49,14 @@ public class DeletedDataSet implements Serializable
         this.identifier = identifier;
     }
 
-    public Date getDeletionDate()
+    public long getEventId()
     {
-        return deletionDate;
+        return eventId;
     }
 
-    public void setDeletionDate(Date deletionDate)
+    public void setEventId(long eventId)
     {
-        this.deletionDate = deletionDate;
+        this.eventId = eventId;
     }
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
