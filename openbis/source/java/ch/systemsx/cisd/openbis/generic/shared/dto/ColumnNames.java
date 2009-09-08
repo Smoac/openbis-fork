@@ -26,7 +26,13 @@ public final class ColumnNames
 
     public static final String AMOUNT_COLUMN = "amount";
 
-    public static final String CODE_COLUMN = "code";
+    public static final String GRID_ID_COLUMN = "grid_id";
+
+    public static final String EXPRESSION_COLUMN = "expression";
+
+    public final static String CODE_COLUMN = "code";
+
+    public static final String NAME_COLUMN = "name";
 
     public static final String CONTROL_LAYOUT_SAMPLE_COLUMN = "samp_id_control_layout";
 
@@ -109,6 +115,8 @@ public final class ColumnNames
     public static final String IS_DATA_ACQUSITION = "is_data_acquisition";
 
     public static final String IS_DERIVED = "is_derived";
+
+    public static final String IS_PUBLIC = "is_public";
 
     public static final String IS_DISPLAYED = "is_displayed";
 

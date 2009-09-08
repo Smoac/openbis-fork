@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
@@ -722,4 +723,9 @@ public interface ICommonClientService extends IClientService
      */
     public void removePersonsFromAuthorizationGroup(TechId authorizationGroupId,
             List<String> personsCodes) throws UserFailureException;
+
+    /**
+     * Lists filters available for given grid.
+     */
+    public List<Filter> listFilters(String gridId) throws UserFailureException;
 }

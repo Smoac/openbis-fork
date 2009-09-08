@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
@@ -642,4 +643,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void removePersonsFromAuthorizationGroup(TechId create, List<String> extractCodes,
             AsyncCallback<Void> callback);
+
+    /**
+     * @see ICommonClientService#listFilters(String)
+     */
+    public void listFilters(String gridId, AsyncCallback<List<Filter>> callback);
 }

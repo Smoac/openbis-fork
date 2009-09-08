@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFilterDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
@@ -286,6 +287,11 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public PersistencyResources getPersistencyResources()
     {
         return daoFactory.getPersistencyResources();
+    }
+
+    public IFilterDAO getFilterDAO()
+    {
+        return daoFactory.getFilterDAO();
     }
 
 }

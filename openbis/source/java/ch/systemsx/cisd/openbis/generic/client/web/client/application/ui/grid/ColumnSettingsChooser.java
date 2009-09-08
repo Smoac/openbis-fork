@@ -68,17 +68,6 @@ class ColumnSettingsChooser
         grid.addPlugin(isVisibleColumn);
         grid.addPlugin(hasFilterColumn);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        // grid.setAutoExpandColumn(ColumnDataModel.HEADER);
-
-        //
-        // TODO 2009-05-06 Izabela Adamczyk: Code below can be used to allow DND after we migrate to
-        // GXT 1.2.3, which fixes bug wit disappearing column
-        //
-        // new GridDragSource(grid);
-        // GridDropTarget target = new GridDropTarget(grid);
-        // target.setAllowSelfAsSource(true);
-        // target.setOperation(Operation.MOVE);
-        // target.setFeedback(Feedback.INSERT);
     }
 
     private void enableButtonOnGridSelectedItem(final Button button, final String enabledTitle)

@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
@@ -736,6 +737,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "removePersonsFromAuthorizationGroup", "TECH_ID(%s) PERSONS(%s)",
                 authorizationGroupId, StringUtils.join(personsCodes.toArray(new String[0]), ","));
+    }
+
+    public List<Filter> listFilters(String sessionToken, String gridId)
+    {
+        logAccess(sessionToken, "listFilters", "GRID(%s)", gridId);
+        return null;
     }
 
 }

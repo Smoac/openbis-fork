@@ -94,6 +94,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
@@ -2075,6 +2076,21 @@ public final class CommonClientService extends AbstractClientService implements
             assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
             List<T> entities = fetchCachedEntities(displayedItemsCriteria);
             return TechId.createList(entities);
+        }
+    }
+
+    public List<Filter> listFilters(String gridId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+
+        try
+        {
+            final String sessionToken = getSessionToken();
+            final List<Filter> types = commonServer.listFilters(sessionToken, gridId);
+            return types;
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
         }
     }
 }

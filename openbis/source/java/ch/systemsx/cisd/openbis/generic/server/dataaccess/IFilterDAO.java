@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess;
+
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
 
 /**
- * A static class which holds the database version.
+ * <i>Data Access Object</i> for {@link FilterPE}.
  * 
- * @author Christian Ribeaud
+ * @author Izabela Adamczyk
  */
-public final class DatabaseVersionHolder
+public interface IFilterDAO extends IGenericDAO<FilterPE>
 {
-    /** Current version of the database. */
-    private static final String DATABASE_VERSION = "041";
 
-    private DatabaseVersionHolder()
-    {
-        // Can not be instantiated
-    }
+    /**
+     * Lists filters for given grid and home database instance.
+     */
+    public List<FilterPE> listFilters(String gridId);
 
-    /** Returns the current version of the database. */
-    public final static String getDatabaseVersion()
-    {
-        return DATABASE_VERSION;
-    }
+    /**
+     * Creates a new filter in home database instance.
+     */
+    public void createFilter(FilterPE filter);
 }

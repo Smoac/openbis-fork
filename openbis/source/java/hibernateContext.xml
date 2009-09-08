@@ -74,6 +74,7 @@
                 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE</value>
+                <value>ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE</value>
             </list>
         </property>
         <!-- 

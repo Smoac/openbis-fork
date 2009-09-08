@@ -89,6 +89,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
@@ -130,6 +131,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -157,6 +159,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.FilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
@@ -1725,6 +1728,19 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         getSessionManager().getSession(sessionToken);
         return getDAOFactory().getEventDAO().listDeletedDataSets(since);
+    }
+
+    public List<Filter> listFilters(String sessionToken, String gridId)
+    {
+        getSessionManager().getSession(sessionToken);
+        try
+        {
+            List<FilterPE> filters = getDAOFactory().getFilterDAO().listFilters(gridId);
+            return FilterTranslator.translate(filters);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
     }
 
 }
