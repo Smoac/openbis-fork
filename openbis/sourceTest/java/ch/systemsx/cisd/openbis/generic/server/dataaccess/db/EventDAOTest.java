@@ -68,12 +68,12 @@ public class EventDAOTest extends AbstractDAOTest
     public void testListDeletedDataSetsWithoutSinceDate() throws Exception
     {
         saveEvent(EventType.DELETION, EntityType.SAMPLE, KEEP_ME, AFTER);
-        saveEvent(EventType.INVALIDATION, EntityType.DATASET, KEEP_ME, AFTER);
+        saveEvent(EventType.INVALIDATION, EntityType.DATASET, KEEP_ME, AFTER + 1);
         int numberOfDataSets = 3;
         for (int i = 0; i < numberOfDataSets; i++)
         {
 
-            saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + i, AFTER);
+            saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + i, AFTER + 2 + i);
         }
         saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME, BEFORE);
 
@@ -86,12 +86,12 @@ public class EventDAOTest extends AbstractDAOTest
     {
         saveEvent(EventType.DELETION, EntityType.DATASET, KEEP_ME, BEFORE);
         saveEvent(EventType.DELETION, EntityType.SAMPLE, KEEP_ME, AFTER);
-        saveEvent(EventType.INVALIDATION, EntityType.DATASET, KEEP_ME, AFTER);
+        saveEvent(EventType.INVALIDATION, EntityType.DATASET, KEEP_ME, AFTER + 1);
 
         int numberOfDataSets = 3;
         for (int i = 0; i < numberOfDataSets; i++)
         {
-            saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + i, AFTER);
+            saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + i, AFTER + 2 + i);
         }
         List<DeletedDataSet> result = listDataDeletionEvents(SINCE);
 
@@ -110,13 +110,13 @@ public class EventDAOTest extends AbstractDAOTest
     public void testListDataSetsAndNoSamples() throws Exception
     {
         saveEvent(EventType.DELETION, EntityType.SAMPLE, KEEP_ME, AFTER);
-        saveEvent(EventType.INVALIDATION, EntityType.SAMPLE, KEEP_ME, AFTER);
-        saveEvent(EventType.MOVEMENT, EntityType.SAMPLE, KEEP_ME, AFTER);
+        saveEvent(EventType.INVALIDATION, EntityType.SAMPLE, KEEP_ME, AFTER + 1);
+        saveEvent(EventType.MOVEMENT, EntityType.SAMPLE, KEEP_ME, AFTER + 2);
 
         int numberOfDataSets = 3;
         for (int i = 0; i < numberOfDataSets; i++)
         {
-            saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + i, AFTER);
+            saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + i, AFTER + 3 + i);
         }
         List<DeletedDataSet> result = listDataDeletionEvents(SINCE);
 
@@ -127,12 +127,12 @@ public class EventDAOTest extends AbstractDAOTest
     public void testListDeletedDataSetsAndNotCreated() throws Exception
     {
         saveEvent(EventType.INVALIDATION, EntityType.DATASET, KEEP_ME, AFTER);
-        saveEvent(EventType.MOVEMENT, EntityType.DATASET, KEEP_ME, AFTER);
+        saveEvent(EventType.MOVEMENT, EntityType.DATASET, KEEP_ME, AFTER + 1);
 
         int numberOfDataSets = 3;
         for (int i = 0; i < numberOfDataSets; i++)
         {
-            saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + i, AFTER);
+            saveEvent(EventType.DELETION, EntityType.DATASET, DELETE_ME + i, AFTER + 2 + i);
         }
         List<DeletedDataSet> result = listDataDeletionEvents(SINCE);
 
