@@ -75,7 +75,7 @@ public class VocabularyTermSelectionWidget extends
         this(idSuffix, label, mandatory, null, null, initialTermsOrNull, initialTermOrNull);
     }
 
-    private VocabularyTermSelectionWidget(String idSuffix, String label, boolean mandatory,
+    protected VocabularyTermSelectionWidget(String idSuffix, String label, boolean mandatory,
             Vocabulary vocabularyOrNull, IViewContext<?> viewContextOrNull,
             List<VocabularyTerm> termsOrNull, String initialTermCodeOrNull)
     {
