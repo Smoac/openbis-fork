@@ -76,6 +76,9 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
         if (label == null)
         {
             return code;
+        } else if (code == null)
+        {
+            return label;
         } else
         {
             return label + " [" + code + "]";
