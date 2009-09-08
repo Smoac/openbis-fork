@@ -46,10 +46,10 @@ public class VocabularyTermSelectionWidget extends
 
     private static final String EMPTY_MSG = "- No terms found -";
 
-    private final Vocabulary vocabularyOrNull;
-
     private final IViewContext<?> viewContextOrNull;
 
+    private Vocabulary vocabularyOrNull;
+    
     private String initialTermCodeOrNull;
 
     private boolean dataLoaded = false;
@@ -90,6 +90,12 @@ public class VocabularyTermSelectionWidget extends
         {
             setTerms(termsOrNull);
         }
+    }
+    
+    public void setVocabulary(Vocabulary vocabulary)
+    {
+        vocabularyOrNull = vocabulary;
+        refreshStore();
     }
 
     private void setTerms(List<VocabularyTerm> terms)
