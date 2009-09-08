@@ -112,7 +112,8 @@ public class ExperimentPropertiesPanel extends ContentPanel
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final ExperimentType experimentType = experiment.getExperimentType();
         final Invalidation invalidation = experiment.getInvalidation();
-        properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment.getCode());
+        properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment.getIdentifier());
+        properties.put(messageProvider.getMessage(Dict.PERM_ID), experiment.getPermId());
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT_TYPE), experimentType);
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), experiment.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), experiment

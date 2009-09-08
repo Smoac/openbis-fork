@@ -207,7 +207,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         final SampleType sampleType = sample.getSampleType();
         final Invalidation invalidation = sample.getInvalidation();
         final Sample[] generated = sampleGeneration.getDerived();
-        properties.put(messageProvider.getMessage(Dict.SAMPLE), sample.getCode());
+        properties.put(messageProvider.getMessage(Dict.SAMPLE), sample.getIdentifier());
+        properties.put(messageProvider.getMessage(Dict.PERM_ID), sample.getPermId());
         properties.put(messageProvider.getMessage(Dict.SAMPLE_TYPE), sampleType);
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), sample

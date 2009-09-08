@@ -65,7 +65,15 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
     private static final String EXP_REUSE = "EXP-REUSE";
 
+    private static final String EXP_REUSE_ID = "/CISD/DEFAULT/EXP-REUSE";
+
+    private static final String EXP_REUSE_PERM_ID = "200811050940555-1032";
+
     private static final String EXP_X = "EXP-X";
+
+    private static final String EXP_X_ID = "/CISD/DEFAULT/EXP-X";
+
+    private static final String EXP_X_PERM_ID = "200811050937246-1031";
 
     private static final String A_SIMPLE_EXPERIMENT = "A simple experiment";
 
@@ -78,6 +86,10 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     private static final String NEMO = "NEMO (CISD)";
 
     private static final String EXP1 = "EXP1";
+
+    private static final String EXP1_ID = "/CISD/NEMO/EXP1";
+
+    private static final String EXP1_PERM_ID = "200811050951882-1028";
 
     /**
      * Tests that authorization annotations of
@@ -112,7 +124,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     {
         prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);
         final CheckExperiment checkExperiment = new CheckExperiment();
-        checkExperiment.property("Experiment").asString(EXP1);
+        checkExperiment.property("Experiment").asString(EXP1_ID);
+        checkExperiment.property("PermID").asString(EXP1_PERM_ID);
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
         checkExperiment.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
@@ -130,7 +143,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_X);
         final CheckExperiment checkExperiment = new CheckExperiment();
-        checkExperiment.property("Experiment").asString(EXP_X);
+        checkExperiment.property("Experiment").asString(EXP_X_ID);
+        checkExperiment.property("PermID").asString(EXP_X_PERM_ID);
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
         checkExperiment.property("Invalidation").by(new IValueAssertion<Invalidation>()
@@ -151,7 +165,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
         final CheckExperiment checkExperiment = new CheckExperiment();
-        checkExperiment.property("Experiment").asString(EXP_REUSE);
+        checkExperiment.property("Experiment").asString(EXP_REUSE_ID);
+        checkExperiment.property("PermID").asString(EXP_REUSE_PERM_ID);
         final CheckTableCommand attachmentsTable =
                 checkExperiment.attachmentsTable().expectedSize(2);
         attachmentsTable.expectedRow(new Row().withCell(ModelDataPropertyNames.FILE_NAME,
@@ -167,7 +182,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
         final CheckExperiment checkExperiment = new CheckExperiment();
-        checkExperiment.property("Experiment").asString(EXP_REUSE);
+        checkExperiment.property("Experiment").asString(EXP_REUSE_ID);
+        checkExperiment.property("PermID").asString(EXP_REUSE_PERM_ID);
         final CheckTableCommand sampleTable = checkExperiment.sampleTable().expectedSize(7);
         sampleTable.expectedRow(new SampleRow("RP1-A2X"));
         sampleTable.expectedRow(new SampleRow("RP1-B1X"));
@@ -185,7 +201,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     {
         prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);
         final CheckExperiment checkExperiment = new CheckExperiment();
-        checkExperiment.property("Experiment").asString(EXP1);
+        checkExperiment.property("Experiment").asString(EXP1_ID);
+        checkExperiment.property("PermID").asString(EXP1_PERM_ID);
         final CheckTableCommand datasetTable = checkExperiment.dataSetTable().expectedSize(2);
         datasetTable.expectedRow(new DataSetRow("20080912142304152-1").invalid().notDerived());
         datasetTable.expectedRow(new DataSetRow("20080912142304476-3").invalid().withSample(

@@ -50,7 +50,15 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 
     private static final String CONTROL_LAYOUT_EXAMPLE = "CL1";
 
+    private static final String CONTROL_LAYOUT_EXAMPLE_ID = "CISD:/CISD/CL1";
+
+    private static final String CONTROL_LAYOUT_EXAMPLE_PERM_ID = "200811050919915-8";
+    
     private static final String CELL_PLATE_EXAMPLE = "3VCP1";
+
+    private static final String CELL_PLATE_EXAMPLE_ID = "CISD:/CISD/3VCP1";
+
+    private static final String CELL_PLATE_EXAMPLE_PERM_ID = "200811050946559-983";
 
     private static final String DATA_SET_CODE = "20081105092159188-3";
 
@@ -60,7 +68,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "CONTROL_LAYOUT"));
         remoteConsole.prepare(new ShowSample(CONTROL_LAYOUT_EXAMPLE));
         final CheckSample checkSample = new CheckSample();
-        checkSample.property("Sample").asString(CONTROL_LAYOUT_EXAMPLE);
+        checkSample.property("Sample").asString(CONTROL_LAYOUT_EXAMPLE_ID);
+        checkSample.property("PermID").asString(CONTROL_LAYOUT_EXAMPLE_PERM_ID);
         checkSample.property("Sample Type").asCode("CONTROL_LAYOUT");
         checkSample.property("Registrator").asPerson("Doe, John");
         checkSample.property("Plate Geometry").asProperty("384_WELLS_16X24");
@@ -86,7 +95,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
         final CheckSample checkSample = new CheckSample();
-        checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE);
+        checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE_ID);
+        checkSample.property("PermID").asString(CELL_PLATE_EXAMPLE_PERM_ID);
         checkSample.property("Sample Type").asCode("CELL_PLATE");
         checkSample.property("Derived Samples").asGeneratedSamples("3VRP1A [REINFECT_PLATE]",
                 "3VRP1B [REINFECT_PLATE]");

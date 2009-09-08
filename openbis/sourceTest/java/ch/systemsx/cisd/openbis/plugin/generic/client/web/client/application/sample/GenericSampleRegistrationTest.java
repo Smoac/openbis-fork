@@ -134,6 +134,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String sampleCode = "W12";
         final String sampleTypeCode = WELL;
         final String containerCode = "3VCP5";
+        final String containerId = "CISD:/CISD/" + containerCode;
         loginAndPreprareRegistration(sampleTypeCode);
         remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode, false)
                 .container(containerCode));
@@ -142,7 +143,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", CELL_PLATE));
         remoteConsole.prepare(new ShowSample(containerCode));
         final CheckSample checkSample = new CheckSample();
-        checkSample.property("Sample").asString(containerCode);
+        checkSample.property("Sample").asString(containerId);
         final CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(1);
         final String sampleCodeFieldIdent = CommonSampleColDefKind.CODE.id();
         final String sampleSubcodeFieldIdent = CommonSampleColDefKind.SUBCODE.id();
