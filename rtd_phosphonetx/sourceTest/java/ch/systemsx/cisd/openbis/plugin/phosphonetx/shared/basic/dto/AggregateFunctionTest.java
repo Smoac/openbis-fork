@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
 
 /**
  * 
@@ -41,6 +43,27 @@ public class AggregateFunctionTest extends AssertJUnit
         assertEquals(42.5, AggregateFunction.MEDIAN.aggregate(new double[] {42, 43}));
         assertEquals(43.0, AggregateFunction.MEDIAN.aggregate(new double[] {42, 43, 50}));
         assertEquals(46.5, AggregateFunction.MEDIAN.aggregate(new double[] {42, 43, 50, 59}));
+    }
+    
+    @Test
+    public void testSum()
+    {
+        assertEquals(42.0, AggregateFunction.SUM.aggregate(new double[] {42}));
+        assertEquals(85.0, AggregateFunction.SUM.aggregate(new double[] {42, 43}));
+    }
+    
+    @Test
+    public void testMin()
+    {
+        assertEquals(42.0, AggregateFunction.MIN.aggregate(new double[] {42}));
+        assertEquals(42.0, AggregateFunction.MIN.aggregate(new double[] {42, 43}));
+    }
+    
+    @Test
+    public void testMax()
+    {
+        assertEquals(42.0, AggregateFunction.MAX.aggregate(new double[] {42}));
+        assertEquals(43.0, AggregateFunction.MAX.aggregate(new double[] {42, 43}));
     }
     
     @Test

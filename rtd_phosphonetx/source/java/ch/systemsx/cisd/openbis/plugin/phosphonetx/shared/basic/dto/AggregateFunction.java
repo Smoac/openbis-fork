@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
 import java.util.Arrays;
 
@@ -32,12 +32,7 @@ public enum AggregateFunction implements IsSerializable
         @Override
         public double aggregate(double[] values)
         {
-            double sum = 0;
-            for (double value : values)
-            {
-                sum += value;
-            }
-            return sum / values.length;
+            return SUM.aggregate(values) / values.length;
         }
     },
     MEDIAN("median")
@@ -48,6 +43,45 @@ public enum AggregateFunction implements IsSerializable
             Arrays.sort(values);
             int i = values.length / 2;
             return values.length % 2 == 0 ? (values[i - 1] + values[i]) / 2 : values[i];
+        }
+    },
+    SUM("sum")
+    {
+        @Override
+        public double aggregate(double[] values)
+        {
+            double sum = 0;
+            for (double value : values)
+            {
+                sum += value;
+            }
+            return sum;
+        }
+    },
+    MIN("minimum")
+    {
+        @Override
+        public double aggregate(double[] values)
+        {
+            double min = Double.MAX_VALUE;
+            for (double value : values)
+            {
+                min = Math.min(min, value);
+            }
+            return min;
+        }
+    },
+    MAX("maximum")
+    {
+        @Override
+        public double aggregate(double[] values)
+        {
+            double max = -Double.MAX_VALUE;
+            for (double value : values)
+            {
+                max = Math.max(max, value);
+            }
+            return max;
         }
     },
     COUNT("count")
