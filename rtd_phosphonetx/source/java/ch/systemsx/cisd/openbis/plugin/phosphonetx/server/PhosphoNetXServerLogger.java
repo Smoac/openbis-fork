@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
-import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -25,13 +24,14 @@ import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
  * @author Franz-Josef Elmer
@@ -60,11 +60,14 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
         return null;
     }
 
-    public Collection<ProteinWithAbundances> listProteinsByExperiment(String sessionToken,
-            TechId experimentId, double falseDiscoveryRate) throws UserFailureException
+    public List<ProteinInfo> listProteinsByExperiment(String sessionToken, TechId experimentId,
+            double falseDiscoveryRate, AggregateFunction function, String treatmentTypeCode,
+            boolean aggregateOnOriginal) throws UserFailureException
     {
-        logAccess(sessionToken, "list_proteins_by_experiment", "ID(%s) FDR(%s)", experimentId,
-                falseDiscoveryRate);
+        logAccess(sessionToken, "list_proteins_by_experiment",
+                "ID(%s) FDR(%s) AGGREGATE_FUNCTION(%s) TREATMENT_TYPE(%s) "
+                        + "AGGREGATE_ON_ORIGINAL(%s)", experimentId, falseDiscoveryRate, function
+                        .getLabel(), treatmentTypeCode, aggregateOnOriginal);
         return null;
     }
 

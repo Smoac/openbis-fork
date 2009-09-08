@@ -20,18 +20,21 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ListProteinByExperimentCriteria extends DefaultResultSetConfig<String, ProteinInfo> implements IsSerializable
+public class ListProteinByExperimentCriteria extends DefaultResultSetConfig<String, ProteinInfo>
+        implements IsSerializable
 {
     private TechId experimentID;
     private double falseDiscoveryRate;
     private AggregateFunction aggregateFunction;
     private String treatmentTypeCode;
+    private boolean aggregateOriginal;
 
     public final TechId getExperimentID()
     {
@@ -71,6 +74,16 @@ public class ListProteinByExperimentCriteria extends DefaultResultSetConfig<Stri
     public final void setTreatmentTypeCode(String treatmentTypeCode)
     {
         this.treatmentTypeCode = treatmentTypeCode;
+    }
+
+    public final boolean isAggregateOriginal()
+    {
+        return aggregateOriginal;
+    }
+
+    public final void setAggregateOriginal(boolean aggregateOriginal)
+    {
+        this.aggregateOriginal = aggregateOriginal;
     }
     
 }

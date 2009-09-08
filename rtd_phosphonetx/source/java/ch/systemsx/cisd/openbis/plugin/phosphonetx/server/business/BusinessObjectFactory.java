@@ -42,9 +42,9 @@ public class BusinessObjectFactory implements IBusinessObjectFactory
                 createSampleIDProvider(session), session);
     }
 
-    public IProteinWithAbundancesTable createProteinWithAbundancesTable(Session session)
+    public IProteinInfoTable createProteinInfoTable(Session session)
     {
-        return new ProteinWithAbundancesTable(daoFactory, specificDAOFactory, session);
+        return new ProteinInfoTable(daoFactory, specificDAOFactory, session);
     }
 
     public IProteinSequenceTable createProteinSequenceTable(Session session)

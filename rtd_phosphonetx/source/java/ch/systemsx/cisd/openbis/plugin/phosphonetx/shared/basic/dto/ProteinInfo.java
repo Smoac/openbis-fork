@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinInfo implements IsSerializable
+public class ProteinInfo implements Serializable, IsSerializable
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private TechId id;
     
     private String accessionNumber;

@@ -55,7 +55,7 @@ public interface IProteinQueryDAO extends BaseQuery
             + "                     left join data_sets as d on p.dase_id = d.id "
             + "                     left join experiments as e on d.expe_id = e.id "
             + "                     left join samples as s on a.samp_id = s.id "
-            + "where e.perm_id = ?{1}")
+            + "where e.perm_id = ?{1} order by s.perm_id")
     public DataSet<String> listAbundanceRelatedSamplePermIDsByExperiment(String experimentPermID);
     
     @Select("select * from protein_references where id = ?{1}")

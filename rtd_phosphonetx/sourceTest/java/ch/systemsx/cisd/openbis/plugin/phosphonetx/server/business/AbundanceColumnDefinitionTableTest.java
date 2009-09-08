@@ -80,7 +80,7 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
         List<AbundanceColumnDefinition> definitions = table.getSortedAndAggregatedDefinitions(null);
         
         assertEquals(1, definitions.size());
-        assertEquals(42l, definitions.get(0).getSampleID());
+        assertEquals(42l, definitions.get(0).getID());
         assertEquals("code-42", definitions.get(0).getSampleCode());
         assertEquals(0, definitions.get(0).getTreatments().size());
         
@@ -98,7 +98,7 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
         List<AbundanceColumnDefinition> definitions = table.getSortedAndAggregatedDefinitions(null);
         
         assertEquals(1, definitions.size());
-        assertEquals(42l, definitions.get(0).getSampleID());
+        assertEquals(42l, definitions.get(0).getID());
         assertEquals("code-42", definitions.get(0).getSampleCode());
         assertEquals(1, definitions.get(0).getTreatments().size());
         assertEquals("pH", definitions.get(0).getTreatments().get(0).getType());
@@ -121,7 +121,7 @@ public class AbundanceColumnDefinitionTableTest extends AbstractServerTestCase
         List<AbundanceColumnDefinition> definitions = table.getSortedAndAggregatedDefinitions(null);
         
         assertEquals(1, definitions.size());
-        assertEquals(42l, definitions.get(0).getSampleID());
+        assertEquals(42l, definitions.get(0).getID());
         assertEquals("code-42", definitions.get(0).getSampleCode());
         assertEquals(1, definitions.get(0).getTreatments().size());
         assertEquals("pH", definitions.get(0).getTreatments().get(0).getType());

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.jmock.Expectations;
@@ -23,33 +24,38 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.MockDataSet;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinWithAbundancesTableTest extends AbstractServerTestCase
+public class ProteinInfoTableTest extends AbstractServerTestCase
 {
     private static final Double ABUNDANCE = new Double(47.11);
     private static final long PROTEIN_ID = 41L;
     private static final String SAMPLE_PERM_ID = "s47-11";
     private static final long SAMPLE_ID = 4711;
     private static final long DATA_SET_ID = 42L;
-    private static final String EXPERIMENT_ID = "abc-234";
+    private static final TechId EXPERIMENT_ID = new TechId(234L);
+    private static final String EXPERIMENT_PERM_ID = "abc-234";
     private static final double FALSE_DISCOVERY_RATE = 0.25;
     private static final String ACCESSION_NUMBER = "ABC123";
     
     private IPhosphoNetXDAOFactory specificDAOFactory;
     private IProteinQueryDAO proteinDAO;
-    private ProteinWithAbundancesTable table;
+    private ProteinInfoTable table;
     
     @Override
     @BeforeMethod
@@ -65,7 +71,7 @@ public class ProteinWithAbundancesTableTest extends AbstractServerTestCase
                     will(returnValue(proteinDAO));
                 }
             });
-        table = new ProteinWithAbundancesTable(daoFactory, specificDAOFactory, SESSION);
+        table = new ProteinInfoTable(daoFactory, specificDAOFactory, SESSION);
     }
     
     @Test
@@ -73,18 +79,11 @@ public class ProteinWithAbundancesTableTest extends AbstractServerTestCase
     {
         final MockDataSet<ProteinReferenceWithProbability> dataSet =
                 new MockDataSet<ProteinReferenceWithProbability>();
-        context.checking(new Expectations()
-            {
-                {
-                    one(proteinDAO).listProteinsByExperiment(EXPERIMENT_ID);
-                    will(returnValue(dataSet));
-                }
-            });
+        prepareLoadDataSet(dataSet);
         
-        table.load(EXPERIMENT_ID, FALSE_DISCOVERY_RATE);
+        table.load(Arrays.<AbundanceColumnDefinition>asList(), EXPERIMENT_ID, FALSE_DISCOVERY_RATE, AggregateFunction.MEAN, null, false);
         
-        assertEquals(0, table.getSampleIDs().size());
-        assertEquals(0, table.getProteinsWithAbundances().size());
+        assertEquals(0, table.getProteinInfos().size());
         
         assertEquals(true, dataSet.hasCloseBeenInvoked());
         context.assertIsSatisfied();
@@ -112,12 +111,10 @@ public class ProteinWithAbundancesTableTest extends AbstractServerTestCase
         mapping.setProbability(1);
         mapping.setFalseDiscoveryRate(1);
         mappings.add(mapping);
+        prepareLoadDataSet(dataSet);
         context.checking(new Expectations()
             {
                 {
-                    one(proteinDAO).listProteinsByExperiment(EXPERIMENT_ID);
-                    will(returnValue(dataSet));
-
                     one(proteinDAO).getProbabilityFDRMapping(DATA_SET_ID);
                     will(returnValue(mappings));
 
@@ -128,25 +125,33 @@ public class ProteinWithAbundancesTableTest extends AbstractServerTestCase
                 }
             });
         
-        table.load(EXPERIMENT_ID, FALSE_DISCOVERY_RATE);
+        table.load(Arrays.<AbundanceColumnDefinition>asList(), EXPERIMENT_ID, FALSE_DISCOVERY_RATE, AggregateFunction.MEAN, null, false);
         
-        Collection<Long> sampleIDs = table.getSampleIDs();
-        assertEquals(1, sampleIDs.size());
-        Long sampleID = sampleIDs.iterator().next();
-        assertEquals(SAMPLE_ID, sampleID.longValue());
-        Collection<ProteinWithAbundances> proteins = table.getProteinsWithAbundances();
+        Collection<ProteinInfo> proteins = table.getProteinInfos();
         assertEquals(1, proteins.size());
-        ProteinWithAbundances protein = proteins.iterator().next();
-        assertEquals(PROTEIN_ID, protein.getId());
+        ProteinInfo protein = proteins.iterator().next();
+        assertEquals(PROTEIN_ID, protein.getId().getId().longValue());
         assertEquals(ACCESSION_NUMBER, protein.getAccessionNumber());
-        assertEquals(sampleIDs, protein.getSampleIDs());
-        double[] abundances = protein.getAbundancesForSample(sampleID);
-        assertEquals(1, abundances.length);
-        assertEquals(ABUNDANCE, abundances[0]);
         
         assertEquals(true, dataSet.hasCloseBeenInvoked());
         assertEquals(true, mappings.hasCloseBeenInvoked());
         context.assertIsSatisfied();
+    }
+
+    private void prepareLoadDataSet(final MockDataSet<ProteinReferenceWithProbability> dataSet)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(experimentDAO).getByTechId(EXPERIMENT_ID);
+                    ExperimentPE experimentPE = new ExperimentPE();
+                    experimentPE.setPermId(EXPERIMENT_PERM_ID);
+                    will(returnValue(experimentPE));
+
+                    one(proteinDAO).listProteinsByExperiment(EXPERIMENT_PERM_ID);
+                    will(returnValue(dataSet));
+                }
+            });
     }
     
 }

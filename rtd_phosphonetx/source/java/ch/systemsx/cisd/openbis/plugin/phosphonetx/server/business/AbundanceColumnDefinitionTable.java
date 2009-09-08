@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -50,7 +50,7 @@ class AbundanceColumnDefinitionTable extends AbstractBusinessObject implements I
         super(daoFactory, specificDAOFactory, session);
         this.idProvider = idProvider;
         treatmentFinder = new TreatmentFinder();
-        columnDefinitions = new LinkedHashMap<Long, AbundanceColumnDefinition>();
+        columnDefinitions = new TreeMap<Long, AbundanceColumnDefinition>();
     }
 
     public void add(String samplePermID)
@@ -60,7 +60,7 @@ class AbundanceColumnDefinitionTable extends AbstractBusinessObject implements I
         if (columnDefinition == null)
         {
             columnDefinition = new AbundanceColumnDefinition();
-            columnDefinition.setSampleID(sampleID);
+            columnDefinition.addSampleID(sampleID);
             SamplePE sample =
                     getDaoFactory().getSampleDAO().getByTechId(new TechId(sampleID));
             columnDefinition.setSampleCode(sample.getCode());
@@ -88,12 +88,10 @@ class AbundanceColumnDefinitionTable extends AbstractBusinessObject implements I
                 Treatment treatment =
                         tryToFindTreatmentByTypeCode(firstDefinition, treatmentTypeOrNull);
                 definition.setTreatments(Arrays.asList(treatment));
-                long sampleIDsHash = 0;
                 for (AbundanceColumnDefinition abundanceColumnDefinition : group)
                 {
-                    sampleIDsHash = 37 * sampleIDsHash + abundanceColumnDefinition.getSampleID();
+                    definition.addSampleIDsOf(abundanceColumnDefinition);
                 }
-                definition.setSampleID(sampleIDsHash);
                 definitions.add(definition);
             }
         }

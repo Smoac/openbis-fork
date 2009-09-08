@@ -27,7 +27,7 @@ public interface IBusinessObjectFactory
 {
     public IAbundanceColumnDefinitionTable createAbundanceColumnDefinitionTable(Session session);
     
-    public IProteinWithAbundancesTable createProteinWithAbundancesTable(Session session);
+    public IProteinInfoTable createProteinInfoTable(Session session);
     
     public IProteinSequenceTable createProteinSequenceTable(Session session);
     

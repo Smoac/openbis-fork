@@ -18,9 +18,9 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
@@ -36,7 +36,7 @@ class AbundanceManager
     
     private final ISampleIDProvider sampleIDProvider;
     
-    private final Set<Long> sampleIDs = new LinkedHashSet<Long>();
+    private final Set<Long> sampleIDs = new TreeSet<Long>();
 
     AbundanceManager(ISampleDAO sampleDAO)
     {

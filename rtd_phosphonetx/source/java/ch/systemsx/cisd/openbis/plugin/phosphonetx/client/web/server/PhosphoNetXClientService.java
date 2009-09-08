@@ -37,12 +37,12 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListPro
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSampleAbundanceByProteinCriteria;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
@@ -93,8 +93,10 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         TechId experimentID = criteria.getExperimentID();
         double fdr = criteria.getFalseDiscoveryRate();
         AggregateFunction aggregateFunction = criteria.getAggregateFunction();
+        String treatmentTypeCode = criteria.getTreatmentTypeCode();
+        boolean aggregateOnOriginal = criteria.isAggregateOriginal();
         return listEntities(criteria, new ListProteinOriginalDataProvider(server, sessionToken,
-                experimentID, fdr, aggregateFunction));
+                experimentID, fdr, aggregateFunction, treatmentTypeCode, aggregateOnOriginal));
     }
 
     public String prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria)

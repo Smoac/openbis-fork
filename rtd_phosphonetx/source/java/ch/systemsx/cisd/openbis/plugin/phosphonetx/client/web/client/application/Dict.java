@@ -31,6 +31,8 @@ public class Dict
     
     public static final String AGGREGATE_ON_TREATMENT_TYPE_LABEL = "aggregate_on_treatment_type_label";
 
+    public static final String AGGREGATE_ORIGINAL_LABEL = "aggregate_original_label";
+        
     public static final String ACCESSION_NUMBER = "accession_number";
 
     public static final String PROTEIN_DESCRIPTION = "protein_description";

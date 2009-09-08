@@ -18,8 +18,11 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -33,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
@@ -57,15 +61,25 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
         private final VocabularyTermModel nothingTermModel;
 
-        AggregateOnTreatmentTypeSelectionWidget(IViewContext<?> viewContext, Vocabulary vocabulary)
+        AggregateOnTreatmentTypeSelectionWidget(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
         {
-            super("treatmentType", "treatmentType", false, vocabulary, viewContext, null, null);
+            super("treatmentType", "treatmentType", false, null, viewContext, null, null);
             setAllowBlank(false);
             setForceSelection(true);
             VocabularyTerm nothingTerm = new VocabularyTerm();
             nothingTerm.setLabel("(nothing)");
             nothingTermModel = new VocabularyTermModel(nothingTerm);
             setValue(nothingTermModel);
+            viewContext.getService().getTreatmentTypeVocabulary(
+                    new AbstractAsyncCallback<Vocabulary>(viewContext)
+                        {
+                            @Override
+                            protected void process(Vocabulary vocabulary)
+                            {
+                                setVocabulary(vocabulary);
+                            }
+                        });
+
         }
 
         @Override
@@ -140,11 +154,14 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
     private final ComboBox<AggregateFunctionModel> aggregateFunctionComboBox;
     
-    private VocabularyTermSelectionWidget treatmentTypeComboBox;
+    private final VocabularyTermSelectionWidget treatmentTypeComboBox;
+    
+    private final CheckBoxField aggregateOriginalCheckBox;
 
     private ProteinByExperimentBrowserGrid browserGrid;
 
     private Experiment experiment;
+
 
     ProteinByExperimentBrowerToolBar(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
@@ -188,19 +205,22 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         add(new AdapterToolItem(aggregateFunctionComboBox));
         add(new LabelToolItem(viewContext.getMessage(Dict.AGGREGATE_ON_TREATMENT_TYPE_LABEL)
                 + GenericConstants.LABEL_SEPARATOR));
-        viewContext.getService().getTreatmentTypeVocabulary(
-                new AbstractAsyncCallback<Vocabulary>(viewContext)
-                    {
-                        @Override
-                        protected void process(Vocabulary vocabulary)
-                        {
-                            treatmentTypeComboBox =
-                                    new AggregateOnTreatmentTypeSelectionWidget(viewContext,
-                                            vocabulary);
-                            treatmentTypeComboBox.addSelectionChangedListener(changedListener);
-                            add(new AdapterToolItem(treatmentTypeComboBox));
-                        }
-                    });
+        treatmentTypeComboBox =
+            new AggregateOnTreatmentTypeSelectionWidget(viewContext);
+        treatmentTypeComboBox.addSelectionChangedListener(changedListener);
+        add(new AdapterToolItem(treatmentTypeComboBox));
+        add(new LabelToolItem(viewContext.getMessage(Dict.AGGREGATE_ORIGINAL_LABEL)
+                + GenericConstants.LABEL_SEPARATOR));
+        aggregateOriginalCheckBox = new CheckBoxField("aggregateOriginal", false);
+        aggregateOriginalCheckBox.addListener(Events.Change, new Listener<BaseEvent>()
+            {
+
+                public void handleEvent(BaseEvent be)
+                {
+                    update();
+                }
+            });
+        add(new AdapterToolItem(aggregateOriginalCheckBox));
     }
 
     private ComboBox<FalseDiscoveryRateModel> createFDRComboBox(
@@ -272,7 +292,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             String treatmentTypeCode = value == null ? null : value.getTerm().getCode();
             AsyncCallback<List<AbundanceColumnDefinition>> callback =
                     new AbundanceColumnDefinitionsCallback(viewContext, browserGrid, experimentID,
-                            falseDiscoveryRate, aggregateFunction, treatmentTypeCode);
+                            falseDiscoveryRate, aggregateFunction, treatmentTypeCode, aggregateOriginalCheckBox.getValue());
             viewContext.getService().getAbundanceColumnDefinitionsForProteinByExperiment(
                     experimentID, treatmentTypeCode, callback);
         }
@@ -297,10 +317,12 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
         private final String treatmentTypeCode;
 
+        private final boolean aggregateOriginal;
+
         public AbundanceColumnDefinitionsCallback(IViewContext<?> viewContext,
                 ProteinByExperimentBrowserGrid browserGrid, TechId experimentID,
                 double falseDiscoveryRate, AggregateFunction aggregateFunction,
-                String treatmentTypeCode)
+                String treatmentTypeCode, boolean aggregateOriginal)
         {
             super(viewContext);
             this.browserGrid = browserGrid;
@@ -308,13 +330,14 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             this.falseDiscoveryRate = falseDiscoveryRate;
             this.aggregateFunction = aggregateFunction;
             this.treatmentTypeCode = treatmentTypeCode;
+            this.aggregateOriginal = aggregateOriginal;
         }
 
         @Override
         protected void process(List<AbundanceColumnDefinition> result)
         {
             browserGrid.update(experimentID, falseDiscoveryRate, aggregateFunction,
-                    treatmentTypeCode, result);
+                    treatmentTypeCode, aggregateOriginal, result);
         }
 
     }

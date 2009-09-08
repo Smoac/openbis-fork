@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -39,13 +38,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.AccessionNumberBuilder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IAbundanceColumnDefinitionTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IDataSetProteinTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinDetailsBO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSequenceTable;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinWithAbundancesTable;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinInfoTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
@@ -54,10 +54,10 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundances;
 
 /**
  * @author Franz-Josef Elmer
@@ -125,14 +125,18 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         }
     }
 
-    public Collection<ProteinWithAbundances> listProteinsByExperiment(String sessionToken,
-            TechId experimentId, double falseDiscoveryRate) throws UserFailureException
+    public List<ProteinInfo> listProteinsByExperiment(String sessionToken, TechId experimentId,
+            double falseDiscoveryRate, AggregateFunction function, String treatmentTypeCode,
+            boolean aggregateOnOriginal) throws UserFailureException
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        IProteinWithAbundancesTable table = specificBOFactory.createProteinWithAbundancesTable(session);
-        String experimentPermId = getExperimentPermIDFor(experimentId);
-        table.load(experimentPermId, falseDiscoveryRate);
-        return table.getProteinsWithAbundances();
+        List<AbundanceColumnDefinition> definitions =
+                getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken, experimentId,
+                        treatmentTypeCode);
+        IProteinInfoTable table = specificBOFactory.createProteinInfoTable(session);
+        table.load(definitions, experimentId, falseDiscoveryRate, function, treatmentTypeCode,
+                aggregateOnOriginal);
+        return table.getProteinInfos();
     }
 
     public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentID,

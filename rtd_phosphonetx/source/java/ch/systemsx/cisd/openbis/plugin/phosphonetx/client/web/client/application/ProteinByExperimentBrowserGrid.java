@@ -44,8 +44,8 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.ProteinColDefKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Treatment;
 
 /**
@@ -98,13 +98,14 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
 
     void update(TechId experimentID, double falseDiscoveryRate,
             AggregateFunction aggregateFunction, String treatmentTypeCode,
-            List<AbundanceColumnDefinition> definitions)
+            boolean aggregateOriginal, List<AbundanceColumnDefinition> definitions)
     {
         criteria = new ListProteinByExperimentCriteria();
         criteria.setExperimentID(experimentID);
         criteria.setFalseDiscoveryRate(falseDiscoveryRate);
         criteria.setAggregateFunction(aggregateFunction);
         criteria.setTreatmentTypeCode(treatmentTypeCode);
+        criteria.setAggregateOriginal(aggregateOriginal);
         abundanceColumnDefinitions = definitions;
         refresh(null, true);
     }
@@ -134,7 +135,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                     delim = "\n";
                 }
             }
-            final long sampleID = definition.getSampleID();
+            final long sampleID = definition.getID();
             columns.add(new InternalAbundanceColumnDefinition(header, 100, false, sampleID));
         }
         definitions.addColumns(columns);
