@@ -131,15 +131,6 @@ public abstract class AbstractExternalDataGrid
         addEntityOperationsSeparator();
         allowMultipleSelection();
 
-        registerLinkClickListenerFor(CommonExternalDataColDefKind.PARENT.id(),
-                new OpenEntityDetailsTabCellClickListener()
-                    {
-                        @Override
-                        protected IEntityInformationHolder getEntity(ExternalData rowItem)
-                        {
-                            return rowItem.getParent();
-                        }
-                    });
         ICellListener<ExternalData> experimentClickListener =
                 new OpenEntityDetailsTabCellClickListener()
                     {
@@ -320,7 +311,6 @@ public abstract class AbstractExternalDataGrid
     {
         ColumnDefsAndConfigs<ExternalData> schema = createColumnsSchema();
         GridCellRenderer<BaseEntityModel<?>> linkRenderer = LinkRenderer.createLinkRenderer();
-        schema.setGridCellRendererFor(CommonExternalDataColDefKind.PARENT.id(), linkRenderer);
         schema.setGridCellRendererFor(CommonExternalDataColDefKind.SAMPLE.id(), linkRenderer);
         schema.setGridCellRendererFor(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER.id(),
                 linkRenderer);

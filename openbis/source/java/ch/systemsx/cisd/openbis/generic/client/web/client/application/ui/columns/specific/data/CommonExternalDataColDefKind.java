@@ -38,15 +38,6 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             }
         }),
 
-    PARENT(new AbstractColumnDefinitionKind<ExternalData>(Dict.PARENT, true)
-        {
-            @Override
-            public String tryGetValue(ExternalData entity)
-            {
-                return entity.getParentCode();
-            }
-        }),
-
     SAMPLE(new AbstractColumnDefinitionKind<ExternalData>(Dict.SAMPLE, 100, true)
         {
             @Override
