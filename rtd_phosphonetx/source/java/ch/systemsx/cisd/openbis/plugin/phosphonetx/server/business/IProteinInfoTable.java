@@ -32,11 +32,12 @@ public interface IProteinInfoTable
 {
     /**
      * Loads proteins of all data sets registered for the specified experiment. All proteins are
-     * filtered out if their false discovery rate is larger then the specified one.
+     * filtered out if their false discovery rate is larger then the specified one. Abundance
+     * values are aggregated in accordance with <code>aggregateOnOriginal</code>, abundance
+     * column definitions, and aggregate function.
      */
     public void load(List<AbundanceColumnDefinition> definitions, TechId experimentId,
-            double falseDiscoveryRate, AggregateFunction function, String treatmentTypeCode,
-            boolean aggregateOnOriginal);
+            double falseDiscoveryRate, AggregateFunction function, boolean aggregateOnOriginal);
 
     public List<ProteinInfo> getProteinInfos();
 

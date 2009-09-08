@@ -62,8 +62,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements
     }
 
     public void load(List<AbundanceColumnDefinition> definitions, TechId experimentID,
-            double falseDiscoveryRate, AggregateFunction function, String treatmentTypeCode,
-            boolean aggregateOnOriginal)
+            double falseDiscoveryRate, AggregateFunction function, boolean aggregateOnOriginal)
     {
         AbundanceManager abundanceManager = setupAbundanceManager(experimentID, falseDiscoveryRate);
         Collection<ProteinWithAbundances> proteins = abundanceManager.getProteinsWithAbundances();

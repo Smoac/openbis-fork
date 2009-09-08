@@ -134,8 +134,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
                 getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken, experimentId,
                         treatmentTypeCode);
         IProteinInfoTable table = specificBOFactory.createProteinInfoTable(session);
-        table.load(definitions, experimentId, falseDiscoveryRate, function, treatmentTypeCode,
-                aggregateOnOriginal);
+        table.load(definitions, experimentId, falseDiscoveryRate, function, aggregateOnOriginal);
         return table.getProteinInfos();
     }
 
