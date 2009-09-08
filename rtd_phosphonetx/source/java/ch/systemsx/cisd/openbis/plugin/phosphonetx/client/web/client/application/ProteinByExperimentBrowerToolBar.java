@@ -32,11 +32,15 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.AggregateFunction;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
@@ -47,6 +51,32 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceCol
 class ProteinByExperimentBrowerToolBar extends ToolBar
 {
     private static final AggregateFunction DEFAULT_AGGREGATE_FUNCTION = AggregateFunction.MEAN;
+    
+    private static final class AggregateOnTreatmentTypeSelectionWidget extends VocabularyTermSelectionWidget
+    {
+
+        private final VocabularyTermModel nothingTermModel;
+
+        AggregateOnTreatmentTypeSelectionWidget(IViewContext<?> viewContext, Vocabulary vocabulary)
+        {
+            super("treatmentType", "treatmentType", false, vocabulary, viewContext, null, null);
+            setAllowBlank(false);
+            setForceSelection(true);
+            VocabularyTerm nothingTerm = new VocabularyTerm();
+            nothingTerm.setLabel("(nothing)");
+            nothingTermModel = new VocabularyTermModel(nothingTerm);
+            setValue(nothingTermModel);
+        }
+
+        @Override
+        protected List<VocabularyTermModel> convertItems(List<VocabularyTerm> result)
+        {
+            List<VocabularyTermModel> terms = super.convertItems(result);
+            terms.add(0, nothingTermModel);
+            return terms;
+        }
+        
+    }
 
     private abstract static class SimpleModel<T> extends BaseModelData
     {
@@ -109,6 +139,8 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
     private final ExperimentChooserFieldAdaptor chooser;
 
     private final ComboBox<AggregateFunctionModel> aggregateFunctionComboBox;
+    
+    private VocabularyTermSelectionWidget treatmentTypeComboBox;
 
     private ProteinByExperimentBrowserGrid browserGrid;
 
@@ -137,7 +169,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             });
         add(new AdapterToolItem(chooserField));
 
-        SelectionChangedListener<ModelData> changedListener =
+        final SelectionChangedListener<ModelData> changedListener =
                 new SelectionChangedListener<ModelData>()
                     {
                         @Override
@@ -154,6 +186,21 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
                 + GenericConstants.LABEL_SEPARATOR));
         aggregateFunctionComboBox = createAggregateFunctionComboBox(changedListener);
         add(new AdapterToolItem(aggregateFunctionComboBox));
+        add(new LabelToolItem(viewContext.getMessage(Dict.AGGREGATE_ON_TREATMENT_TYPE_LABEL)
+                + GenericConstants.LABEL_SEPARATOR));
+        viewContext.getService().getTreatmentTypeVocabulary(
+                new AbstractAsyncCallback<Vocabulary>(viewContext)
+                    {
+                        @Override
+                        protected void process(Vocabulary vocabulary)
+                        {
+                            treatmentTypeComboBox =
+                                    new AggregateOnTreatmentTypeSelectionWidget(viewContext,
+                                            vocabulary);
+                            treatmentTypeComboBox.addSelectionChangedListener(changedListener);
+                            add(new AdapterToolItem(treatmentTypeComboBox));
+                        }
+                    });
     }
 
     private ComboBox<FalseDiscoveryRateModel> createFDRComboBox(
@@ -224,8 +271,10 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
             AsyncCallback<List<AbundanceColumnDefinition>> callback =
                     new AbundanceColumnDefinitionsCallback(viewContext, browserGrid, experimentID,
                             falseDiscoveryRate, aggregateFunction);
+            VocabularyTermModel value = treatmentTypeComboBox.getValue();
+            String treatmentTypeCode = value == null ? null : value.getTerm().getCode();
             viewContext.getService().getAbundanceColumnDefinitionsForProteinByExperiment(
-                    experimentID, null, callback);
+                    experimentID, treatmentTypeCode, callback);
         }
     }
 

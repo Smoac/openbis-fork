@@ -6,6 +6,7 @@ var phosphonetx = {
   selected_experiment_label: "Experiment",
   false_discovery_rate_filter_label: "False Discovery Rate",
   aggregate_function_label: "Aggregate Function",
+  aggregate_on_treatment_type_label: "Aggregate on",
   
   // Protein grid
   accession_number: "Accession Number",

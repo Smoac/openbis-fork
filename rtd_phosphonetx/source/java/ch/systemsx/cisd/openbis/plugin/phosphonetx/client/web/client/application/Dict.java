@@ -28,6 +28,8 @@ public class Dict
     public static final String FDR_FILTER_LABEL = "false_discovery_rate_filter_label";
     
     public static final String AGGREGATE_FUNCTION_LABEL = "aggregate_function_label";
+    
+    public static final String AGGREGATE_ON_TREATMENT_TYPE_LABEL = "aggregate_on_treatment_type_label";
 
     public static final String ACCESSION_NUMBER = "accession_number";
 
@@ -65,4 +67,5 @@ public class Dict
     // SampleAbundance Browser
 
     public static final String ABUNDANCE = "abundance";
+
 }

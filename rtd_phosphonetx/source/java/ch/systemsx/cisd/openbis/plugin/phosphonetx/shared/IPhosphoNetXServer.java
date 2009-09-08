@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
@@ -42,6 +43,11 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundan
  */
 public interface IPhosphoNetXServer extends IServer
 {
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public Vocabulary getTreatmentTypeVocabulary(String sessionToken) throws UserFailureException;
+
+    
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(

@@ -23,6 +23,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
@@ -41,6 +42,12 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
             final boolean invocationSuccessful, final long elapsedTime)
     {
         super(sessionManager, invocationSuccessful, elapsedTime);
+    }
+
+    public Vocabulary getTreatmentTypeVocabulary(String sessionToken) throws UserFailureException
+    {
+        logAccess(sessionToken, "get_treatment_type_vocabulary");
+        return null;
     }
 
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(

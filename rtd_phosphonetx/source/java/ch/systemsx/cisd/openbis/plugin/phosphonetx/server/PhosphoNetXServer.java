@@ -30,11 +30,15 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.AccessionNumberBuilder;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IAbundanceColumnDefinitionTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IBusinessObjectFactory;
@@ -88,6 +92,13 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     public IPhosphoNetXServer createLogger(boolean invocationSuccessful, long elapsedTime)
     {
         return new PhosphoNetXServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
+    }
+
+    public Vocabulary getTreatmentTypeVocabulary(String sessionToken) throws UserFailureException
+    {
+        IVocabularyDAO vocabularyDAO = getDAOFactory().getVocabularyDAO();
+        VocabularyPE vocabulary = vocabularyDAO.tryFindVocabularyByCode("TREATMENT_TYPE");
+        return VocabularyTranslator.translate(vocabulary);
     }
 
     public List<AbundanceColumnDefinition> getAbundanceColumnDefinitionsForProteinByExperiment(
