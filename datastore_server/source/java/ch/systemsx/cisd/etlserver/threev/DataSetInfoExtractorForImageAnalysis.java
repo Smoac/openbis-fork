@@ -78,7 +78,7 @@ public class DataSetInfoExtractorForImageAnalysis extends AbstractDataSetInfoExt
     @Override
     protected void setCodeFor(final DataSetInformation dataSetInfo, final String code)
     {
-        dataSetInfo.setParentDataSetCodes(Collections.singleton(code));
+        dataSetInfo.setParentDataSetCodes(Collections.singletonList(code));
     }
 
 }

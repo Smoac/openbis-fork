@@ -22,9 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -295,16 +294,16 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         return dataSetInformation;
     }
 
-    private Set<String> getParentDataSetCodes(
+    private List<String> getParentDataSetCodes(
             final DataSetNameEntitiesProvider entitiesProvider)
     {
         if (noParentDataSetCodes)
         {
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
         String parentDataSetCodes = entitiesProvider.getEntity(indexOfParentDataSetCodes);
         String[] codes = StringUtils.split(parentDataSetCodes, subEntitySeparator);
-        return new LinkedHashSet<String>(Arrays.asList(codes));
+        return Arrays.asList(codes);
     }
 
     private String extractGroupCode(DataSetNameEntitiesProvider entitiesProvider)

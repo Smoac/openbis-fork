@@ -25,7 +25,6 @@ import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -608,7 +607,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                     .getExperimentIdentifier());
             appendNameAndObject(buffer, "Producer Code", dataSetInformation.getProducerCode());
             appendNameAndObject(buffer, "Production Date", dataSetInformation.getProductionDate());
-            Set<String> parentDataSetCodes = dataSetInformation.getParentDataSetCodes();
+            List<String> parentDataSetCodes = dataSetInformation.getParentDataSetCodes();
             if (parentDataSetCodes.isEmpty() == false)
             {
                 appendNameAndObject(buffer, "Parent Data Sets", StringUtils.join(

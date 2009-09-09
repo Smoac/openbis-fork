@@ -281,7 +281,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         dataSetInformation.setProducerCode(DATA_PRODUCER_CODE);
         dataSetInformation.setProductionDate(DATA_PRODUCTION_DATE);
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
-        dataSetInformation.setParentDataSetCodes(Collections.singleton(PARENT_DATA_SET_CODE));
+        dataSetInformation.setParentDataSetCodes(Collections.singletonList(PARENT_DATA_SET_CODE));
         targetFolder =
                 IdentifiedDataStrategy.createBaseDirectory(workingDirectory, dataSetInformation);
         targetData1 = createTargetData(data1);
@@ -317,7 +317,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         data.setDataProducerCode(DATA_PRODUCER_CODE);
         data.setProductionDate(DATA_PRODUCTION_DATE);
         data.setCode(DATA_SET_CODE);
-        data.setParentDataSetCodes(Collections.singleton(PARENT_DATA_SET_CODE));
+        data.setParentDataSetCodes(Collections.singletonList(PARENT_DATA_SET_CODE));
         return data;
     }
 
