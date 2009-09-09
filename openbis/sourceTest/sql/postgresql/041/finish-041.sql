@@ -425,6 +425,8 @@ ALTER TABLE ONLY property_types
 ALTER TABLE ONLY property_types
     ADD CONSTRAINT prty_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
 ALTER TABLE ONLY role_assignments
+    ADD CONSTRAINT roas_ag_fk_grantee FOREIGN KEY (ag_id_grantee) REFERENCES authorization_groups(id);
+ALTER TABLE ONLY role_assignments
     ADD CONSTRAINT roas_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY role_assignments
     ADD CONSTRAINT roas_grou_fk FOREIGN KEY (grou_id) REFERENCES groups(id);
