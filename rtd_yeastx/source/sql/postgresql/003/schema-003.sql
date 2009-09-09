@@ -20,7 +20,8 @@ CREATE DOMAIN CHAR as VARCHAR(1);
 
 CREATE DOMAIN ms_quantification_software_kind AS character varying(40)
 	CONSTRAINT ms_quantification_software_kind_check CHECK (((VALUE)::text = 
-		ANY ((ARRAY['msSoft'::character varying, 'Xcalibur'::character varying, 'Analyst'::character varying])::text[])));
+		ANY ((ARRAY['msSoft'::character varying, 'Xcalibur'::character varying, 
+								'Analyst'::character varying, 'MassHunter'::character varying])::text[])));
 
 
 -- Create tables section -------------------------------------------------
@@ -200,10 +201,10 @@ CREATE TABLE MS_QUANT_CONCENTRATIONS (
   UNIT SHORT_LABEL NOT NULL,
   VALID BOOLEAN NOT NULL,
   COMMENT TEXT,
-  RUN_TIME_SEC REAL NOT NULL,
+  RETENTION_TIME REAL NOT NULL,
   Q1 REAL NOT NULL,
   Q3 REAL NOT NULL,
-  INTERNAL_STANDARD SHORT_LABEL NOT NULL,
+  INTERNAL_STANDARD VARCHAR(30) NOT NULL,
   PRIMARY KEY (ID),
   CONSTRAINT FK_QUANT_CONCENTRATIONS_1 FOREIGN KEY (MS_QUANTIFICATION_ID) REFERENCES MS_QUANTIFICATIONS (ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
