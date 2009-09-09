@@ -77,7 +77,7 @@ public class ProteinViewer extends
             {
                 public String getId()
                 {
-                    return createWidgetID(proteinInfo.getId());
+                    return createWidgetID(experimentOrNull, proteinInfo.getId());
                 }
 
                 public ITabItem create()
@@ -106,9 +106,10 @@ public class ProteinViewer extends
         return StringUtils.abbreviate(info, 30);
     }
 
-    static String createWidgetID(TechId proteinReferenceID)
+    static String createWidgetID(Experiment experimentOrNull, TechId proteinReferenceID)
     {
-        return ID_PREFIX + proteinReferenceID.getId();
+        Long experimentID = experimentOrNull == null ? null : experimentOrNull.getId();
+        return ID_PREFIX + experimentID + "_" + proteinReferenceID.getId();
     }
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
@@ -122,7 +123,7 @@ public class ProteinViewer extends
     private ProteinViewer(IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
             Experiment experimentOrNull, TechId proteinReferenceID)
     {
-        super(viewContext, "", createWidgetID(proteinReferenceID), false);
+        super(viewContext, "", createWidgetID(experimentOrNull, proteinReferenceID), false);
         this.viewContext = viewContext;
         this.experimentOrNull = experimentOrNull;
         this.proteinReferenceID = proteinReferenceID;
@@ -151,7 +152,8 @@ public class ProteinViewer extends
         } else
         {
             add(propertyPanel, createBorderLayoutData(LayoutRegion.CENTER));
-            proteinSamplesSection = new ProteinSamplesSection(viewContext, proteinReferenceID);
+            proteinSamplesSection =
+                    new ProteinSamplesSection(viewContext, proteinReferenceID, experimentOrNull);
             add(proteinSamplesSection, createBorderLayoutData(LayoutRegion.SOUTH));
             layout();
         }

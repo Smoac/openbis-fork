@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSect
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
@@ -38,12 +39,13 @@ public class ProteinSamplesSection extends SingleSectionPanel
     private IDisposableComponent sampleDisposableGrid;
 
     public ProteinSamplesSection(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            final TechId proteinReferenceID)
+            final TechId proteinReferenceID, Experiment experimentOrNull)
     {
         super("Samples");
+        Long experimentID = experimentOrNull == null ? null : experimentOrNull.getId();
         sampleDisposableGrid =
-                SampleAbundanceBrowserGrid.createGridForProteinSamples(viewContext, proteinReferenceID,
-                        createGridId(proteinReferenceID));
+                SampleAbundanceBrowserGrid.createGridForProteinSamples(viewContext,
+                        proteinReferenceID, experimentID, createGridId(proteinReferenceID));
         add(sampleDisposableGrid.getComponent());
     }
 

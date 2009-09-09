@@ -154,7 +154,7 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     {
         final String sessionToken = getSessionToken();
         return listEntities(criteria, new ListSampleAbundanceDataProvider(server, sessionToken,
-                criteria.getProteinReferenceID()));
+                criteria.getExperimentID(), criteria.getProteinReferenceID()));
     }
 
     public String prepareExportSamplesWithAbundance(

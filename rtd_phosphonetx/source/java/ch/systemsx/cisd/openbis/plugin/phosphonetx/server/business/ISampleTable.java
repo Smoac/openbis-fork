@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPr
 public interface ISampleTable
 {
 
-    public void loadSamplesWithAbundance(TechId proteinReferenceID);
+    public void loadSamplesWithAbundance(TechId experimentID, TechId proteinReferenceID);
 
     public List<SampleWithPropertiesAndAbundance> getSamples();
 

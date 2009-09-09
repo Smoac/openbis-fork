@@ -96,10 +96,11 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
     }
 
     public List<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
-            String sessionToken, TechId proteinReferenceID) throws UserFailureException
+            String sessionToken, TechId experimentID, TechId proteinReferenceID)
+            throws UserFailureException
     {
-        logAccess(sessionToken, "list_samples_with_abundance_by_protein", "PROTEIN_REFERENCE_ID(%s)",
-                proteinReferenceID);
+        logAccess(sessionToken, "list_samples_with_abundance_by_protein",
+                "EXPERIMENT_ID(%s) PROTEIN_REFERENCE_ID(%s)", experimentID, proteinReferenceID);
         return null;
     }
 

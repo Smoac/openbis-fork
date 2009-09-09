@@ -182,11 +182,12 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     }
 
     public List<SampleWithPropertiesAndAbundance> listSamplesWithAbundanceByProtein(
-            String sessionToken, TechId proteinReferenceID) throws UserFailureException
+            String sessionToken, TechId experimentID, TechId proteinReferenceID)
+            throws UserFailureException
     {
         final Session session = getSessionManager().getSession(sessionToken);
         ISampleTable sampleTable = specificBOFactory.createSampleTable(session);
-        sampleTable.loadSamplesWithAbundance(proteinReferenceID);
+        sampleTable.loadSamplesWithAbundance(experimentID, proteinReferenceID);
         return sampleTable.getSamples();
     }
 

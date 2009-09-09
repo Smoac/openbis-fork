@@ -59,15 +59,17 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
         return samples;
     }
 
-    public void loadSamplesWithAbundance(TechId proteinReferenceID)
+    public void loadSamplesWithAbundance(TechId experimentID, TechId proteinReferenceID)
     {
         samples = new ArrayList<SampleWithPropertiesAndAbundance>();
         IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
-        ISampleDAO sampleDAO = getDaoFactory().getSampleDAO();
+        IDAOFactory daoFactory = getDaoFactory();
+        String experimentPermID = daoFactory.getExperimentDAO().getByTechId(experimentID).getPermId();
         DataSet<SampleAbundance> sampleAbundances =
-                proteinQueryDAO.listSampleAbundanceByProtein(proteinReferenceID.getId());
+                proteinQueryDAO.listSampleAbundanceByProtein(experimentPermID, proteinReferenceID.getId());
         try
         {
+            ISampleDAO sampleDAO = daoFactory.getSampleDAO();
             for (SampleAbundance sampleAbundance : sampleAbundances)
             {
                 SampleWithPropertiesAndAbundance sample = new SampleWithPropertiesAndAbundance();
