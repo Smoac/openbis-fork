@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.threev;
 
+import java.util.Collections;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
@@ -32,7 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * <li>Data production date
  * </ul>
  * This class uses the same properties as {@link DefaultDataSetInfoExtractor} except
- * <code>index-of-parent-data-set-code</code>. Instead the following properties are used to
+ * <code>index-of-parent-data-set-codes</code>. Instead the following properties are used to
  * extract the parent data set code: <table border="1" cellspacing="0" cellpadding="5">
  * <tr>
  * <th>Property</th>
@@ -77,7 +78,7 @@ public class DataSetInfoExtractorForImageAnalysis extends AbstractDataSetInfoExt
     @Override
     protected void setCodeFor(final DataSetInformation dataSetInfo, final String code)
     {
-        dataSetInfo.setParentDataSetCode(code);
+        dataSetInfo.setParentDataSetCodes(Collections.singleton(code));
     }
 
 }

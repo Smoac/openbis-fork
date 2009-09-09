@@ -65,7 +65,7 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
 
         assertNull(dsInfo.getExperimentIdentifier());
         assertEquals(barcode, dsInfo.getSampleIdentifier().getSampleCode());
-        assertEquals(null, dsInfo.getParentDataSetCode());
+        assertEquals(0, dsInfo.getParentDataSetCodes().size());
         assertEquals(null, dsInfo.getProducerCode());
         assertEquals(null, dsInfo.getProductionDate());
     }
@@ -153,6 +153,8 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         final Properties properties = new Properties();
         final String separator = "=";
         properties.setProperty(ENTITY_SEPARATOR, separator);
+        String subSeparator = "%"; 
+        properties.setProperty(SUB_ENTITY_SEPARATOR, subSeparator);
         properties.setProperty(INDEX_OF_SAMPLE_CODE, "0");
         properties.setProperty(INDEX_OF_PARENT_DATA_SET_CODE, "1");
         properties.setProperty(INDEX_OF_DATA_PRODUCER_CODE, "-2");
@@ -162,18 +164,21 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
         properties.setProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY, "props.tsv");
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
         final String producerCode = "M1";
-        final String parentDataSetCode = "1234-8";
+        final String parentDataSet1 = "1234-8";
+        final String parentDataSet2 = "3456-9";
         final String productionDate = "2007-09-03";
         final String barcode = "XYZ-123";
         File incoming =
-                new File(WORKING_DIRECTORY, barcode + separator + parentDataSetCode + separator
-                        + "A" + separator + producerCode + separator + productionDate);
+                new File(WORKING_DIRECTORY, barcode + separator + parentDataSet1 + subSeparator
+                        + parentDataSet2 + separator + "A" + separator + producerCode + separator
+                        + productionDate);
         incoming.mkdir();
         FileUtilities.writeToFile(new File(incoming, "props.tsv"),
                 "property\tvalue\np1\tv1\np2\tv2");
         final DataSetInformation dsInfo = extractor.getDataSetInformation(incoming, null);
         assertEquals(barcode, dsInfo.getSampleIdentifier().getSampleCode());
-        assertEquals(parentDataSetCode, dsInfo.getParentDataSetCode());
+        assertEquals("[" + parentDataSet1 + ", " + parentDataSet2 + "]", dsInfo
+                .getParentDataSetCodes().toString());
         assertEquals(producerCode, dsInfo.getProducerCode());
         final SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         assertEquals(productionDate, dateFormat.format(dsInfo.getProductionDate()));

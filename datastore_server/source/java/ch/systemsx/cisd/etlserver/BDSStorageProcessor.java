@@ -18,7 +18,6 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -295,8 +294,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
             final ITypeExtractor typeExtractor, final File incomingDataSetPath)
     {
         final String dataSetCode = dataSetInformation.getDataSetCode();
-        final String parentDataSetCode = dataSetInformation.getParentDataSetCode();
-        final List<String> parentCodes = getParentCodeList(parentDataSetCode);
+        final List<String> parentCodes = new ArrayList<String>(dataSetInformation.getParentDataSetCodes());
         final boolean isMeasured = typeExtractor.isMeasuredData(incomingDataSetPath);
         final DataSetType dataSetType = typeExtractor.getDataSetType(incomingDataSetPath);
         final DataSet dataSet =
@@ -305,17 +303,6 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
                         dataSetInformation.getProductionDate(), dataSetInformation
                                 .getProducerCode(), parentCodes);
         return dataSet;
-    }
-
-    private final static List<String> getParentCodeList(final String parentDataSetCode)
-    {
-        if (parentDataSetCode == null)
-        {
-            return Collections.<String> emptyList();
-        } else
-        {
-            return Collections.singletonList(parentDataSetCode);
-        }
     }
 
     private final static String getPathOf(final INode node)

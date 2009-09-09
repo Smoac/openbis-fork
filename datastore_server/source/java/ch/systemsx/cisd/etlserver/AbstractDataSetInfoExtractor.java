@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;
@@ -69,6 +70,10 @@ public abstract class AbstractDataSetInfoExtractor implements IDataSetInfoExtrac
         entitySeparator =
                 PropertyUtils.getChar(properties, ENTITY_SEPARATOR_PROPERTY_NAME,
                         DEFAULT_ENTITY_SEPARATOR);
+        if (Character.isWhitespace(entitySeparator))
+        {
+            throw new ConfigurationFailureException("Entity separator is a whitespace character.");
+        }
     }
 
     protected String getGroupCode()

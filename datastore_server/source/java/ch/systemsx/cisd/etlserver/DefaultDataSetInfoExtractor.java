@@ -19,12 +19,17 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
@@ -41,10 +46,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * <li>Data producer code
  * <li>Data production date
  * </ul>
- * The name is split into entities separated by the property {@link #ENTITY_SEPARATOR_PROPERTY_NAME}
- * . It is assumed that each of the above-mentioned pieces of information is one of these entities.
- * The extractor can be configured by the following optional properties:
- * <table border="1" * cellspacing="0" cellpadding="5">
+ * The name is split into entities separated by the property {@link #ENTITY_SEPARATOR_PROPERTY_NAME} .
+ * It is assumed that each of the above-mentioned pieces of information is one of these entities.
+ * The extractor can be configured by the following optional properties: <table border="1" *
+ * cellspacing="0" cellpadding="5">
  * <tr>
  * <th>Property</th>
  * <th>Default value</th>
@@ -53,13 +58,18 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * <tr>
  * <td><code>strip-file-extension</code></td>
  * <td><code>false</code></td>
- * <td>If <code>true</code> the file extension will be removed before extracting informations from
- * the file name.</td>
+ * <td>If <code>true</code> the file extension will be removed before extracting informations
+ * from the file name.</td>
  * </tr>
  * <tr>
  * <td><code>entity-separator</code></td>
  * <td><code>.</code></td>
  * <td>Character which separates entities in the file name. Whitespace characters are not allowed.</td>
+ * </tr>
+ * <tr>
+ * <td><code>sub-entity-separator</code></td>
+ * <td><code>&amp;</code></td>
+ * <td>Character which separates sub entities of an entity. Whitespace characters are not allowed.</td>
  * </tr>
  * <tr>
  * <td><code>index-of-group-code</code></td>
@@ -80,10 +90,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * <td>Index of the entity which is interpreted as the sample code.</td>
  * </tr>
  * <tr>
- * <td><code>index-of-parent-data-set-code</code></td>
+ * <td><code>index-of-parent-data-set-codes</code></td>
  * <td>&nbsp;</td>
- * <td>Index of the entity which is interpreted as the parent data set code. If not specified no
- * parent data set code will be extracted.</td>
+ * <td>Index of the entity which is interpreted as parent data set codes. The codes have to be
+ * separated by the sub entity separator. If not specified no parent data set codes will be
+ * extracted.</td>
  * </tr>
  * <tr>
  * <td><code>index-of-data-producer-code</code></td>
@@ -101,22 +112,26 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * <td><code>data-production-date-format</code></td>
  * <td><code>yyyyMMddHHmmss</code></td>
  * <td>Format of the data production date. For the correct syntax see <a
- * href="http://java.sun.com/j2se/1.5.0/docs/api/java/text/SimpleDateFormat.html"
- * >SimpleDateFormat</a>.</td>
+ * href="http://java.sun.com/j2se/1.5.0/docs/api/java/text/SimpleDateFormat.html" >SimpleDateFormat</a>.</td>
  * </tr>
  * <tr>
  * <td><code>data-set-properties-file-name</code></td>
  * <td><code>&nbsp;</code></td>
  * <td>Path to a file inside a data set directory which contains data set properties.</td>
  * </tr>
- * </table>
- * The first entity has index 0, the second 1, etc. Using negative numbers one can specify entities
- * from the end. Thus, -1 means the last entity, -2 the second last entity, etc.
+ * </table> The first entity has index 0, the second 1, etc. Using negative numbers one can specify
+ * entities from the end. Thus, -1 means the last entity, -2 the second last entity, etc.
  * 
  * @author Franz-Josef Elmer
  */
 public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
 {
+    /** The name of the property to get sub entity separator from. */
+    @Private
+    static final String SUB_ENTITY_SEPARATOR_PROPERTY_NAME = "sub-entity-separator";
+    
+    /** The default sub entity separator. */
+    protected static final char DEFAULT_SUB_ENTITY_SEPARATOR = '&';
 
     /**
      * Name of the property specifying the index of the entity which should be interpreted as the
@@ -130,15 +145,15 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     static final String INDEX_OF_SAMPLE_CODE = "index-of-sample-code";
 
     /**
-     * Name of the property specifying the index of the entity which should be interpreted as the
-     * parent data set code.
+     * Name of the property specifying the index of the entity which should be interpreted as 
+     * parent data set codes.
      * <p>
      * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as
      * the sample code.
      * </p>
      */
     @Private
-    static final String INDEX_OF_PARENT_DATA_SET_CODE = "index-of-parent-data-set-code";
+    static final String INDEX_OF_PARENT_DATA_SET_CODES = "index-of-parent-data-set-codes";
 
     /** Default index of sample code. */
     private static final int DEFAULT_INDEX_OF_SAMPLE_CODE = -1;
@@ -195,9 +210,9 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
 
     private final int indexOfGroupCode;
 
-    private final boolean noParentDataSetCode;
+    private final boolean noParentDataSetCodes;
 
-    private final int indexOfParentDataSetCode;
+    private final int indexOfParentDataSetCodes;
 
     private final boolean noDataProducerCode;
 
@@ -211,9 +226,23 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
 
     private final String dataSetPropertiesFileNameOrNull;
 
+    private final char subEntitySeparator;
+
     public DefaultDataSetInfoExtractor(final Properties globalProperties)
     {
         super(globalProperties);
+        subEntitySeparator = PropertyUtils.getChar(properties, SUB_ENTITY_SEPARATOR_PROPERTY_NAME,
+                DEFAULT_SUB_ENTITY_SEPARATOR);
+        if (Character.isWhitespace(subEntitySeparator))
+        {
+            throw new ConfigurationFailureException("Sub entity separator is a whitespace character.");
+        }
+        if (subEntitySeparator == entitySeparator)
+        {
+            throw new ConfigurationFailureException("Entity separator '" + entitySeparator
+                    + "' and sub entity separator '" + subEntitySeparator
+                    + "' have to be different.");
+        }
         indexOfSampleCode =
                 PropertyUtils
                         .getInt(properties, INDEX_OF_SAMPLE_CODE, DEFAULT_INDEX_OF_SAMPLE_CODE);
@@ -223,10 +252,10 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         noGroupCode = StringUtils.isBlank(indexAsString);
         indexOfGroupCode = PropertyUtils.getInt(properties, INDEX_OF_GROUP_CODE, 0);
 
-        indexAsString = properties.getProperty(INDEX_OF_PARENT_DATA_SET_CODE);
-        noParentDataSetCode = indexAsString == null;
-        indexOfParentDataSetCode =
-                PropertyUtils.getInt(properties, INDEX_OF_PARENT_DATA_SET_CODE, 0);
+        indexAsString = properties.getProperty(INDEX_OF_PARENT_DATA_SET_CODES);
+        noParentDataSetCodes = indexAsString == null;
+        indexOfParentDataSetCodes =
+                PropertyUtils.getInt(properties, INDEX_OF_PARENT_DATA_SET_CODES, 0);
 
         indexAsString = properties.getProperty(INDEX_OF_DATA_PRODUCER_CODE);
         noDataProducerCode = indexAsString == null;
@@ -257,13 +286,25 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
                         stripExtension);
         final DataSetInformation dataSetInformation = new DataSetInformation();
         dataSetInformation.setSampleCode(entitiesProvider.getEntity(indexOfSampleCode));
-        dataSetInformation.setParentDataSetCode(tryGetParentDataSetCode(entitiesProvider));
+        dataSetInformation.setParentDataSetCodes(getParentDataSetCodes(entitiesProvider));
         dataSetInformation.setProducerCode(tryGetDataProducerCode(entitiesProvider));
         dataSetInformation.setProductionDate(tryGetDataProductionDate(entitiesProvider));
         dataSetInformation.setDataSetProperties(extractDataSetProperties(incomingDataSetPath,
                 dataSetPropertiesFileNameOrNull));
         dataSetInformation.setGroupCode(extractGroupCode(entitiesProvider));
         return dataSetInformation;
+    }
+
+    private Set<String> getParentDataSetCodes(
+            final DataSetNameEntitiesProvider entitiesProvider)
+    {
+        if (noParentDataSetCodes)
+        {
+            return Collections.emptySet();
+        }
+        String parentDataSetCodes = entitiesProvider.getEntity(indexOfParentDataSetCodes);
+        String[] codes = StringUtils.split(parentDataSetCodes, subEntitySeparator);
+        return new LinkedHashSet<String>(Arrays.asList(codes));
     }
 
     private String extractGroupCode(DataSetNameEntitiesProvider entitiesProvider)
@@ -275,16 +316,6 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         {
             return entitiesProvider.getEntity(indexOfGroupCode);
         }
-    }
-
-    private String tryGetParentDataSetCode(
-            final DataSetNameEntitiesProvider dataSetNameEntitiesProvider)
-    {
-        if (noParentDataSetCode)
-        {
-            return null;
-        }
-        return dataSetNameEntitiesProvider.getEntity(indexOfParentDataSetCode);
     }
 
     private String tryGetDataProducerCode(

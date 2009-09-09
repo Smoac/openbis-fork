@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.dto;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -252,14 +253,14 @@ public class DataSetInformation implements Serializable
         this.extractableData = extractableData;
     }
 
-    public final String getParentDataSetCode()
+    public final Set<String> getParentDataSetCodes()
     {
-        return extractableData.getParentDataSetCode();
+        return extractableData.getParentDataSetCodes();
     }
 
-    public final void setParentDataSetCode(final String parentDataSetCode)
+    public final void setParentDataSetCodes(Set<String> parentDataSetCodes)
     {
-        extractableData.setParentDataSetCode(parentDataSetCode);
+        extractableData.setParentDataSetCodes(parentDataSetCodes);
     }
 
     public final void setGroupCode(final String groupCode)

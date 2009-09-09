@@ -25,12 +25,15 @@ public abstract class CodeExtractortTestCase
 
     protected static final String ENTITY_SEPARATOR =
             PREFIX + DefaultDataSetInfoExtractor.ENTITY_SEPARATOR_PROPERTY_NAME;
+    
+    protected static final String SUB_ENTITY_SEPARATOR =
+            PREFIX + DefaultDataSetInfoExtractor.SUB_ENTITY_SEPARATOR_PROPERTY_NAME;
 
     protected static final String INDEX_OF_SAMPLE_CODE =
             PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_SAMPLE_CODE;
 
     protected static final String INDEX_OF_PARENT_DATA_SET_CODE =
-            PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_PARENT_DATA_SET_CODE;
+            PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_PARENT_DATA_SET_CODES;
 
     protected static final String INDEX_OF_DATA_PRODUCER_CODE =
             PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_DATA_PRODUCER_CODE;

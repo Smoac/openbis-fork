@@ -46,7 +46,8 @@ public class DataSetInfoExtractorForImageAnalysisTest extends CodeExtractortTest
 
         DataSetInformation dataSetInfo =
                 extractor.getDataSetInformation(new File("alpha.42.beta"), null);
-        assertEquals("42.alpha", dataSetInfo.getParentDataSetCode());
+        assertEquals(1, dataSetInfo.getParentDataSetCodes().size());
+        assertEquals("42.alpha", dataSetInfo.getParentDataSetCodes().iterator().next());
         assertEquals("beta", dataSetInfo.getSampleIdentifier().getSampleCode());
         assertEquals(null, dataSetInfo.getDataSetCode());
         assertEquals(null, dataSetInfo.getProducerCode());

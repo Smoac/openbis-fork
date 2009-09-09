@@ -18,6 +18,7 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
 
@@ -139,7 +140,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             assertEquals(expectedData.getLocatorType(), data.getLocatorType());
             assertEquals(expectedData.getFileFormatType(), data.getFileFormatType());
             assertEquals(expectedData.getDataSetType(), data.getDataSetType());
-            assertEquals(expectedData.getParentDataSetCode(), data.getParentDataSetCode());
+            assertEquals(expectedData.getParentDataSetCodes(), data.getParentDataSetCodes());
             assertEquals(expectedData.getProductionDate(), data.getProductionDate());
             assertEquals(expectedData.getStorageFormat(), data.getStorageFormat());
             return true;
@@ -280,7 +281,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         dataSetInformation.setProducerCode(DATA_PRODUCER_CODE);
         dataSetInformation.setProductionDate(DATA_PRODUCTION_DATE);
         dataSetInformation.setDataSetCode(DATA_SET_CODE);
-        dataSetInformation.setParentDataSetCode(PARENT_DATA_SET_CODE);
+        dataSetInformation.setParentDataSetCodes(Collections.singleton(PARENT_DATA_SET_CODE));
         targetFolder =
                 IdentifiedDataStrategy.createBaseDirectory(workingDirectory, dataSetInformation);
         targetData1 = createTargetData(data1);
@@ -316,7 +317,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         data.setDataProducerCode(DATA_PRODUCER_CODE);
         data.setProductionDate(DATA_PRODUCTION_DATE);
         data.setCode(DATA_SET_CODE);
-        data.setParentDataSetCode(PARENT_DATA_SET_CODE);
+        data.setParentDataSetCodes(Collections.singleton(PARENT_DATA_SET_CODE));
         return data;
     }
 
@@ -443,9 +444,10 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             stringBuffer.append("Production Date:\t" + dataset.getProductionDate()
                     + OSUtilities.LINE_SEPARATOR);
         }
-        if (StringUtils.isNotBlank(dataset.getParentDataSetCode()))
+        if (dataset.getParentDataSetCodes().isEmpty() == false)
         {
-            stringBuffer.append("Parent Data Set:\t" + dataset.getParentDataSetCode()
+            stringBuffer.append("Parent Data Sets:\t"
+                    + StringUtils.join(dataset.getParentDataSetCodes(), ' ')
                     + OSUtilities.LINE_SEPARATOR);
         }
         stringBuffer.append("Is complete:\t" + dataset.getIsCompleteFlag()

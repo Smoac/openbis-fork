@@ -53,7 +53,7 @@ public class DataSetInfoExtractorForDataAcquisitionTest extends CodeExtractortTe
                 extractor.getDataSetInformation(new File("alpha.42.beta"), null);
         assertEquals("42.alpha", dataSetInfo.getDataSetCode());
         assertEquals("beta", dataSetInfo.getSampleIdentifier().getSampleCode());
-        assertEquals(null, dataSetInfo.getParentDataSetCode());
+        assertEquals(0, dataSetInfo.getParentDataSetCodes().size());
         assertEquals(null, dataSetInfo.getProducerCode());
         assertEquals(null, dataSetInfo.getProductionDate());
     }
@@ -79,7 +79,8 @@ public class DataSetInfoExtractorForDataAcquisitionTest extends CodeExtractortTe
                 extractor.getDataSetInformation(new File("a_b_c_" + date), null);
         assertEquals("2007-12-24-c", dataSetInfo.getDataSetCode());
         assertEquals("a", dataSetInfo.getSampleIdentifier().getSampleCode());
-        assertEquals("b", dataSetInfo.getParentDataSetCode());
+        assertEquals(1, dataSetInfo.getParentDataSetCodes().size());
+        assertEquals("b", dataSetInfo.getParentDataSetCodes().iterator().next());
         assertEquals("c", dataSetInfo.getProducerCode());
         assertEquals(date, new SimpleDateFormat(dateFormat).format(dataSetInfo.getProductionDate()));
     }
