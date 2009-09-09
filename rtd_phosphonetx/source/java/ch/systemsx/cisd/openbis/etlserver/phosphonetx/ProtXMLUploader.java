@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -27,13 +26,11 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.etlserver.IDataSetHandler;
+import ch.systemsx.cisd.etlserver.IDataSetUploader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
@@ -41,7 +38,7 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 /**
  * @author Franz-Josef Elmer
  */
-public class ResultDataSetHandler implements IDataSetHandler
+public class ProtXMLUploader implements IDataSetUploader
 {
     private static final String DATABASE_ENGINE = "database.engine";
 
@@ -56,7 +53,7 @@ public class ResultDataSetHandler implements IDataSetHandler
     private static final String DATABASE_PASSWORD = "database.password";
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ResultDataSetHandler.class);
+            LogFactory.getLogger(LogCategory.OPERATION, ProtXMLUploader.class);
 
     private static DataSource createDataSource(Properties properties)
     {
@@ -70,26 +67,20 @@ public class ResultDataSetHandler implements IDataSetHandler
         return context.getDataSource();
     }
 
-    private final IDataSetHandler delegator;
-
     private final ProtXMLLoader loader;
 
     private final IEncapsulatedOpenBISService openbisService;
 
     private final DataSource dataSource;
 
-    public ResultDataSetHandler(Properties properties, IDataSetHandler delegator,
-            IEncapsulatedOpenBISService openbisService)
+    public ProtXMLUploader(Properties properties, IEncapsulatedOpenBISService openbisService)
     {
-        dataSource =
-                createDataSource(ExtendedProperties.getSubset(properties,
-                        IDataSetHandler.DATASET_HANDLER_KEY + '.', true));
-        this.delegator = delegator;
+        dataSource = createDataSource(properties);
         this.openbisService = openbisService;
         loader = new ProtXMLLoader();
     }
 
-    public List<DataSetInformation> handleDataSet(File dataSet)
+    public void upload(File dataSet, DataSetInformation dataSetInformation)
     {
         long time = System.currentTimeMillis();
         ProteinSummary summary = loader.readProtXML(dataSet);
@@ -98,25 +89,6 @@ public class ResultDataSetHandler implements IDataSetHandler
             operationLog.info(summary.getProteinGroups().size()
                     + " protein groups are successfully read from '" + dataSet + "' in "
                     + (System.currentTimeMillis() - time) + " msec");
-        }
-        time = System.currentTimeMillis();
-        List<DataSetInformation> dataSets = delegator.handleDataSet(dataSet);
-        if (dataSets.isEmpty())
-        {
-            throw new ConfigurationFailureException(
-                    "Data set not registered due to some error. See error folder in data store.");
-        }
-        if (dataSets.size() != 1)
-        {
-            throw new ConfigurationFailureException(dataSets.size() + " data set registered: "
-                    + "Only data set handlers (like the primary one) "
-                    + "registering exactly one data set are allowed.");
-        }
-        DataSetInformation dataSetInformation = dataSets.get(0);
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Registration at openBIS took " + (System.currentTimeMillis() - time)
-                    + " msec: " + dataSetInformation);
         }
         time = System.currentTimeMillis();
         Connection connection;
@@ -129,15 +101,12 @@ public class ResultDataSetHandler implements IDataSetHandler
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
         ResultDataSetUploader upLoader = new ResultDataSetUploader(connection, openbisService);
-        // TODO 2009-08-11, Tomasz Pylak: if the uploader fails, the dataset handling by the
-        // delegator should be rollbacked (or maybe xml upload should be the first phase?)
         upLoader.upload(dataSetInformation, summary);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Feeding result database took " + (System.currentTimeMillis() - time)
                     + " msec.");
         }
-        return dataSets;
     }
 
 }

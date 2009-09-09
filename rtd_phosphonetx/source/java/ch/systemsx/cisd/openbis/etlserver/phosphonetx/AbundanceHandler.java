@@ -66,7 +66,7 @@ class AbundanceHandler extends AbstractHandler
 
     void addAbundancesToDatabase(Parameter parameter, long proteinID, String proteinName)
     {
-        Sample sample = getOrCreateSample(parameter.getName().toUpperCase(), proteinName);
+        Sample sample = getOrCreateSample(parameter.getName(), proteinName);
         try
         {
             dao
