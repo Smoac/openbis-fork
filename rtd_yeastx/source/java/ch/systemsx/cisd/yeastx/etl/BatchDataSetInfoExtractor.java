@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.yeastx.etl;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -62,7 +63,7 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             info.setConversion(conversion);
             if (StringUtils.isNotBlank(plainInfo.getParentDataSetCode()))
             {
-                info.setParentDataSetCode(plainInfo.getParentDataSetCode());
+                info.setParentDataSetCodes(Collections.singleton(plainInfo.getParentDataSetCode()));
             }
             fileNameDecorator.enrich(info, incomingDataSetPath);
             return info;
