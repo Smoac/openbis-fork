@@ -19,45 +19,22 @@ package ch.systemsx.cisd.yeastx.etl;
 import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
-import ch.systemsx.cisd.etlserver.ITypeExtractor;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.etlserver.AbstractStrorageProcessorWithUploader;
 
 /**
  * @author Tomasz Pylak
  */
-public final class StorageProcessorWithMLUploader extends AbstractDelegatingStorageProcessor
+public final class StorageProcessorWithMLUploader extends AbstractStrorageProcessorWithUploader
 {
-    private final ML2DatabaseUploader uploader;
-
     public StorageProcessorWithMLUploader(Properties properties)
     {
-        super(properties);
-        this.uploader = new ML2DatabaseUploader(properties);
+        super(properties, new ML2DatabaseUploader(properties));
     }
 
     @Override
-    public File storeData(final Sample sample, final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+    protected void logDataSetFileError(File incomingDataSetDirectory, Throwable exception)
     {
-        File storeData =
-                super.storeData(sample, dataSetInformation, typeExtractor, mailClient,
-                        incomingDataSetDirectory, rootDir);
-        File originalData = super.tryGetProprietaryData(storeData);
-        uploader.upload(originalData, dataSetInformation);
-        return storeData;
-    }
-
-    @Override
-    public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
-            final File storedDataDirectory, Throwable exception)
-    {
-        super.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
         LogUtils log = new LogUtils(incomingDataSetDirectory.getParentFile());
         log.datasetFileError(incomingDataSetDirectory, exception);
-        return UnstoreDataAction.LEAVE_UNTOUCHED;
     }
 }

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.etlserver.IDataSetUploader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -42,7 +43,7 @@ import ch.systemsx.cisd.yeastx.fiaml.FIAML2Database;
  * 
  * @author Tomasz Pylak
  */
-public class ML2DatabaseUploader
+public class ML2DatabaseUploader implements IDataSetUploader
 {
     private static final String DATABASE_PROPERTIES_PREFIX = "database.";
 
