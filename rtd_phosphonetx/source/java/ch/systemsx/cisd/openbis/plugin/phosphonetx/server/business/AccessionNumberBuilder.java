@@ -23,21 +23,31 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
  */
 public class AccessionNumberBuilder
 {
+    private static final char SEPARATOR = '|';
+
     private final String typeOrNull;
     
     private final String accessionNumber;
     
     public AccessionNumberBuilder(String fullAccessionNumber)
     {
-        String[] parts = fullAccessionNumber.split("\\|");
-        if (parts.length > 1)
-        {
-            typeOrNull = parts[0];
-            accessionNumber = parts[1];
-        } else
+        int indexOfFirstSeparator = fullAccessionNumber.indexOf(SEPARATOR);
+        if (indexOfFirstSeparator < 0)
         {
             typeOrNull = null;
-            accessionNumber = parts[0];
+            accessionNumber = fullAccessionNumber;
+        } else
+        {
+            typeOrNull = fullAccessionNumber.substring(0, indexOfFirstSeparator);
+            int startIndex = indexOfFirstSeparator + 1;
+            int indexOfSecondSeparator = fullAccessionNumber.indexOf(SEPARATOR, startIndex);
+            if (indexOfSecondSeparator < 0)
+            {
+                accessionNumber = fullAccessionNumber.substring(startIndex);
+            } else
+            {
+                accessionNumber = fullAccessionNumber.substring(startIndex, indexOfSecondSeparator);
+            }
         }
     }
 
