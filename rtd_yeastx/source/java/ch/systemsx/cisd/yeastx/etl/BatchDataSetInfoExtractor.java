@@ -63,7 +63,7 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             info.setConversion(conversion);
             if (StringUtils.isNotBlank(plainInfo.getParentDataSetCode()))
             {
-                info.setParentDataSetCodes(Collections.singleton(plainInfo.getParentDataSetCode()));
+                info.setParentDataSetCodes(Collections.singletonList(plainInfo.getParentDataSetCode()));
             }
             fileNameDecorator.enrich(info, incomingDataSetPath);
             return info;
