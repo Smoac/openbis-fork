@@ -49,7 +49,7 @@ public class AbundanceHandlerTest extends AssertJUnit
     private static final double ABUNDANCE = 1234.5;
     private static final String PARAMETER_NAME = "abc12";
     private static final SampleIdentifier SAMPLE_IDENTIFER =
-            new SampleIdentifier(GROUP_IDENTIFIER, PARAMETER_NAME.toUpperCase());
+            new SampleIdentifier(GROUP_IDENTIFIER, PARAMETER_NAME);
     private static final String SAMPLE_PERM_ID = "s12-34";
     private static final String EXPERIMENT_PERM_ID = "e12345-42";
     private static final long EXPERIMENT_ID = 42;
@@ -57,8 +57,8 @@ public class AbundanceHandlerTest extends AssertJUnit
     private static final long PROTEIN_ID = 4711;
     private static final String PROTEIN_NAME = "my protein";
     private static final ListSamplesByPropertyCriteria CRITERIA =
-            new ListSamplesByPropertyCriteria(AbundanceHandler.MZXML_FILENAME, PARAMETER_NAME
-                    .toUpperCase(), GROUP_IDENTIFIER.getGroupCode(), null);
+            new ListSamplesByPropertyCriteria(AbundanceHandler.MZXML_FILENAME, PARAMETER_NAME,
+                    GROUP_IDENTIFIER.getGroupCode(), null);
 
     private Mockery context;
 
@@ -138,8 +138,8 @@ public class AbundanceHandlerTest extends AssertJUnit
         } catch (UserFailureException e)
         {
             assertEquals("Protein '" + PROTEIN_NAME
-                    + "' has an abundance value for an unidentified sample: "
-                    + PARAMETER_NAME.toUpperCase(), e.getMessage());
+                    + "' has an abundance value for an unidentified sample: " + PARAMETER_NAME, e
+                    .getMessage());
         }
         
         try
@@ -149,31 +149,32 @@ public class AbundanceHandlerTest extends AssertJUnit
         } catch (UserFailureException e)
         {
             assertEquals("Protein '" + PROTEIN_NAME
-                    + "' has an abundance value for an unidentified sample: "
-                    + PARAMETER_NAME.toUpperCase(), e.getMessage());
+                    + "' has an abundance value for an unidentified sample: " + PARAMETER_NAME, e
+                    .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testAddAbundanceValuesForASampleIdentifiedByPropertyButTwoSamplesFound()
     {
         Sample sample = new Sample();
         sample.setPermId(SAMPLE_PERM_ID);
-        prepareCreateSampleIdentifiedByProperty(Arrays.<Sample>asList(sample, sample));
-        
+        prepareCreateSampleIdentifiedByProperty(Arrays.<Sample> asList(sample, sample));
+
         try
         {
-            handler.addAbundancesToDatabase(createParameter(PARAMETER_VALUE), PROTEIN_ID, PROTEIN_NAME);
+            handler.addAbundancesToDatabase(createParameter(PARAMETER_VALUE), PROTEIN_ID,
+                    PROTEIN_NAME);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
             assertEquals("Protein '" + PROTEIN_NAME
                     + "' has an abundance value for a not uniquely specified sample "
-                    + "(2 samples are found): " + PARAMETER_NAME.toUpperCase(), e.getMessage());
+                    + "(2 samples are found): " + PARAMETER_NAME, e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
     

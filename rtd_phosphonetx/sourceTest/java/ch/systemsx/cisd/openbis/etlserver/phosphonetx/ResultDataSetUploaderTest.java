@@ -244,8 +244,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new GroupIdentifier(DB_INSTANCE, GROUP_CODE), CELL_LYSATE1
-                        .toUpperCase());
+                new SampleIdentifier(new GroupIdentifier(DB_INSTANCE, GROUP_CODE), CELL_LYSATE1);
         context.checking(new Expectations()
             {
                 {
@@ -299,12 +298,11 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         p1.getParameters().add(createAbundance(CELL_LYSATE1, 2.5));
         p1.getParameters().add(new Parameter());
         final GroupIdentifier groupIdentifier = new GroupIdentifier(DB_INSTANCE, GROUP_CODE);
-        String upperCaseParameterName = CELL_LYSATE1.toUpperCase();
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(groupIdentifier, upperCaseParameterName);
+                new SampleIdentifier(groupIdentifier, CELL_LYSATE1);
         final ListSamplesByPropertyCriteria criteria =
                 new ListSamplesByPropertyCriteria(AbundanceHandler.MZXML_FILENAME,
-                        upperCaseParameterName, GROUP_CODE, null);
+                        CELL_LYSATE1, GROUP_CODE, null);
         context.checking(new Expectations()
             {
                 {
@@ -338,7 +336,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         {
             AssertionUtil.assertContains("Protein '" + PROTEIN_NAME1
                     + "' has an abundance value for an unidentified sample: "
-                    + upperCaseParameterName, ex.getMessage());
+                    + CELL_LYSATE1, ex.getMessage());
         }
 
         context.assertIsSatisfied();
