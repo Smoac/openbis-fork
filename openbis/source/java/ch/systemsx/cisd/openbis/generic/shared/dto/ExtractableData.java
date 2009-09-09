@@ -18,9 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import ch.systemsx.cisd.common.annotation.CollectionMapping;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -41,7 +39,7 @@ public class ExtractableData extends Code<ExtractableData>
 
     private String dataProducerCode;
     
-    private Set<String> parentDataSetCodes = new LinkedHashSet<String>();
+    private List<String> parentDataSetCodes = new ArrayList<String>();
 
     private List<NewProperty> dataSetProperties = new ArrayList<NewProperty>();
 
@@ -97,12 +95,12 @@ public class ExtractableData extends Code<ExtractableData>
         parentDataSetCodes.add(parentDataSetCode);
     }
     
-    public final Set<String> getParentDataSetCodes()
+    public final List<String> getParentDataSetCodes()
     {
         return parentDataSetCodes;
     }
 
-    public final void setParentDataSetCodes(Set<String> parentDataSetCodes)
+    public final void setParentDataSetCodes(List<String> parentDataSetCodes)
     {
         this.parentDataSetCodes = parentDataSetCodes;
     }
