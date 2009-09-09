@@ -156,7 +156,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         defineDataSetProperties(externalData, convertToDataSetProperties(data
                 .getDataSetProperties()));
 
-        final String parentDataSetCode = data.getParentDataSetCode();
+        final String parentDataSetCode = data.tryToGetParentDataSetCode();
         if (parentDataSetCode != null)
         {
             final DataPE parent = getOrCreateParentData(parentDataSetCode, dataStore, sample);

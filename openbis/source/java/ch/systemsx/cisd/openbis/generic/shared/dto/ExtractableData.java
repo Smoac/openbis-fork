@@ -84,15 +84,9 @@ public class ExtractableData extends Code<ExtractableData>
     }
 
     @Deprecated
-    public final String getParentDataSetCode()
+    public final String tryToGetParentDataSetCode()
     {
         return parentDataSetCodes.isEmpty() ? null : parentDataSetCodes.iterator().next();
-    }
-
-    @Deprecated
-    public final void setParentDataSetCode(String parentDataSetCode)
-    {
-        parentDataSetCodes.add(parentDataSetCode);
     }
     
     public final List<String> getParentDataSetCodes()
@@ -100,6 +94,7 @@ public class ExtractableData extends Code<ExtractableData>
         return parentDataSetCodes;
     }
 
+    @CollectionMapping(collectionClass = ArrayList.class, elementClass = String.class)
     public final void setParentDataSetCodes(List<String> parentDataSetCodes)
     {
         this.parentDataSetCodes = parentDataSetCodes;
