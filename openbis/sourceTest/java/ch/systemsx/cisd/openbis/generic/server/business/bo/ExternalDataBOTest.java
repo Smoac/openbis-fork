@@ -591,7 +591,10 @@ public class ExternalDataBOTest extends AbstractBOTest
     {
         NewExternalData data = new NewExternalData();
         data.setCode(DATA_SET_CODE);
-        data.setParentDataSetCode(parentDataSetCodeOrNull);
+        if (parentDataSetCodeOrNull != null)
+        {
+            data.setParentDataSetCodes(Collections.singleton(parentDataSetCodeOrNull));
+        }
         data.setDataProducerCode(DATA_PRODUCER_CODE);
         data.setProductionDate(PRODUCTION_DATE);
         data.setComplete(BooleanOrUnknown.U);
