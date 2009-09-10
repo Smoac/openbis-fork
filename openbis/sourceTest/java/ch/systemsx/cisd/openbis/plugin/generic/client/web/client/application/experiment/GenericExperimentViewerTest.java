@@ -125,7 +125,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);
         final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP1_ID);
-        checkExperiment.property("PermID").asString(EXP1_PERM_ID);
+        checkExperiment.property("PermID").matchingPattern(
+                ".*<a href=\".*permId=" + EXP1_PERM_ID + ".*>" + EXP1_PERM_ID + "</a>.*");
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
         checkExperiment.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
@@ -144,7 +145,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_X);
         final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP_X_ID);
-        checkExperiment.property("PermID").asString(EXP_X_PERM_ID);
+        checkExperiment.property("PermID").matchingPattern(
+                ".*<a href=\".*permId=" + EXP_X_PERM_ID + ".*>" + EXP_X_PERM_ID + "</a>.*");
         checkExperiment.property("Experiment Type").asCode(SIRNA_HCS);
         checkExperiment.property("Registrator").asPerson(DOE_JOHN);
         checkExperiment.property("Invalidation").by(new IValueAssertion<Invalidation>()
@@ -166,7 +168,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
         final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP_REUSE_ID);
-        checkExperiment.property("PermID").asString(EXP_REUSE_PERM_ID);
+        checkExperiment.property("PermID").matchingPattern(
+                ".*<a href=\".*permId=" + EXP_REUSE_PERM_ID + ".*>" + EXP_REUSE_PERM_ID + "</a>.*");
         final CheckTableCommand attachmentsTable =
                 checkExperiment.attachmentsTable().expectedSize(2);
         attachmentsTable.expectedRow(new Row().withCell(ModelDataPropertyNames.FILE_NAME,
@@ -183,7 +186,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
         final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP_REUSE_ID);
-        checkExperiment.property("PermID").asString(EXP_REUSE_PERM_ID);
+        checkExperiment.property("PermID").matchingPattern(
+                ".*<a href=\".*permId=" + EXP_REUSE_PERM_ID + ".*>" + EXP_REUSE_PERM_ID + "</a>.*");
         final CheckTableCommand sampleTable = checkExperiment.sampleTable().expectedSize(7);
         sampleTable.expectedRow(new SampleRow("RP1-A2X"));
         sampleTable.expectedRow(new SampleRow("RP1-B1X"));
@@ -202,7 +206,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);
         final CheckExperiment checkExperiment = new CheckExperiment();
         checkExperiment.property("Experiment").asString(EXP1_ID);
-        checkExperiment.property("PermID").asString(EXP1_PERM_ID);
+        checkExperiment.property("PermID").matchingPattern(
+                ".*<a href=\".*permId=" + EXP1_PERM_ID + ".*>" + EXP1_PERM_ID + "</a>.*");
         final CheckTableCommand datasetTable = checkExperiment.dataSetTable().expectedSize(2);
         datasetTable.expectedRow(new DataSetRow("20080912142304152-1").invalid().notDerived());
         datasetTable.expectedRow(new DataSetRow("20080912142304476-3").invalid().withSample(

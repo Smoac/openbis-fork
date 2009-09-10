@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -207,7 +208,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         final Invalidation invalidation = sample.getInvalidation();
         final Sample[] generated = sampleGeneration.getDerived();
         properties.put(messageProvider.getMessage(Dict.SAMPLE), sample.getIdentifier());
-        properties.put(messageProvider.getMessage(Dict.PERM_ID), sample.getPermId());
+        properties.put(messageProvider.getMessage(Dict.PERM_ID), new ExternalHyperlink(sample
+                .getPermId(), sample.getPermlink()));
         properties.put(messageProvider.getMessage(Dict.SAMPLE_TYPE), sampleType);
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), sample.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), sample

@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -113,7 +114,8 @@ public class ExperimentPropertiesPanel extends ContentPanel
         final ExperimentType experimentType = experiment.getExperimentType();
         final Invalidation invalidation = experiment.getInvalidation();
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT), experiment.getIdentifier());
-        properties.put(messageProvider.getMessage(Dict.PERM_ID), experiment.getPermId());
+        properties.put(messageProvider.getMessage(Dict.PERM_ID), new ExternalHyperlink(experiment
+                .getPermId(), experiment.getPermlink()));
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT_TYPE), experimentType);
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), experiment.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE), experiment

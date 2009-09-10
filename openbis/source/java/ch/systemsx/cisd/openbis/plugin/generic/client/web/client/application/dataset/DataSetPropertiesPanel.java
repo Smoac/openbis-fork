@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.EntityPropertyUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -108,7 +109,8 @@ public class DataSetPropertiesPanel extends ContentPanel
         final Invalidation invalidation = dataset.getInvalidation();
         final Sample sample = dataset.getSample();
 
-        properties.put(messageProvider.getMessage(Dict.DATA_SET), dataset.getCode());
+        properties.put(messageProvider.getMessage(Dict.DATA_SET), new ExternalHyperlink(dataset
+                .getPermId(), dataset.getPermlink()));
         properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
 
         properties.put(messageProvider.getMessage(Dict.SOURCE_TYPE), dataset.getSourceType());
