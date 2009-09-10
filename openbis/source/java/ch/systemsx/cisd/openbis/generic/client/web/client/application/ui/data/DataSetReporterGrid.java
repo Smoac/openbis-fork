@@ -136,17 +136,16 @@ public class DataSetReporterGrid extends
     private DataSetReporterGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             TableModelReference tableModelReference, String reportKind)
     {
-        super(viewContext, GRID_ID, false, true);
+        super(viewContext, GRID_ID, false, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
         setId(BROWSER_ID);
         this.tableHeader = tableModelReference.getHeader();
         this.resultSetKey = tableModelReference.getResultSetKey();
         this.reportKind = reportKind;
         updateDefaultRefreshButton();
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
     }
 
     @Override
-    protected String getGridDisplayTypeID()
+    public String getGridDisplayTypeID()
     {
         return createGridDisplayTypeID(reportKind);
     }

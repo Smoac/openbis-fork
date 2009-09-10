@@ -46,7 +46,7 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
         return new ExperimentDataSetBrowser(commonViewContext, experimentId)
             {
                 @Override
-                protected String getGridDisplayTypeID()
+                public String getGridDisplayTypeID()
                 {
                     return super.getGridDisplayTypeID() + "-" + experimentType.getCode();
                 }
@@ -58,9 +58,9 @@ public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
     private ExperimentDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
             TechId experimentId)
     {
-        super(viewContext, createBrowserId(experimentId), createGridId(experimentId));
+        super(viewContext, createBrowserId(experimentId), createGridId(experimentId),
+                DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
         this.experimentId = experimentId;
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
     }
 
     public static String createGridId(TechId experimentId)

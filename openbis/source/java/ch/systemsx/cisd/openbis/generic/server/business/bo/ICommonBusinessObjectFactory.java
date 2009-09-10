@@ -68,6 +68,8 @@ public interface ICommonBusinessObjectFactory
 
     public IAuthorizationGroupBO createAuthorizationGroupBO(Session session);
 
+    public IFilterBO createFilterBO(final Session session);
+
     // Fast listing operations
 
     public ISampleLister createSampleLister(Session session);

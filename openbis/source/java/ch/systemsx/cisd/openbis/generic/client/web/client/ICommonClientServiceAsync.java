@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -658,4 +659,18 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      */
     public void listFilters(String gridId, AsyncCallback<List<Filter>> callback);
 
+    /**
+     * @see ICommonClientService#listFilters(String, DefaultResultSetConfig)
+     */
+    public void listFilters(String gridId, DefaultResultSetConfig<String, Filter> resultSetConfig,
+            AsyncCallback<ResultSet<Filter>> callback);
+
+    /**
+     * @see ICommonClientService#prepareExportFilters(TableExportCriteria)
+     */
+    public void prepareExportFilters(final TableExportCriteria<Filter> criteria,
+            AsyncCallback<String> asyncCallback);
+
+    /** @see ICommonClientService#registerFilter(NewFilter) */
+    public void registerFilter(NewFilter newFilter, AsyncCallback<Void> registrationCallback);
 }

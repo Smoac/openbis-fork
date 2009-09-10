@@ -17,20 +17,17 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Stores information describing the filter.
+ * A filter to register.
  * 
  * @author Izabela Adamczyk
  */
-public class Filter extends AbstractRegistrationHolder implements IsSerializable, Serializable
+public class NewFilter implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
-    public static final String COLUMN_FILTER = "Column Filter";
 
     private String name;
 
@@ -38,15 +35,11 @@ public class Filter extends AbstractRegistrationHolder implements IsSerializable
 
     private boolean isPublic;
 
-    private Date modificationDate;
-
     private String description;
 
-    private long id;
+    private String gridId;
 
-    private DatabaseInstance databaseInstance;
-
-    public Filter()
+    public NewFilter()
     {
     }
 
@@ -80,16 +73,6 @@ public class Filter extends AbstractRegistrationHolder implements IsSerializable
         this.isPublic = isPublic;
     }
 
-    public Date getModificationDate()
-    {
-        return modificationDate;
-    }
-
-    public void setModificationDate(Date modificationDate)
-    {
-        this.modificationDate = modificationDate;
-    }
-
     public String getDescription()
     {
         return description;
@@ -100,24 +83,20 @@ public class Filter extends AbstractRegistrationHolder implements IsSerializable
         this.description = description;
     }
 
-    public void setId(long id)
+    public String getGridId()
     {
-        this.id = id;
+        return gridId;
     }
 
-    public long getId()
+    public void setGridId(String gridId)
     {
-        return id;
+        this.gridId = gridId;
     }
 
-    public DatabaseInstance getDatabaseInstance()
+    @Override
+    public final String toString()
     {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(DatabaseInstance databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
+        return "[" + getName() + "," + getGridId() + "]";
     }
 
 }

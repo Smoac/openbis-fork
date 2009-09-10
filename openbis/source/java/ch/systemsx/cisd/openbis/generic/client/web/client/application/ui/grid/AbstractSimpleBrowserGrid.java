@@ -20,6 +20,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -35,15 +36,16 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */> extends
     abstract protected IColumnDefinitionKind<T>[] getStaticColumnsDefinition();
 
     protected AbstractSimpleBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            String browserId, String gridId)
+            String browserId, String gridId, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        this(viewContext, browserId, gridId, true);
+        this(viewContext, browserId, gridId, true, displayTypeIDGenerator);
     }
-    
+
     protected AbstractSimpleBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            String browserId, String gridId, boolean refreshAutomatically)
+            String browserId, String gridId, boolean refreshAutomatically,
+            IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, false, refreshAutomatically);
+        super(viewContext, gridId, false, refreshAutomatically, displayTypeIDGenerator);
         setId(browserId);
         updateDefaultRefreshButton();
     }

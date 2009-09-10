@@ -46,7 +46,7 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
         return new SampleDataSetBrowser(commonViewContext, sampleId)
             {
                 @Override
-                protected String getGridDisplayTypeID()
+                public String getGridDisplayTypeID()
                 {
                     return super.getGridDisplayTypeID() + "-" + sampleType.getCode();
                 }
@@ -56,12 +56,11 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
 
     private final TechId sampleId;
 
-    private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
+      private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
             TechId sampleId)
     {
-        super(viewContext, createBrowserId(sampleId), createGridId(sampleId));
+        super(viewContext, createBrowserId(sampleId), createGridId(sampleId),DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         this.sampleId = sampleId;
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
     }
 
     public static final String createGridId(TechId sampleId)

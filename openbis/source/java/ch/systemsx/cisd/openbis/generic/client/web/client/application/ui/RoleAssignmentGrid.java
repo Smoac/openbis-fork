@@ -71,8 +71,7 @@ public class RoleAssignmentGrid extends AbstractSimpleBrowserGrid<RoleAssignment
 
     private RoleAssignmentGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
     }
 
     private void extendBottomToolbar()

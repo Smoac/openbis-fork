@@ -75,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -910,5 +911,13 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = FilterValidator.class)
     public List<Filter> listFilters(String sessionToken, String gridId);
+
+    /**
+     * Creates a new filter.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.FILTER)
+    public void registerFilter(String sessionToken, NewFilter filter);
 
 }

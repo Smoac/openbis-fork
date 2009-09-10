@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
@@ -88,9 +89,9 @@ public abstract class AbstractExternalDataGrid
     private final ICriteriaProvider<PropertyTypesCriteria> criteriaProvider;
 
     protected AbstractExternalDataGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
-            String browserId, String gridId)
+            String browserId, String gridId, DisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, false, false);
+        super(viewContext, gridId, false, false, displayTypeIDGenerator);
         this.criteriaProvider = createCriteriaProvider();
         setId(browserId);
         updateCriteriaProviderAndRefresh();

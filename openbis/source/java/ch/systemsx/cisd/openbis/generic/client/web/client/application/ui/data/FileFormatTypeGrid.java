@@ -77,8 +77,8 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
 
     private FileFormatTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.FILE_FORMAT_TYPE_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, GRID_ID,
+                DisplayTypeIDGenerator.FILE_FORMAT_TYPE_BROWSER_GRID);
         postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
         allowMultipleSelection();

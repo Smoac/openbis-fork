@@ -7,12 +7,12 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  * 
  * @author Izabela Adamczyk
  */
-class ColumnDataModel extends BaseModelData
+public class ColumnDataModel extends BaseModelData
 {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String COLUMN_ID = "column_id";
+    static final String COLUMN_ID = "column_id";
 
     static final String HAS_FILTER = "HAS_FILTER";
 

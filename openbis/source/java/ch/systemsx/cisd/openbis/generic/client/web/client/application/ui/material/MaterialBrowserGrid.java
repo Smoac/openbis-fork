@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
@@ -145,7 +146,8 @@ public class MaterialBrowserGrid extends
     private MaterialBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             boolean refreshAutomatically, ICriteriaProvider<ListMaterialCriteria> criteriaProvider)
     {
-        super(viewContext, GRID_ID, true, refreshAutomatically);
+        super(viewContext, GRID_ID, true, refreshAutomatically,
+                DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         this.criteriaProvider = criteriaProvider;
         setId(BROWSER_ID);
     }

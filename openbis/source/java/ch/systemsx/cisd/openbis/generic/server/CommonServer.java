@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IFilterBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -105,6 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -1759,6 +1761,20 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         {
             List<FilterPE> filters = getDAOFactory().getFilterDAO().listFilters(gridId);
             return FilterTranslator.translate(filters);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void registerFilter(String sessionToken, NewFilter filter)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IFilterBO bo = businessObjectFactory.createFilterBO(session);
+            bo.define(filter);
+            bo.save();
         } catch (final DataAccessException ex)
         {
             throw createUserFailureException(ex);

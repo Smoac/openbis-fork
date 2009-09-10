@@ -71,8 +71,8 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
     private SampleSearchHitGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             final ISampleCriteriaProvider criteriaProvider)
     {
-        super(viewContext, criteriaProvider, SEARCH_GRID_ID, SEARCH_BROWSER_ID, false, false);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_SEARCH_RESULT_GRID);
+        super(viewContext, criteriaProvider, SEARCH_GRID_ID, SEARCH_BROWSER_ID, false, false,
+                DisplayTypeIDGenerator.SAMPLE_SEARCH_RESULT_GRID);
         updateCriteriaProviderAndRefresh();
         extendBottomToolbar();
     }

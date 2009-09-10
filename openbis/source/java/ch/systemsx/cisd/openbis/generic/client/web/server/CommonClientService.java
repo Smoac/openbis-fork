@@ -109,6 +109,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -2106,6 +2107,39 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             final List<Filter> types = commonServer.listFilters(sessionToken, gridId);
             return types;
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public ResultSet<Filter> listFilters(final String gridId,
+            DefaultResultSetConfig<String, Filter> resultSetConfig)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(resultSetConfig, new IOriginalDataProvider<Filter>()
+            {
+                public List<Filter> getOriginalData() throws UserFailureException
+                {
+                    return listFilters(gridId);
+                }
+            });
+    }
+
+    public String prepareExportFilters(TableExportCriteria<Filter> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
+    public void registerFilter(NewFilter filter)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        assert filter != null : "Unspecified filter.";
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.registerFilter(sessionToken, filter);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

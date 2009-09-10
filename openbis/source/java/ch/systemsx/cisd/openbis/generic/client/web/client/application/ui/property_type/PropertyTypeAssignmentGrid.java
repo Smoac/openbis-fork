@@ -174,8 +174,8 @@ public class PropertyTypeAssignmentGrid extends
 
     private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, GRID_ID,
+                DisplayTypeIDGenerator.PROPERTY_TYPE_ASSIGNMENT_BROWSER_GRID);
         extendBottomToolbar();
         postRegistrationCallback = createRefreshGridAction();
     }

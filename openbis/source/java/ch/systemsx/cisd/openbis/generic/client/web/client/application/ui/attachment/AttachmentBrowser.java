@@ -108,9 +108,9 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
     public AttachmentBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
             final IAttachmentHolder attachmentHolder)
     {
-        super(viewContext, createBrowserId(attachmentHolder), createGridId(attachmentHolder));
+        super(viewContext, createBrowserId(attachmentHolder), createGridId(attachmentHolder),
+                DisplayTypeIDGenerator.ATTACHMENT_BROWSER_GRID);
         this.attachmentHolder = attachmentHolder;
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ATTACHMENT_BROWSER_GRID);
         postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
 

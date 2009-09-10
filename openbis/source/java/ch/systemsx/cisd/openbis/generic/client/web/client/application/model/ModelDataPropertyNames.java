@@ -96,6 +96,8 @@ public final class ModelDataPropertyNames
 
     public static final String PROJECT_IDENTIFIER = "projectIdentifier";
 
+    public static final String NAME = "name";
+
     private ModelDataPropertyNames()
     {
         // Can not be instantiated.

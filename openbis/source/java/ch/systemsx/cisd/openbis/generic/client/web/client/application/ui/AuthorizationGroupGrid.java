@@ -89,8 +89,8 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
 
     private AuthorizationGroupGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.AUTHORIZATION_GROUP_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, GRID_ID,
+                DisplayTypeIDGenerator.AUTHORIZATION_GROUP_BROWSER_GRID);
         postRegistrationCallback = createRefreshGridAction();
     }
 

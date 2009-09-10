@@ -5,11 +5,15 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.FilterGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IResultUpdater;
 
 /**
@@ -19,21 +23,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IResu
  */
 class ColumnSettingsDialog extends Dialog
 {
-    private final IMessageProvider messageProvider;
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public static void show(IMessageProvider messageProvider, List<ColumnDataModel> columnModels,
-            IResultUpdater<List<ColumnDataModel>> resultUpdater)
+    private final String gridId;
+
+    public static void show(IViewContext<ICommonClientServiceAsync> viewContext,
+            List<ColumnDataModel> columnModels,
+            IResultUpdater<List<ColumnDataModel>> resultUpdater, String gridId)
     {
-        new ColumnSettingsDialog(messageProvider).show(columnModels, resultUpdater);
+        new ColumnSettingsDialog(viewContext, gridId).show(columnModels, resultUpdater);
     }
 
-    private ColumnSettingsDialog(IMessageProvider messageProvider)
+    private ColumnSettingsDialog(IViewContext<ICommonClientServiceAsync> viewContext, String gridId)
     {
-        this.messageProvider = messageProvider;
-        setHeight(400);
-        setWidth(450);
+        this.viewContext = viewContext;
+        this.gridId = gridId;
+        setHeight(450);
+        setWidth(700);
         setLayout(new FitLayout());
-        setHeading(messageProvider.getMessage(Dict.GRID_COLUMN_CHOOSER_TITLE));
+        setHeading(viewContext.getMessage(Dict.GRID_SETTINGS_TITLE) + " [" + gridId + "]");
     }
 
     /**
@@ -45,8 +53,19 @@ class ColumnSettingsDialog extends Dialog
         assert columnModels != null : "columnModels not specified";
         removeAll();
         final ColumnSettingsChooser columnChooser =
-                new ColumnSettingsChooser(columnModels, messageProvider);
-        add(columnChooser.getComponent());
+                new ColumnSettingsChooser(columnModels, viewContext);
+        final IDisposableComponent filters = FilterGrid.create(viewContext, gridId);
+        TabPanel panel = new TabPanel();
+        TabItem columnsTab = new TabItem(viewContext.getMessage(Dict.COLUMNS));
+        columnsTab.setLayout(new FitLayout());
+        columnsTab.add(columnChooser.getComponent());
+        panel.add(columnsTab);
+        // AI dont show if user is not at least power user
+        TabItem filtersTab = new TabItem(viewContext.getMessage(Dict.CUSTOM_FILTERS));
+        filtersTab.setLayout(new FitLayout());
+        filtersTab.add(filters.getComponent());
+        panel.add(filtersTab);
+        add(panel);
         super.show();
         getButtonBar().getButtonById("ok").addSelectionListener(
                 new SelectionListener<ComponentEvent>()
@@ -55,8 +74,10 @@ class ColumnSettingsDialog extends Dialog
                         public void componentSelected(ComponentEvent ce)
                         {
                             resultUpdater.update(columnChooser.getModels());
+                            filters.dispose();
                             hide();
                         }
                     });
     }
+
 }

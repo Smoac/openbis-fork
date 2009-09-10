@@ -70,7 +70,7 @@ var common = {
   button_browse: "Browse",
   button_view: "View",
   button_delete: "Delete",
-  button_configure: "Columns",  
+  button_configure: "Settings",  
   button_upload_data_via_cifex: "Upload Data",
   
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
@@ -458,7 +458,7 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
 // Grid Column Chooser
 //
 
-  GRID_COLUMN_CHOOSER_TITLE: "Configure grid columns",
+  grid_settings_title: "Table settings",
   GRID_COLUMN_NAME_HEADER: "Column",
   GRID_IS_COLUMN_VISIBLE_HEADER: "Visible?",
   GRID_COLUMN_HAS_FILTER_HEADER: "Has Filter?",
@@ -486,7 +486,16 @@ all_radio: "all",
 data_sets_radio_group_label: "Data Sets",
 only_selected_radio: "selected ({0})",
 experiments_radio_group_label: "Experiments",
- 
+
+//
+// Filters 
+//
+ name: "Name",
+ is_public: "Is Public?",
+ expression: "Expression",
+ columns: "Columns",
+ custom_filters: "Custom Filters",
+    
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

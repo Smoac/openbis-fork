@@ -97,22 +97,21 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
     }
 
     protected AbstractEntityBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            String gridId)
+            String gridId, DisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
+        super(viewContext, gridId, displayTypeIDGenerator);
     }
 
     protected AbstractEntityBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            String gridId, boolean showHeader, boolean refreshAutomatically)
+            String gridId, boolean showHeader, boolean refreshAutomatically,
+            DisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, showHeader, refreshAutomatically);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
+        super(viewContext, gridId, showHeader, refreshAutomatically, displayTypeIDGenerator);
         allowMultipleSelection();
     }
 
     @Override
-    protected String getGridDisplayTypeID()
+    public String getGridDisplayTypeID()
     {
         String suffix = createDisplayIdSuffix(getEntityKind(), tryToGetEntityType());
         return createGridDisplayTypeID(suffix);

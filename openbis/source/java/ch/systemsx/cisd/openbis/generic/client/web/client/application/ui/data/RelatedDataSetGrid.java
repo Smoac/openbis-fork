@@ -58,9 +58,8 @@ public class RelatedDataSetGrid extends AbstractExternalDataGrid
     private RelatedDataSetGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             final RelatedDataSetCriteria relatedCriteria)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
+        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.RELATED_DATA_SET_GRID);
         this.relatedCriteria = relatedCriteria;
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.RELATED_DATA_SET_GRID);
     }
 
     @Override

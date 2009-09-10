@@ -32,24 +32,9 @@ public class DatabaseModificationKind implements IsSerializable
 
     public enum ObjectKind implements IsSerializable
     {
-        AUTHORIZATION_GROUP,
-        SAMPLE,
-        EXPERIMENT,
-        MATERIAL,
-        DATA_SET,
-        SAMPLE_TYPE,
-        EXPERIMENT_TYPE,
-        MATERIAL_TYPE,
-        DATASET_TYPE,
-        FILE_FORMAT_TYPE,
-        PROJECT,
-        GROUP,
-        PROPERTY_TYPE,
-        PROPERTY_TYPE_ASSIGNMENT,
-        VOCABULARY,
-        VOCABULARY_TERM,
-        ROLE_ASSIGNMENT,
-        PERSON
+        AUTHORIZATION_GROUP, SAMPLE, EXPERIMENT, MATERIAL, DATA_SET, SAMPLE_TYPE, EXPERIMENT_TYPE,
+        MATERIAL_TYPE, DATASET_TYPE, FILE_FORMAT_TYPE, PROJECT, GROUP, PROPERTY_TYPE,
+        PROPERTY_TYPE_ASSIGNMENT, VOCABULARY, VOCABULARY_TERM, ROLE_ASSIGNMENT, PERSON, FILTER
     }
 
     public enum OperationKind implements IsSerializable

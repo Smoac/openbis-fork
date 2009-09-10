@@ -68,6 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -737,4 +738,22 @@ public interface ICommonClientService extends IClientService
      * Lists filters available for given grid.
      */
     public List<Filter> listFilters(String gridId) throws UserFailureException;
+
+    /**
+     * Returns {@link Filter}s for given criteria.
+     */
+    public ResultSet<Filter> listFilters(String gridId,
+            DefaultResultSetConfig<String, Filter> resultSetConfig) throws UserFailureException;
+
+    /**
+     * Returns a key which can be used be the export servlet (and eventually
+     * {@link #getExportTable(String, String)}) to reference the export criteria in an easy way.
+     */
+    public String prepareExportFilters(final TableExportCriteria<Filter> criteria)
+            throws UserFailureException;
+
+    /**
+     * Registers a new filter.
+     */
+    public void registerFilter(NewFilter filter) throws UserFailureException;
 }

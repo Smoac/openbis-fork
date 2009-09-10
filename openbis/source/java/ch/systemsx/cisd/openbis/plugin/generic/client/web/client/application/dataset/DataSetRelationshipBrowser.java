@@ -50,7 +50,7 @@ class DataSetRelationshipBrowser extends AbstractExternalDataGrid
         return new DataSetRelationshipBrowser(commonViewContext, datasetId, role)
             {
                 @Override
-                protected String getGridDisplayTypeID()
+                public String getGridDisplayTypeID()
                 {
                     return super.getGridDisplayTypeID() + "-" + datasetType.getCode() + "-" + role;
                 }
@@ -65,10 +65,10 @@ class DataSetRelationshipBrowser extends AbstractExternalDataGrid
     private DataSetRelationshipBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
             TechId datasetId, DataSetRelationshipRole role)
     {
-        super(viewContext, createBrowserId(datasetId, role), createGridId(datasetId, role));
+        super(viewContext, createBrowserId(datasetId, role), createGridId(datasetId, role),
+                DisplayTypeIDGenerator.DATA_SET_DETAILS_GRID);
         this.datasetId = datasetId;
         this.role = role;
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_DETAILS_GRID);
     }
 
     public static final String createGridId(TechId datasetId, DataSetRelationshipRole role)

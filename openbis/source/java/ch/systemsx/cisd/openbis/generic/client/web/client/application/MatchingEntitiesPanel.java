@@ -82,13 +82,12 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
             SearchableEntity searchableEntity, String queryText)
     {
         // NOTE: refreshAutomatically is false, refreshing should be called manually
-        super(viewContext, GRID_ID, false, false);
+        super(viewContext, GRID_ID, false, false, DisplayTypeIDGenerator.SEARCH_RESULT_GRID);
         this.searchableEntity = searchableEntity;
         this.queryText = queryText;
         setId(createId());
 
         updateDefaultRefreshButton();
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SEARCH_RESULT_GRID);
         registerLinkClickListenerFor(MatchingEntityColumnKind.IDENTIFIER.id(),
                 new ICellListener<MatchingEntity>()
                     {

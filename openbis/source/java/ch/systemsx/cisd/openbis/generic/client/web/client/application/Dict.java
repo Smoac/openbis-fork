@@ -649,7 +649,7 @@ public abstract class Dict
     // Grid Column Chooser
     //
 
-    public static final String GRID_COLUMN_CHOOSER_TITLE = "GRID_COLUMN_CHOOSER_TITLE";
+    public static final String GRID_SETTINGS_TITLE = "grid_settings_title";
 
     public static final String GRID_COLUMN_NAME_HEADER = "GRID_COLUMN_NAME_HEADER";
 
@@ -767,6 +767,16 @@ public abstract class Dict
     public static final String ONLY_SELECTED_RADIO = "only_selected_radio";
 
     public static final String EXPERIMENTS_RADIO_GROUP_LABEL = "experiments_radio_group_label";
+
+    public static final String NAME = "name";
+
+    public static final String IS_PUBLIC = "is_public";
+
+    public static final String EXPRESSION = "expression";
+
+    public static final String COLUMNS = "columns";
+
+    public static final String CUSTOM_FILTERS = "custom_filters";
 
     // ----- end generic ------------------
 }

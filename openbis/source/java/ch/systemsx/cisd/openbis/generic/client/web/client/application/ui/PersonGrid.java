@@ -89,9 +89,9 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
     private PersonGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             AuthorizationGroup groupOrNull)
     {
-        super(viewContext, createBrowserId(groupOrNull), createGridId(groupOrNull));
+        super(viewContext, createBrowserId(groupOrNull), createGridId(groupOrNull),
+                DisplayTypeIDGenerator.PERSON_BROWSER_GRID);
         this.authorizationGroupOrNull = groupOrNull;
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PERSON_BROWSER_GRID);
     }
 
     public static final String createBrowserId()

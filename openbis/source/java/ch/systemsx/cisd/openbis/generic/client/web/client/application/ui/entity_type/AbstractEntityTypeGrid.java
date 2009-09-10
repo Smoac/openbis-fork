@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
- * Abstarct grid displaying entity types.
+ * Abstract grid displaying entity types.
  * 
  * @author Tomasz Pylak
  */
@@ -67,8 +67,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
     protected AbstractEntityTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId, String gridId)
     {
-        super(viewContext, browserId, gridId);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.TYPE_BROWSER_GRID);
+        super(viewContext, browserId, gridId, DisplayTypeIDGenerator.TYPE_BROWSER_GRID);
 
         postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
@@ -76,7 +75,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
     }
 
     @Override
-    protected String getGridDisplayTypeID()
+    public String getGridDisplayTypeID()
     {
         return createGridDisplayTypeID("-" + getEntityKind().toString());
     }

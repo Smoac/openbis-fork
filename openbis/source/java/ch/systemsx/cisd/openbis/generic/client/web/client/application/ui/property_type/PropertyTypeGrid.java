@@ -79,8 +79,7 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
 
     private PropertyTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID);
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.PROPERTY_TYPE_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.PROPERTY_TYPE_BROWSER_GRID);
         extendBottomToolbar();
         postRegistrationCallback = createRefreshGridAction();
     }

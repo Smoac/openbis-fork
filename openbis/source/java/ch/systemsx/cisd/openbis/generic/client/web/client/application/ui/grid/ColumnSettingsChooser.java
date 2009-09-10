@@ -45,6 +45,7 @@ class ColumnSettingsChooser
     public ColumnSettingsChooser(List<ColumnDataModel> list, IMessageProvider messageProvider)
     {
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+
         CheckColumnConfig isVisibleColumn =
                 new CheckColumnConfig(ColumnDataModel.IS_VISIBLE, messageProvider
                         .getMessage(Dict.GRID_IS_COLUMN_VISIBLE_HEADER), 55);
@@ -54,9 +55,12 @@ class ColumnSettingsChooser
         ColumnConfig nameColumn =
                 new ColumnConfig(ColumnDataModel.HEADER, messageProvider
                         .getMessage(Dict.GRID_COLUMN_NAME_HEADER), 300);
+        // AI remove when not needed
+        ColumnConfig idColumn = new ColumnConfig(ColumnDataModel.COLUMN_ID, "ID", 300);
         configs.add(isVisibleColumn);
         configs.add(hasFilterColumn);
         configs.add(nameColumn);
+        configs.add(idColumn);
         for (ColumnConfig column : configs)
         {
             column.setSortable(false);

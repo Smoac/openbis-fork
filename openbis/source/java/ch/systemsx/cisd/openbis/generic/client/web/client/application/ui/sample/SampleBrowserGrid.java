@@ -105,7 +105,7 @@ public class SampleBrowserGrid extends
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, true,
-                        false)
+                        false, DisplayTypeIDGenerator.ENTITY_BROWSER_GRID)
                     {
                         @Override
                         protected void showEntityViewer(Sample sample, boolean editMode)
@@ -124,7 +124,7 @@ public class SampleBrowserGrid extends
         ISampleCriteriaProvider criteriaProvider = toolbar;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, GRID_ID, BROWSER_ID, true,
-                        false);
+                        false, DisplayTypeIDGenerator.ENTITY_BROWSER_GRID);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithToolbar(toolbar);
@@ -138,9 +138,9 @@ public class SampleBrowserGrid extends
                 ListSampleDisplayCriteria.createForContainer(containerSampleId);
         final String entityTypeCode = sampleType.getCode();
         final SampleBrowserGrid browserGrid =
-                createGridAsComponent(viewContext, gridId, criteria, entityTypeCode);
+                createGridAsComponent(viewContext, gridId, criteria, entityTypeCode,
+                        DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         browserGrid.updateCriteriaProviderAndRefresh();
-        browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithoutToolbar();
     }
@@ -154,16 +154,17 @@ public class SampleBrowserGrid extends
         final String entityTypeCode = experimentType.getCode();
 
         final SampleBrowserGrid browserGrid =
-                createGridAsComponent(viewContext, gridId, criteria, entityTypeCode);
+                createGridAsComponent(viewContext, gridId, criteria, entityTypeCode,
+                        DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
         browserGrid.updateCriteriaProviderAndRefresh();
-        browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.EXPERIMENT_DETAILS_GRID);
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithoutToolbar();
     }
 
     private static SampleBrowserGrid createGridAsComponent(
             final IViewContext<ICommonClientServiceAsync> viewContext, final String gridId,
-            final ListSampleDisplayCriteria criteria, final String entityTypeCode)
+            final ListSampleDisplayCriteria criteria, final String entityTypeCode,
+            DisplayTypeIDGenerator displayTypeIDGenerator)
     {
         ISampleCriteriaProvider criteriaProvider =
                 new SampleCriteriaProvider(viewContext, criteria);
@@ -172,10 +173,10 @@ public class SampleBrowserGrid extends
         boolean refreshAutomatically = false;
         final SampleBrowserGrid browserGrid =
                 new SampleBrowserGrid(viewContext, criteriaProvider, gridId, BROWSER_ID, false,
-                        refreshAutomatically)
+                        refreshAutomatically, displayTypeIDGenerator)
                     {
                         @Override
-                        protected String getGridDisplayTypeID()
+                        public String getGridDisplayTypeID()
                         {
                             return super.getGridDisplayTypeID() + "-" + entityTypeCode;
                         }
@@ -283,9 +284,10 @@ public class SampleBrowserGrid extends
 
     protected SampleBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             ISampleCriteriaProvider criteriaProvider, String gridId, String browserId,
-            boolean showHeader, boolean refreshAutomatically)
+            boolean showHeader, boolean refreshAutomatically,
+            DisplayTypeIDGenerator displayTypeIDGenerator)
     {
-        super(viewContext, gridId, showHeader, refreshAutomatically);
+        super(viewContext, gridId, showHeader, refreshAutomatically, displayTypeIDGenerator);
         this.propertyTypesAndCriteriaProvider = criteriaProvider;
         this.previousPropertyTypes = null;
 

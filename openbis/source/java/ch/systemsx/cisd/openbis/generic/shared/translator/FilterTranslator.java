@@ -63,6 +63,7 @@ public final class FilterTranslator
         result.setRegistrationDate(filter.getRegistrationDate());
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(filter
                 .getDatabaseInstance()));
+        result.setPublic(filter.isPublic());
         return result;
     }
 

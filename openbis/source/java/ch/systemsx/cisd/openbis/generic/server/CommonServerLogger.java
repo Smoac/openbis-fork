@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -751,6 +752,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logAccess(sessionToken, "listFilters", "GRID(%s)", gridId);
         return null;
+    }
+
+    public void registerFilter(String sessionToken, NewFilter filter)
+    {
+        logTracking(sessionToken, "registerFilter", "FILTER(%s)", filter);
+
     }
 
 }

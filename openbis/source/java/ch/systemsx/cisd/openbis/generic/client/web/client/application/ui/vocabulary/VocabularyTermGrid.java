@@ -113,11 +113,11 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     private VocabularyTermGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             Vocabulary vocabulary)
     {
-        super(viewContext, createBrowserId(vocabulary), createGridId(vocabulary));
+        super(viewContext, createBrowserId(vocabulary), createGridId(vocabulary),
+                DisplayTypeIDGenerator.VOCABULARY_TERMS_GRID);
         this.vocabulary = vocabulary;
         this.postRegistrationCallback = createRefreshGridAction();
         extendBottomToolbar();
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.VOCABULARY_TERMS_GRID);
     }
 
     private void extendBottomToolbar()
