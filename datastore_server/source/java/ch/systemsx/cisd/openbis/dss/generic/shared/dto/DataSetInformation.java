@@ -171,6 +171,12 @@ public class DataSetInformation implements Serializable
         return sample == null ? null : sample.getExperiment();
     }
 
+    /**
+     * NOTE: may be NULL
+     * 
+     * @deprecated remove deprecation when all use cases are rewritten in a NULL safe way
+     */
+    @Deprecated
     public Sample getSample()
     {
         return sample;
@@ -186,6 +192,7 @@ public class DataSetInformation implements Serializable
      * 
      * @return <code>null</code> if <code>sampleCode</code> has not been set.
      */
+    // FIXME 2009-09-10, Piotr Buczek: high usage in DS, not all usages are NULL safe
     public final SampleIdentifier getSampleIdentifier()
     {
         if (sampleCode == null)
@@ -202,7 +209,11 @@ public class DataSetInformation implements Serializable
                 sampleCode);
     }
 
-    /** @deprecated may be null */
+    /**
+     * NOTE: may be NULL
+     * 
+     * @deprecated remove deprecation when all use cases are rewritten in a NULL safe way
+     */
     @Deprecated
     public final String getSampleCode()
     {
