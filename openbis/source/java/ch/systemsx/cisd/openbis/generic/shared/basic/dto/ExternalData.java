@@ -90,6 +90,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.permlink = permlink;
     }
 
+    /** NOTE: may be NULL */
     public Sample getSample()
     {
         return sample;
@@ -106,6 +107,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         }
     }
 
+    /** NOTE: may be NULL */
     public final String getSampleIdentifier()
     {
         return sampleIdentifier;
@@ -116,6 +118,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.sampleIdentifier = sampleIdentifier;
     }
 
+    /** NOTE: may be NULL */
     public final String getSampleCode()
     {
         return sampleCode;
@@ -126,6 +129,7 @@ public class ExternalData extends CodeWithRegistration<ExternalData> implements
         this.sampleCode = sampleCode;
     }
 
+    /** NOTE: may be NULL */
     public final SampleType getSampleType()
     {
         return sampleType;

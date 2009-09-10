@@ -180,10 +180,13 @@ public class DatasetLister implements IDatasetLister
         Long2ObjectMap<Sample> samples = referencedEntityDAO.getSamples(ids);
         for (ExternalData dataset : datasetMap.values())
         {
-            long sampleId = dataset.getSample().getId();
-            Sample sample = samples.get(sampleId);
-            dataset.setSample(sample);
-            enrichWithInvalidation(dataset, sample);
+            if (dataset.getSample() != null)
+            {
+                long sampleId = dataset.getSample().getId();
+                Sample sample = samples.get(sampleId);
+                dataset.setSample(sample);
+                enrichWithInvalidation(dataset, sample);
+            }
         }
     }
 
@@ -203,8 +206,11 @@ public class DatasetLister implements IDatasetLister
         LongSet ids = new LongOpenHashSet();
         for (ExternalData dataset : datasetMap.values())
         {
-            long sampleId = dataset.getSample().getId();
-            ids.add(sampleId);
+            if (dataset.getSample() != null)
+            {
+                long sampleId = dataset.getSample().getId();
+                ids.add(sampleId);
+            }
         }
         return ids;
     }

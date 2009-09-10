@@ -231,11 +231,11 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             for (ExternalDataPE dataSet : dataSets)
             {
                 HibernateUtils.initialize(dataSet.getParents());
-                SamplePE sample = dataSet.getSample();
+                SamplePE sampleOrNull = dataSet.tryGetSample();
                 ExperimentPE experiment;
-                if (sample != null)
+                if (sampleOrNull != null) // needed? dataSet should always have experiment
                 {
-                    experiment = sample.getExperiment();
+                    experiment = sampleOrNull.getExperiment();
                 } else
                 {
                     experiment = dataSet.getExperiment();
@@ -410,7 +410,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             if (dataSet != null)
             {
                 String location = dataSet.getLocation();
-                SamplePE sample = dataSet.getSample();
+                SamplePE sample = dataSet.tryGetSample();
+                // FIXME 2009-09-10, Piotr Buczek: rewrite to deal with sample == NULL
                 String sampleCode = sample.getCode();
                 String groupCode = sample.getGroup().getCode();
                 result.add(new DatasetDescription(datasetCode, location, sampleCode, groupCode));

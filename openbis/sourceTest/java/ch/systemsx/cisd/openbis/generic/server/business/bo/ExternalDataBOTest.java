@@ -63,10 +63,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 /**
  * @author Franz-Josef Elmer
  */
+// TODO 2009-09-10, Piotr Buczek: write tests with no direct sample connection
 public class ExternalDataBOTest extends AbstractBOTest
 {
     private static final TechId TECH_ID = new TechId(42l);
-    
+
     private static final DatabaseInstanceIdentifier DATABASE_INSTANCE_IDENTIFIER =
             new DatabaseInstanceIdentifier(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE.getCode());
 
@@ -143,7 +144,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         assertEquals(0, externalData.getParents().size());
         assertSame(experimentPE, externalData.getExperiment());
         assertEquals(PRODUCTION_DATE, externalData.getProductionDate());
-        assertSame(sample, externalData.getSample());
+        assertSame(sample, externalData.tryGetSample());
         assertSame(true, externalData.isDerived());
         assertEquals(StorageFormat.PROPRIETARY, externalData.getStorageFormat());
         assertSame(vocabularyTerm, externalData.getStorageFormatVocabularyTerm());
@@ -179,7 +180,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         sampleBO.define(createData(PARENT_CODE), sample, SourceType.MEASUREMENT);
         ExternalDataPE externalData = sampleBO.getExternalData();
 
-        assertSame(sample, externalData.getSample());
+        assertSame(sample, externalData.tryGetSample());
         assertSame(true, externalData.isMeasured());
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(1, externalData.getParents().size());
@@ -226,7 +227,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         sampleBO.define(createData(PARENT_CODE), sample, SourceType.MEASUREMENT);
         ExternalDataPE externalData = sampleBO.getExternalData();
 
-        assertSame(sample, externalData.getSample());
+        assertSame(sample, externalData.tryGetSample());
         assertSame(true, externalData.isMeasured());
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(1, externalData.getParents().size());
@@ -245,7 +246,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         vocabularyTerm.setCode(StorageFormat.PROPRIETARY.toString());
         vocabulary.addTerm(vocabularyTerm);
         final LocatorTypePE locatorType = new LocatorTypePE();
-        final SamplePE data = new SamplePE();
+        final SamplePE sample = new SamplePE();
         final DataStorePE dataStore = new DataStorePE();
         prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
         final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
@@ -253,7 +254,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         parentData.setCode(PARENT_CODE);
         parentData.setDataSetType(dataSetTypeUnknown);
         parentData.setExperiment(createExperiment("EXP1"));
-        parentData.setSampleDerivedFrom(data);
+        parentData.setSampleDerivedFrom(sample);
         parentData.setPlaceholder(true);
         context.checking(new Expectations()
             {
@@ -270,10 +271,10 @@ public class ExternalDataBOTest extends AbstractBOTest
             });
 
         IExternalDataBO bo = createExternalDataBO();
-        bo.define(createData(PARENT_CODE), data, SourceType.MEASUREMENT);
+        bo.define(createData(PARENT_CODE), sample, SourceType.MEASUREMENT);
         ExternalDataPE externalData = bo.getExternalData();
 
-        assertSame(data, externalData.getSample());
+        assertSame(sample, externalData.tryGetSample());
         assertSame(true, externalData.isMeasured());
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(1, externalData.getParents().size());
@@ -304,10 +305,10 @@ public class ExternalDataBOTest extends AbstractBOTest
                     one(externalDataDAO).validateAndSaveUpdatedEntity(dataSet);
                 }
             });
-        
+
         IExternalDataBO bo = createExternalDataBO();
         bo.update(dataSetUpdatesDTO);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -320,7 +321,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(dataSet);
         dataSetUpdatesDTO.setParentDatasetCodeOrNull(dataSet.getCode());
         prepareForUpdate(dataSet, sample);
-        
+
         IExternalDataBO bo = createExternalDataBO();
         try
         {
@@ -330,10 +331,10 @@ public class ExternalDataBOTest extends AbstractBOTest
         {
             assertEquals("Data set 'DS1' can not be its own parent.", e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUpdateWithNonExistingParentDataSet()
     {
@@ -350,7 +351,7 @@ public class ExternalDataBOTest extends AbstractBOTest
                     will(returnValue(null));
                 }
             });
-        
+
         IExternalDataBO bo = createExternalDataBO();
         try
         {
@@ -360,10 +361,10 @@ public class ExternalDataBOTest extends AbstractBOTest
         {
             assertEquals("Data set with code 'parent' does not exist.", e.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testUpdateWithParentDataSetFromDifferentExperiment()
     {
@@ -421,7 +422,7 @@ public class ExternalDataBOTest extends AbstractBOTest
                             GROUP_IDENTIFIER.getGroupCode(),
                             ManagerTestTool.EXAMPLE_DATABASE_INSTANCE);
                     will(returnValue(ManagerTestTool.EXAMPLE_GROUP));
-                    
+
                     one(sampleDAO).tryFindByCodeAndGroup(SAMPLE_IDENTIFIER.getSampleCode(),
                             ManagerTestTool.EXAMPLE_GROUP);
                     will(returnValue(sample));
@@ -434,7 +435,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         DataSetUpdatesDTO dataSetUpdatesDTO = new DataSetUpdatesDTO();
         dataSetUpdatesDTO.setDatasetId(TECH_ID);
         dataSetUpdatesDTO.setVersion(dataSet.getModificationDate());
-        dataSetUpdatesDTO.setSampleIdentifier(SAMPLE_IDENTIFIER);
+        dataSetUpdatesDTO.setSampleIdentifierOrNull(SAMPLE_IDENTIFIER);
         dataSetUpdatesDTO.setFileFormatTypeCode(FILE_FORMAT_TYPE.getCode());
         return dataSetUpdatesDTO;
     }
@@ -448,7 +449,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         dataSet.setSample(sample);
         return dataSet;
     }
-    
+
     @Test
     public void testSaveNewDataSet()
     {
@@ -522,7 +523,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(false, externalData.isPlaceholder());
         assertEquals(4711, externalData.getId().longValue());
-        assertSame(sample, externalData.getSample());
+        assertSame(sample, externalData.tryGetSample());
         assertSame(true, externalData.isDerived());
 
         context.assertIsSatisfied();

@@ -265,8 +265,9 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             throwModifiedEntityException("Data set");
         }
         updateProperties(updates.getProperties());
-        updateSample(updates.getSampleIdentifier());
+        updateSample(updates.getSampleIdentifierOrNull());
         updateParent(updates.getParentDatasetCodeOrNull());
+        // TODO 2009-09-10, Piotr Buczek: write updateExperiment when we allow to change it
         updateFileFormatType(updates.getFileFormatTypeCode());
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
                 externalData.getDataSetType());
@@ -317,30 +318,38 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         externalData.setParent(parentOrNull);
     }
 
-    private void updateSample(SampleIdentifier sampleIdentifier)
+    private void updateSample(SampleIdentifier sampleIdentifierOrNull)
     {
-        SamplePE sample = getSampleByIdentifier(sampleIdentifier);
-        SamplePE previousSample = externalData.getSample();
-        if (sample.equals(previousSample))
+        SamplePE sampleOrNull = null;
+        if (sampleIdentifierOrNull != null)
+        {
+            sampleOrNull = tryToGetSampleByIdentifier(sampleIdentifierOrNull);
+        }
+        SamplePE previousSampleOrNull = externalData.tryGetSample();
+        if ((sampleOrNull == null && previousSampleOrNull == null)
+                || (sampleOrNull != null && sampleOrNull.equals(previousSampleOrNull)))
         {
             return; // nothing to change
         }
-        ExperimentPE experiment = sample.getExperiment();
-        if (experiment == null)
+        if (sampleOrNull != null)
         {
-            throw createWrongSampleException(sample,
-                    "the sample is not connected to any experiment");
+            if (sampleOrNull.getGroup() == null)
+            {
+                throw createWrongSampleException(sampleOrNull, "the sample is shared");
+            }
+            ExperimentPE experiment = sampleOrNull.getExperiment();
+            if (experiment == null)
+            {
+                throw createWrongSampleException(sampleOrNull,
+                        "the sample is not connected to any experiment");
+            }
+            // move dataset to the experiment if needed
+            if (experiment.equals(externalData.getExperiment()) == false)
+            {
+                externalData.setExperiment(experiment);
+            }
         }
-        if (sample.getGroup() == null)
-        {
-            throw createWrongSampleException(sample, "the sample is shared");
-        }
-        // if experiment has changed, move dataset to the new one
-        if (experiment.equals(previousSample.getExperiment()) == false)
-        {
-            externalData.setExperiment(experiment);
-        }
-        externalData.setSample(sample);
+        externalData.setSample(sampleOrNull);
     }
 
     private void updateFileFormatType(String fileFormatTypeCode)

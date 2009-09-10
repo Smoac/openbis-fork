@@ -56,6 +56,12 @@ public class DatasetDescription implements Serializable
         return datasetCode;
     }
 
+    /**
+     * NOTE: may be NULL
+     * 
+     * @deprecated remove deprecation when all use cases are rewritten in a NULL safe way
+     */
+    @Deprecated
     public String getSampleCode()
     {
         return sampleCode;

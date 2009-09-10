@@ -95,7 +95,8 @@ public final class GenericDataSetEditForm extends
         result.setProperties(extractProperties());
         result.setVersion(originalDataSet.getModificationDate());
         result.setParentDatasetCodeOrNull(extractParentDatasetCode());
-        result.setSampleIdentifier(extractSampleIdentifier());
+        // TODO 2009-09-10, Piotr Buczel: check if it is null for empty string
+        result.setSampleIdentifierOrNull(extractSampleIdentifier());
         result.setFileFormatTypeCode(extractFileFormatTypeCode());
         return result;
     }
@@ -188,11 +189,11 @@ public final class GenericDataSetEditForm extends
     private SampleChooserFieldAdaptor createSampleField()
     {
         String label = viewContext.getMessage(Dict.SAMPLE);
-        String originalSample = originalDataSet.getSampleIdentifier();
+        String originalSampleOrNull = originalDataSet.getSampleIdentifier();
         // one cannot select a sample from shared group or a sample that has no experiment
         final SampleChooserFieldAdaptor result =
-                SampleChooserField.create(label, true, originalSample, false, true, viewContext
-                        .getCommonViewContext());
+                SampleChooserField.create(label, true, originalSampleOrNull, false, true,
+                        viewContext.getCommonViewContext());
         result.getField().setId(createChildId(SAMPLE_FIELD_ID_SUFFIX));
         return result;
     }

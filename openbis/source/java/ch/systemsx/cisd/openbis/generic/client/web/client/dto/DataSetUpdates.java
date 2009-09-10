@@ -31,27 +31,27 @@ public class DataSetUpdates extends BasicDataSetUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private String sampleIdentifier;
+    private String sampleIdentifierOrNull;
 
     public DataSetUpdates()
     {
     }
 
     public DataSetUpdates(TechId sampleId, List<IEntityProperty> properties, Date version,
-            String sampleIdentifier)
+            String sampleIdentifierOrNull)
     {
         super(sampleId, properties, version);
-        this.sampleIdentifier = sampleIdentifier;
+        this.sampleIdentifierOrNull = sampleIdentifierOrNull;
     }
 
-    public String getSampleIdentifier()
+    public String getSampleIdentifierOrNull()
     {
-        return sampleIdentifier;
+        return sampleIdentifierOrNull;
     }
 
-    public void setSampleIdentifier(String sampleIdentifier)
+    public void setSampleIdentifierOrNull(String sampleIdentifierOrNull)
     {
-        this.sampleIdentifier = sampleIdentifier;
+        this.sampleIdentifierOrNull = sampleIdentifierOrNull;
     }
 
 }

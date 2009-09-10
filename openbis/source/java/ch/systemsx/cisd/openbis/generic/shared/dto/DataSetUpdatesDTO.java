@@ -27,16 +27,16 @@ public class DataSetUpdatesDTO extends BasicDataSetUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private SampleIdentifier sampleIdentifier;
+    private SampleIdentifier sampleIdentifierOrNull;
 
-    public SampleIdentifier getSampleIdentifier()
+    public SampleIdentifier getSampleIdentifierOrNull()
     {
-        return sampleIdentifier;
+        return sampleIdentifierOrNull;
     }
 
-    public void setSampleIdentifier(SampleIdentifier sampleIdentifier)
+    public void setSampleIdentifierOrNull(SampleIdentifier sampleIdentifierOrNull)
     {
-        this.sampleIdentifier = sampleIdentifier;
+        this.sampleIdentifierOrNull = sampleIdentifierOrNull;
     }
 
 }

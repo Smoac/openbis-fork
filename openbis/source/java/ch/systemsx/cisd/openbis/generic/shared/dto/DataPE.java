@@ -221,8 +221,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
             sample.addDataSet(this);
         } else
         {
-            SamplePE previousSample = getSample();
-            if (previousSample != null)
+            SamplePE previousSample = tryGetSample();
+            if (previousSample != null) // this should always be true (otherwise there is no change)
             {
                 previousSample.removeDataSet(this);
             }
@@ -230,7 +230,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     }
 
     @Transient
-    public SamplePE getSample()
+    public SamplePE tryGetSample()
     {
         return getSampleInternal();
     }

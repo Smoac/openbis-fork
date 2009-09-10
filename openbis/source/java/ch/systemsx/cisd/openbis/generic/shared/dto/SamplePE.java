@@ -155,7 +155,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
 
     public void addDataSet(DataPE dataset)
     {
-        SamplePE sample = dataset.getSample();
+        SamplePE sample = dataset.tryGetSample();
         if (sample != null)
         {
             sample.getDatasetsInternal().remove(dataset);

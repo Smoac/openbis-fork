@@ -75,7 +75,8 @@ public class ExternalDataTranslator
             String defaultDataStoreBaseURL, String baseIndexURL, boolean loadSampleProperties,
             final LoadableFields... withExperimentFields)
     {
-        SamplePE sample = externalDataPE.getSample();
+        SamplePE sampleOrNull = externalDataPE.tryGetSample();
+        ExperimentPE experiment = externalDataPE.getExperiment();
         ExternalData externalData = new ExternalData();
         externalData.setId(HibernateUtils.getId(externalDataPE));
         externalData.setCode(StringEscapeUtils.escapeHtml(externalDataPE.getCode()));
@@ -87,7 +88,7 @@ public class ExternalDataTranslator
         externalData.setDerived(externalDataPE.isDerived());
         externalData
                 .setFileFormatType(TypeTranslator.translate(externalDataPE.getFileFormatType()));
-        externalData.setInvalidation(tryToGetInvalidation(sample));
+        externalData.setInvalidation(tryToGetInvalidation(sampleOrNull, experiment));
         externalData.setLocation(StringEscapeUtils.escapeHtml(externalDataPE.getLocation()));
         externalData.setLocatorType(TypeTranslator.translate(externalDataPE.getLocatorType()));
         final Collection<ExternalData> parents = new HashSet<ExternalData>();
@@ -100,14 +101,13 @@ public class ExternalDataTranslator
         externalData.setProductionDate(externalDataPE.getProductionDate());
         externalData.setModificationDate(externalDataPE.getModificationDate());
         externalData.setRegistrationDate(externalDataPE.getRegistrationDate());
-        externalData.setSample(sample == null ? null : fillSample(new Sample(), sample,
+        externalData.setSample(sampleOrNull == null ? null : fillSample(new Sample(), sampleOrNull,
                 loadSampleProperties));
         externalData.setDataStore(DataStoreTranslator.translate(externalDataPE.getDataStore(),
                 defaultDataStoreBaseURL));
         externalData.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL,
                 EntityKind.DATA_SET, externalData.getIdentifier()));
         setProperties(externalDataPE, externalData);
-        ExperimentPE experiment = externalDataPE.getExperiment();
         externalData.setExperiment(ExperimentTranslator.translate(experiment, baseIndexURL,
                 withExperimentFields));
         return externalData;
@@ -125,21 +125,52 @@ public class ExternalDataTranslator
         }
     }
 
-    private static Invalidation tryToGetInvalidation(SamplePE sample)
+    // TODO 2009-09-10, Piotr Buczek: how should invalidation work if there is no sample?
+    private static Invalidation tryToGetInvalidation(SamplePE sampleOrNull, ExperimentPE experiment)
     {
-        if (sample == null)
+        InvalidationPE invalidationOrNull;
+        if (sampleOrNull != null)
+        {
+            invalidationOrNull = tryToGetInvalidationPE(sampleOrNull);
+        } else
+        {
+            invalidationOrNull = tryToGetInvalidationPE(experiment);
+        }
+        return translateInvalidation(invalidationOrNull);
+    }
+
+    private static InvalidationPE tryToGetInvalidationPE(SamplePE sampleOrNull)
+    {
+        if (sampleOrNull != null)
+        {
+            return sampleOrNull.getInvalidation();
+        } else
         {
             return null;
         }
-        InvalidationPE invalidation = sample.getInvalidation();
-        if (invalidation == null)
+    }
+
+    private static InvalidationPE tryToGetInvalidationPE(ExperimentPE experiment)
+    {
+        if (experiment != null)
+        {
+            return experiment.getInvalidation();
+        } else
+        {
+            return null;
+        }
+    }
+
+    private static Invalidation translateInvalidation(InvalidationPE invalidationPE)
+    {
+        if (invalidationPE == null)
         {
             return null;
         }
         Invalidation result = new Invalidation();
-        result.setReason(StringEscapeUtils.escapeHtml(invalidation.getReason()));
-        result.setRegistrationDate(invalidation.getRegistrationDate());
-        result.setRegistrator(PersonTranslator.translate(invalidation.getRegistrator()));
+        result.setReason(StringEscapeUtils.escapeHtml(invalidationPE.getReason()));
+        result.setRegistrationDate(invalidationPE.getRegistrationDate());
+        result.setRegistrator(PersonTranslator.translate(invalidationPE.getRegistrator()));
         return result;
     }
 
@@ -147,7 +178,7 @@ public class ExternalDataTranslator
     {
         sample.setId(HibernateUtils.getId(samplePE));
         SampleTranslator.setCodes(sample, samplePE);
-        sample.setInvalidation(tryToGetInvalidation(samplePE));
+        sample.setInvalidation(translateInvalidation(samplePE.getInvalidation()));
         sample.setSampleType(TypeTranslator.translate(samplePE.getSampleType()));
         sample.setIdentifier(StringEscapeUtils
                 .escapeHtml(samplePE.getSampleIdentifier().toString()));

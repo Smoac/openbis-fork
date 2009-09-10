@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -54,7 +55,8 @@ public class SimpleDataSetHelper
         result.setExperimentCode(data.getExperiment().getCode());
         result.setProjectCode(data.getExperiment().getProject().getCode());
         result.setGroupCode(data.getExperiment().getProject().getGroup().getCode());
-        result.setSampleCode(data.getSample().getCode());
+        SamplePE sampleOrNull = data.tryGetSample();
+        result.setSampleCode(sampleOrNull == null ? null : sampleOrNull.getCode());
         result.setDataSetType(data.getDataSetType().getCode());
         return result;
     }

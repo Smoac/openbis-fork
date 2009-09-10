@@ -75,6 +75,7 @@ public class SimpleDataSetInformationDTO implements Serializable
         this.dataSetLocation = dataSetLocation;
     }
 
+    /** NOTE: may be NULL! */
     public String getSampleCode()
     {
         return sampleCode;

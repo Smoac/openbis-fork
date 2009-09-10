@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * An <code>IPredicate</code> implementation based on {@link DataSetUpdatesDTO}. Checks that: 1) the
@@ -67,7 +68,11 @@ public class DataSetUpdatesPredicate extends AbstractPredicate<DataSetUpdatesDTO
         {
             return status;
         }
-        status = samplePredicate.doEvaluation(person, allowedRoles, updates.getSampleIdentifier());
+        SampleIdentifier sampleIdentifierOrNull = updates.getSampleIdentifierOrNull();
+        if (sampleIdentifierOrNull != null)
+        {
+            status = samplePredicate.doEvaluation(person, allowedRoles, sampleIdentifierOrNull);
+        }
         return status;
 
     }
