@@ -80,11 +80,11 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     private ProteinByExperimentBrowserGrid(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
-        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false);
+        super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false,
+                PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
         specificViewContext = viewContext;
         toolbar = new ProteinByExperimentBrowerToolBar(viewContext);
         toolbar.setBrowserGrid(this);
-        setDisplayTypeIDGenerator(PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
         registerLinkClickListenerFor(ProteinColDefKind.ACCESSION_NUMBER.id(),
                 new ICellListener<ProteinInfo>()
                     {
@@ -109,7 +109,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         abundanceColumnDefinitions = definitions;
         refresh(null, true);
     }
-    
+
     @Override
     protected IColumnDefinitionKind<ProteinInfo>[] getStaticColumnsDefinition()
     {
@@ -120,7 +120,8 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     protected ColumnDefsAndConfigs<ProteinInfo> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<ProteinInfo> definitions = super.createColumnsDefinition();
-        List<IColumnDefinitionUI<ProteinInfo>> columns = new ArrayList<IColumnDefinitionUI<ProteinInfo>>();
+        List<IColumnDefinitionUI<ProteinInfo>> columns =
+                new ArrayList<IColumnDefinitionUI<ProteinInfo>>();
         for (AbundanceColumnDefinition definition : abundanceColumnDefinitions)
         {
             String header = definition.getSampleCode();

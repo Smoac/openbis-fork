@@ -61,11 +61,11 @@ public class ProteinSequenceGrid extends AbstractSimpleBrowserGrid<ProteinSequen
             TechId proteinReferenceID)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID + proteinReferenceID, GRID_ID
-                + proteinReferenceID, true);
+                + proteinReferenceID, true,
+                PhosphoNetXDisplayTypeIDGenerator.PROTEIN_SEQUENCE_BROWSER_GRID);
         specificViewContext = viewContext;
         criteria = new ListProteinSequenceCriteria();
         criteria.setProteinReferenceID(proteinReferenceID);
-        setDisplayTypeIDGenerator(PhosphoNetXDisplayTypeIDGenerator.PROTEIN_SEQUENCE_BROWSER_GRID);
     }
 
     @Override

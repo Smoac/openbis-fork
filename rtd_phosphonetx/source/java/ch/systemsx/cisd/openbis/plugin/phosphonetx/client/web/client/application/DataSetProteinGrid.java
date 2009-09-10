@@ -69,7 +69,8 @@ class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID
                 + createWidgetID(experimentOrNull, proteinReferenceID), GRID_ID
-                + createWidgetID(experimentOrNull, proteinReferenceID), true);
+                + createWidgetID(experimentOrNull, proteinReferenceID), true,
+                PhosphoNetXDisplayTypeIDGenerator.DATA_SET_PROTEIN_BROWSER_GRID);
         specificViewContext = viewContext;
         criteria = new ListProteinByExperimentAndReferenceCriteria();
         if (experimentOrNull != null)
@@ -77,7 +78,6 @@ class DataSetProteinGrid extends AbstractSimpleBrowserGrid<DataSetProtein>
             criteria.setExperimentID(new TechId(experimentOrNull.getId()));
         }
         criteria.setProteinReferenceID(proteinReferenceID);
-        setDisplayTypeIDGenerator(PhosphoNetXDisplayTypeIDGenerator.DATA_SET_PROTEIN_BROWSER_GRID);
     }
 
     @Override

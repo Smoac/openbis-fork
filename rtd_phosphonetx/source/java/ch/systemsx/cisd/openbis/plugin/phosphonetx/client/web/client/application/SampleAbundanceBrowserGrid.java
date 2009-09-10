@@ -103,7 +103,6 @@ public class SampleAbundanceBrowserGrid
                 new SampleAbundanceBrowserGrid(viewContext, criteriaProvider, gridId, false,
                         refreshAutomatically);
         browserGrid.updateCriteriaProviderAndRefresh();
-        browserGrid.setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         browserGrid.extendBottomToolbar();
         return browserGrid.asDisposableWithoutToolbar();
     }
@@ -180,7 +179,8 @@ public class SampleAbundanceBrowserGrid
             ISampleAbundanceCriteriaProvider criteriaProvider, String gridId, boolean showHeader,
             boolean refreshAutomatically)
     {
-        super(viewContext.getCommonViewContext(), gridId, showHeader, refreshAutomatically);
+        super(viewContext.getCommonViewContext(), gridId, showHeader, refreshAutomatically,
+                DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         this.phosphoViewContext = viewContext;
         this.propertyTypesAndCriteriaProvider = criteriaProvider;
         this.previousPropertyTypes = null;
