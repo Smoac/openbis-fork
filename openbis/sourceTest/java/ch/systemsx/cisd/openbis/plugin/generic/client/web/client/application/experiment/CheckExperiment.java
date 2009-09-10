@@ -95,7 +95,7 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
 
     public CheckTableCommand dataSetTable()
     {
-        // FIXME this command is never executed!!!
+        // TODO 2009-05-13, Tomasz Pylak: this command is never executed!!!
         return new CheckTableCommand(ExperimentDataSetBrowser.createGridId(experimentId));
     }
 
