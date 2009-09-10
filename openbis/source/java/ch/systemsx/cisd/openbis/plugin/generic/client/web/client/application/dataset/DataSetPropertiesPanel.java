@@ -106,7 +106,6 @@ public class DataSetPropertiesPanel extends ContentPanel
         final Map<String, Object> properties = new LinkedHashMap<String, Object>();
         final DataSetType datasetType = dataset.getDataSetType();
         final Invalidation invalidation = dataset.getInvalidation();
-        final ExternalData[] children = dataset.getChildren().toArray(new ExternalData[0]);
 
         properties.put(messageProvider.getMessage(Dict.DATA_SET), dataset.getCode());
         properties.put(messageProvider.getMessage(Dict.DATA_SET_TYPE), datasetType);
@@ -132,16 +131,6 @@ public class DataSetPropertiesPanel extends ContentPanel
 
         properties.put(messageProvider.getMessage(Dict.SAMPLE), dataset.getSample());
         properties.put(messageProvider.getMessage(Dict.EXPERIMENT), dataset.getExperiment());
-
-        ExternalData parent = dataset.getParent();
-        if (parent != null)
-        {
-            properties.put(messageProvider.getMessage(Dict.PARENT), parent);
-        }
-        if (children.length > 0)
-        {
-            properties.put(messageProvider.getMessage(Dict.CHILDREN_DATASETS), children);
-        }
 
         final List<IEntityProperty> datasetProperties = dataset.getProperties();
         Collections.sort(datasetProperties);
