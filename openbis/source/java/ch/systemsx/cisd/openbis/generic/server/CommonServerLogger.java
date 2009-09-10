@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -235,6 +236,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             final TechId experimentId)
     {
         logAccess(sessionToken, "list_external_data", "ID(%s)", experimentId);
+        return null;
+    }
+
+    public List<ExternalData> listDataSetRelationships(String sessionToken, TechId datasetId,
+            DataSetRelationshipRole role)
+    {
+        logAccess(sessionToken, "list_dataset_relationships", "ID(%s), ROLE(%s)", datasetId, role);
         return null;
     }
 

@@ -80,6 +80,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -875,6 +876,23 @@ public final class CommonClientService extends AbstractClientService implements
                     return externalData;
                 }
 
+            });
+    }
+
+    public ResultSetWithEntityTypes<ExternalData> listDataSetRelationships(final TechId datasetId,
+            final DataSetRelationshipRole role,
+            final DefaultResultSetConfig<String, ExternalData> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntitiesWithTypes(criteria, new IOriginalDataProvider<ExternalData>()
+            {
+                public List<ExternalData> getOriginalData() throws UserFailureException
+                {
+                    final String sessionToken = getSessionToken();
+                    final List<ExternalData> externalData =
+                            commonServer.listDataSetRelationships(sessionToken, datasetId, role);
+                    return externalData;
+                }
             });
     }
 

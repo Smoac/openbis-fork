@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -389,6 +390,14 @@ public interface ICommonClientService extends IClientService
      */
     public ResultSetWithEntityTypes<ExternalData> listExperimentDataSets(final TechId experimentId,
             DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
+
+    /**
+     * For given <var>datasetId</var> in given relationship <var>role</var> returns corresponding
+     * list of {@link ExternalData}.
+     */
+    public ResultSetWithEntityTypes<ExternalData> listDataSetRelationships(TechId datasetId,
+            DataSetRelationshipRole role, DefaultResultSetConfig<String, ExternalData> criteria)
+            throws UserFailureException;
 
     /**
      * Lists the searchable entities.

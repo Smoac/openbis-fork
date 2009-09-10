@@ -21,10 +21,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.IPropertyValueRenderer;
@@ -46,11 +47,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermValueEntityProperty;
 
 /**
- * {@link SingleSectionPanel} containing dataset properties.
+ * {@link ContentPanel} containing dataset properties.
  * 
  * @author Piotr Buczek
  */
-public class DataSetPropertiesSection extends SingleSectionPanel
+public class DataSetPropertiesPanel extends ContentPanel
 {
     public static final String PROPERTIES_ID_PREFIX =
             GenericConstants.ID_PREFIX + "dataset-properties-section_";
@@ -59,9 +60,9 @@ public class DataSetPropertiesSection extends SingleSectionPanel
 
     private final IViewContext<?> viewContext;
 
-    public DataSetPropertiesSection(final ExternalData dataset, final IViewContext<?> viewContext)
+    public DataSetPropertiesPanel(final ExternalData dataset, final IViewContext<?> viewContext)
     {
-        super("Data Set Properties");
+        setHeading("Data Set Properties");
         this.dataset = dataset;
         this.viewContext = viewContext;
         final PropertyGrid propertyGrid = createPropertyGrid();

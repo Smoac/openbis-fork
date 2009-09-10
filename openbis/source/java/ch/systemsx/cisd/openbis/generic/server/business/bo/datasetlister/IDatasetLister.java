@@ -35,6 +35,13 @@ public interface IDatasetLister
     /** @return datasets connected to the sample with the specified id */
     List<ExternalData> listBySampleTechId(TechId sampleId);
 
+    // TODO 2009-09-10, Piotr Buczek: write tests
+    /** @return datasets that are parents of a dataset with the specified id */
+    List<ExternalData> listByChildTechId(TechId childDatasetId);
+
+    /** @return datasets that are parents of a dataset with the specified id */
+    List<ExternalData> listByParentTechId(TechId parentDatasetId);
+
     /** @return datasets with given ids */
     List<ExternalData> listByDatasetIds(Collection<Long> datasetIds);
 }

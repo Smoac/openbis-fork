@@ -373,6 +373,8 @@ public abstract class Dict
     // ExternalData Viewer
     //
 
+    public static final String DATA_SET_PROPERTIES_HEADING = "data_set_properties_heading";
+
     public static final String PARENT = "parent";
 
     public static final String PARENT_CODE = "parent_code";

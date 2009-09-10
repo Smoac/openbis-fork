@@ -27,7 +27,8 @@ var generic = {
   // Data Set Viewer
   //  
 
-	data_store: "Data Store",
+  data_set_properties_heading: "Data Set Properties",
+  data_store: "Data Store",
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

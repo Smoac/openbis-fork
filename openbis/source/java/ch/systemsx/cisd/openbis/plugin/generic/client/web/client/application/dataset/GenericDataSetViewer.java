@@ -21,20 +21,22 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.google.gwt.user.client.ui.Widget;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
@@ -111,11 +113,6 @@ public final class GenericDataSetViewer extends
         return getId() + childIdSuffix;
     }
 
-    private static void addSection(final LayoutContainer lc, final Widget w)
-    {
-        lc.add(w, new RowData(-1, -1, new Margins(5)));
-    }
-
     /**
      * Load the dataset information.
      */
@@ -123,6 +120,44 @@ public final class GenericDataSetViewer extends
     {
         viewContext.getService().getDataSetInfo(datasetId,
                 new DataSetInfoCallback(viewContext, this));
+    }
+
+    private final Component createLeftPanel(final ExternalData dataset)
+    {
+        final ContentPanel panel = createDataSetPropertiesPanel(dataset);
+        panel.setScrollMode(Scroll.AUTOY);
+        return panel;
+    }
+
+    private ContentPanel createDataSetPropertiesPanel(final ExternalData dataset)
+    {
+        return new DataSetPropertiesPanel(dataset, viewContext);
+    }
+
+    private final Component createRightPanel(final ExternalData dataset)
+    {
+        final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
+        final String displayIdSuffix = getDisplayIdSuffix(dataset.getDataSetType().getCode());
+
+        // parents
+        final SingleSectionPanel parentsSection = new DataSetParentsSection(viewContext, dataset);
+        parentsSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_PARENTS_SECTION,
+                displayIdSuffix);
+        container.addPanel(parentsSection);
+
+        // children
+        final SingleSectionPanel childrenSection = new DataSetChildrenSection(viewContext, dataset);
+        childrenSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_CHILDREN_SECTION,
+                displayIdSuffix);
+        container.addPanel(childrenSection);
+
+        container.layout();
+        return container;
+    }
+
+    private static final String getDisplayIdSuffix(String suffix)
+    {
+        return PREFIX + suffix;
     }
 
     public static final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
@@ -151,8 +186,15 @@ public final class GenericDataSetViewer extends
         {
             genericDataSetViewer.updateOriginalData(result);
             genericDataSetViewer.removeAll();
-            genericDataSetViewer.setScrollMode(Scroll.AUTO);
-            addSection(genericDataSetViewer, new DataSetPropertiesSection(result, viewContext));
+            genericDataSetViewer.setLayout(new BorderLayout());
+
+            // Left panel
+            final Component leftPanel = genericDataSetViewer.createLeftPanel(result);
+            genericDataSetViewer.add(leftPanel, createLeftBorderLayoutData());
+            // Right panel
+            final Component rightPanel = genericDataSetViewer.createRightPanel(result);
+            genericDataSetViewer.add(rightPanel, createRightBorderLayoutData());
+
             genericDataSetViewer.layout();
         }
 

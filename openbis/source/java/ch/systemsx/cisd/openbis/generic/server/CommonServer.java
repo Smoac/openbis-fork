@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -473,6 +474,26 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.loadByExperimentTechId(experimentId);
         return getSortedExternalDataFrom(externalDataTable, session.getBaseIndexURL());
+    }
+
+    // 'fast' implementation
+    public List<ExternalData> listDataSetRelationships(String sessionToken, TechId datasetId,
+            DataSetRelationshipRole role)
+    {
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        List<ExternalData> datasets = null;
+        switch (role)
+        {
+            case CHILD:
+                datasets = datasetLister.listByChildTechId(datasetId);
+                break;
+            case PARENT:
+                datasets = datasetLister.listByParentTechId(datasetId);
+                break;
+        }
+        Collections.sort(datasets);
+        return datasets;
     }
 
     // FIXME 2009-08-30 Tomasz Pylak: use this method

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -26,58 +26,66 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
- * @author Franz-Josef Elmer
+ * {@link AbstractExternalDataGrid} containing data sets directly connected with a specified data
+ * set being in a specified relationship role (parent/child).
+ * 
+ * @author Piotr Buczek
  */
-class SampleDataSetBrowser extends AbstractExternalDataGrid
+class DataSetRelationshipBrowser extends AbstractExternalDataGrid
 {
-    private static final String PREFIX = "sample-data-section_";
+    private static final String PREFIX = "data-set-relationships-section_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    public static IDisposableComponent create(IViewContext<?> viewContext, TechId sampleId,
-            final SampleType sampleType)
+    public static IDisposableComponent create(IViewContext<?> viewContext, TechId datasetId,
+            final DataSetRelationshipRole role, final DataSetType datasetType)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
-        return new SampleDataSetBrowser(commonViewContext, sampleId)
+        return new DataSetRelationshipBrowser(commonViewContext, datasetId, role)
             {
                 @Override
                 protected String getGridDisplayTypeID()
                 {
-                    return super.getGridDisplayTypeID() + "-" + sampleType.getCode();
+                    return super.getGridDisplayTypeID() + "-" + datasetType.getCode() + "-" + role;
                 }
 
             }.asDisposableWithoutToolbar();
     }
 
-    private final TechId sampleId;
+    private final TechId datasetId;
 
-    private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            TechId sampleId)
+    private final DataSetRelationshipRole role;
+
+    private DataSetRelationshipBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
+            TechId datasetId, DataSetRelationshipRole role)
     {
-        super(viewContext, createBrowserId(sampleId), createGridId(sampleId));
-        this.sampleId = sampleId;
-        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
+        super(viewContext, createBrowserId(datasetId, role), createGridId(datasetId, role));
+        this.datasetId = datasetId;
+        this.role = role;
+        setDisplayTypeIDGenerator(DisplayTypeIDGenerator.DATA_SET_DETAILS_GRID);
     }
 
-    public static final String createGridId(TechId sampleId)
+    public static final String createGridId(TechId datasetId, DataSetRelationshipRole role)
     {
-        return createBrowserId(sampleId) + "-grid";
+        return createBrowserId(datasetId, role) + "-grid";
     }
 
-    public static final String createBrowserId(TechId sampleId)
+    public static final String createBrowserId(TechId datasetId, DataSetRelationshipRole role)
     {
-        return ID_PREFIX + sampleId;
+        return ID_PREFIX + datasetId + "-" + role;
     }
 
     @Override
     protected void listDatasets(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             final AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback)
     {
-        viewContext.getService().listSampleDataSets(sampleId, resultSetConfig, callback);
+        viewContext.getService().listDataSetRelationships(datasetId, role, resultSetConfig,
+                callback);
     }
 }

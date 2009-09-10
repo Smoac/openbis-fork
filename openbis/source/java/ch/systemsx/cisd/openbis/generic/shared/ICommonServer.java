@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIden
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.GroupTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -271,6 +273,18 @@ public interface ICommonServer extends IServer
     public List<ExternalData> listExperimentExternalData(
             final String sessionToken,
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) final TechId experimentId);
+
+    /**
+     * For given data set {@link TechId} in given relationship <var>role</var> returns corresponding
+     * list of {@link ExternalData}.
+     * 
+     * @return a sorted list of {@link ExternalData}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<ExternalData> listDataSetRelationships(final String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) final TechId datasetId,
+            final DataSetRelationshipRole role);
 
     /**
      * Performs an <i>Hibernate Search</i> based on given parameters.

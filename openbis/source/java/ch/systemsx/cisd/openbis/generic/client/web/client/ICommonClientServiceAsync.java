@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
@@ -327,6 +328,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listExperimentDataSets(TechId experimentId,
             DefaultResultSetConfig<String, ExternalData> criteria,
             AsyncCallback<ResultSetWithEntityTypes<ExternalData>> asyncCallback);
+
+    /**
+     * @see ICommonClientService#listDataSetRelationships(TechId, DataSetRelationshipRole,
+     *      DefaultResultSetConfig)
+     */
+    public void listDataSetRelationships(TechId datasetId, DataSetRelationshipRole role,
+            DefaultResultSetConfig<String, ExternalData> resultSetConfig,
+            AsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback);
 
     /**
      * @see ICommonClientService#listSearchableEntities()
@@ -648,4 +657,5 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
      * @see ICommonClientService#listFilters(String)
      */
     public void listFilters(String gridId, AsyncCallback<List<Filter>> callback);
+
 }

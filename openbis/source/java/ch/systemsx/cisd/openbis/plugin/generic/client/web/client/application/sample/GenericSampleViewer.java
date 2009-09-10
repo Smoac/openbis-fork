@@ -174,7 +174,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         attachmentsSection.setDisplayID(DisplayTypeIDGenerator.ATTACHMENT_SECTION, displayIdSuffix);
         container.addPanel(attachmentsSection);
 
-        container.setLayoutOnChange(true);
         container.layout();
         return container;
     }

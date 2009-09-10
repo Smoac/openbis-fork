@@ -143,6 +143,16 @@ public class DatasetLister implements IDatasetLister
         return enrichDatasets(query.getDatasetsForExperiment(experimentId.getId()));
     }
 
+    public List<ExternalData> listByChildTechId(TechId childDatasetId)
+    {
+        return enrichDatasets(query.getParentDatasetsForChild(childDatasetId.getId()));
+    }
+
+    public List<ExternalData> listByParentTechId(TechId parentDatasetId)
+    {
+        return enrichDatasets(query.getChildDatasetsForParent(parentDatasetId.getId()));
+    }
+
     public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds)
     {
         return enrichDatasets(setQuery.getDatasets(new LongOpenHashSet(datasetIds)));
@@ -154,7 +164,8 @@ public class DatasetLister implements IDatasetLister
         List<DatasetRecord> datasetRecords = asList(datasets);
         final Long2ObjectMap<ExternalData> datasetMap = createPrimaryDatasets(datasetRecords);
         enrichWithProperties(datasetMap);
-        enrichWithParents(datasetMap);
+        // TODO 2009-09-10, Piotr Buczek: remove unused code
+        // enrichWithParents(datasetMap);
         enrichWithExperiments(datasetMap);
         enrichWithSamples(datasetMap);
         return asList(datasetMap);
@@ -221,6 +232,7 @@ public class DatasetLister implements IDatasetLister
      * @param datasetMap datasets for which parents have to be resolved.
      * @param datasetCache the original information about datasets,
      */
+    @SuppressWarnings("unused")
     private void enrichWithParents(final Long2ObjectMap<ExternalData> datasetMap)
     {
         LongSet datasetIds = extractIds(datasetMap);
@@ -249,7 +261,8 @@ public class DatasetLister implements IDatasetLister
     private Long2ObjectMap<Set<ExternalData>> resolveParents(LongSet datasetIds,
             Long2ObjectMap<ExternalData> datasetCache)
     {
-        final List<DatasetRelationRecord> datasetParents = asList(setQuery.getDatasetParents(datasetIds));
+        final List<DatasetRelationRecord> datasetParents =
+                asList(setQuery.getDatasetParents(datasetIds));
         final Long2ObjectMap<ExternalData> parentsMap =
                 fetchUnknownDatasetParents(datasetParents, datasetCache);
 

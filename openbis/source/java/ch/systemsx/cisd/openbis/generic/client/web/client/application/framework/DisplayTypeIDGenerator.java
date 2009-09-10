@@ -27,6 +27,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     ENTITY_BROWSER_GRID("entity-browser-grid"),
 
+    DATA_SET_DETAILS_GRID("data-set-details-grid"),
+
     EXPERIMENT_DETAILS_GRID("experiment-details-grid"),
 
     SAMPLE_DETAILS_GRID("sample-details-grid"),
@@ -69,7 +71,13 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 
     SAMPLE_SECTION("sample-section"),
 
-    DATA_SET_SECTION("data-set-section"), ;
+    DATA_SET_SECTION("data-set-section"),
+
+    DATA_SET_PARENTS_SECTION("data-set-parents-section"),
+
+    DATA_SET_CHILDREN_SECTION("data-set-children-section"),
+
+    ;
 
     private final String genericNameOrPrefix;
 
