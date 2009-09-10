@@ -202,6 +202,8 @@ public class DataSetInformation implements Serializable
                 sampleCode);
     }
 
+    /** @deprecated may be null */
+    @Deprecated
     public final String getSampleCode()
     {
         return sampleCode;

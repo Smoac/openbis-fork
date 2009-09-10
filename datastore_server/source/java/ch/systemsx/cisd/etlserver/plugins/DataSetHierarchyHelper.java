@@ -31,6 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 public class DataSetHierarchyHelper
 {
 
+    private static String NOT_DIRECTLY_CONNECTED = "NOT_DIRECTLY_CONNECTED";
+
     /**
      * For given {@link SimpleDataSetInformationDTO} creates relevant path part.
      * 
@@ -190,7 +192,12 @@ public class DataSetHierarchyHelper
 
     private static String sample(SimpleDataSetInformationDTO data)
     {
-        return merge(PathElementKey.Sample, data.getSampleCode());
+        String pathElementValue = data.getSampleCode();
+        if (pathElementValue == null)
+        {
+            pathElementValue = NOT_DIRECTLY_CONNECTED;
+        }
+        return merge(PathElementKey.Sample, pathElementValue);
     }
 
     private static String project(SimpleDataSetInformationDTO data)
