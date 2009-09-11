@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.comparators.ReverseComparator;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
@@ -102,7 +103,15 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private static boolean isMatching(String value, String filterPattern)
     {
-        return value.toLowerCase().contains(filterPattern.toLowerCase());
+        final String valueLowerCase = value.toLowerCase();
+        for (String pattern : StringUtils.split(filterPattern.toLowerCase(), "|"))
+        {
+            if (valueLowerCase.contains(pattern))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private final <T> void sortData(final List<T> data, final SortInfo<T> sortInfo)
