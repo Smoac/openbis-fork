@@ -363,7 +363,7 @@ public class ExternalDataBOTest extends AbstractBOTest
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
-            assertEquals("Data set with following codes do not exist: '[" + PARENT_CODE + "]'.", e
+            assertEquals("Data Sets with following codes do not exist: '[" + PARENT_CODE + "]'.", e
                     .getMessage());
         }
 
