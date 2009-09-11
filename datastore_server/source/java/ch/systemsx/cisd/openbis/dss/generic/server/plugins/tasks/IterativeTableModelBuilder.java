@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelCo
 public class IterativeTableModelBuilder
 {
     private final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, IterativeTableModelBuilderTest.class);
+            LogFactory.getLogger(LogCategory.OPERATION, IterativeTableModelBuilder.class);
 
     private final String rowIdentifierColumnHeader;
 
