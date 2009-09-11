@@ -29,13 +29,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelCo
  * 
  * @author Tomasz Pylak
  */
-public class TableModelBuilder
+public class SimpleTableModelBuilder
 {
     private List<TableModelRow> rows;
 
     private List<TableModelColumnHeader> header;
 
-    public TableModelBuilder()
+    public SimpleTableModelBuilder()
     {
         this.rows = new ArrayList<TableModelRow>();
         this.header = new ArrayList<TableModelColumnHeader>();

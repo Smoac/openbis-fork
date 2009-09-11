@@ -17,45 +17,44 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IterativeTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Reporting plugin which can be used for demonstration purposes. Shows last modification time of
- * main datasets directories.
+ * Reporting plugin that concatenates column tabular files of all data sets, using a
+ * <code>mergeColumn</code> to identify matching rows.
  * 
- * @author Tomasz Pylak
+ * @author Bernd Rinn
  */
-public class DatasetModificationReportingPlugin extends AbstractDatastorePlugin implements
-        IReportingPluginTask
+public class MergedColumnDataReportingPlugin extends AbstractDataMergingReportingPlugin
 {
     private static final long serialVersionUID = 1L;
 
-    public DatasetModificationReportingPlugin(Properties properties, File storeRoot)
+    private static final String ROW_ID_COLUMN_HEADER = "row-id-column-header";
+
+    private final String rowIdentifierColumnHeader;
+
+    public MergedColumnDataReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
+        rowIdentifierColumnHeader = properties.getProperty(ROW_ID_COLUMN_HEADER);
     }
 
     public TableModel createReport(List<DatasetDescription> datasets)
     {
-        SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
-        builder.addHeader("File", TableModelColumnType.TEXT);
-        builder.addHeader("Modification date", TableModelColumnType.DATE);
+        final IterativeTableModelBuilder builder =
+                new IterativeTableModelBuilder(rowIdentifierColumnHeader);
         for (DatasetDescription dataset : datasets)
         {
-            File file = getOriginalDir(dataset);
-            String datasetCode = dataset.getDatasetCode();
-            List<String> row = Arrays.asList(datasetCode, new Date(file.lastModified()).toString());
-            builder.addRow(row);
+            final DatasetFileLines lines = loadFromDirectory(dataset, getOriginalDir(dataset));
+            builder.addFile(lines);
         }
         return builder.getTableModel();
     }
+
 }

@@ -25,7 +25,7 @@ import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.TableModelBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -46,7 +46,7 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
 
     public TableModel createReport(List<DatasetDescription> datasets)
     {
-        TableModelBuilder builder = new TableModelBuilder();
+        SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader("Dataset code", TableModelColumnType.TEXT);
         builder.addHeader("Name", TableModelColumnType.TEXT);
         builder.addHeader("Size", TableModelColumnType.INTEGER);
@@ -64,7 +64,7 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
         return builder.getTableModel();
     }
 
-    private static void describe(TableModelBuilder builder, DatasetDescription dataset, File file)
+    private static void describe(SimpleTableModelBuilder builder, DatasetDescription dataset, File file)
     {
         if (file.isFile())
         {
@@ -79,14 +79,14 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
         }
     }
 
-    private void describeUnknown(TableModelBuilder builder, DatasetDescription dataset, File file)
+    private void describeUnknown(SimpleTableModelBuilder builder, DatasetDescription dataset, File file)
     {
         String datasetCode = dataset.getDatasetCode();
         List<String> row = Arrays.asList(datasetCode, file.getName(), "[does not exist]");
         builder.addRow(row);
     }
 
-    private static void describeFile(TableModelBuilder builder, DatasetDescription dataset,
+    private static void describeFile(SimpleTableModelBuilder builder, DatasetDescription dataset,
             File file)
     {
         List<String> row =
