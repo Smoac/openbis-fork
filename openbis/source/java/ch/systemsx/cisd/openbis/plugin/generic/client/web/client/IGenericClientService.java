@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
@@ -60,8 +61,7 @@ public interface IGenericClientService extends IClientService
     /**
      * For given {@link TechId} returns corresponding {@link Sample}.
      */
-    public Sample getSampleInfo(final TechId sampleId)
-            throws UserFailureException;
+    public Sample getSampleInfo(final TechId sampleId) throws UserFailureException;
 
     /**
      * Registers a new sample.
@@ -87,8 +87,7 @@ public interface IGenericClientService extends IClientService
     /**
      * For given {@link TechId} returns corresponding {@link Experiment}.
      */
-    public Experiment getExperimentInfo(final TechId experimentId)
-            throws UserFailureException;
+    public Experiment getExperimentInfo(final TechId experimentId) throws UserFailureException;
 
     /**
      * For given {@link TechId} returns corresponding {@link Material}.
@@ -98,8 +97,7 @@ public interface IGenericClientService extends IClientService
     /**
      * For given {@link TechId} returns corresponding {@link ExternalData}.
      */
-    public ExternalData getDataSetInfo(final TechId datasetId)
-            throws UserFailureException;
+    public ExternalData getDataSetInfo(final TechId datasetId) throws UserFailureException;
 
     /**
      * Registers a new experiment.
@@ -137,5 +135,5 @@ public interface IGenericClientService extends IClientService
     /**
      * Updates data set.
      */
-    public Date updateDataSet(DataSetUpdates updates) throws UserFailureException;
+    public DataSetUpdateResult updateDataSet(DataSetUpdates updates) throws UserFailureException;
 }

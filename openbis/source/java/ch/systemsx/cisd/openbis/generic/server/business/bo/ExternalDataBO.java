@@ -319,8 +319,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             final List<DataPE> parentsToAdd = findDataSetsByCodes(newCodes);
             addParents(parentsToAdd);
 
-            final Set<String> removedCodes = asSet(modifiedParentDatasetCodesOrNull);
-            removedCodes.removeAll(currentParentCodes);
+            final Set<String> removedCodes = currentParentCodes;
+            removedCodes.removeAll(asSet(modifiedParentDatasetCodesOrNull));
             removeParents(filterDataSets(currentParents, removedCodes));
         }
     }

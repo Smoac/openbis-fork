@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -54,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
@@ -391,12 +393,12 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         ExperimentUpdateResult result = new ExperimentUpdateResult();
         ExperimentPE experiment = experimentBO.getExperiment();
         result.setModificationDate(experiment.getModificationDate());
-        result.setSamples(extractCodes(experiment.getSamples()));
+        result.setSamples(extractSampleCodes(experiment.getSamples()));
         return result;
     }
 
     @Private
-    static final String[] extractCodes(List<SamplePE> samples)
+    static final String[] extractSampleCodes(List<SamplePE> samples)
     {
         String[] codes = new String[samples.size()];
         int i = 0;
@@ -427,12 +429,28 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         return sampleBO.getSample().getModificationDate();
     }
 
-    public Date updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
+    public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataBO dataSetBO = businessObjectFactory.createExternalDataBO(session);
         dataSetBO.update(updates);
-        return dataSetBO.getExternalData().getModificationDate();
+        DataSetUpdateResult result = new DataSetUpdateResult();
+        ExternalDataPE externalData = dataSetBO.getExternalData();
+        result.setModificationDate(externalData.getModificationDate());
+        result.setParentCodes(extractDataSetCodes(externalData.getParents()));
+        return result;
     }
 
+    @Private
+    static final String[] extractDataSetCodes(Collection<DataPE> dataSets)
+    {
+        String[] codes = new String[dataSets.size()];
+        int i = 0;
+        for (DataPE dataPE : dataSets)
+        {
+            codes[i] = dataPE.getCode();
+            i++;
+        }
+        return codes;
+    }
 }

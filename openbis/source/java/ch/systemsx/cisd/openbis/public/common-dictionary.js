@@ -325,7 +325,7 @@ var common = {
   // Data Set Edition
   //
   parents: "Parents",
-  parents_empty: "List of parent data set codes separated by spaces, commas (\",\") or one code per line.",
+  parents_empty: "List of parent data set codes separated by commas (\",\") or one code per line.",
   
  //
  // Vocabulary Browser

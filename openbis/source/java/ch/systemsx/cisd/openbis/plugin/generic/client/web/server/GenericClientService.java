@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
@@ -468,13 +469,12 @@ public final class GenericClientService extends AbstractClientService implements
         return updatesDTO;
     }
 
-    public Date updateDataSet(final DataSetUpdates updates)
+    public DataSetUpdateResult updateDataSet(final DataSetUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
-
             return genericServer.updateDataSet(sessionToken, createDataSetUpdatesDTO(updates));
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {

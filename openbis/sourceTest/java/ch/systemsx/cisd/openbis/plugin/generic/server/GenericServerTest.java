@@ -518,7 +518,8 @@ public final class GenericServerTest extends AbstractServerTestCase
             });
         ExperimentUpdateResult result = createServer().updateExperiment(SESSION_TOKEN, updates);
         assertEquals(newModificationDate, result.getModificationDate());
-        assertEquals(GenericServer.extractCodes(newSamples).length, result.getSamples().length);
+        assertEquals(GenericServer.extractSampleCodes(newSamples).length,
+                result.getSamples().length);
         context.assertIsSatisfied();
     }
 

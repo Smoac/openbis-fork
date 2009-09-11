@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -76,7 +77,8 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public final SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
+            final TechId sampleId)
     {
         logAccess(sessionToken, "get_sample_info", "ID(%s)", sampleId);
         return null;
@@ -191,9 +193,11 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         return null;
     }
 
-    public Date updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
+    public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
     {
-        logTracking(sessionToken, "edit_data_set", "DATA_SET(%s)", updates.getDatasetId());
+        logTracking(sessionToken, "edit_data_set", "DATA_SET(%s) SAMPLE(%s) MODIFIED_PARENTS(%s)",
+                updates.getDatasetId(), updates.getSampleIdentifierOrNull(), StringUtils.join(
+                        updates.getModifiedParentDatasetCodesOrNull(), ","));
         return null;
     }
 
