@@ -194,11 +194,6 @@ public class DatasetLister implements IDatasetLister
     {
         Invalidation invalidation = sample.getInvalidation();
         dataset.setInvalidation(invalidation);
-        ExternalData parent = dataset.getParent();
-        if (parent != null)
-        {
-            parent.setInvalidation(invalidation);
-        }
     }
 
     private static LongSet extractSampleIds(Long2ObjectMap<ExternalData> datasetMap)

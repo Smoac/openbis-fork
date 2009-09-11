@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 /**
  * @author Franz-Josef Elmer
  */
+// TODO 2009-09-10, Piotr Buczek: write tests with many parents
 public class ExternalDataTranslatorTest extends AssertJUnit
 {
     private static final String BASE_URL = "url";
@@ -56,10 +57,10 @@ public class ExternalDataTranslatorTest extends AssertJUnit
                 ExternalDataTranslator.translate(externalDataPE, BASE_URL, BASE_INDEX_URL);
 
         assertEquals(null, externalData.getCode());
-        assertEquals(null, externalData.getParentCode());
         assertEquals(null, externalData.getExperiment());
         assertEquals(null, externalData.getProductionDate());
         assertEquals(null, externalData.getComplete());
+        assertEquals(0, externalData.getParents().size());
     }
 
     @Test
@@ -86,7 +87,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         ExternalDataPE parent = new ExternalDataPE();
         parent.setCode("parent");
         parent.setDataStore(new DataStorePE());
-        externalDataPE.setParent(parent);
+        externalDataPE.addParent(parent);
         ExperimentPE experimentPE = new ExperimentPE();
         experimentPE.setCode("my-experiment");
         experimentPE.setExperimentType(new ExperimentTypePE());
@@ -131,7 +132,8 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         assertEquals("location", externalData.getLocation());
         assertEquals("locatorTypeCode", externalData.getLocatorType().getCode());
         assertEquals("locatorTypeDescription", externalData.getLocatorType().getDescription());
-        assertEquals("parent", externalData.getParentCode());
+        assertEquals(1, externalData.getParents().size());
+        assertEquals("parent", externalData.getParents().iterator().next().getCode());
         assertEquals("my-experiment", externalData.getExperiment().getCode());
         assertEquals(1, externalData.getProductionDate().getTime());
         assertEquals(2, externalData.getRegistrationDate().getTime());

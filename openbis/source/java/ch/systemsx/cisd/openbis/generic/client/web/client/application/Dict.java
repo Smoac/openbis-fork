@@ -508,6 +508,14 @@ public abstract class Dict
     public static final String SAMPLES_LIST = "samples_list";
 
     //
+    // Data Set Edition
+    //
+
+    public static final String PARENTS = "parents";
+
+    public static final String PARENTS_EMPTY = "parents_empty";
+
+    //
     // Vocabulary Browser
     //
     public static final String VOCABULARY_BROWSER = "vocabulary_browser";

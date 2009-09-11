@@ -16,11 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
@@ -156,11 +161,14 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         defineDataSetProperties(externalData, convertToDataSetProperties(data
                 .getDataSetProperties()));
 
-        final String parentDataSetCode = data.tryToGetParentDataSetCode();
-        if (parentDataSetCode != null)
+        final List<String> parentDataSetCodes = data.getParentDataSetCodes();
+        if (parentDataSetCodes != null)
         {
-            final DataPE parent = getOrCreateParentData(parentDataSetCode, dataStore, sample);
-            externalData.setParent(parent);
+            for (String parentCode : parentDataSetCodes)
+            {
+                final DataPE parent = getOrCreateParentData(parentCode, dataStore, sample);
+                externalData.addParent(parent);
+            }
         }
 
         externalData.setSample(sample);
@@ -266,7 +274,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         }
         updateProperties(updates.getProperties());
         updateSample(updates.getSampleIdentifierOrNull());
-        updateParent(updates.getParentDatasetCodeOrNull());
+        updateParents(updates.getModifiedParentDatasetCodesOrNull());
         // TODO 2009-09-10, Piotr Buczek: write updateExperiment when we allow to change it
         updateFileFormatType(updates.getFileFormatTypeCode());
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
@@ -288,35 +296,112 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 type, properties, registrator));
     }
 
-    private void updateParent(String parentDatasetCodeOrNull)
+    private void updateParents(String[] modifiedParentDatasetCodesOrNull)
     {
-        DataPE parentOrNull = null;
-        if (parentDatasetCodeOrNull != null)
+        if (modifiedParentDatasetCodesOrNull == null)
         {
-            if (parentDatasetCodeOrNull.equals(externalData.getCode()))
+            return; // parents were not changed
+        } else
+        {
+            final Set<DataPE> currentParents = externalData.getParents();
+            final Set<String> currentParentCodes = extractCodes(currentParents);
+            final Set<String> newCodes = asSet(modifiedParentDatasetCodesOrNull);
+            newCodes.removeAll(currentParentCodes);
+
+            // quick check for direct cycle
+            if (newCodes.contains(externalData.getCode()))
             {
-                throw new UserFailureException("Data set '" + parentDatasetCodeOrNull
+                throw new UserFailureException("Data set '" + externalData.getCode()
                         + "' can not be its own parent.");
             }
-            parentOrNull = getExternalDataDAO().tryToFindDataSetByCode(parentDatasetCodeOrNull);
-            if (parentOrNull == null)
+            // TODO 2009-09-11, Piotr Buczek: check cycles
+
+            final List<DataPE> parentsToAdd = findDataSetsByCodes(newCodes);
+            addParents(parentsToAdd);
+
+            final Set<String> removedCodes = asSet(modifiedParentDatasetCodesOrNull);
+            removedCodes.removeAll(currentParentCodes);
+            removeParents(filterDataSets(currentParents, removedCodes));
+        }
+    }
+
+    private Collection<DataPE> filterDataSets(Collection<DataPE> dataSets,
+            Collection<String> seekenCodes)
+    {
+        Collection<DataPE> result = new ArrayList<DataPE>();
+        for (DataPE dataSet : dataSets)
+        {
+            if (seekenCodes.contains(dataSet.getCode()))
             {
-                throw new UserFailureException(String.format(
-                        "Data set with code '%s' does not exist.", parentDatasetCodeOrNull));
-            }
-            ExperimentPE parentExperiment = parentOrNull.getExperiment();
-            ExperimentPE experiment = externalData.getExperiment();
-            if (parentExperiment.equals(experiment) == false)
-            {
-                throw new UserFailureException("Parent data set '" + parentDatasetCodeOrNull
-                        + "' has to be assigned to the same experiment as data set '"
-                        + externalData.getCode() + "': Experiment of parent data set is '"
-                        + parentExperiment.getIdentifier() + "', experiment of data set is '"
-                        + experiment.getIdentifier() + "'.");
+                result.add(dataSet);
             }
         }
-        externalData.setParent(parentOrNull);
+        return result;
     }
+
+    private void addParents(Collection<DataPE> parentsToAdd)
+    {
+        for (DataPE parent : parentsToAdd)
+        {
+            externalData.addParent(parent);
+        }
+    }
+
+    private void removeParents(Collection<DataPE> parentsToRemove)
+    {
+        for (DataPE parent : parentsToRemove)
+        {
+            externalData.removeParent(parent);
+        }
+    }
+
+    private List<DataPE> findDataSetsByCodes(Set<String> codes)
+    {
+        // GroupPE group = experiment.getProject().getGroup();
+        // return findUnassignedSamples(getSampleDAO(), codesToAdd, group);
+        //        
+        final IExternalDataDAO dao = getExternalDataDAO();
+        final List<DataPE> dataSets = new ArrayList<DataPE>();
+        final List<String> missingDataSetCodes = new ArrayList<String>();
+        for (String code : codes)
+        {
+            DataPE dataSetOrNull = dao.tryToFindDataSetByCode(code);
+            // , dataStore, sample)sampleDAO.tryFindByCodeAndGroup(code, group);
+            if (dataSetOrNull == null)
+            {
+                missingDataSetCodes.add(code);
+            } else
+            {
+                dataSets.add(dataSetOrNull);
+            }
+        }
+        if (missingDataSetCodes.size() > 0)
+        {
+            throw UserFailureException.fromTemplate(
+                    "Data Sets with following codes do not exist: '%s'.", CollectionUtils
+                            .abbreviate(missingDataSetCodes, 10));
+        } else
+        {
+            return dataSets;
+        }
+    }
+
+    private static Set<String> asSet(String[] objects)
+    {
+        return new HashSet<String>(Arrays.asList(objects));
+    }
+
+    private static Set<String> extractCodes(Collection<DataPE> parents)
+    {
+        Set<String> codes = new HashSet<String>(parents.size());
+        for (DataPE parent : parents)
+        {
+            codes.add(parent.getCode());
+        }
+        return codes;
+    }
+
+    //
 
     private void updateSample(SampleIdentifier sampleIdentifierOrNull)
     {

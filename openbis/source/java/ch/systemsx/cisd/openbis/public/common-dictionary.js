@@ -320,7 +320,13 @@ var common = {
   experiment_registration: "Experiment Registration",
   samples: "Samples",
   samples_list: "List of samples (codes or identifiers) separated by commas (\",\") or one sample per line.",
-
+  
+  //
+  // Data Set Edition
+  //
+  parents: "Parents",
+  parents_empty: "List of parent data set codes separated by spaces, commas (\",\") or one code per line.",
+  
  //
  // Vocabulary Browser
  //
@@ -458,7 +464,7 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
 // Grid Column Chooser
 //
 
-  grid_settings_title: "Table settings",
+  GRID_COLUMN_CHOOSER_TITLE: "Configure grid columns",
   GRID_COLUMN_NAME_HEADER: "Column",
   GRID_IS_COLUMN_VISIBLE_HEADER: "Visible?",
   GRID_COLUMN_HAS_FILTER_HEADER: "Has Filter?",
@@ -486,16 +492,7 @@ all_radio: "all",
 data_sets_radio_group_label: "Data Sets",
 only_selected_radio: "selected ({0})",
 experiments_radio_group_label: "Experiments",
-
-//
-// Filters 
-//
- name: "Name",
- is_public: "Is Public?",
- expression: "Expression",
- columns: "Columns",
- custom_filters: "Custom Filters",
-    
+ 
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

@@ -38,7 +38,7 @@ public class ExtractableData extends Code<ExtractableData>
     private Date productionDate;
 
     private String dataProducerCode;
-    
+
     private List<String> parentDataSetCodes = new ArrayList<String>();
 
     private List<NewProperty> dataSetProperties = new ArrayList<NewProperty>();
@@ -83,12 +83,6 @@ public class ExtractableData extends Code<ExtractableData>
         this.dataProducerCode = dataProducerCode;
     }
 
-    @Deprecated
-    public final String tryToGetParentDataSetCode()
-    {
-        return parentDataSetCodes.isEmpty() ? null : parentDataSetCodes.iterator().next();
-    }
-    
     public final List<String> getParentDataSetCodes()
     {
         return parentDataSetCodes;

@@ -37,7 +37,7 @@ public class BasicDataSetUpdates implements IsSerializable, Serializable
 
     // ----- the data which should be changed:
 
-    private String parentDatasetCodeOrNull;
+    private String[] modifiedParentDatasetCodesOrNull;
 
     private String fileFormatTypeCode;
 
@@ -85,14 +85,14 @@ public class BasicDataSetUpdates implements IsSerializable, Serializable
         this.properties = properties;
     }
 
-    public String getParentDatasetCodeOrNull()
+    public String[] getModifiedParentDatasetCodesOrNull()
     {
-        return parentDatasetCodeOrNull;
+        return modifiedParentDatasetCodesOrNull;
     }
 
-    public void setParentDatasetCodeOrNull(String parentDatasetCodeOrNull)
+    public void setModifiedParentDatasetCodesOrNull(String[] modifiedParentDatasetCodesOrNull)
     {
-        this.parentDatasetCodeOrNull = parentDatasetCodeOrNull;
+        this.modifiedParentDatasetCodesOrNull = modifiedParentDatasetCodesOrNull;
     }
 
     public String getFileFormatTypeCode()

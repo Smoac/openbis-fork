@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdates;
@@ -56,8 +57,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     /**
      * @see IGenericClientService#getSampleInfo(TechId)
      */
-    public void getSampleInfo(final TechId sampleId,
-            AsyncCallback<Sample> asyncCallback);
+    public void getSampleInfo(final TechId sampleId, AsyncCallback<Sample> asyncCallback);
 
     /**
      * @see IGenericClientService#registerSample(String, NewSample)
@@ -130,7 +130,7 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
     /**
      * @see IGenericClientService#updateDataSet(DataSetUpdates)
      */
-    public void updateDataSet(DataSetUpdates updates, final AsyncCallback<Date> asyncCallback)
-            throws UserFailureException;
+    public void updateDataSet(DataSetUpdates updates,
+            final AsyncCallback<DataSetUpdateResult> asyncCallback) throws UserFailureException;
 
 }

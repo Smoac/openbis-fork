@@ -73,7 +73,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
 
     protected ProjectSelectionWidget projectChooser;
 
-    ExperimentSamplesArea samplesArea;
+    protected ExperimentSamplesArea samplesArea;
 
     protected final String samplesSessionKey;
 

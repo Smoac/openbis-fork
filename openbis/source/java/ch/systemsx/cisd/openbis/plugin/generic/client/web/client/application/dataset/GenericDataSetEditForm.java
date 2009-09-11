@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.da
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -31,14 +30,17 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeSelectionWidget.FileFormatTypeModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CodeField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -55,11 +57,13 @@ public final class GenericDataSetEditForm extends
 {
     private static final String SAMPLE_FIELD_ID_SUFFIX = "sample_field";
 
+    private final String simpleId;
+
     private FileFormatTypeSelectionWidget fileFormatTypeSelectionWidget;
 
     private SampleChooserFieldAdaptor sampleField;
 
-    private CodeField parentField;
+    private DataSetParentsArea parentsArea;
 
     private ExternalData originalDataSet;
 
@@ -74,6 +78,7 @@ public final class GenericDataSetEditForm extends
             IIdentifiable identifiable)
     {
         super(viewContext, identifiable, EntityKind.DATA_SET);
+        simpleId = createSimpleId(identifiable, EntityKind.DATA_SET);
     }
 
     private String createChildId(String childSuffix)
@@ -94,8 +99,8 @@ public final class GenericDataSetEditForm extends
         result.setDatasetId(techIdOrNull);
         result.setProperties(extractProperties());
         result.setVersion(originalDataSet.getModificationDate());
-        result.setParentDatasetCodeOrNull(extractParentDatasetCode());
-        // TODO 2009-09-10, Piotr Buczel: check if it is null for empty string
+        result.setModifiedParentDatasetCodesOrNull(extractParentDatasetCodes());
+        // TODO 2009-09-10, Piotr Buczek: check if it is null for empty string
         result.setSampleIdentifierOrNull(extractSampleIdentifier());
         result.setFileFormatTypeCode(extractFileFormatTypeCode());
         return result;
@@ -106,9 +111,9 @@ public final class GenericDataSetEditForm extends
         return sampleField.getValue();
     }
 
-    private String extractParentDatasetCode()
+    protected String[] extractParentDatasetCodes()
     {
-        return parentField.getValue();
+        return parentsArea.tryGetModifiedParentCodes();
     }
 
     private String extractFileFormatTypeCode()
@@ -117,7 +122,7 @@ public final class GenericDataSetEditForm extends
     }
 
     public final class UpdateDataSetCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback<Date>
+            AbstractRegistrationForm.AbstractRegistrationCallback<DataSetUpdateResult>
     {
 
         UpdateDataSetCallback(final IViewContext<?> viewContext)
@@ -126,25 +131,25 @@ public final class GenericDataSetEditForm extends
         }
 
         @Override
-        protected void process(final Date result)
+        protected void process(final DataSetUpdateResult result)
         {
-            originalDataSet.setModificationDate(result);
-            updateOriginalValues();
+            originalDataSet.setModificationDate(result.getModificationDate());
+            updateOriginalValues(result.getParentCodes());
             super.process(result);
         }
 
         @Override
-        protected String createSuccessfullRegistrationInfo(Date result)
+        protected String createSuccessfullRegistrationInfo(DataSetUpdateResult result)
         {
             return "Data set successfully updated";
         }
     }
 
-    private void updateOriginalValues()
+    private void updateOriginalValues(String[] parentCodes)
     {
         updatePropertyFieldsOriginalValues();
         sampleField.updateOriginalValue();
-        parentField.updateOriginalValue(parentField.getValue());
+        parentsArea.setParentCodes(parentCodes);
         fileFormatTypeSelectionWidget.updateOriginalValue(fileFormatTypeSelectionWidget.getValue());
     }
 
@@ -162,7 +167,7 @@ public final class GenericDataSetEditForm extends
         ArrayList<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
         // TODO 2009-08-01, Piotr Buczek: add other fields specified in LMS-1003
-        fields.add(wrapUnaware(parentField));
+        fields.add(wrapUnaware(parentsArea));
         fields.add(wrapUnaware(sampleField.getField()));
         fields.add(wrapUnaware(fileFormatTypeSelectionWidget));
         return fields;
@@ -171,19 +176,14 @@ public final class GenericDataSetEditForm extends
     @Override
     protected void createEntitySpecificFormFields()
     {
-        this.parentField = createParentField();
+        this.parentsArea = createParentsArea();
         this.sampleField = createSampleField();
         this.fileFormatTypeSelectionWidget = createFileFormatTypeField();
     }
 
-    private CodeField createParentField()
+    private DataSetParentsArea createParentsArea()
     {
-        final CodeField result = new CodeField(viewContext, viewContext.getMessage(Dict.PARENT));
-        result.setEmptyText("Parent data set code");
-        // by default CodeField is mandatory
-        result.setLabelSeparator("");
-        result.setAllowBlank(true);
-        return result;
+        return new DataSetParentsArea(viewContext, simpleId);
     }
 
     private SampleChooserFieldAdaptor createSampleField()
@@ -212,9 +212,12 @@ public final class GenericDataSetEditForm extends
         propertiesEditor.initWithProperties(originalDataSet.getDataSetType()
                 .getAssignedPropertyTypes(), originalDataSet.getProperties());
         codeField.setValue(originalDataSet.getCode());
-        parentField.setValue(originalDataSet.getParentCode());
         fileFormatTypeSelectionWidget.setValue(new FileFormatTypeModel(originalDataSet
                 .getFileFormatType()));
+        // parents Area
+        parentsArea.setEnabled(false);
+        parentsArea.setValue(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
+        loadParentsInBackground();
     }
 
     private void setOriginalData(ExternalData data)
@@ -242,6 +245,33 @@ public final class GenericDataSetEditForm extends
         {
             setOriginalData(result);
             initGUI();
+        }
+    }
+
+    private void loadParentsInBackground()
+    {
+        // not best performance but the same solution that is done for experiments
+        // only codes are needed but we extract 'full' object
+        DefaultResultSetConfig<String, ExternalData> config =
+                DefaultResultSetConfig.createFetchAll();
+        viewContext.getCommonService().listDataSetRelationships(techIdOrNull,
+                DataSetRelationshipRole.CHILD, config, new ListParentsCallback(viewContext));
+    }
+
+    public class ListParentsCallback extends
+            AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>>
+    {
+
+        public ListParentsCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        protected void process(ResultSetWithEntityTypes<ExternalData> result)
+        {
+            parentsArea.setParents(result.getResultSet().getList());
+            parentsArea.setEnabled(true);
         }
     }
 }

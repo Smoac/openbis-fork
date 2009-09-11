@@ -320,7 +320,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
 
     // bidirectional connection children-parents
 
-    // TODO 2009-06-09, Piotr Buczek: change to @ManyToOne and remove data_set_relationships table
     // we use cascade PERSIST, not ALL because we don't REMOVE parent when we delete a child
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = TableNames.DATA_SET_RELATIONSHIPS_TABLE, joinColumns = @JoinColumn(name = ColumnNames.DATA_CHILD_COLUMN), inverseJoinColumns = @JoinColumn(name = ColumnNames.DATA_PARENT_COLUMN))
@@ -335,27 +334,20 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         this.parents = parents;
     }
 
-    /** sets one parent (we don't support many parents currently) */
-    public void setParent(final DataPE parent)
+    /** adds connection with specified parent */
+    public void addParent(final DataPE parent)
     {
-        this.parents.clear();
-        if (parent != null)
-        {
-            this.parents.add(parent);
-            parent.addChild(this);
-        }
+        assert parent != null;
+        this.parents.add(parent);
+        parent.addChild(this);
     }
 
-    @Transient
-    public DataPE tryGetParent()
+    /** removes connection with specified parent */
+    public void removeParent(final DataPE parent)
     {
-        if (getParents() == null || getParents().size() == 0)
-        {
-            return null;
-        } else
-        {
-            return getParents().iterator().next();
-        }
+        assert parent != null;
+        this.parents.remove(parent);
+        parent.removeChild(this);
     }
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "parents")
@@ -373,6 +365,11 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     private void addChild(final DataPE child)
     {
         this.children.add(child);
+    }
+
+    private void removeChild(final DataPE child)
+    {
+        this.children.remove(child);
     }
 
     //

@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 /**
  * @author Franz-Josef Elmer
  */
-// TODO 2009-09-10, Piotr Buczek: write tests with no direct sample connection
+// TODO 2009-09-10, Piotr Buczek: write tests with no direct sample connection, and many parents
 public class ExternalDataBOTest extends AbstractBOTest
 {
     private static final TechId TECH_ID = new TechId(42l);
@@ -319,7 +319,9 @@ public class ExternalDataBOTest extends AbstractBOTest
         sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
         final ExternalDataPE dataSet = createDataSet(sample);
         DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(dataSet);
-        dataSetUpdatesDTO.setParentDatasetCodeOrNull(dataSet.getCode());
+        String[] parentCodes =
+            { dataSet.getCode() };
+        dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(parentCodes);
         prepareForUpdate(dataSet, sample);
 
         IExternalDataBO bo = createExternalDataBO();
@@ -342,7 +344,9 @@ public class ExternalDataBOTest extends AbstractBOTest
         sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
         final ExternalDataPE dataSet = createDataSet(sample);
         DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(dataSet);
-        dataSetUpdatesDTO.setParentDatasetCodeOrNull(PARENT_CODE);
+        String[] parentCodes =
+            { PARENT_CODE };
+        dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(parentCodes);
         prepareForUpdate(dataSet, sample);
         context.checking(new Expectations()
             {
@@ -359,43 +363,8 @@ public class ExternalDataBOTest extends AbstractBOTest
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
-            assertEquals("Data set with code 'parent' does not exist.", e.getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testUpdateWithParentDataSetFromDifferentExperiment()
-    {
-        final SamplePE sample = new SamplePE();
-        sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
-        final ExternalDataPE dataSet = createDataSet(sample);
-        ExperimentPE experiment = createExperiment("EXP1");
-        dataSet.setExperiment(experiment);
-        DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(dataSet);
-        dataSetUpdatesDTO.setParentDatasetCodeOrNull(PARENT_CODE);
-        prepareForUpdate(dataSet, sample);
-        context.checking(new Expectations()
-            {
-                {
-                    one(externalDataDAO).tryToFindDataSetByCode(PARENT_CODE);
-                    ExternalDataPE parentDataSet = new ExternalDataPE();
-                    parentDataSet.setExperiment(createExperiment("EXP2"));
-                    will(returnValue(parentDataSet));
-                }
-            });
-
-        IExternalDataBO bo = createExternalDataBO();
-        try
-        {
-            bo.update(dataSetUpdatesDTO);
-            fail("UserFailureException expected");
-        } catch (UserFailureException e)
-        {
-            assertEquals("Parent data set 'parent' has to be assigned to the same experiment "
-                    + "as data set 'DS1': Experiment of parent data set is 'DB:/G/P/EXP2', "
-                    + "experiment of data set is 'DB:/G/P/EXP1'.", e.getMessage());
+            assertEquals("Data set with following codes do not exist: '[" + PARENT_CODE + "]'", e
+                    .getMessage());
         }
 
         context.assertIsSatisfied();
