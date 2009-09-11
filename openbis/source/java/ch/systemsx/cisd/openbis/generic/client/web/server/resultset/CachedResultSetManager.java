@@ -66,13 +66,52 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return (List<T>) list;
     }
 
+    /**
+     * Server-side filter info object.
+     */
+    private static class FilterInfo<T>
+    {
+        private final IColumnDefinition<T> filteredField;
+
+        private final String[] filterExpressionAlternatives;
+
+        FilterInfo(GridFilterInfo<T> gridFilterInfo)
+        {
+            this.filteredField = gridFilterInfo.getFilteredField();
+            this.filterExpressionAlternatives =
+                    StringUtils.split(gridFilterInfo.getFilterPattern().toLowerCase(), '|');
+        }
+        
+        @SuppressWarnings("unchecked")
+        static <T> FilterInfo<T> create(GridFilterInfo<T> filterInfo)
+        {
+            return new FilterInfo(filterInfo);
+        }
+
+        final IColumnDefinition<T> getFilteredField()
+        {
+            return filteredField;
+        }
+
+        final String[] getFilterExpressionAlternatives()
+        {
+            return filterExpressionAlternatives;
+        }
+    }
+
     private static final <T> List<T> filterData(final List<T> rows,
             final List<GridFilterInfo<T>> filterInfos)
     {
         List<T> filtered = new ArrayList<T>();
+        List<FilterInfo<T>> serverFilterInfos = new ArrayList<FilterInfo<T>>(filterInfos.size());
+        for (GridFilterInfo<T> info : filterInfos)
+        {
+            serverFilterInfos.add(FilterInfo.create(info));
+
+        }
         for (T row : rows)
         {
-            if (isMatching(row, filterInfos))
+            if (isMatching(row, serverFilterInfos))
             {
                 filtered.add(row);
             }
@@ -81,10 +120,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     }
 
     // returns true if a row matches all the filters
-    private static final <T> boolean isMatching(final T row,
-            final List<GridFilterInfo<T>> filterInfos)
+    private static final <T> boolean isMatching(final T row, final List<FilterInfo<T>> filterInfos)
     {
-        for (GridFilterInfo<T> filter : filterInfos)
+        for (FilterInfo<T> filter : filterInfos)
         {
             if (isMatching(row, filter) == false)
             {
@@ -94,19 +132,18 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return true;
     }
 
-    private static final <T> boolean isMatching(final T row, final GridFilterInfo<T> filterInfo)
+    private static final <T> boolean isMatching(final T row, final FilterInfo<T> filterInfo)
     {
         IColumnDefinition<T> filteredField = filterInfo.getFilteredField();
-        String value = filteredField.getValue(row);
-        return isMatching(value, filterInfo.getFilterPattern());
+        String value = filteredField.getValue(row).toLowerCase();
+        return isMatching(value, filterInfo.getFilterExpressionAlternatives());
     }
 
-    private static boolean isMatching(String value, String filterPattern)
+    private static boolean isMatching(String value, String[] filterPatternAlternatives)
     {
-        final String valueLowerCase = value.toLowerCase();
-        for (String pattern : StringUtils.split(filterPattern.toLowerCase(), "|"))
+        for (String pattern : filterPatternAlternatives)
         {
-            if (valueLowerCase.contains(pattern))
+            if (value.contains(pattern))
             {
                 return true;
             }
