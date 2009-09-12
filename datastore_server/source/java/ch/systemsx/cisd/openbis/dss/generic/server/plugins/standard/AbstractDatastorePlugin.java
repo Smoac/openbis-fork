@@ -20,7 +20,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
