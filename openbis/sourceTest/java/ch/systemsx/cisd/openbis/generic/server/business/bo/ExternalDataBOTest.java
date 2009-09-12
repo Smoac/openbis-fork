@@ -446,9 +446,9 @@ public class ExternalDataBOTest extends AbstractBOTest
                 }
             });
 
-        IExternalDataBO sampleBO = createExternalDataBO();
-        sampleBO.define(createData(null), sample, SourceType.DERIVED);
-        sampleBO.save();
+        IExternalDataBO dataBO = createExternalDataBO();
+        dataBO.define(createData(null), sample, SourceType.DERIVED);
+        dataBO.save();
 
         context.assertIsSatisfied();
     }
@@ -484,11 +484,11 @@ public class ExternalDataBOTest extends AbstractBOTest
 
             });
 
-        IExternalDataBO sampleBO = createExternalDataBO();
-        sampleBO.define(createData(null), sample, SourceType.DERIVED);
-        sampleBO.save();
+        IExternalDataBO dataBO = createExternalDataBO();
+        dataBO.define(createData(null), sample, SourceType.DERIVED);
+        dataBO.save();
 
-        ExternalDataPE externalData = sampleBO.getExternalData();
+        ExternalDataPE externalData = dataBO.getExternalData();
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(false, externalData.isPlaceholder());
         assertEquals(4711, externalData.getId().longValue());

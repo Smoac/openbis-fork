@@ -255,10 +255,17 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
                 throw new UserFailureException("Already existing data set for code '" + dataCode
                         + "' can not be updated by data set " + externalData);
             }
+            // NOTE: If new data set is created and there was no placeholder
+            // cycles will not be created because only connections to parents are added
+            // and we assume that there were no cycles before. On the other hand placeholders 
+            // have at least one child so cycles need to be checked when they are updated.
+            validateRelationshipGraph(externalData.getParents());
+
             externalData.setPlaceholder(false);
             externalData.setId(HibernateUtils.getId(data));
             externalData.setRegistrationDate(new Date());
             externalData.setModificationDate(data.getModificationDate());
+
             externalDataDAO.updateDataSet(externalData);
         }
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
@@ -308,21 +315,69 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             final Set<String> newCodes = asSet(modifiedParentDatasetCodesOrNull);
             newCodes.removeAll(currentParentCodes);
 
-            // quick check for direct cycle
-            if (newCodes.contains(externalData.getCode()))
-            {
-                throw new UserFailureException("Data set '" + externalData.getCode()
-                        + "' can not be its own parent.");
-            }
-            // TODO 2009-09-11, Piotr Buczek: check cycles
-
             final List<DataPE> parentsToAdd = findDataSetsByCodes(newCodes);
+            validateRelationshipGraph(parentsToAdd);
             addParents(parentsToAdd);
 
             final Set<String> removedCodes = currentParentCodes;
             removedCodes.removeAll(asSet(modifiedParentDatasetCodesOrNull));
             removeParents(filterDataSets(currentParents, removedCodes));
         }
+    }
+
+    /**
+     * Throws {@link UserFailureException} if adding specified parents to this data set will create
+     * a cycle in data set relationships.
+     */
+    private void validateRelationshipGraph(Collection<DataPE> parentsToAdd)
+    {
+        // DFS from new parents that are to be added to this business object going in direction
+        // of parent relationship until:
+        // - all related ancestors are visited == graph has no cycles
+        // - we get to this business object == cycle is found
+        // NOTE: The assumption is that there were no cycles in the graph of relationship before.
+        // This algorithm will not find cycles that don't include this business object,
+        // although such cycles shouldn't cause it to loop forever.
+
+        // Algorithm operates only on data set ids to make it perform better
+        // - there is no need to join DB tables.
+        // To be able to inform user about the exact data set that cannot be connected as a parent
+        // we need start seeking cycles starting from each parent to be added separately. Otherwise
+        // we would need to get invoke more queries to DB (not going layer by layer of graph depth
+        // per query) or use BFS instead (which would also be slower in a general case).
+        for (DataPE parentToAdd : parentsToAdd)
+        {
+            validateRelationshipGraph(parentToAdd);
+        }
+    }
+
+    private void validateRelationshipGraph(DataPE parentToAdd)
+    {
+        final TechId updatedDataSetId = TechId.create(externalData);
+        final Set<TechId> visited = new HashSet<TechId>();
+        Set<TechId> toVisit = new HashSet<TechId>();
+        toVisit.add(TechId.create(parentToAdd));
+        while (toVisit.isEmpty() == false)
+        {
+            if (toVisit.contains(updatedDataSetId))
+            {
+                throw UserFailureException.fromTemplate(
+                        "Data Set '%s' is an ancestor of Data Set '%s' "
+                                + "and cannot be at the same time set as its child.", externalData
+                                .getCode(), parentToAdd.getCode());
+            } else
+            {
+                final Set<TechId> nextToVisit = findParentIds(toVisit);
+                visited.addAll(toVisit);
+                nextToVisit.removeAll(visited);
+                toVisit = nextToVisit;
+            }
+        }
+    }
+
+    private Set<TechId> findParentIds(Set<TechId> dataSetIds)
+    {
+        return getExternalDataDAO().findParentIds(dataSetIds);
     }
 
     private Collection<DataPE> filterDataSets(Collection<DataPE> dataSets,
@@ -357,16 +412,12 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     private List<DataPE> findDataSetsByCodes(Set<String> codes)
     {
-        // GroupPE group = experiment.getProject().getGroup();
-        // return findUnassignedSamples(getSampleDAO(), codesToAdd, group);
-        //        
         final IExternalDataDAO dao = getExternalDataDAO();
         final List<DataPE> dataSets = new ArrayList<DataPE>();
         final List<String> missingDataSetCodes = new ArrayList<String>();
         for (String code : codes)
         {
             DataPE dataSetOrNull = dao.tryToFindDataSetByCode(code);
-            // , dataStore, sample)sampleDAO.tryFindByCodeAndGroup(code, group);
             if (dataSetOrNull == null)
             {
                 missingDataSetCodes.add(code);

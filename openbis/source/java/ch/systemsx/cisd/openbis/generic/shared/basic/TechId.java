@@ -46,6 +46,12 @@ public class TechId implements IIdHolder, IsSerializable, Serializable
         this.id = id;
     }
 
+    public TechId(Number id)
+    {
+        assert id != null : "id cannot be null";
+        this.id = id.longValue();
+    }
+
     /**
      * @return Technical id with id from given <var>idHolder</var> or null if the holder does not
      *         provide any id.

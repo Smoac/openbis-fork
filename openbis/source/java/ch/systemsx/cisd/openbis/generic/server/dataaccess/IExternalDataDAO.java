@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -89,5 +92,12 @@ public interface IExternalDataDAO extends IGenericDAO<ExternalDataPE>
      * Lists external data belongig to given data store.
      */
     public List<ExternalDataPE> listExternalData(final DataStorePE dataStore);
+
+    /**
+     * @return Unique set of ids of parents of data sets specified by ids.
+     *         <p>
+     *         NOTE: does not check if specified ids are proper data set ids.
+     */
+    public Set<TechId> findParentIds(Collection<TechId> dataSetIds);
 
 }

@@ -16,12 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
@@ -29,6 +33,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -36,6 +41,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -83,6 +89,44 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         criteria.setProjection(Projections.rowCount());
         Integer count = (Integer) getHibernateTemplate().findByCriteria(criteria).get(0);
         return count > 0;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Set<TechId> findParentIds(final Collection<TechId> dataSetIds)
+    {
+        // Native SQL query is used to be able to query on 'many-to-many association table -
+        // - 'data_set_relationships' without join with 'data' table involved in this association.
+        // Drawback of this solution is that instead of list of Long values we get list of
+        // BigIntegers and so a transformation is needed.
+        final List<? extends Number> ids =
+                (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
+                    {
+
+                        //
+                        // HibernateCallback
+                        //
+
+                        public final Object doInHibernate(final Session session)
+                        {
+                            // we could remove this transformation if we choose to pass Long values
+                            List<Long> longIds = new ArrayList<Long>(dataSetIds.size());
+                            for (TechId techId : dataSetIds)
+                            {
+                                longIds.add(techId.getId());
+                            }
+                            return session
+                                    .createSQLQuery(
+                                            "select data_id_parent from data_set_relationships where data_id_child in (:ids)")
+                                    .setParameterList("ids", longIds).list();
+                        }
+                    });
+        final Set<TechId> results = new HashSet<TechId>();
+        for (Number id : ids)
+        {
+            results.add(new TechId(id));
+        }
+
+        return results;
     }
 
     public final List<ExternalDataPE> listRelatedExternalData(final IEntityInformationHolder entity)
@@ -267,7 +311,6 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
     public void delete(ExternalDataPE entity) throws DataAccessException
     {
         assert entity != null : "entity unspecified";
-        // TODO 2009-06-09, Piotr Buczek: remove this check if we change many2many -> one2many
         if (entity.getChildren().size() > 0)
         {
             throw new DataIntegrityViolationException(
