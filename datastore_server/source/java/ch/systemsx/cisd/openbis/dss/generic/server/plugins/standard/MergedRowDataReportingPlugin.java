@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.util.Arrays;
@@ -61,7 +61,7 @@ public class MergedRowDataReportingPlugin extends AbstractDataMergingReportingPl
             }
             for (DatasetDescription dataset : datasets)
             {
-                final File dir = getOriginalDir(dataset);
+                final File dir = getDataSubDir(dataset);
                 final DatasetFileLines lines = loadFromDirectory(dataset, dir);
                 if (Arrays.equals(titles, lines.getHeaderTokens()) == false)
                 {

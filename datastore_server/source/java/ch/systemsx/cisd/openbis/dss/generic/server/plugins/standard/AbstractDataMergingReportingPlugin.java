@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.io.FileReader;
@@ -72,7 +72,7 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
 
     protected String[] getHeaderTitles(DatasetDescription dataset)
     {
-        File dir = getOriginalDir(dataset);
+        File dir = getDataSubDir(dataset);
         final DatasetFileLines lines = loadFromDirectory(dataset, dir);
         return lines.getHeaderTokens();
     }

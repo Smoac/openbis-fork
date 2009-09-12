@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -63,13 +64,18 @@ public class IterativeTableModelBuilder
         int idx = 0;
         for (String columnHeader : lines.getHeaderTokens())
         {
-            if (rowIdentifierColumnHeader.equals(columnHeader))
+            if (isIdentifierColumn(columnHeader))
             {
                 return idx;
             }
             ++idx;
         }
         return -1;
+    }
+
+    private boolean isIdentifierColumn(String columnHeader)
+    {
+        return rowIdentifierColumnHeader.equals(columnHeader);
     }
 
     public void addFile(DatasetFileLines lines)
@@ -115,6 +121,49 @@ public class IterativeTableModelBuilder
         }
     }
 
+    private boolean isIntCol(Collection<String> values)
+    {
+        for (String val : values)
+        {
+            try
+            {
+                Long.parseLong(val);
+            } catch (NumberFormatException ex)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private boolean isRealCol(Collection<String> values)
+    {
+        for (String val : values)
+        {
+            try
+            {
+                Double.parseDouble(val);
+            } catch (NumberFormatException ex)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private TableModelColumnType inferType(Collection<String> values)
+    {
+        if (isIntCol(values))
+        {
+            return TableModelColumnType.INTEGER;
+        }
+        if (isRealCol(values))
+        {
+            return TableModelColumnType.REAL;
+        }
+        return TableModelColumnType.TEXT;
+    }
+
     /**
      * Returns the table model that was built iteratively.
      */
@@ -126,8 +175,8 @@ public class IterativeTableModelBuilder
         int idx = 0;
         for (Entry<String, Map<String, String>> column : columnMap.entrySet())
         {
-            headers.add(new TableModelColumnHeader(column.getKey(), TableModelColumnType.TEXT,
-                    idx++));
+            headers.add(new TableModelColumnHeader(column.getKey(), inferType(column.getValue()
+                    .values()), idx++));
         }
         for (String rowId : rowIdentifiers)
         {

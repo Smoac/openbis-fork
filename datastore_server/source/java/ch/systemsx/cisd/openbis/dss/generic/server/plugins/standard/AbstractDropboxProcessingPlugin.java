@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.util.List;
@@ -60,7 +60,7 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
     {
         for (DatasetDescription dataset : datasets)
         {
-            File originalDir = getOriginalDir(dataset);
+            File originalDir = getDataSubDir(dataset);
             if (originalDir.isDirectory() == false)
             {
                 operationLog

@@ -24,6 +24,7 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -52,7 +53,7 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
         builder.addHeader("Size", TableModelColumnType.INTEGER);
         for (DatasetDescription dataset : datasets)
         {
-            File file = getOriginalDir(dataset);
+            File file = getDataSubDir(dataset);
             if (file.isDirectory())
             {
                 describe(builder, dataset, file);

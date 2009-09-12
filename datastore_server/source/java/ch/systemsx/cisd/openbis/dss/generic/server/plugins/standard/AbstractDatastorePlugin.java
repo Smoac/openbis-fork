@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.io.Serializable;
 import java.util.Properties;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * @author Tomasz Pylak
  */
-abstract class AbstractDatastorePlugin implements Serializable
+public abstract class AbstractDatastorePlugin implements Serializable
 {
+    private static final String SUB_DIRECTORY_NAME = "sub-directory-name";
+
     private static final long serialVersionUID = 1L;
 
     private final File storeRoot;
 
+    private final String subDirectory;
+    
     protected final Properties properties;
 
     protected AbstractDatastorePlugin(Properties properties, File storeRoot)
@@ -39,11 +44,19 @@ abstract class AbstractDatastorePlugin implements Serializable
 
         this.storeRoot = storeRoot;
         this.properties = properties;
+        final String subDirectoryOrNull = properties.getProperty(SUB_DIRECTORY_NAME);
+        this.subDirectory = (subDirectoryOrNull != null) ? subDirectoryOrNull : "original";
     }
 
-    protected File getOriginalDir(DatasetDescription dataset)
+    protected File getDataSubDir(DatasetDescription dataset)
     {
-        return new File(getDatasetDir(dataset), "original");
+        if (StringUtils.isBlank(subDirectory))
+        {
+            return getDatasetDir(dataset);
+        } else
+        {
+            return new File(getDatasetDir(dataset), subDirectory);
+        }
     }
 
     protected File getDatasetDir(DatasetDescription dataset)

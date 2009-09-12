@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -51,7 +52,7 @@ public class DatasetModificationReportingPlugin extends AbstractDatastorePlugin 
         builder.addHeader("Modification date", TableModelColumnType.DATE);
         for (DatasetDescription dataset : datasets)
         {
-            File file = getOriginalDir(dataset);
+            File file = getDataSubDir(dataset);
             String datasetCode = dataset.getDatasetCode();
             List<String> row = Arrays.asList(datasetCode, new Date(file.lastModified()).toString());
             builder.addRow(row);

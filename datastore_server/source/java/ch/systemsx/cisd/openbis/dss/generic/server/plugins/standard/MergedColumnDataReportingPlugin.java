@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo;
+package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
 import java.util.List;
@@ -26,8 +26,21 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Reporting plugin that concatenates column tabular files of all data sets, using a
- * <code>mergeColumn</code> to identify matching rows.
+ * Reporting plugin that concatenates column tabular files of all data sets, using a merge column to
+ * identify matching rows. Per data set there must be one file to consider for merging, which can be
+ * defined by include and exclude patterns.
+ * <p>
+ * Properties:
+ * <ul>
+ * <li><code>row-id-column-header</code> - The header of the merge column (default: <code>id</code>)
+ * </li>
+ * <li><code>file-include-pattern</code> - The regular expression pattern to use for defining what
+ * files to consider (default: <i>not defined</i>)</li>
+ * <li><code>file-exclude-pattern</code> - The regular expression pattern to use for defining what
+ * files <i>not</i> to consider (default: <code>.*\.tsv</code>)</li>
+ * <li><code>sub-directory-name</code> - The name of the sub directory in the data set to start the
+ * search for an appropriate file (default: <code>original</code>)</li>
+ * </ul>
  * 
  * @author Bernd Rinn
  */
@@ -42,7 +55,9 @@ public class MergedColumnDataReportingPlugin extends AbstractDataMergingReportin
     public MergedColumnDataReportingPlugin(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
-        rowIdentifierColumnHeader = properties.getProperty(ROW_ID_COLUMN_HEADER);
+        final String rowIdColumnHeaderOrNull = properties.getProperty(ROW_ID_COLUMN_HEADER);
+        rowIdentifierColumnHeader =
+                (rowIdColumnHeaderOrNull == null) ? "id" : rowIdColumnHeaderOrNull;
     }
 
     public TableModel createReport(List<DatasetDescription> datasets)
@@ -51,7 +66,7 @@ public class MergedColumnDataReportingPlugin extends AbstractDataMergingReportin
                 new IterativeTableModelBuilder(rowIdentifierColumnHeader);
         for (DatasetDescription dataset : datasets)
         {
-            final DatasetFileLines lines = loadFromDirectory(dataset, getOriginalDir(dataset));
+            final DatasetFileLines lines = loadFromDirectory(dataset, getDataSubDir(dataset));
             builder.addFile(lines);
         }
         return builder.getTableModel();
