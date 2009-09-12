@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
@@ -43,19 +44,19 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
         {
             try
             {
-                return new Float(value);
+                return StringUtils.isEmpty(value) ? Double.MIN_VALUE : new Double(value);
             } catch (NumberFormatException e)
             {
-                return new Float(0);
+                return Double.MIN_VALUE;
             }
         } else if (type == TableModelColumnType.INTEGER)
         {
             try
             {
-                return new Long(value);
+                return StringUtils.isEmpty(value) ? Long.MIN_VALUE : new Long(value);
             } catch (NumberFormatException e)
             {
-                return new Long(0);
+                return Long.MIN_VALUE;
             }
         } else
         {
