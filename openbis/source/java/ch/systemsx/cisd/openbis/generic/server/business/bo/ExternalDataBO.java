@@ -257,7 +257,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             }
             // NOTE: If new data set is created and there was no placeholder
             // cycles will not be created because only connections to parents are added
-            // and we assume that there were no cycles before. On the other hand placeholders 
+            // and we assume that there were no cycles before. On the other hand placeholders
             // have at least one child so cycles need to be checked when they are updated.
             validateRelationshipGraph(externalData.getParents());
 
@@ -314,6 +314,13 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             final Set<String> currentParentCodes = extractCodes(currentParents);
             final Set<String> newCodes = asSet(modifiedParentDatasetCodesOrNull);
             newCodes.removeAll(currentParentCodes);
+
+            // quick check for direct cycle
+            if (newCodes.contains(externalData.getCode()))
+            {
+                throw new UserFailureException("Data set '" + externalData.getCode()
+                        + "' can not be its own parent.");
+            }
 
             final List<DataPE> parentsToAdd = findDataSetsByCodes(newCodes);
             validateRelationshipGraph(parentsToAdd);
