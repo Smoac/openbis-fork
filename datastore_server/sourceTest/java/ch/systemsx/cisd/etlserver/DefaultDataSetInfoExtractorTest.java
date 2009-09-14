@@ -55,14 +55,46 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
     }
 
     @Test
+    public void testExtractExperimentIdentifierWithoutGroup()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(INDEX_OF_EXPERIMENT_IDENTIFIER, "1");
+        final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
+
+        final DataSetInformation dsInfo =
+                extractor.getDataSetInformation(new File("bla.XY&123.bla"), null);
+
+        assertEquals(null, dsInfo.getExperimentIdentifier().getGroupCode());
+        assertEquals("XY", dsInfo.getExperimentIdentifier().getProjectCode());
+        assertEquals("123", dsInfo.getExperimentIdentifier().getExperimentCode());
+        assertEquals(null, dsInfo.getSampleIdentifier());
+    }
+    
+    @Test
+    public void testExtractExperimentIdentifierWithGroup()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(INDEX_OF_EXPERIMENT_IDENTIFIER, "1");
+        final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
+        
+        final DataSetInformation dsInfo =
+            extractor.getDataSetInformation(new File("bla.abc&xy&123.bla"), null);
+        
+        assertEquals("ABC", dsInfo.getExperimentIdentifier().getGroupCode());
+        assertEquals("XY", dsInfo.getExperimentIdentifier().getProjectCode());
+        assertEquals("123", dsInfo.getExperimentIdentifier().getExperimentCode());
+        assertEquals(null, dsInfo.getSampleIdentifier());
+    }
+    
+    @Test
     public void testHappyCaseWithDefaultProperties()
     {
         final String barcode = "XYZ123";
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(new Properties());
-
+        
         final DataSetInformation dsInfo =
-                extractor.getDataSetInformation(new File("bla.bla." + barcode), null);
-
+            extractor.getDataSetInformation(new File("bla.bla." + barcode), null);
+        
         assertNull(dsInfo.getExperimentIdentifier());
         assertEquals(barcode, dsInfo.getSampleIdentifier().getSampleCode());
         assertEquals(0, dsInfo.getParentDataSetCodes().size());

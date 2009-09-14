@@ -32,6 +32,9 @@ public abstract class CodeExtractortTestCase
     protected static final String INDEX_OF_SAMPLE_CODE =
             PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_SAMPLE_CODE;
 
+    protected static final String INDEX_OF_EXPERIMENT_IDENTIFIER =
+        PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_EXPERIMENT_IDENTIFIER;
+    
     protected static final String INDEX_OF_PARENT_DATA_SET_CODE =
             PREFIX + DefaultDataSetInfoExtractor.INDEX_OF_PARENT_DATA_SET_CODES;
 

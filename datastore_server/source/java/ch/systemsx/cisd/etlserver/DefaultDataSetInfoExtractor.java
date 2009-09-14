@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * Default implementation which assumes that the information can be extracted from the file name.
@@ -86,7 +87,15 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * <tr>
  * <td><code>index-of-sample-code</code></td>
  * <td><code>-1</code></td>
- * <td>Index of the entity which is interpreted as the sample code.</td>
+ * <td>Index of the entity which is interpreted as the sample code. It will be ignored
+ * <code>index-of-experiment-identifier</code> has been specified.</td>
+ * </tr>
+ * <tr>
+ * <td><code>index-of-experiment-identifier</code></td>
+ * <td><code>&nbsp;</code></td>
+ * <td>Index of the entity which is interpreted as the experiment identifier. If not specified no
+ * experiment identifier will be extracted. In this case <code>index-of-sample-code</code> will be
+ * used.</td>
  * </tr>
  * <tr>
  * <td><code>index-of-parent-data-set-codes</code></td>
@@ -143,6 +152,17 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
     @Private
     static final String INDEX_OF_SAMPLE_CODE = "index-of-sample-code";
 
+    /**
+     * Name of the property specifying the index of the entity which should be interpreted as the
+     * experiment identifier.
+     * <p>
+     * Use a negative number to count from the end, e.g. <code>-1</code> to use the last entity as
+     * the experiment identifer.
+     * </p>
+     */
+    @Private
+    static final String INDEX_OF_EXPERIMENT_IDENTIFIER = "index-of-experiment-identifier";
+    
     /**
      * Name of the property specifying the index of the entity which should be interpreted as 
      * parent data set codes.
@@ -202,24 +222,45 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
 
     @Private
     static final String DATA_SET_PROPERTIES_FILE_NAME_KEY = "data-set-properties-file-name";
+    
+    private static final class Index
+    {
+        private boolean undefined;
+        private int index;
+        
+        Index(Properties properties, String key)
+        {
+            this(properties, key, 0);
+        }
+        
+        Index(Properties properties, String key, int defaultValue)
+        {
+            undefined = StringUtils.isBlank(properties.getProperty(key));
+            index = PropertyUtils.getInt(properties, key, defaultValue);
+        }
+
+        public final boolean isUndefined()
+        {
+            return undefined;
+        }
+
+        public final int getIndex()
+        {
+            return index;
+        }
+    }
 
     private final int indexOfSampleCode;
+    
+    private final Index indexOfExperimentIdentifier;
 
-    private final boolean noGroupCode; // no specific settings, use global group settings
+    private final Index indexOfGroupCode;
 
-    private final int indexOfGroupCode;
+    private final Index indexOfParentDataSetCodes;
 
-    private final boolean noParentDataSetCodes;
+    private final Index indexOfDataProducerCode;
 
-    private final int indexOfParentDataSetCodes;
-
-    private final boolean noDataProducerCode;
-
-    private final int indexOfDataProducerCode;
-
-    private final boolean noDataProductionDate;
-
-    private final int indexOfDataProductionDate;
+    private final Index indexOfDataProductionDate;
 
     private final SimpleDateFormat dateFormat;
 
@@ -245,25 +286,12 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         indexOfSampleCode =
                 PropertyUtils
                         .getInt(properties, INDEX_OF_SAMPLE_CODE, DEFAULT_INDEX_OF_SAMPLE_CODE);
-        String indexAsString;
 
-        indexAsString = properties.getProperty(INDEX_OF_GROUP_CODE);
-        noGroupCode = StringUtils.isBlank(indexAsString);
-        indexOfGroupCode = PropertyUtils.getInt(properties, INDEX_OF_GROUP_CODE, 0);
-
-        indexAsString = properties.getProperty(INDEX_OF_PARENT_DATA_SET_CODES);
-        noParentDataSetCodes = indexAsString == null;
-        indexOfParentDataSetCodes =
-                PropertyUtils.getInt(properties, INDEX_OF_PARENT_DATA_SET_CODES, 0);
-
-        indexAsString = properties.getProperty(INDEX_OF_DATA_PRODUCER_CODE);
-        noDataProducerCode = indexAsString == null;
-        indexOfDataProducerCode = PropertyUtils.getInt(properties, INDEX_OF_DATA_PRODUCER_CODE, 0);
-
-        indexAsString = properties.getProperty(INDEX_OF_DATA_PRODUCTION_DATE);
-        noDataProductionDate = indexAsString == null;
-        indexOfDataProductionDate =
-                PropertyUtils.getInt(properties, INDEX_OF_DATA_PRODUCTION_DATE, 0);
+        indexOfExperimentIdentifier = new Index(properties, INDEX_OF_EXPERIMENT_IDENTIFIER);
+        indexOfGroupCode = new Index(properties, INDEX_OF_GROUP_CODE);
+        indexOfParentDataSetCodes = new Index(properties, INDEX_OF_PARENT_DATA_SET_CODES);
+        indexOfDataProducerCode = new Index(properties, INDEX_OF_DATA_PRODUCER_CODE);
+        indexOfDataProductionDate = new Index(properties, INDEX_OF_DATA_PRODUCTION_DATE);
 
         dateFormat =
                 new SimpleDateFormat(properties.getProperty(DATA_PRODUCTION_DATE_FORMAT,
@@ -284,57 +312,92 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
                 new DataSetNameEntitiesProvider(incomingDataSetPath, entitySeparator,
                         stripExtension);
         final DataSetInformation dataSetInformation = new DataSetInformation();
-        dataSetInformation.setSampleCode(entitiesProvider.getEntity(indexOfSampleCode));
+        String groupCode = extractGroupCode(entitiesProvider);
+        ExperimentIdentifier experimentIdentifier = tryToExtractExperimentIdentifier(
+                entitiesProvider, groupCode);
+        dataSetInformation.setExperimentIdentifier(experimentIdentifier);
+        if (experimentIdentifier == null)
+        {
+            dataSetInformation.setSampleCode(entitiesProvider.getEntity(indexOfSampleCode));
+        }
         dataSetInformation.setParentDataSetCodes(getParentDataSetCodes(entitiesProvider));
         dataSetInformation.setProducerCode(tryGetDataProducerCode(entitiesProvider));
         dataSetInformation.setProductionDate(tryGetDataProductionDate(entitiesProvider));
         dataSetInformation.setDataSetProperties(extractDataSetProperties(incomingDataSetPath,
                 dataSetPropertiesFileNameOrNull));
-        dataSetInformation.setGroupCode(extractGroupCode(entitiesProvider));
+        dataSetInformation.setGroupCode(groupCode);
         return dataSetInformation;
     }
+
+    private ExperimentIdentifier tryToExtractExperimentIdentifier(
+            final DataSetNameEntitiesProvider entitiesProvider, String groupCode)
+    {
+        if (indexOfExperimentIdentifier.isUndefined())
+        {
+            return null;
+        }
+        String experimentIdentifier = entitiesProvider.getEntity(indexOfExperimentIdentifier.getIndex());
+
+        String[] codes = StringUtils.split(experimentIdentifier, subEntitySeparator);
+        ExperimentIdentifier identifier = new ExperimentIdentifier();
+        if (codes.length > 0)
+        {
+            identifier.setExperimentCode(codes[codes.length - 1]);
+        }
+        if (codes.length > 1)
+        {
+            identifier.setProjectCode(codes[codes.length - 2]);
+        }
+        if (codes.length > 2)
+        {
+            identifier.setGroupCode(codes.length > 2 ? codes[codes.length - 3] : groupCode);
+        }
+        return identifier;
+    }
+    
 
     private List<String> getParentDataSetCodes(
             final DataSetNameEntitiesProvider entitiesProvider)
     {
-        if (noParentDataSetCodes)
+        if (indexOfParentDataSetCodes.isUndefined())
         {
             return Collections.emptyList();
         }
-        String parentDataSetCodes = entitiesProvider.getEntity(indexOfParentDataSetCodes);
+        String parentDataSetCodes = entitiesProvider.getEntity(indexOfParentDataSetCodes.getIndex());
         String[] codes = StringUtils.split(parentDataSetCodes, subEntitySeparator);
         return Arrays.asList(codes);
     }
 
     private String extractGroupCode(DataSetNameEntitiesProvider entitiesProvider)
     {
-        if (noGroupCode)
+        if (indexOfGroupCode.isUndefined())
         {
             return super.getGroupCode();
         } else
         {
-            return entitiesProvider.getEntity(indexOfGroupCode);
+            return entitiesProvider.getEntity(indexOfGroupCode.getIndex());
         }
     }
 
     private String tryGetDataProducerCode(
             final DataSetNameEntitiesProvider dataSetNameEntitiesProvider)
     {
-        if (noDataProducerCode)
+        if (indexOfDataProducerCode.isUndefined())
         {
             return null;
         }
-        return dataSetNameEntitiesProvider.getEntity(indexOfDataProducerCode);
+        return dataSetNameEntitiesProvider.getEntity(indexOfDataProducerCode.getIndex());
     }
 
     private Date tryGetDataProductionDate(
             final DataSetNameEntitiesProvider dataSetNameEntitiesProvider)
     {
-        if (noDataProductionDate)
+        if (indexOfDataProductionDate.isUndefined())
         {
             return null;
         }
-        final String dateString = dataSetNameEntitiesProvider.getEntity(indexOfDataProductionDate);
+        final String dateString =
+                dataSetNameEntitiesProvider.getEntity(indexOfDataProductionDate.getIndex());
         try
         {
             return dateFormat.parse(dateString);
