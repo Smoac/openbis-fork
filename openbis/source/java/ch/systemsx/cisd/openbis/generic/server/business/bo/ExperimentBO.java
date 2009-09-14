@@ -153,7 +153,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         if (experiment == null)
         {
             throw UserFailureException.fromTemplate(
-                    "No sample could be found with given identifier '%s'.", identifier);
+                    "No experiment could be found with given identifier '%s'.", identifier);
         }
         dataChanged = false;
     }

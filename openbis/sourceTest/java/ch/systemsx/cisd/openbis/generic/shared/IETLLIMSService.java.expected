@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSamplesByPropertyPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -92,7 +94,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
-     * Registers the specified data.
+     * Registers the specified data connected to a sample.
      * 
      * @param sessionToken The user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
@@ -107,6 +109,24 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public void registerDataSet(
             final String sessionToken,
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier,
+            final NewExternalData externalData) throws UserFailureException;
+
+    /**
+     * Registers the specified data connected to an experiment.
+     * 
+     * @param sessionToken The user authentication token. Must not be <code>null</code>.
+     * @param experimentIdentifier an identifier which uniquely identifies the experiment.
+     * @param externalData Data set to be registered. It is assumed that the attributes
+     *            <code>location</code>, <code>fileFormatType</code>, <code>dataSetType</code>, and
+     *            <code>locatorType</code> are not-<code>null</code>.
+     * @throws UserFailureException if given data set code could not be found in the persistence
+     *             layer.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public void registerDataSet(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) final ExperimentIdentifier experimentIdentifier,
             final NewExternalData externalData) throws UserFailureException;
 
     /**

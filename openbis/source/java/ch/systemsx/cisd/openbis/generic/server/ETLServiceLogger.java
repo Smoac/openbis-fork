@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
@@ -79,6 +80,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     {
         logTracking(sessionToken, "register_data_set", "SAMPLE(%s) DATA_SET(%s)", sampleIdentifier,
                 externalData);
+    }
+
+    public void registerDataSet(String sessionToken, ExperimentIdentifier experimentIdentifier,
+            NewExternalData externalData) throws UserFailureException
+    {
+        logTracking(sessionToken, "register_data_set", "EXPERIMENT(%s) DATA_SET(%s)",
+                experimentIdentifier, externalData);
     }
 
     public Sample tryGetSampleWithExperiment(String sessionToken, SampleIdentifier sampleIdentifier)

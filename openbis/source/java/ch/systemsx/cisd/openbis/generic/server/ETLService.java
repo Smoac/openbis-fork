@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -60,6 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
@@ -272,6 +274,14 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return sample == null ? null : sample.getExperiment();
     }
 
+    private ExperimentPE loadExperimentByIdentifier(final Session session,
+            ExperimentIdentifier experimentIdentifier)
+    {
+        final IExperimentBO experimentBO = boFactory.createExperimentBO(session);
+        experimentBO.loadByExperimentIdentifier(experimentIdentifier);
+        return experimentBO.getExperiment();
+    }
+
     private SamplePE tryLoadSample(final Session session, SampleIdentifier sampleIdentifier)
     {
         final ISampleBO sampleBO = boFactory.createSampleBO(session);
@@ -337,6 +347,28 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         SourceType sourceType =
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
         externalDataBO.define(externalData, cellPlate, sourceType);
+        externalDataBO.save();
+        final String dataSetCode = externalDataBO.getExternalData().getCode();
+        assert dataSetCode != null : "Data set code not specified.";
+    }
+
+    public void registerDataSet(String sessionToken, ExperimentIdentifier experimentIdentifier,
+            NewExternalData externalData) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert experimentIdentifier != null : "Unspecified experiment identifier.";
+
+        final Session session = sessionManager.getSession(sessionToken);
+        ExperimentPE experiment = loadExperimentByIdentifier(session, experimentIdentifier);
+        if (experiment.getInvalidation() != null)
+        {
+            throw new UserFailureException("Data set can not be registered because experiment '"
+                    + experiment.getIdentifier() + "' is invalid.");
+        }
+        final IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
+        SourceType sourceType =
+                externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
+        externalDataBO.define(externalData, experiment, sourceType);
         externalDataBO.save();
         final String dataSetCode = externalDataBO.getExternalData().getCode();
         assert dataSetCode != null : "Data set code not specified.";

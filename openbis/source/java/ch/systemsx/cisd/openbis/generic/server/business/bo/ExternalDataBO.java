@@ -132,6 +132,33 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     public void define(NewExternalData data, SamplePE sample, SourceType sourceType)
     {
+        assert sample != null : "Undefined sample.";
+
+        define(data, sourceType);
+
+        externalData.setSample(sample);
+        externalData.setExperiment(sample.getExperiment());
+    }
+
+    public void define(NewExternalData data, ExperimentPE experiment, SourceType sourceType)
+    {
+        assert experiment != null : "Undefined experiment.";
+        DataStorePE dataStore = define(data, sourceType);
+
+        externalData.setExperiment(experiment);
+        final List<String> parentDataSetCodes = data.getParentDataSetCodes();
+        if (parentDataSetCodes != null)
+        {
+            for (String parentCode : parentDataSetCodes)
+            {
+                final DataPE parent = getOrCreateParentData(parentCode, dataStore, experiment);
+                externalData.addParent(parent);
+            }
+        }
+    }
+
+    private DataStorePE define(NewExternalData data, SourceType sourceType)
+    {
         assert data != null : "Undefined data.";
         final DataSetType dataSetType = data.getDataSetType();
         assert dataSetType != null : "Undefined data set type.";
@@ -144,7 +171,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         assert sourceType != null : "Undefined source type.";
 
         externalData = new ExternalDataPE();
-        externalData.setExperiment(sample.getExperiment());
+
         externalData.setDataProducerCode(data.getDataProducerCode());
         externalData.setProductionDate(data.getProductionDate());
         externalData.setCode(data.getCode());
@@ -160,19 +187,8 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         externalData.setDataStore(dataStore);
         defineDataSetProperties(externalData, convertToDataSetProperties(data
                 .getDataSetProperties()));
-
-        final List<String> parentDataSetCodes = data.getParentDataSetCodes();
-        if (parentDataSetCodes != null)
-        {
-            for (String parentCode : parentDataSetCodes)
-            {
-                final DataPE parent = getOrCreateParentData(parentCode, dataStore, sample);
-                externalData.addParent(parent);
-            }
-        }
-
-        externalData.setSample(sample);
         externalData.setDerived(sourceType == SourceType.DERIVED);
+        return dataStore;
     }
 
     private VocabularyTermPE tryToFindStorageFormatTerm(StorageFormat storageFormat)
@@ -218,7 +234,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     }
 
     private final DataPE getOrCreateParentData(final String parentDataSetCode,
-            DataStorePE dataStore, SamplePE sample)
+            DataStorePE dataStore, ExperimentPE experiment)
     {
         assert parentDataSetCode != null : "Unspecified parent data set code.";
 
@@ -231,8 +247,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             parent.setCode(parentDataSetCode);
             String code = DataSetTypeCode.UNKNOWN.getCode();
             parent.setDataSetType(getDataSetTypeDAO().tryToFindDataSetTypeByCode(code));
-            parent.setExperiment(sample.getExperiment());
-            parent.setSampleDerivedFrom(sample);
+            parent.setExperiment(experiment);
             parent.setPlaceholder(true);
             dataDAO.createDataSet(parent);
         }

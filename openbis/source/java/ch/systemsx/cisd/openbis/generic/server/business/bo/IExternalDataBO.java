@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -34,11 +35,21 @@ public interface IExternalDataBO extends IEntityBusinessObject
     public ExternalDataPE getExternalData();
 
     /**
-     * Defines a new external data item. After invocation of this method
-     * {@link IExperimentBO#save()} should be invoked to store the new external data item in the
-     * Data Access Layer.
+     * Defines a new external data item directly connected to a sample.
+     * <p>
+     * After invocation of this method {@link IExperimentBO#save()} should be invoked to store the
+     * new external data item in the Data Access Layer.
      */
     public void define(NewExternalData externalData, SamplePE sample, SourceType sourceType);
+
+    /**
+     * Defines a new external data item not directly connected to a sample but with mandatory
+     * connection with an experiment.
+     * <p>
+     * After invocation of this method {@link IExperimentBO#save()} should be invoked to store the
+     * new external data item in the Data Access Layer.
+     */
+    public void define(NewExternalData data, ExperimentPE experiment, SourceType sourceType);
 
     /**
      * Changes given data set. Currently allowed changes: properties, sample.
