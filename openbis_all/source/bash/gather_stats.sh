@@ -35,12 +35,12 @@ PSQL_VERSION="psql --version | grep PostgreSQL"
 STATEMENTS="$JAVA_MAX_HEAP_SIZE;
             $JAVA_INIT_HEAP_SIZE;
             $PSQL_VERSION;
-            $JAVA_VERSION;
-            echo"
+            $JAVA_VERSION"
 
 if [ -n "${1}" ]
 then
-  STATEMENTS="$STATEMENTS;$1" 
+  STATEMENTS="$STATEMENTS;$1;echo" 
+else STATEMENTS="$STATEMENTS;echo"
 fi
 
 echo Statistics for all openbis servers
