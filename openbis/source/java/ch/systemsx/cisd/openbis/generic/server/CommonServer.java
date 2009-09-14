@@ -461,22 +461,22 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final List<ExternalData> listSampleExternalData(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
-        // showOnlyDirectlyConnected works only with fast implementation
         final Session session = getSessionManager().getSession(sessionToken);
-        final IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadBySampleTechId(sampleId);
-        return getSortedExternalDataFrom(externalDataTable, session.getBaseIndexURL());
+        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final List<ExternalData> datasets =
+                datasetLister.listBySampleTechId(sampleId, showOnlyDirectlyConnected);
+        Collections.sort(datasets);
+        return datasets;
     }
 
     public final List<ExternalData> listExperimentExternalData(final String sessionToken,
             final TechId experimentId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        final IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadByExperimentTechId(experimentId);
-        return getSortedExternalDataFrom(externalDataTable, session.getBaseIndexURL());
+        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final List<ExternalData> datasets = datasetLister.listByExperimentTechId(experimentId);
+        Collections.sort(datasets);
+        return datasets;
     }
 
     // 'fast' implementation
@@ -497,37 +497,6 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
         Collections.sort(datasets);
         return datasets;
-    }
-
-    // FIXME 2009-08-30 Tomasz Pylak: use this method
-    public final List<ExternalData> listSampleExternalDataFast(final String sessionToken,
-            final TechId sampleId, final boolean showOnlyDirectlyConnected)
-    {
-        final Session session = getSessionManager().getSession(sessionToken);
-        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        final List<ExternalData> datasets =
-                datasetLister.listBySampleTechId(sampleId, showOnlyDirectlyConnected);
-        Collections.sort(datasets);
-        return datasets;
-    }
-
-    // FIXME 2009-08-30 Tomasz Pylak: use this method
-    public final List<ExternalData> listExperimentExternalDataFast(final String sessionToken,
-            final TechId experimentId)
-    {
-        final Session session = getSessionManager().getSession(sessionToken);
-        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        final List<ExternalData> datasets = datasetLister.listByExperimentTechId(experimentId);
-        Collections.sort(datasets);
-        return datasets;
-    }
-
-    private List<ExternalData> getSortedExternalDataFrom(
-            final IExternalDataTable externalDataTable, final String baseIndexURL)
-    {
-        final List<ExternalDataPE> externalData = externalDataTable.getExternalData();
-        Collections.sort(externalData);
-        return ExternalDataTranslator.translate(externalData, getDataStoreBaseURL(), baseIndexURL);
     }
 
     public final List<PropertyType> listPropertyTypes(final String sessionToken,
