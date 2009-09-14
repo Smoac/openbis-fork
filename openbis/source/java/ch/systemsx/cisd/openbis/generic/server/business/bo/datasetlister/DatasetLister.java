@@ -417,9 +417,12 @@ public class DatasetLister implements IDatasetLister
         dataset.setRegistrationDate(record.registration_timestamp);
         dataset.setDataSetProperties(new ArrayList<IEntityProperty>());
 
-        Sample sample = new Sample();
-        sample.setId(record.samp_id);
-        dataset.setSample(sample);
+        if (record.samp_id != null)
+        {
+            Sample sample = new Sample();
+            sample.setId(record.samp_id);
+            dataset.setSample(sample);
+        }
 
         Experiment experiment = new Experiment();
         experiment.setId(record.expe_id);

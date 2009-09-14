@@ -23,7 +23,7 @@ public class DatasetRecord extends CodeRecord
 
     public Date production_timestamp;
 
-    public long samp_id;
+    public Long samp_id;
 
     public Date registration_timestamp;
 
