@@ -21,7 +21,6 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * Storage processor which uses an {@link IDataSetUploader} after data set has been stored by
@@ -50,13 +49,13 @@ public abstract class AbstractStrorageProcessorWithUploader extends AbstractDele
     }
     
     @Override
-    public File storeData(final Sample sample, final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+    public File storeData(final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
+            final IMailClient mailClient, final File incomingDataSetDirectory,
+            final File rootDir)
     {
         File storeData =
-                super.storeData(sample, dataSetInformation, typeExtractor, mailClient,
-                        incomingDataSetDirectory, rootDir);
+                super.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory,
+                        rootDir);
         File originalData = super.tryGetProprietaryData(storeData);
         uploader.upload(originalData, dataSetInformation);
         return storeData;

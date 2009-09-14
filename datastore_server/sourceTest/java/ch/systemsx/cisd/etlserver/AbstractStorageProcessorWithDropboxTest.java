@@ -53,8 +53,8 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         context.checking(new Expectations()
             {
                 {
-                    one(delegateStorageProcessor).storeData(null, dataSetInfo, null, null,
-                            incomingDirectory, null);
+                    one(delegateStorageProcessor).storeData(dataSetInfo, null, null, incomingDirectory,
+                            null);
                     will(returnValue(incomingDirectory));
 
                     File dropboxIncomingDir = new File(dropboxIncomingDirName);
@@ -77,7 +77,7 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
 
         AbstractDelegatingStorageProcessorWithDropbox storageProcessor =
                 new StorageProcessorWithDropboxTest(props, delegateStorageProcessor, fileOperations);
-        storageProcessor.storeData(null, dataSetInfo, null, null, incomingDirectory, null);
+        storageProcessor.storeData(dataSetInfo, null, null, incomingDirectory, null);
 
         context.assertIsSatisfied();
     }
@@ -195,7 +195,7 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         File store = new File(workingDirectory, "store");
         store.mkdirs();
 
-        processor.storeData(null, dataSetInfo, null, null, dataSetFile, store);
+        processor.storeData(dataSetInfo, null, null, dataSetFile, store);
 
         File storeData = new File(store, "original/data.txt");
         assertEquals(true, storeData.exists());

@@ -25,7 +25,6 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * Storage processor which is able to create a copy of incoming data for additional processing.
@@ -66,13 +65,13 @@ abstract public class AbstractDelegatingStorageProcessorWithDropbox extends
     //
 
     @Override
-    public final File storeData(final Sample sample, final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir)
+    public final File storeData(final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
+            final IMailClient mailClient, final File incomingDataSetDirectory,
+            final File rootDir)
     {
         File storeData =
-                super.storeData(sample, dataSetInformation, typeExtractor, mailClient,
-                        incomingDataSetDirectory, rootDir);
+                super.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory,
+                        rootDir);
         File originalData = super.tryGetProprietaryData(storeData);
         dropboxHandler.handle(originalData, dataSetInformation);
         return storeData;

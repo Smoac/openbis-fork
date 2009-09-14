@@ -35,7 +35,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -85,13 +84,12 @@ public class CifexStorageProcessor extends AbstractStorageProcessor
         return StorageFormat.PROPRIETARY;
     }
 
-    public File storeData(Sample sample, DataSetInformation dataSetInformation,
-            ITypeExtractor typeExtractor, IMailClient mailClient, File incomingDataSetDirectory,
-            File rootDir)
+    public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
+            IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
     {
         File result =
-                delegate.storeData(sample, dataSetInformation, typeExtractor, mailClient,
-                        incomingDataSetDirectory, rootDir);
+                delegate.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory,
+                        rootDir);
         if (StringUtils.isBlank(keppFileRegex) == false)
         {
             clean(delegate.tryGetProprietaryData(rootDir), keppFileRegex);

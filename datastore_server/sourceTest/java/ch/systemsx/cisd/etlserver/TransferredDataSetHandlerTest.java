@@ -560,8 +560,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     allowing(storageProcessor).getStorageFormat();
                     will(returnValue(StorageFormat.BDS_DIRECTORY));
-                    one(storageProcessor).storeData(baseSample, dataSetInformation, typeExtractor,
-                            mailClient, data1, baseDir);
+                    one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
+                            data1, baseDir);
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
                 }
@@ -602,8 +602,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
                     allowing(storageProcessor).getStorageFormat();
                     will(returnValue(StorageFormat.BDS_DIRECTORY));
-                    one(storageProcessor).storeData(baseSample, dataSetInformation, typeExtractor,
-                            mailClient, data1, baseDir);
+                    one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
+                            data1, baseDir);
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
                 }
@@ -696,8 +696,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                     one(typeExtractor).getProcessorType(folder);
                     will(returnValue(EXAMPLE_PROCESSOR_ID));
 
-                    one(storageProcessor).storeData(baseSample, dataSetInformation, typeExtractor,
-                            mailClient, folder, baseDir);
+                    one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
+                            folder, baseDir);
                     UserFailureException exception =
                             new UserFailureException("Could store data by storage processor");
                     will(throwException(exception));
@@ -755,8 +755,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context.checking(new Expectations()
             {
                 {
-                    one(storageProcessor).storeData(baseSample, dataSetInformation, typeExtractor,
-                            mailClient, folder, baseDir);
+                    one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
+                            folder, baseDir);
                     will(returnValue(new File(baseDir, DATA1_NAME)));
 
                     one(limsService).registerDataSet(with(equal(SESSION_TOKEN)),

@@ -129,54 +129,68 @@ final class DataStrategyStore implements IDataStrategyStore
         {
             return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
         }
+        ExperimentIdentifier experimentIdentifier = dataSetInfo.getExperimentIdentifier();
         final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
-        final Sample sample = tryGetSample(sampleIdentifier);
-        final Experiment experiment = (sample == null) ? null : sample.getExperiment();
-        if (experiment == null)
+        if (experimentIdentifier != null)
         {
-            notificationLog.error(createNotificationMessage(dataSetInfo, incomingDataSetPath));
-            return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
-        } else if (experiment.getInvalidation() != null)
-        {
-            notificationLog.error("Data set for sample '" + sampleIdentifier
-                    + "' can not be registered because experiment '" + experiment.getCode()
-                    + "' has been invalidated.");
-            return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
-        }
-        dataSetInfo.setSample(sample);
-        final ExperimentIdentifier experimentIdentifier = createExperimentIdentifier(experiment);
-        dataSetInfo.setExperimentIdentifier(experimentIdentifier);
-
-        final IEntityProperty[] properties =
-                limsService.getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
-        if (properties == null)
-        {
-            final Person registrator = experiment.getRegistrator();
-            assert registrator != null : "Registrator must be known";
-            final String message = createInvalidSampleCodeMessage(dataSetInfo);
-            final String recipientMail = registrator.getEmail();
-            if (StringUtils.isNotBlank(recipientMail))
+            Experiment experiment = limsService.tryToGetExperiment(experimentIdentifier);
+            if (experiment == null)
             {
-                sendEmail(message, experimentIdentifier, recipientMail);
-            } else
-            {
-                notificationLog.error("The registrator '" + registrator
-                        + "' has a blank email, sending the following email failed:\n" + message);
+                notificationLog.error("Unknown experiment identifier '" + experimentIdentifier + "'.");
+                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
             }
-            operationLog.error(String.format("Incoming data set '%s' claims to "
-                    + "belong to experiment '%s' and sample"
-                    + " identifier '%s', but according to the openBIS server "
-                    + "there is no such sample for this "
-                    + "experiment (it has maybe been invalidated?). We thus consider it invalid.",
-                    incomingDataSetPath, experimentIdentifier, sampleIdentifier));
-            return dataStoreStrategies.get(DataStoreStrategyKey.INVALID);
+            dataSetInfo.setExperiment(experiment);
+        } else
+        {
+            final Sample sample = tryGetSample(sampleIdentifier);
+            final Experiment experiment = (sample == null) ? null : sample.getExperiment();
+            if (experiment == null)
+            {
+                notificationLog.error(createNotificationMessage(dataSetInfo, incomingDataSetPath));
+                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
+            } else if (experiment.getInvalidation() != null)
+            {
+                notificationLog.error("Data set for sample '" + sampleIdentifier
+                        + "' can not be registered because experiment '" + experiment.getCode()
+                        + "' has been invalidated.");
+                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
+            }
+            dataSetInfo.setSample(sample);
+            experimentIdentifier = createExperimentIdentifier(experiment);
+            dataSetInfo.setExperimentIdentifier(experimentIdentifier);
+            
+            final IEntityProperty[] properties =
+                limsService.getPropertiesOfTopSampleRegisteredFor(sampleIdentifier);
+            if (properties == null)
+            {
+                final Person registrator = experiment.getRegistrator();
+                assert registrator != null : "Registrator must be known";
+                final String message = createInvalidSampleCodeMessage(dataSetInfo);
+                final String recipientMail = registrator.getEmail();
+                if (StringUtils.isNotBlank(recipientMail))
+                {
+                    sendEmail(message, experimentIdentifier, recipientMail);
+                } else
+                {
+                    notificationLog.error("The registrator '" + registrator
+                            + "' has a blank email, sending the following email failed:\n" + message);
+                }
+                operationLog.error(String.format("Incoming data set '%s' claims to "
+                        + "belong to experiment '%s' and sample"
+                        + " identifier '%s', but according to the openBIS server "
+                        + "there is no such sample for this "
+                        + "experiment (it has maybe been invalidated?). We thus consider it invalid.",
+                        incomingDataSetPath, experimentIdentifier, sampleIdentifier));
+                return dataStoreStrategies.get(DataStoreStrategyKey.INVALID);
+            }
+            dataSetInfo.setProperties(properties);
         }
-        dataSetInfo.setProperties(properties);
 
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("Identified that database knows experiment '" + experimentIdentifier
-                    + "' and sample '" + sampleIdentifier + "'.");
+            operationLog.info("Identified that database knows experiment '"
+                    + experimentIdentifier + "'"
+                    + (sampleIdentifier == null ? "." : " and sample '" + sampleIdentifier + "'."));
         }
         return dataStoreStrategies.get(DataStoreStrategyKey.IDENTIFIED);
     }

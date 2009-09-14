@@ -63,7 +63,7 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         final DefaultStorageProcessor storageProcessor = createStorageProcessor();
         try
         {
-            storageProcessor.storeData(null, null, null, null, null, null);
+            storageProcessor.storeData(null, null, null, null, null);
             fail("Null values not accepted");
         } catch (final AssertionError e)
         {
@@ -73,8 +73,8 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         FileUtilities.writeToFile(new File(incomingDataSetDirectory, "read.me"), "hello world");
         final File rootDir = createDirectory("root");
         final File storeData =
-                storageProcessor.storeData(null, null, TYPE_EXTRACTOR, null,
-                        incomingDataSetDirectory, rootDir);
+                storageProcessor.storeData(null, TYPE_EXTRACTOR, null, incomingDataSetDirectory,
+                        rootDir);
         assertEquals(false, incomingDataSetDirectory.exists());
         assertEquals(true, storeData.isDirectory());
         assertEquals(rootDir.getAbsolutePath(), storeData.getAbsolutePath());
@@ -108,8 +108,8 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         File readMeFile = new File(incomingDataSetDirectory, "read.me");
         FileUtilities.writeToFile(readMeFile, "hi");
         final File storeData =
-                storageProcessor.storeData(null, null, TYPE_EXTRACTOR, null,
-                        incomingDataSetDirectory, root);
+                storageProcessor.storeData(null, TYPE_EXTRACTOR, null, incomingDataSetDirectory,
+                        root);
         assertEquals(true, storeData.exists());
         assertEquals(false, incomingDataSetDirectory.exists());
         storageProcessor.unstoreData(incomingDataSetDirectory, root, null);

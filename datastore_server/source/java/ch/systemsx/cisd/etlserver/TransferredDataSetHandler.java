@@ -59,7 +59,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -415,12 +414,11 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
          */
         final List<DataSetInformation> registerDataSet()
         {
-            final Sample sample = dataSetInformation.getSample();
             String processorID = typeExtractor.getProcessorType(incomingDataSetFile);
             try
             {
-                registerDataSetAndInitiateProcessing(sample, processorID);
-                logAndNotifySuccessfulRegistration(sample.getExperiment().getRegistrator()
+                registerDataSetAndInitiateProcessing(processorID);
+                logAndNotifySuccessfulRegistration(dataSetInformation.tryToGetExperiment().getRegistrator()
                         .getEmail());
                 if (fileOperations.exists(incomingDataSetFile)
                         && fileOperations.removeRecursivelyQueueing(incomingDataSetFile) == false)
@@ -481,8 +479,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         /**
          * Registers the data set.
          */
-        private void registerDataSetAndInitiateProcessing(final Sample sample,
-                final String procedureTypeCode)
+        private void registerDataSetAndInitiateProcessing(final String procedureTypeCode)
         {
             final File markerFile = createProcessingMarkerFile();
             try
@@ -496,8 +493,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 watch.start();
                 NewExternalData data = createExternalData();
                 File dataFile =
-                        storageProcessor.storeData(sample, dataSetInformation, typeExtractor,
-                                mailClient, incomingDataSetFile, baseDirectoryHolder
+                        storageProcessor.storeData(dataSetInformation, typeExtractor, mailClient,
+                                incomingDataSetFile, baseDirectoryHolder
                                         .getBaseDirectory());
                 if (operationLog.isInfoEnabled())
                 {

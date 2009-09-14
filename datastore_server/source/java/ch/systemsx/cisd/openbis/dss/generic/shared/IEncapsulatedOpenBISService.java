@@ -23,12 +23,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -46,6 +48,12 @@ public interface IEncapsulatedOpenBISService
     public ExternalData tryGetDataSet(final String sessionToken, final String dataSetCode)
             throws UserFailureException;
 
+    /**
+     * Tries to get the experiment of specified identifier or <code>null</code> if not found.
+     */
+    public Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
+            throws UserFailureException;
+    
     /**
      * Gets a sample with the specified identifier. Sample is enriched with properties and the
      * experiment with properties.

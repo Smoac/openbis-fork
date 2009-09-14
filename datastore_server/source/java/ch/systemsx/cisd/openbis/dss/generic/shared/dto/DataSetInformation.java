@@ -71,6 +71,8 @@ public class DataSetInformation implements Serializable
 
     /** sample with properties, enriched with connected experiment with properties. */
     private transient Sample sample;
+    
+    private transient Experiment experiment;
 
     private BooleanOrUnknown isCompleteFlag = BooleanOrUnknown.U;
 
@@ -119,7 +121,7 @@ public class DataSetInformation implements Serializable
      */
     public final IEntityProperty[] getProperties()
     {
-        return properties;
+        return properties == null ? new IEntityProperty[0] : properties;
     }
 
     public final void setProperties(final IEntityProperty[] properties)
@@ -166,18 +168,17 @@ public class DataSetInformation implements Serializable
     /**
      * Returns the basic information about the experiment.
      */
-    public Experiment getExperiment()
+    public Experiment tryToGetExperiment()
     {
-        return sample == null ? null : sample.getExperiment();
+        return experiment == null ? (sample == null ? null : sample.getExperiment()) : experiment;
+    }
+    
+    public void setExperiment(Experiment experiment)
+    {
+        this.experiment = experiment;
     }
 
-    /**
-     * NOTE: may be NULL
-     * 
-     * @deprecated remove deprecation when all use cases are rewritten in a NULL safe way
-     */
-    @Deprecated
-    public Sample getSample()
+    public Sample tryToGetSample()
     {
         return sample;
     }

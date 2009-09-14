@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -42,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -175,6 +177,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             authenticate();
         }
     }
+    
+    private Experiment primTryToGetExperiment(ExperimentIdentifier experimentIdentifier)
+    {
+        return service.tryToGetExperiment(sessionToken, experimentIdentifier);
+    }
 
     private final Sample primTryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
     {
@@ -184,7 +191,15 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private final void primRegisterDataSet(final DataSetInformation dataSetInformation,
             final NewExternalData data)
     {
-        service.registerDataSet(sessionToken, dataSetInformation.getSampleIdentifier(), data);
+        ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
+        if (experimentIdentifier != null)
+        {
+            service.registerDataSet(sessionToken, experimentIdentifier, data);
+        } else
+        {
+            SampleIdentifier sampleIdentifier = dataSetInformation.getSampleIdentifier();
+            service.registerDataSet(sessionToken, sampleIdentifier, data);
+        }
     }
 
     private final IEntityProperty[] primGetPropertiesOfSampleRegisteredFor(
@@ -208,6 +223,21 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     // IEncapsulatedOpenBISService
     //
 
+    synchronized public Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
+    {
+        assert experimentIdentifier != null : " Unspecified experiment identifier.";
+        
+        checkSessionToken();
+        try
+        {
+            return primTryToGetExperiment(experimentIdentifier);
+        } catch (InvalidSessionException ex)
+        {
+            authenticate();
+            return primTryToGetExperiment(experimentIdentifier);
+        }
+    }
+    
     synchronized public final Sample tryGetSampleWithExperiment(
             final SampleIdentifier sampleIdentifier)
     {

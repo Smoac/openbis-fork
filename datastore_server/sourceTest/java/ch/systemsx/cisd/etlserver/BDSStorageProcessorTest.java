@@ -354,8 +354,8 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final DataSetInformation dataSetInformation = createDataSetInformation();
         prepareMailClient(format);
         final File dataFile =
-                storageProcessor.storeData(baseSample, dataSetInformation, TYPE_EXTRACTOR,
-                        mailClient, incomingDataSetDirectory, new File(workingDirectory,
+                storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
+                        incomingDataSetDirectory, new File(workingDirectory,
                                 STORE_ROOT_DIR));
         assertEquals(new File(workingDirectory, STORE_ROOT_DIR).getAbsolutePath(), dataFile
                 .getAbsolutePath());
@@ -412,8 +412,8 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         prepareMailClient(format);
         final File storeRootDir = new File(workingDirectory, STORE_ROOT_DIR);
         final File dataStore =
-                storageAdapter.storeData(baseSample, dataSetInformation, TYPE_EXTRACTOR,
-                        mailClient, incomingDirectoryData, storeRootDir);
+                storageAdapter.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
+                        incomingDirectoryData, storeRootDir);
         assertEquals(true, dataStore.isDirectory());
         assertEquals(false, incomingDirectoryData.exists());
         storageAdapter.unstoreData(incomingDirectoryData, storeRootDir, null);
@@ -433,8 +433,8 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final DataSetInformation dataSetInformation = createDataSetInformation();
         prepareMailClient(format);
         final File storeData =
-                storageProcessor.storeData(baseSample, dataSetInformation, TYPE_EXTRACTOR,
-                        mailClient, incomingDirectoryData, workingDirectory);
+                storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
+                        incomingDirectoryData, workingDirectory);
         final File originalDataSet = storageProcessor.tryGetProprietaryData(storeData);
         assertNotNull(originalDataSet);
         assertEquals(INCOMING_DATA_SET_DIR, originalDataSet.getName());
@@ -462,8 +462,8 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final DataSetInformation dataSetInformation = createDataSetInformation();
         prepareMailClient(HCSImageFormatV1_0.HCS_IMAGE_1_0);
         final File storeData =
-                storageProcessor.storeData(baseSample, dataSetInformation, TYPE_EXTRACTOR,
-                        mailClient, incomingDirectoryData, workingDirectory);
+                storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
+                        incomingDirectoryData, workingDirectory);
         logRecorder.resetLogContent();
         final File originalDataSet = storageProcessor.tryGetProprietaryData(storeData);
         assertEquals(null, originalDataSet);

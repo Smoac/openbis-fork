@@ -21,7 +21,6 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
@@ -45,22 +44,20 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
      * Do not try/catch exceptions that could occur here. Preferably let the upper layer handle
      * them.
      * </p>
-     * 
-     * @param sample Sample connected to a dataset, enriched with properties, connected experiment
-     *            and its properties.
      * @param dataSetInformation Information about the data set.
      * @param typeExtractor the {@link ITypeExtractor} implementation.
      * @param mailClient mail client.
      * @param incomingDataSetDirectory folder to store. Do not remove it after the implementation
      *            has finished processing. {@link TransferredDataSetHandler} takes care of this.
      * @param rootDir directory to whom the data will be stored.
+     * 
      * @return folder which contains the stored data. This folder <i>must</i> be below the
      *         <var>rootDir</var>. Never returns <code>null</code> but prefers to throw an exception
      *         in case of unexpected behavior.
      */
-    public File storeData(final Sample sample, final DataSetInformation dataSetInformation,
-            final ITypeExtractor typeExtractor, final IMailClient mailClient,
-            final File incomingDataSetDirectory, final File rootDir);
+    public File storeData(final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
+            final IMailClient mailClient, final File incomingDataSetDirectory,
+            final File rootDir);
 
     /**
      * Instructs the dataset handler what to do with the data in incoming directory if there was an
@@ -80,7 +77,7 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
 
     /**
      * Performs a rollback of
-     * {@link #storeData(Sample, DataSetInformation, ITypeExtractor, IMailClient, File, File)} The
+     * {@link #storeData(DataSetInformation, ITypeExtractor, IMailClient, File, File)} The
      * data created in <code>directory</code> will also be removed.
      * <p>
      * Call to this method is safe as implementations should try/catch exceptions that could occur

@@ -401,10 +401,9 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
     //
 
     public final File storeData(
-            final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample sample,
-            final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
-            final IMailClient mailClient, final File incomingDataSetDirectory,
-            final File rootDirectory)
+            final DataSetInformation dataSetInformation,
+            final ITypeExtractor typeExtractor, final IMailClient mailClient,
+            final File incomingDataSetDirectory, final File rootDirectory)
     {
         checkDataSetInformation(dataSetInformation);
         assert rootDirectory != null : "Root directory can not be null.";
@@ -414,7 +413,8 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         dataStructureDir = rootDirectory;
         dataStructureDir.mkdirs();
         dataStructure =
-                createDataStructure(sample.getExperiment(), dataSetInformation, typeExtractor,
+                createDataStructure(dataSetInformation.tryToGetExperiment(),
+                        dataSetInformation, typeExtractor,
                         incomingDataSetDirectory, dataStructureDir);
         final IFormattedData formattedData = dataStructure.getFormattedData();
         if (formattedData instanceof IHCSImageFormattedData)
