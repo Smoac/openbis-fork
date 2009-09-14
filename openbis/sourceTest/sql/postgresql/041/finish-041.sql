@@ -234,6 +234,16 @@ CREATE INDEX sapr_stpt_fk_i ON sample_properties USING btree (stpt_id);
 CREATE INDEX stpt_pers_fk_i ON sample_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX stpt_prty_fk_i ON sample_type_property_types USING btree (prty_id);
 CREATE INDEX stpt_saty_fk_i ON sample_type_property_types USING btree (saty_id);
+CREATE CONSTRAINT TRIGGER check_dataset_relationships_on_data_table_modification
+    AFTER INSERT OR UPDATE ON data
+DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_dataset_relationships_on_data_table_modification();
+CREATE CONSTRAINT TRIGGER check_dataset_relationships_on_relationships_table_modification
+    AFTER INSERT OR UPDATE ON data_set_relationships
+DEFERRABLE INITIALLY DEFERRED
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_dataset_relationships_on_relationships_table_modification();
 CREATE TRIGGER controlled_vocabulary_check
     BEFORE INSERT OR UPDATE ON property_types
     FOR EACH ROW
