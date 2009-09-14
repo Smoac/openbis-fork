@@ -114,12 +114,22 @@ public abstract class AbstractPluginTaskFactory<T>
     private static Properties extractInstanceParameters(final Properties pluginProperties)
     {
         String parametersFilePath = pluginProperties.getProperty(PARAMS_FILE_PATH_PROPERTY_NAME);
+        Properties properties = new Properties();
+        addAll(properties, pluginProperties);
         if (StringUtils.isBlank(parametersFilePath) == false)
         {
-            return PropertyUtils.loadProperties(parametersFilePath);
-        } else
+            Properties propertiesFromFile = PropertyUtils.loadProperties(parametersFilePath);
+            addAll(properties, propertiesFromFile);
+        }
+        return properties;
+    }
+
+    // adds all properties from 'propertiesToAdd' to 'result' overriding the overlapping keys
+    private static void addAll(Properties result, Properties propertiesToAdd)
+    {
+        for (Object key : propertiesToAdd.keySet())
         {
-            return new Properties();
+            result.put(key, propertiesToAdd.get(key));
         }
     }
 

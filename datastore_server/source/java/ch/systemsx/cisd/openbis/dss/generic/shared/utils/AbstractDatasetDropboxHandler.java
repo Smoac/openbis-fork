@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
 import org.apache.log4j.Logger;
 
@@ -29,6 +30,7 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.CallableExecutor;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
@@ -44,6 +46,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 abstract public class AbstractDatasetDropboxHandler implements Serializable
 {
     private static final long serialVersionUID = 1L;
+
+    // how many times should it be retried when making copy of items fails
+    private final static String COPY_RETRIES_PROPERTY_NAME = "copy-max-retries";
+
+    // interval time in seconds between two copy retries
+    private final static String COPY_FAILURE_INTERVAL_IN_SEC_PROPERTY_NAME =
+            "copy-failure-interval";
 
     /**
      * @return the directory where copy of the original data should be created
@@ -74,6 +83,10 @@ abstract public class AbstractDatasetDropboxHandler implements Serializable
 
     private final IFileOperations fileOperations;
 
+    private final int maxRetriesOnFailure;
+
+    private final long millisToSleepOnFailure;
+
     private File recentlyStoredDropboxDataset;
 
     public AbstractDatasetDropboxHandler(Properties properties)
@@ -87,6 +100,9 @@ abstract public class AbstractDatasetDropboxHandler implements Serializable
         this.datasetCodeSeparator =
                 PropertyUtils.getProperty(properties, DATASET_CODE_SEPARATOR_PROPERTY,
                         DEFAULT_DATASET_CODE_SEPARATOR);
+        this.maxRetriesOnFailure = PropertyUtils.getInt(properties, COPY_RETRIES_PROPERTY_NAME, 0);
+        this.millisToSleepOnFailure =
+                PropertyUtils.getInt(properties, COPY_FAILURE_INTERVAL_IN_SEC_PROPERTY_NAME, 0) * 1000;
     }
 
     protected final File tryGetDirectory(String propertyName, Properties properties)
@@ -120,18 +136,43 @@ abstract public class AbstractDatasetDropboxHandler implements Serializable
     private void copy(File originalData, File dropboxDir, String destinationFileName)
     {
         File destFile = new File(dropboxDir, destinationFileName);
-        try
-        {
-            fileOperations.copyToDirectoryAs(originalData, dropboxDir, destinationFileName);
-
-            operationLog.info(String.format("Dataset '%s' copied into dropbox as '%s'.",
-                    originalData.getPath(), destFile.getPath()));
-        } catch (IOExceptionUnchecked ex)
-        {
-            throw EnvironmentFailureException.fromTemplate("Cannot copy '%s' to '%s': %s.",
-                    originalData.getPath(), destFile.getPath(), ex.getMessage());
-        }
+        copyToDirectoryAs(originalData, dropboxDir, destinationFileName);
         this.recentlyStoredDropboxDataset = destFile;
+    }
+
+    public void copyToDirectoryAs(final File source, final File destDir, final String newName)
+    {
+        Object result =
+                new CallableExecutor(maxRetriesOnFailure, millisToSleepOnFailure)
+                        .executeCallable(new Callable<Object>()
+                            {
+                                // returns null on error, non-null on success
+                                public Object call() throws Exception
+                                {
+                                    try
+                                    {
+                                        fileOperations.copyToDirectoryAs(source, destDir, newName);
+                                    } catch (IOExceptionUnchecked ex)
+                                    {
+                                        operationLog.error(createCopyErrorMessage(source, destDir,
+                                                newName)
+                                                + ": " + ex.getMessage());
+                                        return null;
+                                    }
+                                    return Boolean.TRUE;
+                                }
+                            });
+        if (result == null)
+        {
+            throw new EnvironmentFailureException(createCopyErrorMessage(source, destDir, newName));
+        }
+    }
+
+    private String createCopyErrorMessage(final File source, final File destDir,
+            final String newName)
+    {
+        return String.format("Cannot copy '%s' to '%s' as '%s'.", source.getPath(), destDir
+                .getPath(), newName);
     }
 
     public void undoLastOperation()
