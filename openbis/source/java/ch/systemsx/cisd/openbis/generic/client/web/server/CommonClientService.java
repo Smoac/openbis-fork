@@ -847,7 +847,8 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public ResultSetWithEntityTypes<ExternalData> listSampleDataSets(final TechId sampleId,
-            DefaultResultSetConfig<String, ExternalData> criteria)
+            DefaultResultSetConfig<String, ExternalData> criteria,
+            final boolean showOnlyDirectlyConnected)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return listEntitiesWithTypes(criteria, new IOriginalDataProvider<ExternalData>()
@@ -856,7 +857,8 @@ public final class CommonClientService extends AbstractClientService implements
                 {
                     final String sessionToken = getSessionToken();
                     final List<ExternalData> externalData =
-                            commonServer.listSampleExternalData(sessionToken, sampleId);
+                            commonServer.listSampleExternalData(sessionToken, sampleId,
+                                    showOnlyDirectlyConnected);
                     return externalData;
                 }
             });

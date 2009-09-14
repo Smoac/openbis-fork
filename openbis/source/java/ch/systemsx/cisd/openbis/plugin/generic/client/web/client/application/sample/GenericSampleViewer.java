@@ -22,9 +22,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -164,8 +168,11 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         // Data Sets
         final SingleSectionPanel externalDataPanel =
                 createContentPanel(viewContext.getMessage(Dict.EXTERNAL_DATA_HEADING));
+        CheckBox showOnlyDirectlyConnectedCheckBox = createShowOnlyDirectlyConnectedCheckBox();
+        externalDataPanel.getHeader().addTool(showOnlyDirectlyConnectedCheckBox);
         dataSetBrowser =
-                SampleDataSetBrowser.create(viewContext, sampleId, generator.getSampleType());
+                SampleDataSetBrowser.create(viewContext, sampleId, generator.getSampleType(),
+                        new DataSetConnectionTypeProvider(showOnlyDirectlyConnectedCheckBox));
         externalDataPanel.add(dataSetBrowser.getComponent());
         externalDataPanel.setDisplayID(DisplayTypeIDGenerator.DATA_SET_SECTION, displayIdSuffix);
         container.addPanel(externalDataPanel);
@@ -177,6 +184,14 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
         container.layout();
         return container;
+    }
+
+    private CheckBox createShowOnlyDirectlyConnectedCheckBox()
+    {
+        CheckBox result = new CheckBox();
+        result.setBoxLabel(Dict.SHOW_ONLY_DIRECTLY_CONNECTED);
+        result.setValue(true);
+        return result;
     }
 
     private AttachmentVersionsSection<Sample> createAttachmentsSection(final Sample sample)
@@ -318,6 +333,44 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     //
     // Helper classes
     //
+
+    public static class DataSetConnectionTypeProvider
+    {
+
+        private final CheckBox showOnlyDirectlyConnectedCheckBox;
+
+        private IDelegatedAction onChangeAction;
+
+        public DataSetConnectionTypeProvider(final CheckBox showOnlyDirectlyConnectedCheckBox)
+        {
+            this.showOnlyDirectlyConnectedCheckBox = showOnlyDirectlyConnectedCheckBox;
+            addChangeListener();
+        }
+
+        private void addChangeListener()
+        {
+            showOnlyDirectlyConnectedCheckBox.addListener(Events.Change, new Listener<FieldEvent>()
+                {
+                    public void handleEvent(FieldEvent be)
+                    {
+                        if (onChangeAction != null)
+                        {
+                            onChangeAction.execute();
+                        }
+                    }
+                });
+        }
+
+        public void setOnChangeAction(IDelegatedAction onChangeAction)
+        {
+            this.onChangeAction = onChangeAction;
+        }
+
+        public boolean getShowOnlyDirectlyConnected()
+        {
+            return showOnlyDirectlyConnectedCheckBox.getValue();
+        }
+    }
 
     public static final class SampleGenerationInfoCallback extends
             AbstractAsyncCallback<SampleParentWithDerived>

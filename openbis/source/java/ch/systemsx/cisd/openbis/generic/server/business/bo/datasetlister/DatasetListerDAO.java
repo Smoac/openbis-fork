@@ -217,9 +217,15 @@ public final class DatasetListerDAO extends AbstractDAO
                     return query.getDatasets(sampleIds);
                 }
 
-                public Iterable<DatasetRelationRecord> getDatasetParents(LongSet entityIds)
+                public Iterable<DatasetRelationRecord> getDatasetRelationsWithParents(
+                        LongSet entityIds)
                 {
                     return query.getDatasetParents(entityIds);
+                }
+
+                public DataIterator<Long> getDatasetChildrenIds(LongSet entityIds)
+                {
+                    return query.getDatasetChildrenIds(entityIds);
                 }
             };
     }

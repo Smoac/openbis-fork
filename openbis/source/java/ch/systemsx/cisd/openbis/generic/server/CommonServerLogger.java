@@ -227,9 +227,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public final List<ExternalData> listSampleExternalData(final String sessionToken,
-            final TechId sampleId)
+            final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
-        logAccess(sessionToken, "list_external_data", "ID(%s)", sampleId);
+        logAccess(sessionToken, "list_external_data", "ID(%s) DIRECT(%s)", sampleId,
+                showOnlyDirectlyConnected);
         return null;
     }
 

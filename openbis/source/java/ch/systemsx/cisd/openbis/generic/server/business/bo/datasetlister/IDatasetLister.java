@@ -32,15 +32,20 @@ public interface IDatasetLister
     /** @return datasets connected to the experiment with the specified id */
     List<ExternalData> listByExperimentTechId(TechId experimentId);
 
-    /** @return datasets connected to the sample with the specified id */
-    List<ExternalData> listBySampleTechId(TechId sampleId);
-
     // TODO 2009-09-10, Piotr Buczek: write tests
+    /**
+     * @return datasets connected to the sample with the specified id
+     * @param showOnlyDirectlyConnected whether to return only directly connected datasets, or also
+     *            all descendants in dataset parent-child relationship hierarchy
+     */
+    List<ExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected);
+
     /** @return datasets that are parents of a dataset with the specified id */
     List<ExternalData> listByChildTechId(TechId childDatasetId);
 
     /** @return datasets that are parents of a dataset with the specified id */
     List<ExternalData> listByParentTechId(TechId parentDatasetId);
+	//
 
     /** @return datasets with given ids */
     List<ExternalData> listByDatasetIds(Collection<Long> datasetIds);

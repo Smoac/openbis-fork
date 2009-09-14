@@ -23,11 +23,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.DataSetConnectionTypeProvider;
 
 /**
  * @author Franz-Josef Elmer
@@ -38,12 +40,15 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
+    private final DataSetConnectionTypeProvider connectionTypeProvider;
+
     public static IDisposableComponent create(IViewContext<?> viewContext, TechId sampleId,
-            final SampleType sampleType)
+            final SampleType sampleType, final DataSetConnectionTypeProvider connectionTypeProvider)
     {
         IViewContext<ICommonClientServiceAsync> commonViewContext =
                 viewContext.getCommonViewContext();
-        return new SampleDataSetBrowser(commonViewContext, sampleId)
+
+        return new SampleDataSetBrowser(commonViewContext, sampleId, connectionTypeProvider)
             {
                 @Override
                 public String getGridDisplayTypeID()
@@ -56,11 +61,21 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
 
     private final TechId sampleId;
 
-      private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
-            TechId sampleId)
+    private SampleDataSetBrowser(IViewContext<ICommonClientServiceAsync> viewContext,
+            TechId sampleId, DataSetConnectionTypeProvider connectionTypeProvider)
     {
-        super(viewContext, createBrowserId(sampleId), createGridId(sampleId),DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
+        super(viewContext, createBrowserId(sampleId), createGridId(sampleId),
+                DisplayTypeIDGenerator.SAMPLE_DETAILS_GRID);
         this.sampleId = sampleId;
+        this.connectionTypeProvider = connectionTypeProvider;
+        // refresh data when connection type provider value changes
+        connectionTypeProvider.setOnChangeAction(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    refresh();
+                }
+            });
     }
 
     public static final String createGridId(TechId sampleId)
@@ -73,10 +88,16 @@ class SampleDataSetBrowser extends AbstractExternalDataGrid
         return ID_PREFIX + sampleId;
     }
 
+    private boolean getShowOnlyDirectlyConnected()
+    {
+        return connectionTypeProvider.getShowOnlyDirectlyConnected();
+    }
+
     @Override
     protected void listDatasets(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             final AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback)
     {
-        viewContext.getService().listSampleDataSets(sampleId, resultSetConfig, callback);
+        viewContext.getService().listSampleDataSets(sampleId, resultSetConfig,
+                getShowOnlyDirectlyConnected(), callback);
     }
 }

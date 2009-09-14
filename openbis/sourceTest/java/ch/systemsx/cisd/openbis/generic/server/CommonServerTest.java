@@ -529,8 +529,8 @@ public final class CommonServerTest extends AbstractServerTestCase
             });
 
         final List<ExternalData> list =
-                createServer().listSampleExternalData(SESSION_TOKEN, sampleId);
-
+                createServer().listSampleExternalData(SESSION_TOKEN, sampleId, true);
+                
         assertEquals(1, list.size());
         assertTrue(equals(externalData, list.get(0)));
 

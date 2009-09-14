@@ -384,7 +384,8 @@ public interface ICommonClientService extends IClientService
      * For given <var>sampleId</var> returns corresponding list of {@link ExternalData}.
      */
     public ResultSetWithEntityTypes<ExternalData> listSampleDataSets(final TechId sampleId,
-            DefaultResultSetConfig<String, ExternalData> criteria) throws UserFailureException;
+            DefaultResultSetConfig<String, ExternalData> criteria,
+            final boolean showOnlyDirectlyConnected) throws UserFailureException;
 
     /**
      * For given <var>experimentId</var> returns corresponding list of {@link ExternalData}.

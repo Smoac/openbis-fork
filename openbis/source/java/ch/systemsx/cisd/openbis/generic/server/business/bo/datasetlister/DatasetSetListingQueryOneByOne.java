@@ -21,6 +21,8 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.Iterator;
 
+import net.lemnik.eodsql.DataIterator;
+
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 
@@ -68,9 +70,15 @@ class DatasetSetListingQueryOneByOne implements IDatasetSetListingQuery
             };
     }
 
-    public Iterable<DatasetRelationRecord> getDatasetParents(LongSet entityIds)
+    // TODO 2009-09-01, Tomasz Pylak: implement me! (h2)
+
+    public Iterable<DatasetRelationRecord> getDatasetRelationsWithParents(LongSet entityIds)
     {
-        // TODO 2009-09-01, Tomasz Pylak: implement me! (h2)
+        throw new NotImplementedException();
+    }
+
+    public DataIterator<Long> getDatasetChildrenIds(LongSet entityIds)
+    {
         throw new NotImplementedException();
     }
 

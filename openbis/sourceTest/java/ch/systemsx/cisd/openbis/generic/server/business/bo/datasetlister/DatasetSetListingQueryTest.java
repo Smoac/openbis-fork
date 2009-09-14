@@ -61,7 +61,7 @@ public class DatasetSetListingQueryTest extends AbstractDAOTest
     {
         // NOTE: test stub
         LongSet ids = getDatasetIds();
-        query.getDatasetParents(ids);
+        query.getDatasetRelationsWithParents(ids);
     }
 
     private LongSet getDatasetIds()

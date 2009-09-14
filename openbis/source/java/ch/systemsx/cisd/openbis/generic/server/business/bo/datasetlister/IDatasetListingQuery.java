@@ -48,10 +48,16 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     public DataIterator<DatasetRecord> getDatasetsForExperiment(long experimentId);
 
     /**
-     * Returns the datasets for the given sample id.
+     * Returns the directly connected datasets for the given sample id.
      */
     @Select(sql = "select * from data left outer join external_data on data.id = external_data.data_id where data.samp_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsForSample(long sampleId);
+
+    /**
+     * Returns the directly connected dataset ids for the given sample id.
+     */
+    @Select(sql = "select id from data where data.samp_id=?{1}", fetchSize = FETCH_SIZE)
+    public DataIterator<Long> getDatasetIdsForSample(long sampleId);
 
     /**
      * Returns the datasets that are children of a dataset with given id.

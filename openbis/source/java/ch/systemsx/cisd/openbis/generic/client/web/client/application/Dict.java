@@ -369,6 +369,8 @@ public abstract class Dict
 
     public static final String INVALIDATION_TEMPLATE = "invalidation_template";
 
+    public static final String SHOW_ONLY_DIRECTLY_CONNECTED = "show_only_directly_connected";
+
     //
     // ExternalData Viewer
     //

@@ -64,7 +64,7 @@ public class DatasetListerTest extends AbstractDAOTest
     public void testListBySampleTechId()
     {
         // NOTE: test stub
-        lister.listBySampleTechId(new TechId(1L));
+        lister.listBySampleTechId(new TechId(1L), true);
     }
 
 }

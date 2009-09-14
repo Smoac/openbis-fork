@@ -53,13 +53,22 @@ public interface IDatasetListingFullQuery extends IDatasetListingQuery
     public DataIterator<DatasetRecord> getDatasets(LongSet entityIds);
 
     /**
-     * Returns the parent datasets of the specified datasets.
+     * Returns the relations with parent datasets of the specified datasets.
      * <p>
      * <em>Do not call directly, call via {@link IDatasetSetListingQuery}</em>
      */
     @Select(sql = "select * from data_set_relationships where data_id_child = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRelationRecord> getDatasetParents(LongSet entityIds);
+
+    /**
+     * Returns the children dataset ids of the specified datasets.
+     * <p>
+     * <em>Do not call directly, call via {@link IDatasetSetListingQuery}</em>
+     */
+    @Select(sql = "select data_id_child from data_set_relationships where data_id_parent = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<Long> getDatasetChildrenIds(LongSet sampleId);
 
     /**
      * Returns the total number of all datasets in the database.

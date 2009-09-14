@@ -91,44 +91,6 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
         return count > 0;
     }
 
-    @SuppressWarnings("unchecked")
-    public Set<TechId> findParentIds(final Collection<TechId> dataSetIds)
-    {
-        // Native SQL query is used to be able to query on 'many-to-many association table -
-        // - 'data_set_relationships' without join with 'data' table involved in this association.
-        // Drawback of this solution is that instead of list of Long values we get list of
-        // BigIntegers and so a transformation is needed.
-        final List<? extends Number> ids =
-                (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
-                    {
-
-                        //
-                        // HibernateCallback
-                        //
-
-                        public final Object doInHibernate(final Session session)
-                        {
-                            // we could remove this transformation if we choose to pass Long values
-                            List<Long> longIds = new ArrayList<Long>(dataSetIds.size());
-                            for (TechId techId : dataSetIds)
-                            {
-                                longIds.add(techId.getId());
-                            }
-                            return session
-                                    .createSQLQuery(
-                                            "select data_id_parent from data_set_relationships where data_id_child in (:ids)")
-                                    .setParameterList("ids", longIds).list();
-                        }
-                    });
-        final Set<TechId> results = new HashSet<TechId>();
-        for (Number id : ids)
-        {
-            results.add(new TechId(id));
-        }
-
-        return results;
-    }
-
     public final List<ExternalDataPE> listRelatedExternalData(final IEntityInformationHolder entity)
             throws DataAccessException
     {
@@ -320,6 +282,57 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
                                     entity.getCode()));
         }
         super.delete(entity);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Set<TechId> findParentIds(final Collection<TechId> dataSetIds)
+    {
+        // Native SQL query is used to be able to query on 'many-to-many association table -
+        // - 'data_set_relationships' without join with 'data' table involved in this association.
+        // Drawback of this solution is that instead of list of Long values we get list of
+        // BigIntegers and so a transformation is needed.
+
+        final String query =
+                "select data_id_parent from data_set_relationships where data_id_child in (:ids)";
+        final List<? extends Number> results =
+                (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
+                    {
+
+                        //
+                        // HibernateCallback
+                        //
+
+                        public final Object doInHibernate(final Session session)
+                        {
+                            // we could remove this transformation if we choose to pass Long values
+                            final List<Long> longIds = transformTechIds2Longs(dataSetIds);
+                            return session.createSQLQuery(query).setParameterList("ids", longIds)
+                                    .list();
+                        }
+                    });
+        return transformNumbers2TechIds(results);
+    }
+
+    // data set relationship helper methods
+
+    private List<Long> transformTechIds2Longs(Collection<TechId> techIds)
+    {
+        final List<Long> result = new ArrayList<Long>(techIds.size());
+        for (TechId techId : techIds)
+        {
+            result.add(techId.getId());
+        }
+        return result;
+    }
+
+    private Set<TechId> transformNumbers2TechIds(Collection<? extends Number> numbers)
+    {
+        final Set<TechId> result = new HashSet<TechId>();
+        for (Number number : numbers)
+        {
+            result.add(new TechId(number));
+        }
+        return result;
     }
 
 }

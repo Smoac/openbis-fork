@@ -262,7 +262,8 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public List<ExternalData> listSampleExternalData(final String sessionToken,
-            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId);
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId,
+            final boolean showOnlyDirectlyConnected);
 
     /**
      * For given experiment {@link TechId} returns the corresponding list of {@link ExternalData}.

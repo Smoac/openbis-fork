@@ -133,9 +133,27 @@ public class DatasetLister implements IDatasetLister
         this.baseIndexURL = baseIndexURL;
     }
 
-    public List<ExternalData> listBySampleTechId(TechId sampleId)
+    public List<ExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected)
     {
-        return enrichDatasets(query.getDatasetsForSample(sampleId.getId()));
+        if (showOnlyDirectlyConnected)
+        {
+            return enrichDatasets(query.getDatasetsForSample(sampleId.getId()));
+        } else
+        {
+            // first get directly connected datasets, then go layer by layer into children datasets
+            LongSet results = new LongOpenHashSet();
+            LongSet currentLayer =
+                    new LongOpenHashSet(query.getDatasetIdsForSample(sampleId.getId()));
+            LongSet nextLayer;
+            while (currentLayer.isEmpty() == false)
+            {
+                nextLayer = new LongOpenHashSet(setQuery.getDatasetChildrenIds(currentLayer));
+                results.addAll(currentLayer);
+                nextLayer.removeAll(results); // don't go twice through the same dataset
+                currentLayer = nextLayer;
+            }
+            return listByDatasetIds(results);
+        }
     }
 
     public List<ExternalData> listByExperimentTechId(TechId experimentId)
@@ -186,6 +204,9 @@ public class DatasetLister implements IDatasetLister
                 Sample sample = samples.get(sampleId);
                 dataset.setSample(sample);
                 enrichWithInvalidation(dataset, sample);
+            } else
+            {
+                enrichWithInvalidation(dataset, dataset.getExperiment());
             }
         }
     }
@@ -193,6 +214,12 @@ public class DatasetLister implements IDatasetLister
     private void enrichWithInvalidation(ExternalData dataset, Sample sample)
     {
         Invalidation invalidation = sample.getInvalidation();
+        dataset.setInvalidation(invalidation);
+    }
+
+    private void enrichWithInvalidation(ExternalData dataset, Experiment experiment)
+    {
+        Invalidation invalidation = experiment.getInvalidation();
         dataset.setInvalidation(invalidation);
     }
 
@@ -263,7 +290,7 @@ public class DatasetLister implements IDatasetLister
             Long2ObjectMap<ExternalData> datasetCache)
     {
         final List<DatasetRelationRecord> datasetParents =
-                asList(setQuery.getDatasetParents(datasetIds));
+                asList(setQuery.getDatasetRelationsWithParents(datasetIds));
         final Long2ObjectMap<ExternalData> parentsMap =
                 fetchUnknownDatasetParents(datasetParents, datasetCache);
 

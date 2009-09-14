@@ -459,8 +459,9 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public final List<ExternalData> listSampleExternalData(final String sessionToken,
-            final TechId sampleId)
+            final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
+        // showOnlyDirectlyConnected works only with fast implementation
         final Session session = getSessionManager().getSession(sessionToken);
         final IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
@@ -500,11 +501,12 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     // FIXME 2009-08-30 Tomasz Pylak: use this method
     public final List<ExternalData> listSampleExternalDataFast(final String sessionToken,
-            final TechId sampleId)
+            final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
         final Session session = getSessionManager().getSession(sessionToken);
         final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        final List<ExternalData> datasets = datasetLister.listBySampleTechId(sampleId);
+        final List<ExternalData> datasets =
+                datasetLister.listBySampleTechId(sampleId, showOnlyDirectlyConnected);
         Collections.sort(datasets);
         return datasets;
     }

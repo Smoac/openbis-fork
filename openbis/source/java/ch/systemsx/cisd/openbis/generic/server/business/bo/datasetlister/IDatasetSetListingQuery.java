@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.DataIterator;
 
 import ch.rinn.restrictions.Friend;
 
@@ -38,7 +39,12 @@ interface IDatasetSetListingQuery
     public Iterable<DatasetRecord> getDatasets(LongSet datasetIds);
 
     /**
-     * Returns the parent datasets of the specified datasets.
+     * Returns the relations with parent datasets of the specified datasets.
      */
-    public Iterable<DatasetRelationRecord> getDatasetParents(LongSet entityIds);
+    public Iterable<DatasetRelationRecord> getDatasetRelationsWithParents(LongSet entityIds);
+
+    /**
+     * Returns the ids of children datasets of the specified datasets.
+     */
+    public DataIterator<Long> getDatasetChildrenIds(LongSet entityIds);
 }
