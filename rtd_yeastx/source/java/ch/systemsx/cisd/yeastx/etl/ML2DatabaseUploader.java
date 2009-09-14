@@ -115,7 +115,11 @@ public class ML2DatabaseUploader implements IDataSetUploader
     private DMDataSetDTO createBacklink(DataSetInformation dataSetInformation)
     {
         String datasetPermId = dataSetInformation.getDataSetCode();
-        Sample sample = dataSetInformation.getSample();
+        Sample sample = dataSetInformation.tryToGetSample();
+        if (sample == null)
+        {
+            throw new EnvironmentFailureException("Missing sample in " + dataSetInformation);
+        }
         Experiment experiment = sample.getExperiment();
         String experimentName = findExperimentName(experiment.getProperties());
         String sampleName = findSampleName(sample.getProperties());

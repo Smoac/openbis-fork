@@ -79,13 +79,19 @@ class ResultDataSetUploader extends AbstractHandler
     {
         try
         {
-            Experiment experiment = getOrCreateExperiment(dataSetInfo.getExperiment().getPermId());
-            Sample sample = getOrCreateSample(experiment, dataSetInfo.getSample().getPermId());
+            Experiment experiment = getOrCreateExperiment(dataSetInfo.tryToGetExperiment().getPermId());
+            ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample dataSetInfoSample =
+                    dataSetInfo.tryToGetSample();
+            if (dataSetInfoSample == null)
+            {
+                throw new UserFailureException("Missing sample in " + dataSetInfo);
+            }
+            Sample sample = getOrCreateSample(experiment, dataSetInfoSample.getPermId());
             String referenceDatabase = summary.getSummaryHeader().getReferenceDatabase();
             Database database = getOrGreateDatabase(referenceDatabase);
             DataSet ds =
                     getOrCreateDataSet(experiment, sample, database, dataSetInfo.getDataSetCode());
-            addToDatabase(ds, experiment, dataSetInfo.getSample().getGroup(), summary);
+            addToDatabase(ds, experiment, dataSetInfoSample.getGroup(), summary);
             if (errorMessages.length() == 0)
             {
                 connection.commit();
