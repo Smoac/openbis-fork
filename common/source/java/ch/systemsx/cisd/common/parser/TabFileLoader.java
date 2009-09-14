@@ -349,7 +349,6 @@ public class TabFileLoader<T>
         public final Line next()
         {
             String text = unescapeQuotes(lineIterator.nextLine());
-            System.out.println("line " + lineNumber + ": " + text);
             return new Line(++lineNumber, text);
         }
 
