@@ -21,6 +21,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
  * Identifies an experiment.
@@ -34,6 +35,12 @@ public final class ExperimentIdentifier extends ProjectIdentifier
     final static String CODE_SEPARATOR = "/";
 
     private String experimentCode;
+    
+    public ExperimentIdentifier(Experiment experiment)
+    {
+        this(null, experiment.getProject().getGroup().getCode(), experiment.getProject().getCode(),
+                experiment.getCode());
+    }
 
     public ExperimentIdentifier()
     {
