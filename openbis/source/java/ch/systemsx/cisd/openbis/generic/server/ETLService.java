@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -65,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -251,6 +253,22 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return daoFactory.getPermIdDAO().createPermId();
     }
 
+    public Experiment tryToGetExperiment(String sessionToken,
+            ExperimentIdentifier experimentIdentifier)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert experimentIdentifier != null : "Unspecified experiment identifier.";
+
+        final Session session = sessionManager.getSession(sessionToken);
+        ExperimentPE experiment = tryToLoadExperimentByIdentifier(session, experimentIdentifier);
+        if (experiment == null)
+        {
+            return null;
+        }
+        return ExperimentTranslator.translate(experiment, session.getBaseIndexURL());
+    }
+
     public Sample tryGetSampleWithExperiment(String sessionToken, SampleIdentifier sampleIdentifier)
             throws UserFailureException
     {
@@ -274,7 +292,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return sample == null ? null : sample.getExperiment();
     }
 
-    private ExperimentPE loadExperimentByIdentifier(final Session session,
+    private ExperimentPE tryToLoadExperimentByIdentifier(final Session session,
             ExperimentIdentifier experimentIdentifier)
     {
         final IExperimentBO experimentBO = boFactory.createExperimentBO(session);
@@ -359,7 +377,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert experimentIdentifier != null : "Unspecified experiment identifier.";
 
         final Session session = sessionManager.getSession(sessionToken);
-        ExperimentPE experiment = loadExperimentByIdentifier(session, experimentIdentifier);
+        ExperimentPE experiment = tryToLoadExperimentByIdentifier(session, experimentIdentifier);
         if (experiment.getInvalidation() != null)
         {
             throw new UserFailureException("Data set can not be registered because experiment '"

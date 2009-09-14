@@ -162,9 +162,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         vocabularyTerm.setCode(StorageFormat.PROPRIETARY.toString());
         vocabulary.addTerm(vocabularyTerm);
         final LocatorTypePE locatorType = new LocatorTypePE();
-        SamplePE sample = new SamplePE();
         ExperimentPE experimentPE = new ExperimentPE();
-        sample.setExperiment(experimentPE);
         DataStorePE dataStore = new DataStorePE();
         prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
         final DataPE data = new DataPE();
@@ -177,10 +175,11 @@ public class ExternalDataBOTest extends AbstractBOTest
             });
 
         IExternalDataBO sampleBO = createExternalDataBO();
-        sampleBO.define(createData(PARENT_CODE), sample, SourceType.MEASUREMENT);
+        sampleBO.define(createData(PARENT_CODE), experimentPE, SourceType.MEASUREMENT);
         ExternalDataPE externalData = sampleBO.getExternalData();
 
-        assertSame(sample, externalData.tryGetSample());
+        assertSame(experimentPE, externalData.getExperiment());
+        assertEquals(null, externalData.tryGetSample());
         assertSame(true, externalData.isMeasured());
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(1, externalData.getParents().size());
@@ -199,7 +198,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         vocabularyTerm.setCode(StorageFormat.PROPRIETARY.toString());
         vocabulary.addTerm(vocabularyTerm);
         final LocatorTypePE locatorType = new LocatorTypePE();
-        final SamplePE sample = new SamplePE();
+        final ExperimentPE experiment = new ExperimentPE();
         final DataStorePE dataStore = new DataStorePE();
         prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
         final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
@@ -207,7 +206,6 @@ public class ExternalDataBOTest extends AbstractBOTest
         parentData.setCode(PARENT_CODE);
         parentData.setDataSetType(dataSetTypeUnknown);
         parentData.setExperiment(createExperiment("EXP1"));
-        parentData.setSampleDerivedFrom(sample);
         parentData.setPlaceholder(true);
         context.checking(new Expectations()
             {
@@ -224,10 +222,11 @@ public class ExternalDataBOTest extends AbstractBOTest
             });
 
         IExternalDataBO sampleBO = createExternalDataBO();
-        sampleBO.define(createData(PARENT_CODE), sample, SourceType.MEASUREMENT);
+        sampleBO.define(createData(PARENT_CODE), experiment, SourceType.MEASUREMENT);
         ExternalDataPE externalData = sampleBO.getExternalData();
 
-        assertSame(sample, externalData.tryGetSample());
+        assertSame(experiment, externalData.getExperiment());
+        assertEquals(null, externalData.tryGetSample());
         assertSame(true, externalData.isMeasured());
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(1, externalData.getParents().size());
@@ -246,15 +245,14 @@ public class ExternalDataBOTest extends AbstractBOTest
         vocabularyTerm.setCode(StorageFormat.PROPRIETARY.toString());
         vocabulary.addTerm(vocabularyTerm);
         final LocatorTypePE locatorType = new LocatorTypePE();
-        final SamplePE sample = new SamplePE();
         final DataStorePE dataStore = new DataStorePE();
         prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, dataStore);
         final DataSetTypePE dataSetTypeUnknown = new DataSetTypePE();
         final DataPE parentData = new DataPE();
         parentData.setCode(PARENT_CODE);
         parentData.setDataSetType(dataSetTypeUnknown);
-        parentData.setExperiment(createExperiment("EXP1"));
-        parentData.setSampleDerivedFrom(sample);
+        ExperimentPE experiment = createExperiment("EXP1");
+        parentData.setExperiment(experiment);
         parentData.setPlaceholder(true);
         context.checking(new Expectations()
             {
@@ -271,10 +269,10 @@ public class ExternalDataBOTest extends AbstractBOTest
             });
 
         IExternalDataBO bo = createExternalDataBO();
-        bo.define(createData(PARENT_CODE), sample, SourceType.MEASUREMENT);
+        bo.define(createData(PARENT_CODE), experiment, SourceType.MEASUREMENT);
         ExternalDataPE externalData = bo.getExternalData();
 
-        assertSame(sample, externalData.tryGetSample());
+        assertSame(null, externalData.tryGetSample());
         assertSame(true, externalData.isMeasured());
         assertSame(dataStore, externalData.getDataStore());
         assertEquals(1, externalData.getParents().size());

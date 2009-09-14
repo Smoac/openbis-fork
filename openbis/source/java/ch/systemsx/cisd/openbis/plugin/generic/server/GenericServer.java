@@ -178,6 +178,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         experimentBO.enrichWithProperties();
         experimentBO.enrichWithAttachments();
         final ExperimentPE experiment = experimentBO.getExperiment();
+        if (experiment == null)
+        {
+            throw UserFailureException.fromTemplate(
+                    "No experiment could be found with given identifier '%s'.", identifier);
+        }
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
                 ExperimentTranslator.LoadableFields.PROPERTIES,
                 ExperimentTranslator.LoadableFields.ATTACHMENTS);

@@ -22,6 +22,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -87,6 +88,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     {
         logTracking(sessionToken, "register_data_set", "EXPERIMENT(%s) DATA_SET(%s)",
                 experimentIdentifier, externalData);
+    }
+
+    public Experiment tryToGetExperiment(String sessionToken,
+            ExperimentIdentifier experimentIdentifier) throws UserFailureException
+    {
+        logAccess(sessionToken, "get_experiment", "EXPERIMENT(%s)", experimentIdentifier);
+        return null;
     }
 
     public Sample tryGetSampleWithExperiment(String sessionToken, SampleIdentifier sampleIdentifier)

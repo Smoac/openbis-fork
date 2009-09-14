@@ -150,11 +150,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     public final void loadByExperimentIdentifier(final ExperimentIdentifier identifier)
     {
         experiment = getExperimentByIdentifier(identifier);
-        if (experiment == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No experiment could be found with given identifier '%s'.", identifier);
-        }
         dataChanged = false;
     }
 
@@ -166,11 +161,6 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
                         identifier.getGroupCode(), identifier.getProjectCode());
         final ExperimentPE exp =
                 getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
-        if (exp == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No experiment could be found for identifier '%s'.", identifier);
-        }
         return exp;
     }
 
