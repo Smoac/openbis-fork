@@ -78,10 +78,11 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         FilterInfo(GridFilterInfo<T> gridFilterInfo)
         {
             this.filteredField = gridFilterInfo.getFilteredField();
+            // TODO 2009-09-14, Piotr Buczek: allow to use space with quotes
             this.filterExpressionAlternatives =
-                    StringUtils.split(gridFilterInfo.getFilterPattern().toLowerCase(), '|');
+                    StringUtils.split(gridFilterInfo.getFilterPattern().toLowerCase(), ' ');
         }
-        
+
         @SuppressWarnings("unchecked")
         static <T> FilterInfo<T> create(GridFilterInfo<T> filterInfo)
         {
