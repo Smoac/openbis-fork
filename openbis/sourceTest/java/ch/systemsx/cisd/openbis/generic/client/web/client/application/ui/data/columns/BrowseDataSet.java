@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dat
  * A {@link AbstractDefaultTestCommand} extension for browsing a data set with given code from its
  * detail view. Dispatch is canceled by default before opening URL after URL check succeeds.
  * 
- * @author Pior Buczek
+ * @author Piotr Buczek
  */
 public final class BrowseDataSet extends AbstractDefaultTestCommand
 {

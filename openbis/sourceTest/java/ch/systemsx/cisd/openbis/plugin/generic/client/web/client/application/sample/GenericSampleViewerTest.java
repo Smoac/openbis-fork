@@ -60,7 +60,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 
     private static final String CELL_PLATE_EXAMPLE_PERM_ID = "200811050946559-983";
 
-    private static final String DATA_SET_CODE = "20081105092159188-3";
+    private static final String DIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092158673-1";
 
     public final void testShowMasterPlateView()
     {
@@ -96,6 +96,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
+
         final CheckSample checkSample = new CheckSample();
         checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE_ID);
         checkSample.property("PermID").matchingPattern(
@@ -117,14 +118,13 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.property("Parent 2").asCode("MP001-1");
         checkSample.property("Parent 2").asInvalidEntity();
 
-        final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(2);
-        dataTable.expectedRow(new DataSetRow("20081105092158673-1").invalid().withFileFormatType(
-                "TIFF"));
-        dataTable.expectedRow(new DataSetRow(DATA_SET_CODE).invalid().withLocation(
-                "analysis/result"));
+        final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(1);
+        dataTable.expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
+                .withFileFormatType("TIFF"));
         dataTable.expectedColumnsNumber(20);
         final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
         dataTable.expectedColumnHidden(commentColIdent, true);
+
         remoteConsole.prepare(new AbstractDefaultTestCommand()
             {
                 @Override
@@ -146,14 +146,17 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     assertTrue(widget instanceof Grid<?>);
                     final Grid<?> table = (Grid<?>) widget;
                     GridTestUtils.fireSelectRow(table, CommonExternalDataColDefKind.CODE.id(),
-                            DATA_SET_CODE);
+                            DIRECTLY_CONNECTED_DATA_SET_CODE);
                     String showDetailsButtonId =
                             SampleDataSetBrowser.createBrowserId(wildcard)
                                     + SampleDataSetBrowser.SHOW_DETAILS_BUTTON_ID_SUFFIX;
                     GWTTestUtil.clickButtonWithID(showDetailsButtonId);
                 }
             });
-        remoteConsole.prepare(new BrowseDataSet(DATA_SET_CODE));
+        // browse shown dataset
+        remoteConsole.prepare(new BrowseDataSet(DIRECTLY_CONNECTED_DATA_SET_CODE));
+
         launchTest(60000);
     }
+
 }
