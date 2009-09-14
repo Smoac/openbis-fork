@@ -236,7 +236,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.SAMPLE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.SAMPLE_COLUMN)
     private SamplePE getSampleInternal()
     {

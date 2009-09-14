@@ -130,9 +130,9 @@ public class ExternalDataBOTest extends AbstractBOTest
         sample.setExperiment(experimentPE);
         prepareDefine(dataSetType, fileFormatType, vocabulary, locatorType, new DataStorePE());
 
-        IExternalDataBO sampleBO = createExternalDataBO();
-        sampleBO.define(createData(null), sample, SourceType.DERIVED);
-        ExternalDataPE externalData = sampleBO.getExternalData();
+        IExternalDataBO dataBO = createExternalDataBO();
+        dataBO.define(createData(null), sample, SourceType.DERIVED);
+        ExternalDataPE externalData = dataBO.getExternalData();
 
         assertEquals(DATA_SET_CODE, externalData.getCode());
         assertEquals(BooleanOrUnknown.U, externalData.getComplete());
@@ -174,9 +174,9 @@ public class ExternalDataBOTest extends AbstractBOTest
                 }
             });
 
-        IExternalDataBO sampleBO = createExternalDataBO();
-        sampleBO.define(createData(PARENT_CODE), experimentPE, SourceType.MEASUREMENT);
-        ExternalDataPE externalData = sampleBO.getExternalData();
+        IExternalDataBO dataBO = createExternalDataBO();
+        dataBO.define(createData(PARENT_CODE), experimentPE, SourceType.MEASUREMENT);
+        ExternalDataPE externalData = dataBO.getExternalData();
 
         assertSame(experimentPE, externalData.getExperiment());
         assertEquals(null, externalData.tryGetSample());
@@ -221,9 +221,9 @@ public class ExternalDataBOTest extends AbstractBOTest
                 }
             });
 
-        IExternalDataBO sampleBO = createExternalDataBO();
-        sampleBO.define(createData(PARENT_CODE), experiment, SourceType.MEASUREMENT);
-        ExternalDataPE externalData = sampleBO.getExternalData();
+        IExternalDataBO dataBO = createExternalDataBO();
+        dataBO.define(createData(PARENT_CODE), experiment, SourceType.MEASUREMENT);
+        ExternalDataPE externalData = dataBO.getExternalData();
 
         assertSame(experiment, externalData.getExperiment());
         assertEquals(null, externalData.tryGetSample());
@@ -268,9 +268,9 @@ public class ExternalDataBOTest extends AbstractBOTest
                 }
             });
 
-        IExternalDataBO bo = createExternalDataBO();
-        bo.define(createData(PARENT_CODE), experiment, SourceType.MEASUREMENT);
-        ExternalDataPE externalData = bo.getExternalData();
+        IExternalDataBO dataBO = createExternalDataBO();
+        dataBO.define(createData(PARENT_CODE), experiment, SourceType.MEASUREMENT);
+        ExternalDataPE externalData = dataBO.getExternalData();
 
         assertSame(null, externalData.tryGetSample());
         assertSame(true, externalData.isMeasured());
@@ -304,8 +304,8 @@ public class ExternalDataBOTest extends AbstractBOTest
                 }
             });
 
-        IExternalDataBO bo = createExternalDataBO();
-        bo.update(dataSetUpdatesDTO);
+        IExternalDataBO dataBO = createExternalDataBO();
+        dataBO.update(dataSetUpdatesDTO);
 
         context.assertIsSatisfied();
     }
@@ -322,10 +322,10 @@ public class ExternalDataBOTest extends AbstractBOTest
         dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(parentCodes);
         prepareForUpdate(dataSet, sample);
 
-        IExternalDataBO bo = createExternalDataBO();
+        IExternalDataBO dataBO = createExternalDataBO();
         try
         {
-            bo.update(dataSetUpdatesDTO);
+            dataBO.update(dataSetUpdatesDTO);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
@@ -354,10 +354,10 @@ public class ExternalDataBOTest extends AbstractBOTest
                 }
             });
 
-        IExternalDataBO bo = createExternalDataBO();
+        IExternalDataBO dataBO = createExternalDataBO();
         try
         {
-            bo.update(dataSetUpdatesDTO);
+            dataBO.update(dataSetUpdatesDTO);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
