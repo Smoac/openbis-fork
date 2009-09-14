@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -139,6 +140,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
         final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
         final Sample baseSample = createSampleWithExperiment();
+        dataSetInfo.setSampleCode(sampleIdentifier.getSampleCode());
         context.checking(new Expectations()
             {
                 {
@@ -227,6 +229,29 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public final void testWithNoSampleButIdentifierOfExistingExperiment()
+    {
+        final File incomingDataSetPath = createIncomingDataSetPath();
+        final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
+        dataSetInfo.setSampleCode(null);
+        context.checking(new Expectations()
+        {
+            {
+                one(limsService).tryToGetExperiment(dataSetInfo.getExperimentIdentifier());
+                will(returnValue(new Experiment()));
+            }
+        });
+        final IDataStoreStrategy dataStoreStrategy =
+            dataStrategyStore.getDataStoreStrategy(dataSetInfo, incomingDataSetPath);
+        assertEquals(DataStoreStrategyKey.IDENTIFIED, dataStoreStrategy.getKey());
+        final String logContent = logRecorder.getLogContent();
+        assertEquals("INFO  OPERATION.DataStrategyStore - " +
+        		"Identified that database knows experiment '/G/P/E'.", logContent);
+        
+        context.assertIsSatisfied();
+    }
 
     @Test
     public final void testSampleIsNotRegistered()
@@ -234,6 +259,8 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         final File incomingDataSetPath = createIncomingDataSetPath();
         final DataSetInformation dataSetInfo = IdentifiedDataStrategyTest.createDataSetInfo();
         final Sample baseSample = createSampleWithExperiment();
+        dataSetInfo.setExperimentIdentifier(null);
+        dataSetInfo.setSample(baseSample);
         final Person person = new Person();
         final String email = "john.doe@freemail.org";
         person.setEmail(email);
@@ -251,9 +278,10 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
                     String replyTo = null;
                     From nullFrom = null;
                     one(mailClient).sendMessage(
-                            with(equal(String.format(DataStrategyStore.SUBJECT_FORMAT, dataSetInfo
-                                    .getExperimentIdentifier()))), with(any(String.class)),
-                            with(equal(replyTo)), with(equal(nullFrom)), with(equal(new String[]
+                            with(equal(String.format(DataStrategyStore.SUBJECT_FORMAT,
+                                    new ExperimentIdentifier(baseSample.getExperiment())))),
+                            with(any(String.class)), with(equal(replyTo)), with(equal(nullFrom)),
+                            with(equal(new String[]
                                 { email })));
                 }
             });

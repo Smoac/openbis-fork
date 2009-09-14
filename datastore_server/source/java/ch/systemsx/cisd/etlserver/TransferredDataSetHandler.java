@@ -41,6 +41,7 @@ import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
@@ -59,9 +60,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExtractableData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
  * The class that handles the incoming data set.
@@ -83,10 +86,15 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             "Registration of data set '%s' failed.";
 
     @Private
-    static final String SUCCESSFULLY_REGISTERED_TEMPLATE =
+    static final String SUCCESSFULLY_REGISTERED_FOR_SAMPLE_TEMPLATE =
             "Successfully registered data set '%s' for sample '%s', data set type '%s', "
                     + "experiment '%s' with openBIS service.";
 
+    @Private
+    static final String SUCCESSFULLY_REGISTERED_FOR_EXPERIMENT_TEMPLATE =
+            "Successfully registered data set '%s' for experiment '%s' and data set type '%s'"
+                    + " with openBIS service.";
+    
     @Private
     static final String EMAIL_SUBJECT_TEMPLATE = "Success: data set for experiment '%s";
 
@@ -418,8 +426,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             try
             {
                 registerDataSetAndInitiateProcessing(processorID);
-                logAndNotifySuccessfulRegistration(dataSetInformation.tryToGetExperiment().getRegistrator()
-                        .getEmail());
+                logAndNotifySuccessfulRegistration(getEmail());
                 if (fileOperations.exists(incomingDataSetFile)
                         && fileOperations.removeRecursivelyQueueing(incomingDataSetFile) == false)
                 {
@@ -433,6 +440,16 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 rollback(throwable);
                 return Collections.emptyList();
             }
+        }
+
+        private String getEmail()
+        {
+            Experiment experiment = dataSetInformation.tryToGetExperiment();
+            if (experiment == null)
+            {
+                throw new UserFailureException("Unknown experiment of data set " + dataSetInformation);
+            }
+            return experiment.getRegistrator().getEmail();
         }
 
         private void rollback(final Throwable throwable) throws Error
@@ -595,9 +612,18 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         private final String getSuccessRegistrationMessage()
         {
             final StringBuilder buffer = new StringBuilder();
-            buffer.append(String.format(SUCCESSFULLY_REGISTERED_TEMPLATE, dataSetInformation
-                    .getDataSetCode(), dataSetInformation.getSampleIdentifier(), dataSetType
-                    .getCode(), dataSetInformation.getExperimentIdentifier()));
+            SampleIdentifier sampleIdentifier = dataSetInformation.getSampleIdentifier();
+            if (sampleIdentifier != null)
+            {
+                buffer.append(String.format(SUCCESSFULLY_REGISTERED_FOR_SAMPLE_TEMPLATE,
+                        dataSetInformation.getDataSetCode(), sampleIdentifier, dataSetType
+                                .getCode(), dataSetInformation.getExperimentIdentifier()));
+            } else
+            {
+                buffer.append(String.format(SUCCESSFULLY_REGISTERED_FOR_EXPERIMENT_TEMPLATE,
+                        dataSetInformation.getDataSetCode(), dataSetInformation
+                                .getExperimentIdentifier(), dataSetType.getCode()));
+            }
             buffer.append(OSUtilities.LINE_SEPARATOR);
             buffer.append(OSUtilities.LINE_SEPARATOR);
             appendNameAndObject(buffer, "Experiment Identifier", dataSetInformation
@@ -640,14 +666,6 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 dataSetInfo =
                         dataSetInfoExtractor
                                 .getDataSetInformation(incomingDataSetPath, limsService);
-                if (dataSetInfo.getSampleIdentifier() == null)
-                {
-                    final String extractorName = dataSetInfoExtractor.getClass().getSimpleName();
-                    throw ConfigurationFailureException.fromTemplate(
-                            "Data Set Information Extractor '%s' extracted no sample code "
-                                    + "for incoming data set '%s' (extractor contract violation).",
-                            extractorName, incomingDataSetPath);
-                }
                 dataSetInfo.setInstanceCode(getHomeDatabaseInstance().getCode());
                 dataSetInfo.setInstanceUUID(getHomeDatabaseInstance().getUuid());
                 if (operationLog.isDebugEnabled())

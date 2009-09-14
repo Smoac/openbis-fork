@@ -266,7 +266,7 @@ public class HCSImageFileExtractor implements IHCSImageFileExtractor
                 continue;
             }
             final String sampleCode = tokens[tokens.length - 4];
-            if (dataSetInformation.getSampleIdentifier().getSampleCode().equals(sampleCode) == false)
+            if (sampleCode.equals(dataSetInformation.getSampleCode()) == false)
             {
                 if (operationLog.isDebugEnabled())
                 {

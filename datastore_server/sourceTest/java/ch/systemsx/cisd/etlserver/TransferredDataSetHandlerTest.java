@@ -41,7 +41,6 @@ import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.Constants;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
@@ -291,7 +290,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
     private final String createLogMsgOfSuccess(final ExperimentIdentifier identifier,
             final SampleIdentifier sampleIdentifier)
     {
-        return String.format(TransferredDataSetHandler.SUCCESSFULLY_REGISTERED_TEMPLATE,
+        return String.format(TransferredDataSetHandler.SUCCESSFULLY_REGISTERED_FOR_SAMPLE_TEMPLATE,
                 DATA_SET_CODE, sampleIdentifier, DATA_SET_TYPE.getCode(), identifier);
     }
 
@@ -487,32 +486,6 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             assertEquals("Error moving path 'data1' from '<wd>' to '<wd>': "
                     + "Incoming data set directory '<wd>/data1' is not writable.",
                     normalizedMessage);
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public final void testNoDataSetInfoCouldBeExtractedFromDataSetFileName()
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(dataSetInfoExtractor).getDataSetInformation(data1, null);
-                    will(returnValue(new DataSetInformation()));
-                }
-            });
-
-        try
-        {
-            handler.handle(isFinishedData1);
-            fail("ConfigurationFailureException expected.");
-        } catch (final ConfigurationFailureException e)
-        {
-            final String normalizedMessage = normalize(e.getMessage());
-            assertEquals("Data Set Information Extractor 'MockDataSetInfoExtractor' extracted "
-                    + "no sample code for incoming data set '<wd>/data1' "
-                    + "(extractor contract violation).", normalizedMessage);
         }
 
         context.assertIsSatisfied();

@@ -286,7 +286,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         final String instanceUUID = dataSetInformation.getInstanceUUID();
         assert instanceCode != null : "Unspecified database instance code";
         assert instanceUUID != null : "Unspecified database instance UUID";
-        return new SampleWithOwner(dataSetInformation.getSampleIdentifier().getSampleCode(),
+        return new SampleWithOwner(dataSetInformation.getSampleCode(),
                 sampleType.getCode(), sampleTypeDescription, instanceUUID, instanceCode, groupCode);
     }
 
@@ -412,8 +412,13 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
 
         dataStructureDir = rootDirectory;
         dataStructureDir.mkdirs();
+        Experiment experiment = dataSetInformation.tryToGetExperiment();
+        if (experiment == null)
+        {
+            throw new UserFailureException("Experiment unknown for data set " + dataSetInformation);
+        }
         dataStructure =
-                createDataStructure(dataSetInformation.tryToGetExperiment(),
+                createDataStructure(experiment,
                         dataSetInformation, typeExtractor,
                         incomingDataSetDirectory, dataStructureDir);
         final IFormattedData formattedData = dataStructure.getFormattedData();

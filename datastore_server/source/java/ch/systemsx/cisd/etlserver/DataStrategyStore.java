@@ -31,10 +31,8 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -102,20 +100,6 @@ final class DataStrategyStore implements IDataStrategyStore
                 incomingDataSetPathForLogging, sampleIdentifier);
     }
 
-    private final static ExperimentIdentifier createExperimentIdentifier(final Experiment experiment)
-    {
-        ExperimentIdentifier experimentIdentifier;
-        experimentIdentifier = new ExperimentIdentifier();
-        experimentIdentifier.setExperimentCode(experiment.getCode());
-        final Project project = experiment.getProject();
-        assert project != null : "Unspecified project";
-        experimentIdentifier.setProjectCode(project.getCode());
-        final Group group = project.getGroup();
-        assert group != null : "Unspecified group";
-        experimentIdentifier.setGroupCode(group.getCode());
-        return experimentIdentifier;
-    }
-
     //
     // IDataStrategyStore
     //
@@ -129,14 +113,21 @@ final class DataStrategyStore implements IDataStrategyStore
         {
             return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
         }
-        ExperimentIdentifier experimentIdentifier = dataSetInfo.getExperimentIdentifier();
+        ExperimentIdentifier experimentIdentifier;
         final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
-        if (experimentIdentifier != null)
+        if (sampleIdentifier == null)
         {
+            experimentIdentifier = dataSetInfo.getExperimentIdentifier();
             Experiment experiment = limsService.tryToGetExperiment(experimentIdentifier);
             if (experiment == null)
             {
                 notificationLog.error("Unknown experiment identifier '" + experimentIdentifier + "'.");
+                return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
+            }
+            if (experiment.getInvalidation() != null)
+            {
+                notificationLog.error("Experiment '" + experimentIdentifier
+                        + "' has been invalidated.");
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
             }
             dataSetInfo.setExperiment(experiment);
@@ -156,7 +147,7 @@ final class DataStrategyStore implements IDataStrategyStore
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
             }
             dataSetInfo.setSample(sample);
-            experimentIdentifier = createExperimentIdentifier(experiment);
+            experimentIdentifier = new ExperimentIdentifier(experiment);
             dataSetInfo.setExperimentIdentifier(experimentIdentifier);
             
             final IEntityProperty[] properties =

@@ -191,13 +191,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     private final void primRegisterDataSet(final DataSetInformation dataSetInformation,
             final NewExternalData data)
     {
-        ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
-        if (experimentIdentifier != null)
+        SampleIdentifier sampleIdentifier = dataSetInformation.getSampleIdentifier();
+        if (sampleIdentifier == null)
         {
+            ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
             service.registerDataSet(sessionToken, experimentIdentifier, data);
         } else
         {
-            SampleIdentifier sampleIdentifier = dataSetInformation.getSampleIdentifier();
             service.registerDataSet(sessionToken, sampleIdentifier, data);
         }
     }

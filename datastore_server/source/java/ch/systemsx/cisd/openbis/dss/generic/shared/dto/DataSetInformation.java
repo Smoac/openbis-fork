@@ -46,7 +46,6 @@ public class DataSetInformation implements Serializable
 
     private static final long serialVersionUID = IServer.VERSION;
 
-    /** The sample code (aka <i>barcode</i>). <b>CAN NOT</b> be <code>null</code>. */
     private String sampleCode;
 
     private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
@@ -193,7 +192,6 @@ public class DataSetInformation implements Serializable
      * 
      * @return <code>null</code> if <code>sampleCode</code> has not been set.
      */
-    // FIXME 2009-09-10, Piotr Buczek: high usage in DS, not all usages are NULL safe
     public final SampleIdentifier getSampleIdentifier()
     {
         if (sampleCode == null)
@@ -210,12 +208,6 @@ public class DataSetInformation implements Serializable
                 sampleCode);
     }
 
-    /**
-     * NOTE: may be NULL
-     * 
-     * @deprecated remove deprecation when all use cases are rewritten in a NULL safe way
-     */
-    @Deprecated
     public final String getSampleCode()
     {
         return sampleCode;

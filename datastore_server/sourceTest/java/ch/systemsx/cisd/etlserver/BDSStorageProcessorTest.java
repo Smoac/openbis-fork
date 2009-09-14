@@ -352,6 +352,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
         final Experiment baseExperiment = baseSample.getExperiment();
         final DataSetInformation dataSetInformation = createDataSetInformation();
+        dataSetInformation.setSample(baseSample);
         prepareMailClient(format);
         final File dataFile =
                 storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
@@ -408,6 +409,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         assert incomingDirectoryData.exists();
         final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
         final DataSetInformation dataSetInformation = createDataSetInformation();
+        dataSetInformation.setSample(baseSample);
         // NEMO.EXP1==CP001A-3AB in 'workingDirectory'
         prepareMailClient(format);
         final File storeRootDir = new File(workingDirectory, STORE_ROOT_DIR);
@@ -431,6 +433,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final File incomingDirectoryData = createOriginalDataInDir();
         final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
         final DataSetInformation dataSetInformation = createDataSetInformation();
+        dataSetInformation.setSample(baseSample);
         prepareMailClient(format);
         final File storeData =
                 storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
@@ -460,6 +463,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final File incomingDirectoryData = createOriginalDataInDir();
         final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
         final DataSetInformation dataSetInformation = createDataSetInformation();
+        dataSetInformation.setSample(baseSample);
         prepareMailClient(HCSImageFormatV1_0.HCS_IMAGE_1_0);
         final File storeData =
                 storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
