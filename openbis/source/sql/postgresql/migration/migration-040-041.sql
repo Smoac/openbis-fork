@@ -67,9 +67,9 @@ BEGIN
 		-- count number of parents
 		SELECT count(*) INTO counter 
 			FROM data_set_relationships 
-			WHERE data_id_child = OLD.id;
+			WHERE data_id_child = NEW.id;
 		IF (counter > 0) THEN
-			RAISE EXCEPTION 'Insert/Update of Data Set (Code: %) failed because it cannot be connected with a Sample and a parent Data Set at the same time.', OLD.code;
+			RAISE EXCEPTION 'Insert/Update of Data Set (Code: %) failed because it cannot be connected with a Sample and a parent Data Set at the same time.', NEW.code;
 		END IF;
 	END IF;
   RETURN NEW;
