@@ -515,22 +515,22 @@ public final class CommonServerTest extends AbstractServerTestCase
                 ExternalDataTranslator.translate(externalDataPE, DATA_STORE_BASE_URL,
                         BASE_INDEX_URL);
         prepareGetSession();
+        final boolean showOnlyDirectlyConnected = true;
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
-                    will(returnValue(externalDataTable));
+                    one(commonBusinessObjectFactory).createDatasetLister(SESSION);
+                    will(returnValue(datasetLister));
 
-                    one(externalDataTable).loadBySampleTechId(sampleId);
-
-                    one(externalDataTable).getExternalData();
-                    will(returnValue(Arrays.asList(externalDataPE)));
+                    one(datasetLister).listBySampleTechId(sampleId, showOnlyDirectlyConnected);
+                    will(returnValue(Arrays.asList(externalData)));
                 }
             });
 
         final List<ExternalData> list =
-                createServer().listSampleExternalData(SESSION_TOKEN, sampleId, true);
-                
+                createServer().listSampleExternalData(SESSION_TOKEN, sampleId,
+                        showOnlyDirectlyConnected);
+
         assertEquals(1, list.size());
         assertTrue(equals(externalData, list.get(0)));
 
@@ -558,13 +558,11 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createExternalDataTable(SESSION);
-                    will(returnValue(externalDataTable));
+                    one(commonBusinessObjectFactory).createDatasetLister(SESSION);
+                    will(returnValue(datasetLister));
 
-                    one(externalDataTable).loadByExperimentTechId(experimentId);
-
-                    one(externalDataTable).getExternalData();
-                    will(returnValue(Arrays.asList(externalDataPE)));
+                    one(datasetLister).listByExperimentTechId(experimentId);
+                    will(returnValue(Arrays.asList(externalData)));
                 }
             });
 
