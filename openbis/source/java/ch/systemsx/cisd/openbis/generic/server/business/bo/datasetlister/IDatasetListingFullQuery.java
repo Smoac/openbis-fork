@@ -48,7 +48,7 @@ public interface IDatasetListingFullQuery extends IDatasetListingQuery
      * <p>
      * <em>Do not call directly, call via {@link IDatasetSetListingQuery}</em>
      */
-    @Select(sql = "select * from data left outer join external_data on data.id = external_data.data_id where data.id = any(?{1})", parameterBindings =
+    @Select(sql = "select * from data join external_data on data.id = external_data.data_id where data.id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(LongSet entityIds);
 

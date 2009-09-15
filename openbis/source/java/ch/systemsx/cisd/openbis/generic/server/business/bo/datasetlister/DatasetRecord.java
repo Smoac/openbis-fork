@@ -37,9 +37,9 @@ public class DatasetRecord extends CodeRecord
 
     public String location;
 
-    public long ffty_id;
+    public Long ffty_id;
 
-    public long loty_id;
+    public Long loty_id;
 
     public String is_complete; // maps to BooleanOrUnknown
 }

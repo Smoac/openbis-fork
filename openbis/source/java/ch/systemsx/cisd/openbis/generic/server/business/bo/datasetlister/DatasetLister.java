@@ -24,8 +24,10 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.rinn.restrictions.Friend;
@@ -89,11 +91,11 @@ public class DatasetLister implements IDatasetLister
 
     private final Long2ObjectMap<DataStore> dataStores = new Long2ObjectOpenHashMap<DataStore>();
 
-    private final Long2ObjectMap<FileFormatType> fileFormatTypes =
-            new Long2ObjectOpenHashMap<FileFormatType>();
+    private final Map<Long, FileFormatType> fileFormatTypes =
+            new HashMap<Long, FileFormatType>();
 
-    private final Long2ObjectMap<LocatorType> locatorTypes =
-            new Long2ObjectOpenHashMap<LocatorType>();
+    private final Map<Long, LocatorType> locatorTypes =
+            new HashMap<Long, LocatorType>();
 
     public static IDatasetLister create(IDAOFactory daoFactory, String baseIndexURL)
     {
@@ -404,8 +406,7 @@ public class DatasetLister implements IDatasetLister
     private ExternalData createPrimaryDataset(DatasetRecord record)
     {
         ExternalData dataset = createBasicDataset(record);
-        dataset.setComplete(BooleanOrUnknown.tryToResolve(BooleanOrUnknown
-                .valueOf(record.is_complete)));
+        dataset.setComplete(resolve(record.is_complete));
         dataset.setDataProducerCode(escapeHtml(record.data_producer_code));
         dataset.setDataStore(dataStores.get(record.dast_id));
         dataset.setDerived(record.is_derived);
@@ -429,6 +430,15 @@ public class DatasetLister implements IDatasetLister
         dataset.setExperiment(experiment);
 
         return dataset;
+    }
+
+    private Boolean resolve(String booleanRepresentative)
+    {
+        if (booleanRepresentative == null)
+        {
+            return null;
+        }
+        return BooleanOrUnknown.tryToResolve(BooleanOrUnknown.valueOf(booleanRepresentative));
     }
 
     private ExternalData createBasicDataset(DatasetRecord record)

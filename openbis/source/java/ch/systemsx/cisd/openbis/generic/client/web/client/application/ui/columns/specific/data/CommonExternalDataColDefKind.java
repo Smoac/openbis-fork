@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -163,7 +164,8 @@ public enum CommonExternalDataColDefKind implements IColumnDefinitionKind<Extern
             @Override
             public String tryGetValue(ExternalData entity)
             {
-                return entity.getFileFormatType().getCode();
+                FileFormatType fileFormatType = entity.getFileFormatType();
+                return fileFormatType == null ? null : fileFormatType.getCode();
             }
         }),
 
