@@ -467,10 +467,6 @@ function generate_test_data {
     copy_test_data 3VCP3 $DIR
     sleep 30
     
-    # drop an identifyable invalid data set (missing TIFF folder)
-    copy_test_data 3VCP4 $DIR
-    sleep 30
-    
     # drop an unidentifyable data set
     copy_test_data UnknownPlate $DIR
     sleep 30
@@ -741,12 +737,12 @@ function assert_correct_content {
     assert_correct_dataset_content_in_database 2 "2;EXP1;DSS1;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
     assert_correct_dataset_content_in_database 3 "3;EXP1;DSS1;20[0-9]*-19;f;;U;;"
     assert_correct_dataset_content_in_database 4 "4;EXP1;DSS1;20[0-9]*-20;f;;U;;"
-    assert_correct_dataset_content_in_database 5 "5;EXP1;DSS1;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 6 "6;EXP1;DSS1;20[0-9]*-21;f;;U;;"   
-    assert_correct_dataset_content_in_database 7 "7;EXP1;DSS1;MICROX-3VCP4;t;;;;"
-    assert_correct_dataset_content_in_database 8 "8;EXP1;DSS1;20[0-9]*-22;f;;U;;"
-    assert_correct_dataset_content_in_database 9 "9;EXP1;DSS1;20[0-9]*-24;f;;U;;"
-    assert_correct_dataset_content_in_database 10 "10;EXP1;DSS2;20[0-9]*-25;f;;U;;"
+    assert_correct_dataset_content_in_database 5 "5;EXP1;DSS1;20[0-9]*-21;f;;U;;"   
+    assert_correct_dataset_content_in_database 6 "6;EXP1;DSS1;20[0-9]*-22;f;;U;;"
+    assert_correct_dataset_content_in_database 7 "7;EXP1;DSS1;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
+    assert_correct_dataset_content_in_database 8 "8;EXP1;DSS1;20[0-9]*-24;f;;U;;"
+    assert_correct_dataset_content_in_database 9 "9;EXP1;DSS2;20[0-9]*-25;f;2;U;;"
+    assert_correct_dataset_content_in_database 9 "9;EXP1;DSS2;20[0-9]*-25;f;7;U;;"
     assert_equals "Content of file in drop box1" "hello world" "`cat $DATA/drop-box1/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-25.txt`"
     assert_equals "Content of file in drop box2" "hello world" "`cat $DATA/drop-box2/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-25.txt`"
 }
