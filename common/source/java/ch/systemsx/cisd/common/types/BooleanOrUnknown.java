@@ -43,21 +43,26 @@ public enum BooleanOrUnknown
         return niceRepresentation;
     }
 
-    public final static BooleanOrUnknown resolve(final String niceRepresentation)
+    public final static BooleanOrUnknown resolve(final String niceRepresentationOrNull)
     {
-        if (niceRepresentation.equals("FALSE"))
-        {
-            return F;
-        }
-        if (niceRepresentation.equals("TRUE"))
-        {
-            return T;
-        }
-        if (niceRepresentation.equals("UNKNOWN"))
+        if (niceRepresentationOrNull == null)
         {
             return U;
         }
-        throw new IllegalArgumentException(String.format("Given nice representation '%s' unknown."));
+        if (niceRepresentationOrNull.equals("FALSE"))
+        {
+            return F;
+        }
+        if (niceRepresentationOrNull.equals("TRUE"))
+        {
+            return T;
+        }
+        if (niceRepresentationOrNull.equals("UNKNOWN"))
+        {
+            return U;
+        }
+        throw new IllegalArgumentException(String.format("Given nice representation '%s' unknown.",
+                niceRepresentationOrNull));
     }
 
     /**
