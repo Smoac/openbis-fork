@@ -482,8 +482,8 @@ function generate_test_data {
     mv $DATA/3VCP3 $DIR 
     sleep 30
     
-    # drop a file
-    echo hello world > $DATA/incoming-a/3VCP1.txt
+    # register not at a sample but at an experiment and two data set parents
+    echo hello world > $DATA/incoming-a/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3.txt
 }
 
 
