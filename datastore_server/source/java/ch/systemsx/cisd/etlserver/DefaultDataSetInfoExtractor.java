@@ -348,10 +348,7 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         {
             identifier.setProjectCode(codes[codes.length - 2]);
         }
-        if (codes.length > 2)
-        {
-            identifier.setGroupCode(codes.length > 2 ? codes[codes.length - 3] : groupCode);
-        }
+        identifier.setGroupCode(codes.length > 2 ? codes[codes.length - 3] : groupCode);
         return identifier;
     }
     

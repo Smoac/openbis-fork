@@ -59,12 +59,13 @@ public final class DefaultDataSetInfoExtractorTest extends CodeExtractortTestCas
     {
         Properties properties = new Properties();
         properties.setProperty(INDEX_OF_EXPERIMENT_IDENTIFIER, "1");
+        properties.setProperty(asPropertyName(GROUP_CODE), "my-group");
         final IDataSetInfoExtractor extractor = new DefaultDataSetInfoExtractor(properties);
 
         final DataSetInformation dsInfo =
                 extractor.getDataSetInformation(new File("bla.XY&123.bla"), null);
 
-        assertEquals(null, dsInfo.getExperimentIdentifier().getGroupCode());
+        assertEquals("MY-GROUP", dsInfo.getExperimentIdentifier().getGroupCode());
         assertEquals("XY", dsInfo.getExperimentIdentifier().getProjectCode());
         assertEquals("123", dsInfo.getExperimentIdentifier().getExperimentCode());
         assertEquals(null, dsInfo.getSampleIdentifier());
