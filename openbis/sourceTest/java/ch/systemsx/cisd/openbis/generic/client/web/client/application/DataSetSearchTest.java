@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchF
 public class DataSetSearchTest extends AbstractGWTTestCase
 {
 
-    private static final int TOTAL_NUM_OF_COLUMNS = 20;
+    private static final int TOTAL_NUM_OF_COLUMNS = 23;
 
     public final void testSearchByDataSetProperty()
     {

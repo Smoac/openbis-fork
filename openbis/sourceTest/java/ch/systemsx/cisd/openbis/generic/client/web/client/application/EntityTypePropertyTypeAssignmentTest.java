@@ -82,7 +82,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         final boolean mandatory = true;
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, COMMENT, SIRNA_HCS,
                 "a comment", EXPERIMENT));
-        prepareListingAfterAssignment(COMMENT, SIRNA_HCS, EXPERIMENT, 32, mandatory);
+        prepareListingAfterAssignment(COMMENT, SIRNA_HCS, EXPERIMENT, 35, mandatory);
         launchTest(20000);
     }
 
@@ -92,7 +92,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         final boolean mandatory = false;
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, DESCRIPTION, HCS_IMAGE,
                 null, DATA_SET));
-        prepareListingAfterAssignment(DESCRIPTION, HCS_IMAGE, DATA_SET, 33, mandatory);
+        prepareListingAfterAssignment(DESCRIPTION, HCS_IMAGE, DATA_SET, 36, mandatory);
         launchTest(20000);
     }
 

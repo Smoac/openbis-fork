@@ -386,7 +386,7 @@ CREATE SEQUENCE data_set_property_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('data_set_property_id_seq', 5, true);
+SELECT pg_catalog.setval('data_set_property_id_seq', 8, true);
 CREATE SEQUENCE data_set_relationship_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -491,7 +491,7 @@ CREATE SEQUENCE dstpt_id_seq
     NO MAXVALUE
     NO MINVALUE
     CACHE 1;
-SELECT pg_catalog.setval('dstpt_id_seq', 1, true);
+SELECT pg_catalog.setval('dstpt_id_seq', 4, true);
 CREATE SEQUENCE etpt_id_seq
     INCREMENT BY 1
     NO MAXVALUE
