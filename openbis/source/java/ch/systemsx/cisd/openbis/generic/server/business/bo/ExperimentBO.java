@@ -159,6 +159,11 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         final ProjectPE project =
                 getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
                         identifier.getGroupCode(), identifier.getProjectCode());
+        if (project == null)
+        {
+            throw new UserFailureException("Unkown experiment because of unkown project: "
+                    + identifier);
+        }
         final ExperimentPE exp =
                 getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
         return exp;
