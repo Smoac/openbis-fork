@@ -16,18 +16,41 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
-import java.sql.SQLException;
+import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.asList;
+import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.findCode;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+
+import net.lemnik.eodsql.DataIterator;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * Test cases for {@link ISampleListingQuery}.
@@ -39,28 +62,33 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
             DatasetListerDAO.class, IDatasetListingFullQuery.class })
 @Test(groups =
     { "db", "dataset" })
-// TODO 2009-09-01, Tomasz Pylak: replace test stubs. Now they test only that the sql is
-// gramaticaly correct, but the answer is not checked anyhow.
 public class DatasetListingQueryTest extends AbstractDAOTest
 {
 
     private long dbInstanceId;
 
-    private ExperimentPE firstExperiment;
+    private DatabaseInstance dbInstance;
 
     private IDatasetListingQuery query;
-
-    private long datasetId;
 
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
         DatasetListerDAO dao = createDatasetListerDAO(daoFactory);
         dbInstanceId = dao.getDatabaseInstanceId();
-        firstExperiment = daoFactory.getExperimentDAO().listExperiments().get(0);
-        // TODO 2009-09-01, Tomasz Pylak: get the real dataset id
-        datasetId = 1;
+        dbInstance = dao.getDatabaseInstance();
+
         query = dao.getQuery();
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void cleanUp() throws SQLException
+    {
+        if (query != null)
+        {
+            query.commit();
+        }
+
     }
 
     public static DatasetListerDAO createDatasetListerDAO(IDAOFactory daoFactory)
@@ -73,91 +101,193 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     @Test
     public void testDataset()
     {
-        // NOTE: test stub
-        query.getDataset(datasetId);
+        long datasetId = 2;
+        DatasetRecord dataset = query.getDataset(datasetId);
+        assertDatasetCorrect(dataset);
+    }
+
+    private void assertDatasetCorrect(DatasetRecord dataset)
+    {
+        assertNotNull(dataset);
+        assertNotNull(dataset.location);
+        assertNotNull(dataset.code);
+        assertNotNull(dataset.registration_timestamp);
     }
 
     @Test
     public void testDatasets()
     {
-        // NOTE: test stub
-        query.getDatasets();
+        List<DatasetRecord> datasets = asList(query.getDatasets(dbInstanceId));
+        assertTrue(datasets.size() > 0);
+        assertEqualWithFetchedById(datasets.get(0));
+        assertEqualWithFetchedById(datasets.get(datasets.size() - 1));
+    }
+
+    private void assertEqualWithFetchedById(DatasetRecord datasetRecord)
+    {
+        DatasetRecord sameDataset = query.getDataset(datasetRecord.id);
+        assertTrue(EqualsBuilder.reflectionEquals(sameDataset, datasetRecord));
     }
 
     @Test
     public void testDatasetsForExperiment()
     {
-        // NOTE: test stub
-        query.getDatasetsForExperiment(firstExperiment.getId());
+        ExperimentPE experiment = getExperiment("CISD", "NEMO", "EXP-TEST-1");
+        long expId = experiment.getId();
+        List<DatasetRecord> datasets = asList(query.getDatasetsForExperiment(expId));
+        assertTrue(datasets.size() > 0);
+        for (DatasetRecord record : datasets)
+        {
+            assertDatasetCorrect(record);
+            assertEqualWithFetchedById(record);
+            assertEquals(expId, record.expe_id);
+        }
+    }
+
+    private ExperimentPE getExperiment(String groupCode, String projectCode, String expCode)
+    {
+        ProjectPE project =
+                daoFactory.getProjectDAO().tryFindProject(dbInstance.getCode(), groupCode,
+                        projectCode);
+        assertNotNull(project);
+        ExperimentPE experiment =
+                daoFactory.getExperimentDAO().tryFindByCodeAndProject(project, expCode);
+        assertNotNull(experiment);
+        return experiment;
+    }
+
+    @Test
+    public void testDatasetsForSample()
+    {
+        SamplePE sample = getSample("CISD", "CP-TEST-1");
+        long sampleId = sample.getId();
+        List<DatasetRecord> datasets = asList(query.getDatasetsForSample(sampleId));
+        assertTrue(datasets.size() > 0);
+        for (DatasetRecord record : datasets)
+        {
+            assertDatasetCorrect(record);
+            assertEqualWithFetchedById(record);
+            assertEquals(sampleId, record.samp_id.longValue());
+        }
+    }
+
+    private SamplePE getSample(String groupCode, String sampleCode)
+    {
+        DatabaseInstancePE dbInstancePE = new DatabaseInstancePE();
+        dbInstancePE.setId(dbInstanceId);
+        GroupPE group =
+                daoFactory.getGroupDAO().tryFindGroupByCodeAndDatabaseInstance(groupCode,
+                        dbInstancePE);
+        assertNotNull(group);
+        SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndGroup(sampleCode, group);
+        assertNotNull(sample);
+        return sample;
     }
 
     @Test
     public void testDatasetTypes()
     {
-        // NOTE: test stub
-        query.getDatasetTypes(dbInstanceId);
+        CodeRecord[] datasetTypes = query.getDatasetTypes(dbInstanceId);
+        assertEqualsOrGreater(3, datasetTypes.length);
+        findCode(Arrays.asList(datasetTypes), "UNKNOWN");
     }
 
     @Test
     public void testDataStores()
     {
-        // NOTE: test stub
-        query.getDataStores(dbInstanceId);
+        CodeRecord[] codes = query.getDataStores(dbInstanceId);
+        assertEqualsOrGreater(1, codes.length);
+        findCode(Arrays.asList(codes), "STANDARD");
     }
 
     @Test
     public void testLocatorTypes()
     {
-        // NOTE: test stub
-        query.getLocatorTypes();
-    }
-
-    @Test
-    public void testEntityPropertyGenericValues()
-    {
-        // NOTE: test stub
-        query.getEntityPropertyGenericValues();
-    }
-
-    @Test
-    public void testEntityPropertyGenericValuesForDataset()
-    {
-        // NOTE: test stub
-        query.getEntityPropertyGenericValues(datasetId);
-    }
-
-    @Test
-    public void testEntityPropertyMaterialValues()
-    {
-        // NOTE: test stub
-        query.getEntityPropertyMaterialValues();
-    }
-
-    @Test
-    public void testEntityPropertyMaterialValuesForDataset()
-    {
-        // NOTE: test stub
-        query.getEntityPropertyMaterialValues(datasetId);
-    }
-
-    @Test
-    public void testEntityPropertyVocabularyTermValues()
-    {
-        // NOTE: test stub
-        query.getEntityPropertyVocabularyTermValues();
-    }
-
-    @Test
-    public void testEntityPropertyVocabularyTermValuesForDataset()
-    {
-        // NOTE: test stub
-        query.getEntityPropertyVocabularyTermValues(datasetId);
+        CodeRecord[] codes = query.getLocatorTypes();
+        assertEqualsOrGreater(1, codes.length);
+        findCode(Arrays.asList(codes), "RELATIVE_LOCATION");
     }
 
     @Test
     public void testFileFormatTypes()
     {
-        // NOTE: test stub
-        query.getFileFormatTypes(dbInstanceId);
+        CodeRecord[] codes = query.getFileFormatTypes(dbInstanceId);
+        assertEqualsOrGreater(8, codes.length);
+        findCode(Arrays.asList(codes), "XML");
+    }
+
+    // ------------------------
+
+    private void assertCorrectEntityAndPropertyTypeReferences(
+            List<? extends BaseEntityPropertyRecord> properties)
+    {
+        DataIterator<DatasetRecord> entities = query.getDatasets(dbInstanceId);
+        PropertyType[] propertyTypes = query.getPropertyTypes();
+        EntityListingTestUtils.assertCorrectEntityAndPropertyTypeReferences(entities, properties,
+                propertyTypes);
+    }
+
+    @Test
+    public void testEntityPropertiesGenericValues()
+    {
+        List<GenericEntityPropertyRecord> properties =
+                asList(query.getAllEntityPropertyGenericValues(dbInstanceId));
+        assertCorrectEntityAndPropertyTypeReferences(properties);
+        for (GenericEntityPropertyRecord property : properties)
+        {
+            assertNotNull(property.value);
+        }
+        checkEntityPropertiesGenericValuesForEntity(EntityListingTestUtils
+                .getAnyEntityId(properties));
+    }
+
+    // entityId - id of an entity which has a property
+    private void checkEntityPropertiesGenericValuesForEntity(long entityId)
+    {
+        DataIterator<GenericEntityPropertyRecord> properties =
+                query.getEntityPropertyGenericValues(entityId);
+        EntityListingTestUtils.checkPropertiesGenericValues(entityId, properties);
+    }
+
+    @Test
+    public void testEntityPropertiesMaterialValues()
+    {
+        List<MaterialEntityPropertyRecord> properties =
+                asList(query.getAllEntityPropertyMaterialValues(dbInstanceId));
+        assertCorrectEntityAndPropertyTypeReferences(properties);
+        for (MaterialEntityPropertyRecord property : properties)
+        {
+            assertNotNull(property.code);
+        }
+        checkEntityPropertiesMaterialValuesForEntity(EntityListingTestUtils
+                .getAnyEntityId(properties));
+    }
+
+    private void checkEntityPropertiesMaterialValuesForEntity(long entityId)
+    {
+        DataIterator<MaterialEntityPropertyRecord> properties =
+                query.getEntityPropertyMaterialValues(entityId);
+        EntityListingTestUtils.checkPropertiesMaterialValues(entityId, properties);
+    }
+
+    @Test
+    public void testEntityPropertiesVocabularyTermValues()
+    {
+        List<VocabularyTermRecord> properties =
+                asList(query.getAllEntityPropertyVocabularyTermValues(dbInstanceId));
+        assertCorrectEntityAndPropertyTypeReferences(properties);
+        for (VocabularyTermRecord property : properties)
+        {
+            assertNotNull(property.code);
+        }
+        checkEntityPropertiesVocabularyTermValuesForEntity(EntityListingTestUtils
+                .getAnyEntityId(properties));
+    }
+
+    private void checkEntityPropertiesVocabularyTermValuesForEntity(long entityId)
+    {
+        DataIterator<VocabularyTermRecord> properties =
+                query.getEntityPropertyVocabularyTermValues(entityId);
+        EntityListingTestUtils.checkPropertiesVocabularyTermValues(entityId, properties);
     }
 }

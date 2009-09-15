@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
@@ -151,6 +152,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IExperimentDAO experimentDAO;
 
+    protected IDatasetLister datasetLister;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -190,6 +193,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         externalDataBO = context.mock(IExternalDataBO.class);
         // Table
         externalDataTable = context.mock(IExternalDataTable.class);
+        datasetLister = context.mock(IDatasetLister.class);
         experimentTable = context.mock(IExperimentTable.class);
         propertyTypeTable = context.mock(IPropertyTypeTable.class);
         materialTable = context.mock(IMaterialTable.class);

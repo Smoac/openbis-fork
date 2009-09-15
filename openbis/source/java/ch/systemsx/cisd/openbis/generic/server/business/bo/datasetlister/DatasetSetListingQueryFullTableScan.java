@@ -40,11 +40,15 @@ import ch.systemsx.cisd.common.exceptions.NotImplementedException;
     { DatasetRecord.class, DatasetRelationRecord.class, IDatasetListingQuery.class })
 class DatasetSetListingQueryFullTableScan implements IDatasetSetListingQuery
 {
+    private final long databaseInstanceId;
+
     private final IDatasetListingQuery query;
 
-    public DatasetSetListingQueryFullTableScan(final IDatasetListingQuery query)
+    public DatasetSetListingQueryFullTableScan(final IDatasetListingQuery query,
+            final long databaseInstanceId)
     {
         this.query = query;
+        this.databaseInstanceId = databaseInstanceId;
     }
 
     public Iterable<DatasetRecord> getDatasets(final LongSet sampleIds)
@@ -53,7 +57,7 @@ class DatasetSetListingQueryFullTableScan implements IDatasetSetListingQuery
             {
                 public Iterator<DatasetRecord> iterator()
                 {
-                    return new FilterIterator<DatasetRecord>(query.getDatasets(),
+                    return new FilterIterator<DatasetRecord>(query.getDatasets(databaseInstanceId),
                             new Predicate<DatasetRecord>()
                                 {
                                     public boolean evaluate(DatasetRecord sample)

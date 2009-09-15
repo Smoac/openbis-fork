@@ -16,19 +16,27 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -98,6 +106,82 @@ public class EntityListingTestUtils
     public static LongSet createSet(long... values)
     {
         return new LongOpenHashSet(values);
+    }
+
+    // --- generic helpers for entity properties tests ----------------
+
+    public static void assertCorrectEntityAndPropertyTypeReferences(
+            DataIterator<? extends CodeRecord> entityCodes,
+            List<? extends BaseEntityPropertyRecord> properties, PropertyType[] propertyTypes)
+    {
+        assertTrue(properties.size() > 0);
+        Set<Long> propertyTypesIds = extractIds(Arrays.asList(propertyTypes));
+        Set<Long> entityIds = extractVOIds(asList(entityCodes));
+        for (BaseEntityPropertyRecord property : properties)
+        {
+            assertTrue("Property type not found: " + property.prty_id, propertyTypesIds
+                    .contains(property.prty_id));
+            assertTrue("Entity not found: " + property.entity_id, entityIds
+                    .contains(property.entity_id));
+        }
+    }
+
+    private static <T extends CodeRecord> Set<Long> extractVOIds(List<T> items)
+    {
+        Set<Long> ids = new HashSet<Long>();
+        for (T item : items)
+        {
+            ids.add(item.id);
+        }
+        return ids;
+    }
+
+    private static <T extends IIdHolder> Set<Long> extractIds(List<T> items)
+    {
+        Set<Long> ids = new HashSet<Long>();
+        for (T item : items)
+        {
+            ids.add(item.getId());
+        }
+        return ids;
+    }
+
+    public static void checkPropertiesGenericValues(long entityId,
+            DataIterator<GenericEntityPropertyRecord> properties)
+    {
+        assertTrue("no generic properties found", properties.hasNext());
+        for (GenericEntityPropertyRecord property : properties)
+        {
+            assertNotNull(property.value);
+            assertEquals(entityId, property.entity_id);
+        }
+    }
+
+    public static void checkPropertiesVocabularyTermValues(long entityId,
+            DataIterator<VocabularyTermRecord> properties)
+    {
+        assertTrue("no vocabulary properties found", properties.hasNext());
+        for (VocabularyTermRecord property : properties)
+        {
+            assertNotNull(property.code);
+            assertEquals(entityId, property.entity_id);
+        }
+    }
+
+    public static void checkPropertiesMaterialValues(long entityId,
+            DataIterator<MaterialEntityPropertyRecord> properties)
+    {
+        assertTrue("no material properties found", properties.hasNext());
+        for (MaterialEntityPropertyRecord property : properties)
+        {
+            assertNotNull(property.code);
+            assertEquals(entityId, property.entity_id);
+        }
+    }
+
+    public static long getAnyEntityId(List<? extends BaseEntityPropertyRecord> properties)
+    {
+        return properties.iterator().next().entity_id;
     }
 
 }

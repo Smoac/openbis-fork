@@ -40,11 +40,12 @@ class DatasetSetListingQueryFallback implements IDatasetSetListingQuery
     private final QueryStrategyChooser strategyChooser;
 
     public DatasetSetListingQueryFallback(final IDatasetListingQuery query,
-            QueryStrategyChooser strategyChooser)
+            QueryStrategyChooser strategyChooser, long databaseInstanceId)
     {
         this.strategyChooser = strategyChooser;
         this.oneByOneDelegate = new DatasetSetListingQueryOneByOne(query);
-        this.fullTableScanDelegate = new DatasetSetListingQueryFullTableScan(query);
+        this.fullTableScanDelegate =
+                new DatasetSetListingQueryFullTableScan(query, databaseInstanceId);
     }
 
     public Iterable<DatasetRecord> getDatasets(final LongSet sampleIds)

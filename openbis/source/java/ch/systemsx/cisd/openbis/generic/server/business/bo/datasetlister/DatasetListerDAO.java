@@ -87,8 +87,11 @@ public final class DatasetListerDAO extends AbstractDAO
         super(databaseInstance);
         this.query = query;
         this.strategyChooser = createStrategyChooser(query);
-        this.setQuery = createIdSetQuery(supportsSetQuery, query, strategyChooser);
-        this.propertySetQuery = createSetPropertyQuery(supportsSetQuery, query, strategyChooser);
+        this.setQuery =
+                createIdSetQuery(supportsSetQuery, query, strategyChooser, getDatabaseInstanceId());
+        this.propertySetQuery =
+                createSetPropertyQuery(supportsSetQuery, query, strategyChooser,
+                        getDatabaseInstanceId());
     }
 
     IDatasetListingQuery getQuery()
@@ -118,26 +121,27 @@ public final class DatasetListerDAO extends AbstractDAO
     }
 
     private static IEntityPropertySetListingQuery createSetPropertyQuery(boolean supportsSetQuery,
-            IDatasetListingFullQuery query, QueryStrategyChooser strategyChooser)
+            IDatasetListingFullQuery query, QueryStrategyChooser strategyChooser,
+            long databaseInstanceId)
     {
         if (supportsSetQuery)
         {
             return asEntitySetPropertyListingQuery(query);
         } else
         {
-            return new PropertiesSetListingQueryFallback(asEntityPropertyListingQuery(query),
-                    strategyChooser);
+            return new PropertiesSetListingQueryFallback(asEntityPropertyListingQuery(query,
+                    databaseInstanceId), strategyChooser);
         }
     }
 
     private static IEntityPropertyListingQuery asEntityPropertyListingQuery(
-            final IDatasetListingFullQuery query)
+            final IDatasetListingFullQuery query, final long databaseInstanceId)
     {
         return new IEntityPropertyListingQuery()
             {
                 public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues()
                 {
-                    return query.getEntityPropertyGenericValues();
+                    return query.getAllEntityPropertyGenericValues(databaseInstanceId);
                 }
 
                 public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
@@ -148,7 +152,7 @@ public final class DatasetListerDAO extends AbstractDAO
 
                 public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues()
                 {
-                    return query.getEntityPropertyMaterialValues();
+                    return query.getAllEntityPropertyMaterialValues(databaseInstanceId);
                 }
 
                 public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
@@ -159,7 +163,7 @@ public final class DatasetListerDAO extends AbstractDAO
 
                 public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues()
                 {
-                    return query.getEntityPropertyVocabularyTermValues();
+                    return query.getAllEntityPropertyVocabularyTermValues(databaseInstanceId);
                 }
 
                 public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
@@ -196,14 +200,15 @@ public final class DatasetListerDAO extends AbstractDAO
     }
 
     private static IDatasetSetListingQuery createIdSetQuery(boolean supportsSetQuery,
-            IDatasetListingFullQuery query, QueryStrategyChooser strategyChooser)
+            IDatasetListingFullQuery query, QueryStrategyChooser strategyChooser,
+            long databaseInstanceId)
     {
         if (supportsSetQuery)
         {
             return asDatasetSetListingQuery(query);
         } else
         {
-            return new DatasetSetListingQueryFallback(query, strategyChooser);
+            return new DatasetSetListingQueryFallback(query, strategyChooser, databaseInstanceId);
         }
     }
 

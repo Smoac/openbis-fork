@@ -27,15 +27,14 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.lemnik.eodsql.DataIterator;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -49,7 +48,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTerm
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -116,6 +114,15 @@ public class SampleListingQueryTest extends AbstractDAOTest
                 daoFactory.getSampleDAO().listSamplesWithPropertiesByTypeAndDatabaseInstance(
                         masterPlateType, dbInstance).get(0);
         query = sampleListerDAO.getQuery();
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void cleanUp() throws SQLException
+    {
+        if (query != null)
+        {
+            query.commit();
+        }
     }
 
     public static SampleListerDAO createSampleListerDAO(IDAOFactory daoFactory)
@@ -208,7 +215,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
         int sampleCount = 0;
         for (SampleRecord sample : query.getGroupSamples(dbInstanceId, groupCode))
         {
-            // Note: query.getGroupSamples() doesn't query for grou_id as it is not used by the business code
+            // Note: query.getGroupSamples() doesn't query for grou_id as it is not used by the
+            // business code
             sample.grou_id = groupId;
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
@@ -261,7 +269,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
         int sampleCount = 0;
         for (SampleRecord sample : query.getSamplesForExperiment(experimentId))
         {
-            // Note: getSamplesForExperiment() doesn't query for grou_id as it is not used by the business code
+            // Note: getSamplesForExperiment() doesn't query for grou_id as it is not used by the
+            // business code
             sample.grou_id = groupId;
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
@@ -283,7 +292,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
         int sampleCount = 0;
         for (SampleRecord sample : query.getGroupSamplesWithExperiment(dbInstanceId, groupCode))
         {
-            // Note: getGroupSamplesWithExperiment() doesn't query for grou_id as it is not used by the business code
+            // Note: getGroupSamplesWithExperiment() doesn't query for grou_id as it is not used by
+            // the business code
             sample.grou_id = groupId;
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
@@ -387,116 +397,76 @@ public class SampleListingQueryTest extends AbstractDAOTest
         query.getVocabularyURLTemplates();
     }
 
+    private void assertCorrectEntityAndPropertyTypeReferences(
+            List<? extends BaseEntityPropertyRecord> properties)
+    {
+        DataIterator<SampleRecord> samples = query.getSamples(dbInstanceId);
+        PropertyType[] propertyTypes = query.getPropertyTypes();
+        EntityListingTestUtils.assertCorrectEntityAndPropertyTypeReferences(samples, properties,
+                propertyTypes);
+    }
+
     @Test
-    public void testSamplePropertiesGenericValues()
+    public void testEntityPropertiesGenericValues()
     {
         List<GenericEntityPropertyRecord> properties =
                 asList(query.getAllEntityPropertyGenericValues(dbInstanceId));
-        assertCorrectSampleAndPropertyTypeReferences(properties);
+        assertCorrectEntityAndPropertyTypeReferences(properties);
         for (GenericEntityPropertyRecord property : properties)
         {
             assertNotNull(property.value);
         }
-        checkSamplePropertiesGenericValuesForSample(properties.iterator().next().entity_id);
+        checkEntityPropertiesGenericValuesForEntity(EntityListingTestUtils
+                .getAnyEntityId(properties));
     }
 
-    private void assertCorrectSampleAndPropertyTypeReferences(
-            List<? extends BaseEntityPropertyRecord> properties)
-    {
-        assertTrue(properties.size() > 0);
-        Set<Long> propertyTypesIds = extractIds(Arrays.asList(query.getPropertyTypes()));
-        Set<Long> sampleIds = extractVOIds(asList(query.getSamples(dbInstanceId)));
-        for (BaseEntityPropertyRecord property : properties)
-        {
-            assertTrue("Property type not found " + property.prty_id, propertyTypesIds
-                    .contains(property.prty_id));
-            assertTrue("Sample not found " + property.entity_id, sampleIds
-                    .contains(property.entity_id));
-        }
-    }
-
-    private static <T extends CodeRecord> Set<Long> extractVOIds(List<T> items)
-    {
-        Set<Long> ids = new HashSet<Long>();
-        for (T item : items)
-        {
-            ids.add(item.id);
-        }
-        return ids;
-    }
-
-    private static <T extends IIdHolder> Set<Long> extractIds(List<T> items)
-    {
-        Set<Long> ids = new HashSet<Long>();
-        for (T item : items)
-        {
-            ids.add(item.getId());
-        }
-        return ids;
-    }
-
-    // entityId - id of a sample which has a property
-    private void checkSamplePropertiesGenericValuesForSample(long entityId)
+    // entityId - id of an entity which has a property
+    private void checkEntityPropertiesGenericValuesForEntity(long entityId)
     {
         DataIterator<GenericEntityPropertyRecord> properties =
                 query.getEntityPropertyGenericValues(entityId);
-        assertTrue("no generic properties found", properties.hasNext());
-        for (GenericEntityPropertyRecord property : properties)
-        {
-            assertNotNull(property.value);
-            assertEquals(entityId, property.entity_id);
-        }
+        EntityListingTestUtils.checkPropertiesGenericValues(entityId, properties);
     }
 
     @Test
-    public void testSamplePropertiesMaterialValues()
+    public void testEntityPropertiesMaterialValues()
     {
         List<MaterialEntityPropertyRecord> properties =
                 asList(query.getAllEntityPropertyMaterialValues(dbInstanceId));
-        assertCorrectSampleAndPropertyTypeReferences(properties);
+        assertCorrectEntityAndPropertyTypeReferences(properties);
         for (MaterialEntityPropertyRecord property : properties)
         {
             assertNotNull(property.code);
         }
-        checkSamplePropertiesMaterialValuesForSample(properties.iterator().next().entity_id);
+        checkEntityPropertiesMaterialValuesForEntity(EntityListingTestUtils
+                .getAnyEntityId(properties));
     }
 
-    private void checkSamplePropertiesMaterialValuesForSample(long entityId)
+    private void checkEntityPropertiesMaterialValuesForEntity(long entityId)
     {
         DataIterator<MaterialEntityPropertyRecord> properties =
                 query.getEntityPropertyMaterialValues(entityId);
-        assertTrue("no material properties found", properties.hasNext());
-        for (MaterialEntityPropertyRecord property : properties)
-        {
-            assertNotNull(property.code);
-            assertEquals(entityId, property.entity_id);
-        }
+        EntityListingTestUtils.checkPropertiesMaterialValues(entityId, properties);
     }
 
     @Test
-    public void testSamplePropertiesVocabularyTermValues()
+    public void testEntityPropertiesVocabularyTermValues()
     {
         List<VocabularyTermRecord> properties =
                 asList(query.getAllEntityPropertyVocabularyTermValues(dbInstanceId));
-        assertCorrectSampleAndPropertyTypeReferences(properties);
+        assertCorrectEntityAndPropertyTypeReferences(properties);
         for (VocabularyTermRecord property : properties)
         {
             assertNotNull(property.code);
         }
-        checkSamplePropertiesVocabularyTermValuesForSample(properties.iterator().next().entity_id);
+        checkEntityPropertiesVocabularyTermValuesForEntity(EntityListingTestUtils
+                .getAnyEntityId(properties));
     }
 
-    private void checkSamplePropertiesVocabularyTermValuesForSample(long entityId)
+    private void checkEntityPropertiesVocabularyTermValuesForEntity(long entityId)
     {
         DataIterator<VocabularyTermRecord> properties =
                 query.getEntityPropertyVocabularyTermValues(entityId);
-        assertTrue("no vocabulary properties found", properties.hasNext());
-        for (VocabularyTermRecord property : properties)
-        {
-            assertNotNull(property.code);
-            assertEquals(entityId, property.entity_id);
-        }
-
+        EntityListingTestUtils.checkPropertiesVocabularyTermValues(entityId, properties);
     }
-
 }

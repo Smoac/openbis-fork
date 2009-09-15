@@ -37,7 +37,7 @@ class SampleSetListingQueryFallback implements ISampleSetListingQuery
     private final QueryStrategyChooser strategyChooser;
 
     public SampleSetListingQueryFallback(final ISampleListingQuery query,
-            QueryStrategyChooser strategyChooser, final long databaseInstanceId)
+            QueryStrategyChooser strategyChooser, long databaseInstanceId)
     {
         this.strategyChooser = strategyChooser;
         this.oneByOneDelegate = new SampleSetListingQueryOneByOne(query);
