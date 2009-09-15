@@ -116,7 +116,9 @@ public class SearchTest extends AbstractGWTTestCase
                         EXP_T1, EXP_T2, EXP_T3);
         remoteConsole.prepare(new PiggyBackCommand(checkDatasetsTableCommand,
                 showDatasetsRelatedToAllDisplayedEntities()));
-        remoteConsole.prepare(createCheckRelatedDatasetsTableCommand(DS_LOC1, DS_LOC2, DS_LOC3));
+        // all datasets from EXP-REUSED are also in results
+        remoteConsole.prepare(createCheckRelatedDatasetsTableCommand(DS_LOC1, DS_LOC2, DS_LOC3,
+                "xml/result-8", "xml/result-9", "xml/result-10", "xml/result-11", "xml/result-12"));
 
         launchTest(20000);
     }

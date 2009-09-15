@@ -26,6 +26,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
  */
 public class DataSetRow extends Row
 {
+    public DataSetRow()
+    {
+    }
+
     public DataSetRow(String code)
     {
         withCell(CommonExternalDataColDefKind.CODE, code);
@@ -86,6 +90,12 @@ public class DataSetRow extends Row
     public DataSetRow withSample(String sampleIdentifier)
     {
         withCell(CommonExternalDataColDefKind.SAMPLE_IDENTIFIER, sampleIdentifier);
+        return this;
+    }
+
+    public DataSetRow withExperiment(String experimentIdentifier)
+    {
+        withCell(CommonExternalDataColDefKind.EXPERIMENT_IDENTIFIER, experimentIdentifier);
         return this;
     }
 

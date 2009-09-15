@@ -137,6 +137,16 @@ public class Experiment extends CodeWithRegistration<Experiment> implements IInv
     }
 
     //
+    // Object
+    //
+
+    @Override
+    public String toString()
+    {
+        return getIdentifier();
+    }
+
+    //
     // Comparable
     //
 

@@ -60,6 +60,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 
     private static final String CELL_PLATE_EXAMPLE_PERM_ID = "200811050946559-983";
 
+    private static final String CELL_PLATE_EXAMPLE_EXPERIMENT_ID = "/CISD/NEMO/EXP1";
+
     private static final String DIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092158673-1";
 
     private static final String INDIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092159188-3";
@@ -101,6 +103,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 
         final CheckSample checkSample = new CheckSample();
         checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE_ID);
+        checkSample.property("Experiment").asString(CELL_PLATE_EXAMPLE_EXPERIMENT_ID);
         checkSample.property("PermID").matchingPattern(
                 ".*<a href=\".*permId=" + CELL_PLATE_EXAMPLE_PERM_ID + ".*>"
                         + CELL_PLATE_EXAMPLE_PERM_ID + "</a>.*");
@@ -169,10 +172,12 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         final CheckSample checkSample = new CheckSample();
         // simplified sample properties check
         checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE_ID);
+        checkSample.property("Experiment").asString(CELL_PLATE_EXAMPLE_EXPERIMENT_ID);
         // extended data set table check
         final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(1);
         dataTable.expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
-                .withFileFormatType("TIFF").withSample(CELL_PLATE_EXAMPLE_ID));
+                .withFileFormatType("TIFF").withSample(CELL_PLATE_EXAMPLE_ID).withExperiment(
+                        CELL_PLATE_EXAMPLE_EXPERIMENT_ID));
         remoteConsole.prepare(new AbstractDefaultTestCommand()
             {
                 @Override
@@ -197,18 +202,30 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                     // check indiectly connected datasets after refresh od dataset table
                     final CheckTableCommand dataTableAfterRefresh =
                             new CheckTableCommand(SampleDataSetBrowser.createGridId(wildcard));
-                    dataTableAfterRefresh.expectedSize(2);
+                    dataTableAfterRefresh.expectedSize(6);
                     dataTableAfterRefresh.expectedRow(new DataSetRow(
                             DIRECTLY_CONNECTED_DATA_SET_CODE).invalid().withFileFormatType("TIFF")
-                            .withSample(CELL_PLATE_EXAMPLE_ID));
+                            .withSample(CELL_PLATE_EXAMPLE_ID).withExperiment(
+                                    CELL_PLATE_EXAMPLE_EXPERIMENT_ID));
                     dataTableAfterRefresh.expectedRow(new DataSetRow(
                             INDIRECTLY_CONNECTED_DATA_SET_CODE).valid().withLocation(
-                            "analysis/result").withSample(""));
+                            "analysis/result").withSample("").withExperiment(
+                            CELL_PLATE_EXAMPLE_EXPERIMENT_ID));
+                    // datasets connected to a different experiment
+                    final String differentExperimentIdentifier = "/CISD/DEFAULT/EXP-REUSE";
+                    assert differentExperimentIdentifier.equals(CELL_PLATE_EXAMPLE_EXPERIMENT_ID) == false;
+                    final String[] indirectlyConnectedDataSetLocations =
+                        { "xml/result-9", "xml/result-10", "xml/result-11", "xml/result-12" };
+                    for (String location : indirectlyConnectedDataSetLocations)
+                    {
+                        dataTableAfterRefresh.expectedRow(new DataSetRow().valid().withSample("")
+                                .withExperiment(differentExperimentIdentifier).withLocation(
+                                        location));
+                    }
                     remoteConsole.prepare(dataTableAfterRefresh);
                 }
             });
 
         launchTest(60000);
     }
-
 }
