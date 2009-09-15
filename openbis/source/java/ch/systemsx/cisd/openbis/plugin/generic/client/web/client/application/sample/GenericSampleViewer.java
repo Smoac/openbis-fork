@@ -94,6 +94,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
     public static final String DATA_POSTFIX = "-data";
 
+    public static final String SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX =
+            "-show_only_directly_connected_checkbox";
+
     private final TechId sampleId;
 
     private AttachmentVersionsSection<Sample> attachmentsSection;
@@ -189,6 +192,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private CheckBox createShowOnlyDirectlyConnectedCheckBox()
     {
         CheckBox result = new CheckBox();
+        result.setId(getId() + SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX);
         result.setBoxLabel(Dict.SHOW_ONLY_DIRECTLY_CONNECTED);
         result.setValue(true);
         return result;

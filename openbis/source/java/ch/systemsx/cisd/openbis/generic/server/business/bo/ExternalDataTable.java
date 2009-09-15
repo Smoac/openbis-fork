@@ -411,7 +411,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             {
                 String location = dataSet.getLocation();
                 SamplePE sample = dataSet.tryGetSample();
-                // FIXME 2009-09-10, Piotr Buczek: rewrite to deal with sample == NULL
+                // TODO 2009-09-10, Piotr Buczek: rewrite to deal with sample == NULL
                 String sampleCode = sample.getCode();
                 String groupCode = sample.getGroup().getCode();
                 result.add(new DatasetDescription(datasetCode, location, sampleCode, groupCode));

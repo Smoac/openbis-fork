@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 /**
  * @author Franz-Josef Elmer
  */
-// TODO 2009-09-10, Piotr Buczek: write tests with no direct sample connection, and many parents
+// TODO 2009-09-10, Piotr Buczek: write tests with many parents and trigger check
 public class ExternalDataBOTest extends AbstractBOTest
 {
     private static final TechId TECH_ID = new TechId(42l);
@@ -115,7 +115,7 @@ public class ExternalDataBOTest extends AbstractBOTest
     }
 
     @Test
-    public void testDefineWithoutParentDataSet()
+    public void testDefineWithDirectSampleConnection()
     {
         final DataSetTypePE dataSetType = new DataSetTypePE();
         final FileFormatTypePE fileFormatType = new FileFormatTypePE();

@@ -62,6 +62,8 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
 
     private static final String DIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092158673-1";
 
+    private static final String INDIRECTLY_CONNECTED_DATA_SET_CODE = "20081105092159188-3";
+
     public final void testShowMasterPlateView()
     {
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
@@ -155,6 +157,56 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
             });
         // browse shown dataset
         remoteConsole.prepare(new BrowseDataSet(DIRECTLY_CONNECTED_DATA_SET_CODE));
+
+        launchTest(60000);
+    }
+
+    public final void testShowIndirectlyConnectedDataSets()
+    {
+        loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
+        remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
+        remoteConsole.prepare(new ShowSample(CELL_PLATE_EXAMPLE));
+        final CheckSample checkSample = new CheckSample();
+        // simplified sample properties check
+        checkSample.property("Sample").asString(CELL_PLATE_EXAMPLE_ID);
+        // extended data set table check
+        final CheckTableCommand dataTable = checkSample.dataTable().expectedSize(1);
+        dataTable.expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
+                .withFileFormatType("TIFF").withSample(CELL_PLATE_EXAMPLE_ID));
+        remoteConsole.prepare(new AbstractDefaultTestCommand()
+            {
+                @Override
+                public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
+                        List<AbstractAsyncCallback<Object>> callbackObjects, Object result)
+                {
+                    return checkSample.tryValidOnSucess(callbackObjects, result);
+                }
+
+                public void execute()
+                {
+                    checkSample.execute();
+
+                    // show indirectly connected datasets
+                    TechId wildcard = TechId.createWildcardTechId();
+
+                    String showOnlyDirectlyConnectedCheckBoxId =
+                            GenericSampleViewer.createId(wildcard)
+                                    + GenericSampleViewer.SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX;
+                    GWTTestUtil.clickCheckBoxWithID(showOnlyDirectlyConnectedCheckBoxId);
+
+                    // check indiectly connected datasets after refresh od dataset table
+                    final CheckTableCommand dataTableAfterRefresh =
+                            new CheckTableCommand(SampleDataSetBrowser.createGridId(wildcard));
+                    dataTableAfterRefresh.expectedSize(2);
+                    dataTableAfterRefresh.expectedRow(new DataSetRow(
+                            DIRECTLY_CONNECTED_DATA_SET_CODE).invalid().withFileFormatType("TIFF")
+                            .withSample(CELL_PLATE_EXAMPLE_ID));
+                    dataTableAfterRefresh.expectedRow(new DataSetRow(
+                            INDIRECTLY_CONNECTED_DATA_SET_CODE).valid().withLocation(
+                            "analysis/result").withSample(""));
+                    remoteConsole.prepare(dataTableAfterRefresh);
+                }
+            });
 
         launchTest(60000);
     }

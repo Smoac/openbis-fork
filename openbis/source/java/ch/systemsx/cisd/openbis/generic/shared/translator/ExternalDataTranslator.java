@@ -125,7 +125,6 @@ public class ExternalDataTranslator
         }
     }
 
-    // TODO 2009-09-10, Piotr Buczek: how should invalidation work if there is no sample?
     private static Invalidation tryToGetInvalidation(SamplePE sampleOrNull, ExperimentPE experiment)
     {
         InvalidationPE invalidationOrNull;

@@ -100,7 +100,6 @@ public final class GenericDataSetEditForm extends
         result.setProperties(extractProperties());
         result.setVersion(originalDataSet.getModificationDate());
         result.setModifiedParentDatasetCodesOrNull(extractParentDatasetCodes());
-        // TODO 2009-09-10, Piotr Buczek: check if it is null for empty string
         result.setSampleIdentifierOrNull(extractSampleIdentifier());
         result.setFileFormatTypeCode(extractFileFormatTypeCode());
         return result;

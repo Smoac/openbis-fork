@@ -28,10 +28,12 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Header;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
@@ -94,6 +96,25 @@ public final class GWTTestUtil
         final Button button = (Button) widget;
         assertTrue("Button '" + id + "' is not enabled.", button.isEnabled());
         button.fireEvent(Events.Select);
+    }
+
+    /**
+     * Simulates click on the {@link CheckBox} with specified id (modifies check box value and fires
+     * {@link Events#Change} event).
+     * 
+     * @throws AssertionError if not found, isn't a CheckBox or is not enabled.
+     */
+    public static void clickCheckBoxWithID(final String id)
+    {
+        final Widget widget = tryToFindByID(id);
+        assertWidgetFound("CheckBox", id, widget);
+        assertTrue("Widget '" + id + "' isn't a CheckBox: " + widget.getClass(),
+                widget instanceof CheckBox);
+        final CheckBox checkBox = (CheckBox) widget;
+        assertTrue("CheckBox '" + id + "' is not enabled.", checkBox.isEnabled());
+        // didn't find a way to do this firing a single event - changing value manually
+        checkBox.setValue(!checkBox.getValue());
+        checkBox.fireEvent(Events.Change);
     }
 
     public final static void selectValueInSelectionWidget(String selectionWidgetId,
@@ -382,7 +403,6 @@ public final class GWTTestUtil
             } else if (widget instanceof PagingToolBarAdapter)
             {
                 return new PagingToolBarHandler(this).handle((PagingToolBarAdapter) widget);
-
             } else
             {
                 return false;
@@ -570,6 +590,14 @@ public final class GWTTestUtil
                 for (Button b : contentPanel.getButtonBar().getItems())
                 {
                     if (handler.handle(b))
+                    {
+                        return true;
+                    }
+                }
+                final Header header = contentPanel.getHeader();
+                for (int i = 0, n = header.getToolCount(); i < n; i++)
+                {
+                    if (handler.handle(header.getTool(i)))
                     {
                         return true;
                     }
