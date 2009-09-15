@@ -50,7 +50,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     /**
      * Returns the directly connected datasets for the given sample id.
      */
-    @Select(sql = "select * from data left outer join external_data on data.id = external_data.data_id where data.samp_id=?{1}", fetchSize = FETCH_SIZE)
+    @Select(sql = "select * from data join external_data on data.id = external_data.data_id where data.samp_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsForSample(long sampleId);
 
     /**
@@ -62,28 +62,28 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     /**
      * Returns the datasets that are children of a dataset with given id.
      */
-    @Select(sql = "SELECT * FROM data LEFT OUTER JOIN external_data ON data.id = external_data.data_id"
+    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
             + "    WHERE data.id IN (SELECT data_id_child FROM data_set_relationships r WHERE r.data_id_parent=?{1})", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getChildDatasetsForParent(long parentDatasetId);
 
     /**
      * Returns the datasets that are parents of a dataset with given id.
      */
-    @Select(sql = "SELECT * FROM data LEFT OUTER JOIN external_data ON data.id = external_data.data_id"
+    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
             + "    WHERE data.id IN (SELECT data_id_parent FROM data_set_relationships r WHERE r.data_id_child=?{1})", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getParentDatasetsForChild(long childDatasetId);
 
     /**
      * Returns the datasets for the given <var>datasetId</var>.
      */
-    @Select("select * from data d left outer join external_data e on d.id = e.data_id"
+    @Select("select * from data d join external_data e on d.id = e.data_id"
             + " where d.id=?{1}")
     public DatasetRecord getDataset(long datasetId);
 
     /**
      * Returns all datasets in the database.
      */
-    @Select(sql = "select * from data d left outer join external_data e on d.id = e.data_id"
+    @Select(sql = "select * from data d join external_data e on d.id = e.data_id"
             + "     where (select dbin_id from data_set_types t where t.id = d.dsty_id) = ?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(long dbInstanceId);
 
