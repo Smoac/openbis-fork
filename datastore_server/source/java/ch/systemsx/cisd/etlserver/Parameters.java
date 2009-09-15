@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.etlserver;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -132,8 +130,6 @@ public class Parameters
 
     private final ThreadParameters[] threads;
 
-    private final Map<String, Properties> processorProperties;
-
     private MaintenanceTaskParameters[] maintenancePlugins;
 
     @Option(longName = "help", skipForExample = true, usage = "Prints out a description of the options.")
@@ -180,7 +176,6 @@ public class Parameters
         {
             this.serviceProperties = PropertyParametersUtil.loadServiceProperties();
             PropertyUtils.trimProperties(serviceProperties);
-            this.processorProperties = extractProcessorProperties(serviceProperties);
             this.threads = createThreadParameters(serviceProperties);
             this.mailProperties = createMailProperties(serviceProperties);
             this.timingParameters = TimingParameters.create(serviceProperties);
@@ -230,23 +225,6 @@ public class Parameters
         quietPeriodMillis = Long.parseLong(serviceProperties.getProperty(QUIET_PERIOD_NAME, "300"));
         shutdownTimeOutSeconds =
                 Long.parseLong(serviceProperties.getProperty("shutdown-timeout", "30"));
-    }
-
-    private static Map<String, Properties> extractProcessorProperties(final Properties properties)
-    {
-        final LinkedHashMap<String, Properties> map = new LinkedHashMap<String, Properties>();
-        final String processors = properties.getProperty("processors");
-        if (processors != null)
-        {
-            final String[] procedureTypes =
-                    processors.split(PropertyParametersUtil.ITEMS_DELIMITER);
-            for (final String procedureType : procedureTypes)
-            {
-                final String prefix = "processor." + procedureType + ".";
-                map.put(procedureType, ExtendedProperties.getSubset(properties, prefix, true));
-            }
-        }
-        return map;
     }
 
     private static ThreadParameters[] createThreadParameters(final Properties serviceProperties)
@@ -384,14 +362,6 @@ public class Parameters
     public final Properties getProperties()
     {
         return serviceProperties;
-    }
-
-    /**
-     * Returns a map of all processor properties with the procedure type code as the key.
-     */
-    public final Map<String, Properties> getProcessorProperties()
-    {
-        return processorProperties;
     }
 
     /** Returns <code>mailProperties</code>. */
