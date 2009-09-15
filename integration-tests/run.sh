@@ -725,7 +725,6 @@ function assert_correct_content {
     assert_pattern_present $DATA/out-raw/.faulty_paths 1 ".*data/out-raw/.MARKER_is_finished_microX_200801011213_3VCP1"
     assert_pattern_present $WORK/datamover-raw/data-completed-info.txt 4 "Data complete.*3VCP[0-9]" 
     assert_correct_content_of_plate_3VCP1_in_store
-    assert_correct_content_of_invalid_plate_in_store 3VCP4
     assert_correct_content_of_image_analysis_data 3VCP1 ".*-19.*3VCP1$"
     assert_correct_content_of_image_analysis_data 3VCP3 ".*-21.*3VCP3$"
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
@@ -739,8 +738,8 @@ function assert_correct_content {
     assert_correct_dataset_content_in_database 5 "5;EXP1;DSS1;20[0-9]*-21;f;;U;;"   
     assert_correct_dataset_content_in_database 6 "6;EXP1;DSS1;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
     assert_correct_dataset_content_in_database 7 "7;EXP1;DSS1;20[0-9]*-23;f;;U;;"
-    assert_correct_dataset_content_in_database 8 "8;EXP1;DSS2;20[0-9]*-24;f;2;U;;"
-    assert_correct_dataset_content_in_database 8 "8;EXP1;DSS2;20[0-9]*-24;f;7;U;;"
+    assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-24;f;2;U;;.*"
+    assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-24;f;6;U;;.*"
     assert_equals "Content of file in drop box1" "hello world" "`cat $DATA/drop-box1/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-24.txt`"
     assert_equals "Content of file in drop box2" "hello world" "`cat $DATA/drop-box2/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-24.txt`"
 }
