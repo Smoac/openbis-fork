@@ -286,15 +286,17 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         final String instanceUUID = dataSetInformation.getInstanceUUID();
         assert instanceCode != null : "Unspecified database instance code";
         assert instanceUUID != null : "Unspecified database instance UUID";
-        return new SampleWithOwner(dataSetInformation.getSampleCode(),
-                sampleType.getCode(), sampleTypeDescription, instanceUUID, instanceCode, groupCode);
+        // TODO 2009-09-15, Tomasz Pylak: deal with the case when sample is null
+        return new SampleWithOwner(dataSetInformation.getSampleCode(), sampleType.getCode(),
+                sampleTypeDescription, instanceUUID, instanceCode, groupCode);
     }
 
     private final static DataSet createDataSet(final DataSetInformation dataSetInformation,
             final ITypeExtractor typeExtractor, final File incomingDataSetPath)
     {
         final String dataSetCode = dataSetInformation.getDataSetCode();
-        final List<String> parentCodes = new ArrayList<String>(dataSetInformation.getParentDataSetCodes());
+        final List<String> parentCodes =
+                new ArrayList<String>(dataSetInformation.getParentDataSetCodes());
         final boolean isMeasured = typeExtractor.isMeasuredData(incomingDataSetPath);
         final DataSetType dataSetType = typeExtractor.getDataSetType(incomingDataSetPath);
         final DataSet dataSet =
@@ -400,8 +402,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
     // AbstractStorageProcessor
     //
 
-    public final File storeData(
-            final DataSetInformation dataSetInformation,
+    public final File storeData(final DataSetInformation dataSetInformation,
             final ITypeExtractor typeExtractor, final IMailClient mailClient,
             final File incomingDataSetDirectory, final File rootDirectory)
     {
@@ -418,8 +419,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
             throw new UserFailureException("Experiment unknown for data set " + dataSetInformation);
         }
         dataStructure =
-                createDataStructure(experiment,
-                        dataSetInformation, typeExtractor,
+                createDataStructure(experiment, dataSetInformation, typeExtractor,
                         incomingDataSetDirectory, dataStructureDir);
         final IFormattedData formattedData = dataStructure.getFormattedData();
         if (formattedData instanceof IHCSImageFormattedData)
