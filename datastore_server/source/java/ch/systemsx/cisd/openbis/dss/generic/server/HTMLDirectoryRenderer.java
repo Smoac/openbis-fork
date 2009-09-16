@@ -64,15 +64,18 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
                     "<tr><td class='td_file'><a href='${path}'>${name}</td><td>${size}</td></tr>");
 
     private static final Template HEADER_TEMPLATE =
-            new Template("<html><head>" + TITLE + CSS + "</head>"
-                    + "<body><div class='wrapper'><h1>" + DATASET_DOWNLOAD_SERVICE + "</h1>"
-                    + "<div class='div_hd'>Information about data set</div>" + "<table>"
-                    + "<tr><td class='td_hd'>Group:</td><td>${group}</td></tr>"
-                    + "<tr><td class='td_hd'>Project:</td><td>${project}</td></tr>"
-                    + "<tr><td class='td_hd'>Experiment:</td><td>${experiment}</td></tr>"
-                    + "<tr><td class='td_hd'>Sample:</td><td>${sample}</td></tr>"
-                    + "<tr><td class='td_hd'>Data Set Code:</td><td>${dataset}</td></tr></table> "
-                    + "<div class='div_hd'>Files</div>" + "<table> " + "${folder}" + "");
+        new Template("<html><head>" + TITLE + CSS + "</head>"
+                + "<body><div class='wrapper'><h1>" + DATASET_DOWNLOAD_SERVICE + "</h1>"
+                + "<div class='div_hd'>Information about data set</div>" + "<table>"
+                + "<tr><td class='td_hd'>Group:</td><td>${group}</td></tr>"
+                + "<tr><td class='td_hd'>Project:</td><td>${project}</td></tr>"
+                + "<tr><td class='td_hd'>Experiment:</td><td>${experiment}</td></tr>"
+                + "${sample}"
+                + "<tr><td class='td_hd'>Data Set Code:</td><td>${dataset}</td></tr></table> "
+                + "<div class='div_hd'>Files</div>" + "<table> " + "${folder}" + "");
+    
+    private static final Template SAMPLE_LINE_TEMPLATE =
+            new Template("<tr><td class='td_hd'>Sample:</td><td>${sample}</td></tr>");
 
     private static final Template FOOTER_TEMPLATE =
             new Template("</table> </div> <div class='footer'>${footer} </div> </body></html>");
@@ -109,7 +112,7 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         template.bind("group", groupCode);
         template.bind("project", projectCode);
         template.bind("experiment", experimentCode);
-        template.bind("sample", sampleCode);
+        template.bind("sample", createSampleLine(sampleCode));
         template.bind("dataset", datasetCode);
         if (StringUtils.isNotBlank(relativePathOrNull))
         {
@@ -120,6 +123,17 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
             template.bind("folder", "");
         }
         writer.println(template.createText());
+    }
+
+    private String createSampleLine(final String sampleCode)
+    {
+        if (sampleCode == null)
+        {
+            return "";
+        }
+        Template sampleLineTemplate = SAMPLE_LINE_TEMPLATE.createFreshCopy();
+        sampleLineTemplate.bind("sample", sampleCode);
+        return sampleLineTemplate.createText();
     }
 
     public void printLinkToParentDirectory(final String relativePath)
