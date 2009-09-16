@@ -194,6 +194,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private IDataRefreshCallback refreshCallback;
 
+    private RefreshDisplaySettingsAfterLayoutListener refreshDisplaySettingsAfterLayoutListener;
+
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
@@ -248,30 +250,44 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private void addRefreshDisplaySettingsListener()
     {
-        addListener(Events.AfterLayout, new Listener<BaseEvent>()
+        refreshDisplaySettingsAfterLayoutListener = new RefreshDisplaySettingsAfterLayoutListener();
+        addListener(Events.AfterLayout, refreshDisplaySettingsAfterLayoutListener);
+    }
+
+    private class RefreshDisplaySettingsAfterLayoutListener implements Listener<BaseEvent>
+    {
+
+        private boolean ignoreLayoutRefresh = true;
+
+        private Long lastRefreshCheckTime;
+
+        public void handleEvent(BaseEvent be)
+        {
+
+            final Long lastColumnSettingsModificationTimeOrNull =
+                    viewContext.getDisplaySettingsManager().tryGetColumnsSettingsModificationTime(
+                            getGridDisplayTypeID());
+            if (ignoreLayoutRefresh == true)
             {
-                private Long lastRefreshCheckTime;
+                ignoreLayoutRefresh = false;
+            } else if (lastColumnSettingsModificationTimeOrNull != null
+                    && lastColumnSettingsModificationTimeOrNull > lastRefreshCheckTime)
+            {
+                // Grid settings have been modified in another browser of the same type.
+                // Refresh this browser settings.
+                refreshColumnsAndFiltersWithCurrentModel();
+            }
+            lastRefreshCheckTime = System.currentTimeMillis();
+        }
 
-                public void handleEvent(BaseEvent be)
-                {
+        // No need to refresh if grid is displayed for the first time
+        // or refresh of layout is invoked by this grid.
+        public void ignoreLayoutRefresh()
+        {
+            ignoreLayoutRefresh = true;
+            // lastRefreshCheckTime = null could be used but would be less clear
+        }
 
-                    final Long lastColumnSettingsModificationTimeOrNull =
-                            viewContext.getDisplaySettingsManager()
-                                    .tryGetColumnsSettingsModificationTime(getGridDisplayTypeID());
-                    if (lastRefreshCheckTime == null)
-                    {
-                        // No need to refresh if grid is displayed for the first time.
-                    } else if (lastColumnSettingsModificationTimeOrNull != null
-                            && lastColumnSettingsModificationTimeOrNull > lastRefreshCheckTime)
-                    {
-                        // Grid settings have been modified in another browser of the same type.
-                        // Refresh this browser settings.
-                        refreshColumnsAndFiltersWithCurrentModel();
-                    }
-                    lastRefreshCheckTime = System.currentTimeMillis();
-                }
-
-            });
     }
 
     /** Refreshes the grid without showing the loading progress bar */
@@ -338,6 +354,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     if (isHardRefreshNeeded() == false)
                     {
+                        // TODO 2009-09-16, Piotr Buczek: reload of data is not needed in some cases
+                        // - when filters with no text are removed,
+                        // - when new filters are created,
+                        // but when filter with text is removed it is needed.
                         reloadData();
                     }
                 }
@@ -988,6 +1008,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     return extractFilteredColumnIds(filterWidgets);
                 }
+
             };
     }
 
@@ -1015,6 +1036,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         filterToolbar.updateColumnFilter(filterWidgets);
         if (noFiltersBefore != noFiltersAfter)
         {
+            refreshDisplaySettingsAfterLayoutListener.ignoreLayoutRefresh();
             layout();
         }
     }
