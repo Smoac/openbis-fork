@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroupTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPersonTable;
@@ -28,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Ope
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.RoleAssignmentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PersonColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.FilterSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
@@ -51,8 +53,12 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         final String groupCode = TEST_GROUP;
         loginAndInvokeAction(ActionMenuKind.ADMINISTRATION_MENU_MANAGE_GROUPS);
 
-        remoteConsole.prepare(new CreateGroup(groupCode));
+        CreateGroup createGroupCommand = new CreateGroup(groupCode);
+        createGroupCommand.addCallbackClass(FilterSelectionWidget.ListItemsCallback.class);
+        // fix?
+        remoteConsole.prepare(createGroupCommand);
         final CheckGroupTable table = new CheckGroupTable();
+        table.addCallbackClass(AddGroupDialog.SaveDialogCallback.class);
         table.expectedRow(new Row().withCell(GroupColDefKind.CODE.id(), groupCode.toUpperCase()));
         remoteConsole.prepare(table);
 
@@ -65,8 +71,11 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         final String userId = TestConstants.USER_ID_O;
         loginAndInvokeAction(ActionMenuKind.AUTHORIZATION_MENU_USERS);
 
-        remoteConsole.prepare(new CreatePerson(userId));
+        CreatePerson command = new CreatePerson(userId);
+        command.addCallbackClass(FilterSelectionWidget.ListItemsCallback.class);
+        remoteConsole.prepare(command);
         final CheckPersonTable table = new CheckPersonTable();
+        table.addCallbackClass(AddPersonDialog.SaveDialogCallback.class);
         table.expectedRow(new Row().withCell(PersonColDefKind.USER_ID.id(), userId));
         remoteConsole.prepare(table);
 
@@ -111,7 +120,9 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
     {
         loginAndInvokeAction("o", "o", ActionMenuKind.AUTHORIZATION_MENU_USERS);
         final String userId = "u";
-        remoteConsole.prepare(new CreatePerson(userId));
+        CreatePerson command = new CreatePerson(userId);
+        command.addCallbackClass(FilterSelectionWidget.ListItemsCallback.class);
+        remoteConsole.prepare(command);
         FailureExpectation failureExpectation =
                 new FailureExpectation(AddPersonDialog.SaveDialogCallback.class)
                         .with("Authorization failure: None of method roles '[INSTANCE.ADMIN]' "

@@ -45,18 +45,22 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
     // which columns should be exported
     private List<IColumnDefinition<T>> columnDefs;
 
+    private CustomFilterInfo<T> customFilterInfo;
+
     // GWT only
     public TableExportCriteria()
     {
     }
 
     public TableExportCriteria(String resultSetKey, SortInfo<T> sortInfo,
-            List<GridFilterInfo<T>> filterInfos, List<IColumnDefinition<T>> columnDefs)
+            List<GridFilterInfo<T>> filterInfos, List<IColumnDefinition<T>> columnDefs,
+            CustomFilterInfo<T> customFilterInfo)
     {
         this.resultSetKey = resultSetKey;
         this.sortInfo = sortInfo;
         this.filterInfos = filterInfos;
         this.columnDefs = columnDefs;
+        this.customFilterInfo = customFilterInfo;
     }
 
     public String getResultSetKey()
@@ -77,5 +81,10 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
     public List<IColumnDefinition<T>> getColumnDefs()
     {
         return columnDefs;
+    }
+
+    public CustomFilterInfo<T> tryGetCustomFilterInfo()
+    {
+        return customFilterInfo;
     }
 }

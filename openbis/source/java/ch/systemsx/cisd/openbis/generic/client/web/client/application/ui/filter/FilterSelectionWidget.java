@@ -54,7 +54,6 @@ public final class FilterSelectionWidget extends DropDownList<FilterModel, Filte
         this.displayTypeIDProvider = displayTypeIDProvider;
         this.withStandard = true;
         setAutoSelectFirst(withStandard);
-        setForceSelection(true);
     }
 
     @Override

@@ -21,6 +21,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.FilterSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -55,6 +56,7 @@ public class ListExperiments extends AbstractDefaultTestCommand
             addCallbackClass(ProjectSelectionTreeWidget.ListProjectsCallback.class);
             addCallbackClass(ExperimentTypeSelectionWidget.ListItemsCallback.class);
         }
+        addCallbackClass(FilterSelectionWidget.ListItemsCallback.class);
     }
 
     //

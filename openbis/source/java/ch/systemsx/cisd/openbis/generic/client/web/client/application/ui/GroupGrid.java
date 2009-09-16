@@ -83,7 +83,7 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
 
     private GroupGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.PROJECT_BROWSER_GRID);
+        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.GROUPS_BROWSER_GRID);
         postRegistrationCallback = createRefreshGridAction();
     }
 

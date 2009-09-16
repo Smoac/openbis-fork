@@ -50,13 +50,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
 {
-    // AI add auto disposal on close/destroy/deattach
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "filter-browser";
 
-    public static final String GRID_ID = BROWSER_ID + "_grid";
-
-    public static final String EDIT_BUTTON_ID = BROWSER_ID + "-edit";
+    private static final String GRID_SUFFIX = "_grid";
 
     private final String gridId;
 
@@ -70,9 +67,19 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
 
     private FilterGrid(IViewContext<ICommonClientServiceAsync> viewContext, String gridId)
     {
-        super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.FILTER_BROWSER_GRID);
-        // AI what happens with the id if two filter grids are open at the same time
+        super(viewContext, createBrowserId(gridId), createGridId(gridId),
+                DisplayTypeIDGenerator.FILTER_BROWSER_GRID);
         this.gridId = gridId;
+    }
+
+    public static final String createGridId(String gridId)
+    {
+        return createBrowserId(gridId) + GRID_SUFFIX;
+    }
+
+    private static final String createBrowserId(String gridId)
+    {
+        return BROWSER_ID + (gridId != null ? ("_" + gridId) : "");
     }
 
     private void extendBottomToolbar()

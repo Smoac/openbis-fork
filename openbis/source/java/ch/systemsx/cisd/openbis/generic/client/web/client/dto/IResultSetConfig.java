@@ -53,4 +53,10 @@ public interface IResultSetConfig<K, T> extends IResultSetKeyHolder<K>
 
     /** The filters which should be applied for the result */
     public List<GridFilterInfo<T>> getFilterInfos();
+
+    /**
+     * Returns custom filter info.
+     */
+    public CustomFilterInfo<T> tryGetCustomFilterInfo();
+
 }

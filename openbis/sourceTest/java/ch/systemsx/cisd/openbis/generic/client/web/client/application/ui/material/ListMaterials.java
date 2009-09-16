@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.FilterSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -36,6 +37,7 @@ public class ListMaterials extends AbstractDefaultTestCommand
     public ListMaterials(final String materialTypeNameOrNull)
     {
         this.materialTypeName = materialTypeNameOrNull;
+        addCallbackClass(FilterSelectionWidget.ListItemsCallback.class);
         addCallbackClass(MaterialTypeSelectionWidget.ListItemsCallback.class);
     }
 

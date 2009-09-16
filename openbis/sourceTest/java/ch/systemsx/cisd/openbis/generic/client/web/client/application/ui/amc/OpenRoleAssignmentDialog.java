@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.RoleAssignmentGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.FilterSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -33,6 +34,7 @@ public final class OpenRoleAssignmentDialog extends CheckTableCommand
     public OpenRoleAssignmentDialog()
     {
         super(RoleAssignmentGrid.GRID_ID);
+        addCallbackClass(FilterSelectionWidget.ListItemsCallback.class);
     }
 
     @Override

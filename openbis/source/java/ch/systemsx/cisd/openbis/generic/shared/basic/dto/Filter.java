@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -45,6 +46,10 @@ public class Filter extends AbstractRegistrationHolder implements IsSerializable
     private long id;
 
     private DatabaseInstance databaseInstance;
+
+    private Set<String> parameters;
+
+    private Set<String> columns;
 
     public Filter()
     {
@@ -118,6 +123,26 @@ public class Filter extends AbstractRegistrationHolder implements IsSerializable
     public void setDatabaseInstance(DatabaseInstance databaseInstance)
     {
         this.databaseInstance = databaseInstance;
+    }
+
+    public Set<String> getParameters()
+    {
+        return parameters;
+    }
+
+    public void setParameters(Set<String> parameters)
+    {
+        this.parameters = parameters;
+    }
+
+    public Set<String> getColumns()
+    {
+        return columns;
+    }
+
+    public void setColumns(Set<String> columns)
+    {
+        this.columns = columns;
     }
 
 }

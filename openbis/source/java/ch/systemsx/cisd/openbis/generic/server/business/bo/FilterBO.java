@@ -63,7 +63,6 @@ public class FilterBO extends AbstractBusinessObject implements IFilterBO
 
     }
 
-    // AI add tests: define, save
     public void save() throws UserFailureException
     {
         assert filter != null : "Filter not defined";

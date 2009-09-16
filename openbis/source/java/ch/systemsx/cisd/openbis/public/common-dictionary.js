@@ -492,6 +492,17 @@ all_radio: "all",
 data_sets_radio_group_label: "Data Sets",
 only_selected_radio: "selected ({0})",
 experiments_radio_group_label: "Experiments",
+
+//
+// Filters 
+//
+ name: "Name",
+ is_public: "Is Public?",
+ expression: "Expression",
+ columns: "Columns",
+ grid_settings_title: "Table settings",
+ custom_filters: "Custom filters",
+ apply_filter: "Apply",
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

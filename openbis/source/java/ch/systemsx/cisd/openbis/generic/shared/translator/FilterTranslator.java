@@ -17,7 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -56,6 +60,7 @@ public final class FilterTranslator
         }
         final Filter result = new Filter();
         result.setId(HibernateUtils.getId(filter));
+        result.setExpression(filter.getExpression());
         result.setModificationDate(filter.getModificationDate());
         result.setName(StringEscapeUtils.escapeHtml(filter.getName()));
         result.setDescription(StringEscapeUtils.escapeHtml(filter.getDescription()));
@@ -64,7 +69,35 @@ public final class FilterTranslator
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(filter
                 .getDatabaseInstance()));
         result.setPublic(filter.isPublic());
+        result.setParameters(extractParameters(filter.getExpression()));
+        result.setColumns(extractColumns(filter.getExpression()));
         return result;
+    }
+
+    static Set<String> extractColumns(String expression)
+    {
+        Pattern parameterPattern = Pattern.compile("getColumn\\(.*?\\)");
+        Set<String> list = new HashSet<String>();
+        Matcher matcher = parameterPattern.matcher(expression);
+        while (matcher.find())
+        {
+            String group = matcher.group();
+            list.add(group.substring(10, group.length() - 1));
+        }
+        return list;
+    }
+
+    static Set<String> extractParameters(String expression)
+    {
+        Pattern parameterPattern = Pattern.compile("\\$\\{.*?\\}");
+        Set<String> list = new HashSet<String>();
+        Matcher matcher = parameterPattern.matcher(expression);
+        while (matcher.find())
+        {
+            String group = matcher.group();
+            list.add(group.substring(2, group.length() - 1));
+        }
+        return list;
     }
 
 }

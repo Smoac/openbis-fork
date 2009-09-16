@@ -73,6 +73,9 @@ public final class CachedResultSetManagerTest
 
         expectations.one(resultSetConfig).getFilterInfos();
         expectations.will(Expectations.returnValue(new ArrayList<GridFilterInfo<String>>()));
+
+        expectations.one(resultSetConfig).tryGetCustomFilterInfo();
+        expectations.will(Expectations.returnValue(null));
     }
 
     private final static List<Sample> createSampleList()

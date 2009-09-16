@@ -101,7 +101,7 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
 
     private int expectedTotalNumberOfColumns = -1; // including hidden columns
 
-    private List<ColumnModelExpectation> columnModelExpectations =
+    private final List<ColumnModelExpectation> columnModelExpectations =
             new ArrayList<ColumnModelExpectation>();
 
     private final List<Row> expectedRows = new ArrayList<Row>();

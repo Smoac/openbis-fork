@@ -47,6 +47,8 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
      */
     private K resultSetKeyOrNull;
 
+    private CustomFilterInfo<T> customFilterInfo;
+
     public static <K, T> DefaultResultSetConfig<K, T> createFetchAll()
     {
         return new DefaultResultSetConfig<K, T>();
@@ -76,7 +78,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     {
         return filterInfos;
     }
-    
+
     public final void copyPagingConfig(DefaultResultSetConfig<K, T> resultSetConfig)
     {
         setLimit(resultSetConfig.getLimit());
@@ -84,8 +86,8 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         setSortInfo(resultSetConfig.getSortInfo());
         setFilterInfos(resultSetConfig.getFilterInfos());
         setResultSetKey(resultSetConfig.getResultSetKey());
+        setCustomFilterInfo(resultSetConfig.tryGetCustomFilterInfo());
     }
-
 
     //
     // IResultSetConfig
@@ -116,4 +118,15 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     {
         this.filterInfos = filterInfos;
     }
+
+    public CustomFilterInfo<T> tryGetCustomFilterInfo()
+    {
+        return customFilterInfo;
+    }
+
+    public void setCustomFilterInfo(CustomFilterInfo<T> customFilterInfo)
+    {
+        this.customFilterInfo = customFilterInfo;
+    }
+
 }

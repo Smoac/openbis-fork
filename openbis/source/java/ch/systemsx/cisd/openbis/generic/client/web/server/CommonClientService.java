@@ -211,6 +211,7 @@ public final class CommonClientService extends AbstractClientService implements
         criteria.setSortInfo(exportCriteria.getSortInfo());
         criteria.setFilterInfos(exportCriteria.getFilterInfos());
         criteria.setResultSetKey(exportCriteria.getResultSetKey());
+        criteria.setCustomFilterInfo(exportCriteria.tryGetCustomFilterInfo());
         return criteria;
     }
 

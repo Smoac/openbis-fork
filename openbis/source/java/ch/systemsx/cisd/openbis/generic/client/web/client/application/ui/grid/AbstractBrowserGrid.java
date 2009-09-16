@@ -60,10 +60,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -83,12 +80,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.MultilineStringCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.FilterSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.FilterToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IResultUpdater;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -106,7 +104,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
  * @author Tomasz Pylak
  */
 public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityModel<T>> extends
-        LayoutContainer implements IDatabaseModificationObserver, IDisplayTypeIDProvider
+        LayoutContainer implements IDatabaseModificationObserver, IDisplayTypeIDProvider,
+        IColumnDefinitionProvider<T>
 {
 
     /**
@@ -179,7 +178,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private final boolean refreshAutomatically;
 
     // used to change displayed filter widgets
-    private final ToolBar filterToolbar;
+    private final FilterToolbar<T> filterToolbar;
 
     private final IDisplayTypeIDGenerator displayTypeIDGenerator;
 
@@ -223,10 +222,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         this.pagingToolbar =
                 new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE);
         pagingToolbar.bind(pagingLoader);
-        this.filterToolbar = new ToolBar();
-
-        final LayoutContainer bottomToolbars = createBottomToolbars(
-        /* AI new FilterToolbar(viewContext, gridId, this) */filterToolbar, pagingToolbar);
+        this.filterToolbar =
+                new FilterToolbar<T>(viewContext, gridId, this, filterWidgets,
+                        createApplyFiltersDelagator(), this);
+        final LayoutContainer bottomToolbars = createBottomToolbars(filterToolbar, pagingToolbar);
         this.contentPanel = createEmptyContentPanel();
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
@@ -477,12 +476,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     List<GridFilterInfo<T>> appliedFilters = getAppliedFilters();
                     DefaultResultSetConfig<String, T> resultSetConfig =
                             createPagingConfig(loadConfig, columnDefinitions, appliedFilters,
-                                    resultSetKey);
+                                    resultSetKey, getCustomFilter());
                     ListEntitiesCallback listCallback =
                             new ListEntitiesCallback(viewContext, callback, resultSetConfig);
                     listEntities(resultSetConfig, listCallback);
                 }
             };
+    }
+
+    protected CustomFilterInfo<T> getCustomFilter()
+    {
+        return filterToolbar.tryGetCustomFilters();
     }
 
     // returns filters which user wants to apply to the data
@@ -521,7 +525,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private static <T> DefaultResultSetConfig<String, T> createPagingConfig(
             PagingLoadConfig loadConfig, Set<IColumnDefinition<T>> availableColumns,
-            List<GridFilterInfo<T>> appliedFilters, String resultSetKey)
+            List<GridFilterInfo<T>> appliedFilters, String resultSetKey,
+            CustomFilterInfo<T> customFilterInfo)
     {
         int limit = loadConfig.getLimit();
         int offset = loadConfig.getOffset();
@@ -534,6 +539,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         resultSetConfig.setSortInfo(translatedSortInfo);
         resultSetConfig.setFilterInfos(appliedFilters);
         resultSetConfig.setResultSetKey(resultSetKey);
+        resultSetConfig.setCustomFilterInfo(customFilterInfo);
         return resultSetConfig;
     }
 
@@ -1001,18 +1007,19 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private void rebuildFilters(List<IColumnDefinition<T>> filteredColumns)
     {
         List<PagingColumnFilter<T>> newFilterWidgets = createFilterWidgets(filteredColumns);
-        rebuildFilterToolbar(newFilterWidgets, this.filterWidgets, this.filterToolbar, viewContext);
+        rebuildFilterWidgets(newFilterWidgets, this.filterWidgets, viewContext);
 
         boolean noFiltersBefore = filterWidgets.isEmpty();
         boolean noFiltersAfter = newFilterWidgets.isEmpty();
         this.filterWidgets = newFilterWidgets;
+        filterToolbar.updateColumnFilter(filterWidgets);
         if (noFiltersBefore != noFiltersAfter)
         {
             layout();
         }
     }
 
-    private List<IColumnDefinition<T>> getColumnDefinitions(List<String> columnIds)
+    public List<IColumnDefinition<T>> getColumnDefinitions(List<String> columnIds)
     {
         Map<String, IColumnDefinition<T>> colsMap = asColumnIdMap(columnDefinitions);
         List<IColumnDefinition<T>> columns = new ArrayList<IColumnDefinition<T>>();
@@ -1179,7 +1186,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         final List<IColumnDefinition<T>> columnDefs = getVisibleColumns(columnDefinitions);
         SortInfo<T> sortInfo = getGridSortInfo();
         final TableExportCriteria<T> exportCriteria =
-                new TableExportCriteria<T>(resultSetKey, sortInfo, getAppliedFilters(), columnDefs);
+                new TableExportCriteria<T>(resultSetKey, sortInfo, getAppliedFilters(), columnDefs,
+                        filterToolbar.tryGetCustomFilters());
         return exportCriteria;
     }
 
@@ -1306,32 +1314,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return bottomToolbars;
     }
 
-    static class FilterToolbar extends ToolBar
-    {
-
-        public FilterToolbar(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
-                IDisplayTypeIDProvider displayTypeIDProvider)
-        {
-            add(new LabelToolItem(viewContext.getMessage(Dict.FILTER) + ": "));
-            add(new AdapterToolItem(new FilterSelectionWidget(viewContext, gridId,
-                    displayTypeIDProvider)));
-            add(new TextToolItem("Apply"));// IA use message provider
-        }
-
-    }
-
     // Clears the filter toolbar and fills it with the specified filter widgets.
-    private static <T> void rebuildFilterToolbar(List<PagingColumnFilter<T>> filterWidgets,
-            List<PagingColumnFilter<T>> previousFilterWidgetsOrNull, ToolBar filterToolbar,
+    private static <T> void rebuildFilterWidgets(List<PagingColumnFilter<T>> filterWidgets,
+            List<PagingColumnFilter<T>> previousFilterWidgetsOrNull,
             IMessageProvider messageProvider)
     {
-        filterToolbar.removeAll();
         if (filterWidgets.size() == 0)
         {
             return;
         }
 
-        filterToolbar.add(new LabelToolItem(messageProvider.getMessage(Dict.FILTERS) + ": "));
         Map<String, PagingColumnFilter<T>> previousFiltersByColumnId =
                 new HashMap<String, PagingColumnFilter<T>>();
         if (previousFilterWidgetsOrNull != null)
@@ -1344,8 +1336,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         for (PagingColumnFilter<T> filterWidget : filterWidgets)
         {
-            filterToolbar.add(new AdapterToolItem(filterWidget));
-
             // restore previous value if set
             PagingColumnFilter<T> previousFilterWidgetOrNull =
                     previousFiltersByColumnId.get(filterWidget.getFilteredColumnId());

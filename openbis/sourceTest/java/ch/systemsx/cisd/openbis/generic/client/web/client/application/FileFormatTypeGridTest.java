@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.TypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.FilterSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -51,9 +52,11 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
     {
         loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_FILE_FORMATS);
         CheckTableCommand table = new CheckTableCommand(FileFormatTypeGrid.GRID_ID);
+        table.addCallbackClass(FilterSelectionWidget.ListItemsCallback.class);
         table.expectedSize(8);
         remoteConsole.prepare(new PiggyBackCommand(table, addNewTypeCommand()));
         table = new CheckTableCommand(FileFormatTypeGrid.GRID_ID);
+        table.addCallbackClass(AddTypeDialog.SaveDialogCallback.class);
         table.expectedRow(new Row().withCell(TypeColDefKind.CODE.id(), "MY-TYPE").withCell(
                 TypeColDefKind.DESCRIPTION.id(), "hello"));
         table.expectedSize(9);

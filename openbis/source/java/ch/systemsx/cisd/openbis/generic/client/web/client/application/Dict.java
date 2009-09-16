@@ -788,5 +788,7 @@ public abstract class Dict
 
     public static final String CUSTOM_FILTERS = "custom_filters";
 
+    public static final String APPLY_FILTER = "apply_filter";
+
     // ----- end generic ------------------
 }

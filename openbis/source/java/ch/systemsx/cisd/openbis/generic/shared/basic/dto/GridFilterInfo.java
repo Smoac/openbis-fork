@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
  */
 public class GridFilterInfo<T> implements IsSerializable
 {
+
     // allows to fetch the value from the row model
     private IColumnDefinition<T> filteredField;
 
@@ -54,4 +55,5 @@ public class GridFilterInfo<T> implements IsSerializable
     {
         return filterText;
     }
+
 }
