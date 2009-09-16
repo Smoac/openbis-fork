@@ -85,7 +85,7 @@ public final class FilterTranslator
         while (matcher.find())
         {
             String group = matcher.group();
-            list.add(group.substring(10, group.length() - 1));
+            list.add(group.substring(4, group.length() - 1));
         }
         return list;
     }
