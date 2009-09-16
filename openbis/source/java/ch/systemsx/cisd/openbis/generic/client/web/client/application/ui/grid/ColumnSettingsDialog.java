@@ -41,7 +41,7 @@ class ColumnSettingsDialog extends Dialog
         setHeight(450);
         setWidth(700);
         setLayout(new FitLayout());
-        setHeading(viewContext.getMessage(Dict.GRID_SETTINGS_TITLE) + " [" + gridId + "]");
+        setHeading(viewContext.getMessage(Dict.GRID_SETTINGS_TITLE));
     }
 
     /**
