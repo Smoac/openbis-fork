@@ -37,14 +37,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
  */
 final class HTMLDirectoryRenderer implements IDirectoryRenderer
 {
-    private static final String DATASET_DESCRIPTION =
-            "${group}/${project}/${experiment}/${sample}/${dataset}";
+    private static final Template SAMPLE_DATASET_DESCRIPTION_TEMPLATE =
+            new Template("${group}/${project}/${experiment}/${sample}/${dataset}");
 
-    private static final String DATASET_DOWNLOAD_SERVICE = "Data Set Download Service";
-
-    private static final String TITLE =
-            "<title> " + DATASET_DOWNLOAD_SERVICE + ": " + DATASET_DESCRIPTION + "</title>";
-
+    private static final Template EXPERIMENT_DATASET_DESCRIPTION_TEMPLATE =
+            new Template("${group}/${project}/${experiment}/${dataset}");
+    
     private static final String CSS =
             "<style type='text/css'> "
                     + "* { margin: 3px; }"
@@ -64,13 +62,14 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
                     "<tr><td class='td_file'><a href='${path}'>${name}</td><td>${size}</td></tr>");
 
     private static final Template HEADER_TEMPLATE =
-        new Template("<html><head>" + TITLE + CSS + "</head>"
-                + "<body><div class='wrapper'><h1>" + DATASET_DOWNLOAD_SERVICE + "</h1>"
+        new Template("<html><head><title>Data Set Download Service: ${dataset-description}</title>" 
+                + CSS + "</head>"
+                + "<body><div class='wrapper'><h1>" + "Data Set Download Service" + "</h1>"
                 + "<div class='div_hd'>Information about data set</div>" + "<table>"
                 + "<tr><td class='td_hd'>Group:</td><td>${group}</td></tr>"
                 + "<tr><td class='td_hd'>Project:</td><td>${project}</td></tr>"
                 + "<tr><td class='td_hd'>Experiment:</td><td>${experiment}</td></tr>"
-                + "${sample}"
+                + "${sampleLine}"
                 + "<tr><td class='td_hd'>Data Set Code:</td><td>${dataset}</td></tr></table> "
                 + "<div class='div_hd'>Files</div>" + "<table> " + "${folder}" + "");
     
@@ -109,10 +108,11 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         final Group group = project.getGroup();
         final String groupCode = group.getCode();
         final Template template = HEADER_TEMPLATE.createFreshCopy();
+        template.bind("dataset-description", renderDataSetDescription(dataSet));
         template.bind("group", groupCode);
         template.bind("project", projectCode);
         template.bind("experiment", experimentCode);
-        template.bind("sample", createSampleLine(sampleCode));
+        template.bind("sampleLine", createSampleLine(sampleCode));
         template.bind("dataset", datasetCode);
         if (StringUtils.isNotBlank(relativePathOrNull))
         {
@@ -124,6 +124,28 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
         }
         writer.println(template.createText());
     }
+    
+    private String renderDataSetDescription(ExternalData dataSet)
+    {
+        String sampleCode = dataSet.getSampleCode();
+        Template template;
+        if (sampleCode != null)
+        {
+            template = SAMPLE_DATASET_DESCRIPTION_TEMPLATE.createFreshCopy();
+            template.bind("sample", sampleCode);
+        } else
+        {
+            template = EXPERIMENT_DATASET_DESCRIPTION_TEMPLATE.createFreshCopy();
+        }
+        Experiment experiment = dataSet.getExperiment();
+        template.bind("experiment", experiment.getCode());
+        Project project = experiment.getProject();
+        template.bind("project", project.getCode());
+        template.bind("group", project.getGroup().getCode());
+        template.bind("dataset", dataSet.getCode());
+        return template.createText();
+    }
+
 
     private String createSampleLine(final String sampleCode)
     {
