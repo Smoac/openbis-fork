@@ -360,7 +360,8 @@ public class DefaultDataSetInfoExtractor extends AbstractDataSetInfoExtractor
         {
             return Collections.emptyList();
         }
-        String parentDataSetCodes = entitiesProvider.getEntity(indexOfParentDataSetCodes.getIndex());
+        String parentDataSetCodes =
+                entitiesProvider.getEntity(indexOfParentDataSetCodes.getIndex(), false);
         String[] codes = StringUtils.split(parentDataSetCodes, subEntitySeparator);
         return Arrays.asList(codes);
     }

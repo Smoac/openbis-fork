@@ -75,9 +75,14 @@ public class DataSetNameEntitiesProvider
      */
     public String getEntity(int index)
     {
+        return getEntity(index, true);
+    }
+    
+    String getEntity(int index, boolean throwException)
+    {
         if (index >= entities.length)
         {
-            throwUserFailureException(index + 1);
+            return emptyStringOrThrowUserFailureException(index + 1, throwException);
         }
         int actualIndex = index;
         if (index < 0)
@@ -85,17 +90,22 @@ public class DataSetNameEntitiesProvider
             actualIndex = entities.length + index;
             if (actualIndex < 0)
             {
-                throwUserFailureException(-index);
+                return emptyStringOrThrowUserFailureException(-index, throwException);
             }
         }
         return entities[actualIndex];
     }
 
-    private void throwUserFailureException(int expectedNumberOfEntities)
+    private String emptyStringOrThrowUserFailureException(int expectedNumberOfEntities,
+            boolean throwException)
     {
-        throw new UserFailureException(errorMessagePrefix + "We need " + expectedNumberOfEntities
-                + " entities, separated by '" + entitySeparatorCharacter + "', but got only "
-                + entities.length + ".");
+        if (throwException)
+        {
+            throw new UserFailureException(errorMessagePrefix + "We need "
+                    + expectedNumberOfEntities + " entities, separated by '"
+                    + entitySeparatorCharacter + "', but got only " + entities.length + ".");
+        }
+        return "";
     }
 
 }
