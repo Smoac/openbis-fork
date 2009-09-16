@@ -74,6 +74,6 @@ public interface ICommonBusinessObjectFactory
 
     public ISampleLister createSampleLister(Session session);
 
-    public IDatasetLister createDatasetLister(Session session);
+    public IDatasetLister createDatasetLister(Session session, String defaultDataStoreBaseURL);
 
 }

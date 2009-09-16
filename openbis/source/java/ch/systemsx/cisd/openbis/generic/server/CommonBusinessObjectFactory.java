@@ -108,9 +108,9 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         return SampleLister.create(daoFactory, session.getBaseIndexURL());
     }
 
-    public IDatasetLister createDatasetLister(Session session)
+    public IDatasetLister createDatasetLister(Session session, String defaultDataStoreBaseURL)
     {
-        return DatasetLister.create(daoFactory, session.getBaseIndexURL());
+        return DatasetLister.create(daoFactory, session.getBaseIndexURL(), defaultDataStoreBaseURL);
     }
 
     public final ISampleBO createSampleBO(final Session session)

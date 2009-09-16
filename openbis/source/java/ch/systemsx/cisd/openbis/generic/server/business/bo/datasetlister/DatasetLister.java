@@ -50,12 +50,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
 
 /**
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class, IDatasetListingQuery.class })
+    { DatasetRecord.class, DataStoreRecord.class, IDatasetListingQuery.class })
 public class DatasetLister implements IDatasetLister
 {
     //
@@ -67,6 +68,8 @@ public class DatasetLister implements IDatasetLister
     private final DatabaseInstance databaseInstance;
 
     private final String baseIndexURL;
+
+    private final String defaultDataStoreBaseURL;
 
     //
     // Working interfaces
@@ -89,36 +92,36 @@ public class DatasetLister implements IDatasetLister
 
     private final Long2ObjectMap<DataStore> dataStores = new Long2ObjectOpenHashMap<DataStore>();
 
-    private final Map<Long, FileFormatType> fileFormatTypes =
-            new HashMap<Long, FileFormatType>();
+    private final Map<Long, FileFormatType> fileFormatTypes = new HashMap<Long, FileFormatType>();
 
-    private final Map<Long, LocatorType> locatorTypes =
-            new HashMap<Long, LocatorType>();
+    private final Map<Long, LocatorType> locatorTypes = new HashMap<Long, LocatorType>();
 
-    public static IDatasetLister create(IDAOFactory daoFactory, String baseIndexURL)
+    public static IDatasetLister create(IDAOFactory daoFactory, String baseIndexURL,
+            String defaultDataStoreBaseURL)
     {
         DatasetListerDAO dao = DatasetListerDAO.create(daoFactory);
         SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
 
-        return create(dao, referencedEntityDAO, baseIndexURL);
+        return create(dao, referencedEntityDAO, baseIndexURL, defaultDataStoreBaseURL);
     }
 
     static IDatasetLister create(DatasetListerDAO dao, SecondaryEntityDAO referencedEntityDAO,
-            String baseIndexURL)
+            String baseIndexURL, String defaultDataStoreBaseURL)
     {
         IDatasetListingQuery query = dao.getQuery();
         IDatasetSetListingQuery setQuery = dao.getIdSetQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new DatasetLister(dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), query,
-                setQuery, propertiesEnricher, referencedEntityDAO, baseIndexURL);
+                setQuery, propertiesEnricher, referencedEntityDAO, baseIndexURL,
+                defaultDataStoreBaseURL);
     }
 
     // For unit tests
     DatasetLister(final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final IDatasetListingQuery query, final IDatasetSetListingQuery setQuery,
             IEntityPropertiesEnricher propertiesEnricher, SecondaryEntityDAO referencedEntityDAO,
-            String baseIndexURL)
+            String baseIndexURL, String defaultDataStoreBaseURL)
     {
         assert databaseInstance != null;
         assert query != null;
@@ -131,6 +134,7 @@ public class DatasetLister implements IDatasetLister
         this.propertiesEnricher = propertiesEnricher;
         this.referencedEntityDAO = referencedEntityDAO;
         this.baseIndexURL = baseIndexURL;
+        this.defaultDataStoreBaseURL = defaultDataStoreBaseURL;
     }
 
     public List<ExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected)
@@ -363,9 +367,9 @@ public class DatasetLister implements IDatasetLister
         }
 
         dataStores.clear();
-        for (CodeRecord code : query.getDataStores(databaseInstanceId))
+        for (DataStoreRecord code : query.getDataStores(databaseInstanceId))
         {
-            dataStores.put(code.id, createDataStore(code));
+            dataStores.put(code.id, createDataStore(code, defaultDataStoreBaseURL));
         }
     }
 
@@ -374,10 +378,15 @@ public class DatasetLister implements IDatasetLister
         codeHolder.setCode(escapeHtml(codeRecord.code));
     }
 
-    private static DataStore createDataStore(CodeRecord codeRecord)
+    private static DataStore createDataStore(DataStoreRecord codeRecord,
+            String defaultDataStoreBaseURL)
     {
         DataStore result = new DataStore();
         setCode(result, codeRecord);
+        String downloadUrl =
+                DataStoreTranslator.translateDownloadUrl(defaultDataStoreBaseURL,
+                        codeRecord.download_url);
+        result.setDownloadUrl(downloadUrl);
         return result;
     }
 

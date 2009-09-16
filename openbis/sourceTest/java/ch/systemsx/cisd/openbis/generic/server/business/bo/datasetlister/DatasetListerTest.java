@@ -54,7 +54,7 @@ public class DatasetListerTest extends AbstractDAOTest
                 DatasetListingQueryTest.createDatasetListerDAO(daoFactory);
         SecondaryEntityDAO secondaryEntityDAO =
                 SecondaryEntityListingQueryTest.createSecondaryEntityDAO(daoFactory);
-        lister = DatasetLister.create(datasetListerDAO, secondaryEntityDAO, "www");
+        lister = DatasetLister.create(datasetListerDAO, secondaryEntityDAO, "url1", "url2");
         SamplePE sample =
                 DatasetListingQueryTest.getSample("CISD", "CP-TEST-1", datasetListerDAO
                         .getDatabaseInstanceId(), daoFactory);

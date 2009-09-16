@@ -20,6 +20,7 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 
+import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
@@ -37,6 +38,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTerm
  * @author Tomasz Pylak
  */
 @Private
+@Friend(toClasses =
+    { DataStoreRecord.class })
 public interface IDatasetListingQuery extends TransactionQuery, IPropertyListingQuery
 {
     public static final int FETCH_SIZE = 1000;
@@ -76,8 +79,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     /**
      * Returns the datasets for the given <var>datasetId</var>.
      */
-    @Select("select * from data d join external_data e on d.id = e.data_id"
-            + " where d.id=?{1}")
+    @Select("select * from data d join external_data e on d.id = e.data_id" + " where d.id=?{1}")
     public DatasetRecord getDataset(long datasetId);
 
     /**
@@ -90,8 +92,8 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     @Select(sql = "select id, code from data_set_types where dbin_id=?{1}")
     public CodeRecord[] getDatasetTypes(long databaseInstanceId);
 
-    @Select(sql = "select id, code from data_stores where dbin_id=?{1}")
-    public CodeRecord[] getDataStores(long databaseInstanceId);
+    @Select(sql = "select id, code, download_url from data_stores where dbin_id=?{1}")
+    public DataStoreRecord[] getDataStores(long databaseInstanceId);
 
     @Select(sql = "select id, code from file_format_types where dbin_id=?{1}")
     public CodeRecord[] getFileFormatTypes(long databaseInstanceId);

@@ -33,15 +33,20 @@ public class DataStoreTranslator
     {
         DataStore dataStore = new DataStore();
         String downloadUrl = dataStorePE.getDownloadUrl();
-        if (StringUtils.isBlank(downloadUrl))
-        {
-            downloadUrl = defaultDataStoreBaseURL;
-        } else
-        {
-            downloadUrl = downloadUrl + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
-        }
+        downloadUrl = translateDownloadUrl(defaultDataStoreBaseURL, downloadUrl);
         dataStore.setDownloadUrl(downloadUrl);
         dataStore.setCode(StringEscapeUtils.escapeHtml(dataStorePE.getCode()));
         return dataStore;
+    }
+
+    public static String translateDownloadUrl(String defaultDataStoreBaseURL, String downloadUrl)
+    {
+        if (StringUtils.isBlank(downloadUrl))
+        {
+            return defaultDataStoreBaseURL;
+        } else
+        {
+            return downloadUrl + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME;
+        }
     }
 }

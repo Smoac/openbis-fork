@@ -462,18 +462,23 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final IDatasetLister datasetLister = createDatasetLister(session);
         final List<ExternalData> datasets =
                 datasetLister.listBySampleTechId(sampleId, showOnlyDirectlyConnected);
         Collections.sort(datasets);
         return datasets;
     }
 
+    private IDatasetLister createDatasetLister(Session session)
+    {
+        return businessObjectFactory.createDatasetLister(session, getDataStoreBaseURL());
+    }
+
     public final List<ExternalData> listExperimentExternalData(final String sessionToken,
             final TechId experimentId)
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final IDatasetLister datasetLister = createDatasetLister(session);
         final List<ExternalData> datasets = datasetLister.listByExperimentTechId(experimentId);
         Collections.sort(datasets);
         return datasets;
@@ -484,7 +489,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             DataSetRelationshipRole role)
     {
         final Session session = getSessionManager().getSession(sessionToken);
-        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final IDatasetLister datasetLister = createDatasetLister(session);
         List<ExternalData> datasets = null;
         switch (role)
         {
@@ -798,7 +803,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             final Collection<Long> datasetIds =
                     searchDAO.searchForEntityIds(criteria, DtoConverters
                             .convertEntityKind(EntityKind.DATA_SET));
-            final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+            final IDatasetLister datasetLister = createDatasetLister(session);
             return datasetLister.listByDatasetIds(datasetIds);
         } catch (final DataAccessException ex)
         {
