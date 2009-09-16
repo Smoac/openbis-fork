@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.L
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.FilterColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -57,19 +58,24 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
 
     private final String gridId;
 
+    private final List<ColumnDataModel> columnModels;
+
     public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext, final String gridId)
+            final IViewContext<ICommonClientServiceAsync> viewContext, final String gridId,
+            List<ColumnDataModel> columnModels)
     {
-        final FilterGrid grid = new FilterGrid(viewContext, gridId);
+        final FilterGrid grid = new FilterGrid(viewContext, gridId, columnModels);
         grid.extendBottomToolbar();
         return grid.asDisposableWithoutToolbar();
     }
 
-    private FilterGrid(IViewContext<ICommonClientServiceAsync> viewContext, String gridId)
+    private FilterGrid(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
+            List<ColumnDataModel> columnModels)
     {
         super(viewContext, createBrowserId(gridId), createGridId(gridId),
                 DisplayTypeIDGenerator.FILTER_BROWSER_GRID);
         this.gridId = gridId;
+        this.columnModels = columnModels;
     }
 
     public static final String createGridId(String gridId)
@@ -99,7 +105,7 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
                                                     {
                                                         refresh();
                                                     }
-                                                }, gridId);
+                                                }, gridId, columnModels);
                                     dialog.show();
                                 }
                             });

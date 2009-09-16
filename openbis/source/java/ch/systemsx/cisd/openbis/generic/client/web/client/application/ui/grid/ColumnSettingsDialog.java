@@ -54,7 +54,7 @@ class ColumnSettingsDialog extends Dialog
         removeAll();
         final ColumnSettingsChooser columnChooser =
                 new ColumnSettingsChooser(columnModels, viewContext);
-        final IDisposableComponent filters = FilterGrid.create(viewContext, gridId);
+        final IDisposableComponent filters = FilterGrid.create(viewContext, gridId, columnModels);
         TabPanel panel = new TabPanel();
         TabItem columnsTab = new TabItem(viewContext.getMessage(Dict.COLUMNS));
         columnsTab.setLayout(new FitLayout());

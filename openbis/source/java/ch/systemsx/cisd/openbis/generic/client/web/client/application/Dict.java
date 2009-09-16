@@ -790,5 +790,9 @@ public abstract class Dict
 
     public static final String APPLY_FILTER = "apply_filter";
 
+    public static final String ADD_NEW_FILTER = "add_new_filter";
+
+    public static final String HOW_TO_ADDRESS = "how_to_address";
+
     // ----- end generic ------------------
 }

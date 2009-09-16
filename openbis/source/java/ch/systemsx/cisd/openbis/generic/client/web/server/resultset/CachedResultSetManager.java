@@ -23,20 +23,17 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.FilterUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
@@ -111,38 +108,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         List<T> filtered = new ArrayList<T>();
         if (customFilterInfo != null)
         {
-            String expression = customFilterInfo.getExpression();
-            for (ParameterWithValue pw : customFilterInfo.getParameters())
-            {
-                String substParameter = "${" + pw.getParameter() + "}";
-                String quotedParameter = Pattern.quote(substParameter);
-                String quotedReplacement = Matcher.quoteReplacement(pw.getValue());
-                expression = expression.replaceAll(quotedParameter, quotedReplacement);
-            }
-            Map<String, String> columnVariables = new HashMap<String, String>();
-            int varCount = 0;
-            for (IColumnDefinition<T> col : customFilterInfo.getColumns())
-            {
-                String var = "var" + varCount;
-                varCount++;
-                columnVariables.put(col.getIdentifier(), var);
-                expression =
-                        expression.replaceAll(Pattern.quote("getColumn(" + col.getIdentifier()
-                                + ")"), Matcher.quoteReplacement(var));
-            }
-            Evaluator e = new Evaluator(expression);
-            for (T row : rows)
-            {
-                for (IColumnDefinition<T> col : customFilterInfo.getColumns())
-                {
-                    String value = col.getValue(row);
-                    e.set(columnVariables.get(col.getIdentifier()), value);
-                }
-                if (e.evalToBoolean())
-                {
-                    filtered.add(row);
-                }
-            }
+            FilterUtils.applyCustomFilter(rows, customFilterInfo, filtered);
         } else
         {
             List<FilterInfo<T>> serverFilterInfos =
@@ -162,30 +128,6 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         }
         return filtered;
     }
-
-    // private static Object convertValue(String value)
-    // {
-    // if (value == null)
-    // {
-    // return "";
-    // }
-    // try{
-    // return Long
-    // }
-    // try
-    // {
-    // return Integer.parseInt(value);
-    // } catch (Exception ex)
-    // {
-    // }
-    // try
-    // {
-    // return Boolean.parseBoolean(value);
-    // } catch (Exception ex)
-    // {
-    // }
-    // return "";
-    // }
 
     // returns true if a row matches all the filters
     private static final <T> boolean isMatching(final T row, final List<FilterInfo<T>> filterInfos)
@@ -325,7 +267,9 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             }
         }
         assert data != null : "Unspecified data";
-        data = filterData(data, resultConfig.getFilterInfos(), resultConfig.tryGetCustomFilterInfo());
+        data =
+                filterData(data, resultConfig.getFilterInfos(), resultConfig
+                        .tryGetCustomFilterInfo());
         final int size = data.size();
         final int offset = getOffset(size, resultConfig.getOffset());
         final int limit = getLimit(size, resultConfig.getLimit(), offset);

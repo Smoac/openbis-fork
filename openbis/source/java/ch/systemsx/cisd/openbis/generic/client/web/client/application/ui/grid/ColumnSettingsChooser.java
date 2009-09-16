@@ -55,12 +55,9 @@ class ColumnSettingsChooser
         ColumnConfig nameColumn =
                 new ColumnConfig(ColumnDataModel.HEADER, messageProvider
                         .getMessage(Dict.GRID_COLUMN_NAME_HEADER), 300);
-        // AI remove when not needed
-        ColumnConfig idColumn = new ColumnConfig(ColumnDataModel.COLUMN_ID, "ID", 300);
         configs.add(isVisibleColumn);
         configs.add(hasFilterColumn);
         configs.add(nameColumn);
-        configs.add(idColumn);
         for (ColumnConfig column : configs)
         {
             column.setSortable(false);

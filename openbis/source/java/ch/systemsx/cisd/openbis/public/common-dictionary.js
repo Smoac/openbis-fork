@@ -503,6 +503,8 @@ experiments_radio_group_label: "Experiments",
  grid_settings_title: "Table settings",
  custom_filters: "Custom filters",
  apply_filter: "Apply",
+ add_new_filter: "Add a New Filter",
+ how_to_address: "How To Address", 
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

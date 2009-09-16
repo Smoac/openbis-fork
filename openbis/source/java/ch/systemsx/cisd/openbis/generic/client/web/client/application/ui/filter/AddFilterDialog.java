@@ -16,15 +16,25 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter;
 
+import java.util.List;
+
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
@@ -48,21 +58,27 @@ public class AddFilterDialog extends AbstractRegistrationDialog
 
     private final String gridId;
 
+    private final List<ColumnDataModel> columnModels;
+
     public AddFilterDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final IDelegatedAction postRegistrationCallback, String gridId)
+            final IDelegatedAction postRegistrationCallback, String gridId,
+            List<ColumnDataModel> columnModels)
     {
-        super(viewContext, "Add a new filter", postRegistrationCallback);
+        super(viewContext, viewContext.getMessage(Dict.ADD_NEW_FILTER), postRegistrationCallback);
         this.viewContext = viewContext;
         this.gridId = gridId;
-        addField(nameFiled = createTextField("Name", true));
+        this.columnModels = columnModels;
+        addField(nameFiled = createTextField(viewContext.getMessage(Dict.NAME), true));
         addField(descriptionField = createDescriptionField(viewContext, true));
         addField(expressionField = createExpressionField());
-        addField(publicField = new CheckBoxField("Public", false));
+        addField(publicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false));
+        setBottomComponent(new BottomToolbar());
     }
 
     private MultilineVarcharField createExpressionField()
     {
-        MultilineVarcharField field = new MultilineVarcharField("Expression", true);
+        MultilineVarcharField field =
+                new MultilineVarcharField(viewContext.getMessage(Dict.EXPRESSION), true, 10);
         field.setMaxLength(2000);
         return field;
     }
@@ -77,6 +93,26 @@ public class AddFilterDialog extends AbstractRegistrationDialog
         filter.setName(nameFiled.getValue());
         filter.setPublic(publicField.getValue().booleanValue());
         viewContext.getService().registerFilter(filter, registrationCallback);
+    }
+
+    class BottomToolbar extends ToolBar
+    {
+
+        public BottomToolbar()
+        {
+            add(new FillToolItem());
+            Button button = new Button("Available Columns");
+            button.addSelectionListener(new SelectionListener<ComponentEvent>()
+                {
+
+                    @Override
+                    public void componentSelected(ComponentEvent ce)
+                    {
+                        FilterColumnChooserDialog.show(viewContext, columnModels, gridId);
+                    }
+                });
+            add(new AdapterToolItem(button));
+        }
     }
 
 }

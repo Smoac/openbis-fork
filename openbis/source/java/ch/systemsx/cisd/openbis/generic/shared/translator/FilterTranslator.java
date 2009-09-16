@@ -36,6 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public final class FilterTranslator
 {
+    private static final String PARAMETER_PATTERN = "\\$\\{.*?\\}";
+
+    private static final String COLUMN_PATTERN = "col\\(.*?\\)";
 
     private FilterTranslator()
     {
@@ -76,7 +79,7 @@ public final class FilterTranslator
 
     static Set<String> extractColumns(String expression)
     {
-        Pattern parameterPattern = Pattern.compile("getColumn\\(.*?\\)");
+        Pattern parameterPattern = Pattern.compile(COLUMN_PATTERN);
         Set<String> list = new HashSet<String>();
         Matcher matcher = parameterPattern.matcher(expression);
         while (matcher.find())
@@ -89,7 +92,7 @@ public final class FilterTranslator
 
     static Set<String> extractParameters(String expression)
     {
-        Pattern parameterPattern = Pattern.compile("\\$\\{.*?\\}");
+        Pattern parameterPattern = Pattern.compile(PARAMETER_PATTERN);
         Set<String> list = new HashSet<String>();
         Matcher matcher = parameterPattern.matcher(expression);
         while (matcher.find())

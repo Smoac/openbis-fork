@@ -14,11 +14,13 @@ public class ColumnDataModel extends BaseModelData
 
     static final String COLUMN_ID = "column_id";
 
+    public static final String ADDRESS = "address";
+
     static final String HAS_FILTER = "HAS_FILTER";
 
     static final String IS_VISIBLE = "IS_VISIBLE";
 
-    static final String HEADER = "header";
+    public static final String HEADER = "header";
 
     public ColumnDataModel(String header, boolean isVisible, boolean hasFilter, String columnID)
     {
@@ -26,6 +28,12 @@ public class ColumnDataModel extends BaseModelData
         setIsVisible(isVisible);
         setHasFilter(hasFilter);
         setColumnID(columnID);
+        setAddress("col(" + columnID + ")");// AI: move to common place
+    }
+
+    private void setAddress(String address)
+    {
+        set(ADDRESS, address);
     }
 
     private void setColumnID(String columnID)
@@ -62,4 +70,10 @@ public class ColumnDataModel extends BaseModelData
     {
         return get(HAS_FILTER);
     }
+
+    public String getAddress()
+    {
+        return get(ADDRESS);
+    }
+
 }

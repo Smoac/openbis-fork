@@ -56,7 +56,6 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
         table.expectedSize(8);
         remoteConsole.prepare(new PiggyBackCommand(table, addNewTypeCommand()));
         table = new CheckTableCommand(FileFormatTypeGrid.GRID_ID);
-        table.addCallbackClass(AddTypeDialog.SaveDialogCallback.class);
         table.expectedRow(new Row().withCell(TypeColDefKind.CODE.id(), "MY-TYPE").withCell(
                 TypeColDefKind.DESCRIPTION.id(), "hello"));
         table.expectedSize(9);
