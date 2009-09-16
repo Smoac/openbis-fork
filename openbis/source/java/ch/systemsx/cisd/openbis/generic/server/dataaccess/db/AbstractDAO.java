@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import net.sf.beanlib.hibernate3.Hibernate3SequenceGenerator;
@@ -194,7 +196,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
      * Should be an <code>INSERT</code> or <code>UPDATE</code> statement.
      * </p>
      */
-    protected final void executeUpdate(final String sql)
+    protected final void executeUpdate(final String sql, final Serializable... parameters)
     {
         getHibernateTemplate().execute(new HibernateCallback()
             {
@@ -207,6 +209,26 @@ public abstract class AbstractDAO extends HibernateDaoSupport
                         SQLException
                 {
                     final SQLQuery sqlQuery = session.createSQLQuery(sql);
+                    for (int i = 0; i < parameters.length; i++)
+                    {
+                        Serializable parameter = parameters[i];
+                        if (parameter instanceof Long)
+                        {
+                            sqlQuery.setLong(i, (Long) parameter);
+                        } else if (parameter instanceof Integer)
+                        {
+                            sqlQuery.setInteger(i, (Integer) parameter);
+                        } else if (parameter instanceof Character)
+                        {
+                            sqlQuery.setCharacter(i, (Character) parameter);
+                        } else if (parameter instanceof Date)
+                        {
+                            sqlQuery.setDate(i, (Date) parameter);
+                        } else
+                        {
+                            sqlQuery.setSerializable(i, parameter);
+                        }
+                    }
                     sqlQuery.executeUpdate();
                     return null;
                 }

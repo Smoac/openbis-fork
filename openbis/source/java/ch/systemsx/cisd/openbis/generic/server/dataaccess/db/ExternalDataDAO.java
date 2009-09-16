@@ -60,10 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> implements
         IExternalDataDAO
 {
-    private static final String EXTERNAL_DATA_UPDATE_TEMPLATE =
-            "insert into %s (data_id, location, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
-                    + "values (%d, '%s', %d, %d, '%c', %d)";
-
     private final static Class<ExternalDataPE> ENTITY_CLASS = ExternalDataPE.class;
 
     private final static Class<DataPE> ENTITY_SUPER_CLASS = DataPE.class;
@@ -254,11 +250,10 @@ final class ExternalDataDAO extends AbstractGenericEntityDAO<ExternalDataPE> imp
             Long fileFormatTypeID = externalData.getFileFormatType().getId();
             char complete = externalData.getComplete().name().charAt(0);
             Long storageFormatTermID = externalData.getStorageFormatVocabularyTerm().getId();
-            final String sql =
-                    String.format(EXTERNAL_DATA_UPDATE_TEMPLATE, TableNames.EXTERNAL_DATA_TABLE,
-                            id, location, locatorTypeID, fileFormatTypeID, complete,
-                            storageFormatTermID);
-            executeUpdate(sql);
+            executeUpdate("insert into " + TableNames.EXTERNAL_DATA_TABLE
+                    + " (data_id, location, loty_id, ffty_id, is_complete, cvte_id_stor_fmt) "
+                    + "values (?, ?, ?, ?, ?, ?)", id, location, locatorTypeID, fileFormatTypeID,
+                    complete, storageFormatTermID);
             hibernateTemplate.evict(loaded);
         }
         hibernateTemplate.update(externalData);
