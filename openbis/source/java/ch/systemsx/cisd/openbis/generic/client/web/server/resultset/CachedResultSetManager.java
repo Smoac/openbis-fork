@@ -33,6 +33,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.FilterUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
@@ -108,7 +109,21 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         List<T> filtered = new ArrayList<T>();
         if (customFilterInfo != null)
         {
-            FilterUtils.applyCustomFilter(rows, customFilterInfo, filtered);
+            try
+            {
+                FilterUtils.applyCustomFilter(rows, customFilterInfo, filtered);
+            } catch (Exception ex)
+            {
+                String msg =
+                        "Problem occured during applying the filter. "
+                                + "It might have been caused by wrong parameters "
+                                + "(e.g. text instead of number) or incorrect filter definition. ";
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info(msg, ex);
+                }
+                throw new UserFailureException(msg);
+            }
         } else
         {
             List<FilterInfo<T>> serverFilterInfos =

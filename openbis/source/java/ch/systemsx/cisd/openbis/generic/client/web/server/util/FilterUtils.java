@@ -23,10 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.evaluator.Evaluator;
-import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
@@ -51,26 +49,18 @@ public class FilterUtils
         }
         Map<String, String> columnVariables = new HashMap<String, String>();
         expression = substituteColumnsWithVariables(customFilterInfo, expression, columnVariables);
-        try
+        Evaluator e = new Evaluator(expression);
+        for (T row : allRows)
         {
-            Evaluator e = new Evaluator(expression);
-            for (T row : allRows)
+            for (IColumnDefinition<T> col : customFilterInfo.getColumns())
             {
-                for (IColumnDefinition<T> col : customFilterInfo.getColumns())
-                {
-                    String value = col.getValue(row);
-                    e.set(columnVariables.get(col.getIdentifier()), value);
-                }
-                if (e.evalToBoolean())
-                {
-                    filterdRows.add(row);
-                }
+                String value = col.getValue(row);
+                e.set(columnVariables.get(col.getIdentifier()), value);
             }
-        } catch (EvaluatorException ex)
-        {
-            throw new UserFailureException(
-                    "Problem occured during applying the filter. "
-                            + "It might have been caused by wrong parameters (e.g. text instead of number) or incorrect filter definition. ");
+            if (e.evalToBoolean())
+            {
+                filterdRows.add(row);
+            }
         }
     }
 
