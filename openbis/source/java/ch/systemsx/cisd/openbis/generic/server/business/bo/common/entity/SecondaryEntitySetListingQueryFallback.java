@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.Seconda
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { ISecondaryEntityListingQuery.class })
+    { ISecondaryEntityListingQuery.class, SampleReferenceRecord.class })
 class SecondaryEntitySetListingQueryFallback implements ISecondaryEntitySetListingQuery
 {
     private final ISecondaryEntitySetListingQuery oneByOneDelegate;
