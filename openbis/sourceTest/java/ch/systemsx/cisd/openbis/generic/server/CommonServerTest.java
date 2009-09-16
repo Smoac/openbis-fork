@@ -519,7 +519,8 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDatasetLister(SESSION, "url");
+                    one(commonBusinessObjectFactory).createDatasetLister(SESSION,
+                            DATA_STORE_BASE_URL);
                     will(returnValue(datasetLister));
 
                     one(datasetLister).listBySampleTechId(sampleId, showOnlyDirectlyConnected);
@@ -558,7 +559,8 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createDatasetLister(SESSION, "url");
+                    one(commonBusinessObjectFactory).createDatasetLister(SESSION,
+                            DATA_STORE_BASE_URL);
                     will(returnValue(datasetLister));
 
                     one(datasetLister).listByExperimentTechId(experimentId);
