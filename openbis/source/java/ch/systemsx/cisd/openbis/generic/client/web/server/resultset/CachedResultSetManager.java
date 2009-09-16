@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.comparators.ReverseComparator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrMatcher;
+import org.apache.commons.lang.text.StrTokenizer;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
@@ -81,9 +82,14 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         FilterInfo(GridFilterInfo<T> gridFilterInfo)
         {
             this.filteredField = gridFilterInfo.getFilteredField();
-            // TODO 2009-09-14, Piotr Buczek: allow to use space with quotes
-            this.filterExpressionAlternatives =
-                    StringUtils.split(gridFilterInfo.getFilterPattern().toLowerCase(), ' ');
+
+            // - each token is used as an alternative
+            // - tokens are separated with whitespace
+            // - quotes (both double and single quote) wrap data into tokens
+            StrTokenizer tokenizer =
+                    new StrTokenizer(gridFilterInfo.getFilterPattern().toLowerCase());
+            tokenizer.setQuoteMatcher(StrMatcher.quoteMatcher());
+            this.filterExpressionAlternatives = tokenizer.getTokenArray();
         }
 
         @SuppressWarnings("unchecked")
@@ -111,7 +117,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             try
             {
-                FilterUtils.applyCustomFilter(rows, customFilterInfo, filtered);
+            FilterUtils.applyCustomFilter(rows, customFilterInfo, filtered);
             } catch (Exception ex)
             {
                 String msg =
