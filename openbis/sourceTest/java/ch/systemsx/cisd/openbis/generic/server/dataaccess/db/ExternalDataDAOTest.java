@@ -25,7 +25,9 @@ import static org.testng.AssertJUnit.fail;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
+import org.hibernate.TransactionException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
@@ -63,10 +65,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 public final class ExternalDataDAOTest extends AbstractDAOTest
 {
 
+    private final String PARENT_CODE = "20081105092158673-1";
+
+    private final String CHILD_CODE = "20081105092159188-3";
+
     @Test
     public final void testListExternalData()
     {
-        testCreateDataSet();
+        testCreateDataSetWithSample();
         final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
         List<ExternalDataPE> list = externalDataDAO.listExternalData(pickASample());
 
@@ -77,15 +83,46 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
     }
 
     @Test
-    public void testCreateDataSet()
+    public void testCreateDataSetWithSample()
     {
         IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
-        ExternalDataPE externalData = new ExternalDataPE();
         String dataSetCode = daoFactory.getPermIdDAO().createPermId();
+        SamplePE sample = pickASample();
+        ExternalDataPE externalData = createExternalData(dataSetCode, sample);
+        externalDataDAO.createDataSet(externalData);
+
+        ExternalDataPE dataSet =
+                (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
+        assertDataEqual(externalData, dataSet);
+    }
+
+    @Test
+    public void testCreateDataSetWithNoSample()
+    {
+        IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
+        String dataSetCode = daoFactory.getPermIdDAO().createPermId();
+        ExternalDataPE externalData = createExternalData(dataSetCode, null);
+        externalDataDAO.createDataSet(externalData);
+
+        ExternalDataPE dataSet =
+                (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
+        assertDataEqual(externalData, dataSet);
+    }
+
+    private ExternalDataPE createExternalData(String dataSetCode, SamplePE sampleOrNull)
+    {
+        ExternalDataPE externalData = new ExternalDataPE();
+
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
         externalData.setExperiment(pickAnExperiment());
-        externalData.setSampleAcquiredFrom(pickASample());
+        if (sampleOrNull != null)
+        {
+            externalData.setSampleAcquiredFrom(sampleOrNull);
+        } else
+        {
+            externalData.setDerived(true);
+        }
         externalData.setFileFormatType(pickAFileFormatType());
         externalData.setLocatorType(pickALocatorType());
         externalData.setLocation("abcd");
@@ -93,10 +130,11 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setStorageFormatVocabularyTerm(pickAStorageFormatVocabularyTerm());
         externalData.setPlaceholder(true);
         externalData.setDataStore(pickADataStore());
-        daoFactory.getExternalDataDAO().createDataSet(externalData);
+        return externalData;
+    }
 
-        ExternalDataPE dataSet =
-                (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(dataSetCode);
+    private void assertDataEqual(ExternalDataPE externalData, ExternalDataPE dataSet)
+    {
         assertEquals(externalData.getCode(), dataSet.getCode());
         assertEquals(externalData.getDataSetType(), dataSet.getDataSetType());
         assertEquals(externalData.getExperiment(), dataSet.getExperiment());
@@ -106,10 +144,12 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         assertEquals(externalData.getComplete(), dataSet.getComplete());
         assertEquals(externalData.getStorageFormat(), dataSet.getStorageFormat());
         assertEquals(externalData.isPlaceholder(), dataSet.isPlaceholder());
+        assertEquals(externalData.isMeasured(), dataSet.isMeasured());
+        assertEquals(externalData.tryGetSample(), dataSet.tryGetSample());
     }
 
     @Test
-    public void testUpdateDataSet()
+    public void testUpdateDataSetAquiredFromSample()
     {
         IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
         DataPE data = new DataPE();
@@ -117,7 +157,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         data.setCode(dataSetCode);
         data.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
         data.setExperiment(pickAnExperiment());
-        data.setSampleDerivedFrom(pickASample());
+        data.setSampleAcquiredFrom(pickASample());
         data.setPlaceholder(true);
         data.setDataStore(pickADataStore());
         data.setModificationDate(new Date());
@@ -151,12 +191,32 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         assertEquals(externalData.getComplete(), dataSet.getComplete());
         assertEquals(externalData.getStorageFormat(), dataSet.getStorageFormat());
         assertEquals(externalData.isPlaceholder(), dataSet.isPlaceholder());
+        assertEquals(externalData.isMeasured(), dataSet.isMeasured());
         assertFalse(externalData.getModificationDate().equals(modificationTimestamp));
     }
 
-    private final String PARENT_CODE = "20081105092158673-1";
+    @Test
+    public void testUpdateDataSetWithParent()
+    {
+        final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
 
-    private final String CHILD_CODE = "20081105092159188-3";
+        // try to add a parent to a data set that already had one
+        final ExternalDataPE dataSetConnectedWithParent = findExternalData(CHILD_CODE);
+        assertFalse(dataSetConnectedWithParent.getParents().isEmpty());
+        final ExternalDataPE anotherDataSet = findExternalData("20081105092159111-1");
+        dataSetConnectedWithParent.addParent(anotherDataSet);
+        externalDataDAO.updateDataSet(dataSetConnectedWithParent);
+
+        ExternalDataPE dataSet =
+                (ExternalDataPE) externalDataDAO.tryToFindDataSetByCode(CHILD_CODE);
+        assertEquals(dataSetConnectedWithParent.getParents().size(), dataSet.getParents().size());
+        Set<DataPE> extractedParents = dataSet.getParents();
+        for (DataPE parent : dataSetConnectedWithParent.getParents())
+        {
+            assertTrue(extractedParents.contains(parent));
+        }
+        assertTrue(extractedParents.contains(anotherDataSet));
+    }
 
     @Test
     public final void testDeleteWithPropertiesButParentPreserved()
@@ -266,4 +326,78 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         fail("No valid experiment found.");
         return null; // to make the compiler happy
     }
+
+    // 
+    // Tests that deferred triggers throws an exception when data set is created/updated and checked
+    // condition is not fulfilled.
+    //
+    // NOTE: Because such triggers are deferred until commit and transactions are commited on server
+    // level the triggers will not be invoked automatically in these tests. They are tested here
+    // because triggers are something below DAO level and DAO tests are the lowest level tests we
+    // perform. On the other hand one could test that client methods will invoke the the trigger
+    // and test that proper user failure messages are displayed in the GUI.
+    // 
+    // NOTE: Tests of cases when the triggers will not rollback transaction cannot be written here
+    // unless we decide that DB tests may modify DB.
+
+    @Test
+    public void testCreateDataSetFailWithBothSampleAndParent()
+    {
+        final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
+
+        // try to create a dataset connected with a sample and a parent at the same time
+        final String dataSetCode = daoFactory.getPermIdDAO().createPermId();
+        final SamplePE sample = pickASample();
+        ExternalDataPE parentData = findExternalData(PARENT_CODE);
+        ExternalDataPE externalData = createExternalData(dataSetCode, sample);
+        externalData.addParent(parentData);
+        externalDataDAO.createDataSet(externalData);
+
+        assertCommitFailsWithBothSampleAndParentConnectionForDataSet(dataSetCode);
+    }
+
+    @Test
+    public void testUpdateOfDataSetFailWithParentAddedWhenIsSampleConnected()
+    {
+        final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
+
+        // try to update dataset connected with a sample - adding a parent should fail
+        final ExternalDataPE dataSetConnectedWithSample = findExternalData(PARENT_CODE);
+        assertNotNull(dataSetConnectedWithSample.tryGetSample());
+        final ExternalDataPE anotherDataSet = findExternalData("20081105092159111-1");
+        dataSetConnectedWithSample.addParent(anotherDataSet);
+        externalDataDAO.updateDataSet(dataSetConnectedWithSample);
+
+        assertCommitFailsWithBothSampleAndParentConnectionForDataSet(PARENT_CODE);
+    }
+
+    @Test
+    public void testUpdateOfDataSetFailWithSampleConnectedWhenThereIsParent()
+    {
+        final IExternalDataDAO externalDataDAO = daoFactory.getExternalDataDAO();
+
+        // try to update dataset connected with a parent - connecting with a sample should fail
+        final ExternalDataPE dataSetConnectedWithParent = findExternalData(CHILD_CODE);
+        assertFalse(dataSetConnectedWithParent.getParents().isEmpty());
+        dataSetConnectedWithParent.setSampleAcquiredFrom(pickASample());
+        externalDataDAO.updateDataSet(dataSetConnectedWithParent);
+
+        assertCommitFailsWithBothSampleAndParentConnectionForDataSet(CHILD_CODE);
+    }
+
+    private void assertCommitFailsWithBothSampleAndParentConnectionForDataSet(String dataSetCode)
+    {
+        try
+        {
+            daoFactory.getSessionFactory().getCurrentSession().getTransaction().commit();
+        } catch (TransactionException transactionException)
+        {
+            String expectedErrorMessageTemplate =
+                    "ERROR: Insert/Update of Data Set (Code: %s) failed because it cannot "
+                            + "be connected with a Sample and a parent Data Set at the same time.";
+            assertEquals(String.format(expectedErrorMessageTemplate, dataSetCode),
+                    transactionException.getCause().getMessage());
+        }
+    }
+
 }

@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 /**
  * @author Franz-Josef Elmer
  */
-// TODO 2009-09-10, Piotr Buczek: write tests with many parents and trigger check
+// TODO 2009-09-10, Piotr Buczek: write tests with many parents and cycle check
 public class ExternalDataBOTest extends AbstractBOTest
 {
     private static final TechId TECH_ID = new TechId(42l);

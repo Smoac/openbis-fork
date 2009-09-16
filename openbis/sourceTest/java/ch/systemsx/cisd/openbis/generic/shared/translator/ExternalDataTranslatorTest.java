@@ -17,12 +17,15 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -41,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 /**
  * @author Franz-Josef Elmer
  */
-// TODO 2009-09-10, Piotr Buczek: write tests with many parents
 public class ExternalDataTranslatorTest extends AssertJUnit
 {
     private static final String BASE_URL = "url";
@@ -84,10 +86,6 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         locatorTypePE.setCode("locatorTypeCode");
         locatorTypePE.setDescription("locatorTypeDescription");
         externalDataPE.setLocatorType(locatorTypePE);
-        ExternalDataPE parent = new ExternalDataPE();
-        parent.setCode("parent");
-        parent.setDataStore(new DataStorePE());
-        externalDataPE.addParent(parent);
         ExperimentPE experimentPE = new ExperimentPE();
         experimentPE.setCode("my-experiment");
         experimentPE.setExperimentType(new ExperimentTypePE());
@@ -132,8 +130,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         assertEquals("location", externalData.getLocation());
         assertEquals("locatorTypeCode", externalData.getLocatorType().getCode());
         assertEquals("locatorTypeDescription", externalData.getLocatorType().getDescription());
-        assertEquals(1, externalData.getParents().size());
-        assertEquals("parent", externalData.getParents().iterator().next().getCode());
+        assertEquals(0, externalData.getParents().size());
         assertEquals("my-experiment", externalData.getExperiment().getCode());
         assertEquals(1, externalData.getProductionDate().getTime());
         assertEquals(2, externalData.getRegistrationDate().getTime());
@@ -147,26 +144,57 @@ public class ExternalDataTranslatorTest extends AssertJUnit
     }
 
     @Test
-    public void testTranslationADerivedExternalDataPE()
+    public void testTranslationADerivedExternalDataPEWithParents()
     {
         ExternalDataPE externalDataPE = new ExternalDataPE();
         externalDataPE.setDataStore(new DataStorePE());
-        SamplePE samplePE = new SamplePE();
-        samplePE.setCode("sample");
-        SampleTypePE sampleTypePE = new SampleTypePE();
-        sampleTypePE.setCode("sampleTypeCode");
-        sampleTypePE.setDescription("sampleTypeDescription");
-        samplePE.setSampleType(sampleTypePE);
-        externalDataPE.setSampleDerivedFrom(samplePE);
+        externalDataPE.setDerived(true);
+
+        ExperimentPE experimentPE = new ExperimentPE();
+        experimentPE.setCode("my-experiment");
+        experimentPE.setExperimentType(new ExperimentTypePE());
+        ProjectPE projectPE = new ProjectPE();
+        projectPE.setCode("my-project");
+        GroupPE groupPE = new GroupPE();
+        groupPE.setCode("my-group");
+        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
+        databaseInstancePE.setCode("my-instance");
+        groupPE.setDatabaseInstance(databaseInstancePE);
+        projectPE.setGroup(groupPE);
+        experimentPE.setProject(projectPE);
+        externalDataPE.setExperiment(experimentPE);
+
+        externalDataPE.addParent(createParent("parent-1"));
+        externalDataPE.addParent(createParent("parent-2"));
 
         ExternalData externalData =
                 ExternalDataTranslator.translate(externalDataPE, BASE_URL, BASE_INDEX_URL);
 
-        assertEquals("sample", externalData.getSampleIdentifier());
-        assertEquals("sampleTypeCode", externalData.getSampleType().getCode());
-        assertEquals("sampleTypeDescription", externalData.getSampleType().getDescription());
+        assertEquals("my-experiment", externalData.getExperiment().getCode());
+        assertEquals(2, externalData.getParents().size());
+        Set<String> parentCodes = extractParentCodes(externalData);
+        assertEquals(true, parentCodes.contains("parent-1"));
+        assertEquals(true, parentCodes.contains("parent-2"));
         assertEquals(true, externalData.isDerived());
         assertEquals(null, externalData.getInvalidation());
+    }
+
+    private Set<String> extractParentCodes(ExternalData externalData)
+    {
+        final Set<String> result = new HashSet<String>();
+        for (ExternalData parent : externalData.getParents())
+        {
+            result.add(parent.getCode());
+        }
+        return result;
+    }
+
+    private DataPE createParent(String parentCode)
+    {
+        DataPE parent = new DataPE();
+        parent.setCode(parentCode);
+        parent.setDataStore(new DataStorePE());
+        return parent;
     }
 
 }

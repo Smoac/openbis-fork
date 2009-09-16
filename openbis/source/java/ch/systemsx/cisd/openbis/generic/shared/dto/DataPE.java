@@ -166,7 +166,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
      * Set to <code>true</code> if this data set is data set is derived from a sample (otherwise it
      * is measured from a sample).
      */
-    // @Private
     public void setDerived(boolean isDerived)
     {
         this.isDerived = isDerived;
@@ -200,12 +199,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     }
 
     // bidirectional connection SamplePE-DataPE
-
-    public void setSampleDerivedFrom(final SamplePE sample)
-    {
-        setDerived(true);
-        setSample(sample);
-    }
 
     public void setSampleAcquiredFrom(final SamplePE sample)
     {
