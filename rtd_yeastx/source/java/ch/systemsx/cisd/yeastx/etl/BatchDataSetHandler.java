@@ -196,7 +196,7 @@ public class BatchDataSetHandler implements IDataSetHandler
             log.error("File '%s' does not exist.", file.getPath());
             return false; // someone could deleted the file in the meantime
         }
-        if (isWritable(batchDir) == false)
+        if (isWritable(file) == false)
         {
             String path =
                     batchDir.getName() + System.getProperty("file.separator") + file.getName();
@@ -206,7 +206,7 @@ public class BatchDataSetHandler implements IDataSetHandler
                 log.adminError("Cannot acquire write access to '%s' "
                         + "because write access setter failed", path);
             }
-            return isWritable(batchDir);
+            return isWritable(file);
         } else
         {
             return true;
