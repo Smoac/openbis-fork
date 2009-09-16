@@ -227,7 +227,8 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "      join sample_type_property_types etpt on pr.stpt_id=etpt.id"
             + "      join property_types pt on etpt.prty_id=pt.id"
             + "   where pr.value is not null and pt.dbin_id=?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<GenericEntityPropertyRecord> getAllEntityPropertyGenericValues(long dbInstanceId);
+    public DataIterator<GenericEntityPropertyRecord> getAllEntityPropertyGenericValues(
+            long dbInstanceId);
 
     /**
      * Returns all controlled vocabulary property values of the sample with <var>sampleId</var>.
@@ -247,7 +248,8 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "      join sample_type_property_types etpt on pr.stpt_id=etpt.id"
             + "      join property_types pt on etpt.prty_id=pt.id"
             + "      join controlled_vocabulary_terms cvte on pr.cvte_id=cvte.id and pt.dbin_id=?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<VocabularyTermRecord> getAllEntityPropertyVocabularyTermValues(long dbInstanceId);
+    public DataIterator<VocabularyTermRecord> getAllEntityPropertyVocabularyTermValues(
+            long dbInstanceId);
 
     /**
      * Returns all material-type property values of the sample with <var>sampleId</var>
@@ -266,6 +268,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "      join sample_type_property_types etpt on pr.stpt_id=etpt.id"
             + "      join property_types pt on etpt.prty_id=pt.id"
             + "      join materials m on pr.mate_prop_id=m.id and pt.dbin_id=?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialEntityPropertyRecord> getAllEntityPropertyMaterialValues(long dbInstanceId);
+    public DataIterator<MaterialEntityPropertyRecord> getAllEntityPropertyMaterialValues(
+            long dbInstanceId);
 
 }

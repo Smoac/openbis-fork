@@ -32,7 +32,7 @@ import ch.systemsx.cisd.common.exceptions.NotImplementedException;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { IDatasetListingQuery.class, DatasetRelationRecord.class })
+    { IDatasetListingQuery.class })
 class DatasetSetListingQueryOneByOne implements IDatasetSetListingQuery
 {
     private final IDatasetListingQuery query;
@@ -42,13 +42,13 @@ class DatasetSetListingQueryOneByOne implements IDatasetSetListingQuery
         this.query = query;
     }
 
-    public Iterable<DatasetRecord> getDatasets(final LongSet sampleIds)
+    public Iterable<DatasetRecord> getDatasets(final LongSet datasetIds)
     {
         return new Iterable<DatasetRecord>()
             {
                 public Iterator<DatasetRecord> iterator()
                 {
-                    final LongIterator it = sampleIds.iterator();
+                    final LongIterator it = datasetIds.iterator();
                     return new Iterator<DatasetRecord>()
                         {
                             public boolean hasNext()
@@ -71,11 +71,6 @@ class DatasetSetListingQueryOneByOne implements IDatasetSetListingQuery
     }
 
     // TODO 2009-09-01, Tomasz Pylak: implement me! (h2)
-
-    public Iterable<DatasetRelationRecord> getDatasetRelationsWithParents(LongSet entityIds)
-    {
-        throw new NotImplementedException();
-    }
 
     public DataIterator<Long> getDatasetChildrenIds(LongSet entityIds)
     {

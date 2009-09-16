@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.exceptions.NotImplementedException;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class, DatasetRelationRecord.class, IDatasetListingQuery.class })
+    { DatasetRecord.class, IDatasetListingQuery.class })
 class DatasetSetListingQueryFullTableScan implements IDatasetSetListingQuery
 {
     private final long databaseInstanceId;
@@ -51,7 +51,7 @@ class DatasetSetListingQueryFullTableScan implements IDatasetSetListingQuery
         this.databaseInstanceId = databaseInstanceId;
     }
 
-    public Iterable<DatasetRecord> getDatasets(final LongSet sampleIds)
+    public Iterable<DatasetRecord> getDatasets(final LongSet datasetIds)
     {
         return new Iterable<DatasetRecord>()
             {
@@ -60,9 +60,9 @@ class DatasetSetListingQueryFullTableScan implements IDatasetSetListingQuery
                     return new FilterIterator<DatasetRecord>(query.getDatasets(databaseInstanceId),
                             new Predicate<DatasetRecord>()
                                 {
-                                    public boolean evaluate(DatasetRecord sample)
+                                    public boolean evaluate(DatasetRecord dataset)
                                     {
-                                        return sampleIds.contains(sample.id);
+                                        return datasetIds.contains(dataset.id);
                                     }
                                 });
                 }
@@ -70,12 +70,6 @@ class DatasetSetListingQueryFullTableScan implements IDatasetSetListingQuery
     }
 
     // TODO 2009-09-01, Tomasz Pylak: implement me! (h2)
-
-    public Iterable<DatasetRelationRecord> getDatasetRelationsWithParents(LongSet entityIds)
-    {
-        throw new NotImplementedException();
-    }
-
     public DataIterator<Long> getDatasetChildrenIds(LongSet entityIds)
     {
         throw new NotImplementedException();

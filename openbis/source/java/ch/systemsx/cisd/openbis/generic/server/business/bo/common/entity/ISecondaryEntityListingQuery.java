@@ -58,6 +58,7 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
     //
     // Samples
     //
+
     /**
      * Returns the samples for the given ids.
      */
@@ -68,6 +69,34 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
             + "        where s.id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleReferenceRecord> getSamples(LongSet sampleIds);
+
+    /**
+     * Returns the samples for the given id.
+     */
+    @Select(sql = "select s.id as id, s.perm_id as perm_id, s.code as s_code, s.inva_id as inva_id, "
+            + "           st.code as st_code, g.code as g_code"
+            + "   from samples s join sample_types st on s.saty_id=st.id"
+            + "                  join groups g on s.grou_id=g.id "
+            + "                  where s.id = ?{1}", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public SampleReferenceRecord getSample(long sampleId);
+
+    /**
+     * Returns all the samples.
+     */
+    @Select(sql = "select s.id as id, s.perm_id as perm_id, s.code as s_code, s.inva_id as inva_id, "
+            + "           st.code as st_code, g.code as g_code"
+            + "   from samples s join sample_types st on s.saty_id=st.id"
+            + "                  join groups g on s.grou_id=g.id "
+            + "        where s.dbin_id = ?{1} or g.dbin_id = ?{1}", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleReferenceRecord> getAllSamples(long databaseInstanceId);
+
+    /**
+     * Returns the total number of all samples in the database.
+     */
+    @Select(sql = "select count(*) from samples s left join groups g on s.grou_id=g.id where s.dbin_id=?{1} or g.dbin_id=?{1}")
+    public long getSampleCount(long dbInstanceId);
 
     //
     // Persons
@@ -80,7 +109,7 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
      */
     @Select("select first_name as firstName, last_name as lastName, email, user_id as userId from persons where id=?{1}")
     public Person getPersonById(long personId);
-    
+
     /**
      * Returns all groups of this data base instance.
      * 
@@ -88,11 +117,10 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
      */
     @Select("select id, code from groups where dbin_id=?{1}")
     public Group[] getAllGroups(long databaseInstanceId);
-    
+
     /**
      * Returns the technical id of a group for given <var>groupCode</code>.
      */
     @Select("select id from groups where code=?{1}")
     public long getGroupIdForCode(String groupCode);
-
 }

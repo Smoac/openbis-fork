@@ -23,14 +23,15 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.Connection;
 
-import org.springframework.dao.EmptyResultDataAccessException;
-
-import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
+
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser.IEntitiesCountProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -57,6 +58,11 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
             ISecondaryEntityListingQuery.class })
 public class SecondaryEntityDAO
 {
+    interface ISecondaryEntitySetListingQuery
+    {
+        Iterable<SampleReferenceRecord> getSamples(LongSet sampleIds);
+    }
+
     /**
      * Creates a new instance based on {@link PersistencyResources} and home
      * {@link DatabaseInstancePE} of specified DAO factory.
@@ -66,25 +72,67 @@ public class SecondaryEntityDAO
         Connection connection = DatabaseContextUtils.getConnection(daoFactory);
         ISecondaryEntityListingQuery query =
                 QueryTool.getQuery(connection, ISecondaryEntityListingQuery.class);
-        return create(daoFactory.getHomeDatabaseInstance(), query);
+        return create(daoFactory, query);
     }
 
     @Private
-    public static SecondaryEntityDAO create(DatabaseInstancePE homeDatabaseInstance,
+    public static SecondaryEntityDAO create(IDAOFactory daoFactory,
             ISecondaryEntityListingQuery query)
     {
-        return new SecondaryEntityDAO(query, homeDatabaseInstance);
+        final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(daoFactory);
+        return new SecondaryEntityDAO(supportsSetQuery, query, daoFactory.getHomeDatabaseInstance());
     }
+
+    private final ISecondaryEntitySetListingQuery setQuery;
 
     private final ISecondaryEntityListingQuery query;
 
     private final DatabaseInstance databaseInstance;
 
-    private SecondaryEntityDAO(final ISecondaryEntityListingQuery query,
-            final DatabaseInstancePE databaseInstance)
+    private SecondaryEntityDAO(boolean supportsSetQuery, final ISecondaryEntityListingQuery query,
+            final DatabaseInstancePE databaseInstancePE)
     {
         this.query = query;
-        this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstance);
+        this.setQuery = createSetQuery(supportsSetQuery, query, databaseInstancePE.getId());
+        this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstancePE);
+    }
+
+    private static ISecondaryEntitySetListingQuery createSetQuery(boolean supportsSetQuery,
+            ISecondaryEntityListingQuery query, long databaseInstanceId)
+    {
+        if (supportsSetQuery)
+        {
+            return asDatasetSetListingQuery(query);
+        } else
+        {
+            QueryStrategyChooser strategyChooser = createStrategyChooser(query, databaseInstanceId);
+            return new SecondaryEntitySetListingQueryFallback(query, strategyChooser,
+                    databaseInstanceId);
+        }
+    }
+
+    private static ISecondaryEntitySetListingQuery asDatasetSetListingQuery(
+            final ISecondaryEntityListingQuery query)
+    {
+        return new ISecondaryEntitySetListingQuery()
+            {
+                public Iterable<SampleReferenceRecord> getSamples(LongSet sampleIds)
+                {
+                    return query.getSamples(sampleIds);
+                }
+            };
+    }
+
+    private static QueryStrategyChooser createStrategyChooser(
+            final ISecondaryEntityListingQuery query, final long databaseInstanceId)
+    {
+        return new QueryStrategyChooser(new IEntitiesCountProvider()
+            {
+                public long count()
+                {
+                    return query.getSampleCount(databaseInstanceId);
+                }
+            });
     }
 
     public Experiment getExperiment(final long experimentId)
@@ -144,10 +192,9 @@ public class SecondaryEntityDAO
         return query.getGroupIdForCode(groupCode);
     }
 
-    // TODO 2009-09-01, Tomasz Pylak: implement a version for h2
     public Long2ObjectMap<Sample> getSamples(LongSet sampleIds)
     {
-        final DataIterator<SampleReferenceRecord> sampleRecords = query.getSamples(sampleIds);
+        final Iterable<SampleReferenceRecord> sampleRecords = setQuery.getSamples(sampleIds);
         Long2ObjectMap<Sample> result = new Long2ObjectOpenHashMap<Sample>();
         for (SampleReferenceRecord record : sampleRecords)
         {

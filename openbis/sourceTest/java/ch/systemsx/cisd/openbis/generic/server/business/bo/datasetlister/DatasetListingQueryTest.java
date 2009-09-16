@@ -25,6 +25,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import net.lemnik.eodsql.DataIterator;
 
@@ -132,7 +133,8 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     @Test
     public void testDatasetsForExperiment()
     {
-        ExperimentPE experiment = getExperiment("CISD", "NEMO", "EXP-TEST-1");
+        ExperimentPE experiment =
+                getExperiment(dbInstance.getCode(), "CISD", "NEMO", "EXP-TEST-1", daoFactory);
         long expId = experiment.getId();
         List<DatasetRecord> datasets = asList(query.getDatasetsForExperiment(expId));
         assertTrue(datasets.size() > 0);
@@ -144,22 +146,10 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         }
     }
 
-    private ExperimentPE getExperiment(String groupCode, String projectCode, String expCode)
-    {
-        ProjectPE project =
-                daoFactory.getProjectDAO().tryFindProject(dbInstance.getCode(), groupCode,
-                        projectCode);
-        assertNotNull(project);
-        ExperimentPE experiment =
-                daoFactory.getExperimentDAO().tryFindByCodeAndProject(project, expCode);
-        assertNotNull(experiment);
-        return experiment;
-    }
-
     @Test
     public void testDatasetsForSample()
     {
-        SamplePE sample = getSample("CISD", "CP-TEST-1");
+        SamplePE sample = getSample("CISD", "CP-TEST-1", dbInstanceId, daoFactory);
         long sampleId = sample.getId();
         List<DatasetRecord> datasets = asList(query.getDatasetsForSample(sampleId));
         assertTrue(datasets.size() > 0);
@@ -169,9 +159,30 @@ public class DatasetListingQueryTest extends AbstractDAOTest
             assertEqualWithFetchedById(record);
             assertEquals(sampleId, record.samp_id.longValue());
         }
+        // check coherence between the method which fetches only ids for the sample datasets
+        Set<Long> datasetIds = EntityListingTestUtils.asSet(query.getDatasetIdsForSample(sampleId));
+        assertEquals(datasets.size(), datasetIds.size());
+        for (DatasetRecord record : datasets)
+        {
+            assertTrue(datasetIds.contains(record.id));
+        }
+
     }
 
-    private SamplePE getSample(String groupCode, String sampleCode)
+    static ExperimentPE getExperiment(String dbInstanceCode, String groupCode, String projectCode,
+            String expCode, IDAOFactory daoFactory)
+    {
+        ProjectPE project =
+                daoFactory.getProjectDAO().tryFindProject(dbInstanceCode, groupCode, projectCode);
+        assertNotNull(project);
+        ExperimentPE experiment =
+                daoFactory.getExperimentDAO().tryFindByCodeAndProject(project, expCode);
+        assertNotNull(experiment);
+        return experiment;
+    }
+
+    static SamplePE getSample(String groupCode, String sampleCode, long dbInstanceId,
+            IDAOFactory daoFactory)
     {
         DatabaseInstancePE dbInstancePE = new DatabaseInstancePE();
         dbInstancePE.setId(dbInstanceId);
@@ -182,6 +193,22 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndGroup(sampleCode, group);
         assertNotNull(sample);
         return sample;
+    }
+
+    @Test
+    public void testParentDatasetsForChild()
+    {
+        long datasetId = 4;
+        List<DatasetRecord> parents = asList(query.getParentDatasetsForChild(datasetId));
+        assertEquals(1, parents.size());
+    }
+
+    @Test
+    public void testChildDatasetsForParent()
+    {
+        long datasetId = 2;
+        List<DatasetRecord> children = asList(query.getChildDatasetsForParent(datasetId));
+        assertEquals(2, children.size());
     }
 
     @Test

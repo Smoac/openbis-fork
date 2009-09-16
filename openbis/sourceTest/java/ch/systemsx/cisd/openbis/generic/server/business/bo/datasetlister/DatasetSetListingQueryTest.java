@@ -16,11 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.assertRecursiveEqual;
+import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.createSet;
+import static org.testng.AssertJUnit.assertEquals;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.SQLException;
 
+import net.lemnik.eodsql.DataIterator;
+
+import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,37 +44,40 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 public class DatasetSetListingQueryTest extends AbstractDAOTest
 {
 
-    private IDatasetSetListingQuery query;
+    // the interface which is tested here
+    private IDatasetSetListingQuery setQuery;
+
+    // used only to validate setQuery results
+    private IDatasetListingQuery query;
 
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
         DatasetListerDAO dao = DatasetListingQueryTest.createDatasetListerDAO(daoFactory);
-        query = dao.getIdSetQuery();
+        setQuery = dao.getIdSetQuery();
+        query = dao.getQuery();
     }
 
     @Test
     public void testDatasets()
     {
-        // NOTE: test stub
-        LongSet ids = getDatasetIds();
-        query.getDatasets(ids);
+        LongSet ids = createSet(2, 4);
+        Iterable<DatasetRecord> datasets = setQuery.getDatasets(ids);
+        int count = 0;
+        for (DatasetRecord dataset : datasets)
+        {
+            DatasetRecord sameDataset = query.getDataset(dataset.id);
+            assertRecursiveEqual(dataset, sameDataset);
+            count++;
+        }
+        assertEquals(ids.size(), count);
     }
 
     @Test
-    public void testDatasetParents()
+    public void testDatasetChildren()
     {
-        // NOTE: test stub
-        LongSet ids = getDatasetIds();
-        query.getDatasetRelationsWithParents(ids);
-    }
-
-    private LongSet getDatasetIds()
-    {
-        // NOTE: get the real dataset ids!
-        LongSet ids = new LongOpenHashSet();
-        ids.add(1);
-        ids.add(2);
-        return ids;
+        int datasetId = 4;
+        DataIterator<Long> children = setQuery.getDatasetChildrenIds(createSet(datasetId));
+        AssertJUnit.assertFalse(children.hasNext());
     }
 }

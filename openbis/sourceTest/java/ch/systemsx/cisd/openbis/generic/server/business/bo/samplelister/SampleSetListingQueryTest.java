@@ -59,9 +59,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 public class SampleSetListingQueryTest extends AbstractDAOTest
 {
 
-    private static final int CELL_PLATE_ID_CP_TEST_1 = 1042;
+    private static final int CELL_PLATE_ID_CP_TEST_1 = 1042; // CP-TEST-1
 
-    private static final int CELL_PLATE_ID_CP_TEST_2 = 1043;
+    private static final int CELL_PLATE_ID_CP_TEST_2 = 1043; // CP-TEST-2
 
     private static final String SAMPLE_TYPE_CODE_MASTER_PLATE = "MASTER_PLATE";
 
@@ -203,31 +203,28 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
         ensureSamplesHaveProperties("any_material", propertyTypes, allProperties);
     }
 
-    private List<MaterialEntityPropertyRecord> ensureSamplesHaveProperties(String propertyCode,
-            PropertyType[] propertyTypes, List<MaterialEntityPropertyRecord> allProperties)
+    private void ensureSamplesHaveProperties(String propertyCode, PropertyType[] propertyTypes,
+            Iterable<? extends BaseEntityPropertyRecord> allProperties)
     {
         PropertyType propertyType =
                 EntityListingTestUtils.findPropertyType(propertyTypes, propertyCode);
-        List<MaterialEntityPropertyRecord> properties =
+        List<? extends BaseEntityPropertyRecord> properties =
                 findProperties(allProperties, propertyType.getId());
         assertEquals("There should be exactly one property for each sample", 2, properties.size());
         findExactlyOneProperty(properties, propertyType.getId(), CELL_PLATE_ID_CP_TEST_1);
         findExactlyOneProperty(properties, propertyType.getId(), CELL_PLATE_ID_CP_TEST_2);
-        return properties;
     }
 
     @Test
-    // TODO 2009-08-17, Bernd Rinn: This test is a stub!
     public void testSamplePropertyVocabularyTermValues()
     {
-        int sampleCount = 0;
-        for (VocabularyTermRecord sampleProperty : propertySetQuery
-                .getEntityPropertyVocabularyTermValues(masterPlateIds))
-        {
-            System.out.println(sampleProperty.code);
-            ++sampleCount;
-        }
-        assertTrue(sampleCount > 0);
+        LongSet ids = createSet(CELL_PLATE_ID_CP_TEST_1, CELL_PLATE_ID_CP_TEST_2);
+
+        Iterable<VocabularyTermRecord> allProperties =
+                propertySetQuery.getEntityPropertyVocabularyTermValues(ids);
+        PropertyType[] propertyTypes = query.getPropertyTypes();
+
+        ensureSamplesHaveProperties("organism", propertyTypes, allProperties);
     }
 
 }

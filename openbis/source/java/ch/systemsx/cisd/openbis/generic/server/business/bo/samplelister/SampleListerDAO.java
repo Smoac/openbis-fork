@@ -25,7 +25,6 @@ import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.AbstractDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
@@ -65,8 +64,7 @@ public final class SampleListerDAO extends AbstractDAO
     @Private
     static SampleListerDAO create(IDAOFactory daoFactory, ISampleListingFullQuery query)
     {
-        DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
-        final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(context);
+        final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(daoFactory);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
         return new SampleListerDAO(supportsSetQuery, query, homeDatabaseInstance);
     }

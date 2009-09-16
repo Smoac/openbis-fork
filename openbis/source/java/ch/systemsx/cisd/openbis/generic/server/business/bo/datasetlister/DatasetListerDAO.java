@@ -25,7 +25,6 @@ import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.AbstractDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
@@ -47,8 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { IDatasetListingFullQuery.class, IEntityPropertyListingQuery.class,
-            DatasetRelationRecord.class })
+    { IDatasetListingFullQuery.class, IEntityPropertyListingQuery.class })
 public final class DatasetListerDAO extends AbstractDAO
 {
     /**
@@ -67,8 +65,7 @@ public final class DatasetListerDAO extends AbstractDAO
     // only for tests
     static DatasetListerDAO create(IDAOFactory daoFactory, IDatasetListingFullQuery query)
     {
-        DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
-        final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(context);
+        final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(daoFactory);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
         return new DatasetListerDAO(supportsSetQuery, query, homeDatabaseInstance);
     }
@@ -220,12 +217,6 @@ public final class DatasetListerDAO extends AbstractDAO
                 public Iterable<DatasetRecord> getDatasets(LongSet sampleIds)
                 {
                     return query.getDatasets(sampleIds);
-                }
-
-                public Iterable<DatasetRelationRecord> getDatasetRelationsWithParents(
-                        LongSet entityIds)
-                {
-                    return query.getDatasetParents(entityIds);
                 }
 
                 public DataIterator<Long> getDatasetChildrenIds(LongSet entityIds)

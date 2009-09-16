@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { IDatasetListingQuery.class, IDatasetSetListingQuery.class, DatasetRelationRecord.class })
+    { IDatasetListingQuery.class, IDatasetSetListingQuery.class })
 @Private
 public interface IDatasetListingFullQuery extends IDatasetListingQuery
 {
@@ -51,15 +51,6 @@ public interface IDatasetListingFullQuery extends IDatasetListingQuery
     @Select(sql = "select * from data join external_data on data.id = external_data.data_id where data.id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(LongSet entityIds);
-
-    /**
-     * Returns the relations with parent datasets of the specified datasets.
-     * <p>
-     * <em>Do not call directly, call via {@link IDatasetSetListingQuery}</em>
-     */
-    @Select(sql = "select * from data_set_relationships where data_id_child = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRelationRecord> getDatasetParents(LongSet entityIds);
 
     /**
      * Returns the children dataset ids of the specified datasets.

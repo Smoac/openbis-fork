@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
-import java.sql.SQLException;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
+import java.sql.SQLException;
+import java.util.List;
+
+import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -26,21 +31,21 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.Seconda
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityListingQueryTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class, DatasetRelationRecord.class })
+    { DatasetRecord.class })
 @Test(groups =
     { "db", "dataset" })
-// TODO 2009-09-01, Tomasz Pylak: replace test stubs.
 public class DatasetListerTest extends AbstractDAOTest
 {
-    private ExperimentPE firstExperiment;
-
     private IDatasetLister lister;
+
+    private long sampleId;
 
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
@@ -50,21 +55,21 @@ public class DatasetListerTest extends AbstractDAOTest
         SecondaryEntityDAO secondaryEntityDAO =
                 SecondaryEntityListingQueryTest.createSecondaryEntityDAO(daoFactory);
         lister = DatasetLister.create(datasetListerDAO, secondaryEntityDAO, "www");
-        firstExperiment = daoFactory.getExperimentDAO().listExperiments().get(0);
-    }
-
-    @Test
-    public void testListByExperimentTechId()
-    {
-        // NOTE: test stub
-        lister.listByExperimentTechId(new TechId(firstExperiment.getId()));
+        SamplePE sample =
+                DatasetListingQueryTest.getSample("CISD", "CP-TEST-1", datasetListerDAO
+                        .getDatabaseInstanceId(), daoFactory);
+        sampleId = sample.getId();
     }
 
     @Test
     public void testListBySampleTechId()
     {
-        // NOTE: test stub
-        lister.listBySampleTechId(new TechId(1L), true);
+        List<ExternalData> datasets = lister.listBySampleTechId(new TechId(sampleId), true);
+        assertEqualsOrGreater(1, datasets.size());
+        ExternalData externalData = datasets.get(0);
+        assertEquals(sampleId, externalData.getSample().getId().longValue());
+        assertFalse(externalData.getProperties().isEmpty());
+        AssertJUnit.assertNotNull(externalData.getExperiment());
     }
 
 }

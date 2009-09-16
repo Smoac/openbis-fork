@@ -33,6 +33,9 @@ import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -65,6 +68,16 @@ public class EntityListingTestUtils
         }
         fail("Property type not found " + propertyTypeCode);
         return null; // for compiler
+    }
+
+    public static <T> Set<T> asSet(Iterable<T> items)
+    {
+        Set<T> result = new HashSet<T>();
+        for (T item : items)
+        {
+            result.add(item);
+        }
+        return result;
     }
 
     public static <T> List<T> asList(Iterable<T> items)
@@ -106,6 +119,14 @@ public class EntityListingTestUtils
     public static LongSet createSet(long... values)
     {
         return new LongOpenHashSet(values);
+    }
+
+    public static void assertRecursiveEqual(Object o1, Object o2)
+    {
+        String errMsg =
+                "objects not equal: " + ReflectionToStringBuilder.toString(o1) + " and "
+                        + ReflectionToStringBuilder.toString(o2);
+        assertTrue(errMsg, EqualsBuilder.reflectionEquals(o2, o1));
     }
 
     // --- generic helpers for entity properties tests ----------------

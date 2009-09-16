@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.DataIterator;
 
-import ch.rinn.restrictions.Friend;
-
 /**
  * A DAO query interface for obtaining sets of datasets or dataset-related entities based on a set
  * of dataset ids.
@@ -29,19 +27,12 @@ import ch.rinn.restrictions.Friend;
  * 
  * @author Tomasz Pylak
  */
-@Friend(toClasses =
-    { DatasetRelationRecord.class })
 interface IDatasetSetListingQuery
 {
     /**
      * Returns the datasets for the given <var>datasetIds</var>.
      */
     public Iterable<DatasetRecord> getDatasets(LongSet datasetIds);
-
-    /**
-     * Returns the relations with parent datasets of the specified datasets.
-     */
-    public Iterable<DatasetRelationRecord> getDatasetRelationsWithParents(LongSet entityIds);
 
     /**
      * Returns the ids of children datasets of the specified datasets.

@@ -42,8 +42,9 @@ public class DatabaseContextUtils
      * @return true if the database supports set queries. <br>
      *         Note: H2 does not support set queries ("=ANY()" operator).
      */
-    public static boolean isSupportingSetQueries(DatabaseConfigurationContext context)
+    public static boolean isSupportingSetQueries(IDAOFactory daoFactory)
     {
+        DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
         return (DatabaseEngine.H2.getCode().equals(context.getDatabaseEngineCode()) == false);
     }
 

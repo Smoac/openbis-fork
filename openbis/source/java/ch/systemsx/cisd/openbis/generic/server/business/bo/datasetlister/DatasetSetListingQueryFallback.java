@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyC
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { IDatasetListingQuery.class, DatasetRelationRecord.class })
+    { IDatasetListingQuery.class })
 class DatasetSetListingQueryFallback implements IDatasetSetListingQuery
 {
     private final IDatasetSetListingQuery oneByOneDelegate;
@@ -60,12 +60,6 @@ class DatasetSetListingQueryFallback implements IDatasetSetListingQuery
     }
 
     // TODO 2009-09-01, Tomasz Pylak: implement me! (h2)
-
-    public Iterable<DatasetRelationRecord> getDatasetRelationsWithParents(LongSet entityIds)
-    {
-        throw new NotImplementedException();
-    }
-
     public DataIterator<Long> getDatasetChildrenIds(LongSet entityIds)
     {
         throw new NotImplementedException();
