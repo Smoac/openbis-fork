@@ -1752,4 +1752,20 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
+    public void deleteFilters(String sessionToken, List<TechId> filterIds)
+    {
+        Session session = getSessionManager().getSession(sessionToken);
+        try
+        {
+            IFilterBO filterBO = businessObjectFactory.createFilterBO(session);
+            for (TechId id : filterIds)
+            {
+                filterBO.deleteByTechId(id);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
 }

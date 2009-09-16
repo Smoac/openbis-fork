@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
  */
 public abstract class AbstractTechIdPredicate extends AbstractGroupPredicate<TechId>
 {
-    private EntityWithGroupKind entityKind;
+    private final EntityWithGroupKind entityKind;
 
     public AbstractTechIdPredicate(EntityWithGroupKind entityKind)
     {

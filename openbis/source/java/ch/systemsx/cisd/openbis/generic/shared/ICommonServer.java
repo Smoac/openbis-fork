@@ -921,4 +921,12 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.FILTER)
     public void registerFilter(String sessionToken, NewFilter filter);
 
+    /**
+     * Deletes specified filters.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.GROUP)
+    public void deleteFilters(String sessionToken, List<TechId> groupIds);
+
 }

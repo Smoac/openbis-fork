@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -31,15 +32,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.FilterColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ReasonField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -110,6 +116,20 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
                                 }
                             });
         addButton(addGroupButton);
+        Button deleteButton =
+                createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+                        new AbstractCreateDialogListener()
+                            {
+                                @Override
+                                protected Dialog createDialog(List<Filter> filters,
+                                        IBrowserGridActionInvoker invoker)
+                                {
+                                    return new FilterListDeletionConfirmationDialog(viewContext,
+                                            filters, createDeletionCallback(invoker));
+                                }
+                            });
+        addButton(deleteButton);
+        allowMultipleSelection();
         addEntityOperationsSeparator();
     }
 
@@ -160,4 +180,44 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
             { DatabaseModificationKind.createOrDelete(ObjectKind.FILTER),
                     DatabaseModificationKind.edit(ObjectKind.FILTER) };
     }
+
+    public class FilterListDeletionConfirmationDialog extends
+            AbstractDataConfirmationDialog<List<Filter>>
+    {
+        private static final int LABEL_WIDTH = 60;
+
+        private static final int FIELD_WIDTH = 180;
+
+        protected ReasonField reason;
+
+        private final AbstractAsyncCallback<Void> callback;
+
+        public FilterListDeletionConfirmationDialog(IMessageProvider messageProvider,
+                List<Filter> data, AbstractAsyncCallback<Void> callback)
+        {
+            super(messageProvider, data, messageProvider.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
+            this.callback = callback;
+        }
+
+        @Override
+        protected void extendForm()
+        {
+            formPanel.setLabelWidth(LABEL_WIDTH);
+            formPanel.setFieldWidth(FIELD_WIDTH);
+        }
+
+        @Override
+        protected String createMessage()
+        {
+            return "Do you really want to delete selected (" + data.size() + ") filters?";
+        }
+
+        @Override
+        protected void executeConfirmedAction()
+        {
+            viewContext.getCommonService().deleteFilters(TechId.createList(data), callback);
+        }
+
+    }
+
 }

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
 
@@ -33,5 +34,13 @@ public interface IFilterBO extends IEntityBusinessObject
      * be invoked to store the new group in the <i>Data Access Layer</i>.
      */
     public void define(NewFilter filter) throws UserFailureException;
+
+    /**
+     * Deletes filter.
+     * 
+     * @param groupId group technical identifier
+     * @throws UserFailureException if filter with given technical identifier is not found.
+     */
+    public void deleteByTechId(TechId groupId);
 
 }

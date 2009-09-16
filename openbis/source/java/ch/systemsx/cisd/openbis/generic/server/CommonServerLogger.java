@@ -758,7 +758,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public void registerFilter(String sessionToken, NewFilter filter)
     {
         logTracking(sessionToken, "registerFilter", "FILTER(%s)", filter);
+    }
 
+    public void deleteFilters(String sessionToken, List<TechId> filterIds)
+    {
+        logTracking(sessionToken, "deleteFilters", "TECH_IDS(%s)", StringUtils.join(filterIds
+                .toArray(new TechId[0]), ","));
     }
 
 }

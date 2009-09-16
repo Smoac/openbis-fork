@@ -2148,4 +2148,17 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
+
+    public void deleteFilters(List<TechId> filterIds)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deleteFilters(sessionToken, filterIds);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
 }

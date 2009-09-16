@@ -757,4 +757,7 @@ public interface ICommonClientService extends IClientService
      * Registers a new filter.
      */
     public void registerFilter(NewFilter filter) throws UserFailureException;
+
+    /** Deletes the specified filters. */
+    public void deleteFilters(List<TechId> filterIds) throws UserFailureException;
 }

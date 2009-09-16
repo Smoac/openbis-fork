@@ -674,4 +674,7 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
 
     /** @see ICommonClientService#registerFilter(NewFilter) */
     public void registerFilter(NewFilter newFilter, AsyncCallback<Void> registrationCallback);
+
+    /** @see ICommonClientService#deleteFilters(List) */
+    public void deleteFilters(List<TechId> filterIds, AsyncCallback<Void> asyncCallback);
 }

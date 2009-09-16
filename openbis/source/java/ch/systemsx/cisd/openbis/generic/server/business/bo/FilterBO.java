@@ -63,6 +63,18 @@ public class FilterBO extends AbstractBusinessObject implements IFilterBO
 
     }
 
+    public void deleteByTechId(TechId groupId) throws UserFailureException
+    {
+        loadDataByTechId(groupId);
+        try
+        {
+            getFilterDAO().delete(filter);
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("Filter '%s'", filter.getName()));
+        }
+    }
+
     public void save() throws UserFailureException
     {
         assert filter != null : "Filter not defined";
