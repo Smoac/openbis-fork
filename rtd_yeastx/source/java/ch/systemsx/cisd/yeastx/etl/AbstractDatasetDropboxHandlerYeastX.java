@@ -42,6 +42,10 @@ abstract class AbstractDatasetDropboxHandlerYeastX extends AbstractDatasetDropbo
         String dataSetCode = dataSetInformation.getDataSetCode();
         String originalName = incomingDataSetDirectory.getName();
         String sampleCode = dataSetInformation.getSampleCode();
+        if (sampleCode == null)
+        {
+            sampleCode = "";
+        }
         String groupCode = dataSetInformation.getGroupCode();
         String newFileName =
                 sampleCode + datasetCodeSeparator + groupCode + datasetCodeSeparator + dataSetCode
