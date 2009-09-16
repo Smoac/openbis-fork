@@ -35,6 +35,13 @@ public class LuceneQueryBuilderTest extends AssertJUnit
             { '.', ',', '-', '_' };
         String result = LuceneQueryBuilder.replaceWordSeparators("a.b-c_d,e", wordSeparators);
         assertEquals("(a AND b AND c AND d AND e)", result);
+
+        result = LuceneQueryBuilder.replaceWordSeparators("..,,a.b,,..", wordSeparators);
+        assertEquals("(a AND b)", result);
+
+        result = LuceneQueryBuilder.replaceWordSeparators(".a", wordSeparators);
+        assertEquals("a", result);
+
     }
 
     @DataProvider(name = "queryEscaping")
