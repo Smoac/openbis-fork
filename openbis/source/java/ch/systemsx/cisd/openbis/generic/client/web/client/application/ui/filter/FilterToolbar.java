@@ -40,7 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
  * 
  * @author Izabela Adamczyk
  */
-public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationObserver
+public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationObserver,
+        IDelegatedAction
 {
     private final List<PagingColumnFilter<T>> columnFilters;
 
@@ -240,6 +241,11 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             setValue(null);
             updateApplyTool();
         }
+    }
+
+    public void execute()
+    {
+        filterSelectionWidget.execute();
     }
 
 }
