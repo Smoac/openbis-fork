@@ -103,7 +103,10 @@ public class SectionsPanel extends ContentPanel
                         Boolean newSettings =
                                 viewContext.getDisplaySettingsManager().getSectionSettings(
                                         sectionID);
-                        sectionElement.getButton().toggle(newSettings);
+                        if (newSettings != null)
+                        {
+                            sectionElement.getButton().toggle(newSettings);
+                        }
                     }
                 }
 
