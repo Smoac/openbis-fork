@@ -68,6 +68,8 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
 
     private final IViewContext<?> viewContextOrNull;
 
+    public String callbackIdOrNull;
+
     public DropDownList(final IViewContext<?> viewContext, String idSuffix, String labelDictCode,
             String displayField, String chooseSuffix, String nothingFoundSuffix)
     {
@@ -97,6 +99,11 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         setDisplayField(displayField);
         setFieldLabel(label);
         setStore(new ListStore<M>());
+    }
+
+    protected void setCallbackId(String callbackId)
+    {
+        this.callbackIdOrNull = callbackId;
     }
 
     private static String createId(String idSuffix)
@@ -180,6 +187,18 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         {
             List<M> convertedItems = convertItems(result);
             updateStore(convertedItems);
+        }
+
+        @Override
+        public String getCallbackId()
+        {
+            if (callbackIdOrNull != null)
+            {
+                return callbackIdOrNull;
+            } else
+            {
+                return super.getCallbackId();
+            }
         }
 
     }

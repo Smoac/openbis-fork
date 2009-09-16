@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.Ope
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.RoleAssignmentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GroupColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PersonColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.FilterSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
@@ -54,8 +53,6 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.ADMINISTRATION_MENU_MANAGE_GROUPS);
 
         CreateGroup createGroupCommand = new CreateGroup(groupCode);
-        createGroupCommand.addCallbackClass(FilterSelectionWidget.ListItemsCallback.class);
-        // fix?
         remoteConsole.prepare(createGroupCommand);
         final CheckGroupTable table = new CheckGroupTable();
         table.addCallbackClass(AddGroupDialog.SaveDialogCallback.class);
@@ -72,7 +69,6 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.AUTHORIZATION_MENU_USERS);
 
         CreatePerson command = new CreatePerson(userId);
-        command.addCallbackClass(FilterSelectionWidget.ListItemsCallback.class);
         remoteConsole.prepare(command);
         final CheckPersonTable table = new CheckPersonTable();
         table.addCallbackClass(AddPersonDialog.SaveDialogCallback.class);
@@ -121,7 +117,6 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         loginAndInvokeAction("o", "o", ActionMenuKind.AUTHORIZATION_MENU_USERS);
         final String userId = "u";
         CreatePerson command = new CreatePerson(userId);
-        command.addCallbackClass(FilterSelectionWidget.ListItemsCallback.class);
         remoteConsole.prepare(command);
         FailureExpectation failureExpectation =
                 new FailureExpectation(AddPersonDialog.SaveDialogCallback.class)

@@ -39,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 public final class FilterSelectionWidget extends DropDownList<FilterModel, Filter> implements
         IDelegatedAction
 {
+    private static final String LIST_ITEMS_CALLBACK = "ListItemsCallback";
+
     public static final String SUFFIX = "filter";
 
     private final IViewContext<?> viewContext;
@@ -56,6 +58,12 @@ public final class FilterSelectionWidget extends DropDownList<FilterModel, Filte
         this.displayTypeIDProvider = displayTypeIDProvider;
         this.withStandard = true;
         setAutoSelectFirst(withStandard);
+        setCallbackId(createCallbackId());
+    }
+
+    public static String createCallbackId()
+    {
+        return FilterSelectionWidget.class + LIST_ITEMS_CALLBACK;
     }
 
     @Override
