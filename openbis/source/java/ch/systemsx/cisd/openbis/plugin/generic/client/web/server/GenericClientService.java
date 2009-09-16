@@ -27,6 +27,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionSystemException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -476,6 +477,12 @@ public final class GenericClientService extends AbstractClientService implements
         {
             final String sessionToken = getSessionToken();
             return genericServer.updateDataSet(sessionToken, createDataSetUpdatesDTO(updates));
+        } catch (TransactionSystemException e)
+        {
+            // Deferred triger may throw an exception just before commit.
+            // Message in the exception is readable for the user.
+            throw UserFailureExceptionTranslator.translate(new UserFailureException(e
+                    .getMostSpecificCause().getMessage()));
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
