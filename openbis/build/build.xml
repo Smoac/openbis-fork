@@ -368,6 +368,10 @@
 			<lib dir="${lib}/cisd-args4j">
 				<include name="cisd-args4j.jar" />
 			</lib>
+			<lib dir="${lib}/jython">
+				<include name="jython.jar" />
+			</lib>
+			
 		</war>
 		<!-- Does some cleaning. -->
 		<delete file="${jar.file}" failonerror="true" />
