@@ -193,7 +193,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     {
         CheckBox result = new CheckBox();
         result.setId(getId() + SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX);
-        result.setBoxLabel(Dict.SHOW_ONLY_DIRECTLY_CONNECTED);
+        result.setBoxLabel(viewContext.getMessage(Dict.SHOW_ONLY_DIRECTLY_CONNECTED));
         result.setValue(true);
         return result;
     }
