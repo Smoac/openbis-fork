@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
 
 /**
  * Content panel which allows to choose which contained panels should be visible and uses the whole
@@ -54,61 +55,69 @@ public class SectionsPanel extends ContentPanel
     private void addRefreshDisplaySettingsListener()
     {
         // all sections are refreshed in one go
-        addListener(Events.AfterLayout, new Listener<BaseEvent>()
+        addListener(Events.AfterLayout,new Listener<BaseEvent>()
+    {
+
+        private Long lastRefreshCheckTime;
+
+        public void handleEvent(BaseEvent be)
+        {
+            if (isRefreshNeeded())
             {
-                private Long lastRefreshCheckTime;
+                // need to set time here otherwise invoking layout will cause an infinite loop
+                lastRefreshCheckTime = System.currentTimeMillis();
+                updateSettings();
+                refreshLayout();
+            }
+            lastRefreshCheckTime = System.currentTimeMillis();
+        }
 
-                public void handleEvent(BaseEvent be)
+        /** checks if update of section settings and refresh of layout is needed */
+        private boolean isRefreshNeeded()
+        {
+            boolean result = false;
+            for (SectionElement sectionElement : elements)
+            {
+                if (lastRefreshCheckTime == null)
                 {
-                    if (isRefreshNeeded())
-                    {
-                        lastRefreshCheckTime = System.currentTimeMillis();
-                        updateSettings();
-                        refreshLayout();
-                    }
-                    lastRefreshCheckTime = System.currentTimeMillis();
+                    // No need to refresh when sections are displayed for the first time.
+                    return false;
+                } else if (isModificationDoneInAnotherViewSinceLastRefresh(sectionElement))
+                {
+                    // Section settings have been modified in another view of the
+                    // same type. Refresh of section settings is needed.
+                    return true;
                 }
+                // do nothing - other sections may have been modified
+            }
+            return result;
+        }
 
-                /** checks if update of section settings and refresh of layout is needed */
-                private boolean isRefreshNeeded()
-                {
-                    boolean result = false;
-                    for (SectionElement sectionElement : elements)
-                    {
-                        final String sectionID = sectionElement.getPanel().getDisplayID();
-                        final Long lastModificationTimeOrNull =
-                                viewContext.getDisplaySettingsManager()
-                                        .tryGetSectionSettingsModificationTime(sectionID);
-                        if (lastRefreshCheckTime == null)
-                        {
-                            // No need to refresh when sections are displayed for the first time.
-                            return false;
-                        } else if (lastModificationTimeOrNull != null
-                                && lastModificationTimeOrNull > lastRefreshCheckTime)
-                        {
-                            // Section settings have been modified in another browser of the
-                            // same type. Refresh of section settings is needed.
-                            return true;
-                        }
-                    }
-                    return result;
-                }
+        private boolean isModificationDoneInAnotherViewSinceLastRefresh(SectionElement element)
+        {
+            final String sectionID = element.getPanel().getDisplayID();
+            final Modification lastModificationOrNull =
+                    viewContext.getDisplaySettingsManager().tryGetLastColumnSettingsModification(
+                            sectionID);
+            return lastModificationOrNull != null
+                    && lastModificationOrNull.getModifier().equals(SectionsPanel.this) == false
+                    && lastModificationOrNull.getTime() > lastRefreshCheckTime;
+        }
 
-                /** updates all section settings */
-                private void updateSettings()
+        /** updates all section settings */
+        private void updateSettings()
+        {
+            for (SectionElement sectionElement : elements)
+            {
+                final String sectionID = sectionElement.getPanel().getDisplayID();
+                Boolean newSettings =
+                        viewContext.getDisplaySettingsManager().getSectionSettings(sectionID);
+                if (newSettings != null)
                 {
-                    for (SectionElement sectionElement : elements)
-                    {
-                        final String sectionID = sectionElement.getPanel().getDisplayID();
-                        Boolean newSettings =
-                                viewContext.getDisplaySettingsManager().getSectionSettings(
-                                        sectionID);
-                        if (newSettings != null)
-                        {
-                            sectionElement.getButton().toggle(newSettings);
-                        }
-                    }
+                    sectionElement.getButton().toggle(newSettings);
                 }
+            }
+        }
 
             });
     }
@@ -196,7 +205,7 @@ public class SectionsPanel extends ContentPanel
         return super.add(item);
     }
 
-    private static class SectionElement
+    private class SectionElement
     {
 
         private ToggleToolItem button;
@@ -213,8 +222,7 @@ public class SectionsPanel extends ContentPanel
                     viewContext.getDisplaySettingsManager()
                             .getSectionSettings(panel.getDisplayID());
             boolean pressed = sectionSettings != null ? sectionSettings : defaultPressedValue;
-            button =
-                    createButton(heading, withShowHide, pressed, panel.getDisplayID(), viewContext);
+            button = createButton(heading, pressed, panel.getDisplayID());
         }
 
         public ToggleToolItem getButton()
@@ -232,19 +240,17 @@ public class SectionsPanel extends ContentPanel
             return panel;
         }
 
-        private static String getHeading(String heading, boolean withShowHide, boolean pressed)
+        private String getHeading(String heading, boolean pressed)
         {
             final String showHeading = withShowHide ? ("Show " + heading) : heading;
             final String hideHeading = withShowHide ? ("Hide " + heading) : heading;
             return pressed ? hideHeading : showHeading;
         }
 
-        private static ToggleToolItem createButton(final String heading,
-                final boolean withShowHide, boolean pressed, final String displayId,
-                final IViewContext<ICommonClientServiceAsync> viewContext)
+        private ToggleToolItem createButton(final String heading, boolean pressed,
+                final String displayId)
         {
-            final ToggleToolItem result =
-                    new ToggleToolItem(getHeading(heading, withShowHide, pressed));
+            final ToggleToolItem result = new ToggleToolItem(getHeading(heading, pressed));
             initializePressedState(result, pressed);
 
             // when user clicks toggle button we store changed settings
@@ -254,7 +260,7 @@ public class SectionsPanel extends ContentPanel
                     public void componentSelected(ComponentEvent ce)
                     {
                         viewContext.getDisplaySettingsManager().storeSectionSettings(displayId,
-                                result.isPressed());
+                                result.isPressed(), SectionsPanel.this);
                     }
                 });
             // heading needs to be updated also when we refresh settings using toggle
@@ -262,14 +268,14 @@ public class SectionsPanel extends ContentPanel
                 {
                     public void handleEvent(BaseEvent be)
                     {
-                        result.setText(getHeading(heading, withShowHide, result.isPressed()));
+                        result.setText(getHeading(heading, result.isPressed()));
                     }
                 });
 
             return result;
         }
 
-        private static void initializePressedState(ToggleToolItem result, boolean pressed)
+        private void initializePressedState(ToggleToolItem result, boolean pressed)
         {
             // because of strange ToggleToolItem implementation need to initialize both:
             // - 'pressed' value

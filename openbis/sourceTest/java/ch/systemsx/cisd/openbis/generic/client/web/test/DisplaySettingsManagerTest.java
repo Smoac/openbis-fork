@@ -128,7 +128,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
         final ColumnModel columnModel = new ColumnModel(columnConfigs);
         List<ColumnSetting> settings =
                 Arrays.asList(createColumnSetting(c1), createColumnSetting(c2));
-        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings);
+        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings, this);
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
@@ -146,7 +146,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
         final ColumnSetting c1Setting = createColumnSetting(c1);
         c1Setting.setHidden(true);
         List<ColumnSetting> settings = Arrays.asList(c1Setting, createColumnSetting(c2));
-        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings);
+        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings, this);
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
@@ -164,7 +164,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
         ColumnSetting c1Setting = createColumnSetting(c1);
         ColumnSetting c2Setting = createColumnSetting(c2);
         List<ColumnSetting> settings = Arrays.asList(c2Setting, c1Setting);
-        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings);
+        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings, this);
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
@@ -183,7 +183,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
         ColumnSetting c1Setting = createColumnSetting(c1);
         ColumnSetting c2Setting = createColumnSetting(c2);
         List<ColumnSetting> settings = Arrays.asList(c1Setting, c2Setting);
-        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings);
+        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings, this);
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
@@ -201,7 +201,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
         final ColumnModel columnModel = new ColumnModel(Arrays.asList(c1, c2));
         ColumnSetting c2Setting = createColumnSetting(c2);
         List<ColumnSetting> settings = Arrays.asList(c2Setting);
-        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings);
+        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings, this);
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
@@ -220,7 +220,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
         final ColumnSetting c1Setting = createColumnSetting(c1);
         c1Setting.setWidth(24);
         List<ColumnSetting> settings = Arrays.asList(c1Setting, createColumnSetting(c2));
-        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings);
+        manager.updateColumnSettings(DISPLAY_TYPE_ID, settings, this);
 
         List<String> filterColumnIds = new ArrayList<String>();
         GridDisplaySettings result =
@@ -250,6 +250,9 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
                     allowing(grid).getFilteredColumnIds();
                     will(returnValue(filterColumnIds));
+
+                    allowing(grid).getModifier();
+                    will(returnValue(grid));
 
                     one(updater).update();
                 }

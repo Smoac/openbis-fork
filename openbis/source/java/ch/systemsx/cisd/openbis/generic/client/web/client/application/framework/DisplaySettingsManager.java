@@ -44,11 +44,46 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
  */
 public class DisplaySettingsManager
 {
-    /** last display settings modification time for columns */
-    private Map<String, Long> columnModifications = new HashMap<String, Long>();
 
-    /** last display settings modification time for sections */
-    private Map<String, Long> sectionModifications = new HashMap<String, Long>();
+    /**
+     * Encapsulates time of modification with the object that caused the modification.
+     * <p>
+     * Used to perform automatic update of display settings when user returns to a previously opened
+     * tab after settings were changed.
+     */
+    public static class Modification
+    {
+        private final long time;
+
+        private final Object modifier; // grid or section panel
+
+        public static Modification create(Object modifier)
+        {
+            return new Modification(modifier, System.currentTimeMillis());
+        }
+
+        private Modification(Object modifier, long time)
+        {
+            this.modifier = modifier;
+            this.time = time;
+        }
+
+        public long getTime()
+        {
+            return time;
+        }
+
+        public Object getModifier()
+        {
+            return modifier;
+        }
+    }
+
+    /** last display settings {@link Modification} for columns */
+    private Map<String, Modification> columnModifications = new HashMap<String, Modification>();
+
+    /** last display settings {@link Modification} for sections */
+    private Map<String, Modification> sectionModifications = new HashMap<String, Modification>();
 
     private final DisplaySettings displaySettings;
 
@@ -84,6 +119,11 @@ public class DisplaySettingsManager
                 public List<String> getFilteredColumnIds()
                 {
                     return emptyFilters;
+                }
+
+                public Object getModifier()
+                {
+                    return this;
                 }
             };
         GridDisplaySettings settings =
@@ -258,20 +298,21 @@ public class DisplaySettingsManager
 
     public void storeSettings(final String displayTypeID, final IDisplaySettingsGetter grid)
     {
-        storeSettings(displayTypeID, grid.getColumnModel(), grid.getFilteredColumnIds());
+        storeSettings(displayTypeID, grid.getColumnModel(), grid.getFilteredColumnIds(), grid
+                .getModifier());
     }
 
-    public void storeSectionSettings(String displayTypeID, boolean display)
+    public void storeSectionSettings(String displayTypeID, boolean display, Object modifier)
     {
-        updateSectionSettings(displayTypeID, display);
+        updateSectionSettings(displayTypeID, display, modifier);
         updater.update();
     }
 
     private void storeSettings(String displayTypeID, ColumnModel columnModel,
-            List<String> filteredColumnIds)
+            List<String> filteredColumnIds, Object modifier)
     {
         List<ColumnSetting> columnSettings = createColumnsSettings(columnModel, filteredColumnIds);
-        updateColumnSettings(displayTypeID, columnSettings);
+        updateColumnSettings(displayTypeID, columnSettings, modifier);
         updater.update();
     }
 
@@ -312,19 +353,17 @@ public class DisplaySettingsManager
      * update column settings for given display id (modification date is updated automatically)
      */
     @SuppressWarnings("deprecation")
-    public final void updateColumnSettings(String gridDisplayTypeID, List<ColumnSetting> newSettings)
+    public final void updateColumnSettings(String gridDisplayTypeID,
+            List<ColumnSetting> newSettings, Object modifier)
     {
         displaySettings.getColumnSettings().put(gridDisplayTypeID, newSettings);
-        columnModifications.put(gridDisplayTypeID, System.currentTimeMillis());
+        columnModifications.put(gridDisplayTypeID, Modification.create(modifier));
     }
 
     /**
-     * @returns column settings modification time or null if no modification was yet made
-     *          <p>
-     *          NOTE: Returned value should be used read only, or modification time should be set
-     *          manually after a modification.
+     * @returns last column settings {@link Modification} or null if no modification was yet made
      */
-    public final Long tryGetColumnsSettingsModificationTime(String gridDisplayTypeID)
+    public final Modification tryGetLastColumnSettingsModification(String gridDisplayTypeID)
     {
         return columnModifications.get(gridDisplayTypeID);
     }
@@ -345,16 +384,17 @@ public class DisplaySettingsManager
      * update section settings for given display id (modification date is updated automatically)
      */
     @SuppressWarnings("deprecation")
-    public final void updateSectionSettings(String sectionDisplayTypeID, Boolean newSettings)
+    public final void updateSectionSettings(String sectionDisplayTypeID, Boolean newSettings,
+            Object modifier)
     {
         displaySettings.getSectionSettings().put(sectionDisplayTypeID, newSettings);
-        sectionModifications.put(sectionDisplayTypeID, System.currentTimeMillis());
+        sectionModifications.put(sectionDisplayTypeID, Modification.create(modifier));
     }
 
     /**
-     * @returns section setting modification time or null if no modification was yet made
+     * @returns last section setting {@link Modification} or null if no modification was yet made
      */
-    public final Long tryGetSectionSettingsModificationTime(String sectionDisplayTypeID)
+    public final Modification tryGetLastSectionSettingsModification(String sectionDisplayTypeID)
     {
         return sectionModifications.get(sectionDisplayTypeID);
     }

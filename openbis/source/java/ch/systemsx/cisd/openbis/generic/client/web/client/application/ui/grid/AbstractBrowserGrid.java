@@ -76,6 +76,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.MultilineStringCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
@@ -194,8 +195,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private IDataRefreshCallback refreshCallback;
 
-    private RefreshDisplaySettingsAfterLayoutListener refreshDisplaySettingsAfterLayoutListener;
-
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
@@ -250,44 +249,36 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private void addRefreshDisplaySettingsListener()
     {
-        refreshDisplaySettingsAfterLayoutListener = new RefreshDisplaySettingsAfterLayoutListener();
-        addListener(Events.AfterLayout, refreshDisplaySettingsAfterLayoutListener);
-    }
-
-    private class RefreshDisplaySettingsAfterLayoutListener implements Listener<BaseEvent>
-    {
-
-        private boolean ignoreLayoutRefresh = true;
-
-        private Long lastRefreshCheckTime;
-
-        public void handleEvent(BaseEvent be)
-        {
-
-            final Long lastColumnSettingsModificationTimeOrNull =
-                    viewContext.getDisplaySettingsManager().tryGetColumnsSettingsModificationTime(
-                            getGridDisplayTypeID());
-            if (ignoreLayoutRefresh == true)
+        addListener(Events.AfterLayout, new Listener<BaseEvent>()
             {
-                ignoreLayoutRefresh = false;
-            } else if (lastColumnSettingsModificationTimeOrNull != null
-                    && lastColumnSettingsModificationTimeOrNull > lastRefreshCheckTime)
-            {
-                // Grid settings have been modified in another browser of the same type.
-                // Refresh this browser settings.
-                refreshColumnsAndFiltersWithCurrentModel();
-            }
-            lastRefreshCheckTime = System.currentTimeMillis();
-        }
+                private Long lastRefreshCheckTime;
 
-        // No need to refresh if grid is displayed for the first time
-        // or refresh of layout is invoked by this grid.
-        public void ignoreLayoutRefresh()
-        {
-            ignoreLayoutRefresh = true;
-            // lastRefreshCheckTime = null could be used but would be less clear
-        }
+                public void handleEvent(BaseEvent be)
+                {
+                    if (lastRefreshCheckTime == null)
+                    {
+                        // No need to refresh when grid is displayed for the first time.
+                    } else if (isModificationDoneInAnotherViewSinceLastRefresh())
+                    {
+                        // Grid settings have been modified in another view of the same type.
+                        // Refresh this browser settings.
+                        refreshColumnsAndFiltersWithCurrentModel();
+                    }
+                    lastRefreshCheckTime = System.currentTimeMillis();
+                }
 
+                private boolean isModificationDoneInAnotherViewSinceLastRefresh()
+                {
+                    final Modification lastModificationOrNull =
+                            viewContext.getDisplaySettingsManager()
+                                    .tryGetLastColumnSettingsModification(getGridDisplayTypeID());
+                    return lastModificationOrNull != null
+                            && lastModificationOrNull.getModifier()
+                                    .equals(AbstractBrowserGrid.this) == false
+                            && lastModificationOrNull.getTime() > lastRefreshCheckTime;
+                }
+
+            });
     }
 
     /** Refreshes the grid without showing the loading progress bar */
@@ -1010,6 +1001,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     return extractFilteredColumnIds(filterWidgets);
                 }
 
+                public Object getModifier()
+                {
+                    return AbstractBrowserGrid.this;
+                }
+
             };
     }
 
@@ -1037,7 +1033,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         filterToolbar.updateColumnFilter(filterWidgets);
         if (noFiltersBefore != noFiltersAfter)
         {
-            refreshDisplaySettingsAfterLayoutListener.ignoreLayoutRefresh();
             layout();
         }
     }

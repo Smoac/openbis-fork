@@ -161,8 +161,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
-                "CISD", "NEMO", "EXP1").derivedFromAncestor("CISD:/CISD/3V-123", 1).derivedFromAncestor(
-                "CISD:/CISD/MP001-1", 2));
+                "CISD", "NEMO", "EXP1").derivedFromAncestor("CISD:/CISD/3V-123", 1)
+                .derivedFromAncestor("CISD:/CISD/MP001-1", 2));
         table.expectedColumnsNumber(22);
         remoteConsole.prepare(table.expectedSize(15));
 

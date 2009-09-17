@@ -30,4 +30,6 @@ public interface IDisplaySettingsGetter
     ColumnModel getColumnModel();
 
     List<String> getFilteredColumnIds();
+
+    Object getModifier();
 }
