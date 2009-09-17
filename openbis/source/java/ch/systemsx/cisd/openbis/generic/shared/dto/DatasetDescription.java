@@ -37,12 +37,18 @@ public class DatasetDescription implements Serializable
 
     private String groupCode;
 
+    private String projectCode;
+
+    private String experimentCode;
+
     public DatasetDescription(String datasetCode, String dataSetLocation, String sampleCode,
-            String groupCode)
+            String groupCode, String projectCode, String experimentCode)
     {
         this.datasetCode = datasetCode;
         this.dataSetLocation = dataSetLocation;
         this.sampleCode = sampleCode;
+        this.groupCode = groupCode;
+        this.projectCode = projectCode;
         this.groupCode = groupCode;
     }
 
@@ -67,6 +73,16 @@ public class DatasetDescription implements Serializable
     public String getGroupCode()
     {
         return groupCode;
+    }
+
+    public String getProjectCode()
+    {
+        return projectCode;
+    }
+
+    public String getExperimentCode()
+    {
+        return experimentCode;
     }
 
     @Override

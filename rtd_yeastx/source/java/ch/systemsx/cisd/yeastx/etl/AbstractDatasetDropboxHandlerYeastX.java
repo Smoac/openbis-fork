@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * @author Tomasz Pylak
@@ -41,14 +42,13 @@ abstract class AbstractDatasetDropboxHandlerYeastX extends AbstractDatasetDropbo
     {
         String dataSetCode = dataSetInformation.getDataSetCode();
         String originalName = incomingDataSetDirectory.getName();
-        String sampleCode = dataSetInformation.getSampleCode();
-        if (sampleCode == null)
-        {
-            sampleCode = "";
-        }
-        String groupCode = dataSetInformation.getGroupCode();
+        String subSep = "&";
+        ExperimentIdentifier expIdent = dataSetInformation.getExperimentIdentifier();
+        String expIdentText =
+                expIdent.getGroupCode() + subSep + expIdent.getProjectCode() + subSep
+                        + expIdent.getExperimentCode();
         String newFileName =
-                sampleCode + datasetCodeSeparator + groupCode + datasetCodeSeparator + dataSetCode
+                expIdentText + datasetCodeSeparator + dataSetCode
                         + stripFileExtension(originalName);
         return newFileName;
     }

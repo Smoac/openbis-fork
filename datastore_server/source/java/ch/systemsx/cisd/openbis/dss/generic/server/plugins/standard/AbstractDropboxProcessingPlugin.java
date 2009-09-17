@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPlug
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * The base class for processing plugins that employ a {@link AbstractDatasetDropboxHandler}.
@@ -89,6 +90,10 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         datasetInfo.setSampleCode(dataset.getSampleCode());
         datasetInfo.setGroupCode(dataset.getGroupCode());
         datasetInfo.setDataSetCode(dataset.getDatasetCode());
+        ExperimentIdentifier expIdent =
+                new ExperimentIdentifier(null, dataset.getGroupCode(), dataset.getProjectCode(),
+                        dataset.getExperimentCode());
+        datasetInfo.setExperimentIdentifier(expIdent);
         return datasetInfo;
     }
 

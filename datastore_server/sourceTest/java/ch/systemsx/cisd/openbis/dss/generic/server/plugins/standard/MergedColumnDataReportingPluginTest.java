@@ -58,17 +58,16 @@ public class MergedColumnDataReportingPluginTest
         final File f3 = new File(dirC, "results.txt");
         f3.deleteOnExit();
         FileUtilities.writeToFile(f1, "key\tval1\n" + "one\t1\n" + "two\t2.2\n" + "three\tCC\n");
-        FileUtilities.writeToFile(f2, "val2\tkey\n" + "17\ttwo\n" + "42\tthree\n"
-                + "105\tfour\n");
+        FileUtilities.writeToFile(f2, "val2\tkey\n" + "17\ttwo\n" + "42\tthree\n" + "105\tfour\n");
         FileUtilities.writeToFile(f3, "key\tval3\n" + "one\t0\n" + "three\t-8.2\n"
                 + "two\t1.9e+5\n");
         Properties props = new Properties();
         props.put("row-id-column-header", "key");
         props.put("sub-directory-name", "");
         final IReportingPluginTask plugin = new MergedColumnDataReportingPlugin(props, dir);
-        final DatasetDescription dsd1 = new DatasetDescription("", "a", "", "");
-        final DatasetDescription dsd2 = new DatasetDescription("", "b", "", "");
-        final DatasetDescription dsd3 = new DatasetDescription("", "c", "", "");
+        final DatasetDescription dsd1 = createDatasetDescription("a");
+        final DatasetDescription dsd2 = createDatasetDescription("b");
+        final DatasetDescription dsd3 = createDatasetDescription("c");
         final TableModel model = plugin.createReport(Arrays.asList(dsd1, dsd2, dsd3));
         assertEquals(4, model.getHeader().size());
         assertEquals("key", model.getHeader().get(0).getTitle());
@@ -81,9 +80,16 @@ public class MergedColumnDataReportingPluginTest
         assertEquals(TableModelColumnType.REAL, model.getHeader().get(3).getType());
         assertEquals(4, model.getRows().size());
         assertEquals("one\t1\t\t0", StringUtils.join(model.getRows().get(0).getValues(), '\t'));
-        assertEquals("two\t2.2\t17\t1.9e+5", StringUtils.join(model.getRows().get(1).getValues(), '\t'));
-        assertEquals("three\tCC\t42\t-8.2", StringUtils.join(model.getRows().get(2).getValues(), '\t'));
+        assertEquals("two\t2.2\t17\t1.9e+5", StringUtils.join(model.getRows().get(1).getValues(),
+                '\t'));
+        assertEquals("three\tCC\t42\t-8.2", StringUtils.join(model.getRows().get(2).getValues(),
+                '\t'));
         assertEquals("four\t\t105\t", StringUtils.join(model.getRows().get(3).getValues(), '\t'));
+    }
+
+    private DatasetDescription createDatasetDescription(String location)
+    {
+        return new DatasetDescription("", location, "", "", "", "");
     }
 
 }

@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
@@ -411,10 +412,14 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             {
                 String location = dataSet.getLocation();
                 SamplePE sample = dataSet.tryGetSample();
-                // TODO 2009-09-10, Piotr Buczek: rewrite to deal with sample == NULL
-                String sampleCode = sample.getCode();
-                String groupCode = sample.getGroup().getCode();
-                result.add(new DatasetDescription(datasetCode, location, sampleCode, groupCode));
+                String sampleCode = sample == null ? null : sample.getCode();
+                ExperimentPE experiment = dataSet.getExperiment();
+                ProjectPE project = experiment.getProject();
+                String groupCode = project.getGroup().getCode();
+                String projectCode = project.getCode();
+                String experimentCode = experiment.getCode();
+                result.add(new DatasetDescription(datasetCode, location, sampleCode, groupCode,
+                        projectCode, experimentCode));
             }
         }
         return result;
