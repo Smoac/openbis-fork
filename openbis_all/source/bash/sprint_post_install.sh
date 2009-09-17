@@ -27,6 +27,7 @@ function restore_loginHeader {
     echo restoring loginHeader.html
     cp ~/config/images ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
     cp ~/config/loginHeader.html ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp ~/config/help.html ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
   fi
 }
 
@@ -53,6 +54,7 @@ case "$SERVER" in
 	$AGRONOMICS)
 	echo AGRONOMICS:$AGRONOMICS;
 	restore_loginHeader
+	create_individual_greeting_message
 	$BIN/sprint_post_install_yeastx.sh	
 	;;
 	$BSSE)
