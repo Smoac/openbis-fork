@@ -11,9 +11,10 @@ CONFIG_DIR=~/config
 KEYSTORE=~/.keystore
 SERVERS_DIR_ALIAS=sprint
 VER=SNAPSHOT
-
+DATE=`/bin/date +%Y-%m-%d_%H%M`
 DB_NAME=openbis_productive
-
+DB_SNAPSHOT=~/db_snapshots
+TOMCAT_DIR=~/sprint/openBIS-server/apache-tomcat
 
 if [ $1 ]; then
     VER=$1
@@ -42,15 +43,13 @@ fi
 
 echo Saving the config and properties files...
 cp ~/sprint/datastore_server/etc/service.properties $CONFIG_DIR/datastore_server-service.properties
-cp ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/WEB-INF/classes/service.properties $CONFIG_DIR/service.properties 
-cp ~/sprint/openBIS-server/apache-tomcat/etc/openbis.conf $CONFIG_DIR/openbis.conf
-
+cp $TOMCAT_DIR/openbis/WEB-INF/classes/service.properties $CONFIG_DIR/service.properties 
+cp $TOMCAT_DIR/etc/openbis.conf $CONFIG_DIR/openbis.conf
+cp $TOMCAT_DIR/webapps/openbis/images/ ~/config/
+cp $TOMCAT_DIR/webapps/openbis/loginHeader.html ~/config/
 
 echo Making a database dump...
-DB_SNAPSHOT=db_snapshots/$SERVERS_PREV_VER-$DB_NAME.sql
-pg_dump -U postgres -O $DB_NAME > $DB_SNAPSHOT
-tar -cf - $DB_SNAPSHOT | bzip2 > $DB_SNAPSHOT.tar.bz2
-rm -f $DB_SNAPSHOT
+pg_dump -Fc $DB_NAME > $DB_SNAPSHOT/$SERVERS_PREV_VER-$DB_NAMEi_${DATE}.dmp
 
 echo Installing openBIS server...
 rm -rf old/$SERVERS_PREV_VER
@@ -94,4 +93,4 @@ rm -rf openbis
 alias 'rm=rm -i'
 alias 'cp=cp -ipR'
 
-echo Done, continue to change properties and start the servers!
+echo Done, run the sprint_post_install_script if needed and start the servers!
