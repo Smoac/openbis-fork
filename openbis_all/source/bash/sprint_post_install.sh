@@ -1,6 +1,7 @@
 #!/bin/sh
 # Central post install script for all openBIS servers
 
+export BIN=~/bin
 
 export SERVER=`uname -n`
 
@@ -26,15 +27,15 @@ case "$SERVER" in
 
 	$SPRINT)
 	echo SPRINT:$SPRINT;
-	./sprint_post_install_sprint.sh
+	$BIN/sprint_post_install_sprint.sh
 	;;
 	$DEMO)
 	echo DEMO:$DEMO;
-	./sprint_post_install_demo.sh
+	$BIN/sprint_post_install_demo.sh
 	;;
 	$YEASTX)
 	echo YEASTX:$YEASTX;
-	./sprint_post_install_yeastx.sh
+	$BIN/sprint_post_install_yeastx.sh
 	;;
 	$PHOSPHONETX)
 	echo PHOSPHONETX:$PHOSPHONETX;
@@ -44,7 +45,7 @@ case "$SERVER" in
 	;;
 	$AGRONOMICS)
 	echo AGRONOMICS:$AGRONOMICS;
-	./sprint_post_install_yeastx.sh	
+	$BIN/sprint_post_install_yeastx.sh	
 	;;
 	$BSSE)
 	echo BSSE:$BSSE;
@@ -52,11 +53,10 @@ case "$SERVER" in
 	$BASYSBIO)
 	echo BASYSBIO:$BASYSBIO;
 	create_individual_greeting_message
-	./sprint_post_install_basysbio.sh
+	$BIN/sprint_post_install_basysbio.sh
 	;;
 	*)
 	echo Wrong Server! $SERVER is not in the list of openBIS Servers.;
 	exit 1;
 	;;
 esac
-echo DONE
