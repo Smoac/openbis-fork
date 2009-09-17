@@ -15,6 +15,7 @@ DATE=`/bin/date +%Y-%m-%d_%H%M`
 DB_NAME=openbis_productive
 DB_SNAPSHOT=~/db_snapshots
 TOMCAT_DIR=~/sprint/openBIS-server/apache-tomcat
+DAYS_TO_RETAIN=7
 
 if [ $1 ]; then
     VER=$1
@@ -43,13 +44,19 @@ fi
 
 echo Saving the config and properties files...
 cp ~/sprint/datastore_server/etc/service.properties $CONFIG_DIR/datastore_server-service.properties
-cp $TOMCAT_DIR/openbis/WEB-INF/classes/service.properties $CONFIG_DIR/service.properties 
+cp $TOMCAT_DIR/webapps/openbis/WEB-INF/classes/service.properties $CONFIG_DIR/service.properties 
 cp $TOMCAT_DIR/etc/openbis.conf $CONFIG_DIR/openbis.conf
-cp $TOMCAT_DIR/webapps/openbis/images/ ~/config/
+cp -r $TOMCAT_DIR/webapps/openbis/images/ ~/config/
 cp $TOMCAT_DIR/webapps/openbis/loginHeader.html ~/config/
+cp $TOMCAT_DIR/webapps/openbis/help.html ~/config/
 
 echo Making a database dump...
+# A custom-format dump (-Fc flag) is not a script for psql, but instead must be
+# restored with pg_restore, for example:
+# pg_restore -d dbname filename
 pg_dump -Fc $DB_NAME > $DB_SNAPSHOT/$SERVERS_PREV_VER-$DB_NAMEi_${DATE}.dmp
+# we actually need to clean that up from time to time
+/usr/bin/find $DB_SNAPSHOT -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
 
 echo Installing openBIS server...
 rm -rf old/$SERVERS_PREV_VER
