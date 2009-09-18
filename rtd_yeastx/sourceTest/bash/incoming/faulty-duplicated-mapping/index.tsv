@@ -1,4 +1,4 @@
 # openbis-user@mailinator.pl
 file_name	sample	group	experiment	project	conversion	comment
-file.mzXML	x	IMSB_ZAMBONI			eicML	x
-file.mzXML	x	IMSB_ZAMBONI			eicML	x
+file.mzXML	x	TEST			eicML	x
+file.mzXML	x	TEST			eicML	x

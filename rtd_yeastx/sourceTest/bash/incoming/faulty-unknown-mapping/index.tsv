@@ -1,7 +1,7 @@
 # openbis-user@mailinator.pl
 file_name	sample	group	experiment	project	conversion	comment
-file1.mzXML	unknown	IMSB_ZAMBONI			eicML	x
-file2.mzXML	x	IMSB_ZAMBONI	unknown	unknown	eicML	x
-file3.mzXML	x	IMSB_ZAMBONI	without-proj		eicML	x
-file4.mzXML	x	IMSB_ZAMBONI		without-exp	eicML	x
+file1.mzXML	unknown	TEST			eicML	x
+file2.mzXML	x	TEST	unknown	unknown	eicML	x
+file3.mzXML	x	TEST	without-proj		eicML	x
+file4.mzXML	x	TEST		without-exp	eicML	x
 file5.mzXML	x	unknown			eicML	x
