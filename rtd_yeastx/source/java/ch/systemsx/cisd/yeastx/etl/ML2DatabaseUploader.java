@@ -45,6 +45,8 @@ import ch.systemsx.cisd.yeastx.fiaml.FIAML2Database;
  */
 public class ML2DatabaseUploader implements IDataSetUploader
 {
+    private static final String UNKNOWN_NAME = "unknown";
+
     private static final String DATABASE_PROPERTIES_PREFIX = "database.";
 
     private final EICML2Database eicML2Database;
@@ -116,15 +118,24 @@ public class ML2DatabaseUploader implements IDataSetUploader
     {
         String datasetPermId = dataSetInformation.getDataSetCode();
         Sample sample = dataSetInformation.tryToGetSample();
-        if (sample == null)
+        String sampleName = UNKNOWN_NAME;
+        String sampPermId = null;
+        if (sample != null)
         {
-            throw new EnvironmentFailureException("Missing sample in " + dataSetInformation);
+            sampleName = findSampleName(sample.getProperties());
+            sampPermId = sample.getPermId();
         }
-        Experiment experiment = sample.getExperiment();
+        Experiment experiment = dataSetInformation.tryToGetExperiment();
+        if (experiment == null)
+        {
+            throw new EnvironmentFailureException(
+                    "No information about the experiment connected to a dataset "
+                            + dataSetInformation);
+        }
         String experimentName = findExperimentName(experiment.getProperties());
-        String sampleName = findSampleName(sample.getProperties());
-        return new DMDataSetDTO(datasetPermId, sample.getPermId(), sampleName, experiment
-                .getPermId(), experimentName);
+
+        return new DMDataSetDTO(datasetPermId, sampPermId, sampleName, experiment.getPermId(),
+                experimentName);
     }
 
     private String findSampleName(List<? extends IEntityProperty> properties)
@@ -148,11 +159,7 @@ public class ML2DatabaseUploader implements IDataSetUploader
                 return property.getValue();
             }
         }
-        throw EnvironmentFailureException
-                .fromTemplate(
-                        "Cannot find the property with the code '%s'. "
-                                + "Check your server configuration, the code of the mandatory property should be provided.",
-                        propertyTypeCode);
+        return UNKNOWN_NAME;
     }
 
     private static String getExtension(final File incomingDataSetPath)
