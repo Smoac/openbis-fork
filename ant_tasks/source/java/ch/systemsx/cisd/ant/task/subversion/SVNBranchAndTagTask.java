@@ -214,10 +214,35 @@ public class SVNBranchAndTagTask extends Task
                         + branch.getVersion() + ")");
             }
         }
+        copyBranchToTag(svn, branch, tag);
+    }
+
+    private static void copyBranchToTag(final ISVNActions svn,
+            final SVNRepositoryProjectContextAntWrapper branch,
+            final SVNRepositoryProjectContextAntWrapper tag)
+    {
         final String tagName = tag.getVersion();
         final String logMessage = "Create tag '" + tagName + "'";
-        svn.copy(branch.getRepositoryUrl(), branch.getRevision(), tag.getRepositoryUrl(),
-                logMessage);
+        final String tagParent = SVNUtilities.getParent(tag.getRepositoryUrl());
+        if (svn.isMuccAvailable())
+        {
+            final List<String> commandLine = new ArrayList<String>();
+            if (nodeExists(svn, tag, tagParent, branch.getVersion()) == false)
+            {
+                commandLine.addAll(Arrays.asList("mkdir", tagParent));
+            }
+            commandLine.addAll(Arrays.asList("cp", branch.getRevision(), branch.getRepositoryUrl(),
+                    tag.getRepositoryUrl()));
+            svn.mucc(logMessage, commandLine.toArray(new String[commandLine.size()]));
+        } else
+        {
+            if (nodeExists(svn, tag, tagParent, branch.getVersion()) == false)
+            {
+                svn.mkdir(tagParent, logMessage);
+            }
+            svn.copy(branch.getRepositoryUrl(), branch.getRevision(), tag.getRepositoryUrl(),
+                    logMessage);
+        }
     }
 
     /**
@@ -329,13 +354,16 @@ public class SVNBranchAndTagTask extends Task
     private static boolean nodeExists(final ISVNActions svn,
             final SVNRepositoryProjectContextAntWrapper node)
     {
-        final String tagName = node.getVersion();
-        final String tagUrl = node.getRepositoryUrl();
-        final String parentUrl = SVNUtilities.getParent(tagUrl);
+        return nodeExists(svn, node, node.getRepositoryUrl(), node.getVersion());
+    }
+
+    private static boolean nodeExists(final ISVNActions svn,
+            final SVNRepositoryProjectContextAntWrapper node, String url, String name)
+    {
+        final String parentUrl = SVNUtilities.getParent(url);
         assert parentUrl != null;
-        assert tagName.equals(tagUrl.substring(parentUrl.length() + 1));
         final Set<String> branchSet = new HashSet<String>(svn.list(parentUrl));
-        final boolean exists = branchSet.contains(tagName + "/");
+        final boolean exists = branchSet.contains(name + "/");
         return exists;
     }
 
