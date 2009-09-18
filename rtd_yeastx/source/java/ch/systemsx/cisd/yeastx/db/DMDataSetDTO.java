@@ -36,22 +36,33 @@ public class DMDataSetDTO
     private long experimentId;
 
     @ResultColumn("SAMP_ID")
-    private long sampleId;
+    private Long sampleId;
 
-    private DMSampleDTO sample;
+    // not null only if experiment is null
+    private DMSampleDTO sampleOrNull;
+
+    // not null only if sample is null
+    private DMExperimentDTO experimentOrNull;
 
     public DMDataSetDTO()
     {
         // Bean compatibility.
     }
 
-    public DMDataSetDTO(String dsPermId, String sampPermId, String sampName, String expePermId,
-            String expeName)
+    public DMDataSetDTO(String dsPermId, String sampPermIdOrNull, String sampNameOrNull,
+            String expePermId, String expeName)
     {
         this.permId = dsPermId;
         final DMExperimentDTO experiment = new DMExperimentDTO(expePermId, expeName);
-        this.sample = new DMSampleDTO(sampPermId, sampName);
-        sample.setExperiment(experiment);
+        if (sampPermIdOrNull != null)
+        {
+            assert sampNameOrNull != null : "sample name must be given when sample permId is given";
+            this.sampleOrNull = new DMSampleDTO(sampPermIdOrNull, sampNameOrNull);
+            sampleOrNull.setExperiment(experiment);
+        } else
+        {
+            this.experimentOrNull = experiment;
+        }
     }
 
     public long getId()
@@ -84,31 +95,37 @@ public class DMDataSetDTO
         this.experimentId = experimentId;
     }
 
-    public long getSampleId()
+    public Long getSampleId()
     {
         return sampleId;
     }
 
-    public void setSampleId(long sampleId)
+    public void setSampleId(Long sampleId)
     {
         this.sampleId = sampleId;
     }
 
     public DMSampleDTO getSample()
     {
-        return sample;
+        return sampleOrNull;
     }
 
     public void setSample(DMSampleDTO sample)
     {
-        this.sample = sample;
+        this.sampleOrNull = sample;
         this.sampleId = sample.getId();
         this.experimentId = sample.getExperimentId();
     }
 
     public DMExperimentDTO getExperiment()
     {
-        return sample.getExperiment();
+        if (sampleOrNull != null)
+        {
+            return sampleOrNull.getExperiment();
+        } else
+        {
+            return experimentOrNull;
+        }
     }
 
 }

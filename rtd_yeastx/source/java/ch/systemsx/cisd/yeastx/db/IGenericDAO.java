@@ -33,9 +33,6 @@ public interface IGenericDAO extends TransactionQuery
     @Select("select * from EXPERIMENTS where PERM_ID = ?{1}")
     public DMExperimentDTO getExperimentByPermId(String experimentPermId);
 
-    @Select("select * from EXPERIMENTS where ID = ?{1}")
-    public DMExperimentDTO getExperimentById(long id);
-
     @Select("insert into EXPERIMENTS (PERM_ID, NAME) values (?{1.permId}, ?{1.name}) returning ID")
     public long addExperiment(DMExperimentDTO experiment);
 
@@ -59,9 +56,9 @@ public interface IGenericDAO extends TransactionQuery
     public DMDataSetDTO getDataSetById(long id);
 
     @Select("insert into DATA_SETS (PERM_ID, EXPE_ID, SAMP_ID) values "
-            + "(?{1.permId}, ?{1.experiment.id}, ?{1.sample.id}) returning ID")
+            + "(?{1.permId}, ?{1.experimentId}, ?{1.sampleId}) returning ID")
     public long addDataSet(DMDataSetDTO dataSet);
-    
+
     @Update(sql = "delete from DATA_SETS where PERM_ID=?{1.permId}", batchUpdate = true)
     public void deleteDataSets(List<DMDataSetDTO> dataSets);
 

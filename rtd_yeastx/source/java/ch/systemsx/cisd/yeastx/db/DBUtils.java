@@ -90,29 +90,35 @@ public class DBUtils
      */
     public static void createDataSet(IGenericDAO dao, DMDataSetDTO dataSet)
     {
-        DMSampleDTO sample = dao.getSampleByPermId(dataSet.getSample().getPermId());
-        if (sample == null)
+        DMExperimentDTO experiment = dao.getExperimentByPermId(dataSet.getExperiment().getPermId());
+        if (experiment == null)
         {
-            DMExperimentDTO experiment =
-                    dao.getExperimentByPermId(dataSet.getExperiment().getPermId());
-            if (experiment == null)
-            {
-                experiment = dataSet.getExperiment();
-                final long experimentId = dao.addExperiment(experiment);
-                experiment.setId(experimentId);
-            }
-            sample = dataSet.getSample();
-            sample.setExperiment(experiment);
-            final long sampleId = dao.addSample(sample);
-            sample.setId(sampleId);
-            dataSet.setSample(sample); // make sure all the ids are set correctly.
+            experiment = dataSet.getExperiment();
+            final long experimentId = dao.addExperiment(experiment);
+            experiment.setId(experimentId);
+            dataSet.setExperimentId(experimentId); // make sure all the ids are set correctly.
         } else
         {
-            dataSet.setSample(sample);
-            sample.setExperiment(dao.getExperimentById(sample.getExperimentId()));
+            dataSet.setExperimentId(experiment.getId()); // make sure all the ids are set correctly.
+        }
+
+        if (dataSet.getSample() != null)
+        {
+            DMSampleDTO sample = dao.getSampleByPermId(dataSet.getSample().getPermId());
+            if (sample == null)
+            {
+                sample = dataSet.getSample();
+                sample.setExperiment(experiment);
+                final long sampleId = dao.addSample(sample);
+                sample.setId(sampleId);
+                dataSet.setSample(sample); // make sure all the ids are set correctly.
+            } else
+            {
+                dataSet.setSample(sample);
+                sample.setExperiment(experiment);
+            }
         }
         long dataSetId = dao.addDataSet(dataSet);
         dataSet.setId(dataSetId);
     }
-
 }

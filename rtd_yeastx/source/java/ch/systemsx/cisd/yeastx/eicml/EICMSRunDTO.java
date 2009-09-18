@@ -33,13 +33,13 @@ public class EICMSRunDTO
 
     @ResultColumn("DS_ID")
     private long dataSetId;
-    
+
     @ResultColumn("SAMP_ID")
-    private long sampleId;
-    
+    private Long sampleId;
+
     @ResultColumn("EXPE_ID")
     private long experimentId;
-    
+
     @ResultColumn("RAW_DATA_FILE_PATH")
     private String rawDataFilePath;
 
@@ -63,13 +63,13 @@ public class EICMSRunDTO
 
     @ResultColumn("ACQUISITION_DATE")
     private Date acquisitionDate;
-    
+
     @ResultColumn("MS_RUN_ID")
     private Long msRunId;
-    
+
     @ResultColumn("SET_ID")
     private Long setId;
-    
+
     private String operator;
 
     private int chromCount = -1;
@@ -95,12 +95,12 @@ public class EICMSRunDTO
         this.dataSetId = dataSetId;
     }
 
-    public long getSampleId()
+    public Long getSampleId()
     {
         return sampleId;
     }
 
-    public void setSampleId(long sampleId)
+    public void setSampleId(Long sampleId)
     {
         this.sampleId = sampleId;
     }

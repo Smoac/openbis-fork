@@ -119,11 +119,11 @@ public class ML2DatabaseUploader implements IDataSetUploader
         String datasetPermId = dataSetInformation.getDataSetCode();
         Sample sample = dataSetInformation.tryToGetSample();
         String sampleName = UNKNOWN_NAME;
-        String sampPermId = null;
+        String sampPermIdOrNull = null;
         if (sample != null)
         {
             sampleName = findSampleName(sample.getProperties());
-            sampPermId = sample.getPermId();
+            sampPermIdOrNull = sample.getPermId();
         }
         Experiment experiment = dataSetInformation.tryToGetExperiment();
         if (experiment == null)
@@ -134,8 +134,8 @@ public class ML2DatabaseUploader implements IDataSetUploader
         }
         String experimentName = findExperimentName(experiment.getProperties());
 
-        return new DMDataSetDTO(datasetPermId, sampPermId, sampleName, experiment.getPermId(),
-                experimentName);
+        return new DMDataSetDTO(datasetPermId, sampPermIdOrNull, sampleName,
+                experiment.getPermId(), experimentName);
     }
 
     private String findSampleName(List<? extends IEntityProperty> properties)

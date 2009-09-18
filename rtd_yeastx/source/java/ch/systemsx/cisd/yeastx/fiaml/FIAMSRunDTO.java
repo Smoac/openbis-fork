@@ -33,13 +33,13 @@ public class FIAMSRunDTO
 
     @ResultColumn("DS_ID")
     private long dataSetId;
-    
+
     @ResultColumn("SAMP_ID")
-    private long sampleId;
-    
+    private Long sampleId;
+
     @ResultColumn("EXPE_ID")
     private long experimentId;
-    
+
     @ResultColumn("RAW_DATA_FILE_PATH")
     private String rawDataFilePath;
 
@@ -65,19 +65,19 @@ public class FIAMSRunDTO
 
     @ResultColumn("ACQUISITION_DATE")
     private Date acquisitionDate;
-    
+
     @ResultColumn("LOW_MZ")
     private float lowMz;
-    
+
     @ResultColumn("HIGH_MZ")
     private float highMz;
-    
+
     private float internalStandard;
-    
+
     private float od;
-    
+
     private String operator;
-    
+
     private int profileCount;
 
     public int getProfileCount()
@@ -110,12 +110,12 @@ public class FIAMSRunDTO
         this.dataSetId = dataSetId;
     }
 
-    public long getSampleId()
+    public Long getSampleId()
     {
         return sampleId;
     }
 
-    public void setSampleId(long sampleId)
+    public void setSampleId(Long sampleId)
     {
         this.sampleId = sampleId;
     }
