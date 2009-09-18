@@ -49,7 +49,7 @@ public class DatasetDescription implements Serializable
         this.sampleCode = sampleCode;
         this.groupCode = groupCode;
         this.projectCode = projectCode;
-        this.groupCode = groupCode;
+        this.experimentCode = experimentCode;
     }
 
     public String getDataSetLocation()

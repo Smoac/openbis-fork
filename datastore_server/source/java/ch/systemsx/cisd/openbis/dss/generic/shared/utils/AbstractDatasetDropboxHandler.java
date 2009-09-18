@@ -154,9 +154,10 @@ abstract public class AbstractDatasetDropboxHandler implements Serializable
                                         fileOperations.copyToDirectoryAs(source, destDir, newName);
                                     } catch (IOExceptionUnchecked ex)
                                     {
-                                        operationLog.error(createCopyErrorMessage(source, destDir,
+                                        operationLog.warn(createCopyErrorMessage(source, destDir,
                                                 newName)
-                                                + ": " + ex.getMessage());
+                                                + ". Operation will be retried. Details: "
+                                                + ex.getMessage());
                                         return null;
                                     }
                                     return Boolean.TRUE;
