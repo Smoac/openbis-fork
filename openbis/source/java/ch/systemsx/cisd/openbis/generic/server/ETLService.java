@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslat
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -254,8 +255,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     }
 
     public Experiment tryToGetExperiment(String sessionToken,
-            ExperimentIdentifier experimentIdentifier)
-            throws UserFailureException
+            ExperimentIdentifier experimentIdentifier) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert experimentIdentifier != null : "Unspecified experiment identifier.";
@@ -266,7 +266,8 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         {
             return null;
         }
-        return ExperimentTranslator.translate(experiment, session.getBaseIndexURL());
+        return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
+                LoadableFields.PROPERTIES);
     }
 
     public Sample tryGetSampleWithExperiment(String sessionToken, SampleIdentifier sampleIdentifier)
