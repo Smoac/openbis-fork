@@ -70,7 +70,7 @@ public class DataSetInformation implements Serializable
 
     /** sample with properties, enriched with connected experiment with properties. */
     private transient Sample sample;
-    
+
     private transient Experiment experiment;
 
     private BooleanOrUnknown isCompleteFlag = BooleanOrUnknown.U;
@@ -167,11 +167,12 @@ public class DataSetInformation implements Serializable
     /**
      * Returns the basic information about the experiment.
      */
+    // FIXME 2009-09-18 Tomasz Pylak: When can it be null???????????
     public Experiment tryToGetExperiment()
     {
         return experiment == null ? (sample == null ? null : sample.getExperiment()) : experiment;
     }
-    
+
     public void setExperiment(Experiment experiment)
     {
         this.experiment = experiment;
