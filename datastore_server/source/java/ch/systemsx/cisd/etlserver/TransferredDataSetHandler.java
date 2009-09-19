@@ -94,7 +94,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     static final String SUCCESSFULLY_REGISTERED_FOR_EXPERIMENT_TEMPLATE =
             "Successfully registered data set '%s' for experiment '%s' and data set type '%s'"
                     + " with openBIS service.";
-    
+
     @Private
     static final String EMAIL_SUBJECT_TEMPLATE = "Success: data set for experiment '%s";
 
@@ -215,7 +215,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             return registrationHelper.registerDataSet();
         } else
         {
-            registrationHelper.moveDataSet();
+            registrationHelper.dealWithUnidentifiedDataSet();
             return Collections.emptyList();
         }
     }
@@ -428,13 +428,35 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 registerDataSetAndInitiateProcessing(processorID);
                 logAndNotifySuccessfulRegistration(getEmail());
                 if (fileOperations.exists(incomingDataSetFile)
-                        && fileOperations.removeRecursivelyQueueing(incomingDataSetFile) == false)
+                        && removeAndLog("clean up failed") == false)
                 {
                     operationLog.error("Cannot delete '" + incomingDataSetFile.getAbsolutePath()
                             + "'.");
                 }
                 clean();
                 return Collections.singletonList(dataSetInformation);
+            } catch (final HighLevelException ex)
+            {
+                final String userEmailOrNull = dataSetInformation.tryGetUploadingUserEmail();
+                boolean deleted = false;
+                if (userEmailOrNull != null)
+                {
+                    final String errorMessage =
+                            "Error when trying to register data set '"
+                                    + incomingDataSetFile.getName() + "'.";
+                    mailClient.sendMessage(String.format(errorMessage, dataSetInformation
+                            .getExperimentIdentifier().getExperimentCode()), ex.getMessage(), null,
+                            null, userEmailOrNull);
+                    if (deleteUnidentified)
+                    {
+                        deleted = removeAndLog(errorMessage + " [" + ex.getMessage() + "]");
+                    }
+                }
+                if (deleted == false)
+                {
+                    rollback(ex);
+                }
+                return Collections.emptyList();
             } catch (final Throwable throwable)
             {
                 rollback(throwable);
@@ -447,7 +469,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             Experiment experiment = dataSetInformation.tryToGetExperiment();
             if (experiment == null)
             {
-                throw new UserFailureException("Unknown experiment of data set " + dataSetInformation);
+                throw new UserFailureException("Unknown experiment of data set "
+                        + dataSetInformation);
             }
             return experiment.getRegistrator().getEmail();
         }
@@ -511,8 +534,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 NewExternalData data = createExternalData();
                 File dataFile =
                         storageProcessor.storeData(dataSetInformation, typeExtractor, mailClient,
-                                incomingDataSetFile, baseDirectoryHolder
-                                        .getBaseDirectory());
+                                incomingDataSetFile, baseDirectoryHolder.getBaseDirectory());
                 if (operationLog.isInfoEnabled())
                 {
                     operationLog.info("Finished storing data set for sample '"
@@ -561,18 +583,28 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         }
 
         /**
-         * This method is only ever called for unidentified or invalid data sets.
+         * This method is only ever called for unidentified data sets.
          */
-        final void moveDataSet()
+        final void dealWithUnidentifiedDataSet()
         {
             final boolean ok =
-                    deleteUnidentified ? (FileUtilities.deleteRecursively(incomingDataSetFile))
-                            : FileRenamer.renameAndLog(incomingDataSetFile, baseDirectoryHolder
-                                    .getTargetFile());
+                    deleteUnidentified ? (removeAndLog(incomingDataSetFile.getName()
+                            + " could not be identified.")) : FileRenamer.renameAndLog(
+                            incomingDataSetFile, baseDirectoryHolder.getTargetFile());
             if (ok)
             {
                 clean();
             }
+        }
+
+        private boolean removeAndLog(String msg)
+        {
+            final boolean ok = fileOperations.removeRecursivelyQueueing(incomingDataSetFile);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Dataset deleted in registration: " + msg);
+            }
+            return ok;
         }
 
         private final void plainRegisterDataSet(NewExternalData data, final String relativePath,
@@ -603,8 +635,10 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 }
                 if (StringUtils.isBlank(email) == false)
                 {
-                    mailClient.sendMessage(String.format(EMAIL_SUBJECT_TEMPLATE, dataSetInformation
-                            .getExperimentIdentifier().getExperimentCode()), msg, null, null, email);
+                    mailClient
+                            .sendMessage(String.format(EMAIL_SUBJECT_TEMPLATE, dataSetInformation
+                                    .getExperimentIdentifier().getExperimentCode()), msg, null,
+                                    null, email);
                 }
             }
         }
@@ -706,8 +740,9 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             return baseDirectory;
         }
 
-        private final NewExternalData updateExternalData(NewExternalData data, final String relativePath,
-                final StorageFormat storageFormat, final BooleanOrUnknown isCompleteFlag)
+        private final NewExternalData updateExternalData(NewExternalData data,
+                final String relativePath, final StorageFormat storageFormat,
+                final BooleanOrUnknown isCompleteFlag)
         {
             data.setComplete(isCompleteFlag);
             data.setLocation(relativePath);
@@ -718,7 +753,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         private NewExternalData createExternalData()
         {
             final ExtractableData extractableData = dataSetInformation.getExtractableData();
-            final NewExternalData data = BeanUtils.createBean(NewExternalData.class, extractableData);
+            final NewExternalData data =
+                    BeanUtils.createBean(NewExternalData.class, extractableData);
             data.setLocatorType(typeExtractor.getLocatorType(incomingDataSetFile));
             data.setDataSetType(typeExtractor.getDataSetType(incomingDataSetFile));
             data.setFileFormatType(typeExtractor.getFileFormatType(incomingDataSetFile));
