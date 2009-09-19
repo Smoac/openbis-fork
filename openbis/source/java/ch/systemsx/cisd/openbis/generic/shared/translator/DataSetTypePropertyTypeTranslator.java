@@ -60,10 +60,11 @@ public class DataSetTypePropertyTypeTranslator
     }
 
     public static List<DataSetTypePropertyType> translate(
-            Set<DataSetTypePropertyTypePE> DataSetTypePropertyTypes, PropertyType result)
+            Set<DataSetTypePropertyTypePE> DataSetTypePropertyTypes, PropertyType result,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         return new DataSetTypePropertyTypeTranslatorHelper().translate(DataSetTypePropertyTypes,
-                result, null);
+                result, cacheOrNull);
     }
 
     public static DataSetTypePropertyType translate(DataSetTypePropertyTypePE entityTypePropertyType)

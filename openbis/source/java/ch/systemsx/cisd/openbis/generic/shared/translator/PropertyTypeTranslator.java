@@ -83,7 +83,7 @@ public final class PropertyTypeTranslator
         result.setExperimentTypePropertyTypes(ExperimentTypePropertyTypeTranslator.translate(
                 propertyType.getExperimentTypePropertyTypes(), result));
         result.setDataSetTypePropertyTypes(DataSetTypePropertyTypeTranslator.translate(propertyType
-                .getDataSetTypePropertyTypes(), result));
+                .getDataSetTypePropertyTypes(), result, cacheOrNull));
         return result;
     }
 
