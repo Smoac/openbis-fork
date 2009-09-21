@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  * 
  * @author Piotr Buczek
  */
-class DataSetRelationshipBrowser extends AbstractExternalDataGrid
+public class DataSetRelationshipBrowser extends AbstractExternalDataGrid
 {
     private static final String PREFIX = "data-set-relationships-section_";
 

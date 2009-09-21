@@ -16,17 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
-import java.util.List;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSetEditor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.FillSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
@@ -45,80 +44,115 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
 
     private static final String DS_WITH_ONE_PARENT_NEW_PARENTS_CODE = "20081105092159111-1";
 
+    private static final String DS_WITH_MANY_PARENTS_CODE = "20081105092259000-9";
+
     public final void testEditDataSetComment()
     {
-        prepareShowDataSetEditor(DS_WITH_ONE_PARENT_CODE);
+        final String modifiedDataSetCode = DS_WITH_ONE_PARENT_CODE;
+
+        prepareShowDataSetEditor(modifiedDataSetCode);
 
         final String newCommentColumnValue = "new comment";
         remoteConsole.prepare(new FillDataSetEditForm().addProperty(new PropertyField("comment",
                 newCommentColumnValue)));
-        final AbstractDefaultTestCommand showUpdatedDataSet = new ShowUpdatedDataSet();
-        remoteConsole.prepare(new AbstractDefaultTestCommand()
-            {
-                @Override
-                public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
-                        List<AbstractAsyncCallback<Object>> callbackObjects, Object result)
-                {
-                    return showUpdatedDataSet.tryValidOnSucess(callbackObjects, result);
-                }
+        remoteConsole.prepare(new ShowUpdatedDataSet());
 
-                public void execute()
-                {
-                    showUpdatedDataSet.execute();
+        final CheckDataSet checkDataSet = new CheckDataSet();
+        checkDataSet.property("Comment").asProperty(newCommentColumnValue);
+        remoteConsole.prepare(checkDataSet);
 
-                    final CheckDataSet checkDataSet = new CheckDataSet();
-                    checkDataSet.property("Comment").asProperty(newCommentColumnValue);
-                    remoteConsole.prepare(checkDataSet);
-                }
-            });
-        launchTest(20 * SECOND);
+        launchTest(40 * SECOND);
     }
 
     public final void testEditDataSetAddParent()
     {
-        prepareShowDataSetEditor(DS_WITH_ONE_PARENT_CODE);
+        final String modifiedDataSetCode = DS_WITH_ONE_PARENT_CODE;
+
+        prepareShowDataSetEditor(modifiedDataSetCode);
 
         remoteConsole.prepare(new FillDataSetEditForm()
                 .modifyParents(DS_WITH_ONE_PARENT_PARENTS_CODE + ","
                         + DS_WITH_ONE_PARENT_NEW_PARENTS_CODE));
+        remoteConsole.prepare(new ShowUpdatedDataSet());
 
-        final AbstractDefaultTestCommand showUpdatedDataSet = new ShowUpdatedDataSet();
-        // remoteConsole.prepare(new ShowUpdatedDataSet());
-        remoteConsole.prepare(new AbstractDefaultTestCommand()
-            {
-                @Override
-                public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
-                        List<AbstractAsyncCallback<Object>> callbackObjects, Object result)
-                {
-                    return showUpdatedDataSet.tryValidOnSucess(callbackObjects, result);
-                }
-
-                public void execute()
-                {
-                    showUpdatedDataSet.execute();
-                    final CheckTableCommand checkParents =
-                            new CheckDataSet().parentsTable().expectedSize(2);
-                    // checkParents.expectedRow(new DataSetRow(DS_WITH_ONE_PARENT_PARENTS_CODE));
-                    // checkParents.expectedRow(new
-                    // DataSetRow(DS_WITH_ONE_PARENT_NEW_PARENTS_CODE));
-
-                    remoteConsole.prepare(checkParents);
-                }
-            });
+        final CheckTableCommand checkParents = new CheckDataSet().parentsTable().expectedSize(2);
+        checkParents.expectedRow(new DataSetRow(DS_WITH_ONE_PARENT_PARENTS_CODE));
+        checkParents.expectedRow(new DataSetRow(DS_WITH_ONE_PARENT_NEW_PARENTS_CODE));
+        remoteConsole.prepare(checkParents);
 
         launchTest(20 * SECOND);
     }
 
-    // public final void testEditDataSetRemoveAllParents()
-    // {
-    // prepareShowDataSetEditor(DS_WITH_ONE_PARENT_CODE);
-    //
-    // remoteConsole.prepare(new FillDataSetEditForm().modifyParents(""));
-    // remoteConsole.prepare(new ShowUpdatedDataSet());
-    // final CheckTableCommand checkParents = new CheckDataSet().parentsTable().expectedSize(0);
-    // remoteConsole.prepare(checkParents);
-    // launchTest(20 * SECOND);
-    // }
+    public final void testEditDataSetRemoveAllParents()
+    {
+        final String modifiedDataSetCode = DS_WITH_ONE_PARENT_CODE;
+
+        prepareShowDataSetEditor(modifiedDataSetCode);
+
+        remoteConsole.prepare(new FillDataSetEditForm().modifyParents(""));
+        remoteConsole.prepare(new ShowUpdatedDataSet());
+        final CheckTableCommand checkParents = new CheckDataSet().parentsTable().expectedSize(0);
+        remoteConsole.prepare(checkParents);
+        launchTest(20 * SECOND);
+    }
+
+    public final void testEditDataSetParents()
+    {
+        final String modifiedDataSetCode = DS_WITH_MANY_PARENTS_CODE;
+        // Remove three parents and add one in one go. Old parent codes:
+        // 20081105092158673-1, 20081105092159111-1, 20081105092159222-2, 20081105092159333-3
+        final String newParentCode = "20081105092159188-3";
+        final String oldParentCode = "20081105092159111-1";
+
+        prepareShowDataSetEditor(modifiedDataSetCode);
+
+        remoteConsole.prepare(new FillDataSetEditForm().modifyParents(newParentCode + ", "
+                + oldParentCode));
+        remoteConsole.prepare(new ShowUpdatedDataSet());
+        final CheckTableCommand checkParents = new CheckDataSet().parentsTable().expectedSize(2);
+        checkParents.expectedRow(new DataSetRow(newParentCode));
+        checkParents.expectedRow(new DataSetRow(oldParentCode));
+        remoteConsole.prepare(checkParents);
+        launchTest(20 * SECOND);
+    }
+
+    public final void testEditDataSetParentsFailWithCycleRelationships()
+    {
+        final String modifiedDataSetCode = DS_WITH_MANY_PARENTS_CODE;
+        final String descendantCode = "20081105092359990-2";
+
+        prepareShowDataSetEditor(modifiedDataSetCode);
+
+        remoteConsole.prepare(new FillDataSetEditForm().modifyParents(descendantCode));
+        FailureExpectation failureExpectation =
+                new FailureExpectation(GenericDataSetEditForm.UpdateDataSetCallback.class)
+                        .with("Data Set '" + modifiedDataSetCode + "' is an ancestor of Data Set '"
+                                + descendantCode
+                                + "' and cannot be at the same time set as its child.");
+        remoteConsole.prepare(failureExpectation);
+
+        launchTest(20 * SECOND);
+    }
+
+    // This test is needed among system tests because a deferred trigger is executed
+    // just before commit and another test in DAO layer uses manual commit that is unnatural.
+    public final void testAddDataSetParentFailWithDeferredTriggerError()
+    {
+        final String modifiedDataSetCode = DS_WITH_ONE_PARENT_PARENTS_CODE;
+        final String addedParentCode = DS_WITH_ONE_PARENT_NEW_PARENTS_CODE;
+
+        prepareShowDataSetEditor(modifiedDataSetCode);
+
+        remoteConsole.prepare(new FillDataSetEditForm().modifyParents(addedParentCode));
+        FailureExpectation failureExpectation =
+                new FailureExpectation(GenericDataSetEditForm.UpdateDataSetCallback.class)
+                        .with("ERROR: Insert/Update of Data Set (Code: '"
+                                + modifiedDataSetCode
+                                + "') failed because it cannot be connected with a Sample and a parent Data Set at the same time.'");
+        remoteConsole.prepare(failureExpectation);
+
+        launchTest(20 * SECOND);
+    }
 
     private class ShowUpdatedDataSet extends AbstractDefaultTestCommand
     {
@@ -135,23 +169,6 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
             GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, tabItemId);
         }
     }
-
-    //
-    // public final void testEditExperimentProject()
-    // {
-    // String oldProject = NEMO;
-    // String newProject = DEFAULT;
-    // String experiment = EXP11;
-    // prepareShowExperimentEditor(CISD, oldProject, SIRNA_HCS, experiment);
-    // remoteConsole.prepare(new FillExperimentEditForm().changeProject(identifier(CISD,
-    // newProject)));
-    // remoteConsole.prepare(new ListExperiments(withGroup(CISD, newProject), SIRNA_HCS,
-    // GenericExperimentEditForm.UpdateExperimentCallback.class));
-    // CheckExperimentTable table = new CheckExperimentTable();
-    // table.expectedRow(new ExperimentRow(experiment));
-    // remoteConsole.prepare(table);
-    // launchTest(20 * SECOND);
-    // }
 
     private void prepareShowDataSetEditor(String dataSetCode)
     {

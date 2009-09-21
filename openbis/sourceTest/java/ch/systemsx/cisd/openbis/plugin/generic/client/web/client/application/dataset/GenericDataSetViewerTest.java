@@ -71,7 +71,7 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(checkDataSet);
 
-        launchTest(40 * SECOND);
+        launchTest(20 * SECOND);
     }
 
     public final void testShowExperimentDataSetWithParents()
@@ -100,7 +100,7 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(checkDataSet);
 
-        launchTest(40 * SECOND);
+        launchTest(20 * SECOND);
     }
 
     private void checkDataSetRelationships(CheckTableCommand checkTable, String[] expectedCodes)

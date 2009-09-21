@@ -35,17 +35,18 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  * 
  * @author Piotr Buczek
  */
+// TODO 2009-09-21, Piotr Buczek: test modification of Sample and File Format Type
 public final class FillDataSetEditForm extends AbstractDefaultTestCommand
 {
     private final String formId;
 
-    private final List<PropertyField> properties;
+    private String modifiedParentsOrNull;
 
     // private String newSampleOrNull;
 
-    private String modifiedParentsOrNull;
-
     // private String newFileFormatTypeOrNull;
+
+    private final List<PropertyField> properties;
 
     public FillDataSetEditForm()
     {

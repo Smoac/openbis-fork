@@ -180,6 +180,12 @@ public class RemoteConsole
                         cmd.tryValidOnSucess(lastCallbackObjects, result);
                 if (unmatchedCallbacks != null)
                 {
+                	// uncomment to debug unmatched callbacks in system tests
+                    // System.err.println("callback: " + entryIndex);
+                    // for (AbstractAsyncCallback<?> c : unmatchedCallbacks)
+                    // {
+                    //     System.err.println("\t" + c);
+                    // }
                     lastCallbackObjects = unmatchedCallbacks;
                     executeCommand();
                 }
