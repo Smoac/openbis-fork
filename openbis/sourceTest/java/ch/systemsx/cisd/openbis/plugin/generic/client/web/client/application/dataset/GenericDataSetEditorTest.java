@@ -99,9 +99,9 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
         remoteConsole.prepare(new FillDataSetEditForm().modifyParents(addedParentCode));
         FailureExpectation failureExpectation =
                 new FailureExpectation(GenericDataSetEditForm.UpdateDataSetCallback.class)
-                        .with("ERROR: Insert/Update of Data Set (Code: '"
+                        .with("ERROR: Insert/Update of Data Set (Code: "
                                 + modifiedDataSetCode
-                                + "') failed because it cannot be connected with a Sample and a parent Data Set at the same time.'");
+                                + ") failed because it cannot be connected with a Sample and a parent Data Set at the same time.");
         remoteConsole.prepare(failureExpectation);
 
         launchTest(20 * SECOND);
