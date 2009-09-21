@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchRow;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetSearchRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.FillSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -38,7 +38,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
     public final void testSearchByDataSetProperty()
     {
-        loginAndGotoTab();
+        loginAndGotoSearchTab();
         FillSearchCriteria fillCriteriaCmd = new FillSearchCriteria();
         fillCriteriaCmd.addPropertyCriterion("Comment", "no comment");
         remoteConsole.prepare(fillCriteriaCmd);
@@ -57,7 +57,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
     public final void testSearchForFileType()
     {
-        loginAndGotoTab();
+        loginAndGotoSearchTab();
         FillSearchCriteria fillCriteriaCmd = new FillSearchCriteria();
         fillCriteriaCmd.addAttributeCriterion(DataSetAttributeSearchFieldKind.FILE_TYPE, "tiff");
 
@@ -78,7 +78,8 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
     private Row createTiffRow()
     {
-        return new Row().withCell(CommonExternalDataColDefKind.FILE_FORMAT_TYPE.id(), "TIFF");
+        return new DataSetSearchRow().withCell(CommonExternalDataColDefKind.FILE_FORMAT_TYPE.id(),
+                "TIFF");
     }
 
     private static CheckTableCommand createCheckSearchGridCmd()
@@ -86,7 +87,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         return new CheckTableCommand(DataSetSearchHitGrid.GRID_ID);
     }
 
-    private void loginAndGotoTab()
+    private void loginAndGotoSearchTab()
     {
         loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_SEARCH);
     }

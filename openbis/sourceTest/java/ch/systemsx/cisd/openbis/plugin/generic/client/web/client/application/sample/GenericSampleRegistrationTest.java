@@ -26,14 +26,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ChooseTypeOfNewSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ShowSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.ShowSample;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
@@ -44,6 +46,23 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  */
 public class GenericSampleRegistrationTest extends AbstractGWTTestCase
 {
+    /**
+     * Don't use directly - use {@link #getFormID()}.
+     * <p>
+     * NOTE: Cannot set value statically - tests construction fails.
+     */
+    @Deprecated
+    private static String FORM_ID;
+
+    private static String getFormID()
+    {
+        if (FORM_ID == null)
+        {
+            FORM_ID = GenericSampleRegistrationForm.createId((TechId) null, EntityKind.SAMPLE);
+        }
+        return FORM_ID;
+    }
+
     private static final String PLATE_GEOMETRY = "$plate_geometry";
 
     private static final String CONTROL_LAYOUT = "CONTROL_LAYOUT";
@@ -69,7 +88,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String sampleTypeCode = CONTROL_LAYOUT;
         loginAndPreprareRegistration(sampleTypeCode);
         remoteConsole.prepare(new FillSampleRegistrationForm("CISD", GROUP_CL, true)
-                .addProperty(new PropertyField(GenericSampleRegistrationForm.ID
+                .addProperty(new PropertyField(getFormID()
                         + GWTUtils.escapeToFormId(PLATE_GEOMETRY), "1536_WELLS_32X48")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
@@ -88,7 +107,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         loginAndInvokeAction("observer", "observer", ActionMenuKind.SAMPLE_MENU_NEW);
         remoteConsole.prepare(new ChooseTypeOfNewSample(CONTROL_LAYOUT));
         remoteConsole.prepare(new FillSampleRegistrationForm("TESTGROUP", GROUP_CL + "1", true)
-                .addProperty(new PropertyField(GenericSampleRegistrationForm.ID
+                .addProperty(new PropertyField(getFormID()
                         + GWTUtils.escapeToFormId(PLATE_GEOMETRY), "1536_WELLS_32X48")));
         FailureExpectation failureExpectation =
                 new FailureExpectation(GenericSampleRegistrationForm.RegisterSampleCallback.class)
@@ -161,10 +180,9 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String description = "A very nice control layout.";
         remoteConsole.prepare(new FillSampleRegistrationForm(
                 GroupSelectionWidget.SHARED_GROUP_CODE, SHARED_CL, true).addProperty(
-                new PropertyField(GenericSampleRegistrationForm.ID + "description", description))
-                .addProperty(
-                        new PropertyField(GenericSampleRegistrationForm.ID
-                                + GWTUtils.escapeToFormId(PLATE_GEOMETRY), "1536_WELLS_32X48")));
+                new PropertyField(getFormID() + "description", description)).addProperty(
+                new PropertyField(getFormID() + GWTUtils.escapeToFormId(PLATE_GEOMETRY),
+                        "1536_WELLS_32X48")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
                 GenericSampleRegistrationForm.RegisterSampleCallback.class));
         remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,

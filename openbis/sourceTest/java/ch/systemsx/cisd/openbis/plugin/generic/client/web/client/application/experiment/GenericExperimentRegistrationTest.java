@@ -21,12 +21,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.CheckExperimentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ChooseTypeOfNewExperiment;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.ExperimentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
@@ -37,8 +38,25 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  */
 public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
 {
-    private static String DUMMY_ID =
-            GenericExperimentRegistrationForm.createId(null, EntityKind.EXPERIMENT);
+
+    /**
+     * Don't use directly - use {@link #getFormID()}.
+     * <p>
+     * NOTE: Cannot set value statically - tests construction fails.
+     */
+    @Deprecated
+    private static String FORM_ID;
+
+    private static String getFormID()
+    {
+        if (FORM_ID == null)
+        {
+            FORM_ID =
+                    GenericExperimentRegistrationForm
+                            .createId((TechId) null, EntityKind.EXPERIMENT);
+        }
+        return FORM_ID;
+    }
 
     private final void loginAndPreprareRegistration(final String sampleType)
     {
@@ -52,10 +70,10 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
         loginAndPreprareRegistration(experimentTypeCode);
         remoteConsole.prepare(new FillExperimentRegistrationForm("DEFAULT", "NEW_EXP_1", "")
                 .addProperty(
-                        new PropertyField(DUMMY_ID + "user-description",
+                        new PropertyField(getFormID() + "user-description",
                                 "New test experiment description.")).addProperty(
-                        new PropertyField(DUMMY_ID + "user-gender", "MALE")).addProperty(
-                        new PropertyField(DUMMY_ID + "user-purchase-date", "2008-12-17")));
+                        new PropertyField(getFormID() + "user-gender", "MALE")).addProperty(
+                        new PropertyField(getFormID() + "user-purchase-date", "2008-12-17")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_BROWSE,
                 GenericExperimentRegistrationForm.RegisterExperimentCallback.class));
         remoteConsole.prepare(new ListExperiments("DEFAULT", experimentTypeCode));
@@ -74,10 +92,10 @@ public class GenericExperimentRegistrationTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(new FillExperimentRegistrationForm(project, experimentCode,
                 sampleCode).addProperty(
-                new PropertyField(DUMMY_ID + "user-description",
+                new PropertyField(getFormID() + "user-description",
                         "New test experiment with samples.")).addProperty(
-                new PropertyField(DUMMY_ID + "user-gender", "MALE")).addProperty(
-                new PropertyField(DUMMY_ID + "user-purchase-date", "2008-12-18")));
+                new PropertyField(getFormID() + "user-gender", "MALE")).addProperty(
+                new PropertyField(getFormID() + "user-purchase-date", "2008-12-18")));
         remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
                 GenericExperimentRegistrationForm.RegisterExperimentCallback.class));
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));

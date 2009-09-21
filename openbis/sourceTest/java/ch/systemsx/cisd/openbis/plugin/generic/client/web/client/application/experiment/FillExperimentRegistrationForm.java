@@ -23,12 +23,14 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
@@ -40,6 +42,11 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  */
 public final class FillExperimentRegistrationForm extends AbstractDefaultTestCommand
 {
+    private static String FORM_ID =
+            GenericExperimentRegistrationForm.createId((TechId) null, EntityKind.EXPERIMENT);
+
+    private static String FORM_SIMPLE_ID = FORM_ID.substring(GenericConstants.ID_PREFIX.length());
+
     private final String code;
 
     private final String projectNameOrNull;
@@ -47,9 +54,6 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
     private final List<PropertyField> properties;
 
     private final String samples;
-
-    private static String DUMMY_ID =
-            GenericExperimentRegistrationForm.createId(null, EntityKind.EXPERIMENT);
 
     public FillExperimentRegistrationForm(final String project, final String code,
             final String samples)
@@ -74,16 +78,16 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
 
     public final void execute()
     {
-        GWTTestUtil.setTextField(DUMMY_ID
-                + AbstractGenericEntityRegistrationForm.ID_SUFFIX_CODE, code);
+        GWTTestUtil.setTextField(FORM_ID + AbstractGenericEntityRegistrationForm.ID_SUFFIX_CODE,
+                code);
 
         final ProjectSelectionWidget projectSelector =
                 (ProjectSelectionWidget) GWTTestUtil.getWidgetWithID(ProjectSelectionWidget.ID
-                        + ProjectSelectionWidget.SUFFIX + DUMMY_ID);
+                        + ProjectSelectionWidget.SUFFIX + FORM_SIMPLE_ID);
         GWTUtils.setSelectedItem(projectSelector, ModelDataPropertyNames.CODE, projectNameOrNull);
 
         final TextArea samplesField =
-                (TextArea) GWTTestUtil.getWidgetWithID(ExperimentSamplesArea.createId(DUMMY_ID));
+                (TextArea) GWTTestUtil.getWidgetWithID(ExperimentSamplesArea.createId(FORM_ID));
         samplesField.setRawValue(samples);
 
         for (final PropertyField property : properties)
@@ -97,6 +101,6 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
                 throw new IllegalStateException("Wrong widget type");
             }
         }
-        GWTTestUtil.clickButtonWithID(DUMMY_ID + AbstractRegistrationForm.SAVE_BUTTON);
+        GWTTestUtil.clickButtonWithID(FORM_ID + AbstractRegistrationForm.SAVE_BUTTON);
     }
 }

@@ -161,6 +161,12 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         return id;
     }
 
+    @Override
+    public String toString()
+    {
+        return getCallbackId();
+    }
+
     //
     // AsyncCallback
     //

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
@@ -28,7 +28,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestU
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for showing a sample of given code.
+ * A {@link AbstractDefaultTestCommand} extension for showing details view of a sample with given
+ * code.
  * 
  * @author Franz-Josef Elmer
  */

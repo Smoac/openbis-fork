@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
@@ -26,6 +27,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
  */
 public class DataSetSearchRow extends Row
 {
+
+    public DataSetSearchRow()
+    {
+    }
+
+    public DataSetSearchRow(final String code)
+    {
+        withCell(CommonExternalDataColDefKind.CODE.id(), code);
+    }
 
     /**
      * Creates a {@link Row} with given <var>propertyCode</var> associated to given <i>value</i>.

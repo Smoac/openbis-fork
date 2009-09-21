@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Ma
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 
@@ -43,6 +44,15 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
     private boolean criteriaDefined;
 
     private Boolean matchAll;
+
+    public static final FillSearchCriteria searchForDataSetWithCode(final String code)
+    {
+        FillSearchCriteria result = new FillSearchCriteria();
+        // FIXME 2009-09-18, Piotr Buczek: search for code with '-x' suffix doesn't work
+        final String codeWithoutSuffix = code.substring(0, code.indexOf("-")) + "*";
+        result.addAttributeCriterion(DataSetAttributeSearchFieldKind.CODE, codeWithoutSuffix);
+        return result;
+    }
 
     public FillSearchCriteria()
     {

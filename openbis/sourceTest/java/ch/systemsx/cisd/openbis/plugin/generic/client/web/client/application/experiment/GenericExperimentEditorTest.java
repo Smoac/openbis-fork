@@ -20,10 +20,10 @@ import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.CheckExperimentTable;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperimentEditor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.columns.ExperimentRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  */
 public class GenericExperimentEditorTest extends AbstractGWTTestCase
 {
-
     private static final String SIRNA_HCS = "SIRNA_HCS";
 
     private static final String CISD = "CISD";

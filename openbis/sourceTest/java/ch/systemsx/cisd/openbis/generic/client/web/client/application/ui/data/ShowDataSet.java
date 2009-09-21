@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
@@ -24,31 +24,34 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for showing details view of an experiment with
- * given code.
+ * A {@link AbstractDefaultTestCommand} extension for showing detail view of a data set with given
+ * code. View is displayed because of simulation of a click on show details button in a toolbar of a
+ * data set search results browser.
  * 
- * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
-public class ShowExperiment extends AbstractDefaultTestCommand
+public class ShowDataSet extends AbstractDefaultTestCommand
 {
     private final String code;
 
-    public ShowExperiment(final String code)
+    public ShowDataSet(final String code)
     {
         this.code = code;
-        addCallbackClass(ExperimentBrowserGrid.GRID_ID);
+        addCallbackClass(DataSetSearchHitGrid.GRID_ID);
     }
 
     @SuppressWarnings("unchecked")
     public void execute()
     {
-        final Widget widget = GWTTestUtil.getWidgetWithID(ExperimentBrowserGrid.GRID_ID);
-        assertTrue(widget instanceof Grid);
-        final Grid<BaseEntityModel<Experiment>> table = (Grid<BaseEntityModel<Experiment>>) widget;
+        final Widget widget = GWTTestUtil.getWidgetWithID(DataSetSearchHitGrid.GRID_ID);
+        assertTrue(widget instanceof Grid<?>);
+        final Grid<BaseEntityModel<ExternalData>> table =
+                (Grid<BaseEntityModel<ExternalData>>) widget;
         GridTestUtils.fireSelectRow(table, CommonExperimentColDefKind.CODE.id(), code);
-        GWTTestUtil.clickButtonWithID(ExperimentBrowserGrid.SHOW_DETAILS_BUTTON_ID);
+        GWTTestUtil.clickButtonWithID(DataSetSearchHitGrid.BROWSER_ID
+                + DataSetSearchHitGrid.SHOW_DETAILS_BUTTON_ID_SUFFIX);
     }
 }

@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.AbstractGenericEntityRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
@@ -42,6 +44,9 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  */
 public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
 {
+    private static String FORM_ID =
+            GenericSampleRegistrationForm.createId((TechId) null, EntityKind.SAMPLE);
+
     private final String code;
 
     private final String groupNameOrNull;
@@ -92,36 +97,34 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        GWTTestUtil.setTextField(GenericSampleRegistrationForm.ID
-                + AbstractGenericEntityRegistrationForm.ID_SUFFIX_CODE, code);
+
+        GWTTestUtil.setTextField(FORM_ID + AbstractGenericEntityRegistrationForm.ID_SUFFIX_CODE,
+                code);
 
         final GroupSelectionWidget groupSelector =
                 (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID
-                        + GroupSelectionWidget.SUFFIX + GenericSampleRegistrationForm.ID);
+                        + GroupSelectionWidget.SUFFIX + FORM_ID);
         GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupNameOrNull);
 
         if (StringUtils.isBlank(parent) == false)
         {
             final SampleChooserField parentField =
-                    (SampleChooserField) GWTTestUtil
-                            .getWidgetWithID(GenericSampleRegistrationForm.ID
-                                    + GenericSampleRegistrationForm.ID_SUFFIX_PARENT);
+                    (SampleChooserField) GWTTestUtil.getWidgetWithID(FORM_ID
+                            + GenericSampleRegistrationForm.ID_SUFFIX_PARENT);
             parentField.setValue(parent);
         }
         if (StringUtils.isBlank(container) == false)
         {
             final SampleChooserField containerField =
-                    (SampleChooserField) GWTTestUtil
-                            .getWidgetWithID(GenericSampleRegistrationForm.ID
-                                    + GenericSampleRegistrationForm.ID_SUFFIX_CONTAINER);
+                    (SampleChooserField) GWTTestUtil.getWidgetWithID(FORM_ID
+                            + GenericSampleRegistrationForm.ID_SUFFIX_CONTAINER);
             containerField.setValue(container);
         }
         if (StringUtils.isBlank(experimentIdentifier) == false)
         {
             final ExperimentChooserField expField =
-                    (ExperimentChooserField) GWTTestUtil
-                            .getWidgetWithID(GenericSampleRegistrationForm.ID
-                                    + GenericSampleRegistrationForm.ID_SUFFIX_EXPERIMENT);
+                    (ExperimentChooserField) GWTTestUtil.getWidgetWithID(FORM_ID
+                            + GenericSampleRegistrationForm.ID_SUFFIX_EXPERIMENT);
             expField.setValue(experimentIdentifier);
         }
         for (final PropertyField property : properties)
@@ -135,8 +138,7 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
                 throw new IllegalStateException("Wrong widget type");
             }
         }
-        GWTTestUtil.clickButtonWithID(GenericSampleRegistrationForm.ID
-                + AbstractRegistrationForm.SAVE_BUTTON);
+        GWTTestUtil.clickButtonWithID(FORM_ID + AbstractRegistrationForm.SAVE_BUTTON);
     }
 
     public final FillSampleRegistrationForm experiment(final String experiment)

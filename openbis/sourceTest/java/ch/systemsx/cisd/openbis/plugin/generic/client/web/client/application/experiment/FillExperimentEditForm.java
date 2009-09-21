@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
 /**
@@ -40,8 +41,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  */
 public final class FillExperimentEditForm extends AbstractDefaultTestCommand
 {
-
-    private final TechId experimentId;
+    private final String formId;
 
     private final List<PropertyField> properties;
 
@@ -56,7 +56,7 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
 
     private FillExperimentEditForm(final TechId experimentId)
     {
-        this.experimentId = experimentId;
+        this.formId = GenericExperimentEditForm.createId(experimentId, EntityKind.EXPERIMENT);
         this.properties = new ArrayList<PropertyField>();
         addCallbackClass(GenericExperimentEditForm.ExperimentInfoCallback.class);
         addCallbackClass(GenericExperimentEditForm.ListSamplesCallback.class);
@@ -79,11 +79,11 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
 
     public final void execute()
     {
-        String simpleId = "generic-experiment-edit_" + experimentId + "_form";
-        String id = GenericExperimentEditForm.ID_PREFIX + simpleId;
+        String simpleId = formId.substring(GenericExperimentEditForm.ID_PREFIX.length());
         for (final PropertyField property : properties)
         {
-            final Widget widget = GWTTestUtil.getWidgetWithID(id + property.getPropertyFieldId());
+            final Widget widget =
+                    GWTTestUtil.getWidgetWithID(formId + property.getPropertyFieldId());
             if (widget instanceof Field<?>)
             {
                 ((Field<?>) widget).setRawValue(property.getPropertyFieldValue());
@@ -107,7 +107,7 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
                             .getWidgetWithID(ExperimentSamplesArea.createId(simpleId));
             samplesField.setRawValue(samplesOrNull);
         }
-        GWTTestUtil.clickButtonWithID(id + AbstractRegistrationForm.SAVE_BUTTON);
+        GWTTestUtil.clickButtonWithID(formId + AbstractRegistrationForm.SAVE_BUTTON);
     }
 
     public FillExperimentEditForm changeProject(String newProject)

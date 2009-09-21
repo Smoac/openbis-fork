@@ -265,14 +265,21 @@ public final class GWTTestUtil
 
     /**
      * Selects {@link TabItem} with <var>tabItemId</var>.
+     * <p>
+     * NOTE: both arguments are treated as regular expression (wildcards are working)
      */
     public final static void selectTabItemWithId(final String tabPanelId, final String tabItemId)
     {
         final TabPanel tabPanel = getTabPanelWithID(tabPanelId);
-        final TabItem tabItem = tabPanel.findItem(tabItemId, false);
-        Assert.assertTrue("No tab item with id '" + tabItemId + "' could be found.",
-                tabItem != null);
-        tabPanel.setSelection(tabItem);
+        for (TabItem tabItem : tabPanel.getItems())
+        {
+            if (tabItem.getId().matches(tabItemId))
+            {
+                tabPanel.setSelection(tabItem);
+                return;
+            }
+        }
+        Assert.fail("No tab item with id '" + tabItemId + "' could be found.");
     }
 
     /**

@@ -121,7 +121,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      * Creates unique id based on {@link #createSimpleId(TechId, EntityKind)} and application
      * specific ID prefix.
      */
-    protected static final String createId(TechId techId, EntityKind entityKind)
+    public static final String createId(TechId techId, EntityKind entityKind)
     {
         return ID_PREFIX + createSimpleId(techId, entityKind);
     }
