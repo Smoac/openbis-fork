@@ -300,7 +300,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     // enumerates existing dataset locations in the database
     private static enum DSLoc
     {
-        LOC1("a/3"), LOC2("a/2"), LOC3("a/1"), LOC4("xxx/yyy/zzz"), LOC5("analysis/result");
+        LOC1("a/3"), LOC2("a/2"), LOC3("a/1"), LOC4("xxx/yyy/zzz"), LOC5("analysis/result"), LOC6(
+                "xml/result-12");
 
         private final String location;
 
@@ -337,7 +338,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     {
         DetailedSearchCriterion criterion = createAnyFieldCriterion();
         DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC4, DSLoc.LOC5);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC4, DSLoc.LOC5,
+                DSLoc.LOC6);
     }
 
     @Test
@@ -364,7 +366,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         DetailedSearchCriterion criterion2 = createSimpleFieldCriterion();
         DetailedSearchCriteria criteria = createOrDatasetQuery(criterion1, criterion2);
         assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3, DSLoc.LOC4,
-                DSLoc.LOC5);
+                DSLoc.LOC5, DSLoc.LOC6);
     }
 
     // @Test
@@ -477,20 +479,21 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     public final void testSearchForDataSetsAfterPropertiesUpdate() throws InterruptedException
     {
         String propertyCode = "COMMENT";
-        DetailedSearchCriterion criterion =
+        DetailedSearchCriterion criterion1 =
                 mkCriterion(DetailedSearchField.createPropertyField(propertyCode), "no comment");
+        DetailedSearchCriterion criterion2 = createSimpleFieldCriterion();
 
-        DetailedSearchCriteria criteria = createAndDatasetQuery(criterion);
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC3, DSLoc.LOC4,
-                DSLoc.LOC5);
+        DetailedSearchCriteria criteria = createAndDatasetQuery(criterion1, criterion2);
 
-        // This data set has "no comment" value as a COMMENT property.
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC3, DSLoc.LOC4);
+
+        // This data set has "no comment" value as a COMMENT property and TIFF file type.
         // We change it and check if it is removed from results.
-        ExternalDataPE externalData = findExternalData("20081105092159111-1");
+        ExternalDataPE externalData = findExternalData("20081105092159111-1"); // LOC3
         String newValue = "sth";
         changeExternalDataProperty(externalData, propertyCode, newValue);
         flushSearchIndices();
-        assertCorrectDatasetsFound(criteria, DSLoc.LOC1, DSLoc.LOC2, DSLoc.LOC4, DSLoc.LOC5);
+        assertCorrectDatasetsFound(criteria, DSLoc.LOC4);
         restoreSearchIndex();
     }
 
