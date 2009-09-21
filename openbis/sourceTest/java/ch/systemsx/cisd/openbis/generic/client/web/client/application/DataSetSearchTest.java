@@ -44,7 +44,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         remoteConsole.prepare(fillCriteriaCmd);
 
         final CheckTableCommand checkResultTableCmd = createCheckSearchGridCmd();
-        checkResultTableCmd.expectedSize(5);
+        checkResultTableCmd.expectedSize(10);
         DataSetSearchRow row = new DataSetSearchRow();
         row.withCell(CommonExternalDataColDefKind.LOCATION.id(), "a/1");
         row.withPropertyCell("comment", "no comment");
