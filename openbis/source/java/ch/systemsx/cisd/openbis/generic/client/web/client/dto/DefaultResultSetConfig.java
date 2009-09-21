@@ -18,9 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 
@@ -34,6 +36,8 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     private int limit = NO_LIMIT;
 
     private int offset = 0;
+    
+    private Set<IColumnDefinition<T>> availableColumns;
 
     private SortInfo<T> sortInfo = new SortInfo<T>();
 
@@ -79,10 +83,16 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         return filterInfos;
     }
 
+    public final void setAvailableColumns(Set<IColumnDefinition<T>> availableColumns)
+    {
+        this.availableColumns = availableColumns;
+    }
+
     public final void copyPagingConfig(DefaultResultSetConfig<K, T> resultSetConfig)
     {
         setLimit(resultSetConfig.getLimit());
         setOffset(resultSetConfig.getOffset());
+        setAvailableColumns(resultSetConfig.getAvailableColumns());
         setSortInfo(resultSetConfig.getSortInfo());
         setFilterInfos(resultSetConfig.getFilterInfos());
         setResultSetKey(resultSetConfig.getResultSetKey());
@@ -103,6 +113,11 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         return offset;
     }
 
+    public final Set<IColumnDefinition<T>> getAvailableColumns()
+    {
+        return availableColumns;
+    }
+    
     public final SortInfo<T> getSortInfo()
     {
         return sortInfo;

@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 
@@ -46,6 +48,9 @@ public interface IResultSetConfig<K, T> extends IResultSetKeyHolder<K>
      */
     public int getLimit();
 
+    /** Returns all columns available. Needed for customised filters. */
+    public Set<IColumnDefinition<T>> getAvailableColumns();
+    
     /**
      * Returns the sort info.
      */

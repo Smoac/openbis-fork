@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.commons.lang.text.StrMatcher;
@@ -30,6 +31,7 @@ import org.apache.commons.lang.text.StrTokenizer;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
@@ -110,6 +112,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     }
 
     private static final <T> List<T> filterData(final List<T> rows,
+            Set<IColumnDefinition<T>> availableColumns,
             final List<GridFilterInfo<T>> filterInfos, CustomFilterInfo<T> customFilterInfo)
     {
         List<T> filtered = new ArrayList<T>();
@@ -117,13 +120,17 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             try
             {
-            FilterUtils.applyCustomFilter(rows, customFilterInfo, filtered);
+                FilterUtils.applyCustomFilter(rows, availableColumns, customFilterInfo, filtered);
             } catch (Exception ex)
             {
-                String msg =
-                        "Problem occured during applying the filter. "
-                                + "It might have been caused by wrong parameters "
-                                + "(e.g. text instead of number) or incorrect filter definition. ";
+                String msg;
+                if (ex instanceof EvaluatorException)
+                {
+                    msg = "Problem occured during applying the filter: " + ex.getMessage();
+                } else
+                {
+                    msg = "Serious problem occured during applying the filter: " + ex;
+                }
                 if (operationLog.isInfoEnabled())
                 {
                     operationLog.info(msg, ex);
@@ -289,7 +296,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         }
         assert data != null : "Unspecified data";
         data =
-                filterData(data, resultConfig.getFilterInfos(), resultConfig
+                filterData(data, resultConfig.getAvailableColumns(), resultConfig.getFilterInfos(), resultConfig
                         .tryGetCustomFilterInfo());
         final int size = data.size();
         final int offset = getOffset(size, resultConfig.getOffset());

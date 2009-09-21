@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,51 +35,62 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
  */
 public class FilterUtils
 {
+    public static final class Row<T>
+    {
+        private final Map<String, IColumnDefinition<T>> map = new HashMap<String, IColumnDefinition<T>>();
+        
+        private T row;
+        
+        public Row(Set<IColumnDefinition<T>> availableColumns)
+        {
+            for (IColumnDefinition<T> columnDefinition : availableColumns)
+            {
+                map.put(columnDefinition.getIdentifier(), columnDefinition);
+            }
+            System.out.println(map);
+        }
+        
+        void setRowData(T row)
+        {
+            this.row = row;
+        }
+
+        public String get(String columnID)
+        {
+            IColumnDefinition<T> columnDefinition = map.get(columnID);
+            if (columnDefinition == null)
+            {
+                throw new IllegalArgumentException("Undefined column: " + columnID);
+            }
+            return columnDefinition.getValue(row);
+        }
+    }
+    
     /**
      * Applies the filter described by <code>customFilterInfo</code> to
      * <code>allRows<code> and adds the result to the
      * <code>filterdRows<code>.
      */
     public static <T> void applyCustomFilter(final List<T> allRows,
-            CustomFilterInfo<T> customFilterInfo, List<T> filterdRows)
+            Set<IColumnDefinition<T>> availableColumns, CustomFilterInfo<T> customFilterInfo,
+            List<T> filterdRows)
     {
         String expression = customFilterInfo.getExpression();
         for (ParameterWithValue pw : customFilterInfo.getParameters())
         {
             expression = substituteParameter(expression, pw.getParameter(), pw.getValue());
         }
-        Map<String, String> columnVariables = new HashMap<String, String>();
-        expression = substituteColumnsWithVariables(customFilterInfo, expression, columnVariables);
-        Evaluator e = new Evaluator(expression);
-        for (T row : allRows)
+        Evaluator e = new Evaluator(expression, Math.class, null);
+        Row<T> row = new Row<T>(availableColumns);
+        e.set("row", row);
+        for (T rowData : allRows)
         {
-            for (IColumnDefinition<T> col : customFilterInfo.getColumns())
-            {
-                String value = col.getValue(row);
-                e.set(columnVariables.get(col.getIdentifier()), value);
-            }
+            row.setRowData(rowData);
             if (e.evalToBoolean())
             {
-                filterdRows.add(row);
+                filterdRows.add(rowData);
             }
         }
-    }
-
-    private static <T> String substituteColumnsWithVariables(CustomFilterInfo<T> customFilterInfo,
-            String expression, Map<String, String> columnVariables)
-    {
-        String result = expression;
-        int varCount = 0;
-        for (IColumnDefinition<T> col : customFilterInfo.getColumns())
-        {
-            String var = "var" + varCount;
-            varCount++;
-            columnVariables.put(col.getIdentifier(), var);
-            result =
-                    expression.replaceAll(Pattern.quote("col(" + col.getIdentifier() + ")"),
-                            Matcher.quoteReplacement(var));
-        }
-        return result;
     }
 
     private static String substituteParameter(String expression, String p, String value)

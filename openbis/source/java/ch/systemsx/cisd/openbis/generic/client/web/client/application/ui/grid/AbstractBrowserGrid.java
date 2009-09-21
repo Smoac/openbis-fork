@@ -547,6 +547,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         resultSetConfig.setLimit(limit);
         resultSetConfig.setOffset(offset);
         SortInfo<T> translatedSortInfo = translateSortInfo(sortInfo, availableColumns);
+        resultSetConfig.setAvailableColumns(availableColumns);
         resultSetConfig.setSortInfo(translatedSortInfo);
         resultSetConfig.setFilterInfos(appliedFilters);
         resultSetConfig.setResultSetKey(resultSetKey);
