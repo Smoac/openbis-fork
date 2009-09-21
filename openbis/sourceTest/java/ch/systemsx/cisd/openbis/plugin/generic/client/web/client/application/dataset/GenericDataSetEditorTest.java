@@ -37,85 +37,38 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  */
 public class GenericDataSetEditorTest extends AbstractGWTTestCase
 {
-
-    private static final String DS_WITH_ONE_PARENT_CODE = "20081105092159188-3";
-
-    private static final String DS_WITH_ONE_PARENT_PARENTS_CODE = "20081105092158673-1";
-
-    private static final String DS_WITH_ONE_PARENT_NEW_PARENTS_CODE = "20081105092159111-1";
+    private static final String DS_WITH_DIRECT_SAMPLE_CONNECTION_CODE = "20081105092158673-1";
 
     private static final String DS_WITH_MANY_PARENTS_CODE = "20081105092259000-9";
 
-    public final void testEditDataSetComment()
-    {
-        final String modifiedDataSetCode = DS_WITH_ONE_PARENT_CODE;
-
-        prepareShowDataSetEditor(modifiedDataSetCode);
-
-        final String newCommentColumnValue = "new comment";
-        remoteConsole.prepare(new FillDataSetEditForm().addProperty(new PropertyField("comment",
-                newCommentColumnValue)));
-        remoteConsole.prepare(new ShowUpdatedDataSet());
-
-        final CheckDataSet checkDataSet = new CheckDataSet();
-        checkDataSet.property("Comment").asProperty(newCommentColumnValue);
-        remoteConsole.prepare(checkDataSet);
-
-        launchTest(40 * SECOND);
-    }
-
-    public final void testEditDataSetAddParent()
-    {
-        final String modifiedDataSetCode = DS_WITH_ONE_PARENT_CODE;
-
-        prepareShowDataSetEditor(modifiedDataSetCode);
-
-        remoteConsole.prepare(new FillDataSetEditForm()
-                .modifyParents(DS_WITH_ONE_PARENT_PARENTS_CODE + ","
-                        + DS_WITH_ONE_PARENT_NEW_PARENTS_CODE));
-        remoteConsole.prepare(new ShowUpdatedDataSet());
-
-        final CheckTableCommand checkParents = new CheckDataSet().parentsTable().expectedSize(2);
-        checkParents.expectedRow(new DataSetRow(DS_WITH_ONE_PARENT_PARENTS_CODE));
-        checkParents.expectedRow(new DataSetRow(DS_WITH_ONE_PARENT_NEW_PARENTS_CODE));
-        remoteConsole.prepare(checkParents);
-
-        launchTest(20 * SECOND);
-    }
-
-    public final void testEditDataSetRemoveAllParents()
-    {
-        final String modifiedDataSetCode = DS_WITH_ONE_PARENT_CODE;
-
-        prepareShowDataSetEditor(modifiedDataSetCode);
-
-        remoteConsole.prepare(new FillDataSetEditForm().modifyParents(""));
-        remoteConsole.prepare(new ShowUpdatedDataSet());
-        final CheckTableCommand checkParents = new CheckDataSet().parentsTable().expectedSize(0);
-        remoteConsole.prepare(checkParents);
-        launchTest(20 * SECOND);
-    }
-
-    public final void testEditDataSetParents()
+    public final void testEditDataSetWithParents()
     {
         final String modifiedDataSetCode = DS_WITH_MANY_PARENTS_CODE;
         // Remove three parents and add one in one go. Old parent codes:
         // 20081105092158673-1, 20081105092159111-1, 20081105092159222-2, 20081105092159333-3
         final String newParentCode = "20081105092159188-3";
         final String oldParentCode = "20081105092159111-1";
+        // modify property value
+        final String newCommentColumnValue = "new comment";
 
         prepareShowDataSetEditor(modifiedDataSetCode);
 
-        remoteConsole.prepare(new FillDataSetEditForm().modifyParents(newParentCode + ", "
-                + oldParentCode));
+        final FillDataSetEditForm fillForm = new FillDataSetEditForm();
+        fillForm.modifyParents(newParentCode + ", " + oldParentCode);
+        fillForm.addProperty(new PropertyField("comment", newCommentColumnValue));
+        remoteConsole.prepare(fillForm);
         remoteConsole.prepare(new ShowUpdatedDataSet());
-        final CheckTableCommand checkParents = new CheckDataSet().parentsTable().expectedSize(2);
+        final CheckDataSet checkDataSet = new CheckDataSet();
+        checkDataSet.property("Comment").asProperty(newCommentColumnValue);
+        final CheckTableCommand checkParents = checkDataSet.parentsTable().expectedSize(2);
         checkParents.expectedRow(new DataSetRow(newParentCode));
         checkParents.expectedRow(new DataSetRow(oldParentCode));
-        remoteConsole.prepare(checkParents);
+        remoteConsole.prepare(checkDataSet);
+
         launchTest(20 * SECOND);
     }
 
+    // could be removed when we implement BO unit test or merged with first test
     public final void testEditDataSetParentsFailWithCycleRelationships()
     {
         final String modifiedDataSetCode = DS_WITH_MANY_PARENTS_CODE;
@@ -138,8 +91,8 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
     // just before commit and another test in DAO layer uses manual commit that is unnatural.
     public final void testAddDataSetParentFailWithDeferredTriggerError()
     {
-        final String modifiedDataSetCode = DS_WITH_ONE_PARENT_PARENTS_CODE;
-        final String addedParentCode = DS_WITH_ONE_PARENT_NEW_PARENTS_CODE;
+        final String modifiedDataSetCode = DS_WITH_DIRECT_SAMPLE_CONNECTION_CODE;
+        final String addedParentCode = "20081105092159111-1";
 
         prepareShowDataSetEditor(modifiedDataSetCode);
 
@@ -152,6 +105,20 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
         remoteConsole.prepare(failureExpectation);
 
         launchTest(20 * SECOND);
+    }
+
+    private void prepareShowDataSetEditor(String dataSetCode)
+    {
+        // Open data set editor by simulating 3 steps:
+        // - search for data set with given code,
+        // - click on a result row and then on 'show details' button,
+        // - click on edit button in data set detail view.
+        // It could be also done without 3rd step and with clicking on 'edit' button
+        // in 2nd step instead.
+        loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_SEARCH);
+        remoteConsole.prepare(FillSearchCriteria.searchForDataSetWithCode(dataSetCode));
+        remoteConsole.prepare(new ShowDataSet(dataSetCode));
+        remoteConsole.prepare(new ShowDataSetEditor());
     }
 
     private class ShowUpdatedDataSet extends AbstractDefaultTestCommand
@@ -168,20 +135,6 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
                             + MainTabPanel.TAB_SUFFIX;
             GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, tabItemId);
         }
-    }
-
-    private void prepareShowDataSetEditor(String dataSetCode)
-    {
-        // Open data set editor by simulating 3 steps:
-        // - search for data set with given code,
-        // - click on a result row and then on 'show details' button,
-        // - click on edit button in data set detail view.
-        // It could be also done without 3rd step and with clicking on 'edit' button
-        // in 2nd step instead.
-        loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_SEARCH);
-        remoteConsole.prepare(FillSearchCriteria.searchForDataSetWithCode(dataSetCode));
-        remoteConsole.prepare(new ShowDataSet(dataSetCode));
-        remoteConsole.prepare(new ShowDataSetEditor());
     }
 
 }
