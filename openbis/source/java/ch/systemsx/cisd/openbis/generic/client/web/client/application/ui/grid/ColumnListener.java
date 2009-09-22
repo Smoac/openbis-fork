@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
  * Listener for a Grid which delegates click on a cell or link in a cell to a registered
  * {@link ICellListener}.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public final class ColumnListener<T, M extends BaseEntityModel<T>> implements Listener<GridEvent>
 {

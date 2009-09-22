@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 /**
  * Hibernate-based implementation of {@link IDataStoreDAO}.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
 {

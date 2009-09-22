@@ -11,7 +11,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
  * Renderer of {@link Boolean} value. Render <code>true</code> to <code>yes</code> and
  * <code>false</code> to <code>no</code>.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public final class YesNoRenderer implements GridCellRenderer<ModelData>
 {

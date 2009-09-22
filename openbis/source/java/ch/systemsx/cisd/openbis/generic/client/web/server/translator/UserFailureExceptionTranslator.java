@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
  * Translator of server side {@link ch.systemsx.cisd.common.exceptions.UserFailureException} into
  * GWT compatible {@link UserFailureException}.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public class UserFailureExceptionTranslator
 {

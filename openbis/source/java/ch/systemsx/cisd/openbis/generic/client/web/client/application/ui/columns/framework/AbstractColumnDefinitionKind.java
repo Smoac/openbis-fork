@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * are similar, but cannot extend a class directly (they are enums, not classes).
  * </p>
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public abstract class AbstractColumnDefinitionKind<T>
 {

@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public class ExperimentDataSetBrowser extends AbstractExternalDataGrid
 {

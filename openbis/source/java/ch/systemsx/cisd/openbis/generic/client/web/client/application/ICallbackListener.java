@@ -21,7 +21,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 /**
  * Listener of invocations of methods of {@link AsyncCallback}.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public interface ICallbackListener<T>
 {

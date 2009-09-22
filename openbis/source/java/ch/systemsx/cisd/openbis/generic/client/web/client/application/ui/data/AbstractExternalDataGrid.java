@@ -68,7 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public abstract class AbstractExternalDataGrid
         extends

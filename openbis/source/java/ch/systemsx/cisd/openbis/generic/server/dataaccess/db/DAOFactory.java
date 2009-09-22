@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * {@link IDAOFactory} implementation working with {@link DatabaseConfigurationContext} and
  * {@link SessionFactory}.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFactory
 {

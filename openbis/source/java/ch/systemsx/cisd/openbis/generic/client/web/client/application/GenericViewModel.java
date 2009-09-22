@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 /**
  * The view model.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public class GenericViewModel
 {

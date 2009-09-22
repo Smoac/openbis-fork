@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 /**
  * Processing instruction is a specific experiment attachment.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public final class NewProcessingInstruction extends AbstractHashable implements Serializable
 {

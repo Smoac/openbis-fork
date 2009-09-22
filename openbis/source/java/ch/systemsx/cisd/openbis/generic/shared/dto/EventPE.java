@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 /**
  * Persistent entity representing an event which changed some entities in the persistent layer.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 @Entity
 @Table(name = TableNames.EVENTS_TABLE)

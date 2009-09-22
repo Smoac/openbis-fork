@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 /**
  * Data access object for managing persistency of {@link AttachmentPE} instances.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public interface IAttachmentDAO extends IGenericDAO<AttachmentPE>
 {

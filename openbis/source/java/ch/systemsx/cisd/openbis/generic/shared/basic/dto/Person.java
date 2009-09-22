@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * The <i>GWT</i> equivalent to {@link PersonPE}.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public class Person extends AbstractRegistrationHolder implements Comparable<Person>
 {

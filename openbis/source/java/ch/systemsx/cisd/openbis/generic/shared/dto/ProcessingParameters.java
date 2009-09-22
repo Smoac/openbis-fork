@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * Processing parameters are a binary byte sequence from a file. It is stored BASE64 encoded in
  * order to be marshalling and unmarshalling for SOAP.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public class ProcessingParameters implements Serializable
 {

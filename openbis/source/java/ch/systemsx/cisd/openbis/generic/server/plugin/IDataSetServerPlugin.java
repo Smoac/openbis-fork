@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.plugin;
 /**
  * Plug-in interface for data sets.
  *
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public interface IDataSetServerPlugin extends IServerPlugin
 {

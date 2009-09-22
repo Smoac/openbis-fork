@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * unexpected exception.
  * </p>
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public interface IGenericClientService extends IClientService
 {

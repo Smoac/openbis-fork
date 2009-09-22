@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 /**
  * Interface of providers of data needed for authorization.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
 {

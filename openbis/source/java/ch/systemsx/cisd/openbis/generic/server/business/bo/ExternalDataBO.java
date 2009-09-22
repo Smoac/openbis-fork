@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 @Friend(toClasses = DataPE.class)
 public class ExternalDataBO extends AbstractExternalDataBusinessObject implements IExternalDataBO

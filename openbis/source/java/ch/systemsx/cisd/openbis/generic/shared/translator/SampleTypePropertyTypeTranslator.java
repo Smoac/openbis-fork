@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 /**
  * A {@link SampleTypePropertyType} &lt;---&gt; {@link SampleTypePropertyTypePE} translator.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public final class SampleTypePropertyTypeTranslator
 

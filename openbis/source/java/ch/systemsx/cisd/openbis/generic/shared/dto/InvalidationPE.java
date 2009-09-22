@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 /**
  * Class representing invalidation.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 @Entity
 @Table(name = TableNames.INVALIDATION_TABLE)

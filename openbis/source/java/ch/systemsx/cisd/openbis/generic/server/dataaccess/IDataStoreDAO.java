@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 /**
  * <i>Data Access Object</i> for {@link DataStorePE}.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public interface IDataStoreDAO
 {

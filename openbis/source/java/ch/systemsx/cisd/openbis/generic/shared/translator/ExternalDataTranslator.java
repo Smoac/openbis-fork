@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.L
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public class ExternalDataTranslator
 {

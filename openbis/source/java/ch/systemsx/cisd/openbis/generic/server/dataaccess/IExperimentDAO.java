@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 /**
  * <i>Data Access Object</i> for {@link ExperimentPE}.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
 {

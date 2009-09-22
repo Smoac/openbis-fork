@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 /**
  * Asynchronous version of {@link IGenericClientService}.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public interface IGenericClientServiceAsync extends IClientServiceAsync
 {

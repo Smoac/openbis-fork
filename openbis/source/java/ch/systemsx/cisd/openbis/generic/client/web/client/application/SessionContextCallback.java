@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
  * Callback class which handles return value
  * {@link ICommonClientService#tryToGetCurrentSessionContext()}.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public final class SessionContextCallback extends AbstractAsyncCallback<SessionContext>
 {

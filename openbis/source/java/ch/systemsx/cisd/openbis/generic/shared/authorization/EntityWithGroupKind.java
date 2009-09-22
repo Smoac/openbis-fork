@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
  * {@link TechId}.
  * 
  * @author Piotr Buczek
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public enum EntityWithGroupKind
 {

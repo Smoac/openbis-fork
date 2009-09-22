@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 /**
  * {@link Window} containing group registration form.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
 public class AddGroupDialog extends AbstractRegistrationDialog

@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
  * </p>
  *
  * @author Christian Ribeaud
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 abstract class AbstractPluginRegistry<P extends IServerPlugin> implements BeanFactoryAware
 {

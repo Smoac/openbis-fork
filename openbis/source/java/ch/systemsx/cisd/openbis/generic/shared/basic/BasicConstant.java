@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 /**
  * Definition of basic constants. Can be used by server and GWT client.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public class BasicConstant
 {

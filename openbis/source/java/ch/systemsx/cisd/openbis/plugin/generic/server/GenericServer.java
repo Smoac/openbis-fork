@@ -81,7 +81,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 /**
  * Implementation of client-server interface.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 @Component(ResourceNames.GENERIC_PLUGIN_SERVER)
 public final class GenericServer extends AbstractServer<IGenericServer> implements

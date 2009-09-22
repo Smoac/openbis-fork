@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public class URLMethodWithParameters implements IsSerializable
 {

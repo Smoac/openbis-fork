@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * A {@link Person} &lt;---&gt; {@link PersonPE} translator.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public class PersonTranslator
 {

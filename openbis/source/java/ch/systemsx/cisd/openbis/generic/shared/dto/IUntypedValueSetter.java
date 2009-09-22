@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 /**
  * Holds the untyped property value.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public interface IUntypedValueSetter
 {

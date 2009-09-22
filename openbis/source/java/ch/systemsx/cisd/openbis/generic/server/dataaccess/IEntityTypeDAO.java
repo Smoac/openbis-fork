@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * Interface to the data access layer for retrieving instances of {@link EntityTypePE}.
  * Implementations may depend on the {@link EntityKind}.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public interface IEntityTypeDAO extends IGenericDAO<EntityTypePE>
 {

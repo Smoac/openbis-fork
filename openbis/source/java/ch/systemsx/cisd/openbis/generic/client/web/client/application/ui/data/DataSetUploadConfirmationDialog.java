@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 final class DataSetUploadConfirmationDialog extends AbstractDataConfirmationDialog<List<ExternalData>>
 {

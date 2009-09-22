@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 /**
  * 
  *
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public interface IDataStoreServiceFactory
 {

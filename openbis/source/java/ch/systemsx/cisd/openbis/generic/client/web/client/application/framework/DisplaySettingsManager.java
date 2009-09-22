@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
  * singletons. The display setting manager will be created as often as components to be managed are
  * created.
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public class DisplaySettingsManager
 {

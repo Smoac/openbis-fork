@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.GroupCodeHelper;
  * {@link DatabaseInstanceIdentifier} into a {@link DatabaseInstancePE}!
  * </p>
  * 
- * @author   Franz-Josef Elmer
+ * @author    Franz-Josef Elmer
  */
 public final class GroupIdentifierHelper
 {
