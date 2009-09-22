@@ -71,6 +71,29 @@ public final class FilterDAOTest extends AbstractDAOTest
         AssertJUnit.assertEquals(0, daoFactory.getFilterDAO().listFilters(GRID2).size());
     }
 
+    @Test
+    public final void testDeleteFilters()
+    {
+        AssertJUnit.assertEquals(0, daoFactory.getFilterDAO().listFilters(GRID2).size());
+        AssertJUnit.assertEquals(0, daoFactory.getFilterDAO().listFilters(GRID).size());
+        FilterPE filter1 =
+                createFilter(NAME + "1", GRID, DESCRIPTION, EXPRESSION, PUBLIC, getSystemPerson());
+        FilterPE filter2 =
+                createFilter(NAME + "2", GRID, DESCRIPTION, EXPRESSION, PUBLIC, getSystemPerson());
+        FilterPE filter3 =
+                createFilter(NAME + "3", GRID2, DESCRIPTION, EXPRESSION, PUBLIC, getSystemPerson());
+        daoFactory.getFilterDAO().createFilter(filter1);
+        daoFactory.getFilterDAO().createFilter(filter2);
+        daoFactory.getFilterDAO().createFilter(filter3);
+        AssertJUnit.assertEquals(2, daoFactory.getFilterDAO().listFilters(GRID).size());
+        AssertJUnit.assertEquals(1, daoFactory.getFilterDAO().listFilters(GRID2).size());
+        daoFactory.getFilterDAO().delete(filter1);
+        List<FilterPE> remainingFilters = daoFactory.getFilterDAO().listFilters(GRID);
+        AssertJUnit.assertEquals(1, remainingFilters.size());
+        AssertJUnit.assertEquals(filter2, remainingFilters.get(0));
+        AssertJUnit.assertEquals(1, daoFactory.getFilterDAO().listFilters(GRID2).size());
+    }
+
     private static final FilterPE createFilter(String name, String grid, String desc, String expr,
             boolean isPublic, PersonPE registrator)
     {
