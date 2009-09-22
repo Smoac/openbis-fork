@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 /**
  * Implementation of {@link IAttachmentDAO} for data bases.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  * @author Tomasz Pylak
  */
 final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> implements IAttachmentDAO

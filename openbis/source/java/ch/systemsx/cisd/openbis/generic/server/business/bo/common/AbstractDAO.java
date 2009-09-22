@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
 /**
  * 
  *
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public abstract class AbstractDAO
 {

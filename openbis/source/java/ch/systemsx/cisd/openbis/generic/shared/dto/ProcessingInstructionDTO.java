@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 /**
  * Processing instruction needed to process raw data.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public class ProcessingInstructionDTO extends AbstractRegistrationHolder
 {

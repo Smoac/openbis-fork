@@ -91,7 +91,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 /**
  * Logger class for {@link CommonServer} which creates readable logs of method invocations.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 final class CommonServerLogger extends AbstractServerLogger implements ICommonServer
 {

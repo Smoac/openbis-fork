@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * <li>the unique code of the DSS.
  * </ul>
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public class DataStoreServerInfo implements Serializable
 {

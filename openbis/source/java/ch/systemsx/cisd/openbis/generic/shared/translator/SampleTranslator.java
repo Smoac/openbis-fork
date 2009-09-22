@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * A {@link Sample} &lt;---&gt; {@link SamplePE} translator.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public final class SampleTranslator
 {

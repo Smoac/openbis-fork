@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 /**
  * Abstract super class of predicates based on groups.
  *
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 abstract class AbstractGroupPredicate<T> extends AbstractDatabaseInstancePredicate<T>
 {

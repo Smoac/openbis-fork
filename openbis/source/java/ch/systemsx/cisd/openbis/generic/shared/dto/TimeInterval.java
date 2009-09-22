@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * Note that both dates can be <code>null</code>.
  * </p>
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public final class TimeInterval implements Serializable
 {

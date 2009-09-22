@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  * </p>
  *
  * @author Christian Ribeaud
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public interface IDataSetTypeSlaveServerPlugin
 {

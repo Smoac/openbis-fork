@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 /**
  * The <i>generic</i> data set slave server.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 @Component(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_DATA_SET_TYPE_SLAVE_SERVER_PLUGIN)
 public class GenericDataSetTypeSlaveServerPlugin implements IDataSetTypeSlaveServerPlugin

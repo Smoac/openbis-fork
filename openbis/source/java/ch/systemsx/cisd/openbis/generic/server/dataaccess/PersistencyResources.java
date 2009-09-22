@@ -23,7 +23,7 @@ import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 /**
  * Resources needed to create DAO's.
  *
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public final class PersistencyResources
 {

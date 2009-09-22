@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 /**
  * Factory definition for all Data Access Objects which are needed for managing authorization.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public interface IAuthorizationDAOFactory
 {

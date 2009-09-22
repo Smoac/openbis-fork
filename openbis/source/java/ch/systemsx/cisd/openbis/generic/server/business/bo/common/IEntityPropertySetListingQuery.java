@@ -21,7 +21,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 /**
  * Query methods for retrieving entity properties.
  *
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public interface IEntityPropertySetListingQuery
 {

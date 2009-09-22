@@ -21,7 +21,7 @@ import java.util.Date;
 /**
  * Super class of DTOs which hold registration data.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public abstract class AbstractRegistrationHolder extends Id
 {

@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 /**
  * 
  *
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public interface IInvalidationProvider
 {

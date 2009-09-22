@@ -27,7 +27,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * <p>
  * Note: This class has to be Java serializable and GWT serializable.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public class ColumnSetting implements Serializable, IsSerializable
 {

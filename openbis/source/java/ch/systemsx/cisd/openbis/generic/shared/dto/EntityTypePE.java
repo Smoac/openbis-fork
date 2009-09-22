@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  * Entity is one of: material, sample, experiment
  * </p>
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
 @MappedSuperclass

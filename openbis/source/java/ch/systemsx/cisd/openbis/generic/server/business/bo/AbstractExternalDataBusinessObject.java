@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public abstract class AbstractExternalDataBusinessObject extends
         AbstractSampleIdentifierBusinessObject

@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 /**
  * The {@link EntryPoint} implementation.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
 public class Client implements EntryPoint

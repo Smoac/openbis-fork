@@ -51,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public abstract class AbstractViewer<T extends IClientServiceAsync, D extends IEntityInformationHolder>
         extends ContentPanel

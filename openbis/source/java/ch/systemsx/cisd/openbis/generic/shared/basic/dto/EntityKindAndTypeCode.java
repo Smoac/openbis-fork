@@ -21,7 +21,7 @@ import java.io.Serializable;
 /**
  * Bean combining {@link EntityKind} with entity type code. It determines plug-ins.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public final class EntityKindAndTypeCode implements Serializable
 {

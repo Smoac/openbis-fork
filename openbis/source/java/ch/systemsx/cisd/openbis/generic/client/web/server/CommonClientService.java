@@ -138,7 +138,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslat
 /**
  * The {@link ICommonClientService} implementation.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public final class CommonClientService extends AbstractClientService implements
         ICommonClientService, IDataStoreBaseURLProvider

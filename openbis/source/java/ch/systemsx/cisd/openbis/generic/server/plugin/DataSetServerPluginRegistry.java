@@ -30,7 +30,7 @@ package ch.systemsx.cisd.openbis.generic.server.plugin;
  * making sure that we have one and only one instance of this class.
  * </p>
  *
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public class DataSetServerPluginRegistry extends AbstractPluginRegistry<IDataSetServerPlugin>
 {

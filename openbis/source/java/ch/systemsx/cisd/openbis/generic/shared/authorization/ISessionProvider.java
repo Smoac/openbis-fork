@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 /**
  * Provider of {@link IAuthSession}.
  *
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public interface ISessionProvider
 {

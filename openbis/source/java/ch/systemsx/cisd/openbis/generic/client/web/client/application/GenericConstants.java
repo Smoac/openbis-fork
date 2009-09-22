@@ -21,7 +21,7 @@ import com.google.gwt.core.client.GWT;
 /**
  * Some generic constants.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public final class GenericConstants
 {

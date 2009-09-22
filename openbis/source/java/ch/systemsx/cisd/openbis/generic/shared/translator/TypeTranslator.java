@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 /**
  * Translator of {@link AbstractTypePE} instances.
  *
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public class TypeTranslator
 {

@@ -103,7 +103,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 /**
  * Definition of the client-server interface.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public interface ICommonServer extends IServer
 {

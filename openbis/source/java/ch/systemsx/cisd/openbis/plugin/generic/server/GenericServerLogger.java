@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 /**
  * Logger class for {@link GenericServer} which creates readable logs of method invocations.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 final class GenericServerLogger extends AbstractServerLogger implements IGenericServer
 {

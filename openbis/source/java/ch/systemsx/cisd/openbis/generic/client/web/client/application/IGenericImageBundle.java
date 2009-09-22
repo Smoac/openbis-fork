@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.ImageBundle;
  * Note that this approach does not render correctly animated <i>gif</i> (no animation!).
  * </p>
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public interface IGenericImageBundle extends ImageBundle
 {

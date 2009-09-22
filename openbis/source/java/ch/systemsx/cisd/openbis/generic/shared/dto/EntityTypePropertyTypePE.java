@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * This represents an entry in <code>{entity}_type_property_types</code> table.
  * </p>
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  * @author Tomasz Pylak
  * @author Izabela Adamczyk
  */

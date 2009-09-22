@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 /**
  * The <i>GWT</i> equivalent to {@link GroupPE}.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public final class Group extends CodeWithRegistration<Group> implements IIdHolder, IGroupUpdates
 {

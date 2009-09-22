@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedGroupExcep
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 
 /**
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public class GroupCodeHelper
 {

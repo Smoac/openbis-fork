@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 /**
  * Generic columns for a grid of types.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public enum TypeColDefKind implements IColumnDefinitionKind<AbstractType>
 {

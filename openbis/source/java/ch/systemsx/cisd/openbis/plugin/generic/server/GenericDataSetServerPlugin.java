@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlu
 /**
  * The default {@link IDataSetServerPlugin} implementation for the <i>generic</i> technology.
  *
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 @Component(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.GENERIC_DATA_SET_SERVER_PLUGIN)
 public class GenericDataSetServerPlugin extends AbstractGenericServerPlugin implements

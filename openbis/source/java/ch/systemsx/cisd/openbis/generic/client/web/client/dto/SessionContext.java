@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 /**
  * Context of a web session. Contains session ID, {@link User}, and {@link DisplaySettings}. 
  *
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public class SessionContext implements IsSerializable
 {

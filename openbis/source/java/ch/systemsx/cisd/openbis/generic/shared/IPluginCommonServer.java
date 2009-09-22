@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 /**
  * Common interface for all plugin client-server interfaces.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public interface IPluginCommonServer extends IServer
 {

@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public class DatabaseInstance extends Code<DatabaseInstance>
 {

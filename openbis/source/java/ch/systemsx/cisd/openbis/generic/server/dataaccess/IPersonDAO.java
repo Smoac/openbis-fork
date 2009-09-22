@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * <i>Data Access Object</i> for persons.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public interface IPersonDAO extends IGenericDAO<PersonPE>
 {

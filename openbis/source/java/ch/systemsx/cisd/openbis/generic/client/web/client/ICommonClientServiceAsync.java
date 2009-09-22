@@ -90,7 +90,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats
 /**
  * Asynchronous version of {@link ICommonClientService}.
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public interface ICommonClientServiceAsync extends IClientServiceAsync
 {

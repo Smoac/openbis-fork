@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.mvc.Dispatcher;
  * This controller lies on top of the ones specified in {@link Dispatcher}.
  * </p>
  * 
- * @author    Franz-Josef Elmer
+ * @author     Franz-Josef Elmer
  */
 public interface IPageController
 {
