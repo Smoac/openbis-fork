@@ -59,7 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 /**
  * An <code>abstract</code> <i>Business Object</i>.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 abstract class AbstractBusinessObject implements IDAOFactory
 {

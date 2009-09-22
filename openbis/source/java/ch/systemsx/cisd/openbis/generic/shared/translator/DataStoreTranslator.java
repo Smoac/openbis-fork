@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 
 /**
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class DataStoreTranslator
 {

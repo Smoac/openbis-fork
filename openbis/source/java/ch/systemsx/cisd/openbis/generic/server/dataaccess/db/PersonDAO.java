@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * Implementation of {@link IPersonDAO} for databases.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implements IPersonDAO
 {

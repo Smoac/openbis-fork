@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 /**
  * Data access object for {@link DataSetTypePE}.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class DataSetTypeDAO extends AbstractTypeDAO<DataSetTypePE> implements IDataSetTypeDAO
 {

@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class DataSetUtils
 {

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 /**
  * Generator of diplay type ID as used by {@link DisplaySettingsManager}.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public interface IDisplayTypeIDGenerator
 {

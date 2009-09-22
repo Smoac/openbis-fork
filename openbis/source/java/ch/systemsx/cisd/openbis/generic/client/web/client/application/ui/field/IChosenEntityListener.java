@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 /**
  * 
  *
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public interface IChosenEntityListener<T>
 {

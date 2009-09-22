@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 /**
  * A {@link ExperimentTypePropertyType} &lt;---&gt; {@link ExperimentTypePropertyTypePE} translator.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public final class ExperimentTypePropertyTypeTranslator
 {

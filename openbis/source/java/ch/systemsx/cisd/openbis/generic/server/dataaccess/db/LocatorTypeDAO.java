@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 /**
  * Data access object for {@link LocatorTypePE}.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class LocatorTypeDAO extends AbstractTypeDAO<LocatorTypePE> implements ILocatorTypeDAO
 {

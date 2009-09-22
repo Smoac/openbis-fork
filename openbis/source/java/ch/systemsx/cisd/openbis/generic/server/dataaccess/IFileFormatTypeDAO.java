@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 /**
  * Interface to the data access layer for retrieving instances of {@link FileFormatTypePE}.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public interface IFileFormatTypeDAO extends IGenericDAO<FileFormatTypePE>
 {

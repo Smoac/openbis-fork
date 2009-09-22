@@ -22,7 +22,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * Column rendering data provider and cell rendering for tables with rows of type <code>T</code>.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public interface IColumnDefinitionKind<T> extends IsSerializable
 {

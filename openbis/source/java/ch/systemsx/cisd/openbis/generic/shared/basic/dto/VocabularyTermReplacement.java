@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * Wrapper of a {@link VocabularyTerm} and its replacement.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class VocabularyTermReplacement implements IsSerializable, Serializable
 {

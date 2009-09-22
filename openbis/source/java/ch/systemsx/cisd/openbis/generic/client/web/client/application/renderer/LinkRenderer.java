@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InlineHyperlink;
 
 /**
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  * @author Piotr Buczek
  */
 public class LinkRenderer

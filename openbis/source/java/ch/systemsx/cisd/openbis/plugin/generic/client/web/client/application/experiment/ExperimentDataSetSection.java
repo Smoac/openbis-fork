@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 /**
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 class ExperimentDataSetSection extends BrowserSectionPanel
 {

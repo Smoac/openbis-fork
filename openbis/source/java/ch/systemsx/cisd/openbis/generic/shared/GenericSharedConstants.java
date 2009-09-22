@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared;
 /**
  * Some public shared constants.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public final class GenericSharedConstants
 {

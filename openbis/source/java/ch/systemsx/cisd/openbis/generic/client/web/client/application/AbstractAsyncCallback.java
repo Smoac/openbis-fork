@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessi
  * Abstract super class of call backs. Subclasses have to implement {@link #process(Object)}. Note,
  * that instances of this class and its subclasses are stateful and can not be reused.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {

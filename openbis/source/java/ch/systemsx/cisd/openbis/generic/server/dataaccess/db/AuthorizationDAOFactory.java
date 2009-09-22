@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 /**
  * Super class of all DAO factories which extend {@link IAuthorizationDAOFactory}.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 {

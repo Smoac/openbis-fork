@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 /**
  * A code provider.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public interface ICodeProvider
 {

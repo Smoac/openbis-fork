@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 /**
  * Interface of something which performs an update of something
  *
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public interface IUpdater
 {

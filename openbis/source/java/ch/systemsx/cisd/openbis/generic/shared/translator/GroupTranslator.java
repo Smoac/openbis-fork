@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * A {@link Group} &lt;---&gt; {@link GroupPE} translator.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public final class GroupTranslator
 {

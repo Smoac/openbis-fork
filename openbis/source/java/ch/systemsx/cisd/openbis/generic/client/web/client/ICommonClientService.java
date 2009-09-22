@@ -93,7 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats
  * unexpected exception.
  * </p>
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public interface ICommonClientService extends IClientService
 {

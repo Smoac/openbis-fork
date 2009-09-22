@@ -180,7 +180,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * Implementation of client-server interface.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public final class CommonServer extends AbstractServer<ICommonServer> implements ICommonServer
 {

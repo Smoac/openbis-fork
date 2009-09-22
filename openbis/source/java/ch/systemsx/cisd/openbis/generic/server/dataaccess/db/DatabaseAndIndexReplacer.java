@@ -31,7 +31,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
  * Helper application which replaces a database and its Lucene index by another existing database and
  * its index.
  *
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class DatabaseAndIndexReplacer
 {

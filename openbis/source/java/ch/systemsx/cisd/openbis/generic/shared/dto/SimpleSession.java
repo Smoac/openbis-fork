@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 /**
  * 
  *
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class SimpleSession implements IAuthSession
 {

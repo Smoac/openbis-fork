@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 /**
  * Context data needed for uploading data sets to a CIFEX server.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class DataSetUploadContext implements Serializable
 {

@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer.DataSetConnectionTypeProvider;
 
 /**
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 class SampleDataSetBrowser extends AbstractExternalDataGrid
 {

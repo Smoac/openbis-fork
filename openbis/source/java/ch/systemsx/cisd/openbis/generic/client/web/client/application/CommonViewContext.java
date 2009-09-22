@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 /**
  * The <i>generic</i> {@link IViewContext} implementation.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public final class CommonViewContext implements IViewContext<ICommonClientServiceAsync>
 {

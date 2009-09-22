@@ -23,7 +23,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 /**
  * The interface with which {@link DisplaySettingsManager} gets the current settings.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public interface IDisplaySettingsGetter
 {

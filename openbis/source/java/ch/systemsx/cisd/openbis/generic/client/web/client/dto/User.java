@@ -21,7 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * User information to be shown in Web client.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public final class User implements IsSerializable
 {

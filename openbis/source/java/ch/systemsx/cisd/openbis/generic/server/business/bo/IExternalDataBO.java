@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public interface IExternalDataBO extends IEntityBusinessObject
 {

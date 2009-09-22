@@ -21,7 +21,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * A bean that contains information about the application.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public final class ApplicationInfo implements IsSerializable
 {

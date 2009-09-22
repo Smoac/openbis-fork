@@ -25,7 +25,7 @@ import com.google.gwt.i18n.client.Dictionary;
  * Message provider based on a {@link Dictionary} instance. The messages are dynamically loaded at
  * runtime from a JavaScript file.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public final class DictonaryBasedMessageProvider implements IMessageProvider
 {

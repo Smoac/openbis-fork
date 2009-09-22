@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 /**
  * Data access object for {@link FileFormatTypePE}.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class FileFormatTypeDAO extends AbstractTypeDAO<FileFormatTypePE> implements
         IFileFormatTypeDAO

@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 /**
  * Panel of a details view showing data in a browser (i.e. table).
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class BrowserSectionPanel extends SingleSectionPanel
 {

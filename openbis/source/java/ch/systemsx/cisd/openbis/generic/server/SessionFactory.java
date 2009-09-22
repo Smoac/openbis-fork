@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 /**
  * Factory of {@link Session} objects.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public final class SessionFactory implements ISessionFactory<Session>
 {

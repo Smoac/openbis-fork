@@ -21,7 +21,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
  * render each column value.
  * 
  * @author Tomasz Pylak
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class CommonColumnDefinition<T> extends AbstractColumnDefinition<T>
 {

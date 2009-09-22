@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 /**
  * Enumeration of entity kinds.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public enum EntityKind {
 	MATERIAL("material", MaterialPE.class, MaterialTypePE.class,

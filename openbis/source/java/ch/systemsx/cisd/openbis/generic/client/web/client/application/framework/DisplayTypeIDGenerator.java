@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 /**
  * Enum for all generic {@link IDisplayTypeIDGenerator}s.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 {

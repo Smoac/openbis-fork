@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 /**
  * Factory of cached {@link IDataStoreService} instances.
  *
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class DataStoreServiceFactory implements IDataStoreServiceFactory
 {

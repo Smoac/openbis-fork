@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 /**
  * A {@link IPredicate} based on a list of data set codes.
  *
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class DataSetCodePredicate extends AbstractGroupPredicate<String>
 {

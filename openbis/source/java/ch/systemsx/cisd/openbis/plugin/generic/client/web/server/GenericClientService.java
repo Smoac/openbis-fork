@@ -85,7 +85,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 /**
  * The {@link IGenericClientService} implementation.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 @Component(value = ResourceNames.GENERIC_PLUGIN_SERVICE)
 public final class GenericClientService extends AbstractClientService implements

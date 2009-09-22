@@ -34,7 +34,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * <p>
  * NOTE: Object of this class should be alwayes managed by DisplaySettingsManager on client side.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class DisplaySettings implements Serializable, IsSerializable
 {

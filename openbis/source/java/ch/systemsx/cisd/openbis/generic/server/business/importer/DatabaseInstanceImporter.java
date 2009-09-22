@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 /**
  * Class which allows to import another database instance.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public class DatabaseInstanceImporter
 {

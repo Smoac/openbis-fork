@@ -21,7 +21,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 /**
  * Common method(s) all Business Objects and Tables have to implement.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public interface IBusinessObject
 {

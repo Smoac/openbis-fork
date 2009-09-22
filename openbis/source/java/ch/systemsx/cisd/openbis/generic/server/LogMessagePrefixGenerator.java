@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 /**
  * Log message prefix generator based on user information found in a {@link Session} object.
  * 
- * @author Franz-Josef Elmer
+ * @author   Franz-Josef Elmer
  */
 public final class LogMessagePrefixGenerator implements ILogMessagePrefixGenerator<Session>
 {
