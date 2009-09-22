@@ -167,13 +167,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
     private VocabularyGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID, DisplayTypeIDGenerator.VOCABULARY_BROWSER_GRID);
-        postEditionCallback = new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    refresh();
-                }
-            };
+        postEditionCallback = createRefreshGridAction();
     }
 
     @Override

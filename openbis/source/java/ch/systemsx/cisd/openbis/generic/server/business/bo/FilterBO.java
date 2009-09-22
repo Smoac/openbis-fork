@@ -22,6 +22,7 @@ import org.springframework.dao.DataRetrievalFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -85,6 +86,23 @@ public class FilterBO extends AbstractBusinessObject implements IFilterBO
         {
             throwException(e, "Filter '" + filter + "'");
         }
+    }
+
+    public void update(IFilterUpdates updates)
+    {
+        loadDataByTechId(TechId.create(updates));
+
+        filter.setName(updates.getName());
+        filter.setDescription(updates.getDescription());
+        filter.setExpression(updates.getExpression());
+        filter.setPublic(updates.isPublic());
+
+        validateAndSave();
+    }
+
+    private void validateAndSave()
+    {
+        getFilterDAO().validateAndSaveUpdatedEntity(filter);
     }
 
 }

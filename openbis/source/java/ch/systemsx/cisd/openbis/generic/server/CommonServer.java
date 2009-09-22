@@ -94,6 +94,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -1771,6 +1772,16 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         {
             throw createUserFailureException(ex);
         }
+    }
+
+    public void updateFilter(String sessionToken, IFilterUpdates updates)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        assert updates != null : "Unspecified updates";
+
+        final Session session = getSessionManager().getSession(sessionToken);
+        final IFilterBO filterBO = businessObjectFactory.createFilterBO(session);
+        filterBO.update(updates);
     }
 
 }

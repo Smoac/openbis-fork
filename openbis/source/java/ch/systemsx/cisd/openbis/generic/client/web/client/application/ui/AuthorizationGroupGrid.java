@@ -119,13 +119,7 @@ public class AuthorizationGroupGrid extends AbstractSimpleBrowserGrid<Authorizat
                                 {
                                     AddAuthorizationGroupDialog dialog =
                                             new AddAuthorizationGroupDialog(viewContext,
-                                                    new IDelegatedAction()
-                                                        {
-                                                            public void execute()
-                                                            {
-                                                                refresh();
-                                                            }
-                                                        });
+                                                    createRefreshGridAction());
                                     dialog.show();
                                 }
                             });

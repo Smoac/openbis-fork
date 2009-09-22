@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -170,23 +169,12 @@ public class PersonGrid extends AbstractSimpleBrowserGrid<Person>
     private AddPersonToAuthorizationGroupDialog createAddPersonToAuthoriationGroupDialog()
     {
         return new AddPersonToAuthorizationGroupDialog(viewContext, authorizationGroupOrNull,
-                createRefreshAction());
+                createRefreshGridAction());
     }
 
     private AddPersonDialog createAddPersonDialog()
     {
-        return new AddPersonDialog(viewContext, createRefreshAction());
-    }
-
-    private IDelegatedAction createRefreshAction()
-    {
-        return new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    refresh();
-                }
-            };
+        return new AddPersonDialog(viewContext, createRefreshGridAction());
     }
 
     @Override

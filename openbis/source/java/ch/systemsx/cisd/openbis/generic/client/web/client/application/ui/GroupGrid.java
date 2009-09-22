@@ -99,13 +99,8 @@ public class GroupGrid extends AbstractSimpleBrowserGrid<Group>
                                 public void componentSelected(ComponentEvent ce)
                                 {
                                     AddGroupDialog dialog =
-                                            new AddGroupDialog(viewContext, new IDelegatedAction()
-                                                {
-                                                    public void execute()
-                                                    {
-                                                        refresh();
-                                                    }
-                                                });
+                                            new AddGroupDialog(viewContext,
+                                                    createRefreshGridAction());
                                     dialog.show();
                                 }
                             });

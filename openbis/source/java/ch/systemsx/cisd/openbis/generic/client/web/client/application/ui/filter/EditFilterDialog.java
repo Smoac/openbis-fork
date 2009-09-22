@@ -26,37 +26,47 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 
 /**
- * {@link Window} containing filter registration form.
+ * {@link Window} containing filter edition form.
  * 
- * @author Izabela Adamczyk
  * @author Piotr Buczek
  */
-public class AddFilterDialog extends AbstractFilterEditRegisterDialog
+public class EditFilterDialog extends AbstractFilterEditRegisterDialog
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public AddFilterDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
+    private final Filter filter;
+
+    public EditFilterDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback, String gridId,
-            List<ColumnDataModel> columnModels)
+            List<ColumnDataModel> columnModels, Filter filter)
     {
-        super(viewContext, viewContext.getMessage(Dict.ADD_NEW_FILTER), postRegistrationCallback,
-                gridId, columnModels);
+        super(viewContext, viewContext.getMessage(Dict.EDIT_TITLE, viewContext
+                .getMessage(Dict.FILTER), filter.getName()), postRegistrationCallback, gridId,
+                columnModels);
         this.viewContext = viewContext;
+        this.filter = filter;
+        initializeValues();
+    }
+
+    private void initializeValues()
+    {
+        initializeDescription(filter.getDescription());
+        initializeExpression(filter.getExpression());
+        initializeName(filter.getName());
+        initializePublic(filter.isPublic());
     }
 
     @Override
     protected void register(AsyncCallback<Void> registrationCallback)
     {
-        NewFilter filter = new NewFilter();
-        filter.setGridId(gridId);
         filter.setDescription(extractDescription());
         filter.setExpression(extractExpression());
         filter.setName(extractName());
         filter.setPublic(extractIsPublic());
-        viewContext.getService().registerFilter(filter, registrationCallback);
+        viewContext.getService().updateFilter(filter, registrationCallback);
     }
 
 }

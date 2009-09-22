@@ -21,6 +21,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -29,17 +30,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.FilterColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ReasonField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -97,25 +96,30 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
     private void extendBottomToolbar()
     {
         addEntityOperationsLabel();
-        final Button addGroupButton =
+        final Button addButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Filter"),
                         new SelectionListener<ComponentEvent>()
                             {
                                 @Override
                                 public void componentSelected(ComponentEvent ce)
                                 {
-                                    AddFilterDialog dialog =
-                                            new AddFilterDialog(viewContext, new IDelegatedAction()
-                                                {
-                                                    public void execute()
-                                                    {
-                                                        refresh();
-                                                    }
-                                                }, gridId, columnModels);
-                                    dialog.show();
+                                    createAddDialog().show();
                                 }
+
                             });
-        addButton(addGroupButton);
+        addButton(addButton);
+        final Button editButton =
+                createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
+                        new ISelectedEntityInvoker<BaseEntityModel<Filter>>()
+                            {
+                                public void invoke(BaseEntityModel<Filter> selectedItem)
+                                {
+                                    final Filter filter = selectedItem.getBaseObject();
+                                    createEditDialog(filter).show();
+                                }
+
+                            });
+        addButton(editButton);
         Button deleteButton =
                 createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
                         new AbstractCreateDialogListener()
@@ -133,6 +137,17 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
         addEntityOperationsSeparator();
     }
 
+    private Window createAddDialog()
+    {
+        return new AddFilterDialog(viewContext, createRefreshGridAction(), gridId, columnModels);
+    }
+
+    private Window createEditDialog(Filter filter)
+    {
+        return new EditFilterDialog(viewContext, createRefreshGridAction(), gridId, columnModels,
+                filter);
+    }
+
     @Override
     protected IColumnDefinitionKind<Filter>[] getStaticColumnsDefinition()
     {
@@ -143,9 +158,6 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
     protected ColumnDefsAndConfigs<Filter> createColumnsDefinition()
     {
         ColumnDefsAndConfigs<Filter> schema = super.createColumnsDefinition();
-        schema
-                .setGridCellRendererFor(FilterColDefKind.NAME.id(), LinkRenderer
-                        .createLinkRenderer());
         schema.setGridCellRendererFor(FilterColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
         schema.setGridCellRendererFor(FilterColDefKind.EXPRESSION.id(),
@@ -181,14 +193,13 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
                     DatabaseModificationKind.edit(ObjectKind.FILTER) };
     }
 
+    // it would be better to implement AbstractDataListDeletionConfirmationDialog with 'reason'
     public class FilterListDeletionConfirmationDialog extends
             AbstractDataConfirmationDialog<List<Filter>>
     {
         private static final int LABEL_WIDTH = 60;
 
         private static final int FIELD_WIDTH = 180;
-
-        protected ReasonField reason;
 
         private final AbstractAsyncCallback<Void> callback;
 
@@ -209,7 +220,7 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
         @Override
         protected String createMessage()
         {
-            return "Do you really want to delete selected (" + data.size() + ") filters?";
+            return "Do you really want to delete selected (" + data.size() + ") filter(s)?";
         }
 
         @Override

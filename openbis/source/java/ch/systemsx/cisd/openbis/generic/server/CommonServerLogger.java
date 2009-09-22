@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -764,6 +765,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "deleteFilters", "TECH_IDS(%s)", StringUtils.join(filterIds
                 .toArray(new TechId[0]), ","));
+    }
+
+    public void updateFilter(String sessionToken, IFilterUpdates updates)
+    {
+        logTracking(sessionToken, "updateFilters", "ID(%s) NAME(%s)", updates.getId(), updates
+                .getName());
     }
 
 }

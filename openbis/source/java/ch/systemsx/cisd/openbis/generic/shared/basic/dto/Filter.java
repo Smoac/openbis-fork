@@ -22,15 +22,13 @@ import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-
 /**
  * Stores information describing the filter.
  * 
  * @author Izabela Adamczyk
  */
 public class Filter extends AbstractRegistrationHolder implements IsSerializable, Serializable,
-        IIdHolder
+        IFilterUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

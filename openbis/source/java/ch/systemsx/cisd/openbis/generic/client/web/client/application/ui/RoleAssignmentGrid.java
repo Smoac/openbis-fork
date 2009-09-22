@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -87,13 +86,7 @@ public class RoleAssignmentGrid extends AbstractSimpleBrowserGrid<RoleAssignment
                                 {
                                     AddRoleAssignmentDialog dialog =
                                             new AddRoleAssignmentDialog(viewContext,
-                                                    new IDelegatedAction()
-                                                        {
-                                                            public void execute()
-                                                            {
-                                                                refresh();
-                                                            }
-                                                        });
+                                                    createRefreshGridAction());
                                     dialog.show();
                                 }
                             });

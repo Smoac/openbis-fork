@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
 
@@ -42,5 +43,10 @@ public interface IFilterBO extends IEntityBusinessObject
      * @throws UserFailureException if filter with given technical identifier is not found.
      */
     public void deleteByTechId(TechId groupId);
+
+    /**
+     * Updates the filter.
+     */
+    public void update(IFilterUpdates updates);
 
 }
