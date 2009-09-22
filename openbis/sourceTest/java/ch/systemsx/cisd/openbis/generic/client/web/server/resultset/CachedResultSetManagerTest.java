@@ -165,6 +165,9 @@ public final class CachedResultSetManagerTest
                     one(resultSetConfig).getResultSetKey();
                     will(returnValue(null));
 
+                    one(resultSetConfig).getAvailableColumns();
+                    will(returnValue(null));
+                    
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(Collections.emptyList()));
 
@@ -188,6 +191,9 @@ public final class CachedResultSetManagerTest
                     one(resultSetConfig).getResultSetKey();
                     will(returnValue("1"));
 
+                    one(resultSetConfig).getAvailableColumns();
+                    will(returnValue(null));
+                    
                     allowResultSetCreation(this);
                 }
             });
@@ -209,6 +215,9 @@ public final class CachedResultSetManagerTest
                     one(resultSetConfig).getResultSetKey();
                     will(returnValue(null));
 
+                    one(resultSetConfig).getAvailableColumns();
+                    will(returnValue(null));
+                    
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(Collections.singletonList(value)));
 
