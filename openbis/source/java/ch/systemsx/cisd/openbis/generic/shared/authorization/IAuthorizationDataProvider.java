@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -54,5 +55,10 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * Returns the sample with given <var>techId</var>.
      */
     public SamplePE getSample(TechId techId);
+
+    /**
+     * Returns the filter with given <var>techId</var>
+     */
+    public FilterPE getFilter(TechId techId);
 
 }

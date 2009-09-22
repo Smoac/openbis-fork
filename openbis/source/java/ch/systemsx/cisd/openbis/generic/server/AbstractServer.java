@@ -186,7 +186,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
     {
         return dataStoreBaseURLProvider.getDataStoreBaseURL();
     }
-    
+
     //
     // IServer
     //
@@ -239,8 +239,8 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         }
         if (isFirstLoggedUser)
         {
-            // First logged user does have any role assignment yet. Make him database instance
-            // administrator.
+            // First logged user does not have any role assignment yet.
+            // Make him database instance administrator.
             final PersonPE systemUser = getSystemUser(persons);
             final RoleAssignmentPE roleAssignment = createRoleAssigment(systemUser, person);
             person.setRoleAssignments(Collections.singleton(roleAssignment));

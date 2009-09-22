@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -138,9 +139,15 @@ public class AuthorizationTestCase extends AssertJUnit
      */
     protected PersonPE createPerson()
     {
+        return createPerson("megapixel", createDatabaseInstance());
+    }
+
+    /** Creates a person with specified userId and database instance. */
+    protected PersonPE createPerson(String userId, DatabaseInstancePE instance)
+    {
         final PersonPE personPE = new PersonPE();
-        personPE.setUserId("megapixel");
-        personPE.setDatabaseInstance(createDatabaseInstance());
+        personPE.setUserId(userId);
+        personPE.setDatabaseInstance(instance);
         return personPE;
     }
 
@@ -203,6 +210,17 @@ public class AuthorizationTestCase extends AssertJUnit
     protected PersonPE createPersonWithRoleAssignments()
     {
         final PersonPE person = createPerson();
+        assignRoles(person);
+        return person;
+    }
+
+    /**
+     * Assigns two {@link RoleAssignmentPE} instances to specified person. One ADMIN role for
+     * database instance {@link #INSTANCE_CODE} and a USER role for the group
+     * {@link #createAnotherGroup()}.
+     */
+    protected void assignRoles(PersonPE person)
+    {
         final Set<RoleAssignmentPE> list = new HashSet<RoleAssignmentPE>();
         // Database assignment
         RoleAssignmentPE assignment = new RoleAssignmentPE();
@@ -216,8 +234,8 @@ public class AuthorizationTestCase extends AssertJUnit
         assignment.setGroup(createAnotherGroup());
         person.addRoleAssignment(assignment);
         list.add(assignment);
+
         person.setRoleAssignments(list);
-        return person;
     }
 
     /**
@@ -275,6 +293,20 @@ public class AuthorizationTestCase extends AssertJUnit
         sample.setDatabaseInstance(databaseInstance);
         sample.setSampleType(createSampleType());
         return sample;
+    }
+
+    /**
+     * Creates a filter in the specified database instance and registrator and ownership flag.
+     */
+    protected FilterPE createFilter(DatabaseInstancePE databaseInstance, PersonPE registrator,
+            boolean isPublic)
+    {
+        final FilterPE filter = new FilterPE();
+        filter.setDatabaseInstance(databaseInstance);
+        filter.setRegistrator(registrator);
+        filter.setPublic(isPublic);
+        filter.setExpression(""); // needed for translation
+        return filter;
     }
 
     /**

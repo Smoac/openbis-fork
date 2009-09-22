@@ -29,7 +29,7 @@ public interface IAuthorizationDAOFactory
 {
     /** Returns the persistency resources used to create DAO's. */
     public PersistencyResources getPersistencyResources();
-    
+
     /**
      * Returns the current {@link DatabaseInstancePE}.
      */
@@ -74,12 +74,17 @@ public interface IAuthorizationDAOFactory
      * Returns the implementation of {@link ISampleDAO}.
      */
     public ISampleDAO getSampleDAO();
-    
+
+    /**
+     * Returns an implementation of {@link IFilterDAO}.
+     */
+    public IFilterDAO getFilterDAO();
+
     /**
      * Disables interaction with the second level cache for the current Hibernate session.
      */
     public void disableSecondLevelCacheForSession();
-    
+
     /**
      * Returns the Hibernate session factory.
      */

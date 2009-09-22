@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractT
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.GroupTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.FilterTechIdPredicate.DeleteFilterTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.FilterValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
@@ -925,8 +926,10 @@ public interface ICommonServer extends IServer
      * Deletes specified filters.
      */
     @Transactional
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.GROUP)
-    public void deleteFilters(String sessionToken, List<TechId> groupIds);
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.FILTER)
+    public void deleteFilters(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DeleteFilterTechIdPredicate.class) List<TechId> filterIds);
 
 }

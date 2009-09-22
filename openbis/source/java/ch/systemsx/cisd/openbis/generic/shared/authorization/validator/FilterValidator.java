@@ -20,6 +20,7 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -47,18 +48,21 @@ public final class FilterValidator extends AbstractValidator<Filter>
 
     private boolean isRegistrator(final PersonPE person, final Filter value)
     {
-        return person.equals(value.getRegistrator());
+        // Comparison between PersonPE and Person will always return false!!!
+        // return person.equals(value.getRegistrator());
+        // FIXME 2009-09-22, Piotr Buczek: Person has no database instance code to compare with PersonPE
+        Person registrator = value.getRegistrator();
+        return person.getUserId().equals(registrator.getUserId());
     }
 
-    private boolean isInstanceAdmin(final PersonPE person,
-            final DatabaseInstance filterDatabaseInstace)
+    public boolean isInstanceAdmin(final PersonPE person, final DatabaseInstance databaseInstance)
     {
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            final DatabaseInstancePE databaseInstance = roleAssignment.getDatabaseInstance();
-            if (databaseInstance != null
-                    && databaseInstance.getUuid().equals(filterDatabaseInstace.getUuid())
+            // TODO why do we use UUID instead of CODE if both are unique?
+            final DatabaseInstancePE roleInstance = roleAssignment.getDatabaseInstance();
+            if (roleInstance != null && roleInstance.getUuid().equals(databaseInstance.getUuid())
                     && roleAssignment.getRole().equals(RoleCode.ADMIN))
             {
                 return true;

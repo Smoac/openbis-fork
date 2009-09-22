@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -170,7 +171,7 @@ public final class PredicateExecutor
 
         private final Map<String, DatabaseInstancePE> uuidToDbInstanceMap =
                 new HashMap<String, DatabaseInstancePE>();
-        
+
         private final DatabaseInstancePE homeDatabaseInstance;
 
         AuthorizationDataProvider(IAuthorizationDAOFactory daoFactory)
@@ -240,6 +241,11 @@ public final class PredicateExecutor
         public SamplePE getSample(TechId techId)
         {
             return daoFactory.getSampleDAO().getByTechId(techId);
+        }
+
+        public FilterPE getFilter(TechId techId)
+        {
+            return daoFactory.getFilterDAO().getByTechId(techId);
         }
 
     }

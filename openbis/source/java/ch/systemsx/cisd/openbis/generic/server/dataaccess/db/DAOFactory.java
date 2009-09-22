@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFilterDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
@@ -86,8 +85,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
 
     private final IAuthorizationGroupDAO authorizationGroupDAO;
 
-    private final IFilterDAO filterDAO;
-
     public DAOFactory(final DatabaseConfigurationContext context,
             final SessionFactory sessionFactory)
     {
@@ -108,7 +105,6 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         permIdDAO = new PermIdDAO(sessionFactory, databaseInstance);
         eventDAO = new EventDAO(sessionFactory, databaseInstance);
         authorizationGroupDAO = new AuthorizationGroupDAO(sessionFactory, databaseInstance);
-        filterDAO = new FilterDAO(sessionFactory, databaseInstance);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
@@ -209,8 +205,4 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
         return authorizationGroupDAO;
     }
 
-    public IFilterDAO getFilterDAO()
-    {
-        return filterDAO;
-    }
 }
