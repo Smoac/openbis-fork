@@ -23,7 +23,7 @@ then
   export MAILX="/usr/bin/mailx"
 else 
   export POSTGRES_BIN=/usr/bin
-  export MAILX="/bin/mailx"
+  export MAILX="/bin/mail"
 fi
 
 umask 077
