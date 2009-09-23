@@ -9,8 +9,9 @@ export DEMO=cisd-tongariro
 export YEASTX=imsb-us-openbis.ethz.ch
 export PHOSPHONETX=cisd-openbis-phosphonetx.ethz.ch
 export LIVERX=cisd-openbis-liverx.ethz.ch
-export AGRONOMICS=bs-dsvr11-s.ethz.ch
-export BSSE=openbis-dsu
+export AGRONOMICS=bs-dsvr11.ethz.ch
+export DSU=openbis-dsu
+export SCU=openbis-scu
 export BASYSBIO=bs-dsvr10.ethz.ch
 
 function create_individual_greeting_message {
@@ -25,7 +26,7 @@ function create_individual_greeting_message {
 function restore_loginHeader {
   if [ -f ~/config/loginHeader.html ]; then
     echo restoring loginHeader.html
-    cp ~/config/images ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp -r ~/config/images ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
     cp ~/config/loginHeader.html ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
     cp ~/config/help.html ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
   fi
@@ -35,20 +36,31 @@ case "$SERVER" in
 
 	$SPRINT)
 	echo SPRINT:$SPRINT;
+	restore_loginHeader
+	create_individual_greeting_message
+	
 	$BIN/sprint_post_install_sprint.sh
 	;;
 	$DEMO)
+	restore_loginHeader
+	create_individual_greeting_message
 	echo DEMO:$DEMO;
 	$BIN/sprint_post_install_demo.sh
 	;;
 	$YEASTX)
+	restore_loginHeader
+	create_individual_greeting_message
 	echo YEASTX:$YEASTX;
 	$BIN/sprint_post_install_yeastx.sh
 	;;
 	$PHOSPHONETX)
+	restore_loginHeader
+	create_individual_greeting_message
 	echo PHOSPHONETX:$PHOSPHONETX;
 	;;
 	$LIVERX)
+	restore_loginHeader
+	create_individual_greeting_message
 	echo LIVERX:$LIVERX;
 	;;
 	$AGRONOMICS)
@@ -57,8 +69,13 @@ case "$SERVER" in
 	create_individual_greeting_message
 	$BIN/sprint_post_install_yeastx.sh	
 	;;
-	$BSSE)
-	echo BSSE:$BSSE;
+	$DSU)
+	echo DSU:$DSU;
+	restore_loginHeader
+	create_individual_greeting_message
+	;;
+	$SCU)
+	echo SCU:$SCU;
 	restore_loginHeader
 	create_individual_greeting_message
 	;;
