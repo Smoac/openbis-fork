@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFilterDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
@@ -97,6 +98,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     IAuthorizationGroupDAO authorizationGroupDAO;
 
+    IFilterDAO filterDAO;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -123,6 +126,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         permIdDAO = context.mock(IPermIdDAO.class);
         eventDAO = context.mock(IEventDAO.class);
         authorizationGroupDAO = context.mock(IAuthorizationGroupDAO.class);
+        filterDAO = context.mock(IFilterDAO.class);
         context.checking(new Expectations()
             {
                 {
@@ -152,6 +156,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(eventDAO));
                     allowing(daoFactory).getAuthorizationGroupDAO();
                     will(returnValue(authorizationGroupDAO));
+                    allowing(daoFactory).getFilterDAO();
+                    will(returnValue(filterDAO));
                 }
             });
     }
