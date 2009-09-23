@@ -59,7 +59,11 @@ public class MetabolDatabaseUpdater implements IMaintenanceTask
     public MetabolDatabaseUpdater()
     {
         LogInitializer.init();
+        // NOTE: hard-coded database name - should be moved to spring configuration file
         context = DBUtils.createDefaultDBContext();
+        context.setDatabaseKind("productive");
+        context.setScriptFolder("sql");
+
         DBUtils.init(context);
         checkDatabseConnection();
         openBISService = ServiceProvider.getOpenBISService();
