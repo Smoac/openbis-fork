@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { ISampleListingFullQuery.class, IEntityPropertyListingQuery.class })
+    { ISampleListingQuery.class, IEntityPropertyListingQuery.class })
 public final class SampleListerDAO extends AbstractDAO
 {
     /**
@@ -52,33 +52,26 @@ public final class SampleListerDAO extends AbstractDAO
     public static SampleListerDAO create(IDAOFactory daoFactory)
     {
         Connection connection = DatabaseContextUtils.getConnection(daoFactory);
-        ISampleListingFullQuery query =
-                QueryTool.getQuery(connection, ISampleListingFullQuery.class);
+        ISampleListingQuery query = QueryTool.getQuery(connection, ISampleListingQuery.class);
         return create(daoFactory, query);
     }
 
     @Private
-    static SampleListerDAO create(IDAOFactory daoFactory, ISampleListingFullQuery query)
+    static SampleListerDAO create(IDAOFactory daoFactory, ISampleListingQuery query)
     {
-        final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(daoFactory);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        return new SampleListerDAO(supportsSetQuery, query, homeDatabaseInstance);
+        return new SampleListerDAO(query, homeDatabaseInstance);
     }
 
-    private final ISampleListingFullQuery query;
-
-    private final ISampleSetListingQuery setQuery;
+    private final ISampleListingQuery query;
 
     private final IEntityPropertySetListingQuery propertySetQuery;
 
-    SampleListerDAO(final boolean supportsSetQuery, ISampleListingFullQuery query,
-            final DatabaseInstancePE databaseInstance)
+    SampleListerDAO(ISampleListingQuery query, final DatabaseInstancePE databaseInstance)
     {
         super(databaseInstance);
         this.query = query;
-        this.setQuery = createIdSetQuery(supportsSetQuery, query, databaseInstance.getId());
-        this.propertySetQuery =
-                createSetPropertyQuery(supportsSetQuery, query, databaseInstance.getId());
+        this.propertySetQuery = asEntityPropertySetListingQuery(query);
     }
 
     ISampleListingQuery getQuery()
@@ -86,24 +79,13 @@ public final class SampleListerDAO extends AbstractDAO
         return query;
     }
 
-    ISampleSetListingQuery getIdSetQuery()
-    {
-        return setQuery;
-    }
-
     IEntityPropertySetListingQuery getPropertySetQuery()
     {
         return propertySetQuery;
     }
 
-    private static IEntityPropertySetListingQuery createSetPropertyQuery(boolean supportsSetQuery,
-            ISampleListingFullQuery query, final long databaseInstanceId)
-    {
-        return asEntityPropertySetListingQuery(query);
-    }
-
     private static IEntityPropertySetListingQuery asEntityPropertySetListingQuery(
-            final ISampleListingFullQuery query)
+            final ISampleListingQuery query)
     {
         return new IEntityPropertySetListingQuery()
             {
@@ -127,21 +109,4 @@ public final class SampleListerDAO extends AbstractDAO
             };
     }
 
-    private static ISampleSetListingQuery createIdSetQuery(boolean supportsSetQuery,
-            ISampleListingFullQuery query, final long databaseInstanceId)
-    {
-        return asSampleSetListingQuery(query);
-    }
-
-    private static ISampleSetListingQuery asSampleSetListingQuery(
-            final ISampleListingFullQuery query)
-    {
-        return new ISampleSetListingQuery()
-            {
-                public Iterable<SampleRecord> getSamples(LongSet sampleIds)
-                {
-                    return query.getSamples(sampleIds);
-                }
-            };
-    }
 }

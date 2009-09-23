@@ -104,8 +104,6 @@ final class SampleListingWorker
 
     private final ISampleListingQuery query;
 
-    private final ISampleSetListingQuery setQuery;
-
     private final IEntityPropertiesEnricher samplePropertiesEnricherOrNull;
 
     private final SecondaryEntityDAO referencedEntityDAO;
@@ -152,18 +150,17 @@ final class SampleListingWorker
     private int maxSampleContainerResolutionDepth;
 
     private final Long2ObjectMap<Sample> sampleMap = new Long2ObjectOpenHashMap<Sample>();
-    
+
     private final Long2ObjectMap<Group> groupMap = new Long2ObjectOpenHashMap<Group>();
 
     public static SampleListingWorker create(ListOrSearchSampleCriteria criteria,
             String baseIndexURL, SampleListerDAO dao, SecondaryEntityDAO referencedEntityDAO)
     {
         ISampleListingQuery query = dao.getQuery();
-        ISampleSetListingQuery setQuery = dao.getIdSetQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new SampleListingWorker(criteria, baseIndexURL, dao.getDatabaseInstanceId(), dao
-                .getDatabaseInstance(), query, setQuery, propertiesEnricher, referencedEntityDAO);
+                .getDatabaseInstance(), query, propertiesEnricher, referencedEntityDAO);
     }
 
     //
@@ -173,7 +170,7 @@ final class SampleListingWorker
     // For unit tests
     SampleListingWorker(final ListOrSearchSampleCriteria criteria, final String baseIndexURL,
             final long databaseInstanceId, final DatabaseInstance databaseInstance,
-            final ISampleListingQuery query, final ISampleSetListingQuery setQuery,
+            final ISampleListingQuery query,
             IEntityPropertiesEnricher samplePropertiesEnricherOrNull,
             SecondaryEntityDAO referencedEntityDAO)
     {
@@ -181,14 +178,12 @@ final class SampleListingWorker
         assert baseIndexURL != null;
         assert databaseInstance != null;
         assert query != null;
-        assert setQuery != null;
 
         this.criteria = criteria;
         this.baseIndexURL = baseIndexURL;
         this.databaseInstanceId = databaseInstanceId;
         this.databaseInstance = databaseInstance;
         this.query = query;
-        this.setQuery = setQuery;
         this.samplePropertiesEnricherOrNull = samplePropertiesEnricherOrNull;
         this.referencedEntityDAO = referencedEntityDAO;
     }
@@ -362,7 +357,7 @@ final class SampleListingWorker
         {
             return null;
         }
-        return setQuery.getSamples(new LongOpenHashSet(ids));
+        return query.getSamples(new LongOpenHashSet(ids));
     }
 
     private Iterable<SampleRecord> tryGetIteratorForGroupSamples()
@@ -486,12 +481,11 @@ final class SampleListingWorker
             if (row.grou_id == null)
             {
                 setDatabaseInstance(sample);
-            }
-            else {
+            } else
+            {
                 setGroup(sample, groupMap.get(row.grou_id));
             }
-        }
-        else if (groupOrNull != null)
+        } else if (groupOrNull != null)
         {
             setGroup(sample, groupOrNull);
         } else
@@ -544,9 +538,7 @@ final class SampleListingWorker
         sample.setGroup(group);
         final GroupIdentifier groupId =
                 new GroupIdentifier(databaseInstance.getCode(), group.getCode());
-        sample
-                .setIdentifier(new SampleIdentifier(groupId, sample.getCode())
-                        .toString());
+        sample.setIdentifier(new SampleIdentifier(groupId, sample.getCode()).toString());
     }
 
     private void setDatabaseInstance(final Sample sample)
@@ -605,7 +597,7 @@ final class SampleListingWorker
             return;
         }
         requestedSamples.keySet().removeAll(sampleMap.keySet());
-        retrieveDependentBasicSamples(setQuery.getSamples(requestedSamples.keySet()));
+        retrieveDependentBasicSamples(query.getSamples(requestedSamples.keySet()));
         retrieveDependentSamplesRecursively();
     }
 

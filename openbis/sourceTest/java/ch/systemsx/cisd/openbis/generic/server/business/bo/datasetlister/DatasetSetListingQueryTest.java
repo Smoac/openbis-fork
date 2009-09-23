@@ -33,7 +33,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 
 /**
- * Test cases for {@link IDatasetSetListingQuery}.
+ * Test cases for {@link IDatasetListingQuery} set queries.
  * 
  * @author Tomasz Pylak
  */
@@ -44,17 +44,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 public class DatasetSetListingQueryTest extends AbstractDAOTest
 {
 
-    // the interface which is tested here
-    private IDatasetSetListingQuery setQuery;
-
-    // used only to validate setQuery results
     private IDatasetListingQuery query;
 
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
         DatasetListerDAO dao = DatasetListingQueryTest.createDatasetListerDAO(daoFactory);
-        setQuery = dao.getIdSetQuery();
         query = dao.getQuery();
     }
 
@@ -62,7 +57,7 @@ public class DatasetSetListingQueryTest extends AbstractDAOTest
     public void testDatasets()
     {
         LongSet ids = createSet(2, 4);
-        Iterable<DatasetRecord> datasets = setQuery.getDatasets(ids);
+        Iterable<DatasetRecord> datasets = query.getDatasets(ids);
         int count = 0;
         for (DatasetRecord dataset : datasets)
         {
@@ -77,7 +72,7 @@ public class DatasetSetListingQueryTest extends AbstractDAOTest
     public void testDatasetChildren()
     {
         int datasetId = 4;
-        DataIterator<Long> children = setQuery.getDatasetChildrenIds(createSet(datasetId));
+        DataIterator<Long> children = query.getDatasetChildrenIds(createSet(datasetId));
         AssertJUnit.assertFalse(children.hasNext());
     }
 }

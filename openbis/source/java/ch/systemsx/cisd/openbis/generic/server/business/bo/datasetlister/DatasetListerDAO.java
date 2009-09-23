@@ -20,7 +20,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.Connection;
 
-import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
@@ -43,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { IDatasetListingFullQuery.class, IEntityPropertyListingQuery.class })
+    { IDatasetListingQuery.class, IEntityPropertyListingQuery.class })
 public final class DatasetListerDAO extends AbstractDAO
 {
     /**
@@ -53,34 +52,27 @@ public final class DatasetListerDAO extends AbstractDAO
     public static DatasetListerDAO create(IDAOFactory daoFactory)
     {
         Connection connection = DatabaseContextUtils.getConnection(daoFactory);
-        IDatasetListingFullQuery query =
-                QueryTool.getQuery(connection, IDatasetListingFullQuery.class);
+        IDatasetListingQuery query = QueryTool.getQuery(connection, IDatasetListingQuery.class);
         return create(daoFactory, query);
     }
 
     @Private
     // only for tests
-    static DatasetListerDAO create(IDAOFactory daoFactory, IDatasetListingFullQuery query)
+    static DatasetListerDAO create(IDAOFactory daoFactory, IDatasetListingQuery query)
     {
-        final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(daoFactory);
         DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        return new DatasetListerDAO(supportsSetQuery, query, homeDatabaseInstance);
+        return new DatasetListerDAO(query, homeDatabaseInstance);
     }
 
-    private final IDatasetListingFullQuery query;
-
-    private final IDatasetSetListingQuery setQuery;
+    private final IDatasetListingQuery query;
 
     private final IEntityPropertySetListingQuery propertySetQuery;
 
-    DatasetListerDAO(final boolean supportsSetQuery, IDatasetListingFullQuery query,
-            final DatabaseInstancePE databaseInstance)
+    DatasetListerDAO(IDatasetListingQuery query, final DatabaseInstancePE databaseInstance)
     {
         super(databaseInstance);
         this.query = query;
-        this.setQuery = createIdSetQuery(supportsSetQuery, query, getDatabaseInstanceId());
-        this.propertySetQuery =
-                createSetPropertyQuery(supportsSetQuery, query, getDatabaseInstanceId());
+        this.propertySetQuery = asEntityPropertySetListingQuery(query);
     }
 
     IDatasetListingQuery getQuery()
@@ -88,24 +80,13 @@ public final class DatasetListerDAO extends AbstractDAO
         return query;
     }
 
-    IDatasetSetListingQuery getIdSetQuery()
-    {
-        return setQuery;
-    }
-
     IEntityPropertySetListingQuery getPropertySetQuery()
     {
         return propertySetQuery;
     }
 
-    private static IEntityPropertySetListingQuery createSetPropertyQuery(boolean supportsSetQuery,
-            IDatasetListingFullQuery query, long databaseInstanceId)
-    {
-        return asEntitySetPropertyListingQuery(query);
-    }
-
-    private static IEntityPropertySetListingQuery asEntitySetPropertyListingQuery(
-            final IDatasetListingFullQuery query)
+    private static IEntityPropertySetListingQuery asEntityPropertySetListingQuery(
+            final IDatasetListingQuery query)
     {
         return new IEntityPropertySetListingQuery()
             {
@@ -125,29 +106,6 @@ public final class DatasetListerDAO extends AbstractDAO
                         LongSet entityIDs)
                 {
                     return query.getEntityPropertyVocabularyTermValues(entityIDs);
-                }
-            };
-    }
-
-    private static IDatasetSetListingQuery createIdSetQuery(boolean supportsSetQuery,
-            IDatasetListingFullQuery query, long databaseInstanceId)
-    {
-        return asDatasetSetListingQuery(query);
-    }
-
-    private static IDatasetSetListingQuery asDatasetSetListingQuery(
-            final IDatasetListingFullQuery query)
-    {
-        return new IDatasetSetListingQuery()
-            {
-                public Iterable<DatasetRecord> getDatasets(LongSet sampleIds)
-                {
-                    return query.getDatasets(sampleIds);
-                }
-
-                public DataIterator<Long> getDatasetChildrenIds(LongSet entityIds)
-                {
-                    return query.getDatasetChildrenIds(entityIds);
                 }
             };
     }

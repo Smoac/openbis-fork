@@ -17,11 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
+import net.lemnik.eodsql.Select;
 
 /**
  * Query methods for retrieving entity properties.
- *
- * @author     Franz-Josef Elmer
+ * <em>Queries are defined in subinterfaces but {@link Select} annotation has to be used here as well on every query.</em>
+ * 
+ * @author Franz-Josef Elmer
  */
 public interface IEntityPropertySetListingQuery
 {
@@ -38,8 +40,7 @@ public interface IEntityPropertySetListingQuery
      * 
      * @param entityIDs The set of entity IDs to get the property values for.
      */
-    public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
-            LongSet entityIDs);
+    public Iterable<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(LongSet entityIDs);
 
     /**
      * Returns all material-type property values of all specified entities.

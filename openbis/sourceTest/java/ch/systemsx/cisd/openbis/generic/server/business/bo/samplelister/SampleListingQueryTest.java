@@ -66,7 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 @Friend(toClasses =
     { SampleRecord.class, ExperimentProjectGroupCodeRecord.class, ISampleListingQuery.class,
-            SampleListerDAO.class, ISampleListingFullQuery.class })
+            SampleListerDAO.class })
 @Test(groups =
     { "db", "sample" })
 public class SampleListingQueryTest extends AbstractDAOTest
@@ -127,8 +127,8 @@ public class SampleListingQueryTest extends AbstractDAOTest
 
     public static SampleListerDAO createSampleListerDAO(IDAOFactory daoFactory)
     {
-        ISampleListingFullQuery query =
-                EntityListingTestUtils.createQuery(daoFactory, ISampleListingFullQuery.class);
+        ISampleListingQuery query =
+                EntityListingTestUtils.createQuery(daoFactory, ISampleListingQuery.class);
         return SampleListerDAO.create(daoFactory, query);
     }
 

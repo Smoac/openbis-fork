@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister;
 
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
@@ -23,7 +24,11 @@ import net.lemnik.eodsql.TransactionQuery;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 
 /**
  * A {@link TransactionQuery} interface for obtaining large sets of dataset-related entities from
@@ -97,5 +102,73 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
 
     @Select(sql = "select id, code from locator_types")
     public CodeRecord[] getLocatorTypes();
+
+    //
+    // Datasets
+    //
+
+    /**
+     * Returns the datasets for the given <var>entityIds</var>.
+     */
+    @Select(sql = "select * from data join external_data on data.id = external_data.data_id where data.id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getDatasets(LongSet entityIds);
+
+    /**
+     * Returns the children dataset ids of the specified datasets.
+     */
+    @Select(sql = "select data_id_child from data_set_relationships where data_id_parent = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<Long> getDatasetChildrenIds(LongSet sampleId);
+
+    /**
+     * Returns the total number of all datasets in the database.
+     */
+    @Select(sql = "select count(*) from data")
+    public long getDatasetCount();
+
+    //
+    // Entity Properties
+    //
+
+    /**
+     * Returns all generic property values of all datasets specified by <var>entityIds</var>.
+     * 
+     * @param entityIds The set of sample ids to get the property values for.
+     */
+    @Select(sql = "select pr.ds_id as entity_id, etpt.prty_id, pr.value from data_set_properties pr"
+            + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
+            + "   where pr.value is not null and pr.ds_id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
+            LongSet entityIds);
+
+    /**
+     * Returns all controlled vocabulary property values of all datasets specified by
+     * <var>entityIds</var>.
+     * 
+     * @param entityIds The set of sample ids to get the property values for.
+     */
+    @Select(sql = "select pr.ds_id as entity_id, etpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
+            + "      from data_set_properties pr"
+            + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
+            + "      join controlled_vocabulary_terms cvte on pr.cvte_id=cvte.id"
+            + "   where pr.ds_id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
+            LongSet entityIds);
+
+    /**
+     * Returns all material-type property values of all datasets specified by <var>entityIds</var>.
+     * 
+     * @param entityIds The set of sample ids to get the property values for.
+     */
+    @Select(sql = "select pr.ds_id as entity_id, etpt.prty_id, m.id, m.code, m.maty_id"
+            + "      from data_set_properties pr"
+            + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
+            + "      join materials m on pr.mate_prop_id=m.id where pr.ds_id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
+            LongSet entityIds);
 
 }

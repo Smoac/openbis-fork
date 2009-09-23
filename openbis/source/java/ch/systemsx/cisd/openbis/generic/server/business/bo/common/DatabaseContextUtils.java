@@ -20,7 +20,6 @@ import java.sql.Connection;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
-import ch.systemsx.cisd.dbmigration.DatabaseEngine;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 
@@ -36,16 +35,6 @@ public class DatabaseContextUtils
     public static Connection getConnection(IDAOFactory daoFactory)
     {
         return daoFactory.getSessionFactory().getCurrentSession().connection();
-    }
-
-    /**
-     * @return true if the database supports set queries. <br>
-     *         Note: H2 does not support set queries ("=ANY()" operator).
-     */
-    public static boolean isSupportingSetQueries(IDAOFactory daoFactory)
-    {
-        DatabaseConfigurationContext context = DatabaseContextUtils.getDatabaseContext(daoFactory);
-        return (DatabaseEngine.H2.getCode().equals(context.getDatabaseEngineCode()) == false);
     }
 
     /**

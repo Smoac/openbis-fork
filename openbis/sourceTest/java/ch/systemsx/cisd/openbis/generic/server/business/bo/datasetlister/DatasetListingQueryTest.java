@@ -53,7 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 @Friend(toClasses =
     { DatasetRecord.class, ExperimentProjectGroupCodeRecord.class, IDatasetListingQuery.class,
-            DatasetListerDAO.class, IDatasetListingFullQuery.class })
+            DatasetListerDAO.class })
 @Test(groups =
     { "db", "dataset" })
 public class DatasetListingQueryTest extends AbstractDAOTest
@@ -87,8 +87,8 @@ public class DatasetListingQueryTest extends AbstractDAOTest
 
     public static DatasetListerDAO createDatasetListerDAO(IDAOFactory daoFactory)
     {
-        IDatasetListingFullQuery query =
-                EntityListingTestUtils.createQuery(daoFactory, IDatasetListingFullQuery.class);
+        IDatasetListingQuery query =
+                EntityListingTestUtils.createQuery(daoFactory, IDatasetListingQuery.class);
         return DatasetListerDAO.create(daoFactory, query);
     }
 

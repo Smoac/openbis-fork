@@ -42,13 +42,13 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
 {
     private final IPropertyListingQuery query;
 
-    private final IEntityPropertySetListingQuery setQuery;
+    private final IEntityPropertySetListingQuery propertySetQuery;
 
     public EntityPropertiesEnricher(final IPropertyListingQuery query,
             final IEntityPropertySetListingQuery setQuery)
     {
         this.query = query;
-        this.setQuery = setQuery;
+        this.propertySetQuery = setQuery;
     }
 
     /**
@@ -59,7 +59,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
     {
         final Long2ObjectMap<PropertyType> propertyTypes = getPropertyTypes();
         // Generic properties
-        for (GenericEntityPropertyRecord val : setQuery.getEntityPropertyGenericValues(entityIDs))
+        for (GenericEntityPropertyRecord val : propertySetQuery.getEntityPropertyGenericValues(entityIDs))
         {
             final IEntityPropertiesHolder entity = entities.get(val.entity_id);
             final IEntityProperty property = new GenericValueEntityProperty();
@@ -70,7 +70,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
         // Controlled vocabulary properties
         Long2ObjectMap<String> vocabularyURLMap = null;
         Long2ObjectMap<VocabularyTerm> terms = new Long2ObjectOpenHashMap<VocabularyTerm>();
-        for (VocabularyTermRecord val : setQuery.getEntityPropertyVocabularyTermValues(entityIDs))
+        for (VocabularyTermRecord val : propertySetQuery.getEntityPropertyVocabularyTermValues(entityIDs))
         {
             if (vocabularyURLMap == null)
             {
@@ -99,7 +99,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
         // Material-type properties
         Long2ObjectMap<MaterialType> materialTypes = null;
         Long2ObjectMap<Material> materials = new Long2ObjectOpenHashMap<Material>();
-        for (MaterialEntityPropertyRecord val : setQuery.getEntityPropertyMaterialValues(entityIDs))
+        for (MaterialEntityPropertyRecord val : propertySetQuery.getEntityPropertyMaterialValues(entityIDs))
         {
             if (materialTypes == null)
             {

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
+import it.unimi.dsi.fastutil.longs.LongSet;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -34,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListi
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -270,5 +273,63 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
             + "      join materials m on pr.mate_prop_id=m.id and pt.dbin_id=?{1}", fetchSize = FETCH_SIZE)
     public DataIterator<MaterialEntityPropertyRecord> getAllEntityPropertyMaterialValues(
             long dbInstanceId);
+
+    //
+    // Samples
+    //
+
+    /**
+     * Returns the samples for the given <var>sampleIds</var>.
+     */
+    @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, "
+            + "       s.registration_timestamp, s.pers_id_registerer, "
+            + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
+            + "   from samples s where s.id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamples(LongSet sampleIds);
+
+    //
+    // Sample Properties
+    //
+
+    /**
+     * Returns all generic property values of all samples specified by <var>sampleIds</var>.
+     * 
+     * @param sampleIds The set of sample ids to get the property values for.
+     */
+    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, sp.value from sample_properties sp"
+            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
+            + "   where sp.value is not null and sp.samp_id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
+            LongSet sampleIds);
+
+    /**
+     * Returns all controlled vocabulary property values of all samples specified by
+     * <var>sampleIds</var>.
+     * 
+     * @param sampleIds The set of sample ids to get the property values for.
+     */
+    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
+            + "      from sample_properties sp"
+            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
+            + "      join controlled_vocabulary_terms cvte on sp.cvte_id=cvte.id"
+            + "   where sp.samp_id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
+            LongSet sampleIds);
+
+    /**
+     * Returns all material-type property values of all samples specified by <var>sampleIds</var>.
+     * 
+     * @param sampleIds The set of sample ids to get the property values for.
+     */
+    @Select(sql = "select sp.samp_id as entity_id, stpt.prty_id, m.id, m.code, m.maty_id"
+            + "      from sample_properties sp"
+            + "      join sample_type_property_types stpt on sp.stpt_id=stpt.id"
+            + "      join materials m on sp.mate_prop_id=m.id where sp.samp_id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
+            LongSet sampleIds);
 
 }

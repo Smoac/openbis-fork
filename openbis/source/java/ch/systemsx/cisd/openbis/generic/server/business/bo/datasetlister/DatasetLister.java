@@ -77,8 +77,6 @@ public class DatasetLister implements IDatasetLister
 
     private final IDatasetListingQuery query;
 
-    private final IDatasetSetListingQuery setQuery;
-
     private final IEntityPropertiesEnricher propertiesEnricher;
 
     private final SecondaryEntityDAO referencedEntityDAO;
@@ -109,28 +107,24 @@ public class DatasetLister implements IDatasetLister
             String baseIndexURL, String defaultDataStoreBaseURL)
     {
         IDatasetListingQuery query = dao.getQuery();
-        IDatasetSetListingQuery setQuery = dao.getIdSetQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new DatasetLister(dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), query,
-                setQuery, propertiesEnricher, referencedEntityDAO, baseIndexURL,
-                defaultDataStoreBaseURL);
+                propertiesEnricher, referencedEntityDAO, baseIndexURL, defaultDataStoreBaseURL);
     }
 
     // For unit tests
     DatasetLister(final long databaseInstanceId, final DatabaseInstance databaseInstance,
-            final IDatasetListingQuery query, final IDatasetSetListingQuery setQuery,
-            IEntityPropertiesEnricher propertiesEnricher, SecondaryEntityDAO referencedEntityDAO,
-            String baseIndexURL, String defaultDataStoreBaseURL)
+            final IDatasetListingQuery query, IEntityPropertiesEnricher propertiesEnricher,
+            SecondaryEntityDAO referencedEntityDAO, String baseIndexURL,
+            String defaultDataStoreBaseURL)
     {
         assert databaseInstance != null;
         assert query != null;
-        assert setQuery != null;
 
         this.databaseInstanceId = databaseInstanceId;
         this.databaseInstance = databaseInstance;
         this.query = query;
-        this.setQuery = setQuery;
         this.propertiesEnricher = propertiesEnricher;
         this.referencedEntityDAO = referencedEntityDAO;
         this.baseIndexURL = baseIndexURL;
@@ -151,7 +145,7 @@ public class DatasetLister implements IDatasetLister
             LongSet nextLayer;
             while (currentLayer.isEmpty() == false)
             {
-                nextLayer = new LongOpenHashSet(setQuery.getDatasetChildrenIds(currentLayer));
+                nextLayer = new LongOpenHashSet(query.getDatasetChildrenIds(currentLayer));
                 results.addAll(currentLayer);
                 nextLayer.removeAll(results); // don't go twice through the same dataset
                 currentLayer = nextLayer;
@@ -177,7 +171,7 @@ public class DatasetLister implements IDatasetLister
 
     public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds)
     {
-        return enrichDatasets(setQuery.getDatasets(new LongOpenHashSet(datasetIds)));
+        return enrichDatasets(query.getDatasets(new LongOpenHashSet(datasetIds)));
     }
 
     private List<ExternalData> enrichDatasets(Iterable<DatasetRecord> datasets)
