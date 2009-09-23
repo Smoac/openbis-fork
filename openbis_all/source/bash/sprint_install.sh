@@ -15,7 +15,7 @@ DATE=`/bin/date +%Y-%m-%d_%H%M`
 DB_NAME=openbis_productive
 DB_SNAPSHOT=~/db_snapshots
 TOMCAT_DIR=~/sprint/openBIS-server/apache-tomcat
-DAYS_TO_RETAIN=7
+DAYS_TO_RETAIN=35
 
 if [ $1 ]; then
     VER=$1
