@@ -27,26 +27,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import net.lemnik.eodsql.DataIterator;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.BaseEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectGroupCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -243,78 +236,4 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         findCode(Arrays.asList(codes), "XML");
     }
 
-    // ------------------------
-
-    private void assertCorrectEntityAndPropertyTypeReferences(
-            List<? extends BaseEntityPropertyRecord> properties)
-    {
-        DataIterator<DatasetRecord> entities = query.getDatasets(dbInstanceId);
-        PropertyType[] propertyTypes = query.getPropertyTypes();
-        EntityListingTestUtils.assertCorrectEntityAndPropertyTypeReferences(entities, properties,
-                propertyTypes);
-    }
-
-    @Test
-    public void testEntityPropertiesGenericValues()
-    {
-        List<GenericEntityPropertyRecord> properties =
-                asList(query.getAllEntityPropertyGenericValues(dbInstanceId));
-        assertCorrectEntityAndPropertyTypeReferences(properties);
-        for (GenericEntityPropertyRecord property : properties)
-        {
-            assertNotNull(property.value);
-        }
-        checkEntityPropertiesGenericValuesForEntity(EntityListingTestUtils
-                .getAnyEntityId(properties));
-    }
-
-    // entityId - id of an entity which has a property
-    private void checkEntityPropertiesGenericValuesForEntity(long entityId)
-    {
-        DataIterator<GenericEntityPropertyRecord> properties =
-                query.getEntityPropertyGenericValues(entityId);
-        EntityListingTestUtils.checkPropertiesGenericValues(entityId, properties);
-    }
-
-    @Test
-    public void testEntityPropertiesMaterialValues()
-    {
-        List<MaterialEntityPropertyRecord> properties =
-                asList(query.getAllEntityPropertyMaterialValues(dbInstanceId));
-        assertCorrectEntityAndPropertyTypeReferences(properties);
-        for (MaterialEntityPropertyRecord property : properties)
-        {
-            assertNotNull(property.code);
-        }
-        checkEntityPropertiesMaterialValuesForEntity(EntityListingTestUtils
-                .getAnyEntityId(properties));
-    }
-
-    private void checkEntityPropertiesMaterialValuesForEntity(long entityId)
-    {
-        DataIterator<MaterialEntityPropertyRecord> properties =
-                query.getEntityPropertyMaterialValues(entityId);
-        EntityListingTestUtils.checkPropertiesMaterialValues(entityId, properties);
-    }
-
-    @Test
-    public void testEntityPropertiesVocabularyTermValues()
-    {
-        List<VocabularyTermRecord> properties =
-                asList(query.getAllEntityPropertyVocabularyTermValues(dbInstanceId));
-        assertCorrectEntityAndPropertyTypeReferences(properties);
-        for (VocabularyTermRecord property : properties)
-        {
-            assertNotNull(property.code);
-        }
-        checkEntityPropertiesVocabularyTermValuesForEntity(EntityListingTestUtils
-                .getAnyEntityId(properties));
-    }
-
-    private void checkEntityPropertiesVocabularyTermValuesForEntity(long entityId)
-    {
-        DataIterator<VocabularyTermRecord> properties =
-                query.getEntityPropertyVocabularyTermValues(entityId);
-        EntityListingTestUtils.checkPropertiesVocabularyTermValues(entityId, properties);
-    }
 }

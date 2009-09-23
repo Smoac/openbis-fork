@@ -50,7 +50,6 @@
 	<classpathentry kind="lib" path="/libraries/apgdiff/apgdiff.jar" sourcepath="/libraries/apgdiff/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/h2/h2.jar" sourcepath="/libraries/h2/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/fastutil/fastutil.jar" sourcepath="/libraries/fastutil/fastutil-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-collections-generic/commons-collections-generic.jar" sourcepath="/libraries/commons-collections-generic/src.zip"/>

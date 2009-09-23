@@ -20,7 +20,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.Connection;
 
-import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.rinn.restrictions.Friend;
@@ -31,10 +30,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityP
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertySetListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.PropertiesSetListingQueryFallback;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser.IEntitiesCountProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -75,19 +71,14 @@ public final class SampleListerDAO extends AbstractDAO
 
     private final IEntityPropertySetListingQuery propertySetQuery;
 
-    private final QueryStrategyChooser strategyChooser;
-
     SampleListerDAO(final boolean supportsSetQuery, ISampleListingFullQuery query,
             final DatabaseInstancePE databaseInstance)
     {
         super(databaseInstance);
         this.query = query;
-        this.strategyChooser = createStrategyChooser(query, databaseInstance.getId());
-        this.setQuery =
-                createIdSetQuery(supportsSetQuery, query, strategyChooser, databaseInstance.getId());
+        this.setQuery = createIdSetQuery(supportsSetQuery, query, databaseInstance.getId());
         this.propertySetQuery =
-                createSetPropertyQuery(supportsSetQuery, query, strategyChooser, databaseInstance
-                        .getId());
+                createSetPropertyQuery(supportsSetQuery, query, databaseInstance.getId());
     }
 
     ISampleListingQuery getQuery()
@@ -105,70 +96,10 @@ public final class SampleListerDAO extends AbstractDAO
         return propertySetQuery;
     }
 
-    private static QueryStrategyChooser createStrategyChooser(final ISampleListingFullQuery query,
-            final long databaseInstanceId)
-    {
-        return new QueryStrategyChooser(new IEntitiesCountProvider()
-            {
-                public long count()
-                {
-                    return query.getSampleCount(databaseInstanceId);
-                }
-            });
-    }
-
     private static IEntityPropertySetListingQuery createSetPropertyQuery(boolean supportsSetQuery,
-            ISampleListingFullQuery query, QueryStrategyChooser strategyChooser,
-            final long databaseInstanceId)
+            ISampleListingFullQuery query, final long databaseInstanceId)
     {
-        if (supportsSetQuery)
-        {
-            return asEntityPropertySetListingQuery(query);
-        } else
-        {
-            return new PropertiesSetListingQueryFallback(asEntityPropertyListingQuery(query,
-                    databaseInstanceId), strategyChooser);
-        }
-    }
-
-    private static IEntityPropertyListingQuery asEntityPropertyListingQuery(
-            final ISampleListingFullQuery query, final long databaseInstanceId)
-    {
-        return new IEntityPropertyListingQuery()
-            {
-                public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues()
-                {
-                    return query.getAllEntityPropertyGenericValues(databaseInstanceId);
-                }
-
-                public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
-                        long entityId)
-                {
-                    return query.getEntityPropertyGenericValues(entityId);
-                }
-
-                public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues()
-                {
-                    return query.getAllEntityPropertyMaterialValues(databaseInstanceId);
-                }
-
-                public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
-                        long sampleId)
-                {
-                    return query.getEntityPropertyMaterialValues(sampleId);
-                }
-
-                public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues()
-                {
-                    return query.getAllEntityPropertyVocabularyTermValues(databaseInstanceId);
-                }
-
-                public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
-                        long sampleId)
-                {
-                    return query.getEntityPropertyVocabularyTermValues(sampleId);
-                }
-            };
+        return asEntityPropertySetListingQuery(query);
     }
 
     private static IEntityPropertySetListingQuery asEntityPropertySetListingQuery(
@@ -197,16 +128,9 @@ public final class SampleListerDAO extends AbstractDAO
     }
 
     private static ISampleSetListingQuery createIdSetQuery(boolean supportsSetQuery,
-            ISampleListingFullQuery query, QueryStrategyChooser strategyChooser,
-            final long databaseInstanceId)
+            ISampleListingFullQuery query, final long databaseInstanceId)
     {
-        if (supportsSetQuery)
-        {
-            return asSampleSetListingQuery(query);
-        } else
-        {
-            return new SampleSetListingQueryFallback(query, strategyChooser, databaseInstanceId);
-        }
+        return asSampleSetListingQuery(query);
     }
 
     private static ISampleSetListingQuery asSampleSetListingQuery(

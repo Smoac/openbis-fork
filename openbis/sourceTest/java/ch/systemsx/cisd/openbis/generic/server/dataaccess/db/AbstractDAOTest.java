@@ -87,7 +87,6 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         System.setProperty("hibernate.search.index-base", LUCENE_INDEX_PATH);
         System.setProperty("hibernate.search.worker.execution", "sync");
         System.setProperty("mass-upload-folder", "sourceTest/sql/postgresql");
-        //System.setProperty("database.engine", "h2");
     }
 
     static final Long ANOTHER_DATABASE_INSTANCE_ID = new Long(2);

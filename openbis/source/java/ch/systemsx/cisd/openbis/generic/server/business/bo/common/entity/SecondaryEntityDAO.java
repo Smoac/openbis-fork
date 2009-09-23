@@ -30,8 +30,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.QueryStrategyChooser.IEntitiesCountProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
@@ -79,8 +77,7 @@ public class SecondaryEntityDAO
     public static SecondaryEntityDAO create(IDAOFactory daoFactory,
             ISecondaryEntityListingQuery query)
     {
-        final boolean supportsSetQuery = DatabaseContextUtils.isSupportingSetQueries(daoFactory);
-        return new SecondaryEntityDAO(supportsSetQuery, query, daoFactory.getHomeDatabaseInstance());
+        return new SecondaryEntityDAO(query, daoFactory.getHomeDatabaseInstance());
     }
 
     private final ISecondaryEntitySetListingQuery setQuery;
@@ -89,26 +86,18 @@ public class SecondaryEntityDAO
 
     private final DatabaseInstance databaseInstance;
 
-    private SecondaryEntityDAO(boolean supportsSetQuery, final ISecondaryEntityListingQuery query,
+    private SecondaryEntityDAO(final ISecondaryEntityListingQuery query,
             final DatabaseInstancePE databaseInstancePE)
     {
         this.query = query;
-        this.setQuery = createSetQuery(supportsSetQuery, query, databaseInstancePE.getId());
+        this.setQuery = createSetQuery(query, databaseInstancePE.getId());
         this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstancePE);
     }
 
-    private static ISecondaryEntitySetListingQuery createSetQuery(boolean supportsSetQuery,
+    private static ISecondaryEntitySetListingQuery createSetQuery(
             ISecondaryEntityListingQuery query, long databaseInstanceId)
     {
-        if (supportsSetQuery)
-        {
-            return asDatasetSetListingQuery(query);
-        } else
-        {
-            QueryStrategyChooser strategyChooser = createStrategyChooser(query, databaseInstanceId);
-            return new SecondaryEntitySetListingQueryFallback(query, strategyChooser,
-                    databaseInstanceId);
-        }
+        return asDatasetSetListingQuery(query);
     }
 
     private static ISecondaryEntitySetListingQuery asDatasetSetListingQuery(
@@ -121,18 +110,6 @@ public class SecondaryEntityDAO
                     return query.getSamples(sampleIds);
                 }
             };
-    }
-
-    private static QueryStrategyChooser createStrategyChooser(
-            final ISecondaryEntityListingQuery query, final long databaseInstanceId)
-    {
-        return new QueryStrategyChooser(new IEntitiesCountProvider()
-            {
-                public long count()
-                {
-                    return query.getSampleCount(databaseInstanceId);
-                }
-            });
     }
 
     public Experiment getExperiment(final long experimentId)

@@ -103,6 +103,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         return new SampleTable(getDaoFactory(), session);
     }
 
+    // TODO getDaoFactory()?
     public ISampleLister createSampleLister(Session session)
     {
         return SampleLister.create(daoFactory, session.getBaseIndexURL());

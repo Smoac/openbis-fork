@@ -23,10 +23,7 @@ import net.lemnik.eodsql.TransactionQuery;
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 
 /**
  * A {@link TransactionQuery} interface for obtaining large sets of dataset-related entities from
@@ -101,66 +98,4 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     @Select(sql = "select id, code from locator_types")
     public CodeRecord[] getLocatorTypes();
 
-    // ------------- Properties
-
-    /**
-     * Returns all generic property values of the sample with <var>entityId</var>.
-     */
-    @Select("select pr.ds_id as entity_id, etpt.prty_id, pr.value from data_set_properties pr"
-            + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
-            + "   where pr.value is not null and pr.ds_id=?{1}")
-    public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(long entityId);
-
-    /**
-     * Returns all generic property values of all samples.
-     */
-    @Select(sql = "select pr.ds_id as entity_id, etpt.prty_id, pr.value from data_set_properties pr"
-            + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
-            + "      join property_types pt on etpt.prty_id=pt.id"
-            + "   where pr.value is not null and pt.dbin_id=?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<GenericEntityPropertyRecord> getAllEntityPropertyGenericValues(
-            long dbInstanceId);
-
-    /**
-     * Returns all controlled vocabulary property values of the sample with <var>sampleId</var>.
-     */
-    @Select("select pr.ds_id as entity_id, etpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
-            + "      from data_set_properties pr"
-            + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
-            + "      join controlled_vocabulary_terms cvte on pr.cvte_id=cvte.id"
-            + "   where pr.ds_id=?{1}")
-    public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(long entityId);
-
-    /**
-     * Returns all controlled vocabulary property values of all samples.
-     */
-    @Select(sql = "select pr.ds_id as entity_id, etpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
-            + "      from data_set_properties pr"
-            + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
-            + "      join controlled_vocabulary_terms cvte on pr.cvte_id=cvte.id"
-            + "      join property_types pt on etpt.prty_id=pt.id"
-            + "    where pt.dbin_id=?{1}        ", fetchSize = FETCH_SIZE)
-    public DataIterator<VocabularyTermRecord> getAllEntityPropertyVocabularyTermValues(
-            long dbInstanceId);
-
-    /**
-     * Returns all material-type property values of the sample with <var>sampleId</var>
-     */
-    @Select("select pr.ds_id as entity_id, etpt.prty_id, m.id, m.code, m.maty_id"
-            + "      from data_set_properties pr"
-            + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
-            + "      join materials m on pr.mate_prop_id=m.id where pr.ds_id=?{1}")
-    public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(long entityId);
-
-    /**
-     * Returns all material-type property values of all samples.
-     */
-    @Select(sql = "select pr.ds_id as entity_id, etpt.prty_id, m.id, m.code, m.maty_id"
-            + "      from data_set_properties pr"
-            + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
-            + "      join materials m on pr.mate_prop_id=m.id"
-            + "      join property_types pt on etpt.prty_id=pt.id"
-            + "    where pt.dbin_id=?{1}    ", fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialEntityPropertyRecord> getAllEntityPropertyMaterialValues(
-            long dbInstanceId);
 }
