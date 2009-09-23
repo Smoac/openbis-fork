@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.event.WindowListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -43,11 +44,10 @@ public class SimpleDialog extends Dialog
     private final IMessageProvider messageProvider;
 
     private final Button acceptButton;
-    
+
     private IDelegatedAction acceptActionOrNull;
 
     private IDelegatedAction cancelActionOrNull;
-
 
     public SimpleDialog(final Widget widget, final String heading, String acceptButtonLabel,
             IMessageProvider messageProvider)
@@ -60,6 +60,7 @@ public class SimpleDialog extends Dialog
         setHideOnButtonClick(true);
         setModal(true);
 
+        setLayout(new FitLayout());
         add(widget);
         acceptButton = createAcceptButton(acceptButtonLabel);
         addButton(acceptButton);
@@ -74,12 +75,12 @@ public class SimpleDialog extends Dialog
                 }
             });
     }
-    
+
     public void setEnableOfAcceptButton(boolean enable)
     {
         acceptButton.setEnabled(enable);
     }
-    
+
     private Button createCancelButton()
     {
         final Button button =

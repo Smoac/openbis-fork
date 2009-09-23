@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -78,6 +77,8 @@ class DataStoreServicesGrid extends ContentPanel
         setLayout(new FitLayout());
 
         setWidth(4 * ColumnConfigFactory.DEFAULT_COLUMN_WIDTH);
+        // - setting auto width causes some grid resize problems
+        // setAutoWidth(true);
         setHeight(200);
 
         setHeaderVisible(true);
@@ -110,25 +111,21 @@ class DataStoreServicesGrid extends ContentPanel
         ListStore<PluginTaskDescriptionModel> store = new ListStore<PluginTaskDescriptionModel>();
         setStoreContent(servicesOrNull, store);
 
-        final ContentPanel cp = new ContentPanel();
-
-        cp.setBodyBorder(false);
-        cp.setHeaderVisible(false);
-        cp.setButtonAlign(HorizontalAlignment.CENTER);
-
-        cp.setLayout(new FitLayout());
-
         grid = new Grid<PluginTaskDescriptionModel>(store, cm);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         grid.getSelectionModel().addListener(Events.SelectionChange,
                 createGridSelectionChangeListener());
         grid.setId(TABLE_ID);
         grid.setBorders(true);
+        // - setting auto width causes some grid resize problems
+        // - setting height does not help because form height is fixed
+        // grid.setAutoExpandColumn(cm.getColumnId(cm.getColumnCount() - 1));
+        // grid.setAutoWidth(true);
+
         String displayTypeID = DisplayTypeIDGenerator.PLUGIN_TASKS_BROWSER_GRID.createID();
         displaySettingsManager.prepareGrid(displayTypeID, grid);
-        cp.add(grid);
 
-        add(cp);
+        add(grid);
         layout();
 
     }

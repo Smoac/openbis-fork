@@ -37,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -79,7 +80,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTermWithStats>
 {
-    private static final int FIELD_WITH_IN_REPLACEMENT_DIALOG = 200;
+    private static final int NEW_TERMS_DIALOG_WIDTH = 300;
+
+    private static final int NEW_TERMS_DIALOG_HEIGHT = 250;
+
+    private static final int FIELD_WIDTH_IN_REPLACEMENT_DIALOG = 200;
 
     private static final int LABEL_WIDTH_IN_REPLACEMENT_DIALOG = 200;
 
@@ -290,19 +295,19 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     private void askForNewTerms()
     {
         final TextArea textArea = new TextArea();
-        textArea.setWidth(250);
-        textArea.setHeight(200);
         textArea.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
         textArea.setValidator(new VocabularyTermValidator(viewContext));
         String heading = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_TITLE);
         String okButtonLabel = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_OK_BUTTON);
         HorizontalPanel panel = new HorizontalPanel();
-        panel.setWidth(300);
+        panel.setLayout(new FitLayout());
         panel.add(textArea);
         panel.setBorders(false);
         final SimpleDialog dialog = new SimpleDialog(panel, heading, okButtonLabel, viewContext);
-        dialog.setScrollMode(Scroll.NONE);
-        dialog.setResizable(false);
+        dialog.setWidth(NEW_TERMS_DIALOG_WIDTH);
+        textArea.setWidth(NEW_TERMS_DIALOG_WIDTH - 65);
+        dialog.setHeight(NEW_TERMS_DIALOG_HEIGHT);
+        textArea.setHeight(NEW_TERMS_DIALOG_HEIGHT - 65);
         textArea.addKeyListener(new KeyListener()
             {
                 @Override
@@ -322,6 +327,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 }
             });
         dialog.setEnableOfAcceptButton(false);
+        dialog.layout();
         dialog.show();
     }
 
@@ -439,7 +445,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_FOR_REPLACEMENTS, totalNumber)));
         final FormPanel formPanel = new FormPanel();
         formPanel.setLabelWidth(LABEL_WIDTH_IN_REPLACEMENT_DIALOG);
-        formPanel.setFieldWidth(FIELD_WITH_IN_REPLACEMENT_DIALOG);
+        formPanel.setFieldWidth(FIELD_WIDTH_IN_REPLACEMENT_DIALOG);
         formPanel.setBorders(false);
         formPanel.setHeaderVisible(false);
         formPanel.setBodyBorder(false);
@@ -448,7 +454,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         String okButtonLable = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_OK_BUTTON);
         final SimpleDialog dialog = new SimpleDialog(panel, title, okButtonLable, viewContext);
         dialog.setScrollMode(Scroll.AUTOY);
-        dialog.setWidth(LABEL_WIDTH_IN_REPLACEMENT_DIALOG + FIELD_WITH_IN_REPLACEMENT_DIALOG + 50);
+        dialog.setWidth(LABEL_WIDTH_IN_REPLACEMENT_DIALOG + FIELD_WIDTH_IN_REPLACEMENT_DIALOG + 50);
         dialog.setEnableOfAcceptButton(false);
         for (final VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
         {

@@ -34,8 +34,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 class EntityChooserDialog<T> extends SimpleDialog
 {
 
-    private static final int PAGING_TOOLBAR_HEIGHT = 65;
-
     private static final int WIDTH = 730;
 
     private static final int HEIGHT = 600;
@@ -55,7 +53,6 @@ class EntityChooserDialog<T> extends SimpleDialog
         this.onAcceptAction = createAcceptAction(chosenEntitySetter, entityBrowser);
         this.onCancelAction = createCancelAction(chosenEntitySetter, entityBrowser);
 
-        entityBrowser.getComponent().setHeight("" + (HEIGHT - PAGING_TOOLBAR_HEIGHT));
         setWidth(WIDTH);
         setHeight(HEIGHT);
         sinkEvents(Event.ONDBLCLICK);
@@ -97,14 +94,13 @@ class EntityChooserDialog<T> extends SimpleDialog
     }
 
     private static <T> IDelegatedAction createCancelAction(
-            final ChosenEntitySetter<T> chosenEntitySetter,
-            final IDisposableComponent componentDisposer)
+            final ChosenEntitySetter<T> chosenEntitySetter, final IDisposableComponent entityBrowser)
     {
         return new IDelegatedAction()
             {
                 public void execute()
                 {
-                    componentDisposer.dispose();
+                    entityBrowser.dispose();
                     chosenEntitySetter.setChosenEntity(null);
                 }
             };
