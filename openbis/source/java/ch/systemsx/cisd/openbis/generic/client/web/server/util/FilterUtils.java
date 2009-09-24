@@ -55,14 +55,14 @@ public class FilterUtils
             this.row = row;
         }
 
-        public String get(String columnID)
+        public Object get(String columnID)
         {
             IColumnDefinition<T> columnDefinition = map.get(columnID);
             if (columnDefinition == null)
             {
                 throw new IllegalArgumentException("Undefined column: " + columnID);
             }
-            return columnDefinition.getValue(row);
+            return columnDefinition.getComparableValue(row);
         }
     }
     

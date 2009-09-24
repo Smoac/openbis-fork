@@ -106,6 +106,22 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
         return null;
     }
 
+    @Override
+    public Comparable<?> getComparableValue(T rowModel)
+    {
+        String valueAsString = tryGetValue(rowModel);
+        DataTypeCode dataType = propertyType.getDataType().getCode();
+        switch (dataType)
+        {
+            case INTEGER:
+                return valueAsString == null ? new Integer(Integer.MIN_VALUE) : new Integer(valueAsString);
+            case REAL:
+                return valueAsString == null ? new Double(-Double.MAX_VALUE) : new Double(valueAsString);
+            default:
+                return super.getComparableValue(rowModel);
+        }
+    }
+
     public IEntityProperty tryGetProperty(T entity)
     {
         for (IEntityProperty prop : getProperties(entity))
