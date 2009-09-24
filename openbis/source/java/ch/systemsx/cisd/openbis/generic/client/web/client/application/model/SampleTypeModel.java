@@ -17,17 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 
 /**
  * {@link ModelData} for {@link SampleType}.
@@ -84,20 +79,7 @@ public class SampleTypeModel extends BaseModelData
 
     private static SampleTypeModel createAllTypesModel(List<SampleType> basicTypes)
     {
-        final SampleType allSampleType = new SampleType();
-        allSampleType.setCode(EntityType.ALL_TYPES_CODE);
-        allSampleType.setListable(true);
-
-        Set<SampleTypePropertyType> allPropertyTypes = new HashSet<SampleTypePropertyType>();
-        for (SampleType basicType : basicTypes)
-        {
-            allPropertyTypes.addAll(basicType.getAssignedPropertyTypes());
-            setDatabaseInstance(allSampleType, basicType.getDatabaseInstance());
-        }
-
-        allSampleType.setSampleTypePropertyTypes(new ArrayList<SampleTypePropertyType>(
-                allPropertyTypes));
-
+        final SampleType allSampleType = SampleType.createAllSampleType(basicTypes, true);
         return new SampleTypeModel(allSampleType);
     }
 
@@ -109,14 +91,4 @@ public class SampleTypeModel extends BaseModelData
         return new SampleTypeModel(typeInFile);
     }
 
-    private static void setDatabaseInstance(SampleType sampleType, DatabaseInstance instance)
-    {
-        if (sampleType.getDatabaseInstance() != null)
-        {
-            assert sampleType.getDatabaseInstance().equals(instance) : "sample types from more than one database instance are not supported";
-        } else
-        {
-            sampleType.setDatabaseInstance(instance);
-        }
-    }
 }

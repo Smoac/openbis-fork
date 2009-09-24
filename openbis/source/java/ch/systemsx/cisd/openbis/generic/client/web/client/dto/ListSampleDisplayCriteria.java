@@ -59,6 +59,9 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
 
     private ListEntityDisplayCriteriaKind criteriaKind;
 
+	// artificial 'all' SampleType
+    private SampleType allSampleTypeOrNull;
+
     // either search criteria or list criteria is set
     private DetailedSearchCriteria searchCriteriaOrNull;
 
@@ -122,9 +125,20 @@ public class ListSampleDisplayCriteria extends DefaultResultSetConfig<String, Sa
         this.searchCriteriaOrNull = searchCriteriaOrNull;
     }
 
+    public void setAllSampleType(SampleType sampleType)
+    {
+        this.allSampleTypeOrNull = sampleType;
+    }
+
     public SampleType tryGetSampleType()
     {
-        return listCriteriaOrNull != null ? listCriteriaOrNull.getSampleType() : null;
+        if (allSampleTypeOrNull != null)
+        {
+            return allSampleTypeOrNull;
+        } else
+        {
+            return listCriteriaOrNull != null ? listCriteriaOrNull.getSampleType() : null;
+        }
     }
 
     //

@@ -87,7 +87,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new SampleRow("C1", "CONTROL_LAYOUT").identifier("CISD", "CISD")
                 .withInternalPropertyCell("PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE));
 
-        table.expectedColumnsNumber(22);
+        // TODO 2009-09-24, Piotr Buczek: test that links for parents are available
+        table.expectedColumnsNumber(25);
         remoteConsole.prepare(table.expectedSize(40));
 
         launchTest(20000);

@@ -54,7 +54,7 @@ public class PropertyTypesFilterUtil
      */
     public static PropertyTypesCriteria filterPropertyTypesForEntityTypes(
             PropertyTypesCriteria propertyTypesCriteriaOrNull, EntityKind entityKind,
-            Set<BasicEntityType> shownEntityTypesOrNull)
+            Set<? extends BasicEntityType> shownEntityTypesOrNull)
     {
         if (propertyTypesCriteriaOrNull != null && shownEntityTypesOrNull != null)
         {
@@ -77,7 +77,7 @@ public class PropertyTypesFilterUtil
     /** returns these property types which are assigned to any of the specified entity types */
     private static List<PropertyType> filterPropertyTypesForEntityTypes(
             List<PropertyType> propertyTypes, EntityKind entityKind,
-            Set<BasicEntityType> entityTypes)
+            Set<? extends BasicEntityType> entityTypes)
     {
         Set<String> entityTypesCodes = extractCodes(entityTypes);
         Set<PropertyType> result = new HashSet<PropertyType>();
@@ -98,10 +98,10 @@ public class PropertyTypesFilterUtil
         return new ArrayList<PropertyType>(result);
     }
 
-    private static Set<String> extractCodes(Set<BasicEntityType> entityTypes)
+    private static Set<String> extractCodes(Set<? extends BasicEntityType> entityTypes)
     {
         Set<String> codes = new HashSet<String>();
-        Iterator<BasicEntityType> iterator = entityTypes.iterator();
+        Iterator<? extends BasicEntityType> iterator = entityTypes.iterator();
         while (iterator.hasNext())
         {
             codes.add(iterator.next().getCode());

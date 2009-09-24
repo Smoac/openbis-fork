@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -188,14 +189,13 @@ public class SampleBrowserGrid extends
     public static interface ISampleCriteriaProvider extends
             ICriteriaProvider<ListSampleDisplayCriteria>, IPropertyTypesProvider
     {
-
     }
 
     public static interface IPropertyTypesProvider
     {
         List<PropertyType> tryGetPropertyTypes();
 
-        void setEntityTypes(Set<BasicEntityType> availableEntityTypes);
+        void setEntityTypes(Set<SampleType> availableEntityTypes);
     }
 
     /**
@@ -212,7 +212,7 @@ public class SampleBrowserGrid extends
         // Set of entity types which are currently shown in this grid.
         // Used to decide which property columns should be shown.
         // Note: content depends on the current grid content.
-        private Set<BasicEntityType> shownEntityTypesOrNull;
+        private Set<SampleType> shownEntityTypesOrNull;
 
         public SampleCriteriaProvider(IViewContext<?> viewContext,
                 ListSampleDisplayCriteria criteria)
@@ -270,10 +270,12 @@ public class SampleBrowserGrid extends
             return propertyTypeProvider.getRelevantModifications();
         }
 
-        public void setEntityTypes(Set<BasicEntityType> entityTypes)
+        public void setEntityTypes(Set<SampleType> entityTypes)
         {
+            criteria.setAllSampleType(SampleType.createAllSampleType(entityTypes, false));
             this.shownEntityTypesOrNull = entityTypes;
         }
+
     }
 
     // property types used in the previous refresh operation or null if it has not occurred yet
@@ -399,12 +401,24 @@ public class SampleBrowserGrid extends
                         @Override
                         protected void process(ResultSetWithEntityTypes<Sample> result)
                         {
-                            propertyTypesAndCriteriaProvider.setEntityTypes(result
-                                    .getAvailableEntityTypes());
+                            propertyTypesAndCriteriaProvider
+                                    .setEntityTypes(extractAvailableSampleTypes(result));
                             callback.onSuccess(result.getResultSet());
                             refreshColumnsSettingsIfNecessary();
                             previousPropertyTypes =
                                     propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
+                        }
+
+                        private Set<SampleType> extractAvailableSampleTypes(
+                                ResultSetWithEntityTypes<Sample> result)
+                        {
+                            Set<SampleType> sampleTypes = new HashSet<SampleType>();
+                            for (BasicEntityType basicType : result.getAvailableEntityTypes())
+                            {
+                                assert basicType instanceof SampleType;
+                                sampleTypes.add((SampleType) basicType);
+                            }
+                            return sampleTypes;
                         }
                     };
 
@@ -461,7 +475,7 @@ public class SampleBrowserGrid extends
         }
         SampleType sampleType = criteria.getSampleType();
         final StringBuilder builder = new StringBuilder("Samples");
-        if (sampleType != null)
+        if (sampleType != null && sampleType.isAllTypesCode() == false)
         {
             builder.append(" of type ");
             builder.append(sampleType.getCode());
@@ -498,11 +512,11 @@ public class SampleBrowserGrid extends
         final List<PropertyType> propertyTypes =
                 propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
         assert propertyTypes != null : "propertyTypes not set!";
+
         final List<AbstractParentSampleColDef> parentColumnsSchema =
                 SampleModelFactory.createParentColumnsSchema(viewContext, criteria
                         .tryGetSampleType());
-		assert parentColumnsSchema != null : "parentColumnsSchema not set!";
-                        
+        assert parentColumnsSchema != null : "parentColumnsSchema not set!";
 
         ColumnDefsAndConfigs<Sample> schema =
                 SampleModelFactory.createColumnsSchema(viewContext, propertyTypes,

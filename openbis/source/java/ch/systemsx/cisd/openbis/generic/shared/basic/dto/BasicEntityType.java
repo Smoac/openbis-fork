@@ -38,7 +38,7 @@ public class BasicEntityType extends AbstractType
     }
 
     @Override
-    public final boolean equals(final Object obj)
+    public boolean equals(final Object obj)
     {
         if (obj == this)
         {

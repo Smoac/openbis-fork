@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid.ISampleCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -172,7 +171,7 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
 
     }
 
-    public void setEntityTypes(Set<BasicEntityType> availableEntityTypes)
+    public void setEntityTypes(Set<SampleType> availableEntityTypes)
     {
         // TODO 2009-08-27, Tomasz Pylak: use this info to narrow properties when displaying "all"
         // types of samples. The method tryGetPropertyTypes would have to be rewritten and an
