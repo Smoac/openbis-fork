@@ -55,69 +55,72 @@ public class SectionsPanel extends ContentPanel
     private void addRefreshDisplaySettingsListener()
     {
         // all sections are refreshed in one go
-        addListener(Events.AfterLayout,new Listener<BaseEvent>()
-    {
-
-        private Long lastRefreshCheckTime;
-
-        public void handleEvent(BaseEvent be)
-        {
-            if (isRefreshNeeded())
+        addListener(Events.AfterLayout, new Listener<BaseEvent>()
             {
-                // need to set time here otherwise invoking layout will cause an infinite loop
-                lastRefreshCheckTime = System.currentTimeMillis();
-                updateSettings();
-                refreshLayout();
-            }
-            lastRefreshCheckTime = System.currentTimeMillis();
-        }
 
-        /** checks if update of section settings and refresh of layout is needed */
-        private boolean isRefreshNeeded()
-        {
-            boolean result = false;
-            for (SectionElement sectionElement : elements)
-            {
-                if (lastRefreshCheckTime == null)
+                private Long lastRefreshCheckTime;
+
+                public void handleEvent(BaseEvent be)
                 {
-                    // No need to refresh when sections are displayed for the first time.
-                    return false;
-                } else if (isModificationDoneInAnotherViewSinceLastRefresh(sectionElement))
-                {
-                    // Section settings have been modified in another view of the
-                    // same type. Refresh of section settings is needed.
-                    return true;
+                    if (isRefreshNeeded())
+                    {
+                        // need to set time here otherwise invoking layout will cause an infinite
+                        // loop
+                        lastRefreshCheckTime = System.currentTimeMillis();
+                        updateSettings();
+                        refreshLayout();
+                    }
+                    lastRefreshCheckTime = System.currentTimeMillis();
                 }
-                // do nothing - other sections may have been modified
-            }
-            return result;
-        }
 
-        private boolean isModificationDoneInAnotherViewSinceLastRefresh(SectionElement element)
-        {
-            final String sectionID = element.getPanel().getDisplayID();
-            final Modification lastModificationOrNull =
-                    viewContext.getDisplaySettingsManager().tryGetLastColumnSettingsModification(
-                            sectionID);
-            return lastModificationOrNull != null
-                    && lastModificationOrNull.getModifier().equals(SectionsPanel.this) == false
-                    && lastModificationOrNull.getTime() > lastRefreshCheckTime;
-        }
-
-        /** updates all section settings */
-        private void updateSettings()
-        {
-            for (SectionElement sectionElement : elements)
-            {
-                final String sectionID = sectionElement.getPanel().getDisplayID();
-                Boolean newSettings =
-                        viewContext.getDisplaySettingsManager().getSectionSettings(sectionID);
-                if (newSettings != null)
+                /** checks if update of section settings and refresh of layout is needed */
+                private boolean isRefreshNeeded()
                 {
-                    sectionElement.getButton().toggle(newSettings);
+                    boolean result = false;
+                    for (SectionElement sectionElement : elements)
+                    {
+                        if (lastRefreshCheckTime == null)
+                        {
+                            // No need to refresh when sections are displayed for the first time.
+                            return false;
+                        } else if (isModificationDoneInAnotherViewSinceLastRefresh(sectionElement))
+                        {
+                            // Section settings have been modified in another view of the
+                            // same type. Refresh of section settings is needed.
+                            return true;
+                        }
+                        // do nothing - other sections may have been modified
+                    }
+                    return result;
                 }
-            }
-        }
+
+                private boolean isModificationDoneInAnotherViewSinceLastRefresh(
+                        SectionElement element)
+                {
+                    final String sectionID = element.getPanel().getDisplayID();
+                    final Modification lastModificationOrNull =
+                            viewContext.getDisplaySettingsManager()
+                                    .tryGetLastSectionSettingsModification(sectionID);
+                    return lastModificationOrNull != null
+                            && lastModificationOrNull.getModifier().equals(SectionsPanel.this) == false
+                            && lastModificationOrNull.getTime() > lastRefreshCheckTime;
+                }
+
+                /** updates all section settings */
+                private void updateSettings()
+                {
+                    for (SectionElement sectionElement : elements)
+                    {
+                        final String sectionID = sectionElement.getPanel().getDisplayID();
+                        Boolean newSettings =
+                                viewContext.getDisplaySettingsManager().getSectionSettings(
+                                        sectionID);
+                        if (newSettings != null)
+                        {
+                            sectionElement.getButton().toggle(newSettings);
+                        }
+                    }
+                }
 
             });
     }
