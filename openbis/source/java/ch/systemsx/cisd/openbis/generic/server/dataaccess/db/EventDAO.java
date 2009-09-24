@@ -92,7 +92,7 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
                     lastSeenDeletionEventIdOrNull == null ? "all" : "id > "
                             + lastSeenDeletionEventIdOrNull;
             operationLog.debug(String.format(
-                    "%s(%d): data set deletion events(s) have been found.", MethodUtils
+                    "%s(%s): %d data set deletion events(s) have been found.", MethodUtils
                             .getCurrentMethod().getName(), lastDesc, list.size()));
         }
         ArrayList<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
