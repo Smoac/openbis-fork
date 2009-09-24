@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Samp
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.AbstractParentSampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -67,7 +69,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -292,19 +293,28 @@ public class SampleBrowserGrid extends
         this.previousPropertyTypes = null;
 
         registerLinkClickListenerFor(CommonSampleColDefKind.EXPERIMENT.id(),
-                new ICellListener<Sample>()
+                new OpenEntityDetailsTabCellClickListener()
                     {
-                        public void handle(Sample rowItem)
+                        @Override
+                        protected IEntityInformationHolder getEntity(Sample rowItem)
                         {
-                            // don't need to check whether the value is null
-                            // because there will not be a link for null value
-                            final Experiment experiment = rowItem.getExperiment();
-
-                            final IEntityInformationHolder entity = experiment;
-                            new OpenEntityDetailsTabAction(entity, viewContext).execute();
+                            return rowItem.getExperiment();
                         }
                     });
         setId(browserId);
+    }
+
+    private abstract class OpenEntityDetailsTabCellClickListener implements ICellListener<Sample>
+    {
+        protected abstract IEntityInformationHolder getEntity(Sample rowItem);
+
+        public final void handle(Sample rowItem)
+        {
+            // don't need to check whether the value is null
+            // because there will not be a link for null value
+            final IEntityInformationHolder entity = getEntity(rowItem);
+            new OpenEntityDetailsTabAction(entity, viewContext).execute();
+        }
     }
 
     @Override
@@ -485,14 +495,39 @@ public class SampleBrowserGrid extends
     protected ColumnDefsAndConfigs<Sample> createColumnsDefinition()
     {
         assert criteria != null : "criteria not set!";
-        List<PropertyType> propertyTypes = propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
+        final List<PropertyType> propertyTypes =
+                propertyTypesAndCriteriaProvider.tryGetPropertyTypes();
         assert propertyTypes != null : "propertyTypes not set!";
+        final List<AbstractParentSampleColDef> parentColumnsSchema =
+                SampleModelFactory.createParentColumnsSchema(viewContext, criteria
+                        .tryGetSampleType());
+		assert parentColumnsSchema != null : "parentColumnsSchema not set!";
+                        
 
         ColumnDefsAndConfigs<Sample> schema =
-                SampleModelFactory.createColumnsSchema(viewContext, propertyTypes, criteria
-                        .tryGetSampleType());
+                SampleModelFactory.createColumnsSchema(viewContext, propertyTypes,
+                        parentColumnsSchema);
+
         schema.setGridCellRendererFor(CommonSampleColDefKind.SHOW_DETAILS_LINK.id(),
                 createShowDetailsLinkCellRenderer());
+
+        GridCellRenderer<BaseEntityModel<?>> linkCellRenderer = createInternalLinkCellRenderer();
+        schema.setGridCellRendererFor(CommonSampleColDefKind.EXPERIMENT.id(), linkCellRenderer);
+        // setup link renderers and listeners on parent columns
+        for (final AbstractParentSampleColDef parentColDef : parentColumnsSchema)
+        {
+            schema.setGridCellRendererFor(parentColDef.getIdentifier(), linkCellRenderer);
+            registerLinkClickListenerFor(parentColDef.getIdentifier(),
+                    new OpenEntityDetailsTabCellClickListener()
+                        {
+                            @Override
+                            protected IEntityInformationHolder getEntity(Sample rowItem)
+                            {
+                                return parentColDef.tryGetParentSample(rowItem);
+                            }
+                        });
+        }
+
         return schema;
     }
 

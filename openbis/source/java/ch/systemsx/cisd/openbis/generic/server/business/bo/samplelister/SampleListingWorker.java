@@ -318,20 +318,15 @@ final class SampleListingWorker
 
     private void loadSampleTypes()
     {
-        final String sampleTypeCodeOrNull = tryGetSampleTypeCode();
-        this.singleSampleTypeMode = (sampleTypeCodeOrNull != null);
-        if (singleSampleTypeMode)
+        final SampleType sampleTypeOrNull = tryGetSingleModeSampleType();
+        this.singleSampleTypeMode = (sampleTypeOrNull != null);
+        // all sample types are needed for parents
+        for (SampleType type : query.getSampleTypes(databaseInstanceId))
         {
-            final SampleType sampleType =
-                    query.getSampleType(databaseInstanceId, sampleTypeCodeOrNull);
-            sampleTypes.put(sampleType.getId(), sampleType);
-            this.maxSampleParentResolutionDepth = sampleType.getGeneratedFromHierarchyDepth();
-            this.maxSampleContainerResolutionDepth = sampleType.getContainerHierarchyDepth();
-        } else
-        {
-            for (SampleType type : query.getSampleTypes(databaseInstanceId))
+            sampleTypes.put(type.getId(), type);
+            if (singleSampleTypeMode == false)
             {
-                sampleTypes.put(type.getId(), type);
+                // TODO 2009-09-24, Piotr Buczek: use to display all parents
                 maxSampleContainerResolutionDepth =
                         Math.max(maxSampleContainerResolutionDepth, type
                                 .getContainerHierarchyDepth());
@@ -339,15 +334,30 @@ final class SampleListingWorker
                         Math.max(maxSampleParentResolutionDepth, type
                                 .getGeneratedFromHierarchyDepth());
             }
-            sampleTypes.trim();
         }
+        sampleTypes.trim();
+
+        if (singleSampleTypeMode)
+        {
+            assert sampleTypeOrNull != null;
+            this.maxSampleParentResolutionDepth = sampleTypeOrNull.getGeneratedFromHierarchyDepth();
+            this.maxSampleContainerResolutionDepth = sampleTypeOrNull.getContainerHierarchyDepth();
+        }
+
     }
 
-    private String tryGetSampleTypeCode()
+    private SampleType tryGetSingleModeSampleType()
     {
         final SampleType sampleTypeOrNull = criteria.getSampleType();
         return (sampleTypeOrNull == null || sampleTypeOrNull.isAllTypesCode()) ? null
-                : sampleTypeOrNull.getCode();
+                : sampleTypeOrNull;
+    }
+
+    private long getSampleTypeId()
+    {
+        final SampleType sampleTypeOrNull = tryGetSingleModeSampleType();
+        assert sampleTypeOrNull != null;
+        return sampleTypeOrNull.getId();
     }
 
     private Iterable<SampleRecord> tryGetIteratorForSamplesByIds()
@@ -370,8 +380,7 @@ final class SampleListingWorker
         {
             if (singleSampleTypeMode)
             {
-                // sampleType contains only one entry which corresponds to sampleTypeCodeOrNull
-                final long sampleTypeId = sampleTypes.keySet().iterator().nextLong();
+                final long sampleTypeId = getSampleTypeId();
                 return query.getGroupSamplesForSampleTypeWithExperiment(databaseInstanceId,
                         criteria.getGroupCode(), sampleTypeId);
             } else
@@ -383,8 +392,7 @@ final class SampleListingWorker
         {
             if (singleSampleTypeMode)
             {
-                // sampleType contains only one entry which corresponds to sampleTypeCodeOrNull
-                final long sampleTypeId = sampleTypes.keySet().iterator().nextLong();
+                final long sampleTypeId = getSampleTypeId();
                 return query.getGroupSamplesForSampleType(databaseInstanceId, criteria
                         .getGroupCode(), sampleTypeId);
             } else
@@ -422,8 +430,7 @@ final class SampleListingWorker
         }
         if (singleSampleTypeMode)
         {
-            // sampleType contains only one entry which corresponds to sampleTypeCodeOrNull
-            final long sampleTypeId = sampleTypes.keySet().iterator().nextLong();
+            final long sampleTypeId = getSampleTypeId();
             return query.getSharedSamplesForSampleType(databaseInstanceId, sampleTypeId);
         } else
         {

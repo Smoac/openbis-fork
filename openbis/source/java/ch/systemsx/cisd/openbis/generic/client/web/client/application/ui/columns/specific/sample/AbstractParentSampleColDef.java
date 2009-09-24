@@ -22,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
-abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sample> implements
+public abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sample> implements
         IsSerializable
 {
     abstract protected Sample tryGetParent(Sample sample);
@@ -55,7 +55,7 @@ abstract class AbstractParentSampleColDef extends AbstractColumnDefinition<Sampl
         return getIdentifierPrefix() + level;
     }
 
-    private final Sample tryGetParentSample(final Sample sample)
+    public final Sample tryGetParentSample(final Sample sample)
     {
         Sample parent = sample;
         int depth = level;

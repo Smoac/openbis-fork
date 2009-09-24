@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.AbstractParentSampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentContainerSampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentGeneratedFromSampleColDef;
@@ -38,15 +39,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * 
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
+ * @author Piotr Buczek
  */
 public final class SampleModelFactory
 {
     public static ColumnDefsAndConfigs<Sample> createColumnsSchema(
             IMessageProvider messageProvider, List<PropertyType> propertyTypes,
-            SampleType selectedTypeOrNull)
+            List<AbstractParentSampleColDef> parentColumnsSchema)
     {
         return new SampleModelFactory().doCreateColumnsSchema(messageProvider, propertyTypes,
-                selectedTypeOrNull);
+                parentColumnsSchema);
     }
 
     public static BaseEntityModel<Sample> createModel(Sample entity)
@@ -54,7 +56,6 @@ public final class SampleModelFactory
         List<IColumnDefinitionUI<Sample>> allColumnsDefinition =
                 new SampleModelFactory().createColumnsSchemaForRendering(entity);
         BaseEntityModel<Sample> model = new BaseEntityModel<Sample>(entity, allColumnsDefinition);
-        model.renderAsLinkWithAnchor(CommonSampleColDefKind.EXPERIMENT.id());
         return model;
     }
 
@@ -70,50 +71,49 @@ public final class SampleModelFactory
     {
         List<IColumnDefinitionUI<Sample>> columns =
                 entityGridModelFactory.createColumnsSchemaForRendering(sample);
-        List<IColumnDefinitionUI<Sample>> parentColumns =
+        List<AbstractParentSampleColDef> parentColumns =
                 createParentColumnsSchema(null, sample.getSampleType());
         columns.addAll(parentColumns);
         return columns;
     }
 
     private ColumnDefsAndConfigs<Sample> doCreateColumnsSchema(IMessageProvider messageProvider,
-            List<PropertyType> propertyTypes, SampleType selectedTypeOrNull)
+            List<PropertyType> propertyTypes, List<AbstractParentSampleColDef> parentColumnsSchema)
     {
         assert messageProvider != null : "message provider needed to create table headers";
 
         ColumnDefsAndConfigs<Sample> columns =
                 entityGridModelFactory.createColumnsSchema(messageProvider, propertyTypes);
-        if (selectedTypeOrNull != null)
-        {
-            List<IColumnDefinitionUI<Sample>> parentColumnsSchema =
-                    createParentColumnsSchema(messageProvider, selectedTypeOrNull);
-            columns.addColumns(parentColumnsSchema);
-        }
+        columns.addColumns(parentColumnsSchema);
         return columns;
     }
 
-    private static List<IColumnDefinitionUI<Sample>> createParentColumnsSchema(
-            IMessageProvider msgProviderOrNull, SampleType sampleType)
+    public static List<AbstractParentSampleColDef> createParentColumnsSchema(
+            IMessageProvider msgProviderOrNull, SampleType sampleTypeOrNull)
     {
-        List<IColumnDefinitionUI<Sample>> list = createColDefList();
-        for (int depth = 1; depth <= sampleType.getGeneratedFromHierarchyDepth(); depth++)
+        List<AbstractParentSampleColDef> list = createColDefList();
+        if (sampleTypeOrNull != null)
         {
-            String headerText =
-                    getParentColumnHeader(msgProviderOrNull, Dict.GENERATED_FROM, depth);
-            list.add(new ParentGeneratedFromSampleColDef(depth, headerText));
-        }
-        if (sampleType.isShowContainer())
-        {
-            String headerText =
-                    msgProviderOrNull == null ? null : msgProviderOrNull.getMessage(Dict.PART_OF);
-            list.add(new ParentContainerSampleColDef(1, headerText));
+            for (int depth = 1; depth <= sampleTypeOrNull.getGeneratedFromHierarchyDepth(); depth++)
+            {
+                String headerText =
+                        getParentColumnHeader(msgProviderOrNull, Dict.GENERATED_FROM, depth);
+                list.add(new ParentGeneratedFromSampleColDef(depth, headerText));
+            }
+            if (sampleTypeOrNull.isShowContainer())
+            {
+                String headerText =
+                        msgProviderOrNull == null ? null : msgProviderOrNull
+                                .getMessage(Dict.PART_OF);
+                list.add(new ParentContainerSampleColDef(1, headerText));
+            }
         }
         return list;
     }
 
-    private static ArrayList<IColumnDefinitionUI<Sample>> createColDefList()
+    private static ArrayList<AbstractParentSampleColDef> createColDefList()
     {
-        return new ArrayList<IColumnDefinitionUI<Sample>>();
+        return new ArrayList<AbstractParentSampleColDef>();
     }
 
     private static String getParentColumnHeader(IMessageProvider msgProviderOrNull,
@@ -122,13 +122,4 @@ public final class SampleModelFactory
         return msgProviderOrNull == null ? null : msgProviderOrNull.getMessage(messageKey, depth);
     }
 
-    public final static List<ModelData> asSampleModels(final List<Sample> samples)
-    {
-        final List<ModelData> sampleModels = new ArrayList<ModelData>(samples.size());
-        for (final Sample sample : samples)
-        {
-            sampleModels.add(SampleModelFactory.createModel(sample));
-        }
-        return sampleModels;
-    }
 }

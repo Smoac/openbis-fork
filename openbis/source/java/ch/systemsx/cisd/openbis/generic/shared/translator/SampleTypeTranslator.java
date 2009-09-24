@@ -26,11 +26,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link SampleType} &lt;---&gt; {@link SampleTypePE} translator.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class SampleTypeTranslator
 {
@@ -43,6 +44,7 @@ public class SampleTypeTranslator
             Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         final SampleType result = new SampleType();
+        result.setId(HibernateUtils.getId(sampleTypePE));
         result.setCode(StringEscapeUtils.escapeHtml(sampleTypePE.getCode()));
         result.setListable(sampleTypePE.isListable());
         result.setDescription(StringEscapeUtils.escapeHtml(sampleTypePE.getDescription()));
