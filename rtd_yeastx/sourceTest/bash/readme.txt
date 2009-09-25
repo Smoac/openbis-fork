@@ -1,3 +1,5 @@
+@Deprecated
+
 This directory contains resources which make the manual tests of dataset upload easier in the Eclipse environment.
 
 Here is a list of the steps to perform the tests:
