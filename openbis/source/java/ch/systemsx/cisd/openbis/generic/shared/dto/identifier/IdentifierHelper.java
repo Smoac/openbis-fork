@@ -22,6 +22,8 @@ import java.util.List;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
@@ -82,6 +84,28 @@ public final class IdentifierHelper
         } else
         {
             return SampleIdentifier.createHomeGroup(sampleCode);
+        }
+    }
+
+    /**
+     * Creates a {@link SampleIdentifier} from given <var>sample</var>.
+     * <p>
+     * NOTE: Specified sample should have full code set (with container code part).
+     */
+    public static SampleIdentifier createSampleIdentifier(Sample sample)
+    {
+        assert sample != null : "Unspecified sample";
+        final Group group = sample.getGroup();
+        if (group != null)
+        {
+            GroupIdentifier groupIdentifier =
+                    new GroupIdentifier(group.getInstance().getCode(), group.getCode());
+            return new SampleIdentifier(groupIdentifier, sample.getCode());
+        } else
+        {
+            DatabaseInstanceIdentifier instanceIdentifier =
+                    new DatabaseInstanceIdentifier(sample.getDatabaseInstance().getCode());
+            return new SampleIdentifier(instanceIdentifier, sample.getCode());
         }
     }
 

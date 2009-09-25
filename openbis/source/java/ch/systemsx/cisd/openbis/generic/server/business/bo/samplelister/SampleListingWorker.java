@@ -628,24 +628,9 @@ final class SampleListingWorker
             record.sample.setContainer(container);
             record.sample.setCode(IdentifierHelper.convertCode(record.sample.getSubCode(),
                     container.getCode()));
-            updateSampleIdentifier(record.sample);
+            record.sample.setIdentifier(IdentifierHelper.createSampleIdentifier(record.sample)
+                    .toString());
         }
     }
 
-    private void updateSampleIdentifier(Sample sample)
-    {
-        SampleIdentifier identifier;
-        if (sample.getDatabaseInstance() != null)
-        {
-            final DatabaseInstanceIdentifier dbId =
-                    new DatabaseInstanceIdentifier(databaseInstance.getCode());
-            identifier = new SampleIdentifier(dbId, sample.getCode());
-        } else
-        {
-            final GroupIdentifier groupId =
-                    new GroupIdentifier(databaseInstance.getCode(), sample.getGroup().getCode());
-            identifier = new SampleIdentifier(groupId, sample.getCode());
-        }
-        sample.setIdentifier(identifier.toString());
-    }
 }

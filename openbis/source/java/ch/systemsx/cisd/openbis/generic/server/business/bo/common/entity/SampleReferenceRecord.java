@@ -30,11 +30,18 @@ public class SampleReferenceRecord
 
     public String perm_id;
 
+    /** sample code */
     public String s_code;
 
+    /** invalidation id */
     public Long inva_id;
 
+    /** sample type code */
     public String st_code;
 
+    /** group code */
     public String g_code;
+
+    /** container code */
+    public String c_code;
 }

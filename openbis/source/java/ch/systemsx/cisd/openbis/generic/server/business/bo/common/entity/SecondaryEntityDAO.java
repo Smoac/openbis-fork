@@ -42,9 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 
@@ -164,31 +163,19 @@ public class SecondaryEntityDAO
     {
         Sample sample = new Sample();
         sample.setId(record.id);
-        sample.setCode(escapeHtml(record.s_code));
+        sample.setCode(IdentifierHelper.convertCode(record.s_code, record.c_code));
         sample.setSampleType(createSampleType(record.st_code, databaseInstance));
         sample.setInvalidation(createInvalidation(record.inva_id));
         sample.setGroup(tryCreateGroup(record.g_code, databaseInstance));
         sample.setDatabaseInstance(tryGetDatabaseInstance(record.g_code, databaseInstance));
         sample.setPermId(escapeHtml(record.perm_id));
-        // TODO 2009-09-25, Piotr Buczek: use container code
         sample.setIdentifier(escapeHtml(createIdentifier(sample).toString()));
         return sample;
     }
 
     private static SampleIdentifier createIdentifier(Sample sample)
     {
-        Group group = sample.getGroup();
-        if (group != null)
-        {
-            GroupIdentifier groupIdentifier =
-                    new GroupIdentifier(group.getInstance().getCode(), group.getCode());
-            return new SampleIdentifier(groupIdentifier, sample.getCode());
-        } else
-        {
-            DatabaseInstanceIdentifier instanceIdentifier =
-                    new DatabaseInstanceIdentifier(sample.getDatabaseInstance().getCode());
-            return new SampleIdentifier(instanceIdentifier, sample.getCode());
-        }
+        return IdentifierHelper.createSampleIdentifier(sample);
     }
 
     private static DatabaseInstance tryGetDatabaseInstance(String groupCodeOrNull,

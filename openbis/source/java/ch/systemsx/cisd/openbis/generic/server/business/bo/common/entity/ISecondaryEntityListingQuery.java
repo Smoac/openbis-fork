@@ -63,9 +63,10 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
      * Returns the samples for the given ids.
      */
     @Select(sql = "select s.id as id, s.perm_id as perm_id, s.code as s_code, s.inva_id as inva_id, "
-            + "           st.code as st_code, g.code as g_code"
+            + "           st.code as st_code, g.code as g_code, c.code as c_code"
             + "   from samples s join sample_types st on s.saty_id=st.id"
             + "                  join groups g on s.grou_id=g.id "
+            + "                  left join samples c on s.samp_id_part_of=c.id "
             + "        where s.id = any(?{1})", parameterBindings =
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleReferenceRecord> getSamples(LongSet sampleIds);
