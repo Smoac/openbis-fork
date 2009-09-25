@@ -26,4 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 public interface IVocabularyTermDAO extends IGenericDAO<VocabularyTermPE>
 {
 
+    void validate(final VocabularyTermPE term);
+
 }

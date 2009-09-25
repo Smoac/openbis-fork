@@ -186,7 +186,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             getEventDAO().persist(createDeletionEvent(dataSet, session.tryGetPerson(), reason));
         } catch (final DataIntegrityViolationException ex)
         {
-            // TODO 2009-06-09, Piotr Buczek: remove if we change many2many -> one2many
+            // needed because we throw an exception in DAO instead of relying on DB FK integrity
             throwEntityInUseException(String.format("Data Set '%s'", dataSet.getCode()),
                     EntityKind.DATA_SET);
         } catch (final DataAccessException ex)

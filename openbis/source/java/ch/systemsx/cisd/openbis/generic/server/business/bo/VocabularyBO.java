@@ -196,6 +196,10 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         assert vocabularyPE != null : "Unspecified vocabulary";
         try
         {
+            for (VocabularyTermPE term : vocabularyPE.getTerms())
+            {
+                getVocabularyTermDAO().validate(term);
+            }
             getVocabularyDAO().createOrUpdateVocabulary(vocabularyPE);
         } catch (final DataAccessException e)
         {
