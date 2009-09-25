@@ -103,26 +103,22 @@ function assert_correct_errorlogs {
 	fi
 }
 
+function count_db_table_records {
+	local db=$1
+	local table=$2
+	
+  local psql=`run_psql`
+  local count=`$psql -U postgres -d $db -c "select count(*) from $table"  \
+       | head -n 3 | tail -n 1 | awk '{gsub(/ /,"");print}'
+	echo $count
+}
+
 function assert_correct_datasets_metabol_database {
-    local dataset_id=$1
-    local pattern=$2
-    echo ==== assert correct dataset $dataset_id content in database with pattern $pattern ====
-    local psql=`run_psql`
-    local dataset=`$psql -U postgres -d $DATABASE \
-       -c "select d.id, e.code, ds.code, d.code, d.is_placeholder, r.data_id_parent, \
-                  ed.is_complete, d.data_producer_code, d.production_timestamp \
-           from data as d left join data_set_relationships as r on r.data_id_child = d.id \
-                          left join data_stores as ds on ds.id = d.dast_id \
-                          left join external_data as ed on ed.data_id = d.id,
-                experiments as e
-           where d.id = $dataset_id and d.expe_id = e.id"  \
-       | awk '/ +[0-9]+/' \
-       | awk '{gsub(/ /,"");print}' \
-       | awk '{gsub(/\|/,";");print}'`
-    local lines=`echo "$dataset" | grep "$pattern" | wc -l`
-    if [ $lines == 0 ]; then
-        report_error dataset does not match pattern $pattern: $dataset
-    fi 
+    local eicms_runs=`count_db_table_records $METABOL_DB eic_ms_runs`
+    local fiams_runs=`count_db_table_records $METABOL_DB fia_ms_runs`
+
+    assert_equals "Wrong number of eic MS runs in the metablomics db" 1 $eicms_runs  
+    assert_equals "Wrong number of fia MS runs in the metablomics db" 1 $fiams_runs
 }
 
 function assert_correct_incoming_contents {
@@ -154,7 +150,7 @@ function assert_correct_incoming_contents {
 	local store_files_count=`find $store -type f | wc -l`
 	assert_equals "Wrong number of files in the store $store" 14 $store_files_count
 	
-	
+	assert_correct_datasets_metabol_database
 }
 
 
@@ -172,6 +168,7 @@ function integration_tests_yeastx {
     exit_if_assertion_failed
 }
 
+# TODO
 integration_tests_yeastx true
 #assert_correct_incoming_contents $MY_DATA/incoming
 #exit_if_assertion_failed

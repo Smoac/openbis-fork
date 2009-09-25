@@ -1,4 +1,4 @@
 
-source test-3v.sh
-main $@
+./test-3v.sh $@
+#./test-yeastx.sh $@
 
