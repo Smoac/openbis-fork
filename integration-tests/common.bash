@@ -544,7 +544,7 @@ function build_and_install {
     
     init_log
     # NOTE: Comment this line if you want to use different libraries.
-    #build_zips $install_dss $install_dmv $install_openbis $use_local_source
+    build_zips $install_dss $install_dmv $install_openbis $use_local_source
     
     # Prepare empty incoming data
     DATA=$WORK/data
