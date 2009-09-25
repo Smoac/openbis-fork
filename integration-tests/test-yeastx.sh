@@ -168,7 +168,4 @@ function integration_tests_yeastx {
     exit_if_assertion_failed
 }
 
-# TODO change to false !!!!!!!!!!!!!!!!
-integration_tests_yeastx true
-#assert_correct_incoming_contents $MY_DATA/incoming
-#exit_if_assertion_failed
+integration_tests_yeastx false
