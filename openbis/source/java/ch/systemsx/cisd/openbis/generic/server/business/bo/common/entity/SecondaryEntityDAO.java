@@ -80,8 +80,6 @@ public class SecondaryEntityDAO
         return new SecondaryEntityDAO(query, daoFactory.getHomeDatabaseInstance());
     }
 
-    private final ISecondaryEntitySetListingQuery setQuery;
-
     private final ISecondaryEntityListingQuery query;
 
     private final DatabaseInstance databaseInstance;
@@ -90,26 +88,7 @@ public class SecondaryEntityDAO
             final DatabaseInstancePE databaseInstancePE)
     {
         this.query = query;
-        this.setQuery = createSetQuery(query, databaseInstancePE.getId());
         this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstancePE);
-    }
-
-    private static ISecondaryEntitySetListingQuery createSetQuery(
-            ISecondaryEntityListingQuery query, long databaseInstanceId)
-    {
-        return asDatasetSetListingQuery(query);
-    }
-
-    private static ISecondaryEntitySetListingQuery asDatasetSetListingQuery(
-            final ISecondaryEntityListingQuery query)
-    {
-        return new ISecondaryEntitySetListingQuery()
-            {
-                public Iterable<SampleReferenceRecord> getSamples(LongSet sampleIds)
-                {
-                    return query.getSamples(sampleIds);
-                }
-            };
     }
 
     public Experiment getExperiment(final long experimentId)
@@ -171,7 +150,7 @@ public class SecondaryEntityDAO
 
     public Long2ObjectMap<Sample> getSamples(LongSet sampleIds)
     {
-        final Iterable<SampleReferenceRecord> sampleRecords = setQuery.getSamples(sampleIds);
+        final Iterable<SampleReferenceRecord> sampleRecords = query.getSamples(sampleIds);
         Long2ObjectMap<Sample> result = new Long2ObjectOpenHashMap<Sample>();
         for (SampleReferenceRecord record : sampleRecords)
         {
@@ -191,6 +170,7 @@ public class SecondaryEntityDAO
         sample.setGroup(tryCreateGroup(record.g_code, databaseInstance));
         sample.setDatabaseInstance(tryGetDatabaseInstance(record.g_code, databaseInstance));
         sample.setPermId(escapeHtml(record.perm_id));
+        // TODO 2009-09-25, Piotr Buczek: use container code
         sample.setIdentifier(escapeHtml(createIdentifier(sample).toString()));
         return sample;
     }
