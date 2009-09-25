@@ -45,7 +45,8 @@ public final class SampleType extends EntityType implements IsSerializable
 
     private boolean listable;
 
-    private List<SampleTypePropertyType> sampleTypePropertyTypes;
+    private List<SampleTypePropertyType> sampleTypePropertyTypes =
+            new ArrayList<SampleTypePropertyType>(0);
 
     public final boolean isDefinedInFileSampleTypeCode()
     {
