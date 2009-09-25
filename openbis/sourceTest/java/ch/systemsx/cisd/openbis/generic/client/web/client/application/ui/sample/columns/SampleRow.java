@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentContainerSampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentGeneratedFromSampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.RowWithProperties;
 
@@ -123,11 +124,29 @@ public class SampleRow extends RowWithProperties
         withCell(CommonSampleColDefKind.IS_INVALID, SimpleYesNoRenderer.render(isInvalid));
     }
 
-    public SampleRow derivedFromAncestor(final String ancestorCode, final int level)
+    public SampleRow derivedFromAncestors(final String... ancestorCodes)
+    {
+        int level = 1;
+        for (String ancestorCode : ancestorCodes)
+        {
+            derivedFromAncestor(ancestorCode, level);
+            level++;
+        }
+        return this;
+    }
+
+    private SampleRow derivedFromAncestor(final String ancestorCode, final int level)
     {
         final String identifier =
                 new ParentGeneratedFromSampleColDef(level, "dummy").getIdentifier();
         withCell(identifier, ancestorCode);
+        return this;
+    }
+
+    public SampleRow partOfContainer(final String containerCode)
+    {
+        final String identifier = new ParentContainerSampleColDef(1, "dummy").getIdentifier();
+        withCell(identifier, containerCode);
         return this;
     }
 

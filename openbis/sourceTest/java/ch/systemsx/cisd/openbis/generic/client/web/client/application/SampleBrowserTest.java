@@ -87,7 +87,11 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new SampleRow("C1", "CONTROL_LAYOUT").identifier("CISD", "CISD")
                 .withInternalPropertyCell("PLATE_GEOMETRY", DEFAULT_PLATE_GEOMETRY_VALUE));
 
-        // TODO 2009-09-24, Piotr Buczek: test that links for parents are available
+        // test that 3 parents of 'REINFECT_PLATE' are displayed
+        table.expectedRow(new SampleRow("RP1-A2X", "REINFECT_PLATE").identifier("CISD", "CISD")
+                .derivedFromAncestors("CISD:/CISD/CP1-A2", "CISD:/CISD/DP1-A",
+                        "CISD:/CISD/MP1-MIXED"));
+
         table.expectedColumnsNumber(25);
         remoteConsole.prepare(table.expectedSize(40));
 
@@ -162,8 +166,8 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", "CELL_PLATE"));
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow("3VCP1").identifier("CISD", "CISD").invalid().experiment(
-                "CISD", "NEMO", "EXP1").derivedFromAncestor("CISD:/CISD/3V-123", 1)
-                .derivedFromAncestor("CISD:/CISD/MP001-1", 2));
+                "CISD", "NEMO", "EXP1").derivedFromAncestors("CISD:/CISD/3V-123",
+                "CISD:/CISD/MP001-1"));
         table.expectedColumnsNumber(22);
         remoteConsole.prepare(table.expectedSize(15));
 

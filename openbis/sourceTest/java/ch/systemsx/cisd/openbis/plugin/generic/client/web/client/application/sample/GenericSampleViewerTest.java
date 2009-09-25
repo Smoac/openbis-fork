@@ -29,13 +29,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Br
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ShowSample;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util.GridTestUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 
@@ -82,12 +82,13 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.property("Description").asProperty("test control layout");
 
         final CheckTableCommand componentsTable = checkSample.componentsTable().expectedSize(2);
-        final String sampleCodeFieldIdent = CommonSampleColDefKind.CODE.id();
         final String sampleSubcodeFieldIdent = CommonSampleColDefKind.SUBCODE.id();
-        componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent,
-                CONTROL_LAYOUT_EXAMPLE + ":A01").withCell(sampleSubcodeFieldIdent, "A01"));
-        componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent,
-                CONTROL_LAYOUT_EXAMPLE + ":A03").withCell(sampleSubcodeFieldIdent, "A03"));
+        componentsTable.expectedRow(new SampleRow(CONTROL_LAYOUT_EXAMPLE + ":A01", "WELL")
+                .identifier("CISD", "CISD").partOfContainer(CONTROL_LAYOUT_EXAMPLE_ID).withCell(
+                        sampleSubcodeFieldIdent, "A01"));
+        componentsTable.expectedRow(new SampleRow(CONTROL_LAYOUT_EXAMPLE + ":A03", "WELL")
+                .identifier("CISD", "CISD").partOfContainer(CONTROL_LAYOUT_EXAMPLE_ID).withCell(
+                        sampleSubcodeFieldIdent, "A03"));
 
         checkSample.dataTable().expectedSize(0);
         remoteConsole.prepare(checkSample);
