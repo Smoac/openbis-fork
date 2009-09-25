@@ -109,7 +109,7 @@ function count_db_table_records {
 	
   local psql=`run_psql`
   local count=`$psql -U postgres -d $db -c "select count(*) from $table"  \
-       | head -n 3 | tail -n 1 | awk '{gsub(/ /,"");print}'
+       | head -n 3 | tail -n 1 | awk '{gsub(/ /,"");print}'`
 	echo $count
 }
 
@@ -168,7 +168,7 @@ function integration_tests_yeastx {
     exit_if_assertion_failed
 }
 
-# TODO
+# TODO change to false !!!!!!!!!!!!!!!!
 integration_tests_yeastx true
 #assert_correct_incoming_contents $MY_DATA/incoming
 #exit_if_assertion_failed
