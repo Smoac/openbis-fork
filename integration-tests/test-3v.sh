@@ -117,28 +117,6 @@ function assert_empty_in_out_folders {
     assert_dir_empty $DATA/analysis-copy
 }
 
-function assert_correct_dataset_content_in_database {
-    local dataset_id=$1
-    local pattern=$2
-    echo ==== assert correct dataset $dataset_id content in database with pattern $pattern ====
-    local psql=`run_psql`
-    local dataset=`$psql -U postgres -d $DATABASE \
-       -c "select d.id, e.code, ds.code, d.code, d.is_placeholder, r.data_id_parent, \
-                  ed.is_complete, d.data_producer_code, d.production_timestamp \
-           from data as d left join data_set_relationships as r on r.data_id_child = d.id \
-                          left join data_stores as ds on ds.id = d.dast_id \
-                          left join external_data as ed on ed.data_id = d.id,
-                experiments as e
-           where d.id = $dataset_id and d.expe_id = e.id"  \
-       | awk '/ +[0-9]+/' \
-       | awk '{gsub(/ /,"");print}' \
-       | awk '{gsub(/\|/,";");print}'`
-    local lines=`echo "$dataset" | grep "$pattern" | wc -l`
-    if [ $lines == 0 ]; then
-        report_error dataset does not match pattern $pattern: $dataset
-    fi 
-}
-
 function assert_correct_content_of_plate_3VCP1_in_store {
     local cell_plate=3VCP1
     echo ==== assert correct content of plate 3VCP1 in store ====

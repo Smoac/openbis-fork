@@ -117,8 +117,9 @@ function assert_correct_datasets_metabol_database {
     local eicms_runs=`count_db_table_records $METABOL_DB eic_ms_runs`
     local fiams_runs=`count_db_table_records $METABOL_DB fia_ms_runs`
 
-    assert_equals "Wrong number of eic MS runs in the metablomics db" 1 $eicms_runs  
-    assert_equals "Wrong number of fia MS runs in the metablomics db" 1 $fiams_runs
+		# one run comes from the incoming and one from incoming-*ml
+    assert_equals "Wrong number of eic MS runs in the metablomics db" 2 $eicms_runs  
+    assert_equals "Wrong number of fia MS runs in the metablomics db" 2 $fiams_runs
 }
 
 function assert_correct_incoming_contents {
@@ -145,14 +146,30 @@ function assert_correct_incoming_contents {
 	assert_files_number "$MY_DATA/dropbox-eicml/TEST&TEST_PROJECT&EXP_TEST.*.mzXML" 6
 	assert_files_number "$MY_DATA/dropbox-fiaml/TEST&TEST_PROJECT&EXP_TEST.*.mzXML" 2
 
+	local registered_datasets=16
 	# check content of the store	
 	local store=$MY_DATA/store
 	local store_files_count=`find $store -type f | wc -l`
-	assert_equals "Wrong number of files in the store $store" 14 $store_files_count
+	assert_equals "Wrong number of files in the store $store" $registered_datasets $store_files_count
 	
 	assert_correct_datasets_metabol_database
-}
 
+	# check the number of datasets in openbis database	
+	local datasets=`count_db_table_records $DATABASE data`
+	# there will be one additional dataset placeholder for the incoming-*ml files which specify 
+	# the parent code which does not exist
+  assert_equals "Wrong number of datasets in the openbis db" $(($registered_datasets+1)) $datasets
+	
+	# check each dataset in openbis database.
+	# Result set columns are:
+	#   id;experiment_code;data_store_code;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
+	local pattern="[0-9]*;EXP_TEST;DSS1;20[0-9]*-[0-9]*;[ft];[0-9]*;[TFU]*;;.*"
+	local i=2; 
+	while [ $i -lt 18 ]; do 
+		assert_correct_dataset_content_in_database $i $pattern
+		i=$(( $i +1))
+	done
+}
 
 function integration_tests_yeastx {
     local use_local_source=$1
