@@ -148,16 +148,19 @@ public final class VocabularyBOTest extends AbstractBOTest
     public final void testSave()
     {
         final VocabularyBO vocabularyBO = createVocabularyBO();
+        final NewVocabulary vocabulary = createVocabulary();
         context.checking(new Expectations()
             {
                 {
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
+                    exactly(vocabulary.getTerms().size()).of(vocabularyTermDAO).validate(
+                            with(aNonNull(VocabularyTermPE.class)));
+
                     one(vocabularyDAO).createOrUpdateVocabulary(with(aNonNull(VocabularyPE.class)));
                 }
             });
-        final NewVocabulary vocabulary = createVocabulary();
         vocabularyBO.define(vocabulary);
         vocabularyBO.save();
         context.assertIsSatisfied();
@@ -167,17 +170,47 @@ public final class VocabularyBOTest extends AbstractBOTest
     public final void testSaveWithException()
     {
         final VocabularyBO vocabularyBO = createVocabularyBO();
+        final NewVocabulary vocabulary = createVocabulary();
         context.checking(new Expectations()
             {
                 {
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
+                    exactly(vocabulary.getTerms().size()).of(vocabularyTermDAO).validate(
+                            with(aNonNull(VocabularyTermPE.class)));
+
                     one(vocabularyDAO).createOrUpdateVocabulary(with(aNonNull(VocabularyPE.class)));
                     will(throwException(new DataIntegrityViolationException(null)));
                 }
             });
+        vocabularyBO.define(vocabulary);
+        try
+        {
+            vocabularyBO.save();
+            fail(String.format("'%s' expected.", UserFailureException.class.getSimpleName()));
+        } catch (final UserFailureException ex)
+        {
+            // Nothing to do here.
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testSaveWithTermValidationException()
+    {
+        final VocabularyBO vocabularyBO = createVocabularyBO();
         final NewVocabulary vocabulary = createVocabulary();
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getHomeDatabaseInstance();
+                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
+
+                    one(vocabularyTermDAO).validate(with(aNonNull(VocabularyTermPE.class)));
+                    will(throwException(new DataIntegrityViolationException(null)));
+                }
+            });
         vocabularyBO.define(vocabulary);
         try
         {
@@ -344,9 +377,8 @@ public final class VocabularyBOTest extends AbstractBOTest
             fail("IllegalArgumentException expected.");
         } catch (IllegalArgumentException e)
         {
-            assertEquals(
-                    "Invalid vocabulary replacement because of unknown replacement: 2 -> [1]", e
-                            .getMessage());
+            assertEquals("Invalid vocabulary replacement because of unknown replacement: 2 -> [1]",
+                    e.getMessage());
         }
         context.assertIsSatisfied();
     }
@@ -377,9 +409,8 @@ public final class VocabularyBOTest extends AbstractBOTest
             fail("IllegalArgumentException expected.");
         } catch (IllegalArgumentException e)
         {
-            assertEquals(
-                    "Invalid vocabulary replacement because of unknown replacement: 1 -> [3]", e
-                            .getMessage());
+            assertEquals("Invalid vocabulary replacement because of unknown replacement: 1 -> [3]",
+                    e.getMessage());
         }
         context.assertIsSatisfied();
     }

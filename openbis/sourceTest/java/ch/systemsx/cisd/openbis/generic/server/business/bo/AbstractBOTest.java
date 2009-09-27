@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 
 /**
@@ -82,6 +83,8 @@ public abstract class AbstractBOTest extends AssertJUnit
 
     IVocabularyDAO vocabularyDAO;
 
+    IVocabularyTermDAO vocabularyTermDAO;
+
     IEntityPropertiesConverter propertiesConverter;
 
     IDataSetTypeDAO dataSetTypeDAO;
@@ -118,6 +121,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
         entityPropertyTypeDAO = context.mock(IEntityPropertyTypeDAO.class);
         vocabularyDAO = context.mock(IVocabularyDAO.class);
+        vocabularyTermDAO = context.mock(IVocabularyTermDAO.class);
         materialDAO = context.mock(IMaterialDAO.class);
         dataSetTypeDAO = context.mock(IDataSetTypeDAO.class);
         fileFormatTypeDAO = context.mock(IFileFormatTypeDAO.class);
@@ -152,6 +156,8 @@ public abstract class AbstractBOTest extends AssertJUnit
                     will(returnValue(dataStoreDAO));
                     allowing(daoFactory).getVocabularyDAO();
                     will(returnValue(vocabularyDAO));
+                    allowing(daoFactory).getVocabularyTermDAO();
+                    will(returnValue(vocabularyTermDAO));
                     allowing(daoFactory).getEventDAO();
                     will(returnValue(eventDAO));
                     allowing(daoFactory).getAuthorizationGroupDAO();
