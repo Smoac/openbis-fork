@@ -1,5 +1,5 @@
 #!/bin/bash
-# Simply adds a p to the int and nse files  
+# Simply adds a 'p' to the int and nse files  
 
 for i in `ls *int*`; do 
   #j=`echo $i |  cut -c 1-16` 
