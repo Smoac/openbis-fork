@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.yeastx.etl.ConstantsYeastX.ERROR_MARKER_FILE;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -372,6 +373,8 @@ public class BatchDataSetHandler implements IDataSetHandler
 
     private static List<File> listAll(File dataSet)
     {
-        return FileUtilities.listFilesAndDirectories(dataSet, false, null);
+        List<File> files = FileUtilities.listFilesAndDirectories(dataSet, false, null);
+        Collections.sort(files);
+        return files;
     }
 }
