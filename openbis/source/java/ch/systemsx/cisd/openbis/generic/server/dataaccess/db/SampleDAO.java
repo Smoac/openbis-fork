@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,11 +28,14 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.validator.ClassValidator;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -172,7 +176,23 @@ public class SampleDAO extends AbstractGenericEntityDAO<SamplePE> implements ISa
 
         internalCreateSample(sample, hibernateTemplate,
                 new ClassValidator<SamplePE>(SamplePE.class), true);
-        hibernateTemplate.flush();
+        try
+        {
+            hibernateTemplate.flush();
+        } catch (UncategorizedSQLException e)
+        {
+            // need to deal with exception thrown by trigger checking code uniqueness
+            final SQLException sqlExceptionOrNull =
+                    ExceptionUtils.tryGetThrowableOfClass(e, SQLException.class);
+            if (sqlExceptionOrNull != null && sqlExceptionOrNull.getNextException() != null)
+            {
+                throw new DataIntegrityViolationException(sqlExceptionOrNull.getNextException()
+                        .getMessage());
+            } else
+            {
+                throw e;
+            }
+        }
     }
 
     public List<SamplePE> listSamplesWithPropertiesByExperiment(final ExperimentPE experiment)

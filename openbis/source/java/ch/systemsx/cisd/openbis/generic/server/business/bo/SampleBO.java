@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
@@ -179,6 +180,10 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
             try
             {
                 getSampleDAO().createSample(sample);
+            } catch (final DataIntegrityViolationException ex)
+            {
+                // needed because we throw an exception in DAO instead of relying on DB constraint
+                throw UserFailureException.fromTemplate(ex.getMessage());
             } catch (final DataAccessException ex)
             {
                 throwException(ex, String.format("Sample '%s'", sample.getSampleIdentifier()));

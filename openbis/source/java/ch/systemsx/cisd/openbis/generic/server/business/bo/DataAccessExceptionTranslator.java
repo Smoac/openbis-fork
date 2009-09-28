@@ -54,7 +54,7 @@ public final class DataAccessExceptionTranslator
     public final static String DETAILED_FOREIGN_KEY_VIOLATION_FORMAT =
             FOREIGN_KEY_VIOLATION_FORMAT
                     + " To find out which exactly objects are connected to this object "
-                    + "go to it's Detail view or use Search.";
+                    + "go to its Detail view or use Search.";
 
     private DataAccessExceptionTranslator()
     {
