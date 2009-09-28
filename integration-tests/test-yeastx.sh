@@ -32,9 +32,7 @@ function build_and_install_yeastx {
     local install_dmv=false
     local install_openbis=true
     local reinstall_all=false
-# TODO: UNCOMMENT it !!!!!!!!!!!!!!!!
-#    build_and_install $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
-		build_and_install false $install_dmv false $use_local_source $reinstall_all
+    build_and_install $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
 		
 		cp $INSTALL/datastore_server-plugins.jar $WORK/datastore_server_yeastx/lib/
 		chmod_exec $WORK/datastore_server_yeastx/takeCifsOwnershipRecursive.sh
