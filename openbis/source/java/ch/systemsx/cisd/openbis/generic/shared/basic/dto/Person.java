@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * The <i>GWT</i> equivalent to {@link PersonPE}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class Person extends AbstractRegistrationHolder implements Comparable<Person>
 {
@@ -34,6 +34,8 @@ public class Person extends AbstractRegistrationHolder implements Comparable<Per
     private String email;
 
     private String userId;
+
+    private DatabaseInstance databaseInstance;
 
     public final String getFirstName()
     {
@@ -75,6 +77,43 @@ public class Person extends AbstractRegistrationHolder implements Comparable<Per
         this.userId = code;
     }
 
+    public DatabaseInstance getDatabaseInstance()
+    {
+        return databaseInstance;
+    }
+
+    public void setDatabaseInstance(DatabaseInstance databaseInstance)
+    {
+        this.databaseInstance = databaseInstance;
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        assert getDatabaseInstance() != null;
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof Person == false)
+        {
+            return false;
+        }
+        final Person that = (Person) obj;
+        return getUserId().equals(that.getUserId())
+                && getDatabaseInstance().equals(that.getDatabaseInstance());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return getUserId().hashCode();
+    }
+
     @Override
     public String toString()
     {
@@ -90,6 +129,10 @@ public class Person extends AbstractRegistrationHolder implements Comparable<Per
         }
         return result.toString();
     }
+
+    //
+    // Comparable
+    //
 
     public int compareTo(final Person o)
     {

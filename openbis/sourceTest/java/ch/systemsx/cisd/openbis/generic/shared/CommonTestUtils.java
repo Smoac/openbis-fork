@@ -156,6 +156,11 @@ public class CommonTestUtils
         return databaseInstance;
     }
 
+    public static DatabaseInstancePE createHomeDatabaseInstance()
+    {
+        return createDatabaseInstance(HOME_DATABASE_INSTANCE_CODE);
+    }
+
     static public PersonPE createPersonFromPrincipal(final Principal principal)
     {
         final PersonPE person = new PersonPE();
@@ -163,6 +168,7 @@ public class CommonTestUtils
         person.setFirstName(principal.getFirstName());
         person.setLastName(principal.getLastName());
         person.setEmail(principal.getEmail());
+        person.setDatabaseInstance(createHomeDatabaseInstance());
         return person;
     }
 
@@ -185,7 +191,7 @@ public class CommonTestUtils
     {
         final ExperimentTypePE sampleTypePE = new ExperimentTypePE();
         sampleTypePE.setCode(EXPERIMENT_TYPE);
-        sampleTypePE.setDatabaseInstance(createDatabaseInstance(HOME_DATABASE_INSTANCE_CODE));
+        sampleTypePE.setDatabaseInstance(createHomeDatabaseInstance());
         return sampleTypePE;
     }
 
@@ -200,7 +206,7 @@ public class CommonTestUtils
     {
         VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.setCode(fullCode);
-        vocabulary.setDatabaseInstance(createDatabaseInstance(HOME_DATABASE_INSTANCE_CODE));
+        vocabulary.setDatabaseInstance(createHomeDatabaseInstance());
         if (terms != null)
         {
             vocabulary.setTerms(terms);
@@ -220,7 +226,7 @@ public class CommonTestUtils
     {
         PropertyTypePE result = new PropertyTypePE();
         result.setCode(fullCode);
-        result.setDatabaseInstance(createDatabaseInstance(HOME_DATABASE_INSTANCE_CODE));
+        result.setDatabaseInstance(createHomeDatabaseInstance());
         result.setType(createDataType(type));
         result.setVocabulary(vocabularyOrNull);
         result.setMaterialType(materialTypeOrNull);
@@ -312,7 +318,7 @@ public class CommonTestUtils
 
         final MaterialTypePE type = new MaterialTypePE();
         type.setCode(MATERIAL_TYPE_VIRUS);
-        type.setDatabaseInstance(createDatabaseInstance(HOME_DATABASE_INSTANCE_CODE));
+        type.setDatabaseInstance(createHomeDatabaseInstance());
         return type;
     }
 

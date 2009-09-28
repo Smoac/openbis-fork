@@ -198,8 +198,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         propertyTypeTable = context.mock(IPropertyTypeTable.class);
         materialTable = context.mock(IMaterialTable.class);
 
-        homeDatabaseInstance =
-                CommonTestUtils.createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE);
+        homeDatabaseInstance = CommonTestUtils.createHomeDatabaseInstance();
         context.checking(new Expectations()
             {
                 {

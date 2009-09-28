@@ -112,6 +112,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         invalidationPE.setRegistrationDate(new Date(3));
         PersonPE personPE = new PersonPE();
         personPE.setUserId("user");
+        personPE.setDatabaseInstance(databaseInstancePE);
         invalidationPE.setRegistrator(personPE);
         samplePE.setInvalidation(invalidationPE);
         externalDataPE.setSampleAcquiredFrom(samplePE);

@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
  */
 public final class FilterValidator extends AbstractValidator<Filter>
 {
-    // TODO 2009-09-09, IA: add tests
     //
     // IValidator
     //
@@ -48,11 +47,10 @@ public final class FilterValidator extends AbstractValidator<Filter>
 
     private boolean isRegistrator(final PersonPE person, final Filter value)
     {
-        // Comparison between PersonPE and Person will always return false!!!
-        // return person.equals(value.getRegistrator());
-        // FIXME 2009-09-22, Piotr Buczek: Person has no database instance code to compare with PersonPE
         Person registrator = value.getRegistrator();
-        return person.getUserId().equals(registrator.getUserId());
+        return person.getUserId().equals(registrator.getUserId())
+                && person.getDatabaseInstance().getCode().equals(
+                        registrator.getDatabaseInstance().getCode());
     }
 
     public boolean isInstanceAdmin(final PersonPE person, final DatabaseInstance databaseInstance)
@@ -60,7 +58,6 @@ public final class FilterValidator extends AbstractValidator<Filter>
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            // TODO why do we use UUID instead of CODE if both are unique?
             final DatabaseInstancePE roleInstance = roleAssignment.getDatabaseInstance();
             if (roleInstance != null && roleInstance.getUuid().equals(databaseInstance.getUuid())
                     && roleAssignment.getRole().equals(RoleCode.ADMIN))

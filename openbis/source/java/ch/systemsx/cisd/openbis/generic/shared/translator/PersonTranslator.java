@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * A {@link Person} &lt;---&gt; {@link PersonPE} translator.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class PersonTranslator
 {
@@ -63,6 +63,8 @@ public class PersonTranslator
         result.setLastName(StringEscapeUtils.escapeHtml(person.getLastName()));
         result.setEmail(StringEscapeUtils.escapeHtml(person.getEmail()));
         result.setUserId(StringEscapeUtils.escapeHtml(person.getUserId()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(person
+                .getDatabaseInstance()));
         result.setRegistrationDate(person.getRegistrationDate());
         if (recursively)
         {
@@ -70,5 +72,4 @@ public class PersonTranslator
         }
         return result;
     }
-
 }

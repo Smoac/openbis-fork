@@ -90,8 +90,7 @@ public final class MaterialTableTest extends AbstractBOTest
             {
                 {
                     one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(CommonTestUtils
-                            .createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE)));
+                    will(returnValue(CommonTestUtils.createHomeDatabaseInstance()));
                 }
             });
         createMaterialTable().add(newMaterials, materialType);
@@ -127,8 +126,7 @@ public final class MaterialTableTest extends AbstractBOTest
         final MaterialPE material = new MaterialPE();
         material.setCode(code);
         material.setMaterialType(materialType);
-        material.setDatabaseInstance(CommonTestUtils
-                .createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE));
+        material.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
         material.setRegistrator(EXAMPLE_SESSION.tryGetPerson());
         return material;
     }

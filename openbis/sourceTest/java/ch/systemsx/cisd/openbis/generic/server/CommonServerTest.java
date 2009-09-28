@@ -141,6 +141,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final PersonPE systemPerson = new PersonPE();
         systemPerson.setUserId(PersonPE.SYSTEM_USER_ID);
+        systemPerson.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
         return systemPerson;
     }
 
@@ -381,6 +382,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         assertEquals(person.getFirstName(), persons.get(0).getFirstName());
         assertEquals(person.getLastName(), persons.get(0).getLastName());
         assertEquals(person.getEmail(), persons.get(0).getEmail());
+        assertEquals(person.getDatabaseInstance(), persons.get(0).getDatabaseInstance());
         assertEquals(1, persons.size());
 
         context.assertIsSatisfied();

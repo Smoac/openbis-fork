@@ -70,9 +70,7 @@ public final class AuthorizationGroupBOTest extends AbstractBOTest
             {
                 {
                     one(daoFactory).getHomeDatabaseInstance();
-                    DatabaseInstancePE dbInstance =
-                            CommonTestUtils
-                                    .createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE);
+                    DatabaseInstancePE dbInstance = CommonTestUtils.createHomeDatabaseInstance();
                     will(returnValue(dbInstance));
                     one(groupFactory).create(newAuthorizationGroup,
                             ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), dbInstance);
@@ -97,8 +95,7 @@ public final class AuthorizationGroupBOTest extends AbstractBOTest
     {
         final AuthorizationGroupBO bo = createBO();
 
-        final DatabaseInstancePE homeDb =
-                CommonTestUtils.createDatabaseInstance(CommonTestUtils.HOME_DATABASE_INSTANCE_CODE);
+        final DatabaseInstancePE homeDb = CommonTestUtils.createHomeDatabaseInstance();
         final NewAuthorizationGroup newAuthorizationGroup = createNewAuthorizationGroup();
         final AuthorizationGroupPE authGroupPE = createAuthorizationGroup();
         context.checking(new Expectations()
