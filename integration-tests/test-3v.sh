@@ -280,7 +280,7 @@ function prepare_data {
     cp -R $TEMPLATE/data $WORK
     clean_svn $DATA
     
-    rm $WORK/datamover-raw/data-completed-info.txt
+    rm -f $WORK/datamover-raw/data-completed-info.txt
 }
 
 function integration_tests {
