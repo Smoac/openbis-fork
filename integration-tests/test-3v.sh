@@ -85,7 +85,7 @@ function switch_processing_pipeline {
 }
 
 
-function launch_tests_3v {
+function launch_tests {
     switch_processing_pipeline "on"
     sleep 4
 
@@ -225,7 +225,7 @@ function assert_correct_content_of_unidentified_plate_in_store {
     assert_same_content $TEST_DATA/$cell_plate $unidentified_dir/DataSetType_HCS_IMAGE_ANALYSIS_DATA/microX_200801011213_$cell_plate
 }
 
-function assert_correct_content_3v {
+function assert_correct_content {
     assert_dss_registration datastore_server1
     assert_dss_registration datastore_server2
     assert_empty_in_out_folders
@@ -233,23 +233,23 @@ function assert_correct_content_3v {
     assert_pattern_present $DATA/out-raw/.faulty_paths 1 ".*data/out-raw/.MARKER_is_finished_microX_200801011213_3VCP1"
     assert_pattern_present $WORK/datamover-raw/data-completed-info.txt 4 "Data complete.*3VCP[0-9]" 
     assert_correct_content_of_plate_3VCP1_in_store
-    assert_correct_content_of_image_analysis_data 3VCP1 ".*-19.*3VCP1$"
-    assert_correct_content_of_image_analysis_data 3VCP3 ".*-21.*3VCP3$"
+    assert_correct_content_of_image_analysis_data 3VCP1 ".*-22.*3VCP1$"
+    assert_correct_content_of_image_analysis_data 3VCP3 ".*-24.*3VCP3$"
     assert_correct_content_of_unidentified_plate_in_store UnknownPlate
-    local file=`find_dataset_dir ".*-24$"`/original/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3.txt
+    local file=`find_dataset_dir ".*-27$"`/original/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3.txt
     assert_equals_as_in_file "hello world" $file
     # result set columns are
     # id;experiment_code;data_store_code;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
     assert_correct_dataset_content_in_database 2 "2;EXP1;DSS1;MICROX-3VCP1;f;;F;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 3 "3;EXP1;DSS1;20[0-9]*-19;f;;U;;"
-    assert_correct_dataset_content_in_database 4 "4;EXP1;DSS1;20[0-9]*-20;f;;U;;"
-    assert_correct_dataset_content_in_database 5 "5;EXP1;DSS1;20[0-9]*-21;f;;U;;"   
+    assert_correct_dataset_content_in_database 3 "3;EXP1;DSS1;20[0-9]*-22;f;;U;;"
+    assert_correct_dataset_content_in_database 4 "4;EXP1;DSS1;20[0-9]*-23;f;;U;;"
+    assert_correct_dataset_content_in_database 5 "5;EXP1;DSS1;20[0-9]*-24;f;;U;;"   
     assert_correct_dataset_content_in_database 6 "6;EXP1;DSS1;MICROX-3VCP3;f;;F;microX;2008-01-01.*"
-    assert_correct_dataset_content_in_database 7 "7;EXP1;DSS1;20[0-9]*-23;f;;U;;"
-    assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-24;f;2;U;;.*"
-    assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-24;f;6;U;;.*"
-    assert_equals "Content of file in drop box1" "hello world" "`cat $DATA/drop-box1/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-24.txt`"
-    assert_equals "Content of file in drop box2" "hello world" "`cat $DATA/drop-box2/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-24.txt`"
+    assert_correct_dataset_content_in_database 7 "7;EXP1;DSS1;20[0-9]*-26;f;;U;;"
+    assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-27;f;2;U;;.*"
+    assert_correct_dataset_content_in_database 8 ".*8;EXP1;DSS2;20[0-9]*-27;f;6;U;;.*"
+    assert_equals "Content of file in drop box1" "hello world" "`cat $DATA/drop-box1/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-27.txt`"
+    assert_equals "Content of file in drop box2" "hello world" "`cat $DATA/drop-box2/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3*-27.txt`"
 }
 
 function print_help {
@@ -271,12 +271,24 @@ function print_help {
     echo "	$0 --dss"
 }
 
-function integration_tests_3v {
+# Prepare template incoming data and some destination data structures
+function prepare_data {
+    DATA=$WORK/data
+    rm -fr $DATA
+    mkdir -p $DATA
+    cp -R $TEMPLATE/data $WORK
+    clean_svn $DATA
+    
+    rm $WORK/datamover-raw/data-completed-info.txt
+}
+
+function integration_tests {
+    prepare_data
     build_and_install $@
 
-    launch_tests_3v
+    launch_tests
     
-    assert_correct_content_3v
+    assert_correct_content
     
     shutdown_openbis_server
     exit_if_assertion_failed
@@ -319,7 +331,7 @@ else
 		exit 0
 		;;
 		'--assert-content')
-		assert_correct_content_3v
+		assert_correct_content
 		exit 0
 		;;
 	    *)
@@ -330,5 +342,5 @@ else
          esac
 	 shift
     done
-    integration_tests_3v $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
+    integration_tests $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
 fi

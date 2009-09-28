@@ -568,13 +568,6 @@ function build_and_install {
     # NOTE: Comment this line if you want to use different libraries.
     build_zips $install_dss $install_dmv $install_openbis $use_local_source
     
-    # Prepare empty incoming data
-    DATA=$WORK/data
-    rm -fr $DATA
-    mkdir -p $DATA
-    cp -R $TEMPLATE/data $WORK
-    clean_svn $DATA
-
     install $install_dss $install_dmv $install_openbis $reinstall_all
 }
 

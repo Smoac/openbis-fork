@@ -15,6 +15,16 @@ METABOL_DB=metabol_dev
 
 # --------------------
 
+# Prepare template incoming data and some destination data structures
+function prepare_data {
+		# Prepare empty incoming data
+    rm -fr $MY_DATA
+    mkdir -p $MY_DATA
+    cp -R $TEMPLATE/data-yeastx/* $MY_DATA/
+    clean_svn $MY_DATA
+}
+
+
 function build_and_install_yeastx {
     local use_local_source=$1
 
@@ -29,11 +39,7 @@ function build_and_install_yeastx {
 		cp $INSTALL/datastore_server-plugins.jar $WORK/datastore_server_yeastx/lib/
 		chmod_exec $WORK/datastore_server_yeastx/takeCifsOwnershipRecursive.sh
 		
-		# Prepare empty incoming data
-    rm -fr $MY_DATA
-    mkdir -p $MY_DATA
-    cp -R $TEMPLATE/data-yeastx/* $MY_DATA/
-    clean_svn $MY_DATA
+		prepare_data
     
 		echo Dropping metabolomics database
 		psql_cmd=`run_psql`
