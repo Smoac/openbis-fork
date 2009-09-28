@@ -5,8 +5,8 @@
 /* Project name:                                                          */
 /* Author:                                                                */
 /* Script type:           Database creation script                        */
-/* Created on:            2009-08-27 11:01                                */
-/* Model version:         Version 2009-08-27                              */
+/* Created on:            2009-09-28 08:43                                */
+/* Model version:         Version 2009-09-28                              */
 /* ---------------------------------------------------------------------- */
 
 
@@ -34,6 +34,8 @@ CREATE DOMAIN SHORT_SEQUENCE AS CHARACTER VARYING(1000);
 
 CREATE DOMAIN ACCESSION_NUMBER AS CHARACTER VARYING(256);
 
+CREATE DOMAIN SPECTRUM_REFERENCE AS CHARACTER VARYING(100);
+
 /* ---------------------------------------------------------------------- */
 /* Tables                                                                 */
 /* ---------------------------------------------------------------------- */
@@ -56,7 +58,7 @@ CREATE TABLE EXPERIMENTS (
 CREATE TABLE DATA_SETS (
     ID BIGSERIAL  NOT NULL,
     EXPE_ID TECH_ID  NOT NULL,
-    SAMP_ID TECH_ID  NOT NULL,
+    SAMP_ID TECH_ID,
     DB_ID TECH_ID  NOT NULL,
     PERM_ID CODE  NOT NULL,
     CONSTRAINT PK_DATA_SETS PRIMARY KEY (ID),
@@ -204,6 +206,29 @@ CREATE TABLE MODIFIED_PEPTIDES (
 );
 
 /* ---------------------------------------------------------------------- */
+/* Add table "SPECTRUM_REFERENCES"                                        */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE SPECTRUM_REFERENCES (
+    ID BIGSERIAL  NOT NULL,
+    PEPT_ID TECH_ID  NOT NULL,
+    REFERENCE SPECTRUM_REFERENCE  NOT NULL,
+    CONSTRAINT PK_SPECTRUM_REFERENCES PRIMARY KEY (ID)
+);
+
+/* ---------------------------------------------------------------------- */
+/* Add table "MODIFICATION_FRACTIONS"                                     */
+/* ---------------------------------------------------------------------- */
+
+CREATE TABLE MODIFICATION_FRACTIONS (
+    ID BIGSERIAL  NOT NULL,
+    MODI_ID TECH_ID  NOT NULL,
+    SAMP_ID TECH_ID,
+    FRACTION REAL_NUMBER  NOT NULL,
+    CONSTRAINT PK_MODIFICATION_FRACTIONS PRIMARY KEY (ID)
+);
+
+/* ---------------------------------------------------------------------- */
 /* Foreign key constraints                                                */
 /* ---------------------------------------------------------------------- */
 
@@ -248,3 +273,12 @@ ALTER TABLE PROBABILITY_FDR_MAPPINGS ADD CONSTRAINT DATA_SETS_PROBABILITY_FDR_MA
 
 ALTER TABLE MODIFIED_PEPTIDES ADD CONSTRAINT PEPTIDES_MODIFIED_PEPTIDES 
     FOREIGN KEY (PEPT_ID) REFERENCES PEPTIDES (ID);
+
+ALTER TABLE SPECTRUM_REFERENCES ADD CONSTRAINT PEPTIDES_SPECTRUM_REFERENCES 
+    FOREIGN KEY (PEPT_ID) REFERENCES PEPTIDES (ID);
+
+ALTER TABLE MODIFICATION_FRACTIONS ADD CONSTRAINT MODIFICATIONS_MODIFICATION_FRACTIONS 
+    FOREIGN KEY (MODI_ID) REFERENCES MODIFICATIONS (ID);
+
+ALTER TABLE MODIFICATION_FRACTIONS ADD CONSTRAINT SAMPLES_MODIFICATION_FRACTIONS 
+    FOREIGN KEY (SAMP_ID) REFERENCES SAMPLES (ID);
