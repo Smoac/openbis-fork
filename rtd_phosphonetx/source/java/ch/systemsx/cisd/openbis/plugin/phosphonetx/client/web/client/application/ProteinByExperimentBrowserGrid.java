@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -125,19 +127,22 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         for (AbundanceColumnDefinition definition : abundanceColumnDefinitions)
         {
             String header = definition.getSampleCode();
+            final long sampleID = definition.getID();
             List<Treatment> treatments = definition.getTreatments();
+            Map<String, String> properties = null;
             if (treatments.isEmpty() == false)
             {
                 header = "";
                 String delim = "";
+                properties = new HashMap<String, String>();
                 for (Treatment treatment : treatments)
                 {
                     header += delim + treatment;
                     delim = "\n";
+                    properties.put(treatment.getTypeCode(), treatment.getValue());
                 }
             }
-            final long sampleID = definition.getID();
-            columns.add(new InternalAbundanceColumnDefinition(header, 100, false, sampleID));
+            columns.add(new InternalAbundanceColumnDefinition(header, properties, 100, false, sampleID));
         }
         definitions.addColumns(columns);
         definitions.setGridCellRendererFor(ProteinColDefKind.ACCESSION_NUMBER.id(), LinkRenderer

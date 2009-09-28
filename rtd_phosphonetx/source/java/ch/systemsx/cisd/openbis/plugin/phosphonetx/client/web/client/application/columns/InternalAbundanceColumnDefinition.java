@@ -28,16 +28,19 @@ public final class InternalAbundanceColumnDefinition extends
     
     private long sampleID;
 
+    private Map<String, String> properties;
+
     // GWT only
     public InternalAbundanceColumnDefinition()
     {
         super();
     }
 
-    public InternalAbundanceColumnDefinition(String headerTextOrNull, int width,
+    public InternalAbundanceColumnDefinition(String headerTextOrNull, Map<String, String> propertiesOrNull, int width,
             boolean isHidden, long sampleID)
     {
         super(headerTextOrNull, width, isHidden);
+        this.properties = propertiesOrNull;
         this.sampleID = sampleID;
     }
 
@@ -64,6 +67,12 @@ public final class InternalAbundanceColumnDefinition extends
     public boolean isNumeric()
     {
         return true;
+    }
+
+    @Override
+    public String tryToGetProperty(String key)
+    {
+        return properties == null ? null : properties.get(key);
     }
 
     private Double tryToGetAbundance(ProteinInfo entity)
