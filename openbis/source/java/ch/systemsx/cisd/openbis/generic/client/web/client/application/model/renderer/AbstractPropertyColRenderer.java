@@ -110,4 +110,9 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
         return colDef.getDataTypeCode();
     }
 
+    public String tryToGetProperty(String key)
+    {
+        return null;
+    }
+
 }

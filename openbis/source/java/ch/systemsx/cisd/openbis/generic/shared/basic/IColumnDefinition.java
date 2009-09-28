@@ -36,4 +36,7 @@ public interface IColumnDefinition<T> extends IsSerializable
 
     /** unique identifier of the column */
     String getIdentifier();
+    
+    /** Tries to get specified property or <code>null</code> if not found. */
+    String tryToGetProperty(String key);
 }

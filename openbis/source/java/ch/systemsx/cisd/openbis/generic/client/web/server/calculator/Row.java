@@ -16,9 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
@@ -31,15 +36,17 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
  */
 public final class Row<T>
 {
-    private final Map<String, IColumnDefinition<T>> map = new HashMap<String, IColumnDefinition<T>>();
+    
+    private final Map<String, IColumnDefinition<T>> definitionsByID = new LinkedHashMap<String, IColumnDefinition<T>>();
+    private final Map<String, List<ColumnDefinition>> definitionsByProperties = new HashMap<String, List<ColumnDefinition>>();
     
     private T row;
     
-    public Row(Set<IColumnDefinition<T>> availableColumns)
+    Row(Set<IColumnDefinition<T>> availableColumns)
     {
         for (IColumnDefinition<T> columnDefinition : availableColumns)
         {
-            map.put(columnDefinition.getIdentifier(), columnDefinition);
+            definitionsByID.put(columnDefinition.getIdentifier(), columnDefinition);
         }
     }
     
@@ -48,14 +55,95 @@ public final class Row<T>
         this.row = row;
     }
 
+    /**
+     * Returns the value of the column specified by its ID.
+     * 
+     * @throws IllegalArgumentException if no column with specified ID exists.
+     */
     public Object col(String columnID)
     {
-        IColumnDefinition<T> columnDefinition = map.get(columnID);
+        IColumnDefinition<T> columnDefinition = definitionsByID.get(columnID);
         if (columnDefinition == null)
         {
             throw new IllegalArgumentException("Undefined column: " + columnID);
         }
         return columnDefinition.getComparableValue(row);
+    }
+    
+    /**
+     * Returns all column definitions which have a property with specified key.
+     * 
+     * @return an empty list if no column definition found.
+     */
+    public List<ColumnDefinition> colDefs(String propertyKey)
+    {
+        List<ColumnDefinition> definitions = definitionsByProperties.get(propertyKey);
+        if (definitions == null)
+        {
+            definitions = new ArrayList<ColumnDefinition>();
+            Set<Entry<String, IColumnDefinition<T>>> entries = definitionsByID.entrySet();
+            for (Entry<String, IColumnDefinition<T>> entry : entries)
+            {
+                IColumnDefinition<T> columnDefinition = entry.getValue();
+                String property = columnDefinition.tryToGetProperty(propertyKey);
+                if (property != null)
+                {
+                    definitions.add(new ColumnDefinition(columnDefinition));
+                }
+            }
+            definitionsByProperties.put(propertyKey, definitions);
+        }
+        return Collections.unmodifiableList(definitions);
+    }
+
+    /**
+     * Returns all column values where the column definition has a property with specified key and
+     * value.
+     * 
+     * @return an empty list if no columns found.
+     */
+    public List<Object> cols(String propertyKey, String propertyValue)
+    {
+        List<Object> values = new ArrayList<Object>();
+        List<ColumnDefinition> definitions = colDefs(propertyKey);
+        for (ColumnDefinition definition : definitions)
+        {
+            String property = definition.property(propertyKey);
+            if (propertyValue.equals(property))
+            {
+                values.add(col(definition.id()));
+            }
+        }
+        return Collections.unmodifiableList(values);
+    }
+    
+    /**
+     * Returns all column values grouped by the property value of the property specified by the key.
+     * 
+     * @return an empty list if no columns found.
+     */
+    public List<ColumnGroup> colsGroupedBy(String propertyKey)
+    {
+        Map<String, List<Object>> map = new LinkedHashMap<String, List<Object>>();
+        List<ColumnDefinition> definitions = colDefs(propertyKey);
+        for (ColumnDefinition definition : definitions)
+        {
+            String property = definition.property(propertyKey);
+            List<Object> values = map.get(property);
+            if (values == null)
+            {
+                values = new ArrayList<Object>();
+                map.put(property, values);
+            }
+            values.add(col(definition.id()));
+        }
+        Set<Entry<String, List<Object>>> entrySet = map.entrySet();
+        List<ColumnGroup> groups = new ArrayList<ColumnGroup>(entrySet.size());
+        for (Entry<String, List<Object>> entry : entrySet)
+        {
+            groups.add(new ColumnGroup(entry.getKey(), entry.getValue()));
+        }
+        return Collections.unmodifiableList(groups);
     }
     
 }

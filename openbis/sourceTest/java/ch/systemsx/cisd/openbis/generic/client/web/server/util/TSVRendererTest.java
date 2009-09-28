@@ -89,6 +89,11 @@ public class TSVRendererTest
                     return getValue(rowModel);
                 }
 
+                public String tryToGetProperty(String key)
+                {
+                    return null;
+                }
+
             };
     }
 }

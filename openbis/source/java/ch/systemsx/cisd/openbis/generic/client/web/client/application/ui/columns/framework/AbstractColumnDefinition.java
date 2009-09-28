@@ -77,5 +77,10 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
         return false;
     }
 
+    public String tryToGetProperty(String key)
+    {
+        return null;
+    }
+
     
 }

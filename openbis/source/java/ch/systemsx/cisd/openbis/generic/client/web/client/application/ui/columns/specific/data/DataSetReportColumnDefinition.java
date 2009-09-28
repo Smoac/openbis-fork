@@ -79,6 +79,11 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
         int index = columnHeader.getIndex();
         return rowModel.getValues().get(index);
     }
+    
+    public String tryToGetProperty(String key)
+    {
+        return null;
+    }
 
     // GWT only
     @SuppressWarnings("unused")
