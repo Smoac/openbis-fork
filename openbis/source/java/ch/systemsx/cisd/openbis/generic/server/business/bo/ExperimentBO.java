@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -207,12 +208,36 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         loadDataByTechId(experimentId);
         try
         {
+            deleteZombieDatasetPlaceholders();
             getExperimentDAO().delete(experiment);
             getEventDAO().persist(createDeletionEvent(experiment, session.tryGetPerson(), reason));
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("Experiment '%s'", experiment.getCode()),
                     EntityKind.EXPERIMENT);
+        }
+    }
+
+    /** if all datasets connected to experiment are placeholders delete them, otherwise do nothing */
+    private void deleteZombieDatasetPlaceholders()
+    {
+        if (experiment.getDataSets().size() > 0)
+        {
+            getExternalDataDAO().listExternalData(experiment);
+            boolean onlyPlaceholders = true;
+            for (DataPE data : experiment.getDataSets())
+            {
+                if (data.isPlaceholder() == false)
+                {
+                    onlyPlaceholders = false;
+                    break;
+                }
+            }
+            if (onlyPlaceholders)
+            {
+                getExperimentDAO().deleteZombiePlaceholders(experiment);
+            }
+            // otherwise a default exception will be thrown on experiment deletion attempt
         }
     }
 

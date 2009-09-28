@@ -185,4 +185,15 @@ public class ExperimentDAO extends AbstractGenericEntityDAO<ExperimentPE> implem
         return samples;
     }
 
+    public void deleteZombiePlaceholders(ExperimentPE experiment) throws DataAccessException
+    {
+        // it will happen very rarely so it doesn't have to be optimized in terms of performance
+        getHibernateTemplate().deleteAll(experiment.getDataSets());
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format(
+                    "Zombie placeholders connected with experiment '%s' have been deleted.",
+                    experiment.getCode()));
+        }
+    }
 }
