@@ -250,6 +250,7 @@ function build_zips {
     fi
     assert_file_exists_or_die "$INSTALL/openBIS*.zip"
     assert_file_exists_or_die "$INSTALL/datastore_server*.zip"
+    assert_file_exists_or_die "$INSTALL/datastore_server-plugin.jar"
     assert_file_exists_or_die "$INSTALL/datamover*.zip"
 
 }
@@ -311,6 +312,7 @@ function build_zips_from_svn {
     run_svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/build_resources/trunk $RSC
     build_components "build_remote $RSC" $build_dss $build_dmv $build_openbis
     mv $RSC/*.zip $INSTALL
+    mv $RSC/*.jar $INSTALL
     rm -fr $RSC 
 }
 
