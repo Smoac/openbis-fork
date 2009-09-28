@@ -1,0 +1,8 @@
+#!/bin/bash
+mkdir Data/DemoImages
+cp -xav Images/L*/C2.1/s_*_1_*.tif Data/DemoImages
+cp -xav Images/L*/C2.1/s_*_20_*.tif Data/DemoImages
+cp -xav Images/L*/C2.1/s_*_40_*.tif Data/DemoImages
+cp -xav Images/L*/C2.1/s_*_60_*.tif Data/DemoImages
+cp -xav Images/L*/C2.1/s_*_80_*.tif Data/DemoImages
+cp -xav Images/L*/C2.1/s_*_100_*.tif Data/DemoImages

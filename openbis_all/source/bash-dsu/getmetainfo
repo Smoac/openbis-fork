@@ -1,0 +1,13 @@
+#!/bin/bash
+a=`pwd`
+b=`basename $a`
+for c in 1 2 3 4 5 6 7 8; do 
+mysql -E -u bsse --password=theycconnection -h yellowcouch.org -D BsseSampleTracking >Data/s_$c.txt <<EOF
+SELECT * FROM PreparedView
+WHERE flow_id='$b' AND lane_id=$c
+EOF
+mysql -X -u bsse --password=theycconnection -h yellowcouch.org -D BsseSampleTracking >Data/s_$c.xml <<EOF
+SELECT * FROM PreparedView
+WHERE flow_id='$b' AND lane_id=$c
+EOF
+done
