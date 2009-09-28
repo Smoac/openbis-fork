@@ -250,7 +250,7 @@ function build_zips {
     fi
     assert_file_exists_or_die "$INSTALL/openBIS*.zip"
     assert_file_exists_or_die "$INSTALL/datastore_server*.zip"
-    assert_file_exists_or_die "$INSTALL/datastore_server-plugin.jar"
+    assert_file_exists_or_die "$INSTALL/datastore_server-plugins.jar"
     assert_file_exists_or_die "$INSTALL/datamover*.zip"
 
 }
