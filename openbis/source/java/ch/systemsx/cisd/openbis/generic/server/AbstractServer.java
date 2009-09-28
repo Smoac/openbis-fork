@@ -149,6 +149,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         person.setLastName(principal.getLastName());
         person.setEmail(principal.getEmail());
         person.setRegistrator(registrator);
+        person.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         try
         {
             daoFactory.getPersonDAO().createPerson(person);
