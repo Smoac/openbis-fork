@@ -201,7 +201,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     labelField = createTextField(viewContext.getMessage(Dict.LABEL), mandatory);
 
                     labelField.setValue(StringEscapeUtils.unescapeHtml(label));
-                    labelField.setMaxLength(GenericConstants.LABEL_40);
+                    labelField.setMaxLength(GenericConstants.COLUMN_LABEL);
                     addField(labelField);
 
                     descriptionField = createDescriptionField(viewContext, mandatory);

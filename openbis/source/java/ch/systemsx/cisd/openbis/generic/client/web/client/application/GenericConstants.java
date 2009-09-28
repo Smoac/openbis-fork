@@ -21,7 +21,7 @@ import com.google.gwt.core.client.GWT;
 /**
  * Some generic constants.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class GenericConstants
 {
@@ -91,7 +91,7 @@ public final class GenericConstants
 
     public static final int DESCRIPTION_1000 = 1000;
 
-    public static final int LABEL_40 = 40;
+    public static final int COLUMN_LABEL = 128;
 
     public static final String WITH_EXPERIMENTS = "with_experiments";
 

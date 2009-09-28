@@ -102,7 +102,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     }
 
     @Column(name = ColumnNames.LABEL_COLUMN)
-    @Length(max = GenericConstants.LABEL_40, message = ValidationMessages.LABEL_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.COLUMN_LABEL, message = ValidationMessages.LABEL_LENGTH_MESSAGE)
     public String getLabel()
     {
         return label;

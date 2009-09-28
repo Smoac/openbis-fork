@@ -201,7 +201,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 
     @NotNull(message = ValidationMessages.LABEL_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.LABEL_COLUMN)
-    @Length(max = GenericConstants.LABEL_40, message = ValidationMessages.LABEL_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.COLUMN_LABEL, message = ValidationMessages.LABEL_LENGTH_MESSAGE)
     public final String getLabel()
     {
         return label;
