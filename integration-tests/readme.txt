@@ -1,11 +1,23 @@
 Author: Tomasz Pylak, 2007-09-26
 		
-
 Directories
 -----------------
  templates - configuration of each component
  install - stores freshly built installation versions (*.zip)
  playground - temporary directory, here all tests take place
+
+Directories used by yeastx integration tests:
+- templates/datastore_server_yeastx
+- templates/data-yeastx
+- openBIS-server
+
+Directories used by 3v screening integration tests:
+- openBIS-server
+- data
+- testData
+- datamover-*
+- datastore_server1, datastore_server2
+- dummy-img-analyser
 
 Launching
 -----------------

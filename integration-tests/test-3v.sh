@@ -26,6 +26,7 @@
 # 	./test-3v.sh --etl --lims --local-source --reinstall-all
 
 TIME_TO_COMPLETE=60 # time (in seconds) needed by the whole pipeline to process everything
+TEST_DATA=testData
 
 # --- include external sources ------------------------ 
 

@@ -9,7 +9,6 @@ FALSE=0
 # all paths are relative to the template directory
 TEMPLATE=templates
 TARGETS=targets
-TEST_DATA=testData
 WORK=$TARGETS/playground
 INSTALL=$TARGETS/install
 LOCAL_PROJECTS=..
