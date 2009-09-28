@@ -1,6 +1,5 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,13 +24,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IColumnDefinitionProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisplayTypeIDProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.PagingColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 
@@ -49,20 +46,16 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private final FilterSelectionWidget filterSelectionWidget;
 
-    private final IColumnDefinitionProvider<T> columnDefinitionProvider;
-
     private final IDelegatedAction delegatedAction;
 
     private final TextToolItem applyTool;
 
     public FilterToolbar(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
             IDisplayTypeIDProvider displayTypeIDProvider,
-            final List<PagingColumnFilter<T>> filterWidgets, IDelegatedAction delegatedAction,
-            final IColumnDefinitionProvider<T> columnDefinitionProvider)
+            final List<PagingColumnFilter<T>> filterWidgets, IDelegatedAction delegatedAction)
     {
         this.columnFilters = filterWidgets;
         this.delegatedAction = delegatedAction;
-        this.columnDefinitionProvider = columnDefinitionProvider;
         add(new LabelToolItem(viewContext.getMessage(Dict.FILTER) + ": "));
         filterSelectionWidget =
                 new FilterSelectionWidget(viewContext, gridId, displayTypeIDProvider);
@@ -114,10 +107,6 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             } else
             {
                 CustomFilterInfo<T> info = new CustomFilterInfo<T>();
-                List<IColumnDefinition<T>> columnDefinitions =
-                        columnDefinitionProvider.getColumnDefinitions(new ArrayList<String>(
-                                selected.getColumns()));
-                info.setColumns(columnDefinitions);
                 info.setExpression(selected.getExpression());
                 Set<ParameterWithValue> parameters = new HashSet<ParameterWithValue>();
                 for (Component field : filterContainer.getItems())

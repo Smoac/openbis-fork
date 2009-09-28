@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
  * Stores information about selected custom filter.
@@ -34,8 +31,6 @@ public class CustomFilterInfo<T> implements IsSerializable
     private String expression;
 
     private Set<ParameterWithValue> parameters;
-
-    private List<IColumnDefinition<T>> columns;
 
     public CustomFilterInfo()
     {
@@ -59,16 +54,6 @@ public class CustomFilterInfo<T> implements IsSerializable
     public void setParameters(Set<ParameterWithValue> parameters)
     {
         this.parameters = parameters;
-    }
-
-    public List<IColumnDefinition<T>> getColumns()
-    {
-        return columns;
-    }
-
-    public void setColumns(List<IColumnDefinition<T>> columns)
-    {
-        this.columns = columns;
     }
 
 }

@@ -226,7 +226,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         pagingToolbar.bind(pagingLoader);
         this.filterToolbar =
                 new FilterToolbar<T>(viewContext, gridId, this, filterWidgets,
-                        createApplyFiltersDelagator(), this);
+                        createApplyFiltersDelagator());
         final LayoutContainer bottomToolbars = createBottomToolbars(filterToolbar, pagingToolbar);
         this.contentPanel = createEmptyContentPanel();
         contentPanel.add(grid);
