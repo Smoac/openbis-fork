@@ -22,6 +22,8 @@ function prepare_data {
     mkdir -p $MY_DATA
     cp -R $TEMPLATE/data-yeastx/* $MY_DATA/
     clean_svn $MY_DATA
+    
+    chmod -R 700 $MY_DATA/incoming*
 }
 
 
