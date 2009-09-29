@@ -349,7 +349,7 @@ public class ExperimentBrowserGrid extends
                 public DisplayedAndSelectedExperiments execute()
                 {
                     return new DisplayedAndSelectedExperiments(getSelectedBaseObjects(),
-                            createTableExportCriteria(), getCount());
+                            createTableExportCriteria(), getTotalCount());
                 }
             };
     }

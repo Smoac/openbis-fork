@@ -127,7 +127,7 @@ public abstract class AbstractExternalDataGrid
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new DataSetUploadConfirmationDialog(dataSets,
-                                            getSelectedAndDisplayedItemsAction(), getCount(),
+                                            getSelectedAndDisplayedItemsAction(), getTotalCount(),
                                             viewContext);
                                 }
                             });
@@ -278,7 +278,7 @@ public abstract class AbstractExternalDataGrid
                 public SelectedAndDisplayedItems execute()
                 {
                     return new SelectedAndDisplayedItems(getSelectedBaseObjects(),
-                            createTableExportCriteria(), getCount());
+                            createTableExportCriteria(), getTotalCount());
                 }
             };
     }

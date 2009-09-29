@@ -648,7 +648,7 @@ public class SampleBrowserGrid extends
                 public DisplayedAndSelectedSamples execute()
                 {
                     return new DisplayedAndSelectedSamples(getSelectedBaseObjects(),
-                            createTableExportCriteria(), getCount());
+                            createTableExportCriteria(), getTotalCount());
                 }
             };
     }

@@ -194,6 +194,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // result set key of the last refreshed data
     private String resultSetKey;
 
+    /** the number of all objects cached in the browser */
+    private int totalCount;
+
     private IDataRefreshCallback refreshCallback;
 
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -644,6 +647,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             // save the key of the result, later we can refer to the result in the cache using this
             // key
             saveCacheKey(result.getResultSetKey());
+            totalCount = result.getTotalLength();
             // convert the result to the model data for the grid control
             final List<M> models = createModels(result.getList());
             final PagingLoadResult<M> loadResult =
@@ -1238,9 +1242,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /** @return the number of all objects cached in the browser */
-    public int getCount()
+    public int getTotalCount()
     {
-        return grid.getStore().getCount(); // FIXME takes only displayed items count
+        // NOTE: Maybe there is a better way to get this value without keeping it on field variable.
+        // Bottom toolbar displays it so there has to be access to this, but e.g.
+        // grid.getStore().getCount() returns only number of items displayed on the current page.
+        return totalCount;
     }
 
     private void refreshColumnsSettings()
@@ -1559,7 +1566,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             // > 0 entity selected - show dialog with all/selected radio
             new ShowRelatedDatasetsDialog(viewContext, selectedEntities, displayedEntities, browser
-                    .getCount()).show();
+                    .getTotalCount()).show();
         }
     }
 }
