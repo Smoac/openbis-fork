@@ -20,7 +20,13 @@ function prepare_data {
 		# Prepare empty incoming data
     rm -fr $MY_DATA
     mkdir -p $MY_DATA
-    cp -R $TEMPLATE/data-yeastx/* $MY_DATA/
+    local SRC=$TEMPLATE/data-yeastx
+    local file
+    # Copy the files in the alphabetical order, so the last-modification-time order is the same.
+    # DSS processes files ordered by modification time, so in this way we make the tests more predictable.
+    for file in `ls -1 $SRC | sort`; do
+    	cp -R $TEMPLATE/data-yeastx/$file $MY_DATA/
+    done
     clean_svn $MY_DATA
     
     chmod -R 700 $MY_DATA/incoming*
@@ -35,7 +41,7 @@ function build_and_install_yeastx {
     local install_openbis=true
     local reinstall_all=false
     build_and_install $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
-		
+			
 		cp $INSTALL/datastore_server-plugins.jar $WORK/datastore_server_yeastx/lib/
 		chmod_exec $WORK/datastore_server_yeastx/takeCifsOwnershipRecursive.sh
 		
@@ -98,14 +104,14 @@ function print_incoming_errorlog_fingerprint {
 # in the incomming folder are correct
 function assert_correct_errorlogs {
 	local incoming_dir=$1
-	
+
 	local errorlogs=$WORK/incoming_current_content.txt
 	print_incoming_errorlog_fingerprint $incoming_dir > $errorlogs
-	local diff_cmd="diff -w $TEMPLATE_INCOMING_CONTENT $errorlogs"
-	
-	if [ ! "`$diff_cmd`" == "" ]; then
-		report_error Unexpected content of the incoming directory $incoming_dir:
-		$diff_cmd
+	echo [INFO] Comparing error logs in the incoming directory with the expected template.
+	diff -w $TEMPLATE_INCOMING_CONTENT $errorlogs
+
+	if [ $? -ne 0 ]; then
+		report_error "Unexpected content of the error logs in the incoming directory $incoming_dir (see the report above)."
 	fi
 }
 
