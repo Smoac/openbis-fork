@@ -77,16 +77,20 @@ public final class ShowRelatedDatasetsDialog extends
 
     private final TableExportCriteria<? extends IEntityInformationHolder> displayedEntities;
 
+    private final int displayedEntitiesCount;
+
     private Radio allOrSelectedRadio;
 
     public ShowRelatedDatasetsDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             List<? extends IEntityInformationHolder> selectedEntities,
-            TableExportCriteria<? extends IEntityInformationHolder> displayedEntities)
+            TableExportCriteria<? extends IEntityInformationHolder> displayedEntities,
+            int displayedEntitiesCount)
     {
         super(viewContext, selectedEntities, viewContext
                 .getMessage(Dict.SHOW_RELATED_DATASETS_DIALOG_TITLE));
         this.viewContext = viewContext;
         this.displayedEntities = displayedEntities;
+        this.displayedEntitiesCount = displayedEntitiesCount;
         setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
     }
 
@@ -112,7 +116,7 @@ public final class ShowRelatedDatasetsDialog extends
         final String radioGroupLabel =
                 viewContext.getMessage(Dict.SHOW_RELATED_DATASETS_DIALOG_RADIO_LABEL);
         final String selectedLabel = viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data.size());
-        final String allLabel = viewContext.getMessage(Dict.ALL_RADIO, data.size());
+        final String allLabel = viewContext.getMessage(Dict.ALL_RADIO, displayedEntitiesCount);
 
         return WidgetUtils.createAllOrSelectedRadioGroup(allOrSelectedRadio =
                 WidgetUtils.createRadio(selectedLabel), WidgetUtils.createRadio(allLabel),

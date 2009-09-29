@@ -121,7 +121,7 @@ var common = {
   matching_field: "Matching Field",
   too_generic: "Query string '{0}' is too generic.",
   show_related_datasets: "Show Related Data Sets",
-  show_related_datasets_message: "Select between showing Data Sets related to selected ({0}) entities or to all entities from the grid and click on OK button.",
+  show_related_datasets_message: "Select between showing Data Sets related to selected ({0}) entities or to all entities from the table and click on OK button.",
   show_related_datasets_radio_label: "Related entities",
   
   //
@@ -156,6 +156,10 @@ var common = {
   //
   
   children_datasets: "Children",
+  no_datasets_selected: "No Data Sets were selected.",
+  datasets_from_different_stores_selected: "Data Sets from different Data Stores were selected, so no operation can be performed on all of them.",
+  perform_computation_on_all_datasets_msg_template: "{0} Select a data store service to perform {1} computation on all Data Sets from the table that have type and data store appropriate to the selected service and click on a Run button.",
+  perform_computation_on_selected_or_all_datasets_msg_template: "Select between performing {0} computation only on selected Data Sets ({1}) or on all Data Sets of appropriate types from the table, then select a data store service and click on a Run button.",
   
   //
   // Entity Type Browser
@@ -464,7 +468,7 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
 // Grid Column Chooser
 //
 
-  GRID_COLUMN_CHOOSER_TITLE: "Configure grid columns",
+  GRID_COLUMN_CHOOSER_TITLE: "Configure table columns",
   GRID_COLUMN_NAME_HEADER: "Column",
   GRID_IS_COLUMN_VISIBLE_HEADER: "Visible?",
   GRID_COLUMN_HAS_FILTER_HEADER: "Has Filter?",
@@ -488,10 +492,11 @@ incorrect_experiment_syntax: "Incorrect experiment specification. Please provide
  remove_persons_from_authorization_group_confirmation_message: "Do you really want to remove {0} users ({1}) from the user group '{2}'?",
 
  
-all_radio: "all",
-data_sets_radio_group_label: "Data Sets",
+all_radio: "all ({0})",
 only_selected_radio: "selected ({0})",
+data_sets_radio_group_label: "Data Sets",
 experiments_radio_group_label: "Experiments",
+samples_radio_group_label: "Samples",
 
 //
 // Filters 

@@ -130,7 +130,8 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                 public void execute()
                 {
                     new SampleListDeletionConfirmationDialog(viewContext.getCommonViewContext(),
-                            getOriginalDataAsSingleton(), createDeletionCallback()).show();
+                            getOriginalDataAsSingleton(), createDeletionCallback(),
+                            getOriginalData()).show();
                 }
             }));
     }

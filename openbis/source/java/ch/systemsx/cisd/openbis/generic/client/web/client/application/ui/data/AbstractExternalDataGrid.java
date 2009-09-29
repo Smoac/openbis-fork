@@ -68,7 +68,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public abstract class AbstractExternalDataGrid
         extends
@@ -124,7 +124,8 @@ public abstract class AbstractExternalDataGrid
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new DataSetUploadConfirmationDialog(dataSets,
-                                            getSelectedAndDisplayedItemsAction(), viewContext);
+                                            getSelectedAndDisplayedItemsAction(), getCount(),
+                                            viewContext);
                                 }
                             });
         addButton(uploadButton);
@@ -229,16 +230,24 @@ public abstract class AbstractExternalDataGrid
         // currently selected items
         private final List<ExternalData> selectedItems;
 
-        public SelectedAndDisplayedItems(TableExportCriteria<ExternalData> displayedItemsConfig,
-                List<ExternalData> selectedItems)
+        private final int displayedItemsCount;
+
+        public SelectedAndDisplayedItems(List<ExternalData> selectedItems,
+                TableExportCriteria<ExternalData> displayedItemsConfig, int displayedItemsCount)
         {
             this.displayedItemsConfig = displayedItemsConfig;
             this.selectedItems = selectedItems;
+            this.displayedItemsCount = displayedItemsCount;
         }
 
         public TableExportCriteria<ExternalData> getDisplayedItemsConfig()
         {
             return displayedItemsConfig;
+        }
+
+        public int getDisplayedItemsCount()
+        {
+            return displayedItemsCount;
         }
 
         public List<ExternalData> getSelectedItems()
@@ -265,8 +274,8 @@ public abstract class AbstractExternalDataGrid
             {
                 public SelectedAndDisplayedItems execute()
                 {
-                    return new SelectedAndDisplayedItems(createTableExportCriteria(),
-                            getSelectedBaseObjects());
+                    return new SelectedAndDisplayedItems(getSelectedBaseObjects(),
+                            createTableExportCriteria(), getCount());
                 }
             };
     }

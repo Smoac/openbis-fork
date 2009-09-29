@@ -41,11 +41,11 @@ public final class ExperimentListDeletionConfirmationDialog extends
 
     private final AbstractAsyncCallback<Void> callback;
 
+    private final DisplayedAndSelectedExperiments selectedAndDisplayedItemsOrNull;
+
+    private final Experiment singleDataOrNull;
+
     private Radio onlySelectedRadio;
-
-    private DisplayedAndSelectedExperiments selectedAndDisplayedItemsOrNull;
-
-    private Experiment singleDataOrNull;
 
     public ExperimentListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
@@ -55,7 +55,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
         super(viewContext, selectedAndDisplayedItems.getSelectedItems());
         this.viewContext = viewContext;
         this.callback = callback;
-        singleDataOrNull = null;
+        this.singleDataOrNull = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
     }
 
@@ -66,7 +66,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
         super(viewContext, Collections.singletonList(experiment));
         this.viewContext = viewContext;
         this.callback = callback;
-        singleDataOrNull = experiment;
+        this.singleDataOrNull = experiment;
         this.selectedAndDisplayedItemsOrNull = null;
     }
 
@@ -105,8 +105,9 @@ public final class ExperimentListDeletionConfirmationDialog extends
     {
         return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadio =
                 WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
-                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO)),
-                viewContext.getMessage(Dict.EXPERIMENTS_RADIO_GROUP_LABEL), data.size());
+                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
+                selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())), viewContext
+                .getMessage(Dict.EXPERIMENTS_RADIO_GROUP_LABEL), data.size());
     }
 
 }

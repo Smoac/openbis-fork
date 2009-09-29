@@ -366,30 +366,26 @@ public class DataSetComputeMenu extends TextToolItem
         {
             int size = data.getSelectedDataSets().size();
             String computationName = data.getPluginTaskKind().getDescription();
-            // TODO 2009-07-03, Piotr Buczek: externalize to dictionary with parameters
             if (size == 0)
             {
-                return "No Data Sets were selected. "
-                        + "Select a data store service to perform "
-                        + computationName
-                        + " computation on all Data Sets from the grid that have type and data store "
-                        + "appropriate to the selected service and click on a Run button.";
+                final String msgIntroduction = viewContext.getMessage(Dict.NO_DATASETS_SELECTED);
+                return viewContext.getMessage(
+                        Dict.PERFORM_COMPUTATION_ON_ALL_DATASETS_MSG_TEMPLATE, msgIntroduction,
+                        computationName);
             } else
             {
                 if (isSingleDatastore())
                 {
-                    return "Select between performing " + computationName + " computation only on "
-                            + "selected Data Sets (" + size
-                            + ") or on all Data Sets of appropriate types from the grid, "
-                            + "then select a data store service and click on a Run button.";
+                    return viewContext.getMessage(
+                            Dict.PERFORM_COMPUTATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE,
+                            computationName, size);
                 } else
                 {
-                    return "Datasets from different Data Stores have been selected, "
-                            + "so no operation can be performed on all of them. "
-                            + "Select a data store service to perform "
-                            + computationName
-                            + " computation on all Data Sets from the grid that have type "
-                            + "and data store appropriate to the selected service and click on a Run button.";
+                    final String msgIntroduction =
+                            viewContext.getMessage(Dict.DATASETS_FROM_DIFFERENT_STORES_SELECTED);
+                    return viewContext.getMessage(
+                            Dict.PERFORM_COMPUTATION_ON_ALL_DATASETS_MSG_TEMPLATE, msgIntroduction,
+                            computationName);
                 }
             }
         }

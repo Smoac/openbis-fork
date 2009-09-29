@@ -138,7 +138,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslat
 /**
  * The {@link ICommonClientService} implementation.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class CommonClientService extends AbstractClientService implements
         ICommonClientService, IDataStoreBaseURLProvider
@@ -1448,6 +1448,20 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    public void deleteDataSet(String singleData, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<String> dataSetCodes = Collections.singletonList(singleData);
+            commonServer.deleteDataSets(sessionToken, dataSetCodes, reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public void deleteDataSets(
             DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
@@ -1463,13 +1477,40 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deleteSamples(List<TechId> sampleIds, String reason)
+	public void deleteSamples(List<TechId> sampleIds, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             commonServer.deleteSamples(sessionToken, sampleIds, reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void deleteSample(TechId sampleId, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            commonServer.deleteSamples(sessionToken, Collections.singletonList(sampleId), reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<Sample> criteria, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<TechId> experimentIds = extractTechIds(criteria);
+            commonServer.deleteSamples(sessionToken, experimentIds, reason);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -2071,21 +2112,6 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public void deleteDataSet(String singleData, String reason)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        try
-        {
-            final String sessionToken = getSessionToken();
-            List<String> dataSetCodes = Collections.singletonList(singleData);
-            commonServer.deleteDataSets(sessionToken, dataSetCodes, reason);
-        } catch (final UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-
-    }
-
     private <T extends IIdHolder> List<TechId> extractTechIds(
             DisplayedOrSelectedIdHolderCriteria<T> displayedOrSelectedEntitiesCriteria)
     {
@@ -2177,4 +2203,5 @@ public final class CommonClientService extends AbstractClientService implements
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
+
 }

@@ -90,7 +90,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats
 /**
  * Asynchronous version of {@link ICommonClientService}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface ICommonClientServiceAsync extends IClientServiceAsync
 {
@@ -470,6 +470,13 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /** @see ICommonClientService#deleteSamples(List, String) */
     public void deleteSamples(List<TechId> sampleIds, String value,
             AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#deleteSamples(DisplayedOrSelectedIdHolderCriteria, String) */
+    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<Sample> criteria, String value,
+            AsyncCallback<Void> asyncCallback);
+
+    /** @see ICommonClientService#deleteSample(TechId, String) */
+    public void deleteSample(TechId sampleIs, String value, AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteExperiments(DisplayedOrSelectedIdHolderCriteria, String) */
     public void deleteExperiments(DisplayedOrSelectedIdHolderCriteria<Experiment> criteria,

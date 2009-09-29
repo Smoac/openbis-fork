@@ -93,7 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats
  * unexpected exception.
  * </p>
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface ICommonClientService extends IClientService
 {
@@ -545,8 +545,15 @@ public interface ICommonClientService extends IClientService
     /** Deletes the specified data set. */
     public void deleteDataSet(String singleData, String reason) throws UserFailureException;
 
-    /** Deletes the specified samples. */
+    /** Deletes the specified samples. NOTE: this is a stale version used only for samples with abundance. */
     public void deleteSamples(List<TechId> sampleIds, String reason) throws UserFailureException;
+
+    /** Deletes the specified samples. */
+    public void deleteSamples(DisplayedOrSelectedIdHolderCriteria<Sample> criteria, String reason)
+            throws UserFailureException;
+
+    /** Deletes the specified sample. */
+    public void deleteSample(TechId sampleId, String reason) throws UserFailureException;
 
     /** Deletes the specified experiments. */
     public void deleteExperiments(DisplayedOrSelectedIdHolderCriteria<Experiment> criteria,

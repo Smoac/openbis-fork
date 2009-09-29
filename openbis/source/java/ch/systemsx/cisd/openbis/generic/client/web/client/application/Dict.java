@@ -225,6 +225,17 @@ public abstract class Dict
 
     public static final String CHILDREN_DATASETS = "children_datasets";
 
+    public static final String NO_DATASETS_SELECTED = "no_datasets_selected";
+
+    public static final String DATASETS_FROM_DIFFERENT_STORES_SELECTED =
+            "datasets_from_different_stores_selected";
+
+    public static final String PERFORM_COMPUTATION_ON_ALL_DATASETS_MSG_TEMPLATE =
+            "perform_computation_on_all_datasets_msg_template";
+
+    public static final String PERFORM_COMPUTATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE =
+            "perform_computation_on_selected_or_all_datasets_msg_template";
+
     //
     // Entity Type Browser
     //
@@ -777,6 +788,8 @@ public abstract class Dict
     public static final String ONLY_SELECTED_RADIO = "only_selected_radio";
 
     public static final String EXPERIMENTS_RADIO_GROUP_LABEL = "experiments_radio_group_label";
+
+    public static final String SAMPLES_RADIO_GROUP_LABEL = "samples_radio_group_label";
 
     public static final String NAME = "name";
 

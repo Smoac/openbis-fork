@@ -1219,6 +1219,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         return translateSortInfo(store.getSortField(), store.getSortDir(), columnDefinitions);
     }
 
+    /** @return the number of all objects cached in the browser */
+    public int getCount()
+    {
+        return grid.getStore().getCount();
+    }
+
     private void refreshColumnsSettings()
     {
         grid.setLoadMask(false);
@@ -1534,8 +1540,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         } else
         {
             // > 0 entity selected - show dialog with all/selected radio
-            new ShowRelatedDatasetsDialog(viewContext, selectedEntities, displayedEntities).show();
+            new ShowRelatedDatasetsDialog(viewContext, selectedEntities, displayedEntities, browser
+                    .getCount()).show();
         }
     }
-
 }

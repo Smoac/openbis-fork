@@ -18,10 +18,17 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid.DisplayedAndSelectedSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -34,26 +41,73 @@ public final class SampleListDeletionConfirmationDialog extends
 
     private final AbstractAsyncCallback<Void> callback;
 
+    private final DisplayedAndSelectedSamples selectedAndDisplayedItemsOrNull;
+
+    private final Sample singleDataOrNull;
+
+    private Radio onlySelectedRadio;
+
     public SampleListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<Sample> data,
-            AbstractAsyncCallback<Void> callback)
+            AbstractAsyncCallback<Void> callback,
+            DisplayedAndSelectedSamples selectedAndDisplayedItems)
     {
         super(viewContext, data);
         this.viewContext = viewContext;
         this.callback = callback;
+        this.singleDataOrNull = null;
+        this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
+    }
+
+    public SampleListDeletionConfirmationDialog(
+            IViewContext<ICommonClientServiceAsync> viewContext, List<Sample> data,
+            AbstractAsyncCallback<Void> callback, Sample sample)
+    {
+        super(viewContext, data);
+        this.viewContext = viewContext;
+        this.callback = callback;
+        this.singleDataOrNull = sample;
+        this.selectedAndDisplayedItemsOrNull = null;
     }
 
     @Override
     protected void executeConfirmedAction()
     {
-        viewContext.getCommonService().deleteSamples(TechId.createList(data), reason.getValue(),
-                callback);
+        if (selectedAndDisplayedItemsOrNull != null)
+        {
+            final boolean onlySelected = WidgetUtils.isSelected(onlySelectedRadio);
+            final DisplayedOrSelectedIdHolderCriteria<Sample> uploadCriteria =
+                    selectedAndDisplayedItemsOrNull.createCriteria(onlySelected);
+            viewContext.getCommonService().deleteSamples(uploadCriteria, reason.getValue(),
+                    callback);
+        } else
+        {
+            viewContext.getCommonService().deleteSample(TechId.create(singleDataOrNull),
+                    reason.getValue(), callback);
+        }
     }
 
     @Override
     protected String getEntityName()
     {
         return EntityKind.SAMPLE.getDescription();
+    }
+
+    @Override
+    protected void extendForm()
+    {
+        super.extendForm();
+        if (selectedAndDisplayedItemsOrNull != null)
+            formPanel.add(createRadio());
+    }
+
+    private final RadioGroup createRadio()
+    {
+        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadio =
+                WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
+                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
+                selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())), viewContext
+                .getMessage(Dict.SAMPLES_RADIO_GROUP_LABEL), data.size());
     }
 
 }

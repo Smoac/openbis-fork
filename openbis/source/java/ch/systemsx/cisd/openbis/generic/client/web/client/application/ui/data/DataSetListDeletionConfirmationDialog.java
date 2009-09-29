@@ -104,7 +104,8 @@ public final class DataSetListDeletionConfirmationDialog extends
     {
         return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadio =
                 WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
-                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO)),
-                viewContext.getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
+                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
+                selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())), viewContext
+                .getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
     }
 }

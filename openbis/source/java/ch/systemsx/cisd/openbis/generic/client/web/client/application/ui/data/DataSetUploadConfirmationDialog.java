@@ -38,15 +38,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
-final class DataSetUploadConfirmationDialog extends AbstractDataConfirmationDialog<List<ExternalData>>
+final class DataSetUploadConfirmationDialog extends
+        AbstractDataConfirmationDialog<List<ExternalData>>
 {
     private static final int FIELD_WIDTH_IN_UPLOAD_DIALOG = 200;
 
     private static final int LABEL_WIDTH_IN_UPLOAD_DIALOG = 120;
 
     private final IViewContext<?> viewContext;
+
+    private final int displayedItemsCount;
 
     private final IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedAndDisplayedItemsAction;
 
@@ -64,10 +67,11 @@ final class DataSetUploadConfirmationDialog extends AbstractDataConfirmationDial
 
     public DataSetUploadConfirmationDialog(List<ExternalData> dataSets,
             IDelegatedActionWithResult<SelectedAndDisplayedItems> selectedAndDisplayedItemsAction,
-            IViewContext<?> viewContext)
+            int displayedItemsCount, IViewContext<?> viewContext)
     {
         super(viewContext, dataSets, viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_TITLE));
         this.viewContext = viewContext;
+        this.displayedItemsCount = displayedItemsCount;
         this.selectedAndDisplayedItemsAction = selectedAndDisplayedItemsAction;
         cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
         addText(viewContext.getMessage(Dict.CONFIRM_DATASET_UPLOAD_MSG, dataSets.size(), cifexURL));
@@ -129,8 +133,9 @@ final class DataSetUploadConfirmationDialog extends AbstractDataConfirmationDial
     {
         return WidgetUtils.createAllOrSelectedRadioGroup(uploadSelectedRadio =
                 WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
-                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO)),
-                viewContext.getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL), data.size());
+                        .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
+                displayedItemsCount)), viewContext.getMessage(Dict.DATA_SETS_RADIO_GROUP_LABEL),
+                data.size());
     }
 
     private boolean getUploadSelected()

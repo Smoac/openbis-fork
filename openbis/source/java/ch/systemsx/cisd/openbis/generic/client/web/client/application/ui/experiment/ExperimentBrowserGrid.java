@@ -301,16 +301,24 @@ public class ExperimentBrowserGrid extends
 
         private List<Experiment> selectedItems;
 
-        public DisplayedAndSelectedExperiments(
-                TableExportCriteria<Experiment> displayedItemsConfig, List<Experiment> selectedItems)
+        private final int displayedItemsCount;
+
+        public DisplayedAndSelectedExperiments(List<Experiment> selectedItems,
+                TableExportCriteria<Experiment> displayedItemsConfig, int displayedItemsCount)
         {
-            this.displayedItemsConfig = displayedItemsConfig;
             this.selectedItems = selectedItems;
+            this.displayedItemsConfig = displayedItemsConfig;
+            this.displayedItemsCount = displayedItemsCount;
         }
 
         public List<Experiment> getSelectedItems()
         {
             return selectedItems;
+        }
+
+        public int getDisplayedItemsCount()
+        {
+            return displayedItemsCount;
         }
 
         public TableExportCriteria<Experiment> getDisplayedItemsConfig()
@@ -338,8 +346,8 @@ public class ExperimentBrowserGrid extends
             {
                 public DisplayedAndSelectedExperiments execute()
                 {
-                    return new DisplayedAndSelectedExperiments(createTableExportCriteria(),
-                            getSelectedBaseObjects());
+                    return new DisplayedAndSelectedExperiments(getSelectedBaseObjects(),
+                            createTableExportCriteria(), getCount());
                 }
             };
     }

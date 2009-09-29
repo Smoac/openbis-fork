@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -56,7 +57,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListEntityDisplayCriteriaKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -367,7 +370,8 @@ public class SampleBrowserGrid extends
                                 IBrowserGridActionInvoker invoker)
                         {
                             return new SampleListDeletionConfirmationDialog(viewContext, samples,
-                                    createDeletionCallback(invoker));
+                                    createDeletionCallback(invoker),
+                                    getDisplayedAndSelectedItemsAction().execute());
                         }
                     }));
         allowMultipleSelection(); // we allow deletion of multiple samples
@@ -585,6 +589,65 @@ public class SampleBrowserGrid extends
     protected EntityKind getEntityKind()
     {
         return EntityKind.SAMPLE;
+    }
+
+    // NOTE: this is quite generic code compared with DisplayedAndSelectedExperiments - refactor?
+    public final class DisplayedAndSelectedSamples implements IsSerializable
+    {
+
+        private TableExportCriteria<Sample> displayedItemsConfig;
+
+        private List<Sample> selectedItems;
+
+        private final int displayedItemsCount;
+
+        public DisplayedAndSelectedSamples(List<Sample> selectedItems,
+                TableExportCriteria<Sample> displayedItemsConfig, int displayedItemsCount)
+        {
+            this.selectedItems = selectedItems;
+            this.displayedItemsConfig = displayedItemsConfig;
+            this.displayedItemsCount = displayedItemsCount;
+        }
+
+        public List<Sample> getSelectedItems()
+        {
+            return selectedItems;
+        }
+
+        public int getDisplayedItemsCount()
+        {
+            return displayedItemsCount;
+        }
+
+        public TableExportCriteria<Sample> getDisplayedItemsConfig()
+        {
+            return displayedItemsConfig;
+        }
+
+        public DisplayedOrSelectedIdHolderCriteria<Sample> createCriteria(boolean selected)
+        {
+            if (selected)
+            {
+                return DisplayedOrSelectedIdHolderCriteria.createSelectedItems(getSelectedItems());
+            } else
+            {
+                return DisplayedOrSelectedIdHolderCriteria
+                        .createDisplayedItems(getDisplayedItemsConfig());
+            }
+        }
+
+    }
+
+    protected final IDelegatedActionWithResult<DisplayedAndSelectedSamples> getDisplayedAndSelectedItemsAction()
+    {
+        return new IDelegatedActionWithResult<DisplayedAndSelectedSamples>()
+            {
+                public DisplayedAndSelectedSamples execute()
+                {
+                    return new DisplayedAndSelectedSamples(getSelectedBaseObjects(),
+                            createTableExportCriteria(), getCount());
+                }
+            };
     }
 
 }
