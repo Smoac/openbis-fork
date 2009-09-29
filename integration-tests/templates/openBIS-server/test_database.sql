@@ -4443,9 +4443,4 @@ ALTER TABLE ONLY sample_type_property_types
 -- Name: public; Type: ACL; Schema: -; Owner: -
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO PUBLIC;
-
 
