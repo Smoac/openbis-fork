@@ -15,21 +15,33 @@ METABOL_DB=metabol_dev
 
 # --------------------
 
+# Changes last-modification-time so that the order is the same as the alphabetical order.
+function change_modification_time_alphabetically {
+	local dir=$1
+
+  local file
+  # modification data format: YYYYMMDDhhmm
+  local modification_time=200811221122
+  for file in `ls -1 $dir | sort`; do
+  	local full_path=$dir/$file
+  	# change the modification date format
+  	touch -t $modification_time $full_path
+  	modification_time=$(($modification_time+1))
+  done
+}
+
 # Prepare template incoming data and some destination data structures
 function prepare_data {
 		# Prepare empty incoming data
     rm -fr $MY_DATA
     mkdir -p $MY_DATA
     local SRC=$TEMPLATE/data-yeastx
-    local file
-    # Copy the files in the alphabetical order, so the last-modification-time order is the same.
-    # DSS processes files ordered by modification time, so in this way we make the tests more predictable.
-    for file in `ls -1 $SRC | sort`; do
-    	cp -R $TEMPLATE/data-yeastx/$file $MY_DATA/
-    done
+  	cp -R $SRC/* $MY_DATA/
     clean_svn $MY_DATA
-    
+
     chmod -R 700 $MY_DATA/incoming*
+	  # DSS processes files ordered by modification time, so in this way we make the tests more predictable.
+		change_modification_time_alphabetically $MY_DATA/incoming
 }
 
 
