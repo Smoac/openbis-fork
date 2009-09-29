@@ -28,7 +28,7 @@ public class ColumnDataModel extends BaseModelData
         setIsVisible(isVisible);
         setHasFilter(hasFilter);
         setColumnID(columnID);
-        setAddress("row.col(\"" + columnID + "\")");
+        setAddress("row.col('" + columnID + "')");
     }
 
     private void setAddress(String address)
