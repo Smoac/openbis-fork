@@ -103,7 +103,7 @@ public abstract class AbstractExternalDataGrid
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                 asShowEntityInvoker(true)));
 
-        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+        addButton(new Button(viewContext.getMessage(Dict.BUTTON_DELETE),
                 new AbstractCreateDialogListener()
                     {
                         @Override

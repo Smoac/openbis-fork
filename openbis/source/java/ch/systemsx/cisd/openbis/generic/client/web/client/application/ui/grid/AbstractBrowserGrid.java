@@ -1222,7 +1222,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /** @return the number of all objects cached in the browser */
     public int getCount()
     {
-        return grid.getStore().getCount();
+        return grid.getStore().getCount(); // FIXME takes only displayed items count
     }
 
     private void refreshColumnsSettings()

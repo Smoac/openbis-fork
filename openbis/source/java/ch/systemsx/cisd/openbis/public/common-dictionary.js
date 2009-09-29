@@ -30,7 +30,7 @@ var common = {
   entity_operations: "Entity:",
   url: "URL",
   reason: "Reason",
-  delete_confirmation_message_with_reason: "You are deleting {0} {1}(s).<br><br>Please enter a reason or cancel deletion.",
+  delete_confirmation_message_with_reason: "You are deleting {0}(s).<br><br>Please enter a reason or cancel deletion.",
   add_attachment: "Add attachment",
   
   //
@@ -203,7 +203,7 @@ var common = {
   type_of: "Entity",
   vocabulary: "Vocabulary",
   vocabulary_terms: "Terms",
-  vocabulary_terms_file_format: "<pre>code		label (optional)		description (optional)</pre>",
+  vocabulary_terms_file_format: "<pre>code	label (optional)	description (optional)</pre>",
   vocabulary_terms_url_template: "URL Template",
   vocabulary_terms_empty: "Space or comma separated list of terms.",
   vocabulary_show_available_terms_in_choosers: "Show available terms in choosers",

@@ -21,8 +21,10 @@ import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -38,6 +40,8 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
 
     protected final FormPanel formPanel;
 
+    protected final LabelField messageField;
+
     protected final KeyListener keyListener;
 
     protected AbstractDataConfirmationDialog(IMessageProvider messageProvider, T data, String title)
@@ -49,6 +53,7 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
         setButtons(Dialog.OKCANCEL);
         setHideOnButtonClick(true);
         setModal(true);
+        this.messageField = new LabelField();
         this.formPanel = createForm();
         this.keyListener = new KeyListener()
             {
@@ -117,10 +122,26 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
     protected void onRender(Element parent, int pos)
     {
         super.onRender(parent, pos);
-        addText(createMessage());
+        add(messageField);
         extendForm();
+        refreshMessage();
         add(formPanel);
         updateOkButtonState();
     }
 
+    protected final void refreshMessage()
+    {
+        messageField.setText(createMessage());
+    }
+
+    protected final IDelegatedAction createRefreshMessageAction()
+    {
+        return new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    refreshMessage();
+                }
+            };
+    }
 }

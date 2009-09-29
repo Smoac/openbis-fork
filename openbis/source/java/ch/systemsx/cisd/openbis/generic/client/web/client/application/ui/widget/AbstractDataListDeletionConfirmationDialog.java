@@ -18,9 +18,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ReasonField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 
 /**
  * {@link AbstractDataConfirmationDialog} abstract implementation for deleting given list of data on
@@ -35,11 +39,27 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     private static final int FIELD_WIDTH = 180;
 
+    private static final String ALL_EMPHASIZED = "<b>ALL</b> displayed ";
+
+    private static final String SELECTED = "selected ";
+
+    private final boolean withRadio;
+
+    protected Radio onlySelectedRadioOrNull;
+
     protected ReasonField reason;
 
-    public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider, List<T> data)
+    public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider,
+            List<T> data, boolean withRadio)
     {
         super(messageProvider, data, messageProvider.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
+        this.withRadio = withRadio;
+    }
+
+    // without radio
+    public AbstractDataListDeletionConfirmationDialog(IMessageProvider messageProvider, List<T> data)
+    {
+        this(messageProvider, data, false);
     }
 
     @Override
@@ -51,15 +71,42 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
         reason = new ReasonField(messageProvider, true);
         reason.focus();
         reason.addKeyListener(keyListener);
+        if (withRadio)
+        {
+            formPanel.add(createRadio());
+        }
         formPanel.add(reason);
     }
 
     @Override
     protected String createMessage()
     {
+        String deletedObjects;
+        if (withRadio == false)
+        {
+            deletedObjects = data.size() + " " + getEntityName();
+        } else
+        {
+            deletedObjects =
+                    (isOnlySelected() ? data.size() + SELECTED : ALL_EMPHASIZED) + getEntityName();
+        }
         return messageProvider.getMessage(Dict.DELETE_CONFIRMATION_MESSAGE_WITH_REASON,
-                data.size(), getEntityName());
+                deletedObjects);
     }
 
     protected abstract String getEntityName();
+
+    /**
+     * This method should be overriden in subclasses if dialog is supposed to use a radio and set
+     * {@link #onlySelectedRadioOrNull}.
+     */
+    protected RadioGroup createRadio()
+    {
+        return null;
+    }
+
+    protected final boolean isOnlySelected()
+    {
+        return WidgetUtils.isSelected(onlySelectedRadioOrNull);
+    }
 }

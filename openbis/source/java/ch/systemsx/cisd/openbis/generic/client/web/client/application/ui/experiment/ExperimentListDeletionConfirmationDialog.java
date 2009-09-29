@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 
 import java.util.Collections;
 
-import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -45,14 +44,12 @@ public final class ExperimentListDeletionConfirmationDialog extends
 
     private final Experiment singleDataOrNull;
 
-    private Radio onlySelectedRadio;
-
     public ExperimentListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext,
             AbstractAsyncCallback<Void> callback,
             DisplayedAndSelectedExperiments selectedAndDisplayedItems)
     {
-        super(viewContext, selectedAndDisplayedItems.getSelectedItems());
+        super(viewContext, selectedAndDisplayedItems.getSelectedItems(), true);
         this.viewContext = viewContext;
         this.callback = callback;
         this.singleDataOrNull = null;
@@ -63,7 +60,7 @@ public final class ExperimentListDeletionConfirmationDialog extends
             IViewContext<ICommonClientServiceAsync> viewContext,
             AbstractAsyncCallback<Void> callback, Experiment experiment)
     {
-        super(viewContext, Collections.singletonList(experiment));
+        super(viewContext, Collections.singletonList(experiment), false);
         this.viewContext = viewContext;
         this.callback = callback;
         this.singleDataOrNull = experiment;
@@ -75,9 +72,8 @@ public final class ExperimentListDeletionConfirmationDialog extends
     {
         if (selectedAndDisplayedItemsOrNull != null)
         {
-            final boolean onlySelected = WidgetUtils.isSelected(onlySelectedRadio);
             final DisplayedOrSelectedIdHolderCriteria<Experiment> uploadCriteria =
-                    selectedAndDisplayedItemsOrNull.createCriteria(onlySelected);
+                    selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteExperiments(uploadCriteria, reason.getValue(),
                     callback);
         } else
@@ -94,16 +90,9 @@ public final class ExperimentListDeletionConfirmationDialog extends
     }
 
     @Override
-    protected void extendForm()
+    protected final RadioGroup createRadio()
     {
-        super.extendForm();
-        if (selectedAndDisplayedItemsOrNull != null)
-            formPanel.add(createRadio());
-    }
-
-    private final RadioGroup createRadio()
-    {
-        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadio =
+        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadioOrNull =
                 WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
                         .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
                 selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())), viewContext

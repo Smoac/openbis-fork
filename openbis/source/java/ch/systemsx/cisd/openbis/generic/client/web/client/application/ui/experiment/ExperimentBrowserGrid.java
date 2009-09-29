@@ -159,7 +159,7 @@ public class ExperimentBrowserGrid extends
         editButton.setId(EDIT_BUTTON_ID);
         addButton(editButton);
 
-        addButton(createSelectedItemsButton(viewContext.getMessage(Dict.BUTTON_DELETE),
+        addButton(new Button(viewContext.getMessage(Dict.BUTTON_DELETE),
                 new AbstractCreateDialogListener()
                     {
                         @Override

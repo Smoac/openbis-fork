@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -45,14 +44,12 @@ public final class SampleListDeletionConfirmationDialog extends
 
     private final Sample singleDataOrNull;
 
-    private Radio onlySelectedRadio;
-
     public SampleListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<Sample> data,
             AbstractAsyncCallback<Void> callback,
             DisplayedAndSelectedSamples selectedAndDisplayedItems)
     {
-        super(viewContext, data);
+        super(viewContext, data, true);
         this.viewContext = viewContext;
         this.callback = callback;
         this.singleDataOrNull = null;
@@ -63,7 +60,7 @@ public final class SampleListDeletionConfirmationDialog extends
             IViewContext<ICommonClientServiceAsync> viewContext, List<Sample> data,
             AbstractAsyncCallback<Void> callback, Sample sample)
     {
-        super(viewContext, data);
+        super(viewContext, data, false);
         this.viewContext = viewContext;
         this.callback = callback;
         this.singleDataOrNull = sample;
@@ -75,9 +72,8 @@ public final class SampleListDeletionConfirmationDialog extends
     {
         if (selectedAndDisplayedItemsOrNull != null)
         {
-            final boolean onlySelected = WidgetUtils.isSelected(onlySelectedRadio);
             final DisplayedOrSelectedIdHolderCriteria<Sample> uploadCriteria =
-                    selectedAndDisplayedItemsOrNull.createCriteria(onlySelected);
+                    selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteSamples(uploadCriteria, reason.getValue(),
                     callback);
         } else
@@ -94,20 +90,14 @@ public final class SampleListDeletionConfirmationDialog extends
     }
 
     @Override
-    protected void extendForm()
+    protected final RadioGroup createRadio()
     {
-        super.extendForm();
-        if (selectedAndDisplayedItemsOrNull != null)
-            formPanel.add(createRadio());
-    }
-
-    private final RadioGroup createRadio()
-    {
-        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadio =
+        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadioOrNull =
                 WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
                         .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
                 selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())), viewContext
-                .getMessage(Dict.SAMPLES_RADIO_GROUP_LABEL), data.size());
+                .getMessage(Dict.SAMPLES_RADIO_GROUP_LABEL), data.size(),
+                createRefreshMessageAction());
     }
 
 }

@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
@@ -28,7 +31,7 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 public class WidgetUtils
 {
     public static RadioGroup createAllOrSelectedRadioGroup(Radio selected, Radio all, String label,
-            long selectedSize)
+            long selectedSize, final IDelegatedAction onChangeActionOrNull)
     {
         final RadioGroup result = new RadioGroup();
         result.setFieldLabel(label);
@@ -41,7 +44,23 @@ public class WidgetUtils
         result.add(all);
         result.setValue(selectedSize > 0 ? selected : all);
         result.setAutoHeight(true);
+        if (onChangeActionOrNull != null)
+        {
+            result.addListener(Events.Change, new Listener<BaseEvent>()
+                {
+                    public void handleEvent(BaseEvent be)
+                    {
+                        onChangeActionOrNull.execute();
+                    }
+                });
+        }
         return result;
+    }
+
+    public static RadioGroup createAllOrSelectedRadioGroup(Radio selected, Radio all, String label,
+            long selectedSize)
+    {
+        return createAllOrSelectedRadioGroup(selected, all, label, selectedSize, null);
     }
 
     public static final Radio createRadio(final String label)

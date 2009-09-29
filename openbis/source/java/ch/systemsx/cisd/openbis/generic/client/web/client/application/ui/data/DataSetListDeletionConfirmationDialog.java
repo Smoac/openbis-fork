@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import java.util.Collections;
 
-import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -40,8 +39,6 @@ public final class DataSetListDeletionConfirmationDialog extends
 
     private final AbstractAsyncCallback<Void> callback;
 
-    private Radio onlySelectedRadio;
-
     private final SelectedAndDisplayedItems selectedAndDisplayedItemsOrNull;
 
     private final ExternalData singleData;
@@ -51,10 +48,10 @@ public final class DataSetListDeletionConfirmationDialog extends
             AbstractAsyncCallback<Void> callback,
             SelectedAndDisplayedItems selectedAndDisplayedItems)
     {
-        super(viewContext, selectedAndDisplayedItems.getSelectedItems());
+        super(viewContext, selectedAndDisplayedItems.getSelectedItems(), true);
         this.viewContext = viewContext;
         this.callback = callback;
-        singleData = null;
+        this.singleData = null;
         this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
     }
 
@@ -62,11 +59,11 @@ public final class DataSetListDeletionConfirmationDialog extends
             IViewContext<ICommonClientServiceAsync> viewContext, ExternalData data,
             AbstractAsyncCallback<Void> callback)
     {
-        super(viewContext, Collections.singletonList(data));
+        super(viewContext, Collections.singletonList(data), false);
         this.viewContext = viewContext;
         this.callback = callback;
-        singleData = data;
-        selectedAndDisplayedItemsOrNull = null;
+        this.singleData = data;
+        this.selectedAndDisplayedItemsOrNull = null;
     }
 
     @Override
@@ -74,9 +71,8 @@ public final class DataSetListDeletionConfirmationDialog extends
     {
         if (selectedAndDisplayedItemsOrNull != null)
         {
-            final boolean onlySelected = WidgetUtils.isSelected(onlySelectedRadio);
             final DisplayedOrSelectedDatasetCriteria uploadCriteria =
-                    selectedAndDisplayedItemsOrNull.createCriteria(onlySelected);
+                    selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
             viewContext.getCommonService().deleteDataSets(uploadCriteria, reason.getValue(),
                     callback);
         } else
@@ -93,16 +89,9 @@ public final class DataSetListDeletionConfirmationDialog extends
     }
 
     @Override
-    protected void extendForm()
+    protected final RadioGroup createRadio()
     {
-        super.extendForm();
-        if (selectedAndDisplayedItemsOrNull != null)
-            formPanel.add(createDataSetsRadio());
-    }
-
-    private final RadioGroup createDataSetsRadio()
-    {
-        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadio =
+        return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadioOrNull =
                 WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
                         .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
                 selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())), viewContext
