@@ -41,7 +41,7 @@ public abstract class AbstractDataListDeletionConfirmationDialog<T> extends
 
     private static final String ALL_EMPHASIZED = "<b>ALL</b> displayed ";
 
-    private static final String SELECTED = "selected ";
+    private static final String SELECTED = " selected ";
 
     private final boolean withRadio;
 
