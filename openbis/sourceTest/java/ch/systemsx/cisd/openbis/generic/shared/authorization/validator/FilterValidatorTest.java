@@ -46,10 +46,9 @@ public final class FilterValidatorTest extends AuthorizationTestCase
     }
 
     @Test
-    public final void testWithRegistrator()
+    public final void testWithTheRightRegistrator()
     {
-        // TODO 2009-09-22, Piotr Buczek: test failure when validation is improved;
-        // (registrators are equal when they have the same userId AND db instance)
+        // registrators are equal when they have the same userId AND db instance
         final DatabaseInstancePE instance = createDatabaseInstance();
         final PersonPE person = createPerson("A", instance);
         final PersonPE registrator = person;
@@ -57,6 +56,20 @@ public final class FilterValidatorTest extends AuthorizationTestCase
         final FilterPE filter = createFilter(instance, registrator, isPublic);
         final FilterValidator validator = new FilterValidator();
         assertEquals(true, validator.isValid(person, FilterTranslator.translate(filter)));
+    }
+
+    @Test
+    public final void testWithTheWrongRegistrator()
+    {
+        // registrators that have the same userId BUT different db instance are not the same
+        final DatabaseInstancePE instance = createDatabaseInstance();
+        final DatabaseInstancePE anotherInstance = createAnotherDatabaseInstance();
+        final PersonPE person = createPerson("A", anotherInstance);
+        final PersonPE registrator = createPerson("A", instance);
+        final boolean isPublic = false;
+        final FilterPE filter = createFilter(instance, registrator, isPublic);
+        final FilterValidator validator = new FilterValidator();
+        assertEquals(false, validator.isValid(person, FilterTranslator.translate(filter)));
     }
 
     @Test
