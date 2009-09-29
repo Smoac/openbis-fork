@@ -84,7 +84,7 @@ public class mapColumns
     {
         new mapColumns().doArgs(args);
           
-        columnMapper cm = new columnMapper(i, file, q, c, u, uc);
+        new columnMapper(i, file, q, c, u, uc);
              
     }
 
