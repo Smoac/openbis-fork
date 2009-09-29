@@ -69,15 +69,17 @@ public final class Row<T>
         }
         return columnDefinition.getComparableValue(row);
     }
-    
+
     /**
      * Returns all column definitions which have a property with specified key.
      * 
+     * @param propertyKeyOrNull The key of the property. If <code>null</code> all column definitions
+     *            are returned.
      * @return an empty list if no column definition found.
      */
-    public List<ColumnDefinition> colDefs(String propertyKey)
+    public List<ColumnDefinition> colDefs(String propertyKeyOrNull)
     {
-        List<ColumnDefinition> definitions = definitionsByProperties.get(propertyKey);
+        List<ColumnDefinition> definitions = definitionsByProperties.get(propertyKeyOrNull);
         if (definitions == null)
         {
             definitions = new ArrayList<ColumnDefinition>();
@@ -85,13 +87,12 @@ public final class Row<T>
             for (Entry<String, IColumnDefinition<T>> entry : entries)
             {
                 IColumnDefinition<T> columnDefinition = entry.getValue();
-                String property = columnDefinition.tryToGetProperty(propertyKey);
-                if (property != null)
+                if (propertyKeyOrNull == null || columnDefinition.tryToGetProperty(propertyKeyOrNull) != null)
                 {
                     definitions.add(new ColumnDefinition(columnDefinition));
                 }
             }
-            definitionsByProperties.put(propertyKey, definitions);
+            definitionsByProperties.put(propertyKeyOrNull, definitions);
         }
         return Collections.unmodifiableList(definitions);
     }

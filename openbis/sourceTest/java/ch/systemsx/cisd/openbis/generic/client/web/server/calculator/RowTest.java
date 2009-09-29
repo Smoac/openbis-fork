@@ -176,6 +176,17 @@ public class RowTest extends AssertJUnit
     }
     
     @Test
+    public void testColDefsWithNullArgument()
+    {
+        List<ColumnDefinition> defs = row.colDefs(null);
+        
+        assertEquals(2, defs.size());
+        assertUnmodifiable(defs);
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
     public void testCols()
     {
         final Data data = new Data(42.25);
