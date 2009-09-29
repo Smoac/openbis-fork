@@ -54,32 +54,4 @@ public class FilterTranslatorTest extends AssertJUnit
         assertEquals(3, FilterTranslator.extractParameters(expression).size());
     }
 
-    @Test
-    public void testExtractColumnsNoParameters() throws Exception
-    {
-        String expression = "";
-        assertEquals(0, FilterTranslator.extractColumns(expression).size());
-    }
-
-    @Test
-    public void testExtractColumnsOneParameter() throws Exception
-    {
-        String expression = "col(abc)";
-        assertEquals(1, FilterTranslator.extractColumns(expression).size());
-    }
-
-    @Test
-    public void testExtractColumnOneDuplicatedParameter() throws Exception
-    {
-        String expression = "col(abc) col(abc) ";
-        assertEquals(1, FilterTranslator.extractColumns(expression).size());
-    }
-
-    @Test
-    public void testExtractColumnManyParameters() throws Exception
-    {
-        String expression = "col(abc) col(abc) col(def) col(ghi)";
-        assertEquals(3, FilterTranslator.extractColumns(expression).size());
-    }
-
 }

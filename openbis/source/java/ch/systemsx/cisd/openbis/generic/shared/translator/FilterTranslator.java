@@ -38,8 +38,6 @@ public final class FilterTranslator
 {
     private static final String PARAMETER_PATTERN = "\\$\\{.*?\\}";
 
-    private static final String COLUMN_PATTERN = "col\\(.*?\\)";
-
     private FilterTranslator()
     {
         // Can not be instantiated.
@@ -73,21 +71,7 @@ public final class FilterTranslator
                 .getDatabaseInstance()));
         result.setPublic(filter.isPublic());
         result.setParameters(extractParameters(filter.getExpression()));
-        result.setColumns(extractColumns(filter.getExpression()));
         return result;
-    }
-
-    static Set<String> extractColumns(String expression)
-    {
-        Pattern parameterPattern = Pattern.compile(COLUMN_PATTERN);
-        Set<String> list = new HashSet<String>();
-        Matcher matcher = parameterPattern.matcher(expression);
-        while (matcher.find())
-        {
-            String group = matcher.group();
-            list.add(group.substring(4, group.length() - 1));
-        }
-        return list;
     }
 
     static Set<String> extractParameters(String expression)

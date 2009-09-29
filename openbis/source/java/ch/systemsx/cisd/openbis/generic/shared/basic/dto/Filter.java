@@ -50,8 +50,6 @@ public class Filter extends AbstractRegistrationHolder implements IsSerializable
 
     private Set<String> parameters;
 
-    private Set<String> columns;
-
     public Filter()
     {
     }
@@ -134,16 +132,6 @@ public class Filter extends AbstractRegistrationHolder implements IsSerializable
     public void setParameters(Set<String> parameters)
     {
         this.parameters = parameters;
-    }
-
-    public Set<String> getColumns()
-    {
-        return columns;
-    }
-
-    public void setColumns(Set<String> columns)
-    {
-        this.columns = columns;
     }
 
 }
