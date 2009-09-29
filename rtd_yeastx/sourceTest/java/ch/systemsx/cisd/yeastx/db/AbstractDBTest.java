@@ -35,18 +35,23 @@ public abstract class AbstractDBTest
     static
     {
         LogInitializer.init();
+        DBUtils.init(getDatabaseContext());
     }
-    
+
     protected DataSource datasource;
-    
+
     @BeforeClass(alwaysRun = true)
     public void setUpClass() throws SQLException
+    {
+        datasource = getDatabaseContext().getDataSource();
+    }
+
+    private static DatabaseConfigurationContext getDatabaseContext()
     {
         final DatabaseConfigurationContext context = DBUtils.createDefaultDBContext();
         context.setDatabaseKind("dbtest");
         context.setCreateFromScratch(true);
-        DBUtils.init(context);
-        datasource = context.getDataSource();
+        return context;
     }
 
 }

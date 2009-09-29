@@ -72,7 +72,7 @@ public class QuantMLParserTest extends AssertJUnit
         assertTrue(quantification.isValid());
         assertEquals("no comment", quantification.getComment());
         assertEquals("John Doe", quantification.getRegistrator());
-        Date expectedDate = new XmlDateAdapter().unmarshal("2009-04-07 12:00:21");
+        Date expectedDate = new XmlDateAdapter().unmarshal("04-Apr-1980 12:00:21");
         assertEquals(expectedDate, quantification.getRegistrationDate());
 
         assertEquals(1, quantification.getConcentrations().size());

@@ -82,7 +82,6 @@ class QuantMLParser
 
     private MSQuantificationsDTO doParseMSQuantifications(File dataSet)
     {
-
         try
         {
             Object object = unmarshaller.unmarshal(dataSet);

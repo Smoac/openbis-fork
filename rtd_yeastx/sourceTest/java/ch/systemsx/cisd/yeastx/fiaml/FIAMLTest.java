@@ -60,7 +60,7 @@ public class FIAMLTest extends AbstractDBTest
     {
         FIAML2Database fiaML2Database = new FIAML2Database(datasource);
         fiaML2Database.uploadFiaMLFile(new File("resource/examples/example.fiaML"),
-                new DMDataSetDTO("data set perm id", "sample perm id", "sample name",
+                new DMDataSetDTO("data set perm id fiaml", "sample perm id", "sample name",
                         "experiment perm id", "experiment name"));
     }
 

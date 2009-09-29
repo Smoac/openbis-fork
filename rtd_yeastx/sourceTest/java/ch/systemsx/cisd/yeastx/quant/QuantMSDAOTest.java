@@ -55,7 +55,7 @@ public class QuantMSDAOTest extends AbstractDBTest
     {
         QuantML2Database uploader = new QuantML2Database(datasource);
         DMDataSetDTO dataSetDTO =
-                new DMDataSetDTO("data set perm id", "sample perm id", "sample name",
+                new DMDataSetDTO("data set perm id quant", "sample perm id quant", "sample name",
                         "experiment perm id", "experiment name");
         uploader.uploadQuantMLFile(new File("resource/examples/allFields.quantML"), dataSetDTO);
     }

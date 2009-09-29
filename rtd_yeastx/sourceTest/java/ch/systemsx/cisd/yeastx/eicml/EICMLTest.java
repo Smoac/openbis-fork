@@ -53,9 +53,9 @@ public class EICMLTest extends AbstractDBTest
     public void testUploadEicML() throws SQLException
     {
         EICML2Database db = new EICML2Database(datasource);
-        db.uploadEicMLFile(new File("resource/examples/example.eicML"),
-                new DMDataSetDTO("data set perm id", "sample perm id", "sample name",
-                        "experiment perm id", "experiment name"));
+        db.uploadEicMLFile(new File("resource/examples/example.eicML"), new DMDataSetDTO(
+                "data set perm id eicml", "sample perm id eicml", "sample name eicml",
+                "experiment perm id eicml", "experiment name eicml"));
     }
 
     private void checkChromatograms(int count, ChromatogramDTO chrom)

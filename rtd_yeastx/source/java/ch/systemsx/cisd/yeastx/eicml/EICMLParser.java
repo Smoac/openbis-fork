@@ -33,6 +33,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import ch.systemsx.cisd.base.convert.NativeData;
 import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 
 /**
  * A file for parsing <code>eicML</code> files.
@@ -56,18 +57,18 @@ public class EICMLParser extends DefaultHandler
     }
 
     private static final ThreadLocal<DateFormat> dateFormatHolder = new ThreadLocal<DateFormat>();
-    
+
     public static DateFormat getDateFormat()
     {
         DateFormat dateFormat = dateFormatHolder.get();
         if (dateFormat == null)
         {
-            dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
+            dateFormat = new SimpleDateFormat(DBUtils.DATE_PATTERN);
             dateFormatHolder.set(dateFormat);
         }
         return dateFormat;
     }
-    
+
     private StringBuilder buffer = new StringBuilder();
 
     private EICMSRunDTO msRun;

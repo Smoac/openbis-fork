@@ -33,6 +33,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import ch.systemsx.cisd.base.convert.NativeData;
 import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 
 /**
  * A file for parsing <code>eicML</code> files.
@@ -42,7 +43,7 @@ import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
 public class FIAMLParser extends DefaultHandler
 {
     private final static String FIA_RUN = "fiaRun";
-    
+
     /** A role that observes {@link FIAMSRunDTO}s. */
     public interface IMSRunObserver
     {
@@ -56,7 +57,7 @@ public class FIAMLParser extends DefaultHandler
         DateFormat dateFormat = dateFormatHolder.get();
         if (dateFormat == null)
         {
-            dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
+            dateFormat = new SimpleDateFormat(DBUtils.DATE_PATTERN);
             dateFormatHolder.set(dateFormat);
         }
         return dateFormat;
@@ -65,7 +66,7 @@ public class FIAMLParser extends DefaultHandler
     private StringBuilder buffer = new StringBuilder();
 
     private FIAMSRunDTO msRun;
-    
+
     private FIAMSRunDataDTO fiaRunData;
 
     private boolean parsingMsRun;
@@ -138,13 +139,17 @@ public class FIAMLParser extends DefaultHandler
                 throw new SAXException("Illegal polarity: must be of length 1");
             }
             msRun.setPolarity(value.charAt(0));
-        } else if ("lowMz".equals(name)){
+        } else if ("lowMz".equals(name))
+        {
             msRun.setLowMz(Float.parseFloat(value));
-        } else if ("highMz".equals(name)){
+        } else if ("highMz".equals(name))
+        {
             msRun.setHighMz(Float.parseFloat(value));
-        } else if ("is".equals(name)){
+        } else if ("is".equals(name))
+        {
             msRun.setInternalStandard(Float.parseFloat(value));
-        } else if ("od".equals(name)){
+        } else if ("od".equals(name))
+        {
             msRun.setOd(Float.parseFloat(value));
         } else if ("operator".equals(name))
         {

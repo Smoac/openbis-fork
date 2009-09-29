@@ -21,12 +21,14 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+import ch.systemsx.cisd.yeastx.db.DBUtils;
+
 /**
  * @author Tomasz Pylak
  */
 public class XmlDateAdapter extends XmlAdapter<String, Date>
 {
-    static String PATTERN = "yyyy-MM-dd HH:mm:ss";
+    private static final String PATTERN = DBUtils.DATE_PATTERN;
 
     @Override
     public String marshal(Date date) throws Exception
