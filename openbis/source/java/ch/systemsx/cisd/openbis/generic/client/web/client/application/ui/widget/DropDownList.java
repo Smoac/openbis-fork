@@ -24,6 +24,7 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.user.client.Element;
 
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 
 /**
@@ -98,7 +100,40 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         setWidth(DEFAULT_WIDTH);
         setDisplayField(displayField);
         setFieldLabel(label);
-        setStore(new ListStore<M>());
+        setStore(createEmptyStoreWithContainsFilter());
+    }
+
+    private ListStore<M> createEmptyStoreWithContainsFilter()
+    {
+        StoreFilter<M> filter = new StoreFilter<M>()
+            {
+
+                @SuppressWarnings("unchecked")
+                public boolean select(Store s, M parent, M item, String property)
+                {
+                    String v = getRawValue();
+                    if (StringUtils.isBlank(v))
+                    {
+                        return true;
+                    }
+                    if (item != null && item.get(getDisplayField()) != null)
+                    {
+                        return ((String) item.get(getDisplayField())).toLowerCase().indexOf(
+                                v.toLowerCase()) >= 0;
+                    }
+                    return false;
+                }
+            };
+        ListStore<M> newStore = new ListStore<M>()
+            {
+                @Override
+                public void filter(String property, String beginsWith)
+                {
+                    super.filter(property);
+                }
+            };
+        newStore.addFilter(filter);
+        return newStore;
     }
 
     protected void setCallbackId(String callbackId)
