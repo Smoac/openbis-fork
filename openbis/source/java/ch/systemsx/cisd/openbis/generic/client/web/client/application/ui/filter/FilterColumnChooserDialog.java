@@ -23,9 +23,9 @@ class FilterColumnChooserDialog extends Dialog
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public static void show(IViewContext<ICommonClientServiceAsync> viewContext,
-            List<ColumnDataModel> columnModels, String gridId)
+            List<ColumnDataModel> columnModels, String gridId, IExpressionHolder expressionField)
     {
-        new FilterColumnChooserDialog(viewContext, gridId).show(columnModels);
+        new FilterColumnChooserDialog(viewContext, gridId).show(columnModels, expressionField);
     }
 
     private FilterColumnChooserDialog(IViewContext<ICommonClientServiceAsync> viewContext,
@@ -41,7 +41,8 @@ class FilterColumnChooserDialog extends Dialog
     /**
      * Shows window containing {@link FilterColumnChooser} based on given {@link ColumnModel}.
      */
-    private void show(final List<ColumnDataModel> columnModels)
+    private void show(final List<ColumnDataModel> columnModels,
+            final IExpressionHolder expressionField)
     {
         assert columnModels != null : "columnModels not specified";
         removeAll();
@@ -55,6 +56,19 @@ class FilterColumnChooserDialog extends Dialog
                         @Override
                         public void componentSelected(ComponentEvent ce)
                         {
+                            String expression = expressionField.getValue();
+                            int cursor = expressionField.getCursorPos();
+                            for (String column : columnChooser.getSelectedItems())
+                            {
+
+                                String addressWithSeparator = column + " ";
+                                expression =
+                                        expression.substring(0, cursor) + addressWithSeparator
+                                                + expression.substring(cursor);
+                                cursor += addressWithSeparator.length();
+                            }
+                            expressionField.setValue(expression);
+                            expressionField.setCursorPos(cursor);
                             hide();
                         }
                     });

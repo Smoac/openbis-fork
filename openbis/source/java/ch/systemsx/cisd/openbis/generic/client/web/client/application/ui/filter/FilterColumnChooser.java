@@ -68,9 +68,15 @@ class FilterColumnChooser
         return cp;
     }
 
-    public List<ColumnDataModel> getModels()
+    public List<String> getSelectedItems()
     {
-        return grid.getStore().getModels();
+        List<String> result = new ArrayList<String>();
+        List<ColumnDataModel> items = grid.getSelectionModel().getSelectedItems();
+        for (ColumnDataModel item : items)
+        {
+            result.add(item.getAddress());
+        }
+        return result;
     }
 
 }

@@ -156,11 +156,39 @@ abstract public class AbstractFilterEditRegisterDialog extends AbstractRegistrat
                     @Override
                     public void componentSelected(ComponentEvent ce)
                     {
-                        FilterColumnChooserDialog.show(viewContext, columnModels, gridId);
+                        FilterColumnChooserDialog.show(viewContext, columnModels, gridId,
+                                asExpressionHolder(expressionField));
                     }
                 });
             add(new AdapterToolItem(button));
         }
     }
 
+    private static final IExpressionHolder asExpressionHolder(
+            final MultilineVarcharField expressionField)
+    {
+        return new IExpressionHolder()
+            {
+
+                public int getCursorPos()
+                {
+                    return expressionField.getCursorPos();
+                }
+
+                public String getValue()
+                {
+                    return expressionField.getValue();
+                }
+
+                public void setCursorPos(int position)
+                {
+                    expressionField.setCursorPos(position);
+                }
+
+                public void setValue(String value)
+                {
+                    expressionField.setValue(value);
+                }
+            };
+    }
 }
