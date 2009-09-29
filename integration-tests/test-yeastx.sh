@@ -54,6 +54,16 @@ function build_and_install_components {
     build_and_install $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
 }
 
+function refresh_components_and_start_openbis {
+    local use_local_source=false
+    local install_dss=false
+    local install_dmv=false
+    local install_openbis=false
+    local reinstall_all=false
+    
+    build_and_install $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
+}
+
 function build_and_install_yeastx {
 		cp $INSTALL/datastore_server-plugins.jar $WORK/datastore_server_yeastx/lib/
 		chmod_exec $WORK/datastore_server_yeastx/takeCifsOwnershipRecursive.sh
@@ -220,6 +230,7 @@ function build_from_svn_source_and_test {
 
 # can be called only if the build has been already done 
 function test_without_build {
+	refresh_components_and_start_openbis
 	integration_tests_yeastx
 }
 
