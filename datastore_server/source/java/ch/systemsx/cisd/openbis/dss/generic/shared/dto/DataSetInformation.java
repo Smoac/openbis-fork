@@ -167,7 +167,7 @@ public class DataSetInformation implements Serializable
     /**
      * Returns the basic information about the experiment.
      */
-    // FIXME 2009-09-18 Tomasz Pylak: When can it be null???????????
+    // TODO 2009-09-18 Tomasz Pylak: change to getExperiment()
     public Experiment tryToGetExperiment()
     {
         return experiment == null ? (sample == null ? null : sample.getExperiment()) : experiment;
