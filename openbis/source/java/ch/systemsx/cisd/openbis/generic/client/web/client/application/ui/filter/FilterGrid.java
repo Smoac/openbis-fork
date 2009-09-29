@@ -83,6 +83,11 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
         this.columnModels = columnModels;
     }
 
+    public static final String createAddButtonId(String gridId)
+    {
+        return createGridId(gridId) + "_ADD_BUTTON";
+    }
+
     public static final String createGridId(String gridId)
     {
         return createBrowserId(gridId) + GRID_SUFFIX;
@@ -107,6 +112,7 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
                                 }
 
                             });
+        addButton.setId(createAddButtonId(gridId));
         addButton(addButton);
         final Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),

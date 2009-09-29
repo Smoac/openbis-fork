@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisplayTypeIDProvider;
@@ -40,6 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationObserver,
         IDelegatedAction
 {
+    static final String APPLY_ID = "apply_button";
+
     private final List<PagingColumnFilter<T>> columnFilters;
 
     private final LayoutContainer filterContainer;
@@ -64,6 +67,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         add(filterTool);
         add(new AdapterToolItem(filterContainer));
         applyTool = new TextToolItem(viewContext.getMessage(Dict.APPLY_FILTER));
+        applyTool.setId(createId(APPLY_ID, gridId));
         applyTool.setEnabled(false);
         add(applyTool);
 
@@ -86,6 +90,11 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 }
             });
 
+    }
+
+    public static String createId(String prefix, String gridId)
+    {
+        return GenericConstants.ID_PREFIX + prefix + gridId;
     }
 
     public void updateColumnFilter(final List<PagingColumnFilter<T>> newFilters)

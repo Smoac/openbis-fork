@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.PagingToolBar;
@@ -47,6 +48,7 @@ public class PagingToolBarAdapter extends PagingToolBar
     /** Exposes items of the toolbar. NOTE: use only for testing! */
     public List<ToolItem> getItems()
     {
-        return toolBar.getItems();
+
+        return toolBar != null ? toolBar.getItems() : new ArrayList<ToolItem>();
     }
 }

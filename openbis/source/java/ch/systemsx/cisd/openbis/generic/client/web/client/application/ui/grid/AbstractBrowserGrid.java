@@ -222,7 +222,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         this.grid = createGrid(pagingLoader, gridId);
         this.pagingToolbar =
-                new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE);
+                new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE, gridId);
         pagingToolbar.bind(pagingLoader);
         this.filterToolbar =
                 new FilterToolbar<T>(viewContext, gridId, this, filterWidgets,

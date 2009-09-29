@@ -65,7 +65,7 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
         checkParents.expectedRow(new DataSetRow(oldParentCode));
         remoteConsole.prepare(checkDataSet);
 
-        launchTest(20 * SECOND);
+        launchTest(25 * SECOND);
     }
 
     // could be removed when we implement BO unit test or merged with first test

@@ -43,6 +43,9 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
     public static final String REFRESH_BUTTON_ID =
             GenericConstants.ID_PREFIX + "paged-grid-refresh-button";
 
+    public static final String CONFIG_BUTTON_ID =
+            GenericConstants.ID_PREFIX + "paged-grid-config-button";
+
     private final IMessageProvider messageProvider;
 
     private final Button exportButton;
@@ -52,14 +55,14 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
     private final Button configButton;
 
     public BrowserGridPagingToolBar(IBrowserGridActionInvoker invoker,
-            IMessageProvider messageProvider, int pageSize)
+            IMessageProvider messageProvider, int pageSize, String gridId)
     {
         super(pageSize);
         this.messageProvider = messageProvider;
 
         add(createTableOperationsLabel());
 
-        this.configButton = createConfigButton(messageProvider, invoker);
+        this.configButton = createConfigButton(messageProvider, invoker, gridId);
         add(configButton);
         updateDefaultConfigButton(false);
 
@@ -185,9 +188,13 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         return button;
     }
 
-    /** creates a grid configuration button, the caller has to add it to a parent container */
+    /**
+     * creates a grid configuration button, the caller has to add it to a parent container
+     * 
+     * @param gridId
+     */
     private static Button createConfigButton(IMessageProvider messageProvider,
-            final IBrowserGridActionInvoker invoker)
+            final IBrowserGridActionInvoker invoker, String gridId)
     {
         final Button button =
                 new Button(messageProvider.getMessage(Dict.BUTTON_CONFIGURE),
@@ -199,6 +206,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
                                     invoker.configure();
                                 }
                             });
+        button.setId(CONFIG_BUTTON_ID + gridId);
         return button;
     }
 

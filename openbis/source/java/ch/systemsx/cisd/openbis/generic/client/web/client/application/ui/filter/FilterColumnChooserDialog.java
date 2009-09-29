@@ -23,10 +23,7 @@ class FilterColumnChooserDialog extends Dialog
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public static void show(IViewContext<ICommonClientServiceAsync> viewContext,
-            List<ColumnDataModel> columnModels/*
-                                               * , IResultUpdater<List<ColumnDataModel>>
-                                               * resultUpdater AI
-                                               */, String gridId)
+            List<ColumnDataModel> columnModels, String gridId)
     {
         new FilterColumnChooserDialog(viewContext, gridId).show(columnModels);
     }

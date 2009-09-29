@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
@@ -45,6 +46,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
  */
 abstract public class AbstractFilterEditRegisterDialog extends AbstractRegistrationDialog
 {
+
+    public static final String PUBLIC_FIELD = "public-field";
+
+    public static final String EXPRESSION_FIELD = "expression-field";
+
+    public static final String DESCRIPTION_FIELD = "description-field";
+
+    public static final String NAME_FIELD = "name-field";
+
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final TextField<String> nameField;
@@ -69,11 +79,20 @@ abstract public class AbstractFilterEditRegisterDialog extends AbstractRegistrat
         this.gridId = gridId;
         this.columnModels = columnModels;
         addField(nameField = createTextField(viewContext.getMessage(Dict.NAME), true));
+        nameField.setId(createId(gridId, NAME_FIELD));
         addField(descriptionField = createDescriptionField(viewContext, true));
+        descriptionField.setId(createId(gridId, DESCRIPTION_FIELD));
         addField(expressionField = createExpressionField());
+        expressionField.setId(createId(gridId, EXPRESSION_FIELD));
         addField(publicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false));
+        publicField.setId(createId(gridId, PUBLIC_FIELD));
         setBottomComponent(new BottomToolbar());
         setWidth(500);
+    }
+
+    public static String createId(String gridId, String suffix)
+    {
+        return GenericConstants.ID_PREFIX + "filter-edit-register-" + gridId + suffix;
     }
 
     private MultilineVarcharField createExpressionField()

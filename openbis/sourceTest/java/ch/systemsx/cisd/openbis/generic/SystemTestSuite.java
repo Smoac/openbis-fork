@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityType
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityTypePropertyTypeAssignmentTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ExperimentBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFormatTypeGridTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FilterTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.MaterialBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectRegistrationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeAssignmentBrowserTest;
@@ -68,9 +69,11 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(GenericSampleRegistrationTest.class);
         testSuite.addTestSuite(ExperimentBrowserTest.class);
         testSuite.addTestSuite(MaterialBrowserTest.class);
+
         // TODO 2009-01-21, IA: Uncomment after it's clear how to deal with
         // (NS_ERROR_DOM_SECURITY_ERR): Security error on CC
         // testSuite.addTestSuite(GenericExperimentRegistrationTest.class);
+
         testSuite.addTestSuite(GenericExperimentViewerTest.class);
         testSuite.addTestSuite(GenericExperimentEditorTest.class);
         testSuite.addTestSuite(PropertyTypeBrowserTest.class);
@@ -81,6 +84,7 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
         testSuite.addTestSuite(ProjectRegistrationTest.class);
         testSuite.addTestSuite(EntityTypeBrowserTest.class);
+        testSuite.addTestSuite(FilterTest.class);
         return testSuite;
     }
 }

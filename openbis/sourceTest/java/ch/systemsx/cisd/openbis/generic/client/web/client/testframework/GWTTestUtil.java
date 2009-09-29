@@ -99,6 +99,22 @@ public final class GWTTestUtil
     }
 
     /**
+     * Clicks on the text tool item with specified id.
+     * 
+     * @throws AssertionError if not found.
+     */
+    public static void clickTextToolItemWithID(final String id)
+    {
+        final Widget widget = tryToFindByID(id);
+        assertWidgetFound("TextToolItem", id, widget);
+        assertTrue("Widget '" + id + "' isn't a TextToolItem: " + widget.getClass(),
+                widget instanceof TextToolItem);
+        final TextToolItem button = (TextToolItem) widget;
+        assertTrue("TextToolItem '" + id + "' is not enabled.", button.isEnabled());
+        button.fireEvent(Events.Select);
+    }
+
+    /**
      * Simulates click on the {@link CheckBox} with specified id (modifies check box value and fires
      * {@link Events#Change} event).
      * 
@@ -106,15 +122,21 @@ public final class GWTTestUtil
      */
     public static void clickCheckBoxWithID(final String id)
     {
+        final CheckBox checkBox = getCheckboxWithId(id);
+        // didn't find a way to do this firing a single event - changing value manually
+        checkBox.setValue(!checkBox.getValue());
+        checkBox.fireEvent(Events.Change);
+    }
+
+    public static CheckBox getCheckboxWithId(final String id)
+    {
         final Widget widget = tryToFindByID(id);
         assertWidgetFound("CheckBox", id, widget);
         assertTrue("Widget '" + id + "' isn't a CheckBox: " + widget.getClass(),
                 widget instanceof CheckBox);
         final CheckBox checkBox = (CheckBox) widget;
         assertTrue("CheckBox '" + id + "' is not enabled.", checkBox.isEnabled());
-        // didn't find a way to do this firing a single event - changing value manually
-        checkBox.setValue(!checkBox.getValue());
-        checkBox.fireEvent(Events.Change);
+        return checkBox;
     }
 
     public final static void selectValueInSelectionWidget(String selectionWidgetId,
@@ -171,7 +193,7 @@ public final class GWTTestUtil
     {
         final Widget widget = tryToFindByID(id);
         assertWidgetFound("Radio", id, widget);
-        Assert.assertTrue("Widget '" + id + "' isn't a TextField: " + widget.getClass(),
+        Assert.assertTrue("Widget '" + id + "' isn't a Radio: " + widget.getClass(),
                 widget instanceof Radio);
         return (Radio) widget;
     }
