@@ -15,21 +15,6 @@ METABOL_DB=metabol_dev
 
 # --------------------
 
-# Changes last-modification-time so that the order is the same as the alphabetical order.
-function change_modification_time_alphabetically {
-	local dir=$1
-
-  local file
-  # modification data format: YYYYMMDDhhmm
-  local modification_time=200811221122
-  for file in `ls -1 $dir | sort`; do
-  	local full_path=$dir/$file
-  	# change the modification date format
-  	touch -t $modification_time $full_path
-  	modification_time=$(($modification_time+1))
-  done
-}
-
 # Prepare template incoming data and some destination data structures
 function prepare_data {
 		# Prepare empty incoming data
@@ -40,8 +25,6 @@ function prepare_data {
     clean_svn $MY_DATA
 
     chmod -R 700 $MY_DATA/incoming*
-	  # DSS processes files ordered by modification time, so in this way we make the tests more predictable.
-		change_modification_time_alphabetically $MY_DATA/incoming
 }
 
 function build_and_install_components {
@@ -151,16 +134,22 @@ function count_db_table_records {
 function assert_correct_datasets_metabol_database {
     local eicms_runs=`count_db_table_records $METABOL_DB eic_ms_runs`
     local fiams_runs=`count_db_table_records $METABOL_DB fia_ms_runs`
-
+    local quantms_runs=`count_db_table_records $METABOL_DB ms_quantifications`
+    local quantms_concentrations=`count_db_table_records $METABOL_DB ms_quant_concentrations`
+    local quantms_component_ids=`count_db_table_records $METABOL_DB ms_quant_compounds`
+    
 		# one run comes from the incoming and one from incoming-*ml
     assert_equals "Wrong number of eic MS runs in the metablomics db" 2 $eicms_runs  
     assert_equals "Wrong number of fia MS runs in the metablomics db" 2 $fiams_runs
+    assert_equals "Wrong number of quantifications in the metablomics db" 1 $quantms_runs
+    assert_equals "Wrong number of quant. concentrations in the metablomics db" 2 $quantms_concentrations
+    assert_equals "Wrong number of quant. component ids in the metablomics db" 3 $quantms_component_ids
 }
 
 function assert_correct_incoming_contents {
 	local incoming_dir=$1
 
-	# check content of incoming directory
+	# check content of incoming directory for faulty or ignored datasets
   assert_files_number $incoming_dir 12
 	assert_correct_incoming_content faulty-duplicated-mapping 4 true
 	assert_correct_incoming_content faulty-experiment-code 4 true
@@ -180,8 +169,9 @@ function assert_correct_incoming_contents {
 	# check content of dropboxes
 	assert_files_number "$MY_DATA/dropbox-eicml/TEST&TEST_PROJECT&EXP_TEST.*.mzXML" 6
 	assert_files_number "$MY_DATA/dropbox-fiaml/TEST&TEST_PROJECT&EXP_TEST.*.mzXML" 2
-
-	local registered_datasets=16
+	assert_dir_empty $MY_DATA/incoming-quantml
+	
+	local registered_datasets=17
 	# check content of the store	
 	local store=$MY_DATA/store
 	local store_files_count=`find $store -type f | wc -l`
@@ -200,7 +190,7 @@ function assert_correct_incoming_contents {
 	#   id;experiment_code;data_store_code;code;is_placeholder;data_id_parent;is_complete;data_producer_code;production_timestamp
 	local pattern="[0-9]*;EXP_TEST;DSS1;20[0-9]*-[0-9]*;[ft];[0-9]*;[TFU]*;;.*"
 	local i=2; 
-	while [ $i -lt 18 ]; do 
+	while [ $i -lt $(($registered_datasets+2)) ]; do 
 		assert_correct_dataset_content_in_database $i $pattern
 		i=$(( $i +1))
 	done
