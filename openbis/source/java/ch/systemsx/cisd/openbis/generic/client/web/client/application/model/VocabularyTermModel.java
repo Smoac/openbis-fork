@@ -40,6 +40,8 @@ public class VocabularyTermModel extends BaseModel implements Comparable<Vocabul
     {
         set(ModelDataPropertyNames.CODE, term.getCode());
         set(ModelDataPropertyNames.CODE_WITH_LABEL, getCodeWithLabel(term));
+        set(ModelDataPropertyNames.TOOLTIP, VocabularyPropertyColRenderer
+                .renderAsTooltip(term));
         set(ModelDataPropertyNames.OBJECT, term);
     }
 

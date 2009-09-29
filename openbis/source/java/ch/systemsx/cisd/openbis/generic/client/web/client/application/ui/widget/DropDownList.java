@@ -50,7 +50,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
 
     // ----------
 
-    private static final int DEFAULT_WIDTH = 150;
+    private static final int DEFAULT_WIDTH = 200;
 
     private static final String PREFIX = "select_";
 
@@ -434,4 +434,5 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
             refreshStore();
         }
     }
+
 }

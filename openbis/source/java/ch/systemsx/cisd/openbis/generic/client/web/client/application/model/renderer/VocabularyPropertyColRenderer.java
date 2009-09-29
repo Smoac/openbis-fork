@@ -84,4 +84,21 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
             return label + " [" + code + "]";
         }
     }
+
+    public static final String renderAsTooltip(VocabularyTerm term)
+    {
+        final String code = term.getCode();
+        final String label = term.getLabel();
+        final String description = term.getDescription();
+        String result = "<b>" + code + "</b>";
+        if (label != null)
+        {
+            result += "<br>" + label;
+        }
+        if (description != null)
+        {
+            result += "<br><i>" + description + "</i>";
+        }
+        return result.replace(".", ". ");
+    }
 }
