@@ -169,7 +169,7 @@ function assert_correct_incoming_contents {
 	assert_correct_incoming_content faulty-no-mapping 4 true
 	assert_correct_incoming_content faulty-non-unique-mapping 6 true
 	assert_correct_incoming_content faulty-to-many-mapping-files 4 true
-	assert_correct_incoming_content faulty-unknow-property 4 true
+	assert_correct_incoming_content faulty-unknown-property 4 true
 	assert_correct_incoming_content faulty-unknown-mapping 8 true
 	assert_correct_incoming_content faulty-wrong-conversion 6 true
 	assert_correct_incoming_content ignore-empty-dir 0 false
