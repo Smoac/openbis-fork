@@ -31,8 +31,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public final class StandardFunctions
 {
-    private static final Double DOUBLE_DEFAULT_VALUE = new Double(-Double.MAX_VALUE);
-    private static final Integer INTEGER_DEFAULT_VALUE = new Integer(Integer.MIN_VALUE);
+    static final Double DOUBLE_DEFAULT_VALUE = new Double(-Double.MAX_VALUE);
+    static final Integer INTEGER_DEFAULT_VALUE = new Integer(Integer.MIN_VALUE);
 
     /**
      * Returns the specified value as an integer. Returns the smallest integer if <code>value</code>

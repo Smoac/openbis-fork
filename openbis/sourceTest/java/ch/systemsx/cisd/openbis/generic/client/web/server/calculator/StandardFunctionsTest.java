@@ -1,0 +1,230 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
+
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.INTEGER_DEFAULT_VALUE;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.DOUBLE_DEFAULT_VALUE;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.ifThenElse;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.mean;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.median;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.minimum;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.maximum;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.toInteger;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.toFloat;
+
+import java.util.Arrays;
+
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
+
+/**
+ * 
+ *
+ * @author Franz-Josef Elmer
+ */
+public class StandardFunctionsTest extends AssertJUnit
+{
+    @Test
+    public void testToIntegerWithNullArgument()
+    {
+        assertEquals(INTEGER_DEFAULT_VALUE, toInteger(null));
+        assertEquals(42, toInteger(null, 42).intValue());
+    }
+    
+    @Test
+    public void testToIntegerWithBlankArgument()
+    {
+        assertEquals(INTEGER_DEFAULT_VALUE, toInteger("  "));
+        assertEquals(42, toInteger("  ", 42).intValue());
+    }
+    
+    @Test
+    public void testToIntegerWithNumberArgument()
+    {
+        assertEquals(42, toInteger(42).intValue());
+        assertEquals(42, toInteger(42, 4711).intValue());
+    }
+    
+    @Test
+    public void testToIntegerWithParsableArgument()
+    {
+        assertEquals(42, toInteger("42").intValue());
+        assertEquals(42, toInteger("42", 4711).intValue());
+    }
+    
+    @Test
+    public void testToIntegerWithUnParsableArgument()
+    {
+        try
+        {
+            toInteger("abc");
+            fail("NumberFormatException expected");
+        } catch (NumberFormatException ex)
+        {
+            assertEquals("For input string: \"abc\"", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testToFloatWithNullArgument()
+    {
+        assertEquals(DOUBLE_DEFAULT_VALUE, toFloat(null));
+        assertEquals(42.5, toFloat(null, 42.5).doubleValue());
+    }
+    
+    @Test
+    public void testToFloatWithBlankArgument()
+    {
+        assertEquals(DOUBLE_DEFAULT_VALUE, toFloat("  "));
+        assertEquals(42.5, toFloat("  ", 42.5).doubleValue());
+    }
+    
+    @Test
+    public void testToFloatWithNumberArgument()
+    {
+        assertEquals(42.5, toFloat(42.5).doubleValue());
+        assertEquals(42.5, toFloat(42.5, 4711.0).doubleValue());
+    }
+    
+    @Test
+    public void testToFloatWithParsableArgument()
+    {
+        assertEquals(42.5, toFloat("42.5").doubleValue());
+        assertEquals(42.5, toFloat("42.5", 4711.0).doubleValue());
+    }
+    
+    @Test
+    public void testToFloatWithUnParsableArgument()
+    {
+        try
+        {
+            toFloat("abc");
+            fail("NumberFormatException expected");
+        } catch (NumberFormatException ex)
+        {
+            assertEquals("For input string: \"abc\"", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testIfThenElse()
+    {
+        assertEquals("no", ifThenElse(null, "yes", "no"));
+        assertEquals("no", ifThenElse(false, "yes", "no"));
+        assertEquals("yes", ifThenElse(true, "yes", "no"));
+    }
+    
+    @Test
+    public void testMean()
+    {
+        assertEquals(1.5, mean(Arrays.<Object>asList(1.5)));
+        assertEquals(5.0, mean(Arrays.<Object>asList(1, 4, 10)));
+        assertEquals(5.5, mean(Arrays.<Object>asList(null, 1, 10)));
+        assertEquals(5.5, mean(Arrays.<Object>asList(" ", 1, "10")));
+        try
+        {
+            mean(Arrays.<Object>asList());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Argument of function 'mean' is an empty array.", ex.getMessage());
+        }
+        try
+        {
+            mean(Arrays.<Object>asList("a"));
+            fail("NumberFormatException expected");
+        } catch (NumberFormatException ex)
+        {
+            // ignored
+        }
+    }
+    
+    @Test
+    public void testMedian()
+    {
+        assertEquals(1.5, median(Arrays.<Object>asList(1.5)));
+        assertEquals(4.0, median(Arrays.<Object>asList(4, 1, 10)));
+        assertEquals(5.5, median(Arrays.<Object>asList(null, 1, 10)));
+        assertEquals(5.5, median(Arrays.<Object>asList(" ", 1, "10")));
+        try
+        {
+            median(Arrays.<Object>asList());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Argument of function 'median' is an empty array.", ex.getMessage());
+        }
+        try
+        {
+            median(Arrays.<Object>asList("a"));
+            fail("NumberFormatException expected");
+        } catch (NumberFormatException ex)
+        {
+            // ignored
+        }
+    }
+    
+    @Test
+    public void testMinimum()
+    {
+        assertEquals(1.5, minimum(Arrays.<Object>asList(1.5)));
+        assertEquals(1.0, minimum(Arrays.<Object>asList(4, 1, 10)));
+        assertEquals(1.0, minimum(Arrays.<Object>asList(null, 1, 10)));
+        assertEquals(1.0, minimum(Arrays.<Object>asList(" ", 1, "10")));
+        try
+        {
+            minimum(Arrays.<Object>asList());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Argument of function 'minimum' is an empty array.", ex.getMessage());
+        }
+        try
+        {
+            minimum(Arrays.<Object>asList("a"));
+            fail("NumberFormatException expected");
+        } catch (NumberFormatException ex)
+        {
+            // ignored
+        }
+    }
+    
+    @Test
+    public void testMaximum()
+    {
+        assertEquals(1.5, maximum(Arrays.<Object>asList(1.5)));
+        assertEquals(10.0, maximum(Arrays.<Object>asList(4, 1, 10)));
+        assertEquals(10.0, maximum(Arrays.<Object>asList(null, 1, 10)));
+        assertEquals(10.0, maximum(Arrays.<Object>asList(" ", 1, "10")));
+        try
+        {
+            maximum(Arrays.<Object>asList());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Argument of function 'maximum' is an empty array.", ex.getMessage());
+        }
+        try
+        {
+            maximum(Arrays.<Object>asList("a"));
+            fail("NumberFormatException expected");
+        } catch (NumberFormatException ex)
+        {
+            // ignored
+        }
+    }
+}
