@@ -437,6 +437,10 @@ function install_datamovers {
 function restart_openbis {
     assert_dir_exists_or_die $OPENBIS_SERVER
     if [ "`check_server_port`" != "" ]; then
+    	# maybe server is just closing, wait a moment
+    	sleep 5
+    fi
+    if [ "`check_server_port`" != "" ]; then
     	echo Shutting down openbis server.
 	    shutdown_openbis_server
 	    sleep 1
