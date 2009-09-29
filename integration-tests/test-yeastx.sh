@@ -44,8 +44,7 @@ function prepare_data {
 		change_modification_time_alphabetically $MY_DATA/incoming
 }
 
-
-function build_and_install_yeastx {
+function build_and_install_components {
     local use_local_source=$1
 
     local install_dss=true
@@ -53,7 +52,9 @@ function build_and_install_yeastx {
     local install_openbis=true
     local reinstall_all=false
     build_and_install $install_dss $install_dmv $install_openbis $use_local_source $reinstall_all
-			
+}
+
+function build_and_install_yeastx {
 		cp $INSTALL/datastore_server-plugins.jar $WORK/datastore_server_yeastx/lib/
 		chmod_exec $WORK/datastore_server_yeastx/takeCifsOwnershipRecursive.sh
 		
@@ -196,9 +197,7 @@ function assert_correct_incoming_contents {
 }
 
 function integration_tests_yeastx {
-    local use_local_source=$1
-
-    build_and_install_yeastx $use_local_source
+	build_and_install_yeastx
     switch_dss "on" datastore_server_yeastx
 
 		sleep 90
@@ -209,4 +208,19 @@ function integration_tests_yeastx {
     exit_if_assertion_failed
 }
 
-integration_tests_yeastx false
+function build_from_local_source_and_test {
+	build_and_install_components true
+	integration_tests_yeastx
+}
+
+function build_from_svn_source_and_test {
+	build_and_install_components false
+	integration_tests_yeastx
+}
+
+# can be called only if the build has been already done 
+function test_without_build {
+	integration_tests_yeastx
+}
+
+test_without_build
