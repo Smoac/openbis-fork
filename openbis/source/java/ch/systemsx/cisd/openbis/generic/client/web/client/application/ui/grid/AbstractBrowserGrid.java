@@ -823,6 +823,24 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             });
     }
 
+    /**
+     * Given <var>button</var> will have title changed depending on number of items selected in the
+     * grid.
+     */
+    protected final void changeButtonTitleOnSelectedItems(final Button button,
+            final String noSelectedItemsTitle, final String selectedItemsTitle)
+    {
+        addGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
+            {
+                public void handleEvent(SelectionEvent<ModelData> se)
+                {
+                    boolean noSelected = se.selection.size() == 0;
+                    button.setText(noSelected ? noSelectedItemsTitle : selectedItemsTitle);
+                }
+
+            });
+    }
+
     private void addGridSelectionChangeListener(Listener<SelectionEvent<ModelData>> listener)
     {
         grid.getSelectionModel().addListener(Events.SelectionChange, listener);

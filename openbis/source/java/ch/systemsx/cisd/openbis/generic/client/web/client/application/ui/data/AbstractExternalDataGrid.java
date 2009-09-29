@@ -103,18 +103,21 @@ public abstract class AbstractExternalDataGrid
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
                 asShowEntityInvoker(true)));
 
-        addButton(new Button(viewContext.getMessage(Dict.BUTTON_DELETE),
-                new AbstractCreateDialogListener()
-                    {
-                        @Override
-                        protected Dialog createDialog(List<ExternalData> dataSets,
-                                IBrowserGridActionInvoker invoker)
-                        {
-                            return new DataSetListDeletionConfirmationDialog(viewContext,
-                                    createDeletionCallback(invoker),
-                                    getSelectedAndDisplayedItemsAction().execute());
-                        }
-                    }));
+        final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE);
+        final String deleteAllTitle = deleteTitle + " All";
+        final Button deleteButton = new Button(deleteAllTitle, new AbstractCreateDialogListener()
+            {
+
+                @Override
+                protected Dialog createDialog(List<ExternalData> dataSets,
+                        IBrowserGridActionInvoker invoker)
+                {
+                    return new DataSetListDeletionConfirmationDialog(viewContext,
+                            createDeletionCallback(invoker), getSelectedAndDisplayedItemsAction()
+                                    .execute());
+                }
+            });
+        addButton(deleteButton);
         Button uploadButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATASETS),
                         new AbstractCreateDialogListener()

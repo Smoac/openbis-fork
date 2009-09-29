@@ -362,18 +362,21 @@ public class SampleBrowserGrid extends
         editButton.setId(EDIT_BUTTON_ID);
         addButton(editButton);
 
-        addButton(new Button(viewContext.getMessage(Dict.BUTTON_DELETE),
-                new AbstractCreateDialogListener()
-                    {
-                        @Override
-                        protected Dialog createDialog(List<Sample> samples,
-                                IBrowserGridActionInvoker invoker)
-                        {
-                            return new SampleListDeletionConfirmationDialog(viewContext, samples,
-                                    createDeletionCallback(invoker),
-                                    getDisplayedAndSelectedItemsAction().execute());
-                        }
-                    }));
+        final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE);
+        final String deleteAllTitle = deleteTitle + " All";
+        final Button deleteButton = new Button(deleteAllTitle, new AbstractCreateDialogListener()
+            {
+                @Override
+                protected Dialog createDialog(List<Sample> samples,
+                        IBrowserGridActionInvoker invoker)
+                {
+                    return new SampleListDeletionConfirmationDialog(viewContext, samples,
+                            createDeletionCallback(invoker), getDisplayedAndSelectedItemsAction()
+                                    .execute());
+                }
+            });
+        changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
+        addButton(deleteButton);
         allowMultipleSelection(); // we allow deletion of multiple samples
     }
 
