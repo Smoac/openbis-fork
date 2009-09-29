@@ -29,5 +29,7 @@ public class ConstantsYeastX
 
     public static final String EICML_EXT = "eicML";
 
+    public static final String QUANTML_EXT = "quantML";
+
     public static final String MZXML_EXT = "mzXML";
 }

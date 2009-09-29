@@ -36,6 +36,7 @@ import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
 import ch.systemsx.cisd.yeastx.eicml.EICML2Database;
 import ch.systemsx.cisd.yeastx.fiaml.FIAML2Database;
+import ch.systemsx.cisd.yeastx.quant.QuantML2Database;
 
 /**
  * Extracts and uploads information from dataset files (like <code>eicML</code> or
@@ -53,6 +54,8 @@ public class ML2DatabaseUploader implements IDataSetUploader
 
     private final FIAML2Database fiaML2Database;
 
+    private final QuantML2Database quantML2Database;
+
     private final String uniqueSampleNamePropertyCode;
 
     private final String uniqueExperimentNamePropertyCode;
@@ -67,6 +70,7 @@ public class ML2DatabaseUploader implements IDataSetUploader
         DBUtils.init(dbContext);
         this.eicML2Database = new EICML2Database(dbContext.getDataSource());
         this.fiaML2Database = new FIAML2Database(dbContext.getDataSource());
+        this.quantML2Database = new QuantML2Database(dbContext.getDataSource());
         this.uniqueExperimentNamePropertyCode =
                 DatasetMappingResolver.getUniqueExperimentNamePropertyCode(properties);
         this.uniqueSampleNamePropertyCode =
@@ -86,6 +90,9 @@ public class ML2DatabaseUploader implements IDataSetUploader
             } else if (extension.equalsIgnoreCase(ConstantsYeastX.EICML_EXT))
             {
                 translateEIC(dataSet, dataSetInformation);
+            } else if (extension.equalsIgnoreCase(ConstantsYeastX.QUANTML_EXT))
+            {
+                translateQuant(dataSet, dataSetInformation);
             } else
             {
                 // do nothing
@@ -98,6 +105,13 @@ public class ML2DatabaseUploader implements IDataSetUploader
                             "A database error occured while extracting additional information from '%s' file content for '%s' dataset.",
                             dataSet.getPath(), dataSetInformation.getDataSetCode());
         }
+    }
+
+    private void translateQuant(File dataSet, DataSetInformation dataSetInformation)
+            throws SQLException
+    {
+        DMDataSetDTO openbisBacklink = createBacklink(dataSetInformation);
+        quantML2Database.uploadQuantMLFile(dataSet, openbisBacklink);
     }
 
     private void translateEIC(File dataSet, DataSetInformation dataSetInformation)

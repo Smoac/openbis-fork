@@ -14,22 +14,30 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.yeastx.fiaml;
+package ch.systemsx.cisd.yeastx.quant;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import ch.systemsx.cisd.yeastx.etl.ConstantsYeastX;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * A {@link FilenameFilter} for <code>fiaML</code> files.
- * 
- * @author Bernd Rinn
+ * @author Tomasz Pylak
  */
-final class FIAMLFilenameFilter implements FilenameFilter
+public class XmlDateAdapter extends XmlAdapter<String, Date>
 {
-    public boolean accept(File myDir, String name)
+    static String PATTERN = "yyyy-MM-dd HH:mm:ss";
+
+    @Override
+    public String marshal(Date date) throws Exception
     {
-        return name.endsWith("." + ConstantsYeastX.FIAML_EXT);
+        return new SimpleDateFormat(PATTERN).format(date);
     }
+
+    @Override
+    public Date unmarshal(String dateString) throws Exception
+    {
+        return new SimpleDateFormat(PATTERN).parse(dateString);
+    }
+
 }

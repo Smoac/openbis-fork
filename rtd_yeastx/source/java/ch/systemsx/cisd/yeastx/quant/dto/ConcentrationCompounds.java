@@ -14,22 +14,29 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.yeastx.fiaml;
+package ch.systemsx.cisd.yeastx.quant.dto;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.util.List;
 
-import ch.systemsx.cisd.yeastx.etl.ConstantsYeastX;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
- * A {@link FilenameFilter} for <code>fiaML</code> files.
+ * Stores all the compound ids of one concentration.
  * 
- * @author Bernd Rinn
+ * @author Tomasz Pylak
  */
-final class FIAMLFilenameFilter implements FilenameFilter
+public class ConcentrationCompounds
 {
-    public boolean accept(File myDir, String name)
+    private List<Long> compoundIds;
+
+    @XmlElement(name = "cmpdId", required = true)
+    public List<Long> getCompoundIds()
     {
-        return name.endsWith("." + ConstantsYeastX.FIAML_EXT);
+        return compoundIds;
+    }
+
+    public void setCompoundIds(List<Long> compoundIds)
+    {
+        this.compoundIds = compoundIds;
     }
 }
