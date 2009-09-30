@@ -42,14 +42,6 @@ if [ -e $SERVERS_PREV_VER ]; then
 	./$SERVERS_PREV_VER/datastore_server/datastore_server.sh stop
 fi
 
-echo Saving the config and properties files...
-cp ~/sprint/datastore_server/etc/service.properties $CONFIG_DIR/datastore_server-service.properties
-cp $TOMCAT_DIR/webapps/openbis/WEB-INF/classes/service.properties $CONFIG_DIR/service.properties 
-cp $TOMCAT_DIR/etc/openbis.conf $CONFIG_DIR/openbis.conf
-cp -r $TOMCAT_DIR/webapps/openbis/images/ ~/config/
-cp $TOMCAT_DIR/webapps/openbis/loginHeader.html ~/config/
-cp $TOMCAT_DIR/webapps/openbis/help.html ~/config/
-
 echo Making a database dump...
 # A custom-format dump (-Fc flag) is not a script for psql, but instead must be
 # restored with pg_restore, for example:
