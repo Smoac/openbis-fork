@@ -24,7 +24,6 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +38,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -130,42 +128,6 @@ public class EntityListingTestUtils
     }
 
     // --- generic helpers for entity properties tests ----------------
-
-    public static void assertCorrectEntityAndPropertyTypeReferences(
-            DataIterator<? extends CodeRecord> entityCodes,
-            List<? extends BaseEntityPropertyRecord> properties, PropertyType[] propertyTypes)
-    {
-        assertTrue(properties.size() > 0);
-        Set<Long> propertyTypesIds = extractIds(Arrays.asList(propertyTypes));
-        Set<Long> entityIds = extractVOIds(asList(entityCodes));
-        for (BaseEntityPropertyRecord property : properties)
-        {
-            assertTrue("Property type not found: " + property.prty_id, propertyTypesIds
-                    .contains(property.prty_id));
-            assertTrue("Entity not found: " + property.entity_id, entityIds
-                    .contains(property.entity_id));
-        }
-    }
-
-    private static <T extends CodeRecord> Set<Long> extractVOIds(List<T> items)
-    {
-        Set<Long> ids = new HashSet<Long>();
-        for (T item : items)
-        {
-            ids.add(item.id);
-        }
-        return ids;
-    }
-
-    private static <T extends IIdHolder> Set<Long> extractIds(List<T> items)
-    {
-        Set<Long> ids = new HashSet<Long>();
-        for (T item : items)
-        {
-            ids.add(item.getId());
-        }
-        return ids;
-    }
 
     public static void checkPropertiesGenericValues(long entityId,
             DataIterator<GenericEntityPropertyRecord> properties)

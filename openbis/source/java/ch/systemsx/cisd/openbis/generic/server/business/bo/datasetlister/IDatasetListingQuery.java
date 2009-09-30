@@ -121,12 +121,6 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
         { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getDatasetChildrenIds(LongSet sampleId);
 
-    /**
-     * Returns the total number of all datasets in the database.
-     */
-    @Select(sql = "select count(*) from data")
-    public long getDatasetCount();
-
     //
     // Entity Properties
     //
