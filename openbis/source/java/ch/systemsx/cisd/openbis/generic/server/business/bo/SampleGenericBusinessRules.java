@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -40,7 +41,8 @@ public class SampleGenericBusinessRules
             return;
 
         SampleIdentifier parentId = parent.getSampleIdentifier();
-        SampleIdentifier childId = child.getSampleIdentifier();
+        // new identifier of a child is needed for comparison
+        SampleIdentifier childId = IdentifierHelper.createSampleIdentifier(child);
 
         if (parentId.isGroupLevel())
         {

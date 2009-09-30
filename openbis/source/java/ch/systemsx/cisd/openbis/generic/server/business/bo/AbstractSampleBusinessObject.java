@@ -137,7 +137,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         String containerIdentifier = newSample.getContainerIdentifier();
         setContainer(sampleIdentifier, samplePE, containerIdentifier);
         samplePE.setPermId(getPermIdDAO().createPermId());
-        SampleGenericBusinessRules.assertValidParents(samplePE);
         return samplePE;
     }
 
