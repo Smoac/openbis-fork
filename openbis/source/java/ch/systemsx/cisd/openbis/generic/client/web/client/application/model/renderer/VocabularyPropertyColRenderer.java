@@ -76,9 +76,6 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
         if (label == null)
         {
             return code;
-        } else if (code == null)
-        {
-            return label;
         } else
         {
             return label + " [" + code + "]";
@@ -90,14 +87,18 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
         final String code = term.getCode();
         final String label = term.getLabel();
         final String description = term.getDescription();
-        String result = "<b>" + code + "</b>";
-        if (label != null)
+        String result = "";
+        if (label == null)
         {
-            result += "<br>" + label;
+            result += "<b>" + code + "</b>";
+        } else
+        {
+            result += "<b>" + label + "</b>";
+            result += "<br>code: " + code;
         }
         if (description != null)
         {
-            result += "<br><i>" + description + "</i>";
+            result += "<br>description: <i>" + description + "</i>";
         }
         return result.replace(".", ". ");
     }
