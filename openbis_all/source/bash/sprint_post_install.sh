@@ -67,7 +67,7 @@ case "$SERVER" in
 	echo AGRONOMICS:$AGRONOMICS;
 	restore_loginHeader
 	create_individual_greeting_message
-	$BIN/sprint_post_install_yeastx.sh	
+	$BIN/sprint_post_install_agronomics.sh
 	;;
 	$DSU)
 	echo DSU:$DSU;
