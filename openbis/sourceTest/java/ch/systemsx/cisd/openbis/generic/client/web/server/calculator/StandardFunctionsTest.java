@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.Stan
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.DOUBLE_DEFAULT_VALUE;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.choose;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.avg;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.stdev;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.median;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.min;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.max;
@@ -130,6 +131,31 @@ public class StandardFunctionsTest extends AssertJUnit
     
     @Test
     public void testAvg()
+    {
+        assertEquals(0.0, stdev(Arrays.<Object>asList(1.5)));
+        assertEquals(2.0, stdev(Arrays.<Object>asList(2, 4, 4, 4, 5, 5, 7, 9)));
+        assertEquals(0.0, stdev(Arrays.<Object>asList(null, 1)));
+        assertEquals(4.5, stdev(Arrays.<Object>asList(" ", 1, "10")));
+        try
+        {
+            stdev(Arrays.<Object>asList());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Argument of function 'stdev' is an empty array.", ex.getMessage());
+        }
+        try
+        {
+            stdev(Arrays.<Object>asList("a"));
+            fail("NumberFormatException expected");
+        } catch (NumberFormatException ex)
+        {
+            // ignored
+        }
+    }
+    
+    @Test
+    public void testStdev()
     {
         assertEquals(1.5, avg(Arrays.<Object>asList(1.5)));
         assertEquals(5.0, avg(Arrays.<Object>asList(1, 4, 10)));

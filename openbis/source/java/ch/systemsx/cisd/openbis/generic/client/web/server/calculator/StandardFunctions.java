@@ -119,12 +119,37 @@ public final class StandardFunctions
         List<Double> array = toDoubleArray(values);
         assertNotEmpty(array, "avg");
         double sum = 0.0;
-        for (Double value : array)
+        for (double value : array)
         {
             sum += value;
         }
         return sum / array.size();
     }
+    
+    /**
+     * Calculates the standard deviation of the specified values. 
+     * Blank strings or <code>null</code> values in the list are ignored.
+     * 
+     * @throws NumberFormatException if an element can not be parsed as a floating-point number.
+     * @throws IllegalArgumentException if the list is empty.
+     */
+    public static Double stdev(List<Object> values)
+    {
+        List<Double> array = toDoubleArray(values);
+        assertNotEmpty(array, "stdev");
+        double s1 = 0.0;
+        double s2 = 0.0;
+        for (double value : array)
+        {
+            s1 += value;
+            s2 += value * value;
+        }
+        int n = array.size();
+        double m1 = s1 / n;
+        double m2 = s2 / n;
+        return Math.sqrt(Math.max(0, m2 - m1 * m1));
+    }
+    
     
     /**
      * Calculates the median of the specified values. 
