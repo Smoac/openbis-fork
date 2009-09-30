@@ -56,7 +56,9 @@ class FilterColumnChooserDialog extends Dialog
                         @Override
                         public void componentSelected(ComponentEvent ce)
                         {
-                            String expression = expressionField.getValue();
+                            String expression =
+                                    expressionField.getValue() != null ? expressionField.getValue()
+                                            : "";
                             int cursor = expressionField.getCursorPos();
                             for (String column : columnChooser.getSelectedItems())
                             {
