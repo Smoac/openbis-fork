@@ -702,7 +702,6 @@ public final class SampleBOTest extends AbstractBOTest
         fail("The edition of stale sample should throw an exception");
     }
 
-    @Test(expectedExceptions = UserFailureException.class)
     public final void testFailToDefineSharedSampleWithParentInAGroup()
     {
         final SampleIdentifier sharedSampleIdentifier =
@@ -754,6 +753,16 @@ public final class SampleBOTest extends AbstractBOTest
 
         final SampleBO sampleBO = createSampleBO();
         sampleBO.define(newSharedSample);
+        boolean exceptionThrown = false;
+        try
+        {
+            sampleBO.save();
+        } catch (UserFailureException ex)
+        {
+            exceptionThrown = true;
+            assertTrue(ex.getMessage().contains("has to be in the same group"));
+        }
+        assertTrue(exceptionThrown);
         context.assertIsSatisfied();
     }
 
