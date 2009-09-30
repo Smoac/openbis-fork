@@ -543,7 +543,6 @@ final class SampleListingWorker
 
     private void setGroup(final Sample sample, final Group group)
     {
-        // FIXME NPE when sample has container in a different group
         sample.setGroup(group);
         final GroupIdentifier groupId =
                 new GroupIdentifier(databaseInstance.getCode(), group.getCode());
