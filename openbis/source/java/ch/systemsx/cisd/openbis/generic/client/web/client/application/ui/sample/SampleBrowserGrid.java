@@ -427,6 +427,7 @@ public class SampleBrowserGrid extends
                             }
                             return sampleTypes;
                         }
+
                     };
 
         criteria.copyPagingConfig(resultSetConfig);

@@ -377,7 +377,7 @@ public abstract class AbstractClientService implements IClientService
     {
         try
         {
-            final HttpSession httpSession = getHttpSession();
+            final HttpSession httpSession = getHttpSession(); // FIXME
             if (httpSession != null)
             {
                 final Session session = getSession(httpSession);

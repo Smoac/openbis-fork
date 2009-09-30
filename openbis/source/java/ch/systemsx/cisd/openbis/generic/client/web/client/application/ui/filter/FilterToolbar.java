@@ -102,7 +102,6 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         this.columnFilters.clear();
         this.columnFilters.addAll(newFilters);
         updateFilterContainer();
-        filterContainer.layout();
     }
 
     public CustomFilterInfo<T> tryGetCustomFilters()
@@ -146,6 +145,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         Filter filter = filterSelectionWidget.tryGetSelected();
         if (filter != null)
         {
+            // TODO try to remove container and add a new one
             filterContainer.removeAll();
             if (filter.getName().equals(Filter.COLUMN_FILTER))
             {
@@ -160,7 +160,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                     filterContainer.add(new CustomFilterParameterWidget(parameter));
                 }
             }
-            filterContainer.layout();
+            filterContainer.layout(); // TODO move?
         }
     }
 

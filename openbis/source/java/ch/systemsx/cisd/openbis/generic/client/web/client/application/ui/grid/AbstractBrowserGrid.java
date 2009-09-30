@@ -1051,14 +1051,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         List<PagingColumnFilter<T>> newFilterWidgets = createFilterWidgets(filteredColumns);
         rebuildFilterWidgets(newFilterWidgets, this.filterWidgets, viewContext);
 
-        boolean noFiltersBefore = filterWidgets.isEmpty();
-        boolean noFiltersAfter = newFilterWidgets.isEmpty();
+		// NOTE: If we decide to hide filters when there are no custom filters and no column filters
+		// are chosen this code should be reused.
+        // boolean noFiltersBefore = filterWidgets.isEmpty();
+        // boolean noFiltersAfter = newFilterWidgets.isEmpty();
         this.filterWidgets = newFilterWidgets;
         filterToolbar.updateColumnFilter(filterWidgets);
-        if (noFiltersBefore != noFiltersAfter)
-        {
-            layout();
-        }
+        // if (noFiltersBefore != noFiltersAfter)
+        // {
+        // layout();
+        // }
     }
 
     public List<IColumnDefinition<T>> getColumnDefinitions(List<String> columnIds)
