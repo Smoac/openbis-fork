@@ -117,7 +117,7 @@ public final class StandardFunctions
     public static Double avg(List<Object> values)
     {
         List<Double> array = toDoubleArray(values);
-        assertNotEmpty(array, "mean");
+        assertNotEmpty(array, "avg");
         double sum = 0.0;
         for (Double value : array)
         {
@@ -152,7 +152,7 @@ public final class StandardFunctions
     public static Double min(List<Object> values)
     {
         List<Double> array = toDoubleArray(values);
-        assertNotEmpty(array, "minimum");
+        assertNotEmpty(array, "min");
         Collections.sort(array);
         return array.get(0);
     }
@@ -167,7 +167,7 @@ public final class StandardFunctions
     public static Double max(List<Object> values)
     {
         List<Double> array = toDoubleArray(values);
-        assertNotEmpty(array, "maximum");
+        assertNotEmpty(array, "max");
         Collections.sort(array);
         return array.get(array.size() - 1);
     }
