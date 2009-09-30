@@ -129,7 +129,7 @@ public class StandardFunctionsTest extends AssertJUnit
     }
     
     @Test
-    public void testMean()
+    public void testAvg()
     {
         assertEquals(1.5, avg(Arrays.<Object>asList(1.5)));
         assertEquals(5.0, avg(Arrays.<Object>asList(1, 4, 10)));
@@ -141,7 +141,7 @@ public class StandardFunctionsTest extends AssertJUnit
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("Argument of function 'mean' is an empty array.", ex.getMessage());
+            assertEquals("Argument of function 'avg' is an empty array.", ex.getMessage());
         }
         try
         {
@@ -179,7 +179,7 @@ public class StandardFunctionsTest extends AssertJUnit
     }
     
     @Test
-    public void testMinimum()
+    public void testMin()
     {
         assertEquals(1.5, min(Arrays.<Object>asList(1.5)));
         assertEquals(1.0, min(Arrays.<Object>asList(4, 1, 10)));
@@ -191,7 +191,7 @@ public class StandardFunctionsTest extends AssertJUnit
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("Argument of function 'minimum' is an empty array.", ex.getMessage());
+            assertEquals("Argument of function 'min' is an empty array.", ex.getMessage());
         }
         try
         {
@@ -204,7 +204,7 @@ public class StandardFunctionsTest extends AssertJUnit
     }
     
     @Test
-    public void testMaximum()
+    public void testMax()
     {
         assertEquals(1.5, max(Arrays.<Object>asList(1.5)));
         assertEquals(10.0, max(Arrays.<Object>asList(4, 1, 10)));
@@ -216,7 +216,7 @@ public class StandardFunctionsTest extends AssertJUnit
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
-            assertEquals("Argument of function 'maximum' is an empty array.", ex.getMessage());
+            assertEquals("Argument of function 'max' is an empty array.", ex.getMessage());
         }
         try
         {
