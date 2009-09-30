@@ -285,6 +285,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
                     "Sample group must be the same as experiment group. Shared samples cannot be attached to experiments.");
         }
         SampleGenericBusinessRules.assertValidParents(sample);
+        SampleGenericBusinessRules.assertValidChildren(sample);
     }
 
     protected boolean hasDatasets(IExternalDataDAO externalDataDAO, SamplePE sample)

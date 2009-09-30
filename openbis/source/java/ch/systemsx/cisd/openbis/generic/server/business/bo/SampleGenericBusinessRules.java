@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.List;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -59,12 +61,48 @@ public class SampleGenericBusinessRules
         }
     }
 
+    static private void assertValidChildrenRelation(final List<SamplePE> children,
+            final SamplePE parent) throws UserFailureException
+    {
+        if (children == null || children.size() == 0 || parent == null)
+            return;
+
+        // new identifier of a parent is needed for comparison
+        SampleIdentifier parentId = IdentifierHelper.createSampleIdentifier(parent);
+
+        if (parentId.isGroupLevel())
+        {
+            for (SamplePE child : children)
+            {
+                SampleIdentifier childId = child.getSampleIdentifier();
+                if (childId.isDatabaseInstanceLevel())
+                {
+                    throwUserFailureException("Sample '%s' can not be a group sample because of "
+                            + "a derived database instance sample '%s'.", parent, child);
+                }
+                if (parentId.getGroupLevel().equals(childId.getGroupLevel()) == false)
+                {
+                    throwUserFailureException("Sample '%s' can not have different group "
+                            + "from its derived sample '%s'.", child, parent);
+                }
+            }
+        }
+    }
+
     static public void assertValidParents(SamplePE sample)
     {
         if (sample == null)
             return;
         assertValidParentRelation(sample.getContainer(), sample);
         assertValidParentRelation(sample.getGeneratedFrom(), sample);
+    }
+
+    static public void assertValidChildren(SamplePE sample)
+    {
+        if (sample == null)
+            return;
+        assertValidChildrenRelation(sample.getContained(), sample);
+        assertValidChildrenRelation(sample.getGenerated(), sample);
     }
 
     static private void throwUserFailureException(String messageTemplate, SamplePE sample1,
