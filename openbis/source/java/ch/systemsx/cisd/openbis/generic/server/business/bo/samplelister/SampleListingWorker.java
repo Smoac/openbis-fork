@@ -526,7 +526,9 @@ final class SampleListingWorker
             addToRequested(row.samp_id_generated_from, row.id, maxSampleParentResolutionDepth,
                     primarySample);
         }
-        if (row.samp_id_part_of != null & maxSampleContainerResolutionDepth > 0)
+        // even though maxSampleContainerResoutionDepth may be 0 we still need to load container
+        // for primary samples with container to create a 'full' code with container code part
+        if (row.samp_id_part_of != null & (primarySample || maxSampleContainerResolutionDepth > 0))
         {
             if (samplesAwaitingContainerResolution.containsKey(row.id) == false)
             {
