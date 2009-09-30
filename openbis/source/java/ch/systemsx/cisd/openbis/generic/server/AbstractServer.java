@@ -252,12 +252,18 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
 
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
-        PersonPE person = session.tryGetPerson();
-        if (person != null)
+        try
         {
-            person.setDisplaySettings(displaySettings);
-            getDAOFactory().getPersonDAO().updatePerson(person);
+            final Session session = getSessionManager().getSession(sessionToken);
+            PersonPE person = session.tryGetPerson();
+            if (person != null)
+            {
+                person.setDisplaySettings(displaySettings);
+                getDAOFactory().getPersonDAO().updatePerson(person);
+            }
+        } catch (InvalidSessionException e)
+        {
+            // ignore the situation when session is not available
         }
     }
 

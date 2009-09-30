@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
+import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -82,8 +83,15 @@ public abstract class AbstractServerLogger implements IServer
     private final void logMessage(final Logger logger, final String sessionToken,
             final String commandName, final String parameterDisplayFormat, final Object[] parameters)
     {
-        final Session session = sessionManager.getSession(sessionToken);
-        final String prefix = logMessagePrefixGenerator.createPrefix(session);
+        Session sessionOrNull = null;
+        try
+        {
+            sessionOrNull = sessionManager.getSession(sessionToken);
+        } catch (InvalidSessionException e)
+        {
+            // ignore the situation when session is not available
+        }
+        final String prefix = logMessagePrefixGenerator.createPrefix(sessionOrNull);
         for (int i = 0; i < parameters.length; i++)
         {
             final Object parameter = parameters[i];
