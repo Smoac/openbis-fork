@@ -117,6 +117,7 @@ public abstract class AbstractExternalDataGrid
                                     .execute());
                 }
             });
+        changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
         addButton(deleteButton);
         Button uploadButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATASETS),

@@ -172,6 +172,7 @@ public class ExperimentBrowserGrid extends
                                     .execute());
                 }
             });
+        changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
         addButton(deleteButton);
         allowMultipleSelection(); // we allow deletion of multiple samples
 
