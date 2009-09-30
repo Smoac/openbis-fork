@@ -34,7 +34,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 public class RowCalculator<T>
 {
     private static final String INITIAL_SCRIPT =
-            "from " + StandardFunctions.class.getCanonicalName() + " import *";
+            "from " + StandardFunctions.class.getCanonicalName() + " import *\n"
+            + "def int(x):return toInt(x)\n"
+            + "def float(x):return toFloat(x)\n"
+            ;
 
     private final Evaluator evaluator;
 

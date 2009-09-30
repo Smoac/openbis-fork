@@ -18,12 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.INTEGER_DEFAULT_VALUE;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.DOUBLE_DEFAULT_VALUE;
-import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.ifThenElse;
-import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.mean;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.choose;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.avg;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.median;
-import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.minimum;
-import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.maximum;
-import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.toInteger;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.min;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.max;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.toInt;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.toFloat;
 
 import java.util.Arrays;
@@ -41,29 +41,29 @@ public class StandardFunctionsTest extends AssertJUnit
     @Test
     public void testToIntegerWithNullArgument()
     {
-        assertEquals(INTEGER_DEFAULT_VALUE, toInteger(null));
-        assertEquals(42, toInteger(null, 42).intValue());
+        assertEquals(INTEGER_DEFAULT_VALUE, toInt(null));
+        assertEquals(42, toInt(null, 42).intValue());
     }
     
     @Test
     public void testToIntegerWithBlankArgument()
     {
-        assertEquals(INTEGER_DEFAULT_VALUE, toInteger("  "));
-        assertEquals(42, toInteger("  ", 42).intValue());
+        assertEquals(INTEGER_DEFAULT_VALUE, toInt("  "));
+        assertEquals(42, toInt("  ", 42).intValue());
     }
     
     @Test
     public void testToIntegerWithNumberArgument()
     {
-        assertEquals(42, toInteger(42).intValue());
-        assertEquals(42, toInteger(42, 4711).intValue());
+        assertEquals(42, toInt(42).intValue());
+        assertEquals(42, toInt(42, 4711).intValue());
     }
     
     @Test
     public void testToIntegerWithParsableArgument()
     {
-        assertEquals(42, toInteger("42").intValue());
-        assertEquals(42, toInteger("42", 4711).intValue());
+        assertEquals(42, toInt("42").intValue());
+        assertEquals(42, toInt("42", 4711).intValue());
     }
     
     @Test
@@ -71,7 +71,7 @@ public class StandardFunctionsTest extends AssertJUnit
     {
         try
         {
-            toInteger("abc");
+            toInt("abc");
             fail("NumberFormatException expected");
         } catch (NumberFormatException ex)
         {
@@ -123,21 +123,21 @@ public class StandardFunctionsTest extends AssertJUnit
     @Test
     public void testIfThenElse()
     {
-        assertEquals("no", ifThenElse(null, "yes", "no"));
-        assertEquals("no", ifThenElse(false, "yes", "no"));
-        assertEquals("yes", ifThenElse(true, "yes", "no"));
+        assertEquals("no", choose(null, "yes", "no"));
+        assertEquals("no", choose(false, "yes", "no"));
+        assertEquals("yes", choose(true, "yes", "no"));
     }
     
     @Test
     public void testMean()
     {
-        assertEquals(1.5, mean(Arrays.<Object>asList(1.5)));
-        assertEquals(5.0, mean(Arrays.<Object>asList(1, 4, 10)));
-        assertEquals(5.5, mean(Arrays.<Object>asList(null, 1, 10)));
-        assertEquals(5.5, mean(Arrays.<Object>asList(" ", 1, "10")));
+        assertEquals(1.5, avg(Arrays.<Object>asList(1.5)));
+        assertEquals(5.0, avg(Arrays.<Object>asList(1, 4, 10)));
+        assertEquals(5.5, avg(Arrays.<Object>asList(null, 1, 10)));
+        assertEquals(5.5, avg(Arrays.<Object>asList(" ", 1, "10")));
         try
         {
-            mean(Arrays.<Object>asList());
+            avg(Arrays.<Object>asList());
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -145,7 +145,7 @@ public class StandardFunctionsTest extends AssertJUnit
         }
         try
         {
-            mean(Arrays.<Object>asList("a"));
+            avg(Arrays.<Object>asList("a"));
             fail("NumberFormatException expected");
         } catch (NumberFormatException ex)
         {
@@ -181,13 +181,13 @@ public class StandardFunctionsTest extends AssertJUnit
     @Test
     public void testMinimum()
     {
-        assertEquals(1.5, minimum(Arrays.<Object>asList(1.5)));
-        assertEquals(1.0, minimum(Arrays.<Object>asList(4, 1, 10)));
-        assertEquals(1.0, minimum(Arrays.<Object>asList(null, 1, 10)));
-        assertEquals(1.0, minimum(Arrays.<Object>asList(" ", 1, "10")));
+        assertEquals(1.5, min(Arrays.<Object>asList(1.5)));
+        assertEquals(1.0, min(Arrays.<Object>asList(4, 1, 10)));
+        assertEquals(1.0, min(Arrays.<Object>asList(null, 1, 10)));
+        assertEquals(1.0, min(Arrays.<Object>asList(" ", 1, "10")));
         try
         {
-            minimum(Arrays.<Object>asList());
+            min(Arrays.<Object>asList());
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -195,7 +195,7 @@ public class StandardFunctionsTest extends AssertJUnit
         }
         try
         {
-            minimum(Arrays.<Object>asList("a"));
+            min(Arrays.<Object>asList("a"));
             fail("NumberFormatException expected");
         } catch (NumberFormatException ex)
         {
@@ -206,13 +206,13 @@ public class StandardFunctionsTest extends AssertJUnit
     @Test
     public void testMaximum()
     {
-        assertEquals(1.5, maximum(Arrays.<Object>asList(1.5)));
-        assertEquals(10.0, maximum(Arrays.<Object>asList(4, 1, 10)));
-        assertEquals(10.0, maximum(Arrays.<Object>asList(null, 1, 10)));
-        assertEquals(10.0, maximum(Arrays.<Object>asList(" ", 1, "10")));
+        assertEquals(1.5, max(Arrays.<Object>asList(1.5)));
+        assertEquals(10.0, max(Arrays.<Object>asList(4, 1, 10)));
+        assertEquals(10.0, max(Arrays.<Object>asList(null, 1, 10)));
+        assertEquals(10.0, max(Arrays.<Object>asList(" ", 1, "10")));
         try
         {
-            maximum(Arrays.<Object>asList());
+            max(Arrays.<Object>asList());
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -220,7 +220,7 @@ public class StandardFunctionsTest extends AssertJUnit
         }
         try
         {
-            maximum(Arrays.<Object>asList("a"));
+            max(Arrays.<Object>asList("a"));
             fail("NumberFormatException expected");
         } catch (NumberFormatException ex)
         {

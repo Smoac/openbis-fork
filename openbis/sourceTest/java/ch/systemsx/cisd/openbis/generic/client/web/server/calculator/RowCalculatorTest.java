@@ -161,7 +161,7 @@ public class RowCalculatorTest extends AssertJUnit
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
         RowCalculator<Data> calculator =
-                createCalculator(parameters, "ifThenElse(row.col('VALUE') < PI, cos(${x}), ${x})");
+                createCalculator(parameters, "choose(row.col('VALUE') < PI, cos(${x}), ${x})");
 
         calculator.setRowData(createData(3.14));
         assertEquals(1.0, calculator.evalToDouble());
@@ -169,7 +169,51 @@ public class RowCalculatorTest extends AssertJUnit
         calculator.setRowData(createData(3.15));
         assertEquals(0.0, calculator.evalToDouble());
     }
+    
+    @Test
+    public void testIntFunctionOverloaded()
+    {
+        Set<ParameterWithValue> parameters = createParameters("x", "0.0");
+        RowCalculator<Data> calculator =
+                createCalculator(parameters, "map(int, [${x},'  ',2,2.5,'3'])");
+        
+        assertEquals("[0, -2147483648, 2, 2, 3]", calculator.evalAsString());
+        
+    }
+    
+    @Test
+    public void testFloatFunctionOverloaded()
+    {
+        Set<ParameterWithValue> parameters = createParameters("x", "0.0");
+        RowCalculator<Data> calculator =
+            createCalculator(parameters, "map(float, [${x},'  ',2,2.5,'3'])");
+        
+        assertEquals("[0.0, -1.7976931348623157E308, 2.0, 2.5, 3.0]", calculator.evalAsString());
+        
+    }
+    
+    @Test
+    public void testMinFunctionOverloaded()
+    {
+        Set<ParameterWithValue> parameters = createParameters("x", "0.0");
+        RowCalculator<Data> calculator =
+            createCalculator(parameters, "min([${x},None,'  ',-2,'-3'])");
+        
+        assertEquals(-3.0, calculator.evalToDouble());
+        
+    }
 
+    @Test
+    public void testMaxFunctionOverloaded()
+    {
+        Set<ParameterWithValue> parameters = createParameters("x", "0.0");
+        RowCalculator<Data> calculator =
+            createCalculator(parameters, "max([${x},None,'  ',-2,'-3'])");
+        
+        assertEquals(0.0, calculator.evalToDouble());
+        
+    }
+    
     private RowCalculator<Data> createCalculator(Set<ParameterWithValue> parameters,
             String expression)
     {

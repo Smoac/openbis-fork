@@ -42,9 +42,9 @@ public final class StandardFunctions
      * @throws NumberFormatException if <code>value.toString()</code> can not be parsed as an
      *             integer.
      */
-    public static Integer toInteger(Object value)
+    public static Integer toInt(Object value)
     {
-        return toInteger(value, INTEGER_DEFAULT_VALUE);
+        return toInt(value, INTEGER_DEFAULT_VALUE);
     }
 
     /**
@@ -55,7 +55,7 @@ public final class StandardFunctions
      * @throws NumberFormatException if <code>value.toString()</code> can not be parsed as an
      *             integer.
      */
-    public static Integer toInteger(Object value, Integer defaultValue)
+    public static Integer toInt(Object value, Integer defaultValue)
     {
         if (value instanceof Number)
         {
@@ -102,7 +102,7 @@ public final class StandardFunctions
      * 
      * @return <code>elseValue</code> if <code>condition == null</code>.
      */
-    public static Object ifThenElse(Boolean condition, Object thenValue, Object elseValue)
+    public static Object choose(Boolean condition, Object thenValue, Object elseValue)
     {
         return condition != null && condition.booleanValue() ? thenValue : elseValue;
     }
@@ -114,7 +114,7 @@ public final class StandardFunctions
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
      */
-    public static Double mean(List<Object> values)
+    public static Double avg(List<Object> values)
     {
         List<Double> array = toDoubleArray(values);
         assertNotEmpty(array, "mean");
@@ -149,7 +149,7 @@ public final class StandardFunctions
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
      */
-    public static Double minimum(List<Object> values)
+    public static Double min(List<Object> values)
     {
         List<Double> array = toDoubleArray(values);
         assertNotEmpty(array, "minimum");
@@ -164,7 +164,7 @@ public final class StandardFunctions
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
      */
-    public static Double maximum(List<Object> values)
+    public static Double max(List<Object> values)
     {
         List<Double> array = toDoubleArray(values);
         assertNotEmpty(array, "maximum");
