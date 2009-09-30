@@ -63,7 +63,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         filterSelectionWidget =
                 new FilterSelectionWidget(viewContext, gridId, displayTypeIDProvider);
         filterContainer = new LayoutContainer(new FillLayout(Orientation.HORIZONTAL));
-        AdapterToolItem filterTool = new AdapterToolItem(filterSelectionWidget);
+        filterContainer.setLayoutOnChange(true); // fixes jumping filter fields in firefox
+		AdapterToolItem filterTool = new AdapterToolItem(filterSelectionWidget);
         add(filterTool);
         add(new AdapterToolItem(filterContainer));
         applyTool = new TextToolItem(viewContext.getMessage(Dict.APPLY_FILTER));
@@ -145,7 +146,6 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         Filter filter = filterSelectionWidget.tryGetSelected();
         if (filter != null)
         {
-            // TODO try to remove container and add a new one
             filterContainer.removeAll();
             if (filter.getName().equals(Filter.COLUMN_FILTER))
             {
@@ -160,7 +160,6 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                     filterContainer.add(new CustomFilterParameterWidget(parameter));
                 }
             }
-            filterContainer.layout(); // TODO move?
         }
     }
 
