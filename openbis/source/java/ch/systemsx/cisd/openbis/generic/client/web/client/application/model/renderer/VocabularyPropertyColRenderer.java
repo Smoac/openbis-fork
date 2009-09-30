@@ -98,7 +98,7 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
         }
         if (description != null)
         {
-            result += "<br>description: <i>" + description + "</i>";
+            result += "<br><hr>description: <i>" + description + "</i>";
         }
         return result.replace(".", ". ");
     }
