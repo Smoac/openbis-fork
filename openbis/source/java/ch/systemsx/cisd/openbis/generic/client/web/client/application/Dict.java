@@ -807,5 +807,7 @@ public abstract class Dict
 
     public static final String HOW_TO_ADDRESS = "how_to_address";
 
+    public static final String INSERT_COLUMNS = "insert_columns";
+
     // ----- end generic ------------------
 }

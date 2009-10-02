@@ -18,19 +18,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
@@ -47,6 +46,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 abstract public class AbstractFilterEditRegisterDialog extends AbstractRegistrationDialog
 {
 
+    public static int FIELD_WIDTH = 400;
+
+    public static int LABEL_WIDTH = 100;
+
     public static final String PUBLIC_FIELD = "public-field";
 
     public static final String EXPRESSION_FIELD = "expression-field";
@@ -54,6 +57,8 @@ abstract public class AbstractFilterEditRegisterDialog extends AbstractRegistrat
     public static final String DESCRIPTION_FIELD = "description-field";
 
     public static final String NAME_FIELD = "name-field";
+
+    public static final String INSERT_COLUMNS_LINK = "insert-columns-link";
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -65,29 +70,49 @@ abstract public class AbstractFilterEditRegisterDialog extends AbstractRegistrat
 
     private final CheckBoxField publicField;
 
-    protected final String gridId;
+    private final LabelField insertColumnsLink;
 
-    private final List<ColumnDataModel> columnModels;
+    protected final String gridId;
 
     public AbstractFilterEditRegisterDialog(
             final IViewContext<ICommonClientServiceAsync> viewContext, final String title,
-            final IDelegatedAction postRegistrationCallback, String gridId,
-            List<ColumnDataModel> columnModels)
+            final IDelegatedAction postRegistrationCallback, final String gridId,
+            final List<ColumnDataModel> columnModels)
     {
         super(viewContext, title, postRegistrationCallback);
         this.viewContext = viewContext;
         this.gridId = gridId;
-        this.columnModels = columnModels;
         addField(nameField = createTextField(viewContext.getMessage(Dict.NAME), true));
         nameField.setId(createId(gridId, NAME_FIELD));
         addField(descriptionField = createDescriptionField(viewContext, true));
         descriptionField.setId(createId(gridId, DESCRIPTION_FIELD));
         addField(expressionField = createExpressionField());
         expressionField.setId(createId(gridId, EXPRESSION_FIELD));
+        addField(insertColumnsLink =
+                createInsertColumnsLink(viewContext.getMessage(Dict.INSERT_COLUMNS), columnModels));
+        insertColumnsLink.setId(createId(gridId, INSERT_COLUMNS_LINK));
         addField(publicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false));
         publicField.setId(createId(gridId, PUBLIC_FIELD));
-        setBottomComponent(new BottomToolbar());
-        setWidth(500);
+
+        form.setLabelWidth(LABEL_WIDTH);
+        form.setFieldWidth(FIELD_WIDTH);
+        setWidth(form.getLabelWidth() + form.getFieldWidth() + 50);
+    }
+
+    private LabelField createInsertColumnsLink(final String label,
+            final List<ColumnDataModel> columnModels)
+    {
+        LabelField result = new LabelField(LinkRenderer.renderAsLink(label));
+        result.sinkEvents(Event.ONCLICK);
+        result.addListener(Event.ONCLICK, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    FilterColumnChooserDialog.show(viewContext, columnModels, gridId,
+                            asExpressionHolder(expressionField));
+                }
+            });
+        return result;
     }
 
     public static String createId(String gridId, String suffix)
@@ -141,27 +166,6 @@ abstract public class AbstractFilterEditRegisterDialog extends AbstractRegistrat
     protected final boolean extractIsPublic()
     {
         return publicField.getValue();
-    }
-
-    class BottomToolbar extends ToolBar
-    {
-
-        public BottomToolbar()
-        {
-            add(new FillToolItem());
-            Button button = new Button("Available Columns");
-            button.addSelectionListener(new SelectionListener<ComponentEvent>()
-                {
-
-                    @Override
-                    public void componentSelected(ComponentEvent ce)
-                    {
-                        FilterColumnChooserDialog.show(viewContext, columnModels, gridId,
-                                asExpressionHolder(expressionField));
-                    }
-                });
-            add(new AdapterToolItem(button));
-        }
     }
 
     private static final IExpressionHolder asExpressionHolder(

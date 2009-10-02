@@ -510,6 +510,7 @@ samples_radio_group_label: "Samples",
  apply_filter: "Apply",
  add_new_filter: "Add a New Filter",
  how_to_address: "How To Address", 
+ insert_columns: "Insert Columns", 
  
  // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

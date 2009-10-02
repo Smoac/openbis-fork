@@ -17,7 +17,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * Allows to select columns which should be used in the filter.
+ * Allows to select columns which should be used in the filter. Chosen value is a string that can be
+ * used in an expression to address selected columns.
  * 
  * @author Izabela Adamczyk
  */
