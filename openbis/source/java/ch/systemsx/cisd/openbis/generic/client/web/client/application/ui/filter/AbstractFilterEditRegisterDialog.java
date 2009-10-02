@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.M
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 
 /**
  * A {@link Window} extension for registering and editing filters.
@@ -130,17 +131,17 @@ abstract public class AbstractFilterEditRegisterDialog extends AbstractRegistrat
 
     protected final void initializeDescription(String description)
     {
-        descriptionField.setValue(description);
+        descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
     }
 
     protected final void initializeExpression(String expression)
     {
-        expressionField.setValue(expression);
+        expressionField.setValue(StringEscapeUtils.unescapeHtml(expression));
     }
 
     protected final void initializeName(String name)
     {
-        nameField.setValue(name);
+        nameField.setValue(StringEscapeUtils.unescapeHtml(name));
     }
 
     protected final void initializePublic(boolean isPublic)

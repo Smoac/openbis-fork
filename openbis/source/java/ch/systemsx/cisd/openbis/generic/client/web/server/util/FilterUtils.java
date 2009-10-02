@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.RowCalculator;
@@ -40,9 +42,10 @@ public class FilterUtils
             Set<IColumnDefinition<T>> availableColumns, CustomFilterInfo<T> customFilterInfo,
             List<T> filterdRows)
     {
-        String expression = customFilterInfo.getExpression();
+        String expression = StringEscapeUtils.unescapeHtml(customFilterInfo.getExpression());
         Set<ParameterWithValue> parameters = customFilterInfo.getParameters();
-        RowCalculator<T> calculator = new RowCalculator<T>(availableColumns, expression, parameters);
+        RowCalculator<T> calculator =
+                new RowCalculator<T>(availableColumns, expression, parameters);
         for (T rowData : allRows)
         {
             calculator.setRowData(rowData);

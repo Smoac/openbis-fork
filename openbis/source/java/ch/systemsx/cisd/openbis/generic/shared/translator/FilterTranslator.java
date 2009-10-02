@@ -61,8 +61,8 @@ public final class FilterTranslator
         }
         final Filter result = new Filter();
         result.setId(HibernateUtils.getId(filter));
-        result.setExpression(filter.getExpression());
         result.setModificationDate(filter.getModificationDate());
+        result.setExpression(StringEscapeUtils.escapeHtml(filter.getExpression()));
         result.setName(StringEscapeUtils.escapeHtml(filter.getName()));
         result.setDescription(StringEscapeUtils.escapeHtml(filter.getDescription()));
         result.setRegistrator(PersonTranslator.translate(filter.getRegistrator()));
