@@ -13,6 +13,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TriggerField;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
@@ -43,6 +44,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 {
     static final String APPLY_ID = "apply_button";
 
+    static final String RESET_ID = "reset_button";
+
     private final List<PagingColumnFilter<T>> columnFilters;
 
     private final LayoutContainer filterContainer;
@@ -52,6 +55,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     private final IDelegatedAction applyFiltersAction;
 
     private final TextToolItem applyTool;
+
+    private final TextToolItem resetTool;
 
     public FilterToolbar(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
             IDisplayTypeIDProvider displayTypeIDProvider,
@@ -70,14 +75,18 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         applyTool = new TextToolItem(viewContext.getMessage(Dict.APPLY_FILTER));
         applyTool.setId(createId(APPLY_ID, gridId));
         applyTool.setEnabled(false);
+        applyTool.hide();
         add(applyTool);
+        resetTool = new TextToolItem(viewContext.getMessage(Dict.RESET_FILTER));
+        resetTool.setId(createId(RESET_ID, gridId));
+        add(resetTool);
 
         filterSelectionWidget.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
             {
                 @Override
                 public void selectionChanged(SelectionChangedEvent<ModelData> se)
                 {
-                    updateFilterContainer();
+                    updateFilterFields();
                     apply();
                 }
 
@@ -87,6 +96,15 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
+                    apply();
+                }
+            });
+        resetTool.addSelectionListener(new SelectionListener<ComponentEvent>()
+            {
+                @Override
+                public void componentSelected(ComponentEvent ce)
+                {
+                    resetFilterFields();
                     apply();
                 }
             });
@@ -102,7 +120,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     {
         this.columnFilters.clear();
         this.columnFilters.addAll(newFilters);
-        updateFilterContainer();
+        updateFilterFields();
     }
 
     public boolean isColumnFilterSelected()
@@ -127,7 +145,6 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             Set<ParameterWithValue> parameters = new HashSet<ParameterWithValue>();
             for (Component field : filterContainer.getItems())
             {
-
                 parameters.add(((CustomFilterParameterWidget) field).getParameterWithValue());
             }
             info.setParameters(parameters);
@@ -146,24 +163,38 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         filterSelectionWidget.update(observedModifications);
     }
 
-    private void updateFilterContainer()
+    private void updateFilterFields()
     {
+        filterContainer.removeAll();
         Filter filter = filterSelectionWidget.tryGetSelected();
-        if (filter != null)
+        if (isColumnFilterSelected())
         {
-            filterContainer.removeAll();
-            if (filter.getName().equals(Filter.COLUMN_FILTER))
+            for (PagingColumnFilter<T> filterWidget : columnFilters)
             {
-                for (PagingColumnFilter<T> filterWidget : FilterToolbar.this.columnFilters)
-                {
-                    filterContainer.add(filterWidget);
-                }
-            } else
+                filterContainer.add(filterWidget);
+            }
+            applyTool.hide();
+        } else
+        {
+            for (String parameter : filter.getParameters())
             {
-                for (String parameter : filter.getParameters())
-                {
-                    filterContainer.add(new CustomFilterParameterWidget(parameter));
-                }
+                filterContainer.add(new CustomFilterParameterWidget(parameter));
+            }
+            applyTool.show();
+            updateApplyToolEnabledState();
+        }
+        resetTool.setVisible(filterContainer.getItemCount() > 0);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void resetFilterFields()
+    {
+        for (Component field : filterContainer.getItems())
+        {
+            if (field instanceof Field)
+            {
+                Field f = (Field) field;
+                f.reset();
             }
         }
     }
@@ -174,7 +205,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         applyFiltersAction.execute();
     }
 
-    private void updateApplyTool()
+    private void updateApplyToolEnabledState()
     {
         applyTool.setEnabled(isValid());
     }
@@ -186,7 +217,6 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             boolean valid = true;
             for (Component field : filterContainer.getItems())
             {
-
                 CustomFilterParameterWidget f = (CustomFilterParameterWidget) field;
                 valid = f.isValid() && valid;
             }
@@ -217,7 +247,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         protected void onKeyUp(FieldEvent fe)
         {
             super.onKeyUp(fe);
-            updateApplyTool();
+            updateApplyToolEnabledState();
         }
 
         public ParameterWithValue getParameterWithValue()
@@ -230,7 +260,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         {
             super.onTriggerClick(ce);
             setValue(null);
-            updateApplyTool();
+            updateApplyToolEnabledState();
         }
     }
 
