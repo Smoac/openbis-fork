@@ -127,7 +127,7 @@ public abstract class AbstractServerLogger implements IServer
     // ISessionProvider
     //
 
-    public final IAuthSession getSession(final String sessionToken) throws UserFailureException
+    public final IAuthSession getAuthSession(final String sessionToken) throws UserFailureException
     {
         return null;
     }

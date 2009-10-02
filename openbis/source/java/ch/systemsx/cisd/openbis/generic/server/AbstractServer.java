@@ -188,11 +188,23 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         return dataStoreBaseURLProvider.getDataStoreBaseURL();
     }
 
+    // Call this when session object is not needed but you want just to
+    // refresh/check the session.
+    protected void checkSession(final String sessionToken)
+    {
+        getSession(sessionToken);
+    }
+
+    protected Session getSession(final String sessionToken)
+    {
+        return getSessionManager().getSession(sessionToken);
+    }
+    
     //
     // IServer
     //
 
-    public final IAuthSession getSession(final String sessionToken) throws UserFailureException
+    public final IAuthSession getAuthSession(final String sessionToken) throws UserFailureException
     {
         return new SimpleSession(sessionManager.getSession(sessionToken));
     }

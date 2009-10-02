@@ -105,7 +105,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
             String sessionToken, TechId experimentID, String treatmentTypeOrNull)
             throws UserFailureException
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         String experimentPermID = getExperimentPermIDFor(experimentID);
         IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
         DataSet<String> samplePermIDs =
@@ -129,7 +129,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
             double falseDiscoveryRate, AggregateFunction function, String treatmentTypeCode,
             boolean aggregateOnOriginal) throws UserFailureException
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         List<AbundanceColumnDefinition> definitions =
                 getAbundanceColumnDefinitionsForProteinByExperiment(sessionToken, experimentId,
                         treatmentTypeCode);
@@ -141,7 +141,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentID,
             TechId proteinReferenceID) throws UserFailureException
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO();
         ProteinByExperiment proteinByExperiment = new ProteinByExperiment();
         ProteinReference proteinReference =
@@ -164,7 +164,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     public List<ProteinSequence> listProteinSequencesByProteinReference(String sessionToken,
             TechId proteinReferenceID) throws UserFailureException
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         IProteinSequenceTable sequenceTable = specificBOFactory.createProteinSequenceTable(session);
         sequenceTable.loadByReference(proteinReferenceID);
         return sequenceTable.getSequences();
@@ -173,7 +173,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     public List<DataSetProtein> listProteinsByExperimentAndReference(String sessionToken,
             TechId experimentId, TechId proteinReferenceID) throws UserFailureException
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         IProteinSequenceTable sequenceTable = specificBOFactory.createProteinSequenceTable(session);
         sequenceTable.loadByReference(proteinReferenceID);
         IDataSetProteinTable dataSetProteinTable = specificBOFactory.createDataSetProteinTable(session);
@@ -185,7 +185,7 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
             String sessionToken, TechId experimentID, TechId proteinReferenceID)
             throws UserFailureException
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         ISampleTable sampleTable = specificBOFactory.createSampleTable(session);
         sampleTable.loadSamplesWithAbundance(experimentID, proteinReferenceID);
         return sampleTable.getSamples();

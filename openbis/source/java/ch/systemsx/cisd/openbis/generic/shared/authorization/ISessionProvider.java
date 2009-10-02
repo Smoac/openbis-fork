@@ -29,5 +29,5 @@ public interface ISessionProvider
     /**
      * Returns the session for the specified session token.
      */
-    public IAuthSession getSession(String sessionToken) throws UserFailureException;
+    public IAuthSession getAuthSession(String sessionToken) throws UserFailureException;
 }

@@ -180,7 +180,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 /**
  * Implementation of client-server interface.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class CommonServer extends AbstractServer<ICommonServer> implements ICommonServer
 {
@@ -204,13 +204,6 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     ICommonBusinessObjectFactory getBusinessObjectFactory()
     {
         return businessObjectFactory;
-    }
-
-    // Call this when session object is not needed but you want just to
-    // refresh/check the session.
-    private void checkSession(final String sessionToken)
-    {
-        getSessionManager().getSession(sessionToken);
     }
 
     private static UserFailureException createUserFailureException(final DataAccessException ex)
@@ -238,7 +231,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final List<Group> listGroups(final String sessionToken,
             final DatabaseInstanceIdentifier identifier)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final DatabaseInstancePE databaseInstance =
                 GroupIdentifierHelper.getDatabaseInstance(identifier, getDAOFactory());
         final List<GroupPE> groups = getDAOFactory().getGroupDAO().listGroups(databaseInstance);
@@ -254,7 +247,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final void registerGroup(final String sessionToken, final String groupCode,
             final String descriptionOrNull)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
         groupBO.define(groupCode, descriptionOrNull);
         groupBO.save();
@@ -265,7 +258,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         assert updates != null : "Unspecified updates";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
         groupBO.update(updates);
     }
@@ -277,7 +270,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     private final void registerPersons(final String sessionToken, final List<String> userIDs)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final List<PersonPE> persons = getDAOFactory().getPersonDAO().listByCodes(userIDs);
         if (persons.size() > 0)
         {
@@ -321,7 +314,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final void registerGroupRole(final String sessionToken, final RoleCode roleCode,
             final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
 
         final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
         newRoleAssignment.setGrantee(grantee);
@@ -337,7 +330,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final void registerInstanceRole(final String sessionToken, final RoleCode roleCode,
             final Grantee grantee)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
 
         final NewRoleAssignment newRoleAssignment = new NewRoleAssignment();
         newRoleAssignment.setGrantee(grantee);
@@ -354,7 +347,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final void deleteGroupRole(final String sessionToken, final RoleCode roleCode,
             final GroupIdentifier groupIdentifier, final Grantee grantee)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
 
         final RoleAssignmentPE roleAssignment =
                 getDAOFactory().getRoleAssignmentDAO().tryFindGroupRoleAssignment(roleCode,
@@ -389,7 +382,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final void deleteInstanceRole(final String sessionToken, final RoleCode roleCode,
             final Grantee grantee)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IRoleAssignmentDAO roleAssignmentDAO = getDAOFactory().getRoleAssignmentDAO();
         final RoleAssignmentPE roleAssignment =
                 roleAssignmentDAO.tryFindInstanceRoleAssignment(roleCode, grantee);
@@ -437,14 +430,14 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final List<Sample> listSamples(final String sessionToken,
             final ListSampleCriteria criteria)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
         return sampleLister.list(new ListOrSearchSampleCriteria(criteria));
     }
 
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         try
         {
             IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
@@ -462,7 +455,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final List<ExternalData> listSampleExternalData(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
         final List<ExternalData> datasets =
                 datasetLister.listBySampleTechId(sampleId, showOnlyDirectlyConnected);
@@ -478,7 +471,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final List<ExternalData> listExperimentExternalData(final String sessionToken,
             final TechId experimentId)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
         final List<ExternalData> datasets = datasetLister.listByExperimentTechId(experimentId);
         Collections.sort(datasets);
@@ -489,7 +482,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public List<ExternalData> listDataSetRelationships(String sessionToken, TechId datasetId,
             DataSetRelationshipRole role)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
         List<ExternalData> datasets = null;
         switch (role)
@@ -508,7 +501,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final List<PropertyType> listPropertyTypes(final String sessionToken,
             boolean withRelations)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IPropertyTypeTable propertyTypeTable =
                 businessObjectFactory.createPropertyTypeTable(session);
         if (withRelations)
@@ -545,7 +538,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public final List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final ProjectIdentifier projectIdentifier)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IExperimentTable experimentTable =
                 businessObjectFactory.createExperimentTable(session);
         experimentTable.load(experimentType.getCode(), projectIdentifier);
@@ -645,7 +638,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             final String defaultValue)
     {
         assert sessionToken != null : "Unspecified session token";
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
 
         final ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind kind =
                 DtoConverters.convertEntityKind(entityKind);
@@ -662,7 +655,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             final String entityTypeCode, final boolean isMandatory, final String defaultValue)
     {
         assert sessionToken != null : "Unspecified session token";
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
 
         IEntityTypePropertyTypeBO etptBO =
                 businessObjectFactory.createEntityTypePropertyTypeBO(session, DtoConverters
@@ -675,7 +668,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             String propertyTypeCode, String entityTypeCode)
     {
         assert sessionToken != null : "Unspecified session token";
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
 
         IEntityTypePropertyTypeBO etptBO =
                 businessObjectFactory.createEntityTypePropertyTypeBO(session, DtoConverters
@@ -688,7 +681,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             String propertyTypeCode, String entityTypeCode)
     {
         assert sessionToken != null : "Unspecified session token";
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
 
         IEntityTypePropertyTypeBO etptBO =
                 businessObjectFactory.createEntityTypePropertyTypeBO(session, DtoConverters
@@ -703,7 +696,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         assert propertyType != null : "Unspecified property type";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IPropertyTypeBO propertyTypeBO = businessObjectFactory.createPropertyTypeBO(session);
         propertyTypeBO.define(propertyType);
         propertyTypeBO.save();
@@ -715,7 +708,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         assert updates != null : "Unspecified updates";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IPropertyTypeBO propertyTypeBO = businessObjectFactory.createPropertyTypeBO(session);
         propertyTypeBO.update(updates);
     }
@@ -725,7 +718,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         assert vocabulary != null : "Unspecified vocabulary";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
         vocabularyBO.define(vocabulary);
         vocabularyBO.save();
@@ -736,7 +729,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         assert updates != null : "Unspecified updates";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
         vocabularyBO.update(updates);
     }
@@ -747,7 +740,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         assert vocabularyId != null : "Unspecified vocabulary id";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
         vocabularyBO.loadDataByTechId(vocabularyId);
         vocabularyBO.addNewTerms(vocabularyTerms);
@@ -760,7 +753,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         assert updates != null : "Unspecified updates";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IVocabularyTermBO vocabularyTermBO =
                 businessObjectFactory.createVocabularyTermBO(session);
         vocabularyTermBO.update(updates);
@@ -772,7 +765,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         assert vocabularyId != null : "Unspecified vocabulary id";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
         vocabularyBO.loadDataByTechId(vocabularyId);
         vocabularyBO.delete(termsToBeDeleted, termsToBeReplaced);
@@ -782,7 +775,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void registerProject(String sessionToken, ProjectIdentifier projectIdentifier,
             String description, String leaderId, Collection<NewAttachment> attachments)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
         projectBO.define(projectIdentifier, description, leaderId);
         projectBO.save();
@@ -797,7 +790,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         try
         {
             IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
@@ -815,7 +808,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities relatedEntities)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         try
         {
             final Set<ExternalDataPE> resultSet = new LinkedHashSet<ExternalDataPE>();
@@ -864,7 +857,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public List<Material> listMaterials(String sessionToken, MaterialType materialType)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
         materialTable.load(materialType.getCode());
         final List<MaterialPE> materials = materialTable.getMaterials();
@@ -874,7 +867,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void registerSampleType(String sessionToken, SampleType entityType)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         try
         {
             IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
@@ -893,7 +886,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void registerMaterialType(String sessionToken, MaterialType entityType)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         try
         {
             IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
@@ -912,7 +905,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void registerExperimentType(String sessionToken, ExperimentType entityType)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         try
         {
             IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
@@ -947,7 +940,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void registerDataSetType(String sessionToken, DataSetType entityType)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         try
         {
             IEntityTypeBO entityTypeBO = businessObjectFactory.createEntityTypeBO(session);
@@ -998,7 +991,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IExternalDataTable externalDataTable =
@@ -1032,7 +1025,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void deleteSamples(String sessionToken, List<TechId> sampleIds, String reason)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
@@ -1048,7 +1041,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void deleteExperiments(String sessionToken, List<TechId> experimentIds, String reason)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -1064,7 +1057,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void deleteVocabularies(String sessionToken, List<TechId> vocabularyIds, String reason)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
@@ -1080,7 +1073,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void deletePropertyTypes(String sessionToken, List<TechId> propertyTypeIds, String reason)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IPropertyTypeBO propertyTypeBO = businessObjectFactory.createPropertyTypeBO(session);
@@ -1097,7 +1090,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     // TODO 2009-06-24 IA: add unit tests to project deletion (all layers)
     public void deleteProjects(String sessionToken, List<TechId> projectIds, String reason)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
@@ -1113,7 +1106,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void deleteGroups(String sessionToken, List<TechId> groupIds, String reason)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IGroupBO groupBO = businessObjectFactory.createGroupBO(session);
@@ -1130,7 +1123,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void deleteExperimentAttachments(String sessionToken, TechId experimentId,
             List<String> fileNames, String reason)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -1145,7 +1138,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void updateExperimentAttachments(String sessionToken, TechId experimentId,
             Attachment attachment)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -1162,7 +1155,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void deleteSampleAttachments(String sessionToken, TechId sampleId,
             List<String> fileNames, String reason)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
@@ -1177,7 +1170,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void deleteProjectAttachments(String sessionToken, TechId projectId,
             List<String> fileNames, String reason)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
@@ -1198,7 +1191,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public List<Attachment> listExperimentAttachments(String sessionToken, TechId experimentId)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
@@ -1213,7 +1206,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public List<Attachment> listSampleAttachments(String sessionToken, TechId sampleId)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
@@ -1228,7 +1221,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public List<Attachment> listProjectAttachments(String sessionToken, TechId projectId)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
@@ -1249,7 +1242,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public String uploadDataSets(String sessionToken, List<String> dataSetCodes,
             DataSetUploadContext uploadContext)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IExternalDataTable externalDataTable =
@@ -1265,7 +1258,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public List<VocabularyTermWithStats> listVocabularyTermsWithStatistics(String sessionToken,
             Vocabulary vocabulary)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
         vocabularyBO.loadDataByTechId(TechId.create(vocabulary));
         return vocabularyBO.countTermsUsageStatistics();
@@ -1273,7 +1266,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public Set<VocabularyTerm> listVocabularyTerms(String sessionToken, Vocabulary vocabulary)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IVocabularyBO vocabularyBO = businessObjectFactory.createVocabularyBO(session);
         vocabularyBO.loadDataByTechId(TechId.create(vocabulary));
         return VocabularyTermTranslator.translateTerms(vocabularyBO.enrichWithTerms());
@@ -1294,7 +1287,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public Project getProjectInfo(String sessionToken, TechId projectId)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
         bo.loadDataByTechId(projectId);
         bo.enrichWithAttachments();
@@ -1305,7 +1298,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public IEntityInformationHolder getEntityInformationHolder(String sessionToken,
             final EntityKind entityKind, final String permId)
     {
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         switch (entityKind)
         {
             case DATA_SET:
@@ -1341,13 +1334,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public String generateCode(String sessionToken, String prefix)
     {
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         return prefix + getDAOFactory().getCodeSequenceDAO().getNextCodeSequenceId();
     }
 
     public Date updateProject(String sessionToken, ProjectUpdatesDTO updates)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
         bo.update(updates);
         bo.save();
@@ -1357,7 +1350,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     private void deleteEntityTypes(String sessionToken, EntityKind entityKind, List<String> codes)
             throws UserFailureException
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         for (String code : codes)
         {
             IEntityTypeBO bo = businessObjectFactory.createEntityTypeBO(session);
@@ -1536,7 +1529,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void updateProjectAttachments(String sessionToken, TechId projectId,
             Attachment attachment)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IProjectBO bo = businessObjectFactory.createProjectBO(session);
@@ -1553,7 +1546,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void updateSampleAttachments(String sessionToken, TechId sampleId, Attachment attachment)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             ISampleBO bo = businessObjectFactory.createSampleBO(session);
@@ -1616,7 +1609,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public TableModel createReportFromDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         return externalDataTable.createReportFromDatasets(serviceDescription, datasetCodes);
@@ -1625,7 +1618,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void processDatasets(String sessionToken,
             DatastoreServiceDescription serviceDescription, List<String> datasetCodes)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
         externalDataTable.processDatasets(serviceDescription, datasetCodes);
@@ -1634,7 +1627,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void registerAuthorizationGroup(String sessionToken,
             NewAuthorizationGroup newAuthorizationGroup)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
@@ -1648,7 +1641,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void deleteAuthorizationGroups(String sessionToken, List<TechId> groupIds, String reason)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IAuthorizationGroupBO authGroupBO =
@@ -1674,7 +1667,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public Date updateAuthorizationGroup(String sessionToken, AuthorizationGroupUpdates updates)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
         bo.update(updates);
         bo.save();
@@ -1684,7 +1677,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public List<Person> listPersonInAuthorizationGroup(String sessionToken,
             TechId authorizatonGroupId)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
         bo.loadByTechId(authorizatonGroupId);
         return PersonTranslator.translate(bo.getAuthorizationGroup().getPersons());
@@ -1706,7 +1699,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     private List<String> addExistingPersonsToAuthorizationGroup(String sessionToken,
             TechId authorizationGroupId, List<String> personsCodes)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
         bo.loadByTechId(authorizationGroupId);
         List<String> inexistent = bo.addPersons(personsCodes);
@@ -1717,7 +1710,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public void removePersonsFromAuthorizationGroup(String sessionToken,
             TechId authorizationGroupId, List<String> personsCodes)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IAuthorizationGroupBO bo = businessObjectFactory.createAuthorizationGroupBO(session);
         bo.loadByTechId(authorizationGroupId);
         bo.removePersons(personsCodes);
@@ -1727,13 +1720,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
             Long lastSeenDeletionEventIdOrNull)
     {
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
     }
 
     public List<Filter> listFilters(String sessionToken, String gridId)
     {
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         try
         {
             List<FilterPE> filters = getDAOFactory().getFilterDAO().listFilters(gridId);
@@ -1746,7 +1739,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void registerFilter(String sessionToken, NewFilter filter)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         try
         {
             IFilterBO bo = businessObjectFactory.createFilterBO(session);
@@ -1760,7 +1753,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public void deleteFilters(String sessionToken, List<TechId> filterIds)
     {
-        Session session = getSessionManager().getSession(sessionToken);
+        Session session = getSession(sessionToken);
         try
         {
             IFilterBO filterBO = businessObjectFactory.createFilterBO(session);
@@ -1779,7 +1772,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         assert sessionToken != null : "Unspecified session token";
         assert updates != null : "Unspecified updates";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IFilterBO filterBO = businessObjectFactory.createFilterBO(session);
         filterBO.update(updates);
     }

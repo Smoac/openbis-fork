@@ -73,7 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.L
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class ETLService extends AbstractServer<IETLService> implements IETLService
 {
@@ -118,7 +118,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
 
     public void registerDataStoreServer(String sessionToken, DataStoreServerInfo info)
     {
-        Session session = sessionManager.getSession(sessionToken);
+        Session session = getSession(sessionToken);
 
         String dssSessionToken = info.getSessionToken();
         String remoteHost = session.getRemoteHost();
@@ -250,7 +250,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
 
     public String createDataSetCode(String sessionToken) throws UserFailureException
     {
-        sessionManager.getSession(sessionToken); // throws exception if invalid sessionToken
+        checkSession(sessionToken); // throws exception if invalid sessionToken
         return daoFactory.getPermIdDAO().createPermId();
     }
 
@@ -260,7 +260,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert sessionToken != null : "Unspecified session token.";
         assert experimentIdentifier != null : "Unspecified experiment identifier.";
 
-        final Session session = sessionManager.getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         ExperimentPE experiment = tryToLoadExperimentByIdentifier(session, experimentIdentifier);
         if (experiment == null)
         {
@@ -276,7 +276,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
 
-        final Session session = sessionManager.getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         SamplePE sample = tryLoadSample(session, sampleIdentifier);
         if (sample != null)
         {
@@ -324,7 +324,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
 
-        final Session session = sessionManager.getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = boFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
         SamplePE sample = sampleBO.getSample();
@@ -348,7 +348,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert sessionToken != null : "Unspecified session token.";
         assert sampleIdentifier != null : "Unspecified sample identifier.";
 
-        final Session session = sessionManager.getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         ExperimentPE experiment = tryLoadExperimentBySampleIdentifier(session, sampleIdentifier);
         if (experiment == null)
         {
@@ -377,7 +377,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert sessionToken != null : "Unspecified session token.";
         assert experimentIdentifier != null : "Unspecified experiment identifier.";
 
-        final Session session = sessionManager.getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         ExperimentPE experiment = tryToLoadExperimentByIdentifier(session, experimentIdentifier);
         if (experiment.getInvalidation() != null)
         {
@@ -399,7 +399,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert sessionToken != null : "Unspecified session token.";
         assert dataSetCode != null : "Unspecified data set code.";
 
-        Session session = sessionManager.getSession(sessionToken); // assert authenticated
+        Session session = getSession(sessionToken); // assert authenticated
 
         IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
         externalDataBO.loadByCode(dataSetCode);
@@ -414,7 +414,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert sessionToken != null : "Unspecified session token.";
         assert criteria != null : "Unspecified criteria.";
 
-        Session session = sessionManager.getSession(sessionToken);
+        Session session = getSession(sessionToken);
         ISampleTable sampleTable = boFactory.createSampleTable(session);
         sampleTable.loadSamplesByCriteria(criteria);
         return SampleTranslator.translate(sampleTable.getSamples(), "");
@@ -423,7 +423,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     public List<SimpleDataSetInformationDTO> listDataSets(String sessionToken, String dataStoreCode)
             throws UserFailureException
     {
-        Session session = sessionManager.getSession(sessionToken);
+        Session session = getSession(sessionToken);
         DataStorePE dataStore =
                 getDAOFactory().getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
         if (dataStore == null)
@@ -438,7 +438,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     public List<DeletedDataSet> listDeletedDataSets(String sessionToken,
             Long lastSeenDeletionEventIdOrNull)
     {
-        sessionManager.getSession(sessionToken);
+        checkSession(sessionToken);
         return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
     }
 

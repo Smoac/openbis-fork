@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -53,15 +52,7 @@ public class FilterDAO extends AbstractGenericEntityDAO<FilterPE> implements IFi
         assert filter.getDatabaseInstance() == null;
         filter.setDatabaseInstance(getDatabaseInstance());
 
-        validatePE(filter);
-
-        final HibernateTemplate template = getHibernateTemplate();
-        template.save(filter);
-        template.flush();
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info(String.format("ADD: filter '%s'.", filter));
-        }
+        persist(filter);
     }
 
     public List<FilterPE> listFilters(String gridId)

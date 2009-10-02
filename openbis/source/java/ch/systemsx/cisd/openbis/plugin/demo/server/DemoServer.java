@@ -85,7 +85,7 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
     public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final SampleIdentifier identifier)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
         final SamplePE sample = sampleBO.getSample();
@@ -95,7 +95,7 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
 
     public final SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadDataByTechId(sampleId);
         final SamplePE sample = sampleBO.getSample();

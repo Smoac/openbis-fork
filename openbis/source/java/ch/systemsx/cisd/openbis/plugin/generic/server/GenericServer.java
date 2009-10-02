@@ -126,7 +126,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         assert sessionToken != null : "Unspecified session token.";
         assert identifier != null : "Unspecified sample identifier.";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
         sampleBO.enrichWithAttachments();
@@ -142,7 +142,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         assert sessionToken != null : "Unspecified session token.";
         assert sampleId != null : "Unspecified sample techId.";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadDataByTechId(sampleId);
         sampleBO.enrichWithAttachments();
@@ -158,7 +158,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         assert sessionToken != null : "Unspecified session token.";
         assert newSample != null : "Unspecified new sample.";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.define(newSample);
         sampleBO.save();
@@ -172,7 +172,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public Experiment getExperimentInfo(final String sessionToken,
             final ExperimentIdentifier identifier)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.loadByExperimentIdentifier(identifier);
         experimentBO.enrichWithProperties();
@@ -190,7 +190,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public Experiment getExperimentInfo(final String sessionToken, final TechId experimentId)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.loadDataByTechId(experimentId);
         experimentBO.enrichWithProperties();
@@ -203,7 +203,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public Material getMaterialInfo(final String sessionToken, final TechId materialId)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
         materialBO.loadDataByTechId(materialId);
         materialBO.enrichWithProperties();
@@ -213,7 +213,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public ExternalData getDataSetInfo(final String sessionToken, final TechId datasetId)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IExternalDataBO datasetBO = businessObjectFactory.createExternalDataBO(session);
         datasetBO.loadDataByTechId(datasetId);
         datasetBO.enrichWithParentsAndExperiment();
@@ -228,7 +228,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final TechId experimentId, final String filename, final int version)
             throws UserFailureException
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         experimentBO.loadDataByTechId(experimentId);
         return AttachmentTranslator.translateWithContent(experimentBO.getExperimentFileAttachment(
@@ -239,7 +239,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         for (NewSamplesWithTypes samples : newSamplesWithType)
         {
             registerSamples(session, samples);
@@ -286,7 +286,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         assert sessionToken != null : "Unspecified session token.";
         assert newExperiment != null : "Unspecified new experiment.";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
 
         if (newExperiment.isRegisterSamples())
         {
@@ -327,7 +327,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         assert materialTypeCode != null : "Unspecified material type.";
         assert newMaterials != null : "Unspecified new materials.";
 
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         // Does nothing if material list is empty.
         if (newMaterials.size() == 0)
         {
@@ -357,7 +357,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public AttachmentWithContent getProjectFileAttachment(String sessionToken, TechId projectId,
             String fileName, int version)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IProjectBO bo = businessObjectFactory.createProjectBO(session);
         bo.loadDataByTechId(projectId);
         return AttachmentTranslator.translateWithContent(bo.getProjectFileAttachment(fileName,
@@ -367,7 +367,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public AttachmentWithContent getSampleFileAttachment(String sessionToken, TechId sampleId,
             String fileName, int version)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final ISampleBO bo = businessObjectFactory.createSampleBO(session);
         bo.loadDataByTechId(sampleId);
         return AttachmentTranslator.translateWithContent(bo.getSampleFileAttachment(fileName,
@@ -376,7 +376,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public List<String> generateCodes(String sessionToken, String prefix, int number)
     {
-        getSessionManager().getSession(sessionToken);
+        checkSession(sessionToken);
         ArrayList<String> result = new ArrayList<String>();
         for (int i = 0; i < number; i++)
         {
@@ -387,7 +387,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public ExperimentUpdateResult updateExperiment(String sessionToken, ExperimentUpdatesDTO updates)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         if (updates.isRegisterSamples())
         {
             registerSamples(sessionToken, updates.getNewSamples());
@@ -418,7 +418,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public Date updateMaterial(String sessionToken, TechId materialId,
             List<IEntityProperty> properties, Date version)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
         materialBO.update(materialId, properties, version);
         materialBO.save();
@@ -427,7 +427,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public Date updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.update(updates);
         sampleBO.save();
@@ -436,7 +436,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)
     {
-        final Session session = getSessionManager().getSession(sessionToken);
+        final Session session = getSession(sessionToken);
         final IExternalDataBO dataSetBO = businessObjectFactory.createExternalDataBO(session);
         dataSetBO.update(updates);
         DataSetUpdateResult result = new DataSetUpdateResult();

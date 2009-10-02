@@ -185,7 +185,7 @@ public final class AuthorizationAdvisor extends DefaultPointcutAdvisor
                 if (wrappedObject instanceof ISessionProvider)
                 {
                     ISessionProvider sessionProvider = (ISessionProvider) wrappedObject;
-                    return sessionProvider.getSession(sessionToken);
+                    return sessionProvider.getAuthSession(sessionToken);
                 }
                 throw new AssertionError("Wrapped object doesn't implement "
                         + ISessionProvider.class.getSimpleName() + ": " + wrappedObject);   
