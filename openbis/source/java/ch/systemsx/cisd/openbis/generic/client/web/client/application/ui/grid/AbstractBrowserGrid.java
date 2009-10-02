@@ -501,19 +501,22 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     protected CustomFilterInfo<T> getCustomFilter()
     {
-        return filterToolbar.tryGetCustomFilters();
+        return filterToolbar.tryGetCustomFilter();
     }
 
     // returns filters which user wants to apply to the data
     private List<GridFilterInfo<T>> getAppliedFilters()
     {
         List<GridFilterInfo<T>> filters = new ArrayList<GridFilterInfo<T>>();
-        for (PagingColumnFilter<T> filterWidget : filterWidgets)
+        if (filterToolbar.isColumnFilterSelected())
         {
-            GridFilterInfo<T> filter = filterWidget.tryGetFilter();
-            if (filter != null)
+            for (PagingColumnFilter<T> filterWidget : filterWidgets)
             {
-                filters.add(filter);
+                GridFilterInfo<T> filter = filterWidget.tryGetFilter();
+                if (filter != null)
+                {
+                    filters.add(filter);
+                }
             }
         }
         return filters;
@@ -1051,8 +1054,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         List<PagingColumnFilter<T>> newFilterWidgets = createFilterWidgets(filteredColumns);
         rebuildFilterWidgets(newFilterWidgets, this.filterWidgets, viewContext);
 
-		// NOTE: If we decide to hide filters when there are no custom filters and no column filters
-		// are chosen this code should be reused.
+        // NOTE: If we decide to hide filters when there are no custom filters and no column filters
+        // are chosen this code should be reused.
         // boolean noFiltersBefore = filterWidgets.isEmpty();
         // boolean noFiltersAfter = newFilterWidgets.isEmpty();
         this.filterWidgets = newFilterWidgets;
@@ -1232,7 +1235,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         SortInfo<T> sortInfo = getGridSortInfo();
         final TableExportCriteria<T> exportCriteria =
                 new TableExportCriteria<T>(resultSetKey, sortInfo, getAppliedFilters(), columnDefs,
-                        filterToolbar.tryGetCustomFilters());
+                        filterToolbar.tryGetCustomFilter());
         return exportCriteria;
     }
 

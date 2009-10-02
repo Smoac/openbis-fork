@@ -49,22 +49,22 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private final FilterSelectionWidget filterSelectionWidget;
 
-    private final IDelegatedAction delegatedAction;
+    private final IDelegatedAction applyFiltersAction;
 
     private final TextToolItem applyTool;
 
     public FilterToolbar(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
             IDisplayTypeIDProvider displayTypeIDProvider,
-            final List<PagingColumnFilter<T>> filterWidgets, IDelegatedAction delegatedAction)
+            final List<PagingColumnFilter<T>> filterWidgets, IDelegatedAction applyFiltersAction)
     {
         this.columnFilters = filterWidgets;
-        this.delegatedAction = delegatedAction;
+        this.applyFiltersAction = applyFiltersAction;
         add(new LabelToolItem(viewContext.getMessage(Dict.FILTER) + ": "));
         filterSelectionWidget =
                 new FilterSelectionWidget(viewContext, gridId, displayTypeIDProvider);
         filterContainer = new LayoutContainer(new FillLayout(Orientation.HORIZONTAL));
         filterContainer.setLayoutOnChange(true); // fixes jumping filter fields in firefox
-		AdapterToolItem filterTool = new AdapterToolItem(filterSelectionWidget);
+        AdapterToolItem filterTool = new AdapterToolItem(filterSelectionWidget);
         add(filterTool);
         add(new AdapterToolItem(filterContainer));
         applyTool = new TextToolItem(viewContext.getMessage(Dict.APPLY_FILTER));
@@ -105,28 +105,33 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         updateFilterContainer();
     }
 
-    public CustomFilterInfo<T> tryGetCustomFilters()
+    public boolean isColumnFilterSelected()
     {
         Filter selected = filterSelectionWidget.tryGetSelected();
-        if (selected != null)
+        return (selected != null) && (selected.getName().equals(Filter.COLUMN_FILTER));
+    }
+
+    public boolean isCustomFilterSelected()
+    {
+        Filter selected = filterSelectionWidget.tryGetSelected();
+        return (selected != null) && (selected.getName().equals(Filter.COLUMN_FILTER) == false);
+    }
+
+    public CustomFilterInfo<T> tryGetCustomFilter()
+    {
+        if (isCustomFilterSelected() && isValid())
         {
-            if (selected.getName().equals(Filter.COLUMN_FILTER))
+            Filter selected = filterSelectionWidget.tryGetSelected();
+            CustomFilterInfo<T> info = new CustomFilterInfo<T>();
+            info.setExpression(selected.getExpression());
+            Set<ParameterWithValue> parameters = new HashSet<ParameterWithValue>();
+            for (Component field : filterContainer.getItems())
             {
-                return null;
-            } else
-            {
-                CustomFilterInfo<T> info = new CustomFilterInfo<T>();
-                info.setExpression(selected.getExpression());
-                Set<ParameterWithValue> parameters = new HashSet<ParameterWithValue>();
-                for (Component field : filterContainer.getItems())
-                {
 
-                    parameters.add(((CustomFilterParameterWidget) field).getParameterWithValue());
-                }
-                info.setParameters(parameters);
-                return info;
+                parameters.add(((CustomFilterParameterWidget) field).getParameterWithValue());
             }
-
+            info.setParameters(parameters);
+            return info;
         }
         return null;
     }
@@ -165,12 +170,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private void apply()
     {
-        boolean valid = isValid();
-        if (valid)
-        {
-            FilterToolbar.this.delegatedAction.execute();
-        }
-        updateApplyTool();
+        // if filter is invalid the action only refreshes the grid without applying any filters
+        applyFiltersAction.execute();
     }
 
     private void updateApplyTool()
@@ -180,17 +181,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private boolean isValid()
     {
-        Filter filter = filterSelectionWidget.tryGetSelected();
-        if (filter == null)
-        {
-            return true;
-        } else if (filter.getName().equals(Filter.COLUMN_FILTER))
-        {
-            return true;
-        } else if (filter.getParameters().size() == 0)
-        {
-            return true;
-        } else
+        if (isCustomFilterSelected())
         {
             boolean valid = true;
             for (Component field : filterContainer.getItems())
@@ -200,6 +191,9 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 valid = f.isValid() && valid;
             }
             return valid;
+        } else
+        {
+            return true; // column filters are always valid
         }
     }
 
