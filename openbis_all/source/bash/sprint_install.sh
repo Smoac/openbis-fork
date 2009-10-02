@@ -92,4 +92,4 @@ rm -rf openbis
 alias 'rm=rm -i'
 alias 'cp=cp -ipR'
 
-echo Done, run the sprint_post_install_script if needed and start the servers!
+echo Done, run sprint_post_install.sh and all-up.sh to start the servers!
