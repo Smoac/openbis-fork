@@ -77,8 +77,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public class ETLService extends AbstractServer<IETLService> implements IETLService
 {
-    private final ISessionManager<Session> sessionManager;
-
     private final IDAOFactory daoFactory;
 
     private final ICommonBusinessObjectFactory boFactory;
@@ -89,7 +87,6 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory)
     {
         super(sessionManager, daoFactory);
-        this.sessionManager = sessionManager;
         this.daoFactory = daoFactory;
         this.boFactory = boFactory;
         this.dssFactory = dssFactory;
