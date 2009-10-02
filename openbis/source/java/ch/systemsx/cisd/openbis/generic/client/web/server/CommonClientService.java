@@ -70,6 +70,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -181,7 +182,7 @@ public final class CommonClientService extends AbstractClientService implements
         final CacheManager<String, TableExportCriteria<T>> exportManager = getExportManager();
         final TableExportCriteria<T> exportCriteria = exportManager.tryGetData(exportDataKey);
         assert exportCriteria != null : "No export criteria found at key " + exportDataKey;
-        getExportManager().removeData(exportDataKey);
+        exportManager.removeData(exportDataKey);
         return exportCriteria;
     }
 
@@ -213,6 +214,8 @@ public final class CommonClientService extends AbstractClientService implements
         criteria.setFilterInfos(exportCriteria.getFilterInfos());
         criteria.setResultSetKey(exportCriteria.getResultSetKey());
         criteria.setCustomFilterInfo(exportCriteria.tryGetCustomFilterInfo());
+        criteria.setAvailableColumns(new HashSet<IColumnDefinition<T>>(exportCriteria
+                .getColumnDefs()));
         return criteria;
     }
 
@@ -1477,7 +1480,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-	public void deleteSamples(List<TechId> sampleIds, String reason)
+    public void deleteSamples(List<TechId> sampleIds, String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try

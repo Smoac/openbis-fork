@@ -296,8 +296,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         }
         assert data != null : "Unspecified data";
         data =
-                filterData(data, resultConfig.getAvailableColumns(), resultConfig.getFilterInfos(), resultConfig
-                        .tryGetCustomFilterInfo());
+                filterData(data, resultConfig.getAvailableColumns(), resultConfig.getFilterInfos(),
+                        resultConfig.tryGetCustomFilterInfo());
         final int size = data.size();
         final int offset = getOffset(size, resultConfig.getOffset());
         final int limit = getLimit(size, resultConfig.getLimit(), offset);
