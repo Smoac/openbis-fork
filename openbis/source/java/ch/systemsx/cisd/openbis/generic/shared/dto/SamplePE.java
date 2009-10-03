@@ -60,7 +60,6 @@ import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -581,7 +580,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     /** children of generatedFrom hierarchy - added only to simplify testing */
     private List<SamplePE> generated = new ArrayList<SamplePE>();
 
-    @Private
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "container")
     public List<SamplePE> getContained()
     {
@@ -594,7 +592,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         this.contained = contained;
     }
 
-    @Private
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "generatedFrom")
     public List<SamplePE> getGenerated()
     {
