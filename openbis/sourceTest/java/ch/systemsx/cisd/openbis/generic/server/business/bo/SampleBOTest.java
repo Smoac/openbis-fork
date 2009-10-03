@@ -626,16 +626,7 @@ public final class SampleBOTest extends AbstractBOTest
         bo.update(new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                 .<NewAttachment> emptyList(), now, null, null, container.getSampleIdentifier()
                 .toString()));
-        boolean exceptionThrown = false;
-        try
-        {
-            bo.save();
-        } catch (UserFailureException ex)
-        {
-            exceptionThrown = true;
-            assertTrue(ex.getMessage().contains("has to be in the same group"));
-        }
-        assertTrue(exceptionThrown);
+        bo.save();
         context.assertIsSatisfied();
     }
 
