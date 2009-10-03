@@ -38,8 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 public class SampleGenericBusinessRules
 {
 
-    static private void assertValidParentRelation(final SamplePE parent, final SamplePE child)
-            throws UserFailureException
+    static private void assertValidParentRelation(final SamplePE parent, final SamplePE child,
+            final String childRelationName) throws UserFailureException
     {
         if (parent == null || child == null)
             return;
@@ -53,18 +53,13 @@ public class SampleGenericBusinessRules
             if (childId.isDatabaseInstanceLevel())
             {
                 throwUserFailureException("The database instance sample '%s' "
-                        + "can not be derived from the group sample '%s'.", child, parent);
-            }
-            if (parentId.getGroupLevel().equals(childId.getGroupLevel()) == false)
-            {
-                throwUserFailureException("The sample '%s' has to be in the same group as "
-                        + "the sample '%s' from which it is derived.", child, parent);
+                        + "can not be %s the group sample '%s'.", child, parent, childRelationName);
             }
         }
     }
 
     static private void assertValidChildrenRelation(final List<SamplePE> children,
-            final SamplePE parent) throws UserFailureException
+            final SamplePE parent, final String childRelationName) throws UserFailureException
     {
         if (children == null || children.size() == 0 || parent == null)
             return;
@@ -80,12 +75,8 @@ public class SampleGenericBusinessRules
                 if (childId.isDatabaseInstanceLevel())
                 {
                     throwUserFailureException("Sample '%s' can not be a group sample because of "
-                            + "a derived database instance sample '%s'.", parent, child);
-                }
-                if (parentId.getGroupLevel().equals(childId.getGroupLevel()) == false)
-                {
-                    throwUserFailureException("Sample '%s' can not have different group "
-                            + "from its derived sample '%s'.", child, parent);
+                            + "a %s database instance sample '%s'.", parent, child,
+                            childRelationName);
                 }
             }
         }
@@ -95,22 +86,22 @@ public class SampleGenericBusinessRules
     {
         if (sample == null)
             return;
-        assertValidParentRelation(sample.getContainer(), sample);
-        assertValidParentRelation(sample.getGeneratedFrom(), sample);
+        assertValidParentRelation(sample.getContainer(), sample, "contained in");
+        assertValidParentRelation(sample.getGeneratedFrom(), sample, "derived from");
     }
 
     static public void assertValidChildren(SamplePE sample)
     {
         if (sample == null)
             return;
-        assertValidChildrenRelation(sample.getContained(), sample);
-        assertValidChildrenRelation(sample.getGenerated(), sample);
+        assertValidChildrenRelation(sample.getContained(), sample, "contained");
+        assertValidChildrenRelation(sample.getGenerated(), sample, "derived");
     }
 
     static private void throwUserFailureException(String messageTemplate, SamplePE sample1,
-            SamplePE sample2)
+            SamplePE sample2, String childRelationName)
     {
         throw UserFailureException.fromTemplate(messageTemplate, sample1.getSampleIdentifier(),
-                sample2.getSampleIdentifier());
+                childRelationName, sample2.getSampleIdentifier());
     }
 }
