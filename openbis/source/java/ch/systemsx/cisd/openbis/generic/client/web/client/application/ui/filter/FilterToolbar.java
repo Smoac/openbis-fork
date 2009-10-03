@@ -165,25 +165,29 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private void updateFilterFields()
     {
-        filterContainer.removeAll();
         Filter filter = filterSelectionWidget.tryGetSelected();
-        if (isColumnFilterSelected())
+        if (filter != null)
         {
-            for (PagingColumnFilter<T> filterWidget : columnFilters)
+            filterContainer.removeAll();
+            if (isColumnFilterSelected())
             {
-                filterContainer.add(filterWidget);
-            }
-            applyTool.hide();
-        } else
-        {
-            for (String parameter : filter.getParameters())
+                for (PagingColumnFilter<T> filterWidget : columnFilters)
+                {
+                    filterContainer.add(filterWidget);
+                }
+                applyTool.hide();
+            } else
             {
-                filterContainer.add(new CustomFilterParameterWidget(parameter));
+                for (String parameter : filter.getParameters())
+                {
+                    filterContainer.add(new CustomFilterParameterWidget(parameter));
+                }
+                applyTool.show();
+                updateApplyToolEnabledState();
             }
-            applyTool.show();
-            updateApplyToolEnabledState();
+            // don't show reset button if there are no fields to reset
+            resetTool.setVisible(filterContainer.getItemCount() > 0);
         }
-        resetTool.setVisible(filterContainer.getItemCount() > 0);
     }
 
     @SuppressWarnings("unchecked")
@@ -194,7 +198,9 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             if (field instanceof Field)
             {
                 Field f = (Field) field;
-                f.reset();
+                // Simple 'f.reset()' causes automatic filter application,
+                // but we want to reload data only once after all filters are cleared.
+                f.setRawValue("");
             }
         }
     }
