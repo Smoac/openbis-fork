@@ -202,25 +202,8 @@ final class SampleListingWorker
         watch.start();
         final Experiment expOrNull = tryLoadExperiment();
         final boolean oneGroupPerSample = isOneGroupPerSamples();
-        final Group groupOrNull;
-        if (oneGroupPerSample)
-        {
-            groupOrNull = null;
-            final Group[] groups = referencedEntityDAO.getAllGroups(databaseInstanceId);
-            for (Group group : groups)
-            {
-                group.setInstance(databaseInstance);
-                groupMap.put(group.getId(), group);
-            }
-        } else
-        {
-            groupOrNull = tryLoadGroup(expOrNull);
-            if (groupOrNull != null)
-            {
-                // For use by dependent samples.
-                groupMap.put(groupOrNull.getId(), groupOrNull);
-            }
-        }
+        final Group groupOrNull = oneGroupPerSample ? null : tryLoadGroup(expOrNull);
+        loadGroups(); // all groups are needed for parent samples identifiers
         loadSampleTypes();
         retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds(), groupOrNull, oneGroupPerSample);
         retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples(), groupOrNull, oneGroupPerSample);
@@ -269,6 +252,16 @@ final class SampleListingWorker
     //
     // Private worker methods
     //
+
+    private void loadGroups()
+    {
+        final Group[] groups = referencedEntityDAO.getAllGroups(databaseInstanceId);
+        for (Group group : groups)
+        {
+            group.setInstance(databaseInstance);
+            groupMap.put(group.getId(), group);
+        }
+    }
 
     private Experiment tryLoadExperiment()
     {
@@ -489,6 +482,7 @@ final class SampleListingWorker
                 setDatabaseInstance(sample);
             } else
             {
+                System.err.println(groupOrNull + " " + groupMap.get(row.grou_id));
                 setGroup(sample, groupMap.get(row.grou_id));
             }
         } else if (groupOrNull != null)
