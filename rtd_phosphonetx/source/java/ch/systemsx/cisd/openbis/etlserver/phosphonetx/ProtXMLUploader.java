@@ -34,6 +34,7 @@ import ch.systemsx.cisd.etlserver.IDataSetUploader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
  * @author Franz-Josef Elmer
@@ -83,14 +84,26 @@ public class ProtXMLUploader implements IDataSetUploader
     public void upload(File dataSet, DataSetInformation dataSetInformation)
     {
         long time = System.currentTimeMillis();
-        ProteinSummary summary = loader.readProtXML(dataSet);
+        File protXMLFile = getProtXMLFile(dataSet);
+        ProteinSummary summary = loader.readProtXML(protXMLFile);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info(summary.getProteinGroups().size()
-                    + " protein groups are successfully read from '" + dataSet + "' in "
+                    + " protein groups are successfully read from '" + protXMLFile + "' in "
                     + (System.currentTimeMillis() - time) + " msec");
         }
         time = System.currentTimeMillis();
+        ResultDataSetUploader upLoader = createUploader();
+        upLoader.upload(dataSetInformation, summary);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Feeding result database took " + (System.currentTimeMillis() - time)
+                    + " msec.");
+        }
+    }
+
+    protected ResultDataSetUploader createUploader()
+    {
         Connection connection;
         try
         {
@@ -100,13 +113,24 @@ public class ProtXMLUploader implements IDataSetUploader
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
-        ResultDataSetUploader upLoader = new ResultDataSetUploader(connection, openbisService);
-        upLoader.upload(dataSetInformation, summary);
-        if (operationLog.isInfoEnabled())
+        return new ResultDataSetUploader(connection, openbisService);
+    }
+
+    private File getProtXMLFile(File dataSet)
+    {
+        if (dataSet.isDirectory() == false)
         {
-            operationLog.info("Feeding result database took " + (System.currentTimeMillis() - time)
-                    + " msec.");
+            return dataSet;
         }
+        File[] files = dataSet.listFiles();
+        for (File file : files)
+        {
+            if (file.getName().endsWith("prot.xml"))
+            {
+                return file;
+            }
+        }
+        throw new UserFailureException("No *prot.xml file found in data set '" + dataSet + "'.");
     }
 
 }
