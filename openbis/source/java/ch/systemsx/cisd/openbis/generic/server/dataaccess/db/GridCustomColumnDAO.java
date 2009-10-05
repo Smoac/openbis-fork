@@ -26,46 +26,47 @@ import org.hibernate.criterion.Restrictions;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.MethodUtils;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFilterDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 
 /**
- * Hibernate-based implementation of {@link IFilterDAO}.
+ * Hibernate-based implementation of {@link IGridCustomColumnDAO}.
  * 
- * @author Izabela Adamczyk
+ * @author Tomasz Pylak
  */
-public class FilterDAO extends AbstractGenericEntityDAO<FilterPE> implements IFilterDAO
+public class GridCustomColumnDAO extends AbstractGenericEntityDAO<GridCustomColumnPE> implements
+        IGridCustomColumnDAO
 {
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FilterDAO.class);
+            LogFactory.getLogger(LogCategory.OPERATION, GridCustomColumnDAO.class);
 
-    public FilterDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
+    public GridCustomColumnDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance, FilterPE.class);
+        super(sessionFactory, databaseInstance, GridCustomColumnPE.class);
     }
 
-    public void createFilter(FilterPE filter)
+    public void createColumn(GridCustomColumnPE column)
     {
-        assert filter != null : "Unspecified filter";
-        assert filter.getDatabaseInstance() == null;
-        filter.setDatabaseInstance(getDatabaseInstance());
+        assert column != null : "Unspecified column";
+        assert column.getDatabaseInstance() == null;
+        column.setDatabaseInstance(getDatabaseInstance());
 
-        persist(filter);
+        persist(column);
     }
 
-    public List<FilterPE> listFilters(String gridId)
+    public List<GridCustomColumnPE> listColumns(String gridId)
     {
         assert gridId != null : "Unspecified grid ID.";
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.add(Restrictions.eq("gridId", gridId));
-        final List<FilterPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        final List<GridCustomColumnPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%s(%s): %d filters(s) have been found.", MethodUtils
+            operationLog.debug(String.format("%s(%s): %d column(s) have been found.", MethodUtils
                     .getCurrentMethod().getName(), gridId, list.size()));
         }
         return list;

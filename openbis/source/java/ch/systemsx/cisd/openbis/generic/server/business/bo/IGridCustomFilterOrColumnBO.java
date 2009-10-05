@@ -18,26 +18,27 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 
 /**
- * Business object of a filter. Holds an instance of {@link FilterPE}.
+ * Business object of a filter. Holds an instance of {@link GridCustomFilterPE}.
  * 
  * @author Izabela Adamczyk
  */
-public interface IFilterBO extends IEntityBusinessObject
+public interface IGridCustomFilterOrColumnBO extends IEntityBusinessObject
 {
 
     /**
-     * Defines a new filter. After invocation of this method {@link IBusinessObject#save()} should
-     * be invoked to store the new group in the <i>Data Access Layer</i>.
+     * Defines a new grid custom filter or column. After invocation of this method
+     * {@link IBusinessObject#save()} should be invoked to store the new group in the <i>Data Access
+     * Layer</i>.
      */
-    public void define(NewFilter filter) throws UserFailureException;
+    public void define(NewColumnOrFilter filterOrColumn) throws UserFailureException;
 
     /**
-     * Deletes filter.
+     * Deletes grid custom filter or column.
      * 
      * @param groupId group technical identifier
      * @throws UserFailureException if filter with given technical identifier is not found.
@@ -45,8 +46,8 @@ public interface IFilterBO extends IEntityBusinessObject
     public void deleteByTechId(TechId groupId);
 
     /**
-     * Updates the filter.
+     * Updates the grid custom filter or column.
      */
-    public void update(IFilterUpdates updates);
+    public void update(IFilterOrColumnUpdates updates);
 
 }

@@ -53,6 +53,8 @@ public final class TableNames
 
     public static final String FILTERS_TABLE = "filters";
 
+    public static final String GRID_CUSTOM_COLUMNS_TABLE = "grid_custom_columns";
+
     public static final String ATTACHMENT_CONTENT_TABLE = "attachment_contents";
 
     public static final String ATTACHMENTS_TABLE = "attachments";

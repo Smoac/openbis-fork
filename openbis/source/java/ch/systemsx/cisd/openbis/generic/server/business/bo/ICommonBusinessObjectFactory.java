@@ -68,7 +68,9 @@ public interface ICommonBusinessObjectFactory
 
     public IAuthorizationGroupBO createAuthorizationGroupBO(Session session);
 
-    public IFilterBO createFilterBO(final Session session);
+    public IGridCustomFilterOrColumnBO createGridCustomFilterBO(final Session session);
+
+    public IGridCustomFilterOrColumnBO createGridCustomColumnBO(final Session session);
 
     // Fast listing operations
 

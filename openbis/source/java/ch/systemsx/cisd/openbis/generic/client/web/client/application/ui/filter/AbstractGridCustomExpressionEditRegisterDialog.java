@@ -39,12 +39,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 
 /**
- * A {@link Window} extension for registering and editing filters.
+ * A {@link Window} extension for registering and editing grid custom filters or columns.
  * 
  * @author Izabela Adamczyk
  * @author Piotr Buczek
  */
-abstract public class AbstractFilterEditRegisterDialog extends AbstractRegistrationDialog
+abstract public class AbstractGridCustomExpressionEditRegisterDialog extends
+        AbstractRegistrationDialog
 {
 
     public static int FIELD_WIDTH = 400;
@@ -75,7 +76,7 @@ abstract public class AbstractFilterEditRegisterDialog extends AbstractRegistrat
 
     protected final String gridId;
 
-    public AbstractFilterEditRegisterDialog(
+    public AbstractGridCustomExpressionEditRegisterDialog(
             final IViewContext<ICommonClientServiceAsync> viewContext, final String title,
             final IDelegatedAction postRegistrationCallback, final String gridId,
             final List<ColumnDataModel> columnModels)

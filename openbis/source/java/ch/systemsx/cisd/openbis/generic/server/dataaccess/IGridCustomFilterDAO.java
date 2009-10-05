@@ -18,23 +18,23 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 
 /**
- * <i>Data Access Object</i> for {@link FilterPE}.
+ * <i>Data Access Object</i> for {@link GridCustomFilterPE}.
  * 
  * @author Izabela Adamczyk
  */
-public interface IFilterDAO extends IGenericDAO<FilterPE>
+public interface IGridCustomFilterDAO extends IGenericDAO<GridCustomFilterPE>
 {
 
     /**
-     * Lists filters for given grid and home database instance.
+     * Lists columns for given grid and home database instance.
      */
-    public List<FilterPE> listFilters(String gridId);
+    public List<GridCustomFilterPE> listFilters(String gridId);
 
     /**
-     * Creates a new filter in home database instance.
+     * Creates a new column in home database instance.
      */
-    public void createFilter(FilterPE filter);
+    public void createFilter(GridCustomFilterPE filter);
 }

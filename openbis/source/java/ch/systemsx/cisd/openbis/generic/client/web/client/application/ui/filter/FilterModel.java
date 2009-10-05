@@ -23,10 +23,10 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 
 /**
- * {@link ModelData} for {@link Filter}.
+ * {@link ModelData} for {@link GridCustomFilter}.
  * 
  * @author Izabela Adamczyk
  */
@@ -35,19 +35,19 @@ public class FilterModel extends BaseModelData
 
     private static final long serialVersionUID = 1L;
 
-    public FilterModel(final Filter filter)
+    public FilterModel(final GridCustomFilter filter)
     {
         set(ModelDataPropertyNames.NAME, filter.getName());
         set(ModelDataPropertyNames.DESCRIPTION, filter.getDescription());
         set(ModelDataPropertyNames.OBJECT, filter);
     }
 
-    public final static List<FilterModel> convert(final List<Filter> filters,
+    public final static List<FilterModel> convert(final List<GridCustomFilter> filters,
             final boolean withColumnFilter)
     {
         final List<FilterModel> result = new ArrayList<FilterModel>();
 
-        for (final Filter filter : filters)
+        for (final GridCustomFilter filter : filters)
         {
             result.add(new FilterModel(filter));
         }
@@ -59,10 +59,10 @@ public class FilterModel extends BaseModelData
         return result;
     }
 
-    private static FilterModel createColumnFilter(List<Filter> basicTypes)
+    private static FilterModel createColumnFilter(List<GridCustomFilter> basicTypes)
     {
-        final Filter allSampleType = new Filter();
-        allSampleType.setName(Filter.COLUMN_FILTER);
+        final GridCustomFilter allSampleType = new GridCustomFilter();
+        allSampleType.setName(GridCustomFilter.COLUMN_FILTER);
         return new FilterModel(allSampleType);
     }
 

@@ -22,14 +22,14 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 
 /**
  * @author Piotr Buczek
  */
-public class FilterBOTest extends AbstractBOTest
+public class GridCustomFilterBOTest extends AbstractBOTest
 {
 
     private static final String NAME = "name";
@@ -47,8 +47,8 @@ public class FilterBOTest extends AbstractBOTest
     @Test
     public void testUpdate()
     {
-        final FilterPE filter = createFilter();
-        final IFilterUpdates updates = createFilterUpdates(filter);
+        final GridCustomFilterPE filter = createFilter();
+        final IFilterOrColumnUpdates updates = createFilterUpdates(filter);
         context.checking(new Expectations()
             {
                 {
@@ -64,15 +64,15 @@ public class FilterBOTest extends AbstractBOTest
                 }
             });
 
-        IFilterBO filterBO = createFilterBO();
+        IGridCustomFilterOrColumnBO filterBO = createFilterBO();
         filterBO.update(updates);
 
         context.assertIsSatisfied();
     }
 
-    private FilterPE createFilter()
+    private GridCustomFilterPE createFilter()
     {
-        final FilterPE filter = new FilterPE();
+        final GridCustomFilterPE filter = new GridCustomFilterPE();
         filter.setId(TECH_ID.getId());
         filter.setGridId(GRID_ID);
         filter.setName(NAME);
@@ -82,9 +82,9 @@ public class FilterBOTest extends AbstractBOTest
         return filter;
     }
 
-    private IFilterUpdates createFilterUpdates(final FilterPE filter)
+    private IFilterOrColumnUpdates createFilterUpdates(final GridCustomFilterPE filter)
     {
-        final Filter updates = new Filter();
+        final GridCustomFilter updates = new GridCustomFilter();
         updates.setId(filter.getId());
         updates.setName(filter.getName() + " modified");
         updates.setDescription(filter.getDescription() + " modified");
@@ -93,9 +93,9 @@ public class FilterBOTest extends AbstractBOTest
         return updates;
     }
 
-    private final IFilterBO createFilterBO()
+    private final IGridCustomFilterOrColumnBO createFilterBO()
     {
-        return new FilterBO(daoFactory, EXAMPLE_SESSION);
+        return new GridCustomFilterBO(daoFactory, EXAMPLE_SESSION);
     }
 
 }

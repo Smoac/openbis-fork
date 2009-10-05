@@ -197,9 +197,11 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
 
     protected Session getSession(final String sessionToken)
     {
+        assert sessionToken != null : "Unspecified session token";
+
         return getSessionManager().getSession(sessionToken);
     }
-    
+
     //
     // IServer
     //

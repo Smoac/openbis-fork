@@ -19,39 +19,41 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
+
 /**
- * Test cases for {@link FilterTranslator}.
+ * Test cases for {@link GridCustomFilterTranslator}.
  * 
  * @author Izabela Adamczyk
  */
-public class FilterTranslatorTest extends AssertJUnit
+public class GridCustomFilterTranslatorTest extends AssertJUnit
 {
     @Test
     public void testExtractNoParameters() throws Exception
     {
         String expression = "";
-        assertEquals(0, FilterTranslator.extractParameters(expression).size());
+        assertEquals(0, GridCustomFilterTranslator.extractParameters(expression).size());
     }
 
     @Test
     public void testExtractOneParameter() throws Exception
     {
         String expression = "${abc}";
-        assertEquals(1, FilterTranslator.extractParameters(expression).size());
+        assertEquals(1, GridCustomFilterTranslator.extractParameters(expression).size());
     }
 
     @Test
     public void testExtractOneDuplicatedParameter() throws Exception
     {
         String expression = "${abc} ${abc}";
-        assertEquals(1, FilterTranslator.extractParameters(expression).size());
+        assertEquals(1, GridCustomFilterTranslator.extractParameters(expression).size());
     }
 
     @Test
     public void testExtractManyParameters() throws Exception
     {
         String expression = "${abc} ${abc} ${def} ${ghi}";
-        assertEquals(3, FilterTranslator.extractParameters(expression).size());
+        assertEquals(3, GridCustomFilterTranslator.extractParameters(expression).size());
     }
 
 }

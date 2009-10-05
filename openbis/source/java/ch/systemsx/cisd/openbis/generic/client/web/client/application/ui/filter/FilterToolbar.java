@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 
 /**
  * Toolbar with filters.
@@ -134,21 +134,27 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     public boolean isColumnFilterSelected()
     {
-        Filter selected = filterSelectionWidget.tryGetSelected();
-        return (selected != null) && (selected.getName().equals(Filter.COLUMN_FILTER));
+        return getCustomFilterSelectedState(true);
     }
 
     public boolean isCustomFilterSelected()
     {
-        Filter selected = filterSelectionWidget.tryGetSelected();
-        return (selected != null) && (selected.getName().equals(Filter.COLUMN_FILTER) == false);
+        return getCustomFilterSelectedState(false);
+    }
+
+    // requiredState - true for column filter, false for custom filters
+    private boolean getCustomFilterSelectedState(boolean requiredState)
+    {
+        GridCustomFilter selected = filterSelectionWidget.tryGetSelected();
+        return (selected != null)
+                && (selected.getName().equals(GridCustomFilter.COLUMN_FILTER) == requiredState);
     }
 
     public CustomFilterInfo<T> tryGetCustomFilter()
     {
         if (isCustomFilterSelected() && isValid())
         {
-            Filter selected = filterSelectionWidget.tryGetSelected();
+            GridCustomFilter selected = filterSelectionWidget.tryGetSelected();
             CustomFilterInfo<T> info = new CustomFilterInfo<T>();
             info.setExpression(selected.getExpression());
             Set<ParameterWithValue> parameters = new HashSet<ParameterWithValue>();
@@ -174,7 +180,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private void updateFilterFields()
     {
-        Filter filter = filterSelectionWidget.tryGetSelected();
+        GridCustomFilter filter = filterSelectionWidget.tryGetSelected();
         if (filter != null)
         {
             filterContainer.removeAll();

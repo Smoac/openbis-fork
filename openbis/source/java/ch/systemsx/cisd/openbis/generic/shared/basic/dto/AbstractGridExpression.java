@@ -18,23 +18,18 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Stores information describing the filter.
+ * Stores information describing the common part of grid custom filter and column.
  * 
  * @author Izabela Adamczyk
  */
-public class Filter extends AbstractRegistrationHolder implements IsSerializable, Serializable,
-        IFilterUpdates
+public abstract class AbstractGridExpression extends AbstractRegistrationHolder implements
+        IsSerializable, Serializable, IFilterOrColumnUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
-    public static final String COLUMN_FILTER = "Column Filter";
-
-    private String name;
 
     private String expression;
 
@@ -48,20 +43,8 @@ public class Filter extends AbstractRegistrationHolder implements IsSerializable
 
     private DatabaseInstance databaseInstance;
 
-    private Set<String> parameters;
-
-    public Filter()
+    public AbstractGridExpression()
     {
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
     }
 
     public String getExpression()
@@ -123,15 +106,4 @@ public class Filter extends AbstractRegistrationHolder implements IsSerializable
     {
         this.databaseInstance = databaseInstance;
     }
-
-    public Set<String> getParameters()
-    {
-        return parameters;
-    }
-
-    public void setParameters(Set<String> parameters)
-    {
-        this.parameters = parameters;
-    }
-
 }

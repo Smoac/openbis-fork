@@ -96,10 +96,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -111,7 +111,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -2131,14 +2131,14 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public List<Filter> listFilters(String gridId)
+    public List<GridCustomFilter> listFilters(String gridId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
 
         try
         {
             final String sessionToken = getSessionToken();
-            final List<Filter> types = commonServer.listFilters(sessionToken, gridId);
+            final List<GridCustomFilter> types = commonServer.listFilters(sessionToken, gridId);
             return types;
         } catch (final UserFailureException e)
         {
@@ -2146,26 +2146,26 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<Filter> listFilters(final String gridId,
-            DefaultResultSetConfig<String, Filter> resultSetConfig)
+    public ResultSet<GridCustomFilter> listFilters(final String gridId,
+            DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        return listEntities(resultSetConfig, new IOriginalDataProvider<Filter>()
+        return listEntities(resultSetConfig, new IOriginalDataProvider<GridCustomFilter>()
             {
-                public List<Filter> getOriginalData() throws UserFailureException
+                public List<GridCustomFilter> getOriginalData() throws UserFailureException
                 {
                     return listFilters(gridId);
                 }
             });
     }
 
-    public String prepareExportFilters(TableExportCriteria<Filter> criteria)
+    public String prepareExportFilters(TableExportCriteria<GridCustomFilter> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(criteria);
     }
 
-    public void registerFilter(NewFilter filter)
+    public void registerFilter(NewColumnOrFilter filter)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert filter != null : "Unspecified filter.";
@@ -2192,7 +2192,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public final void updateFilter(final IFilterUpdates updates)
+    public final void updateFilter(final IFilterOrColumnUpdates updates)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert updates != null : "Unspecified updates.";

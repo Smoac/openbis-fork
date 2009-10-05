@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 
 /**
  * {@link Window} containing filter registration form.
@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
  * @author Izabela Adamczyk
  * @author Piotr Buczek
  */
-public class AddFilterDialog extends AbstractFilterEditRegisterDialog
+public class AddFilterDialog extends AbstractGridCustomExpressionEditRegisterDialog
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -50,7 +50,7 @@ public class AddFilterDialog extends AbstractFilterEditRegisterDialog
     @Override
     protected void register(AsyncCallback<Void> registrationCallback)
     {
-        NewFilter filter = new NewFilter();
+        NewColumnOrFilter filter = new NewColumnOrFilter();
         filter.setGridId(gridId);
         filter.setDescription(extractDescription());
         filter.setExpression(extractExpression());

@@ -58,10 +58,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -71,7 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -666,26 +666,26 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     /**
      * @see ICommonClientService#listFilters(String)
      */
-    public void listFilters(String gridId, AsyncCallback<List<Filter>> callback);
+    public void listFilters(String gridId, AsyncCallback<List<GridCustomFilter>> callback);
 
     /**
      * @see ICommonClientService#listFilters(String, DefaultResultSetConfig)
      */
-    public void listFilters(String gridId, DefaultResultSetConfig<String, Filter> resultSetConfig,
-            AsyncCallback<ResultSet<Filter>> callback);
+    public void listFilters(String gridId, DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig,
+            AsyncCallback<ResultSet<GridCustomFilter>> callback);
 
     /**
      * @see ICommonClientService#prepareExportFilters(TableExportCriteria)
      */
-    public void prepareExportFilters(final TableExportCriteria<Filter> criteria,
+    public void prepareExportFilters(final TableExportCriteria<GridCustomFilter> criteria,
             AsyncCallback<String> asyncCallback);
 
-    /** @see ICommonClientService#registerFilter(NewFilter) */
-    public void registerFilter(NewFilter newFilter, AsyncCallback<Void> registrationCallback);
+    /** @see ICommonClientService#registerFilter(NewColumnOrFilter) */
+    public void registerFilter(NewColumnOrFilter newFilter, AsyncCallback<Void> registrationCallback);
 
     /** @see ICommonClientService#deleteFilters(List) */
     public void deleteFilters(List<TechId> filterIds, AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#updateFilter(IFilterUpdates) */
-    public void updateFilter(IFilterUpdates updates, AsyncCallback<Void> registrationCallback);
+    /** @see ICommonClientService#updateFilter(IFilterOrColumnUpdates) */
+    public void updateFilter(IFilterOrColumnUpdates updates, AsyncCallback<Void> registrationCallback);
 }

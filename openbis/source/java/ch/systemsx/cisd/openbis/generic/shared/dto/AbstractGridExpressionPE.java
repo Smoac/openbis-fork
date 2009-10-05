@@ -20,43 +20,37 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 import javax.persistence.Version;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
- * Persistence Entity describing the filter.
+ * Persistence Entity describing the grid custom filter or column.
  * 
- * @author Izabela Adamczyk
+ * @author Tomasz Pylak
  */
-@Entity
-@Table(name = TableNames.FILTERS_TABLE)
-public class FilterPE extends HibernateAbstractRegistrationHolder implements IIdHolder,
-        Comparable<FilterPE>, Serializable
+@MappedSuperclass
+public abstract class AbstractGridExpressionPE<T> extends HibernateAbstractRegistrationHolder
+        implements IIdHolder, Comparable<T>, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String gridId;
 
-    private String name;
+    private String description;
 
     private String expression;
 
@@ -64,23 +58,20 @@ public class FilterPE extends HibernateAbstractRegistrationHolder implements IId
 
     private Date modificationDate;
 
-    private String description;
-
     private DatabaseInstancePE databaseInstance;
 
     private Long id;
 
-    @Column(name = ColumnNames.NAME_COLUMN)
-    @NotNull(message = ValidationMessages.NAME_NOT_NULL_MESSAGE)
-    @Length(min = 1, max = 100, message = ValidationMessages.NAME_LENGTH_MESSAGE)
-    public String getName()
+    @Column(name = ColumnNames.DESCRIPTION_COLUMN)
+    @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    public String getDescription()
     {
-        return name;
+        return description;
     }
 
-    public void setName(String name)
+    public void setDescription(final String description)
     {
-        this.name = name;
+        this.description = description;
     }
 
     @Column(name = ColumnNames.EXPRESSION_COLUMN)
@@ -117,18 +108,6 @@ public class FilterPE extends HibernateAbstractRegistrationHolder implements IId
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;
-    }
-
-    @Column(name = ColumnNames.DESCRIPTION_COLUMN)
-    @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public void setDescription(final String description)
-    {
-        this.description = description;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -168,61 +147,5 @@ public class FilterPE extends HibernateAbstractRegistrationHolder implements IId
     public void setGridId(String gridId)
     {
         this.gridId = gridId;
-    }
-
-    @Override
-    public final boolean equals(final Object obj)
-    {
-        if (obj == this)
-        {
-            return true;
-        }
-        if (obj instanceof FilterPE == false)
-        {
-            return false;
-        }
-        final FilterPE that = (FilterPE) obj;
-        final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getName(), that.getName());
-        builder.append(getGridId(), that.getGridId());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
-        return builder.isEquals();
-    }
-
-    @Override
-    public final int hashCode()
-    {
-        final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getName());
-        builder.append(getGridId());
-        builder.append(getDatabaseInstance());
-        return builder.toHashCode();
-    }
-
-    @Override
-    public final String toString()
-    {
-        final ToStringBuilder builder =
-                new ToStringBuilder(this,
-                        ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
-        builder.append("name", getName());
-        builder.append("grid", getGridId());
-        builder.append("database", getDatabaseInstance());
-        return builder.toString();
-    }
-
-    public int compareTo(FilterPE that)
-    {
-        final String thatName = that.getName();
-        final String thisName = getName();
-        if (thisName == null)
-        {
-            return thatName == null ? 0 : -1;
-        }
-        if (thatName == null)
-        {
-            return 1;
-        }
-        return thisName.compareTo(thatName);
     }
 }

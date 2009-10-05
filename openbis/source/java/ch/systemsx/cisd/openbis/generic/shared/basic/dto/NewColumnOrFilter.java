@@ -21,11 +21,11 @@ import java.io.Serializable;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * A filter to register.
+ * A custom grid filter or column to register.
  * 
  * @author Izabela Adamczyk
  */
-public class NewFilter implements IsSerializable, Serializable
+public class NewColumnOrFilter implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -39,7 +39,7 @@ public class NewFilter implements IsSerializable, Serializable
 
     private String gridId;
 
-    public NewFilter()
+    public NewColumnOrFilter()
     {
     }
 

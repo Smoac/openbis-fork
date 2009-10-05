@@ -28,18 +28,20 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnVa
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.FilterUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGridExpressionPredicate.DeleteGridCustomColumnPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGridExpressionPredicate.DeleteGridCustomFilterPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGridExpressionPredicate.UpdateGridCustomColumnPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGridExpressionPredicate.UpdateGridCustomFilterPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.GroupTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ProjectTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.FilterTechIdPredicate.DeleteFilterTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.CustomGridExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ExternalDataValidator;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.FilterValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.ProjectValidator;
@@ -63,10 +65,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -78,7 +81,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -103,7 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 /**
  * Definition of the client-server interface.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface ICommonServer extends IServer
 {
@@ -913,34 +916,72 @@ public interface ICommonServer extends IServer
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    @ReturnValueFilter(validatorClass = FilterValidator.class)
-    public List<Filter> listFilters(String sessionToken, String gridId);
+    @ReturnValueFilter(validatorClass = CustomGridExpressionValidator.class)
+    public List<GridCustomFilter> listFilters(String sessionToken, String gridId);
 
     /**
      * Creates a new filter.
      */
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.FILTER)
-    public void registerFilter(String sessionToken, NewFilter filter);
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.GRID_CUSTOM_FILTER)
+    public void registerFilter(String sessionToken, NewColumnOrFilter filter);
 
     /**
      * Deletes specified filters.
      */
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.FILTER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.GRID_CUSTOM_FILTER)
     public void deleteFilters(
             String sessionToken,
-            @AuthorizationGuard(guardClass = DeleteFilterTechIdPredicate.class) List<TechId> filterIds);
+            @AuthorizationGuard(guardClass = DeleteGridCustomFilterPredicate.class) List<TechId> filterIds);
 
     /**
      * Updates a filter.
      */
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
-    @DatabaseUpdateModification(value = ObjectKind.FILTER)
-    public void updateFilter(String sessionToken,
-            @AuthorizationGuard(guardClass = FilterUpdatesPredicate.class) IFilterUpdates updates);
+    @DatabaseUpdateModification(value = ObjectKind.GRID_CUSTOM_FILTER)
+    public void updateFilter(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = UpdateGridCustomFilterPredicate.class) IFilterOrColumnUpdates updates);
 
+    // columns
+
+    /**
+     * Lists columns available for selected grid.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    @ReturnValueFilter(validatorClass = CustomGridExpressionValidator.class)
+    public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId);
+
+    /**
+     * Creates a new column.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.GRID_CUSTOM_COLUMN)
+    public void registerGridCustomColumn(String sessionToken, NewColumnOrFilter column);
+
+    /**
+     * Deletes specified columns.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.GRID_CUSTOM_COLUMN)
+    public void deleteGridCustomColumns(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = DeleteGridCustomColumnPredicate.class) List<TechId> columnIds);
+
+    /**
+     * Updates a column.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.POWER_USER)
+    @DatabaseUpdateModification(value = ObjectKind.GRID_CUSTOM_COLUMN)
+    public void updateGridCustomColumn(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = UpdateGridCustomColumnPredicate.class) IFilterOrColumnUpdates updates);
 }

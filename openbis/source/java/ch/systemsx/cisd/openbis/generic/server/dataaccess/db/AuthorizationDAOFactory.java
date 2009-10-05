@@ -31,7 +31,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFacto
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFilterDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomColumnDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
@@ -44,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 /**
  * Super class of all DAO factories which extend {@link IAuthorizationDAOFactory}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 {
@@ -69,7 +70,9 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     private final ISampleDAO sampleDAO;
 
-    private final IFilterDAO filterDAO;
+    private final IGridCustomFilterDAO gridCustomFilterDAO;
+
+    private final IGridCustomColumnDAO gridCustomColumnDAO;
 
     private final PersistencyResources persistencyResources;
 
@@ -86,7 +89,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         experimentDAO = new ExperimentDAO(sessionFactory, homeDatabaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, homeDatabaseInstance);
         sampleDAO = new SampleDAO(sessionFactory, homeDatabaseInstance);
-        filterDAO = new FilterDAO(sessionFactory, homeDatabaseInstance);
+        gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory, homeDatabaseInstance);
+        gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, homeDatabaseInstance);
     }
 
     public final PersistencyResources getPersistencyResources()
@@ -203,9 +207,14 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         return sampleDAO;
     }
 
-    public IFilterDAO getFilterDAO()
+    public IGridCustomFilterDAO getGridCustomFilterDAO()
     {
-        return filterDAO;
+        return gridCustomFilterDAO;
+    }
+
+    public IGridCustomColumnDAO getGridCustomColumnDAO()
+    {
+        return gridCustomColumnDAO;
     }
 
     public void disableSecondLevelCacheForSession()

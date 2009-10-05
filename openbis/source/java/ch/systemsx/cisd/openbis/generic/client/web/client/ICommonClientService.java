@@ -56,10 +56,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -69,7 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -746,25 +746,25 @@ public interface ICommonClientService extends IClientService
     /**
      * Lists filters available for given grid.
      */
-    public List<Filter> listFilters(String gridId) throws UserFailureException;
+    public List<GridCustomFilter> listFilters(String gridId) throws UserFailureException;
 
     /**
-     * Returns {@link Filter}s for given criteria.
+     * Returns {@link GridCustomFilter}s for given criteria.
      */
-    public ResultSet<Filter> listFilters(String gridId,
-            DefaultResultSetConfig<String, Filter> resultSetConfig) throws UserFailureException;
+    public ResultSet<GridCustomFilter> listFilters(String gridId,
+            DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig) throws UserFailureException;
 
     /**
      * Returns a key which can be used be the export servlet (and eventually
      * {@link #getExportTable(String, String)}) to reference the export criteria in an easy way.
      */
-    public String prepareExportFilters(final TableExportCriteria<Filter> criteria)
+    public String prepareExportFilters(final TableExportCriteria<GridCustomFilter> criteria)
             throws UserFailureException;
 
     /**
      * Registers a new filter.
      */
-    public void registerFilter(NewFilter filter) throws UserFailureException;
+    public void registerFilter(NewColumnOrFilter filter) throws UserFailureException;
 
     /** Deletes the specified filters. */
     public void deleteFilters(List<TechId> filterIds) throws UserFailureException;
@@ -772,5 +772,5 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates filter.
      */
-    public void updateFilter(final IFilterUpdates updates) throws UserFailureException;
+    public void updateFilter(final IFilterOrColumnUpdates updates) throws UserFailureException;
 }

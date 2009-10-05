@@ -46,7 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Izabela Adamczyk
  */
-public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
+public class FilterGrid extends AbstractSimpleBrowserGrid<GridCustomFilter>
 {
     // browser consists of the grid and the paging toolbar
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "filter-browser";
@@ -116,11 +116,11 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
         addButton(addButton);
         final Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                        new ISelectedEntityInvoker<BaseEntityModel<Filter>>()
+                        new ISelectedEntityInvoker<BaseEntityModel<GridCustomFilter>>()
                             {
-                                public void invoke(BaseEntityModel<Filter> selectedItem)
+                                public void invoke(BaseEntityModel<GridCustomFilter> selectedItem)
                                 {
-                                    final Filter filter = selectedItem.getBaseObject();
+                                    final GridCustomFilter filter = selectedItem.getBaseObject();
                                     createEditDialog(filter).show();
                                 }
 
@@ -131,7 +131,7 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<Filter> filters,
+                                protected Dialog createDialog(List<GridCustomFilter> filters,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new FilterListDeletionConfirmationDialog(viewContext,
@@ -148,22 +148,22 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
         return new AddFilterDialog(viewContext, createRefreshGridAction(), gridId, columnModels);
     }
 
-    private Window createEditDialog(Filter filter)
+    private Window createEditDialog(GridCustomFilter filter)
     {
         return new EditFilterDialog(viewContext, createRefreshGridAction(), gridId, columnModels,
                 filter);
     }
 
     @Override
-    protected IColumnDefinitionKind<Filter>[] getStaticColumnsDefinition()
+    protected IColumnDefinitionKind<GridCustomFilter>[] getStaticColumnsDefinition()
     {
         return FilterColDefKind.values();
     }
 
     @Override
-    protected ColumnDefsAndConfigs<Filter> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<GridCustomFilter> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<Filter> schema = super.createColumnsDefinition();
+        ColumnDefsAndConfigs<GridCustomFilter> schema = super.createColumnsDefinition();
         schema.setGridCellRendererFor(FilterColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
         schema.setGridCellRendererFor(FilterColDefKind.EXPRESSION.id(),
@@ -172,21 +172,21 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, Filter> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Filter>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<GridCustomFilter>> callback)
     {
         viewContext.getService().listFilters(gridId, resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<Filter> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<GridCustomFilter> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
         viewContext.getService().prepareExportFilters(exportCriteria, callback);
     }
 
     @Override
-    protected List<IColumnDefinition<Filter>> getInitialFilters()
+    protected List<IColumnDefinition<GridCustomFilter>> getInitialFilters()
     {
         return asColumnFilters(new FilterColDefKind[]
             { FilterColDefKind.NAME, FilterColDefKind.PUBLIC });
@@ -195,13 +195,13 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.FILTER),
-                    DatabaseModificationKind.edit(ObjectKind.FILTER) };
+            { DatabaseModificationKind.createOrDelete(ObjectKind.GRID_CUSTOM_FILTER),
+                    DatabaseModificationKind.edit(ObjectKind.GRID_CUSTOM_FILTER) };
     }
 
     // it would be better to implement AbstractDataListDeletionConfirmationDialog with 'reason'
     public class FilterListDeletionConfirmationDialog extends
-            AbstractDataConfirmationDialog<List<Filter>>
+            AbstractDataConfirmationDialog<List<GridCustomFilter>>
     {
         private static final int LABEL_WIDTH = 60;
 
@@ -210,7 +210,7 @@ public class FilterGrid extends AbstractSimpleBrowserGrid<Filter>
         private final AbstractAsyncCallback<Void> callback;
 
         public FilterListDeletionConfirmationDialog(IMessageProvider messageProvider,
-                List<Filter> data, AbstractAsyncCallback<Void> callback)
+                List<GridCustomFilter> data, AbstractAsyncCallback<Void> callback)
         {
             super(messageProvider, data, messageProvider.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
             this.callback = callback;

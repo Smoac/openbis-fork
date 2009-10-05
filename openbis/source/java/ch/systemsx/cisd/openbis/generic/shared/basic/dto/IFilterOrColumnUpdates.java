@@ -19,17 +19,17 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
- * Description of the updates which should be performed on a filter.
+ * Description of the updates which should be performed on a grid custom filter or column.
  * 
  * @author Piotr Buczek
  */
-public interface IFilterUpdates extends IIdHolder
+public interface IFilterOrColumnUpdates extends IIdHolder
 {
     String getDescription();
 
     String getExpression();
 
-    String getName();
+    String getName(); // filter name or column label
 
     boolean isPublic();
 }

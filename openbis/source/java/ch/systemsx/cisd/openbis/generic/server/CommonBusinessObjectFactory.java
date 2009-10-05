@@ -26,7 +26,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ExternalDataTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.FilterBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.GridCustomColumnBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.GridCustomFilterBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.GroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAttachmentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IAuthorizationGroupBO;
@@ -37,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IFilterBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
@@ -188,8 +189,13 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         return new AuthorizationGroupBO(getDaoFactory(), session);
     }
 
-    public IFilterBO createFilterBO(Session session)
+    public IGridCustomFilterOrColumnBO createGridCustomFilterBO(Session session)
     {
-        return new FilterBO(getDaoFactory(), session);
+        return new GridCustomFilterBO(getDaoFactory(), session);
+    }
+
+    public IGridCustomFilterOrColumnBO createGridCustomColumnBO(Session session)
+    {
+        return new GridCustomColumnBO(getDaoFactory(), session);
     }
 }

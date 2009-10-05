@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -298,10 +298,10 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Creates a filter in the specified database instance and registrator and ownership flag.
      */
-    protected FilterPE createFilter(DatabaseInstancePE databaseInstance, PersonPE registrator,
+    protected GridCustomFilterPE createFilter(DatabaseInstancePE databaseInstance, PersonPE registrator,
             boolean isPublic)
     {
-        final FilterPE filter = new FilterPE();
+        final GridCustomFilterPE filter = new GridCustomFilterPE();
         filter.setDatabaseInstance(databaseInstance);
         filter.setRegistrator(registrator);
         filter.setPublic(isPublic);

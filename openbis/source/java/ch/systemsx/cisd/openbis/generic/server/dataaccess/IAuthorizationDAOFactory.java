@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 /**
  * Factory definition for all Data Access Objects which are needed for managing authorization.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IAuthorizationDAOFactory
 {
@@ -36,51 +36,6 @@ public interface IAuthorizationDAOFactory
     public DatabaseInstancePE getHomeDatabaseInstance();
 
     /**
-     * Returns the <code>IPersonDAO</code> implementation.
-     */
-    public IPersonDAO getPersonDAO();
-
-    /**
-     * @return The implementation of the {@link IGroupDAO}.
-     */
-    public IGroupDAO getGroupDAO();
-
-    /**
-     * @return The implementation of the {@link IDatabaseInstanceDAO}.
-     */
-    public IDatabaseInstanceDAO getDatabaseInstanceDAO();
-
-    /**
-     * @return The implementation of the {@link IRoleAssignmentDAO}.
-     */
-    public IRoleAssignmentDAO getRoleAssignmentDAO();
-
-    /**
-     * Returns the {@link IExternalDataDAO} implementation.
-     */
-    public IExternalDataDAO getExternalDataDAO();
-
-    /**
-     * Returns the implementation of {@link IExperimentDAO}.
-     */
-    public IExperimentDAO getExperimentDAO();
-
-    /**
-     * Returns the implementation of {@link IProjectDAO}.
-     */
-    public IProjectDAO getProjectDAO();
-
-    /**
-     * Returns the implementation of {@link ISampleDAO}.
-     */
-    public ISampleDAO getSampleDAO();
-
-    /**
-     * Returns an implementation of {@link IFilterDAO}.
-     */
-    public IFilterDAO getFilterDAO();
-
-    /**
      * Disables interaction with the second level cache for the current Hibernate session.
      */
     public void disableSecondLevelCacheForSession();
@@ -90,4 +45,23 @@ public interface IAuthorizationDAOFactory
      */
     public SessionFactory getSessionFactory();
 
+    public IPersonDAO getPersonDAO();
+
+    public IGroupDAO getGroupDAO();
+
+    public IDatabaseInstanceDAO getDatabaseInstanceDAO();
+
+    public IRoleAssignmentDAO getRoleAssignmentDAO();
+
+    public IExternalDataDAO getExternalDataDAO();
+
+    public IExperimentDAO getExperimentDAO();
+
+    public IProjectDAO getProjectDAO();
+
+    public ISampleDAO getSampleDAO();
+
+    public IGridCustomFilterDAO getGridCustomFilterDAO();
+
+    public IGridCustomColumnDAO getGridCustomColumnDAO();
 }

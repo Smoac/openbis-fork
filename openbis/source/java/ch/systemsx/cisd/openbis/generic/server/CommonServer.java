@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTy
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IFilterBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -91,10 +91,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -107,7 +108,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -135,7 +136,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -163,7 +165,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.FilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTypeTranslator;
@@ -174,14 +175,11 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.RoleAssignmentTranslat
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.TypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomColumnTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
-/**
- * Implementation of client-server interface.
- * 
- * @author Franz-Josef Elmer
- */
 public final class CommonServer extends AbstractServer<ICommonServer> implements ICommonServer
 {
     private final IAuthenticationService authenticationService;
@@ -1724,25 +1722,24 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         return getDAOFactory().getEventDAO().listDeletedDataSets(lastSeenDeletionEventIdOrNull);
     }
 
-    public List<Filter> listFilters(String sessionToken, String gridId)
-    {
-        checkSession(sessionToken);
-        try
-        {
-            List<FilterPE> filters = getDAOFactory().getFilterDAO().listFilters(gridId);
-            return FilterTranslator.translate(filters);
-        } catch (final DataAccessException ex)
-        {
-            throw createUserFailureException(ex);
-        }
-    }
+    // --- grid custom filters and columns
 
-    public void registerFilter(String sessionToken, NewFilter filter)
+    private IGridCustomFilterOrColumnBO createGridCustomColumnBO(String sessionToken)
     {
         final Session session = getSession(sessionToken);
+        return businessObjectFactory.createGridCustomColumnBO(session);
+    }
+
+    private IGridCustomFilterOrColumnBO createGridCustomFilterBO(String sessionToken)
+    {
+        final Session session = getSession(sessionToken);
+        return businessObjectFactory.createGridCustomFilterBO(session);
+    }
+
+    private void registerFilterOrColumn(NewColumnOrFilter filter, IGridCustomFilterOrColumnBO bo)
+    {
         try
         {
-            IFilterBO bo = businessObjectFactory.createFilterBO(session);
             bo.define(filter);
             bo.save();
         } catch (final DataAccessException ex)
@@ -1751,15 +1748,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
-    public void deleteFilters(String sessionToken, List<TechId> filterIds)
+    private void deleteFiltersOrColumns(List<TechId> filterIds, IGridCustomFilterOrColumnBO bo)
     {
-        Session session = getSession(sessionToken);
         try
         {
-            IFilterBO filterBO = businessObjectFactory.createFilterBO(session);
             for (TechId id : filterIds)
             {
-                filterBO.deleteByTechId(id);
+                bo.deleteByTechId(id);
             }
         } catch (final DataAccessException ex)
         {
@@ -1767,14 +1762,70 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
     }
 
-    public void updateFilter(String sessionToken, IFilterUpdates updates)
+    public List<GridCustomFilter> listFilters(String sessionToken, String gridId)
     {
-        assert sessionToken != null : "Unspecified session token";
-        assert updates != null : "Unspecified updates";
+        checkSession(sessionToken);
+        try
+        {
+            List<GridCustomFilterPE> filters =
+                    getDAOFactory().getGridCustomFilterDAO().listFilters(gridId);
+            return GridCustomFilterTranslator.translate(filters);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
 
-        final Session session = getSession(sessionToken);
-        final IFilterBO filterBO = businessObjectFactory.createFilterBO(session);
-        filterBO.update(updates);
+    public void registerFilter(String sessionToken, NewColumnOrFilter filter)
+    {
+        IGridCustomFilterOrColumnBO bo = createGridCustomFilterBO(sessionToken);
+        registerFilterOrColumn(filter, bo);
+    }
+
+    public void deleteFilters(String sessionToken, List<TechId> filterIds)
+    {
+        IGridCustomFilterOrColumnBO bo = createGridCustomFilterBO(sessionToken);
+        deleteFiltersOrColumns(filterIds, bo);
+    }
+
+    public void updateFilter(String sessionToken, IFilterOrColumnUpdates updates)
+    {
+        assert updates != null : "Unspecified updates";
+        createGridCustomFilterBO(sessionToken).update(updates);
+    }
+
+    // -- columns
+
+    public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
+    {
+        checkSession(sessionToken);
+        try
+        {
+            List<GridCustomColumnPE> columns =
+                    getDAOFactory().getGridCustomColumnDAO().listColumns(gridId);
+            return GridCustomColumnTranslator.translate(columns);
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
+    }
+
+    public void registerGridCustomColumn(String sessionToken, NewColumnOrFilter column)
+    {
+        IGridCustomFilterOrColumnBO bo = createGridCustomColumnBO(sessionToken);
+        registerFilterOrColumn(column, bo);
+    }
+
+    public void deleteGridCustomColumns(String sessionToken, List<TechId> columnIds)
+    {
+        IGridCustomFilterOrColumnBO bo = createGridCustomColumnBO(sessionToken);
+        deleteFiltersOrColumns(columnIds, bo);
+    }
+
+    public void updateGridCustomColumn(String sessionToken, IFilterOrColumnUpdates updates)
+    {
+        assert updates != null : "Unspecified updates";
+        createGridCustomColumnBO(sessionToken).update(updates);
     }
 
 }

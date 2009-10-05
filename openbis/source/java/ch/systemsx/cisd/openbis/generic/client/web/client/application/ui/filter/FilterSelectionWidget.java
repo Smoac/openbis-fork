@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Izabela Adamczyk
  */
-public final class FilterSelectionWidget extends DropDownList<FilterModel, Filter> implements
+public final class FilterSelectionWidget extends DropDownList<FilterModel, GridCustomFilter> implements
         IDelegatedAction
 {
     private static final String LIST_ITEMS_CALLBACK = "ListItemsCallback";
@@ -67,13 +67,13 @@ public final class FilterSelectionWidget extends DropDownList<FilterModel, Filte
     }
 
     @Override
-    protected List<FilterModel> convertItems(List<Filter> result)
+    protected List<FilterModel> convertItems(List<GridCustomFilter> result)
     {
         return FilterModel.convert(result, withStandard);
     }
 
     @Override
-    protected void loadData(AbstractAsyncCallback<List<Filter>> callback)
+    protected void loadData(AbstractAsyncCallback<List<GridCustomFilter>> callback)
     {
         viewContext.getCommonService().listFilters(displayTypeIDProvider.getGridDisplayTypeID(),
                 callback);
@@ -81,7 +81,7 @@ public final class FilterSelectionWidget extends DropDownList<FilterModel, Filte
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return DatabaseModificationKind.any(ObjectKind.FILTER);
+        return DatabaseModificationKind.any(ObjectKind.GRID_CUSTOM_FILTER);
     }
 
     public void execute()

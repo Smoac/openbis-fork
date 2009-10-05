@@ -22,28 +22,29 @@ import org.springframework.dao.DataRetrievalFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
- * {@link IFilterBO} implementation.
+ * Operations on grid custom filters.
  * 
  * @author Izabela Adamczyk
  */
-public class FilterBO extends AbstractBusinessObject implements IFilterBO
+public class GridCustomFilterBO extends AbstractBusinessObject implements
+        IGridCustomFilterOrColumnBO
 {
-    private FilterPE filter;
+    private GridCustomFilterPE filter;
 
-    public FilterBO(IDAOFactory daoFactory, Session session)
+    public GridCustomFilterBO(IDAOFactory daoFactory, Session session)
     {
         super(daoFactory, session);
     }
 
-    public void define(NewFilter newFilter) throws UserFailureException
+    public void define(NewColumnOrFilter newFilter) throws UserFailureException
     {
-        filter = new FilterPE();
+        filter = new GridCustomFilterPE();
         filter.setDescription(newFilter.getDescription());
         filter.setExpression(newFilter.getExpression());
         filter.setGridId(newFilter.getGridId());
@@ -56,7 +57,7 @@ public class FilterBO extends AbstractBusinessObject implements IFilterBO
     {
         try
         {
-            filter = getFilterDAO().getByTechId(id);
+            filter = getGridCustomFilterDAO().getByTechId(id);
         } catch (DataRetrievalFailureException exception)
         {
             throw new UserFailureException(exception.getMessage());
@@ -69,7 +70,7 @@ public class FilterBO extends AbstractBusinessObject implements IFilterBO
         loadDataByTechId(groupId);
         try
         {
-            getFilterDAO().delete(filter);
+            getGridCustomFilterDAO().delete(filter);
         } catch (final DataAccessException ex)
         {
             throwException(ex, String.format("Filter '%s'", filter.getName()));
@@ -81,14 +82,14 @@ public class FilterBO extends AbstractBusinessObject implements IFilterBO
         assert filter != null : "Filter not defined";
         try
         {
-            getFilterDAO().createFilter(filter);
+            getGridCustomFilterDAO().createFilter(filter);
         } catch (final DataAccessException e)
         {
             throwException(e, "Filter '" + filter + "'");
         }
     }
 
-    public void update(IFilterUpdates updates)
+    public void update(IFilterOrColumnUpdates updates)
     {
         loadDataByTechId(TechId.create(updates));
 
@@ -102,7 +103,7 @@ public class FilterBO extends AbstractBusinessObject implements IFilterBO
 
     private void validateAndSave()
     {
-        getFilterDAO().validateAndSaveUpdatedEntity(filter);
+        getGridCustomFilterDAO().validateAndSaveUpdatedEntity(filter);
     }
 
 }

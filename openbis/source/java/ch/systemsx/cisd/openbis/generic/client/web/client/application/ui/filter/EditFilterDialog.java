@@ -26,22 +26,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 
 /**
  * {@link Window} containing filter edition form.
  * 
  * @author Piotr Buczek
  */
-public class EditFilterDialog extends AbstractFilterEditRegisterDialog
+public class EditFilterDialog extends AbstractGridCustomExpressionEditRegisterDialog
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    private final Filter filter;
+    private final GridCustomFilter filter;
 
     public EditFilterDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
             final IDelegatedAction postRegistrationCallback, String gridId,
-            List<ColumnDataModel> columnModels, Filter filter)
+            List<ColumnDataModel> columnModels, GridCustomFilter filter)
     {
         super(viewContext, viewContext.getMessage(Dict.EDIT_TITLE, viewContext
                 .getMessage(Dict.FILTER), filter.getName()), postRegistrationCallback, gridId,

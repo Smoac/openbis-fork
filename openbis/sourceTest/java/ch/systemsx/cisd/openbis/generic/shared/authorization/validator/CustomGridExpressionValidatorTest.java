@@ -21,17 +21,17 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.translator.FilterTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomFilterTranslator;
 
 /**
- * Test cases for corresponding {@link FilterValidator} class.
+ * Test cases for corresponding {@link CustomGridExpressionValidator} class.
  * 
  * @author Piotr Buczek
  */
-@Friend(toClasses = FilterValidator.class)
-public final class FilterValidatorTest extends AuthorizationTestCase
+@Friend(toClasses = CustomGridExpressionValidator.class)
+public final class CustomGridExpressionValidatorTest extends AuthorizationTestCase
 {
     @Test
     public final void testWithPublicFilter()
@@ -40,9 +40,9 @@ public final class FilterValidatorTest extends AuthorizationTestCase
         final PersonPE person = createPerson("A", instance);
         final PersonPE registrator = createPerson("B", instance);
         final boolean isPublic = true;
-        final FilterPE filter = createFilter(instance, registrator, isPublic);
-        final FilterValidator validator = new FilterValidator();
-        assertEquals(true, validator.isValid(person, FilterTranslator.translate(filter)));
+        final GridCustomFilterPE filter = createFilter(instance, registrator, isPublic);
+        final CustomGridExpressionValidator validator = new CustomGridExpressionValidator();
+        assertEquals(true, validator.isValid(person, GridCustomFilterTranslator.translate(filter)));
     }
 
     @Test
@@ -53,9 +53,9 @@ public final class FilterValidatorTest extends AuthorizationTestCase
         final PersonPE person = createPerson("A", instance);
         final PersonPE registrator = person;
         final boolean isPublic = false;
-        final FilterPE filter = createFilter(instance, registrator, isPublic);
-        final FilterValidator validator = new FilterValidator();
-        assertEquals(true, validator.isValid(person, FilterTranslator.translate(filter)));
+        final GridCustomFilterPE filter = createFilter(instance, registrator, isPublic);
+        final CustomGridExpressionValidator validator = new CustomGridExpressionValidator();
+        assertEquals(true, validator.isValid(person, GridCustomFilterTranslator.translate(filter)));
     }
 
     @Test
@@ -67,9 +67,9 @@ public final class FilterValidatorTest extends AuthorizationTestCase
         final PersonPE person = createPerson("A", anotherInstance);
         final PersonPE registrator = createPerson("A", instance);
         final boolean isPublic = false;
-        final FilterPE filter = createFilter(instance, registrator, isPublic);
-        final FilterValidator validator = new FilterValidator();
-        assertEquals(false, validator.isValid(person, FilterTranslator.translate(filter)));
+        final GridCustomFilterPE filter = createFilter(instance, registrator, isPublic);
+        final CustomGridExpressionValidator validator = new CustomGridExpressionValidator();
+        assertEquals(false, validator.isValid(person, GridCustomFilterTranslator.translate(filter)));
     }
 
     @Test
@@ -80,9 +80,9 @@ public final class FilterValidatorTest extends AuthorizationTestCase
         assignRoles(person);
         final PersonPE registrator = createPerson("B", instance);
         final boolean isPublic = false;
-        final FilterPE filter = createFilter(instance, registrator, isPublic);
-        final FilterValidator validator = new FilterValidator();
-        assertEquals(true, validator.isValid(person, FilterTranslator.translate(filter)));
+        final GridCustomFilterPE filter = createFilter(instance, registrator, isPublic);
+        final CustomGridExpressionValidator validator = new CustomGridExpressionValidator();
+        assertEquals(true, validator.isValid(person, GridCustomFilterTranslator.translate(filter)));
     }
 
     @Test
@@ -94,9 +94,9 @@ public final class FilterValidatorTest extends AuthorizationTestCase
         assignRoles(person);
         final PersonPE registrator = createPerson("B", anotherInstance);
         final boolean isPublic = false;
-        final FilterPE filter = createFilter(anotherInstance, registrator, isPublic);
-        final FilterValidator validator = new FilterValidator();
-        assertEquals(false, validator.isValid(person, FilterTranslator.translate(filter)));
+        final GridCustomFilterPE filter = createFilter(anotherInstance, registrator, isPublic);
+        final CustomGridExpressionValidator validator = new CustomGridExpressionValidator();
+        assertEquals(false, validator.isValid(person, GridCustomFilterTranslator.translate(filter)));
     }
 
 }

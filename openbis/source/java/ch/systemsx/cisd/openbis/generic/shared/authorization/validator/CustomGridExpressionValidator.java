@@ -18,8 +18,9 @@ package ch.systemsx.cisd.openbis.generic.shared.authorization.validator;
 
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractGridExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -27,25 +28,27 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 
 /**
- * A {@link IValidator} implementation suitable for {@link Filter}.
+ * A {@link IValidator} implementation for grid custom filter or column. Public internal class
+ * provide predicates for updates and deletions based on {@link TechId}.
  * 
  * @author Izabela Adamczyk
  */
-public final class FilterValidator extends AbstractValidator<Filter>
+public final class CustomGridExpressionValidator extends
+        AbstractValidator<AbstractGridExpression>
 {
     //
     // IValidator
     //
 
     @Override
-    public final boolean doValidation(final PersonPE person, final Filter value)
+    public final boolean doValidation(final PersonPE person, final AbstractGridExpression value)
     {
         return value.isPublic() || isRegistrator(person, value)
                 || isInstanceAdmin(person, value.getDatabaseInstance());
 
     }
 
-    private boolean isRegistrator(final PersonPE person, final Filter value)
+    private boolean isRegistrator(final PersonPE person, final AbstractGridExpression value)
     {
         Person registrator = value.getRegistrator();
         return person.getUserId().equals(registrator.getUserId())

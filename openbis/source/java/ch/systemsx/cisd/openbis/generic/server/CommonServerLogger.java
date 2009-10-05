@@ -45,10 +45,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Filter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IPropertyTypeUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyTermUpdates;
@@ -60,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -91,7 +92,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 /**
  * Logger class for {@link CommonServer} which creates readable logs of method invocations.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 final class CommonServerLogger extends AbstractServerLogger implements ICommonServer
 {
@@ -750,13 +751,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 authorizationGroupId, StringUtils.join(personsCodes.toArray(new String[0]), ","));
     }
 
-    public List<Filter> listFilters(String sessionToken, String gridId)
+    public List<GridCustomFilter> listFilters(String sessionToken, String gridId)
     {
         logAccess(sessionToken, "listFilters", "GRID(%s)", gridId);
         return null;
     }
 
-    public void registerFilter(String sessionToken, NewFilter filter)
+    public void registerFilter(String sessionToken, NewColumnOrFilter filter)
     {
         logTracking(sessionToken, "registerFilter", "FILTER(%s)", filter);
     }
@@ -767,10 +768,35 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 .toArray(new TechId[0]), ","));
     }
 
-    public void updateFilter(String sessionToken, IFilterUpdates updates)
+    public void updateFilter(String sessionToken, IFilterOrColumnUpdates updates)
     {
         logTracking(sessionToken, "updateFilters", "ID(%s) NAME(%s)", updates.getId(), updates
                 .getName());
+    }
+
+    // -- columns
+
+    public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
+    {
+        logAccess(sessionToken, "listGridCustomColumns", "GRID(%s)", gridId);
+        return null;
+    }
+
+    public void registerGridCustomColumn(String sessionToken, NewColumnOrFilter column)
+    {
+        logTracking(sessionToken, "registerGridCustomColumn", "COLUMN(%s)", column);
+    }
+
+    public void deleteGridCustomColumns(String sessionToken, List<TechId> columnIds)
+    {
+        logTracking(sessionToken, "deleteGridCustomColumns", "TECH_IDS(%s)", StringUtils.join(
+                columnIds.toArray(new TechId[0]), ","));
+    }
+
+    public void updateGridCustomColumn(String sessionToken, IFilterOrColumnUpdates updates)
+    {
+        logTracking(sessionToken, "updateGridCustomColumn", "ID(%s) NAME(%s)", updates.getId(),
+                updates.getName());
     }
 
 }

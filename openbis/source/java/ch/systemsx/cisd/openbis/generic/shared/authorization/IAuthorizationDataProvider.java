@@ -20,7 +20,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -28,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 /**
  * Interface of providers of data needed for authorization.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
 {
@@ -59,6 +60,11 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     /**
      * Returns the filter with given <var>techId</var>
      */
-    public FilterPE getFilter(TechId techId);
+    public GridCustomFilterPE getGridCustomFilter(TechId techId);
+
+    /**
+     * Returns the grid custom column with given <var>techId</var>
+     */
+    public GridCustomColumnPE getGridCustomColumn(TechId techId);
 
 }

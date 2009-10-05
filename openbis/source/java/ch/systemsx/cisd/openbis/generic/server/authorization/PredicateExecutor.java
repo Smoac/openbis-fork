@@ -34,7 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.FilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -243,9 +244,14 @@ public final class PredicateExecutor
             return daoFactory.getSampleDAO().getByTechId(techId);
         }
 
-        public FilterPE getFilter(TechId techId)
+        public GridCustomFilterPE getGridCustomFilter(TechId techId)
         {
-            return daoFactory.getFilterDAO().getByTechId(techId);
+            return daoFactory.getGridCustomFilterDAO().getByTechId(techId);
+        }
+
+        public GridCustomColumnPE getGridCustomColumn(TechId techId)
+        {
+            return daoFactory.getGridCustomColumnDAO().getByTechId(techId);
         }
 
     }
