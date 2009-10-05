@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 /**
  * The login widget.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class LoginWidget extends VerticalPanel
 {
@@ -203,7 +203,7 @@ public class LoginWidget extends VerticalPanel
         //
 
         @Override
-        protected final void finishOnFailure(final Throwable caught)
+        public final void finishOnFailure(final Throwable caught)
         {
             resetFields();
         }

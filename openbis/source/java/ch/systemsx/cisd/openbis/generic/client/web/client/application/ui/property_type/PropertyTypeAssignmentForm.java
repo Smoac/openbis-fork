@@ -336,7 +336,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         }
 
         @Override
-        protected void finishOnFailure(Throwable caught)
+        public void finishOnFailure(Throwable caught)
         {
             super.finishOnFailure(caught);
             saveButton.enable();

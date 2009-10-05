@@ -495,7 +495,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             }
 
             @Override
-            protected void finishOnFailure(Throwable caught)
+            public void finishOnFailure(Throwable caught)
             {
                 genericSampleViewer.setupRemovedEntityView();
             }

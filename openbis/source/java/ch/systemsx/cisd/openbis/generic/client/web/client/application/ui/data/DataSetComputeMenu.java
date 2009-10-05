@@ -260,7 +260,7 @@ public class DataSetComputeMenu extends TextToolItem
         }
 
         @Override
-        protected void finishOnFailure(Throwable caught)
+        public void finishOnFailure(Throwable caught)
         {
             progressBar.close();
             super.finishOnFailure(caught);

@@ -53,10 +53,17 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 {
     private static final long serialVersionUID = 1L;
 
-    private final IResultSetKeyGenerator<K> resultSetKeyProvider;
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CachedResultSetManager.class);
+
+    private static final String FILTER_EVALUATION_ERROR_MSG =
+            "Problem occured during applying the filter.<br><br>Check that all provided parameter values are correct."
+                    + "If everything seems fine contact filter registrator or instance admin about a possible bug in the filter.";
+
+    private static final String FILTER_EVALUATION_SERIOUS_ERROR_MSG =
+            "Serious problem occured during applying the filter: ";
+
+    private final IResultSetKeyGenerator<K> resultSetKeyProvider;
 
     @Private
     final Map<K, List<?>> results = new HashMap<K, List<?>>();
@@ -112,8 +119,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     }
 
     private static final <T> List<T> filterData(final List<T> rows,
-            Set<IColumnDefinition<T>> availableColumns,
-            final List<GridFilterInfo<T>> filterInfos, CustomFilterInfo<T> customFilterInfo)
+            Set<IColumnDefinition<T>> availableColumns, final List<GridFilterInfo<T>> filterInfos,
+            CustomFilterInfo<T> customFilterInfo)
     {
         List<T> filtered = new ArrayList<T>();
         if (customFilterInfo != null)
@@ -124,18 +131,20 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             } catch (Exception ex)
             {
                 String msg;
+                String details = null;
                 if (ex instanceof EvaluatorException)
                 {
-                    msg = "Problem occured during applying the filter: " + ex.getMessage();
+                    msg = FILTER_EVALUATION_ERROR_MSG;
+                    details = ex.getMessage();
                 } else
                 {
-                    msg = "Serious problem occured during applying the filter: " + ex;
+                    msg = FILTER_EVALUATION_SERIOUS_ERROR_MSG + ex;
                 }
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info(msg, ex);
+                    operationLog.info(msg + " DETAILS: " + details, ex);
                 }
-                throw new UserFailureException(msg);
+                throw new UserFailureException(msg, details);
             }
         } else
         {

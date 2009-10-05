@@ -212,7 +212,7 @@ public class ExperimentPropertiesPanel extends ContentPanel
             }
 
             @Override
-            protected void finishOnFailure(Throwable caught)
+            public void finishOnFailure(Throwable caught)
             {
                 viewer.setupRemovedEntityView();
             }

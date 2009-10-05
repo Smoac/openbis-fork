@@ -93,7 +93,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetCo
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
@@ -630,18 +629,13 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         //
 
         @Override
-        protected final void finishOnFailure(final Throwable caught)
+        public final void finishOnFailure(final Throwable caught)
         {
             grid.el().unmask();
             onComplete(false);
-            if (caught instanceof UserFailureException)
-            {
-                MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_ERROR),
-                        caught.getMessage(), null);
-            } else
-            {
-                delegate.onFailure(caught);
-            }
+            pagingToolbar.enable(); // somehow enabling toolbar is lost in its handleEvent() method
+            // no need to show error message - it should be shown by DEFAULT_CALLBACK_LISTENER
+            delegate.onFailure(caught);
         }
 
         @Override

@@ -68,7 +68,7 @@ public class CodeFieldWithGenerator extends CodeField
         }
 
         @Override
-        protected final void finishOnFailure(final Throwable caught)
+        public final void finishOnFailure(final Throwable caught)
         {
             setEnabled(true);
         }

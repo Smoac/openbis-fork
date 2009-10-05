@@ -199,7 +199,7 @@ public final class GenericDataSetViewer extends
         }
 
         @Override
-        protected void finishOnFailure(Throwable caught)
+        public void finishOnFailure(Throwable caught)
         {
             genericDataSetViewer.setupRemovedEntityView();
         }

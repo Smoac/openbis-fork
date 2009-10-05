@@ -204,6 +204,12 @@ public abstract class AbstractExternalDataGrid
                             callback.onSuccess(result.getResultSet());
                             refreshColumnsSettingsIfNecessary();
                         }
+
+                        @Override
+                        public void finishOnFailure(Throwable caught)
+                        {
+                            callback.finishOnFailure(caught);
+                        }
                     };
         listDatasets(resultSetConfig, extendedCallback);
     }

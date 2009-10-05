@@ -224,7 +224,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         protected abstract String createSuccessfullRegistrationInfo(T result);
 
         @Override
-        protected final void finishOnFailure(final Throwable caught)
+        public final void finishOnFailure(final Throwable caught)
         {
             setUploadEnabled(true);
             saveButton.enable();

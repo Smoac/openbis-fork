@@ -428,8 +428,13 @@ public class SampleBrowserGrid extends
                             return sampleTypes;
                         }
 
-                    };
+                        @Override
+                        public void finishOnFailure(Throwable caught)
+                        {
+                            callback.finishOnFailure(caught);
+                        }
 
+                    };
         criteria.copyPagingConfig(resultSetConfig);
         viewContext.getService().listSamples(criteria, extendedCallback);
     }

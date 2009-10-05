@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessi
  * Abstract super class of call backs. Subclasses have to implement {@link #process(Object)}. Note,
  * that instances of this class and its subclasses are stateful and can not be reused.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
@@ -133,13 +133,14 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         return (ICallbackListener<T>) staticCallbackListener;
     }
 
+	// TODO 2009-10-05, Piotr Buczek: make protected if one finds a way to easily delegate it
     /**
      * Terminates {@link #onFailure(Throwable)}.
      * <p>
      * Default behavior does nothing. Override this in subclasses.
      * </p>
      */
-    protected void finishOnFailure(final Throwable caught)
+    public void finishOnFailure(final Throwable caught)
     {
     }
 
