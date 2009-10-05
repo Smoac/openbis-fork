@@ -19,7 +19,7 @@ package ch.systemsx.cisd.yeastx.etl;
 import java.io.File;
 import java.util.Properties;
 
-import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessorWithDropbox;
+import ch.systemsx.cisd.etlserver.DelegatingStorageProcessorWithDropbox;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxH
  * 
  * @author Tomasz Pylak
  */
-public class StorageProcessorWithDropboxes extends AbstractDelegatingStorageProcessorWithDropbox
+public class StorageProcessorWithDropboxes extends DelegatingStorageProcessorWithDropbox
 {
     /**
      * The path to the directory where an additional copy of the original incoming data will be
