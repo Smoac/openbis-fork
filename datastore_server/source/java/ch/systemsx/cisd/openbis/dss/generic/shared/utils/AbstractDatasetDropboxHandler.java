@@ -32,6 +32,7 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.CallableExecutor;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -43,7 +44,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractDatasetDropboxHandler implements Serializable
+abstract public class AbstractDatasetDropboxHandler implements Serializable, IPostRegistrationDatasetHandler
 {
     private static final long serialVersionUID = 1L;
 

@@ -23,11 +23,12 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
 
 /**
- * Storage processor which is able to create a copy of incoming data for additional processing.
+ * Storage processor which delegates to a wrapped {@link IStorageProcessor}. In addition
+ * a {@link IPostRegistrationDatasetHandler} handles the data set.
  * <p>
  * The processor uses following properties: {@link #DELEGATE_PROCESSOR_CLASS_PROPERTY}. All the
  * properties are also passed for the default processor.
@@ -35,25 +36,25 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxH
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractDelegatingStorageProcessorWithDropbox extends
+public class DelegatingStorageProcessorWithDropbox extends
         AbstractDelegatingStorageProcessor
 {
-    private final AbstractDatasetDropboxHandler dropboxHandler;
+    private final IPostRegistrationDatasetHandler dropboxHandler;
 
     /**
      * Note that this class is not a valid storage processor as it does not provide the appropriate
      * constructor which takes only properties parameter.
      */
-    public AbstractDelegatingStorageProcessorWithDropbox(Properties properties,
-            AbstractDatasetDropboxHandler dropboxHandler)
+    public DelegatingStorageProcessorWithDropbox(Properties properties,
+            IPostRegistrationDatasetHandler dropboxHandler)
     {
         this(properties, dropboxHandler, AbstractDelegatingStorageProcessor
                 .createDelegateStorageProcessor(properties), FileOperations.getInstance());
     }
 
     @Private
-    AbstractDelegatingStorageProcessorWithDropbox(Properties properties,
-            AbstractDatasetDropboxHandler dropboxHandler,
+    DelegatingStorageProcessorWithDropbox(Properties properties,
+            IPostRegistrationDatasetHandler dropboxHandler,
             IStorageProcessor delegateStorageProcessor, IFileOperations fileOperations)
     {
         super(delegateStorageProcessor);

@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxH
 /**
  * @author Tomasz Pylak
  */
-@Friend(toClasses = AbstractDelegatingStorageProcessorWithDropbox.class)
+@Friend(toClasses = DelegatingStorageProcessorWithDropbox.class)
 public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemTestCase
 {
     @Test
@@ -75,7 +75,7 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         props.setProperty(StorageProcessorWithDropboxTest.DROPBOX_INCOMING_DIRECTORY_PROPERTY,
                 dropboxIncomingDirName);
 
-        AbstractDelegatingStorageProcessorWithDropbox storageProcessor =
+        DelegatingStorageProcessorWithDropbox storageProcessor =
                 new StorageProcessorWithDropboxTest(props, delegateStorageProcessor, fileOperations);
         storageProcessor.storeData(dataSetInfo, null, null, incomingDirectory, null);
 
@@ -83,7 +83,7 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
     }
 
     public static class StorageProcessorWithDropboxTest extends
-            AbstractDelegatingStorageProcessorWithDropbox
+            DelegatingStorageProcessorWithDropbox
     {
         public final static String DROPBOX_INCOMING_DIRECTORY_PROPERTY = "dropbox-dir";
 
@@ -154,7 +154,7 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
         String expectedErrorMsg = "Given key 'processor' not found in properties '[]'";
         try
         {
-            AbstractDelegatingStorageProcessorWithDropbox
+            DelegatingStorageProcessorWithDropbox
                     .createDelegateStorageProcessor(new Properties());
         } catch (ConfigurationFailureException e)
         {
@@ -186,7 +186,7 @@ public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemT
                 .getAbsolutePath());
         properties.setProperty(prefix
                 + AbstractDatasetDropboxHandler.DATASET_CODE_SEPARATOR_PROPERTY, "-");
-        AbstractDelegatingStorageProcessorWithDropbox processor =
+        DelegatingStorageProcessorWithDropbox processor =
                 new StorageProcessorWithDropboxTest(properties);
         DataSetInformation dataSetInfo = new DataSetInformation();
         dataSetInfo.setDataSetCode("1234-1");

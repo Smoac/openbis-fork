@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxH
  * 
  * @author Tomasz Pylak
  */
-public class StorageProcessorWithDropbox extends AbstractDelegatingStorageProcessorWithDropbox
+public class StorageProcessorWithDropbox extends DelegatingStorageProcessorWithDropbox
 {
     /**
      * The path to the directory where an additional copy of the original incoming data will be

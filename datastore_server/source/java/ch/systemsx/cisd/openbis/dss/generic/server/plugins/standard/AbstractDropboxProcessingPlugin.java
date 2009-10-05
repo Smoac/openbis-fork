@@ -26,13 +26,13 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxHandler;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
- * The base class for processing plugins that employ a {@link AbstractDatasetDropboxHandler}.
+ * The base class for processing plugins that employ a {@link IPostRegistrationDatasetHandler}.
  * 
  * @author Tomasz Pylak
  */
@@ -42,16 +42,16 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
     private static final long serialVersionUID = 1L;
 
     final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, AbstractDatasetDropboxHandler.class);
+            LogFactory.getLogger(LogCategory.OPERATION, IPostRegistrationDatasetHandler.class);
 
-    private final AbstractDatasetDropboxHandler dropboxHandler;
+    private final IPostRegistrationDatasetHandler dropboxHandler;
 
     /**
      * Note that this class is not a valid processing plugin as it does not provide the appropriate
      * constructor.
      */
     public AbstractDropboxProcessingPlugin(Properties properties, File storeRoot,
-            AbstractDatasetDropboxHandler dropboxHandler)
+            IPostRegistrationDatasetHandler dropboxHandler)
     {
         super(properties, storeRoot);
         this.dropboxHandler = dropboxHandler;
