@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * A {@link ICallbackListener} which outputs the failure message to the specified {@link InfoBox}.
@@ -37,8 +38,9 @@ public class InfoBoxCallbackListener<T> extends CallbackListenerAdapter<T>
     //
 
     @Override
-    public final void onFailureOf(final AbstractAsyncCallback<T> callback,
-            final String failureMessage, final Throwable throwable)
+    public final void onFailureOf(final IMessageProvider messageProvider,
+            final AbstractAsyncCallback<T> callback, final String failureMessage,
+            final Throwable throwable)
     {
         infoBox.displayError(failureMessage);
     }

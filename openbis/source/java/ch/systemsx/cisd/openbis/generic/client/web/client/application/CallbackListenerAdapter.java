@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * A {@link ICallbackListener} implementation with an empty body for each method implemented.
  * <p>
  * Usually the only method that gets overridden is
- * {@link #onFailureOf(AbstractAsyncCallback, String, Throwable)}.
+ * {@link #onFailureOf(IMessageProvider, AbstractAsyncCallback, String, Throwable)}.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -38,7 +39,8 @@ public class CallbackListenerAdapter<T> implements ICallbackListener<T>
 
     }
 
-    public void onFailureOf(final AbstractAsyncCallback<T> callback, final String failureMessage,
+    public void onFailureOf(final IMessageProvider messageProvider,
+            final AbstractAsyncCallback<T> callback, final String failureMessage,
             final Throwable throwable)
     {
 

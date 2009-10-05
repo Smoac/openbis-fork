@@ -57,8 +57,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             LogFactory.getLogger(LogCategory.OPERATION, CachedResultSetManager.class);
 
     private static final String FILTER_EVALUATION_ERROR_MSG =
-            "Problem occured during applying the filter.<br><br>Check that all provided parameter values are correct."
-                    + "If everything seems fine contact filter registrator or instance admin about a possible bug in the filter.";
+            "Problem occured during applying the filter.<br><br>Check that all provided parameter values are correct. "
+                    + "If everything seems fine contact filter registrator or instance admin about a possible bug in the filter definition.";
 
     private static final String FILTER_EVALUATION_SERIOUS_ERROR_MSG =
             "Serious problem occured during applying the filter: ";

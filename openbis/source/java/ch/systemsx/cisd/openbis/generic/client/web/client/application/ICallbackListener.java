@@ -18,10 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+
 /**
  * Listener of invocations of methods of {@link AsyncCallback}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface ICallbackListener<T>
 {
@@ -30,7 +32,8 @@ public interface ICallbackListener<T>
      * object with the specified failure message and throwable. This method will be invoked before
      * the callback object is showing the failure message in a popup dialog.
      */
-    public void onFailureOf(final AbstractAsyncCallback<T> callback, final String failureMessage,
+    public void onFailureOf(final IMessageProvider messageProvider,
+            final AbstractAsyncCallback<T> callback, final String failureMessage,
             final Throwable throwable);
 
     /**

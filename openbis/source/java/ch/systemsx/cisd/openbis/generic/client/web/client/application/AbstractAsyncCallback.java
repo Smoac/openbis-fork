@@ -19,12 +19,19 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.event.WindowListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.InvalidSessionException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
  * Abstract super class of call backs. Subclasses have to implement {@link #process(Object)}. Note,
@@ -43,10 +50,46 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                     //
 
                     @Override
-                    public final void onFailureOf(final AbstractAsyncCallback<Object> callback,
+                    public final void onFailureOf(final IMessageProvider messageProvider,
+                            final AbstractAsyncCallback<Object> callback,
                             final String failureMessage, final Throwable throwable)
                     {
+
+                        if (throwable instanceof UserFailureException)
+                        {
+                            UserFailureException userException = (UserFailureException) throwable;
+                            String details = userException.getDetails();
+                            if (details != null)
+                            {
+                                createErrorMessageWithDetailsDialog(messageProvider,
+                                        failureMessage, details).show();
+                                return;
+                            }
+                        }
+                        // no details - show simple error message box
                         MessageBox.alert("Error", failureMessage, null);
+                    }
+
+                    private Window createErrorMessageWithDetailsDialog(
+                            final IMessageProvider messageProvider, final String failureMessage,
+                            final String details)
+                    {
+                        final String heading = "Error";
+                        final String okButtonLabel = "Show Details";
+                        final HorizontalPanel panel = new HorizontalPanel();
+                        panel.setLayout(new FitLayout());
+                        panel.addText(failureMessage);
+                        panel.setBorders(false);
+                        final SimpleDialog dialog =
+                                new SimpleDialog(panel, heading, okButtonLabel, messageProvider);
+                        dialog.setAcceptAction(new IDelegatedAction()
+                            {
+                                public void execute()
+                                {
+                                    MessageBox.alert("Error details", details, null);
+                                }
+                            });
+                        return dialog;
                     }
                 };
 
@@ -133,7 +176,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         return (ICallbackListener<T>) staticCallbackListener;
     }
 
-	// TODO 2009-10-05, Piotr Buczek: make protected if one finds a way to easily delegate it
+    // TODO 2009-10-05, Piotr Buczek: make protected if one finds a way to easily delegate it
     /**
      * Terminates {@link #onFailure(Throwable)}.
      * <p>
@@ -204,7 +247,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             showSessionTerminated(msg);
         } else
         {
-            callbackListener.onFailureOf(this, msg, caught);
+            callbackListener.onFailureOf(viewContext, this, msg, caught);
         }
         finishOnFailure(caught);
     }

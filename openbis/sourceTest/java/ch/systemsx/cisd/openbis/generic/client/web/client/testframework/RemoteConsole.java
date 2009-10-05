@@ -26,6 +26,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ICallbackListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
  * A class which allows to execute a sequence of {@link ITestCommand} instances. The commands are
@@ -149,8 +150,9 @@ public class RemoteConsole
         // ICallbackListener
         //
 
-        public final void onFailureOf(final AbstractAsyncCallback<Object> callback,
-                final String failureMessage, final Throwable throwable)
+        public final void onFailureOf(final IMessageProvider messageProvider,
+                final AbstractAsyncCallback<Object> callback, final String failureMessage,
+                final Throwable throwable)
         {
             registerCallback(callback);
             if (entryIndex < commands.size())
@@ -180,11 +182,11 @@ public class RemoteConsole
                         cmd.tryValidOnSucess(lastCallbackObjects, result);
                 if (unmatchedCallbacks != null)
                 {
-                	// uncomment to debug unmatched callbacks in system tests
+                    // uncomment to debug unmatched callbacks in system tests
                     // System.err.println("callback: " + entryIndex);
                     // for (AbstractAsyncCallback<?> c : unmatchedCallbacks)
                     // {
-                    //     System.err.println("\t" + c);
+                    // System.err.println("\t" + c);
                     // }
                     lastCallbackObjects = unmatchedCallbacks;
                     executeCommand();
