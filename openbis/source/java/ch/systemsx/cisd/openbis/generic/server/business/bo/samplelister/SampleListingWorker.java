@@ -200,19 +200,13 @@ final class SampleListingWorker
     {
         final StopWatch watch = new StopWatch();
         watch.start();
-        final Experiment expOrNull = tryLoadExperiment();
-        final boolean oneGroupPerSample = isOneGroupPerSamples();
-        final Group groupOrNull = oneGroupPerSample ? null : tryLoadGroup(expOrNull);
-        loadGroups(); // all groups are needed for parent samples identifiers
+        loadGroups();
         loadSampleTypes();
-        retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds(), groupOrNull, oneGroupPerSample);
-        retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples(), groupOrNull, oneGroupPerSample);
-        retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples(), groupOrNull,
-                oneGroupPerSample);
-        retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples(), groupOrNull,
-                oneGroupPerSample);
-        retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples(), groupOrNull,
-                oneGroupPerSample);
+        retrievePrimaryBasicSamples(tryGetIteratorForSamplesByIds());
+        retrievePrimaryBasicSamples(tryGetIteratorForGroupSamples());
+        retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples());
+        retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples());
+        retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples());
         if (operationLog.isDebugEnabled())
         {
             watch.stop();
@@ -255,57 +249,12 @@ final class SampleListingWorker
 
     private void loadGroups()
     {
+        // all groups are needed for parent samples identifiers
         final Group[] groups = referencedEntityDAO.getAllGroups(databaseInstanceId);
         for (Group group : groups)
         {
             group.setInstance(databaseInstance);
             groupMap.put(group.getId(), group);
-        }
-    }
-
-    private Experiment tryLoadExperiment()
-    {
-        final TechId experimentTechId = criteria.getExperimentId();
-        if (experimentTechId == null)
-        {
-            return null;
-        }
-        return createAndSaveExperiment(experimentTechId.getId(), null);
-    }
-
-    private Experiment createAndSaveExperiment(final long experimentId, final Group groupOrNull)
-    {
-        final Experiment experiment = referencedEntityDAO.getExperiment(experimentId);
-        experiments.put(experimentId, experiment);
-        return experiment;
-    }
-
-    private boolean isOneGroupPerSamples()
-    {
-        return criteria.getContainerSampleId() != null || criteria.getSampleIds() != null;
-    }
-
-    private Group tryLoadGroup(final Experiment expOrNull)
-    {
-        if (criteria.isIncludeGroup() == false && expOrNull == null)
-        {
-            return null;
-        }
-        if (criteria.getGroupCode() != null)
-        {
-            final Group group = new Group();
-            group.setCode(StringEscapeUtils.escapeHtml(criteria.getGroupCode()));
-            group.setInstance(databaseInstance);
-            group.setId(referencedEntityDAO.getGroupIdForCode(group.getCode()));
-            return group;
-        } else if (expOrNull != null)
-        {
-            final Group group = expOrNull.getProject().getGroup();
-            group.setId(referencedEntityDAO.getGroupIdForCode(group.getCode()));
-            return group;
-        } else
-        {
-            throw new IllegalStateException("No group definition available.");
         }
     }
 
@@ -336,6 +285,13 @@ final class SampleListingWorker
             this.maxSampleContainerResolutionDepth = sampleTypeOrNull.getContainerHierarchyDepth();
         }
 
+    }
+
+    private Experiment createAndSaveExperiment(final long experimentId)
+    {
+        final Experiment experiment = referencedEntityDAO.getExperiment(experimentId);
+        experiments.put(experimentId, experiment);
+        return experiment;
     }
 
     private SampleType tryGetSingleModeSampleType()
@@ -430,23 +386,20 @@ final class SampleListingWorker
         }
     }
 
-    private void retrievePrimaryBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull,
-            final Group groupOrNull, final boolean oneGroupPerSample)
+    private void retrievePrimaryBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull)
     {
         assert sampleList != null;
 
-        retrieveBasicSamples(sampleIteratorOrNull, groupOrNull, baseIndexURL, sampleList,
-                oneGroupPerSample);
+        retrieveBasicSamples(sampleIteratorOrNull, baseIndexURL, sampleList);
     }
 
     private void retrieveDependentBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull)
     {
-        retrieveBasicSamples(sampleIteratorOrNull, null, null, null, true);
+        retrieveBasicSamples(sampleIteratorOrNull, null, null);
     }
 
     private void retrieveBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull,
-            final Group groupOrNull, final String baseIndexURLOrNull,
-            final List<Sample> sampleListOrNull, final boolean oneGroupPerSample)
+            final String baseIndexURLOrNull, final List<Sample> sampleListOrNull)
     {
         if (sampleIteratorOrNull == null)
         {
@@ -455,9 +408,7 @@ final class SampleListingWorker
         final boolean primarySample = (sampleListOrNull != null);
         for (SampleRecord row : sampleIteratorOrNull)
         {
-            final Sample sample =
-                    createSample(row, groupOrNull, oneGroupPerSample, baseIndexURLOrNull,
-                            primarySample);
+            final Sample sample = createSample(row, baseIndexURLOrNull, primarySample);
             sampleMap.put(sample.getId(), sample);
             if (sampleListOrNull != null)
             {
@@ -466,8 +417,7 @@ final class SampleListingWorker
         }
     }
 
-    private Sample createSample(SampleRecord row, final Group groupOrNull,
-            final boolean oneGroupPerSample, final String baseIndexURLOrNull,
+    private Sample createSample(SampleRecord row, final String baseIndexURLOrNull,
             final boolean primarySample)
     {
         final Sample sample = new Sample();
@@ -475,23 +425,15 @@ final class SampleListingWorker
         sample.setCode(IdentifierHelper.convertCode(row.code, null));
         sample.setSubCode(IdentifierHelper.convertSubCode(row.code));
         sample.setSampleType(sampleTypes.get(row.saty_id));
-        if (oneGroupPerSample)
-        {
-            if (row.grou_id == null)
-            {
-                setDatabaseInstance(sample);
-            } else
-            {
-                System.err.println(groupOrNull + " " + groupMap.get(row.grou_id));
-                setGroup(sample, groupMap.get(row.grou_id));
-            }
-        } else if (groupOrNull != null)
-        {
-            setGroup(sample, groupOrNull);
-        } else
+        // set group or instance
+        if (row.grou_id == null)
         {
             setDatabaseInstance(sample);
+        } else
+        {
+            setGroup(sample, groupMap.get(row.grou_id));
         }
+        // set properties needed for primary samples
         if (primarySample)
         {
             sample.setPermId(StringEscapeUtils.escapeHtml(row.perm_id));
@@ -507,9 +449,10 @@ final class SampleListingWorker
             sample.setRegistrator(getOrCreateRegistrator(row));
             if (row.expe_id != null)
             {
-                sample.setExperiment(getOrCreateExperiment(row, groupOrNull));
+                sample.setExperiment(getOrCreateExperiment(row));
             }
         }
+        // prepare loading related samples
         if (row.samp_id_generated_from != null & maxSampleParentResolutionDepth > 0)
         {
             if (samplesAwaitingParentResolution.containsKey(row.id) == false)
@@ -566,12 +509,12 @@ final class SampleListingWorker
         }
     }
 
-    private Experiment getOrCreateExperiment(SampleRecord row, final Group groupOrNull)
+    private Experiment getOrCreateExperiment(SampleRecord row)
     {
         Experiment experiment = experiments.get(row.expe_id);
         if (experiment == null)
         {
-            experiment = createAndSaveExperiment(row.expe_id, groupOrNull);
+            experiment = createAndSaveExperiment(row.expe_id);
         }
         return experiment;
     }
