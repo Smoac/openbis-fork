@@ -72,6 +72,8 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
 
     public String callbackIdOrNull;
 
+    private final List<IDataRefreshCallback> dataRefreshCallbacks;
+
     public DropDownList(final IViewContext<?> viewContext, String idSuffix, String labelDictCode,
             String displayField, String chooseSuffix, String nothingFoundSuffix)
     {
@@ -92,6 +94,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         this.mandatory = mandatory;
         this.reloadWhenRendering = reloadWhenRendering;
         this.viewContextOrNull = viewContextOrNull;
+        this.dataRefreshCallbacks = new ArrayList<IDataRefreshCallback>();
 
         setId(createId(idSuffix));
         setEnabled(true);
@@ -222,6 +225,10 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         {
             List<M> convertedItems = convertItems(result);
             updateStore(convertedItems);
+            for (IDataRefreshCallback c : dataRefreshCallbacks)
+            {
+                c.postRefresh(true);
+            }
         }
 
         @Override
@@ -433,6 +440,11 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         {
             refreshStore();
         }
+    }
+
+    public void addPostRefreshCallback(IDataRefreshCallback callback)
+    {
+        dataRefreshCallbacks.add(callback);
     }
 
 }
