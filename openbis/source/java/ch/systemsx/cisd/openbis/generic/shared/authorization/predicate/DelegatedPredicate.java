@@ -24,13 +24,13 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * An <code>AbstractPredicate</code> extension which delegates its method calls to the
- * encapsulated {@link IPredicate}.
+ * An <code>AbstractPredicate</code> extension which delegates its method calls to the encapsulated
+ * {@link IPredicate}.
  * <p>
- * Each implementation should know how to convert <code>T</code> to <code>P</code> by
- * implementing {@link #convert(Object)} method. Note that
- * {@link #doEvaluation(PersonPE, List, Object)} delegates its call to
- * {@link IPredicate#evaluate(PersonPE, List, Object)} of the specified <code>delegate</code>.
+ * Each implementation should know how to convert <code>T</code> to <code>P</code> by implementing
+ * {@link #convert(Object)} method. Note that {@link #doEvaluation(PersonPE, List, Object)}
+ * delegates its call to {@link IPredicate#evaluate(PersonPE, List, Object)} of the specified
+ * <code>delegate</code>.
  * </p>
  * 
  * @author Christian Ribeaud
