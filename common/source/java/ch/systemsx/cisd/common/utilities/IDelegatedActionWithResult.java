@@ -18,7 +18,7 @@ package ch.systemsx.cisd.common.utilities;
 
 /**
  * Use this interface to delegate any kind of action to a different part of code without adding an
- * explicit dependency. The action return a result.
+ * explicit dependency. The action returns a result.
  * 
  * @author Tomasz Pylak
  */
