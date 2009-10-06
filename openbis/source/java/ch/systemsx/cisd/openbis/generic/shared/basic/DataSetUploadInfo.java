@@ -22,7 +22,15 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 public class DataSetUploadInfo
 {
 
-    String sample;
+    private static final String PARENT_SEPARATOR = "|";
+
+    private static final String SEPARATOR = ",";
+
+    String sample; // may be null
+
+    String experiment; // may be null
+
+    String[] parents; // may be null
 
     String dataSetType;
 
@@ -32,9 +40,12 @@ public class DataSetUploadInfo
     {
     }
 
-    public DataSetUploadInfo(String sample, String dataSetType, String fileType)
+    public DataSetUploadInfo(String sample, String experiment, String[] parents,
+            String dataSetType, String fileType)
     {
         setSample(sample);
+        setExperiment(experiment);
+        setParents(parents);
         setDataSetType(dataSetType);
         setFileType(fileType);
     }
@@ -69,41 +80,106 @@ public class DataSetUploadInfo
         this.fileType = fileType;
     }
 
+    public String getExperiment()
+    {
+        return experiment;
+    }
+
+    public void setExperiment(String experiment)
+    {
+        this.experiment = experiment;
+    }
+
+    public String[] getParents()
+    {
+        return parents;
+    }
+
+    public void setParents(String[] parents)
+    {
+        this.parents = parents;
+    }
+
     public static class DataSetUploadInfoHelper
     {
-        private static final String SEPARATOR = ",";
 
         enum CommentElements
         {
-            SAMPLE, DATA_SET_TYPE, FILE_TYPE;
+            SAMPLE, EXPERIMENT, PARENTS, DATA_SET_TYPE, FILE_TYPE;
         }
 
         public static String encodeAsCifexComment(DataSetUploadInfo info)
         {
             String[] commentElements = new String[CommentElements.values().length];
             commentElements[CommentElements.SAMPLE.ordinal()] = info.getSample();
+            commentElements[CommentElements.EXPERIMENT.ordinal()] = info.getExperiment();
+            commentElements[CommentElements.PARENTS.ordinal()] = tryEncodeParentsAsString(info);
             commentElements[CommentElements.DATA_SET_TYPE.ordinal()] = info.getDataSetType();
             commentElements[CommentElements.FILE_TYPE.ordinal()] = info.getFileType();
-            String comment = "";
+            StringBuilder commentBuilder = new StringBuilder();
             for (String el : commentElements)
             {
-                if (comment.length() != 0)
-                {
-                    comment += SEPARATOR;
-                }
-                comment += el;
+                commentBuilder.append(el);
+                commentBuilder.append(SEPARATOR);
             }
-            return comment;
+            return cutOffLastSeparator(commentBuilder, SEPARATOR);
         }
 
         public static DataSetUploadInfo extractFromCifexComment(String comment)
         {
-            String[] commentElements = comment.split(SEPARATOR);
+            String[] commentElements = comment.split(asEscapedRegexp(SEPARATOR));
             DataSetUploadInfo result = new DataSetUploadInfo();
-            result.setSample(commentElements[CommentElements.SAMPLE.ordinal()]);
+            result.setSample(nullify(commentElements[CommentElements.SAMPLE.ordinal()]));
+            result.setExperiment(nullify(commentElements[CommentElements.EXPERIMENT.ordinal()]));
+            result
+                    .setParents(tryExtractParentsFromString(nullify(commentElements[CommentElements.PARENTS
+                            .ordinal()])));
             result.setDataSetType(commentElements[CommentElements.DATA_SET_TYPE.ordinal()]);
             result.setFileType(commentElements[CommentElements.FILE_TYPE.ordinal()]);
             return result;
+        }
+
+        private static String nullify(String string)
+        {
+            return string.equals("null") ? null : string;
+        }
+
+        private static String[] tryExtractParentsFromString(String parents)
+        {
+            return parents == null ? null : parents.split(asEscapedRegexp(PARENT_SEPARATOR));
+        }
+
+        private static String tryEncodeParentsAsString(DataSetUploadInfo info)
+        {
+            if (info.getParents() == null)
+            {
+                return null;
+            }
+            StringBuilder sb = new StringBuilder();
+            for (String parent : info.getParents())
+            {
+                sb.append(parent);
+                sb.append(PARENT_SEPARATOR);
+            }
+            return cutOffLastSeparator(sb, PARENT_SEPARATOR);
+        }
+
+        private static String asEscapedRegexp(String str)
+        {
+            return "\\Q" + str + "\\E";
+        }
+
+        private static String cutOffLastSeparator(StringBuilder builder, String sep)
+        {
+            // either builder is empty or it should end with separator
+            if (builder.length() == 0)
+            {
+                return "";
+            } else
+            {
+                assert builder.lastIndexOf(sep) == builder.length() - sep.length();
+                return builder.substring(0, builder.length() - sep.length());
+            }
         }
     }
 

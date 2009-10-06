@@ -76,9 +76,9 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
 
     private final SampleType sampleType;
 
-    private CheckBoxField generateCodesCheckbox;
+    private final CheckBoxField generateCodesCheckbox;
 
-    private GroupSelectionWidget groupSelector;
+    private final GroupSelectionWidget groupSelector;
 
     public GenericSampleBatchRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
@@ -100,9 +100,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
                 public void handleEvent(FieldEvent be)
                 {
                     boolean selected = (Boolean) be.value;
-                    groupSelector.setVisible(selected);
-                    groupSelector.setEnabled(selected);
-                    groupSelector.validate();
+                    FieldUtil.setVisibility(selected, groupSelector);
                 }
             });
         addUploadFeatures(SESSION_KEY);

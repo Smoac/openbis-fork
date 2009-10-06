@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  * 
  * @author Piotr Buczek
  */
-final class DataSetParentsArea extends TextArea
+public final class DataSetParentsArea extends TextArea
 {
 
     public static final String ID_SUFFIX_PARENTS = "_parents";

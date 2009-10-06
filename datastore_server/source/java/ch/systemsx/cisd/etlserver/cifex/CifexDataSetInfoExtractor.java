@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.cifex;
 import static ch.systemsx.cisd.etlserver.AbstractDataSetInfoExtractor.extractDataSetProperties;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
@@ -28,13 +29,16 @@ import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * {@link IDataSetInfoExtractor} extracting group and sample from CIFEX comment.
+ * {@link IDataSetInfoExtractor} extracting data from CIFEX comment.
  * 
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
 public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
 {
@@ -59,17 +63,36 @@ public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
 
         DataSetUploadInfo info = CifexExtratorHelper.getDataSetUploadInfo(incomingDataSetPath);
         final DataSetInformation dataSetInformation = new DataSetInformation();
-        SampleIdentifier identifier = SampleIdentifierFactory.parse(info.getSample());
-        dataSetInformation.setSampleCode(identifier.getSampleCode());
-        if (identifier.isGroupLevel())
+
+        // either sample is specified or experiment (with optional data set parents)
+
+        SampleIdentifier sampleIdentifierOrNull = tryGetSampleIdentifier(info);
+        if (sampleIdentifierOrNull != null)
         {
-            dataSetInformation.setGroupCode(identifier.getGroupLevel().getGroupCode());
+            dataSetInformation.setSampleCode(sampleIdentifierOrNull.getSampleCode());
+            if (sampleIdentifierOrNull.isGroupLevel())
+            {
+                dataSetInformation.setGroupCode(sampleIdentifierOrNull.getGroupLevel()
+                        .getGroupCode());
+            }
+        } else
+        {
+            ExperimentIdentifier experimentIdentifier =
+                    new ExperimentIdentifierFactory(info.getExperiment()).createIdentifier();
+            dataSetInformation.setGroupCode(experimentIdentifier.getGroupCode());
+            dataSetInformation.setParentDataSetCodes(Arrays.asList(info.getParents()));
         }
+
         dataSetInformation.setUploadingUserEmail(CifexExtratorHelper
                 .getUploadingUserEmail(incomingDataSetPath));
         dataSetInformation.setDataSetProperties(extractDataSetProperties(incomingDataSetPath,
                 dataSetPropertiesFileNameOrNull));
         return dataSetInformation;
+    }
+
+    private SampleIdentifier tryGetSampleIdentifier(DataSetUploadInfo info)
+    {
+        return (info.getSample() == null) ? null : SampleIdentifierFactory.parse(info.getSample());
     }
 
 }

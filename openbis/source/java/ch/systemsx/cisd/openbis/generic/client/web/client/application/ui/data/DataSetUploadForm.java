@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.google.gwt.http.client.URL;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -26,15 +29,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo.DataSetUploadInfoHelper;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.DataSetParentsArea;
 
 /**
  * Panel that allows to specify information necessary to upload data sets and redirects user to
@@ -49,15 +57,26 @@ public class DataSetUploadForm extends AbstractRegistrationForm
 
     public static final String ID = GenericConstants.ID_PREFIX + ID_SUFFIX;
 
-    private String cifexURL;
+    private final String cifexURL;
 
-    private String cifexRecipient;
+    private final String cifexRecipient;
 
-    private DataSetTypeSelectionWidget dataSetTypeSelectionWidget;
+    private final DataSetTypeSelectionWidget dataSetTypeSelectionWidget;
 
-    private SampleChooserFieldAdaptor sampleChooser;
+    private final FileFormatTypeSelectionWidget fileTypeSelectionWidget;
 
-    private FileFormatTypeSelectionWidget fileTypeSelectionWidget;
+    private final CheckBoxField connectedWithSampleCheckbox;
+
+    // two options:
+    // 1. connected with sample
+    private final SampleChooserFieldAdaptor sampleChooser;
+
+    // 2. not connected with sample
+    private final ExperimentChooserFieldAdaptor experimentChooser;
+
+    private final DataSetParentsArea parentsArea;
+
+    //
 
     public DataSetUploadForm(IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -65,10 +84,31 @@ public class DataSetUploadForm extends AbstractRegistrationForm
         cifexURL = viewContext.getModel().getApplicationInfo().getCIFEXURL();
         cifexRecipient = viewContext.getModel().getApplicationInfo().getCifexRecipient();
         saveButton.setText(viewContext.getMessage(Dict.BUTTON_UPLOAD_DATA_VIA_CIFEX));
+
+        connectedWithSampleCheckbox = new CheckBoxField("Connected with Sample", false);
+        connectedWithSampleCheckbox.setValue(true);
+        formPanel.add(connectedWithSampleCheckbox);
+
+        // both sample and experiment choosers are mandatory but only one will be shown
         sampleChooser =
                 SampleChooserField.create(viewContext.getMessage(Dict.SAMPLE), true, null, false,
                         true, viewContext);
         formPanel.add(sampleChooser.getField());
+        experimentChooser =
+                ExperimentChooserField.create(viewContext.getMessage(Dict.EXPERIMENT), true, null,
+                        viewContext);
+        formPanel.add(experimentChooser.getField());
+        formPanel.add(parentsArea = new DataSetParentsArea(viewContext, ID_SUFFIX));
+
+        connectedWithSampleCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
+            {
+                public void handleEvent(FieldEvent be)
+                {
+                    updateFieldsVisibility();
+                }
+            });
+        updateFieldsVisibility();
+
         formPanel.add(dataSetTypeSelectionWidget =
                 new DataSetTypeSelectionWidget(viewContext, ID_SUFFIX));
         FieldUtil.markAsMandatory(dataSetTypeSelectionWidget);
@@ -80,6 +120,14 @@ public class DataSetUploadForm extends AbstractRegistrationForm
             formPanel.disable();
             infoBox.displayError(viewContext.getMessage(Dict.MESSAGE_NO_EXTERNAL_UPLOAD_SERVICE));
         }
+    }
+
+    private void updateFieldsVisibility()
+    {
+        boolean connectedWithSample = connectedWithSampleCheckbox.getValue();
+        FieldUtil.setVisibility(connectedWithSample, sampleChooser.getField());
+        FieldUtil.setVisibility(connectedWithSample == false, experimentChooser.getField(),
+                parentsArea);
     }
 
     public static DatabaseModificationAwareComponent create(
@@ -102,17 +150,64 @@ public class DataSetUploadForm extends AbstractRegistrationForm
     @Override
     protected void submitValidForm()
     {
-        String comment =
-                encodeDataSetInfo(sampleChooser.getValue(), dataSetTypeSelectionWidget
-                        .tryGetSelected().getCode(), fileTypeSelectionWidget.tryGetSelected()
-                        .getCode());
+        final String sample = extractSampleIdentifier();
+        final String experiment = extractExperimentIdentifier();
+        final String dataSetType = extractDataSetTypeCode();
+        final String fileType = extractFileTypeCode();
+        final String[] parents = extractParentDatasetCodes();
+        String comment;
+        if (isConnectedWithSample())
+        {
+            comment = encodeDataSetInfo(sample, dataSetType, fileType);
+        } else
+        {
+            comment = encodeDataSetInfo(experiment, parents, dataSetType, fileType);
+        }
         WindowUtils.openWindow(encodeCifexRequest(cifexURL, cifexRecipient, comment));
+    }
+
+    private Boolean isConnectedWithSample()
+    {
+        return connectedWithSampleCheckbox.getValue();
+    }
+
+    private String extractSampleIdentifier()
+    {
+        return sampleChooser.getValue();
+    }
+
+    private String extractExperimentIdentifier()
+    {
+        ExperimentIdentifier identifierOrNull = experimentChooser.tryToGetValue();
+        return identifierOrNull == null ? null : identifierOrNull.getIdentifier();
+    }
+
+    private String extractDataSetTypeCode()
+    {
+        return dataSetTypeSelectionWidget.tryGetSelected().getCode();
+    }
+
+    private String extractFileTypeCode()
+    {
+        return fileTypeSelectionWidget.tryGetSelected().getCode();
+    }
+
+    protected String[] extractParentDatasetCodes()
+    {
+        return parentsArea.tryGetModifiedParentCodes();
     }
 
     private String encodeDataSetInfo(String sample, String dataSetType, String fileType)
     {
-        return DataSetUploadInfoHelper.encodeAsCifexComment(new DataSetUploadInfo(sample,
-                dataSetType, fileType));
+        return DataSetUploadInfoHelper.encodeAsCifexComment(new DataSetUploadInfo(sample, null,
+                null, dataSetType, fileType));
+    }
+
+    private String encodeDataSetInfo(String experiment, String[] parents, String dataSetType,
+            String fileType)
+    {
+        return DataSetUploadInfoHelper.encodeAsCifexComment(new DataSetUploadInfo(null, experiment,
+                parents, dataSetType, fileType));
     }
 
     private static String encodeCifexRequest(String cifexUrl, String recipient, String comment)

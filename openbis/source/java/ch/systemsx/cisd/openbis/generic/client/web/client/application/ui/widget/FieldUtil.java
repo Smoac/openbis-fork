@@ -72,10 +72,14 @@ public class FieldUtil
     {
         field.setEnabled(visible);
         field.setVisible(visible);
-        // invalidation mark is not removed automatically when we make field invisible
         if (visible == false)
         {
+            // invalidation mark is not removed automatically when we make field invisible
             field.clearInvalid();
+        } else if (field.isDirty())
+        {
+            // validate only if something have been modified and field is shown
+            field.validate();
         }
     }
 }
