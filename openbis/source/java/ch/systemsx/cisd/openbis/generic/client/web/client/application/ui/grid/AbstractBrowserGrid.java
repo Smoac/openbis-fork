@@ -891,7 +891,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     pagingToolbar.updateDefaultConfigButton(false);
                     // export and config buttons are enabled when ListEntitiesCallback is complete
                     refresh();
-                    filterToolbar.execute();
+                    filterToolbar.refresh();
                 }
             };
     }
@@ -1203,7 +1203,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     // settings will be automatically stored because of event handling
                     refreshColumnsSettings();
                     refreshColumnHeaderWidths();
-                    filterToolbar.execute();
+                    filterToolbar.refresh();
                 }
             };
         List<ColumnDataModel> settingsModel =

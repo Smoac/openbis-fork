@@ -40,8 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
  * 
  * @author Izabela Adamczyk
  */
-public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationObserver,
-        IDelegatedAction
+public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationObserver
 {
     static final String APPLY_ID = "apply_button";
 
@@ -285,9 +284,9 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         }
     }
 
-    public void execute()
+    public void refresh()
     {
-        filterSelectionWidget.execute();
+        filterSelectionWidget.refreshStore();
     }
 
 }
