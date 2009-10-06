@@ -34,7 +34,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandl
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * 
+ * Post registration data set handler which makes a hard-link copy of all flow-line files
+ * to associated drop boxes.
  *
  * @author Franz-Josef Elmer
  */

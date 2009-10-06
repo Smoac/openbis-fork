@@ -21,7 +21,9 @@ import java.util.Properties;
 import ch.systemsx.cisd.etlserver.DelegatingStorageProcessorWithDropbox;
 
 /**
- * 
+ * Storage processor which feeds flow-line drop boxes. Needs the property
+ * <code>flow-line-drop-box-template</code>. A <code>{0}</code> is the place holder
+ * for the flow-line number.
  *
  * @author Franz-Josef Elmer
  */
