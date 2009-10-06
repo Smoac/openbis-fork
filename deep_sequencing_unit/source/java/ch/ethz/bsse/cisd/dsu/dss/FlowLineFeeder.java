@@ -22,8 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
+import ch.systemsx.cisd.common.filesystem.FileOperations;
+import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -39,17 +44,21 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
     static final String FILE_TYPE = ".srf";
     
     private final MessageFormat flowLineDropBoxTemplate;
+    private final IImmutableCopier copier;
+    private final IFileOperations fileOperations;
+    private final List<File> flowLineDataSets = new ArrayList<File>();
     
     FlowLineFeeder(Properties properties)
     {
         flowLineDropBoxTemplate =
                 new MessageFormat(PropertyUtils.getMandatoryProperty(properties,
                         FLOW_LINE_DROP_BOX_TEMPLATE));
+        copier = FastRecursiveHardLinkMaker.tryCreate(TimingParameters.getDefaultParameters());
+        fileOperations = FileOperations.getInstance();
     }
 
     public void handle(File originalData, DataSetInformation dataSetInformation)
     {
-        System.out.println("FlowLineFeeder.handle(): "+originalData+" "+dataSetInformation);
         String flowcellID = originalData.getName();
         List<File> files = new ArrayList<File>();
         findFiles(originalData, files);
@@ -58,20 +67,27 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
             String flowLine = extractFlowLine(file);
             File dropBox = createDropBoxFile(flowLine);
             File flowLineDataSet = new File(dropBox, flowcellID + "_" + flowLine);
+            flowLineDataSets.add(flowLineDataSet);
             boolean success = flowLineDataSet.mkdir();
             if (success == false)
             {
                 throw new EnvironmentFailureException("Couldn't create folder '"
                         + flowLineDataSet.getAbsolutePath() + "'.");
             }
-            
+            success = copier.copyImmutably(file, flowLineDataSet, null);
+            if (success == false)
+            {
+                throw new EnvironmentFailureException("Couldn't create a hard-link copy of '"
+                        + file.getAbsolutePath() + "' in folder '"
+                        + flowLineDataSet.getAbsolutePath() + "'.");
+            }
         }
 
     }
 
     private File createDropBoxFile(String flowLine)
     {
-        File dropBox = new File(flowLineDropBoxTemplate.format(flowLine));
+        File dropBox = new File(flowLineDropBoxTemplate.format(new Object[] {flowLine}));
         if (dropBox.exists() == false)
         {
             throw new ConfigurationFailureException("Drop box '" + dropBox + "' does not exist.");
@@ -86,12 +102,7 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
     private String extractFlowLine(File file)
     {
         String name = file.getName();
-        int lastIndexOfDot = name.lastIndexOf('.');
-        String nameWithoutType = name;
-        if (lastIndexOfDot >= 0)
-        {
-            nameWithoutType = name.substring(0, lastIndexOfDot);
-        }
+        String nameWithoutType = name.substring(0, name.lastIndexOf('.'));
         int lastIndexOfUnderScore = nameWithoutType.lastIndexOf('_');
         String flowLine = nameWithoutType;
         if (lastIndexOfUnderScore >= 0)
@@ -118,7 +129,10 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
 
     public void undoLastOperation()
     {
-        System.out.println("FlowLineFeeder.undoLastOperation()");
+        for (File file : flowLineDataSets)
+        {
+            fileOperations.deleteRecursively(file);
+        }
     }
 
 }
