@@ -69,6 +69,9 @@
 		</antcall>
 	</target>
 
+	<!-- parameters: 
+					variant - will be used in the distribution file name  
+		--> 
 	<target name="make-dist" depends="dss-jar">
 		<copy file="${dss-jar.file}" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.datastore_server.lib}" />
