@@ -64,7 +64,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = UploadingCommand.class)
-// TODO 2009-09-10, Piotr Buczek: write tests with many parents
 public class UploadingCommandTest extends AssertJUnit
 {
     private static final String ZIP_FILENAME = "myData";
@@ -171,7 +170,10 @@ public class UploadingCommandTest extends AssertJUnit
         dataSetTypePE.setCode("D");
         externalData.setDataSetType(dataSetTypePE);
         externalData.setExperiment(createExperiment());
-        externalData.addParent(createParent("parent"));
+        // TODO 2009-09-15, Piotr Buczek: write a test with no parents but with sample connection
+        // Does it make any difference how many parents are added here?
+        externalData.addParent(createParent("parent1"));
+        externalData.addParent(createParent("parent2"));
         externalData.setDataStore(new DataStorePE());
         return externalData;
     }
