@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 /**
  * Enum for all generic {@link IDisplayTypeIDGenerator}s.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
 {
@@ -48,6 +48,8 @@ public enum DisplayTypeIDGenerator implements IDisplayTypeIDGenerator
     PROJECT_BROWSER_GRID("project-browser-grid"),
 
     FILTER_BROWSER_GRID("filter-browser-grid"),
+
+    CUSTOM_GRID_COLUMN_GRID("custom-grid-column-browser-grid"),
 
     AUTHORIZATION_GROUP_BROWSER_GRID("authorization-group-browser-grid"),
 

@@ -20,73 +20,85 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 
 /**
- * Column definitions for the filters.
+ * Column definitions for the grid custom columns.<br>
+ * It's very similar to the column definition enum for filters, but the code cannot be common
+ * because enums can inherit only from interfaces.
  * 
- * @author Izabela Adamczyk
+ * @author Tomasz Pylak
  */
-public enum FilterColDefKind implements IColumnDefinitionKind<GridCustomFilter>
+public enum CustomGridColumnColDefKind implements IColumnDefinitionKind<GridCustomColumn>
 {
-    NAME(new AbstractColumnDefinitionKind<GridCustomFilter>(Dict.NAME)
+    CODE(new AbstractColumnDefinitionKind<GridCustomColumn>(Dict.CODE)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(GridCustomColumn entity)
+            {
+                return entity.getCode();
+            }
+        }),
+
+    NAME(new AbstractColumnDefinitionKind<GridCustomColumn>(Dict.NAME)
+        {
+            @Override
+            public String tryGetValue(GridCustomColumn entity)
             {
                 return entity.getName();
             }
         }),
 
-    DESCRIPTION(new AbstractColumnDefinitionKind<GridCustomFilter>(Dict.DESCRIPTION)
+    DESCRIPTION(new AbstractColumnDefinitionKind<GridCustomColumn>(Dict.DESCRIPTION)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(GridCustomColumn entity)
             {
                 return entity.getDescription();
             }
         }),
 
-    EXPRESSION(new AbstractColumnDefinitionKind<GridCustomFilter>(Dict.EXPRESSION, true)
+    EXPRESSION(new AbstractColumnDefinitionKind<GridCustomColumn>(Dict.EXPRESSION, true)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(GridCustomColumn entity)
             {
                 return entity.getExpression();
             }
         }),
 
-    PUBLIC(new AbstractColumnDefinitionKind<GridCustomFilter>(Dict.IS_PUBLIC, true)
+    PUBLIC(new AbstractColumnDefinitionKind<GridCustomColumn>(Dict.IS_PUBLIC, true)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(GridCustomColumn entity)
             {
                 return SimpleYesNoRenderer.render(entity.isPublic());
             }
         }),
 
-    REGISTRATOR(new AbstractColumnDefinitionKind<GridCustomFilter>(Dict.REGISTRATOR, true)
+    REGISTRATOR(new AbstractColumnDefinitionKind<GridCustomColumn>(Dict.REGISTRATOR, true)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(GridCustomColumn entity)
             {
                 return renderRegistrator(entity);
             }
         }),
 
-    REGISTRATION_DATE(new AbstractColumnDefinitionKind<GridCustomFilter>(Dict.REGISTRATION_DATE,
+    REGISTRATION_DATE(new AbstractColumnDefinitionKind<GridCustomColumn>(Dict.REGISTRATION_DATE,
             AbstractColumnDefinitionKind.DATE_COLUMN_WIDTH, true)
         {
             @Override
-            public String tryGetValue(GridCustomFilter entity)
+            public String tryGetValue(GridCustomColumn entity)
             {
                 return renderRegistrationDate(entity);
             }
         });
 
-    private final AbstractColumnDefinitionKind<GridCustomFilter> columnDefinitionKind;
+    private final AbstractColumnDefinitionKind<GridCustomColumn> columnDefinitionKind;
 
-    private FilterColDefKind(AbstractColumnDefinitionKind<GridCustomFilter> columnDefinitionKind)
+    private CustomGridColumnColDefKind(
+            AbstractColumnDefinitionKind<GridCustomColumn> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -96,7 +108,7 @@ public enum FilterColDefKind implements IColumnDefinitionKind<GridCustomFilter>
         return name();
     }
 
-    public AbstractColumnDefinitionKind<GridCustomFilter> getDescriptor()
+    public AbstractColumnDefinitionKind<GridCustomColumn> getDescriptor()
     {
         return columnDefinitionKind;
     }

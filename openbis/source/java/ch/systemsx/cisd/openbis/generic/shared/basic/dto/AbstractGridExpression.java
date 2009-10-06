@@ -31,6 +31,8 @@ public abstract class AbstractGridExpression extends AbstractRegistrationHolder 
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    private String name; // name for filters, label for columns
+
     private String expression;
 
     private boolean isPublic;
@@ -45,6 +47,16 @@ public abstract class AbstractGridExpression extends AbstractRegistrationHolder 
 
     public AbstractGridExpression()
     {
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
     public String getExpression()

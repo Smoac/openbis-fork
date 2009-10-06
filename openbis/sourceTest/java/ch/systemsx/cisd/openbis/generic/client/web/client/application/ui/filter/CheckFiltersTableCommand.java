@@ -33,7 +33,7 @@ public class CheckFiltersTableCommand extends CheckTableCommand
 
     public CheckFiltersTableCommand(String gridDisplayId)
     {
-        super(FilterGrid.createGridId(gridDisplayId));
+        super(GridCustomFilterGrid.createGridId(gridDisplayId));
         addCallbackClass(AbstractSaveDialog.SaveDialogCallback.class);
         this.gridDisplayId = gridDisplayId;
     }

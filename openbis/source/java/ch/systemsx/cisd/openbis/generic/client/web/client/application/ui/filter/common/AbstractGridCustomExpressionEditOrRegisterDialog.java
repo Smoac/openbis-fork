@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.common;
+
+import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils.unescapeHtml;
 
 import java.util.List;
 
@@ -36,7 +38,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.M
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractGridExpression;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 
 /**
  * A {@link Window} extension for registering and editing grid custom filters or columns.
@@ -44,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.
  * @author Izabela Adamczyk
  * @author Piotr Buczek
  */
-abstract public class AbstractGridCustomExpressionEditRegisterDialog extends
+abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
         AbstractRegistrationDialog
 {
 
@@ -76,7 +79,7 @@ abstract public class AbstractGridCustomExpressionEditRegisterDialog extends
 
     protected final String gridId;
 
-    public AbstractGridCustomExpressionEditRegisterDialog(
+    public AbstractGridCustomExpressionEditOrRegisterDialog(
             final IViewContext<ICommonClientServiceAsync> viewContext, final String title,
             final IDelegatedAction postRegistrationCallback, final String gridId,
             final List<ColumnDataModel> columnModels)
@@ -101,6 +104,14 @@ abstract public class AbstractGridCustomExpressionEditRegisterDialog extends
         setWidth(form.getLabelWidth() + form.getFieldWidth() + 50);
     }
 
+    protected void initializeValues(AbstractGridExpression gridExpression)
+    {
+        descriptionField.setValue(unescapeHtml(gridExpression.getDescription()));
+        expressionField.setValue(unescapeHtml(gridExpression.getExpression()));
+        nameField.setValue(unescapeHtml(gridExpression.getName()));
+        publicField.setValue(gridExpression.isPublic());
+    }
+
     private LabelField createInsertColumnsLink(final String label,
             final List<ColumnDataModel> columnModels)
     {
@@ -110,7 +121,7 @@ abstract public class AbstractGridCustomExpressionEditRegisterDialog extends
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    FilterColumnChooserDialog.show(viewContext, columnModels, gridId,
+                    GridColumnChooserDialog.show(viewContext, columnModels, gridId,
                             asExpressionHolder(expressionField));
                 }
             });
@@ -119,7 +130,7 @@ abstract public class AbstractGridCustomExpressionEditRegisterDialog extends
 
     public static String createId(String gridId, String suffix)
     {
-        return GenericConstants.ID_PREFIX + "filter-edit-register-" + gridId + suffix;
+        return GenericConstants.ID_PREFIX + "grid-expression-edit-register-" + gridId + suffix;
     }
 
     private MultilineVarcharField createExpressionField()
@@ -130,44 +141,24 @@ abstract public class AbstractGridCustomExpressionEditRegisterDialog extends
         return field;
     }
 
-    protected final void initializeDescription(String description)
+    // constructs an item from the information provided by the user
+    protected NewColumnOrFilter getNewItemInfo()
     {
-        descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
+        NewColumnOrFilter newItem = new NewColumnOrFilter();
+        newItem.setGridId(gridId);
+        newItem.setDescription(descriptionField.getValue());
+        newItem.setExpression(expressionField.getValue());
+        newItem.setName(nameField.getValue());
+        newItem.setPublic(publicField.getValue());
+        return newItem;
     }
 
-    protected final void initializeExpression(String expression)
+    protected void update(final AbstractGridExpression gridExpression)
     {
-        expressionField.setValue(StringEscapeUtils.unescapeHtml(expression));
-    }
-
-    protected final void initializeName(String name)
-    {
-        nameField.setValue(StringEscapeUtils.unescapeHtml(name));
-    }
-
-    protected final void initializePublic(boolean isPublic)
-    {
-        publicField.setValue(isPublic);
-    }
-
-    protected final String extractDescription()
-    {
-        return descriptionField.getValue();
-    }
-
-    protected final String extractExpression()
-    {
-        return expressionField.getValue();
-    }
-
-    protected final String extractName()
-    {
-        return nameField.getValue();
-    }
-
-    protected final boolean extractIsPublic()
-    {
-        return publicField.getValue();
+        gridExpression.setDescription(descriptionField.getValue());
+        gridExpression.setExpression(expressionField.getValue());
+        gridExpression.setName(nameField.getValue());
+        gridExpression.setPublic(publicField.getValue());
     }
 
     private static final IExpressionHolder asExpressionHolder(

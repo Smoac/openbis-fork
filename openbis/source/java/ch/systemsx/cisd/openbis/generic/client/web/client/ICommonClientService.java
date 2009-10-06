@@ -56,8 +56,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
@@ -545,7 +546,10 @@ public interface ICommonClientService extends IClientService
     /** Deletes the specified data set. */
     public void deleteDataSet(String singleData, String reason) throws UserFailureException;
 
-    /** Deletes the specified samples. NOTE: this is a stale version used only for samples with abundance. */
+    /**
+     * Deletes the specified samples. NOTE: this is a stale version used only for samples with
+     * abundance.
+     */
     public void deleteSamples(List<TechId> sampleIds, String reason) throws UserFailureException;
 
     /** Deletes the specified samples. */
@@ -743,34 +747,70 @@ public interface ICommonClientService extends IClientService
     public void removePersonsFromAuthorizationGroup(TechId authorizationGroupId,
             List<String> personsCodes) throws UserFailureException;
 
+    // -- custom grid filters
+
     /**
-     * Lists filters available for given grid.
+     * Lists custom grid filters available for given grid.
      */
     public List<GridCustomFilter> listFilters(String gridId) throws UserFailureException;
 
     /**
-     * Returns {@link GridCustomFilter}s for given criteria.
+     * Returns {@link GridCustomFilter}s for given grid and display criteria.
      */
     public ResultSet<GridCustomFilter> listFilters(String gridId,
-            DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig) throws UserFailureException;
+            DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig)
+            throws UserFailureException;
 
     /**
-     * Returns a key which can be used be the export servlet (and eventually
-     * {@link #getExportTable(String, String)}) to reference the export criteria in an easy way.
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for custom grid filters.
      */
     public String prepareExportFilters(final TableExportCriteria<GridCustomFilter> criteria)
             throws UserFailureException;
 
     /**
-     * Registers a new filter.
+     * Registers a new grid custom filter.
      */
     public void registerFilter(NewColumnOrFilter filter) throws UserFailureException;
 
-    /** Deletes the specified filters. */
+    /** Deletes the specified grid custom filters. */
     public void deleteFilters(List<TechId> filterIds) throws UserFailureException;
 
     /**
-     * Updates filter.
+     * Updates grid custom filter.
      */
     public void updateFilter(final IFilterOrColumnUpdates updates) throws UserFailureException;
+
+    // -- custom grid columns
+
+    /**
+     * Lists custom grid columns available for given grid.
+     */
+    public List<GridCustomColumn> listColumns(String gridId) throws UserFailureException;
+
+    /**
+     * Returns {@link GridCustomColumn}s for given grid and display criteria.
+     */
+    public ResultSet<GridCustomColumn> listColumns(String gridId,
+            DefaultResultSetConfig<String, GridCustomColumn> resultSetConfig)
+            throws UserFailureException;
+
+    /**
+     * Like {@link #prepareExportSamples(TableExportCriteria)}, but for custom grid filters.
+     */
+    public String prepareExportColumns(final TableExportCriteria<GridCustomColumn> criteria)
+            throws UserFailureException;
+
+    /**
+     * Registers a new grid custom column.
+     */
+    public void registerColumn(NewColumnOrFilter newColumn) throws UserFailureException;
+
+    /** Deletes the specified grid custom columns. */
+    public void deleteColumns(List<TechId> columnIds) throws UserFailureException;
+
+    /**
+     * Updates grid custom column.
+     */
+    public void updateColumn(IFilterOrColumnUpdates updates) throws UserFailureException;
+
 }

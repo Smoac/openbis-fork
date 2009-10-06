@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import com.google.gwt.user.client.rpc.IsSerializable;
+
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 
 /**
@@ -23,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
  * 
  * @author Piotr Buczek
  */
-public interface IFilterOrColumnUpdates extends IIdHolder
+public interface IFilterOrColumnUpdates extends IIdHolder, IsSerializable
 {
     String getDescription();
 

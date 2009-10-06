@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.common;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,17 +17,18 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
- * Allows to select columns which should be used in the filter. Chosen value is a string that can be
- * used in an expression to address selected columns.
+ * Allows to select grid columns which should be used in the grid custom filter or column
+ * expression. Chosen value is a string that can be used in an expression to address selected grid
+ * columns.
  * 
  * @author Izabela Adamczyk
  */
-class FilterColumnChooser
+class GridColumnChooser
 {
 
     private final Grid<ColumnDataModel> grid;
 
-    public FilterColumnChooser(List<ColumnDataModel> list, IMessageProvider messageProvider)
+    public GridColumnChooser(List<ColumnDataModel> list, IMessageProvider messageProvider)
     {
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 

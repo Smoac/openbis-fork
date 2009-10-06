@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.common;
 
 /**
  * Allows to access the expression value and the cursor position.
  * 
  * @author Izabela Adamczyk
  */
-public interface IExpressionHolder
+interface IExpressionHolder
 {
     public String getValue();
 

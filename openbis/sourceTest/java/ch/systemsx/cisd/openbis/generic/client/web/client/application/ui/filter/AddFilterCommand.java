@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.common.AbstractGridCustomExpressionEditOrRegisterDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -41,7 +42,7 @@ public final class AddFilterCommand extends CheckTableCommand
     public AddFilterCommand(String gridDisplayId, String name, String description,
             String expression, boolean isPublic)
     {
-        super(FilterGrid.createGridId(gridDisplayId));
+        super(GridCustomFilterGrid.createGridId(gridDisplayId));
         this.gridDisplayId = gridDisplayId;
         this.name = name;
         this.description = description;
@@ -52,17 +53,22 @@ public final class AddFilterCommand extends CheckTableCommand
     @Override
     public final void execute()
     {
-        GWTTestUtil.clickButtonWithID(FilterGrid.createAddButtonId(gridDisplayId));
+        GWTTestUtil.clickButtonWithID(GridCustomFilterGrid.createAddButtonId(gridDisplayId));
         GWTTestUtil.getTextFieldWithID(
-                AddFilterDialog.createId(gridDisplayId, AddFilterDialog.NAME_FIELD)).setValue(name);
+                AbstractGridCustomExpressionEditOrRegisterDialog.createId(gridDisplayId,
+                        AbstractGridCustomExpressionEditOrRegisterDialog.NAME_FIELD))
+                .setValue(name);
         GWTTestUtil.getTextAreaWithId(
-                AddFilterDialog.createId(gridDisplayId, AddFilterDialog.DESCRIPTION_FIELD))
+                AbstractGridCustomExpressionEditOrRegisterDialog.createId(gridDisplayId,
+                        AbstractGridCustomExpressionEditOrRegisterDialog.DESCRIPTION_FIELD))
                 .setValue(description);
         GWTTestUtil.getTextAreaWithId(
-                AddFilterDialog.createId(gridDisplayId, AddFilterDialog.EXPRESSION_FIELD))
+                AbstractGridCustomExpressionEditOrRegisterDialog.createId(gridDisplayId,
+                        AbstractGridCustomExpressionEditOrRegisterDialog.EXPRESSION_FIELD))
                 .setValue(expression);
         GWTTestUtil.getCheckboxWithId(
-                (AddFilterDialog.createId(gridDisplayId, AddFilterDialog.PUBLIC_FIELD))).setValue(
+                (AbstractGridCustomExpressionEditOrRegisterDialog.createId(gridDisplayId,
+                        AbstractGridCustomExpressionEditOrRegisterDialog.PUBLIC_FIELD))).setValue(
                 isPublic);
         GWTTestUtil.clickButtonWithID(AbstractSaveDialog.SAVE_BUTTON_ID);
     }

@@ -96,8 +96,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
@@ -2131,15 +2132,14 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
+    // -- custom grid filters
+
     public List<GridCustomFilter> listFilters(String gridId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-
         try
         {
-            final String sessionToken = getSessionToken();
-            final List<GridCustomFilter> types = commonServer.listFilters(sessionToken, gridId);
-            return types;
+            return commonServer.listFilters(getSessionToken(), gridId);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -2171,8 +2171,7 @@ public final class CommonClientService extends AbstractClientService implements
         assert filter != null : "Unspecified filter.";
         try
         {
-            final String sessionToken = getSessionToken();
-            commonServer.registerFilter(sessionToken, filter);
+            commonServer.registerFilter(getSessionToken(), filter);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -2184,8 +2183,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         try
         {
-            final String sessionToken = getSessionToken();
-            commonServer.deleteFilters(sessionToken, filterIds);
+            commonServer.deleteFilters(getSessionToken(), filterIds);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -2196,11 +2194,82 @@ public final class CommonClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert updates != null : "Unspecified updates.";
-
         try
         {
-            final String sessionToken = getSessionToken();
-            commonServer.updateFilter(sessionToken, updates);
+            commonServer.updateFilter(getSessionToken(), updates);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    // -- grid custom columns
+
+    public List<GridCustomColumn> listColumns(String gridId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            return commonServer.listGridCustomColumns(getSessionToken(), gridId);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    public ResultSet<GridCustomColumn> listColumns(final String gridId,
+            DefaultResultSetConfig<String, GridCustomColumn> resultSetConfig)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return listEntities(resultSetConfig, new IOriginalDataProvider<GridCustomColumn>()
+            {
+                public List<GridCustomColumn> getOriginalData() throws UserFailureException
+                {
+                    return listColumns(gridId);
+                }
+            });
+    }
+
+    public String prepareExportColumns(TableExportCriteria<GridCustomColumn> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(criteria);
+    }
+
+    public void registerColumn(NewColumnOrFilter newColumn)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        assert newColumn != null : "Unspecified grid custom column.";
+        try
+        {
+            commonServer.registerGridCustomColumn(getSessionToken(), newColumn);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+
+    }
+
+    public void deleteColumns(List<TechId> columnIds)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            commonServer.deleteGridCustomColumns(getSessionToken(), columnIds);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+
+    }
+
+    public void updateColumn(IFilterOrColumnUpdates updates)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        assert updates != null : "Unspecified grid custom updates.";
+        try
+        {
+            commonServer.updateGridCustomColumn(getSessionToken(), updates);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

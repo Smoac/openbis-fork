@@ -30,22 +30,10 @@ public class GridCustomFilter extends AbstractGridExpression
     /** Name of the standard filter kind which is available for all grids */
     public static final String COLUMN_FILTER = "Column Filter";
 
-    private String name;
-
     private Set<String> parameters;
 
     public GridCustomFilter()
     {
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
     }
 
     public Set<String> getParameters()

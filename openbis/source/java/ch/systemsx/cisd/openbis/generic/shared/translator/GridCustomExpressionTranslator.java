@@ -68,7 +68,7 @@ public final class GridCustomExpressionTranslator
             }
             final GridCustomColumn result = new GridCustomColumn();
             result.setCode(escapeHtml(original.getCode()));
-            result.setLabel(escapeHtml(original.getLabel()));
+            result.setName(escapeHtml(original.getLabel()));
 
             translateGridExpression(original, result);
             return result;

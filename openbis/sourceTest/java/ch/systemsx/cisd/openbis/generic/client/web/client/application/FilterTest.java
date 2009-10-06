@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.FilterColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.CustomGridFilterColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.AddFilterCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.ApplyFilterCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.CheckFiltersTableCommand;
@@ -63,10 +63,10 @@ public class FilterTest extends AbstractGWTTestCase
 
         // Check new filter
         CheckFiltersTableCommand filtersTable = new CheckFiltersTableCommand(gridDisplayId);
-        filtersTable.expectedRow(new Row().withCell(FilterColDefKind.NAME.id(), NAME));
+        filtersTable.expectedRow(new Row().withCell(CustomGridFilterColDefKind.NAME.id(), NAME));
         filtersTable
-                .expectedRow(new Row().withCell(FilterColDefKind.DESCRIPTION.id(), DESCRIPTION));
-        filtersTable.expectedRow(new Row().withCell(FilterColDefKind.EXPRESSION.id(), EXPRESSION));
+                .expectedRow(new Row().withCell(CustomGridFilterColDefKind.DESCRIPTION.id(), DESCRIPTION));
+        filtersTable.expectedRow(new Row().withCell(CustomGridFilterColDefKind.EXPRESSION.id(), EXPRESSION));
         remoteConsole.prepare(filtersTable.expectedSize(1));
 
         // Apply filter

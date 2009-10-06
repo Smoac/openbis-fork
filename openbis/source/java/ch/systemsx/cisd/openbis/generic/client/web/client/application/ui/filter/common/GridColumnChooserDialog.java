@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.common;
 
 import java.util.List;
 
@@ -18,21 +18,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 
 /**
- * {@link Dialog} displaying {@link FilterColumnChooser}.
+ * {@link Dialog} displaying {@link GridColumnChooser}. Used to insert selected columns into an
+ * expression to build the custom grid filter or column.
  * 
  * @author Izabela Adamczyk
  */
-class FilterColumnChooserDialog extends Dialog
+class GridColumnChooserDialog extends Dialog
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public static void show(IViewContext<ICommonClientServiceAsync> viewContext,
             List<ColumnDataModel> columnModels, String gridId, IExpressionHolder expressionField)
     {
-        new FilterColumnChooserDialog(viewContext, gridId).show(columnModels, expressionField);
+        new GridColumnChooserDialog(viewContext, gridId).show(columnModels, expressionField);
     }
 
-    private FilterColumnChooserDialog(IViewContext<ICommonClientServiceAsync> viewContext,
+    private GridColumnChooserDialog(IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId)
     {
         this.viewContext = viewContext;
@@ -44,15 +45,14 @@ class FilterColumnChooserDialog extends Dialog
     }
 
     /**
-     * Shows window containing {@link FilterColumnChooser} based on given {@link ColumnModel}.
+     * Shows window containing {@link GridColumnChooser} based on given {@link ColumnModel}.
      */
     private void show(final List<ColumnDataModel> columnModels,
             final IExpressionHolder expressionField)
     {
         assert columnModels != null : "columnModels not specified";
         removeAll();
-        final FilterColumnChooser columnChooser =
-                new FilterColumnChooser(columnModels, viewContext);
+        final GridColumnChooser columnChooser = new GridColumnChooser(columnModels, viewContext);
         final Component columnChooserComponent = columnChooser.getComponent();
         add(columnChooserComponent);
 
@@ -79,7 +79,7 @@ class FilterColumnChooserDialog extends Dialog
     }
 
     private void insertColumnsIntoExpression(IExpressionHolder expressionField,
-            FilterColumnChooser columnChooser)
+            GridColumnChooser columnChooser)
     {
         String expression = expressionField.getValue() != null ? expressionField.getValue() : "";
         int cursor = expressionField.getCursorPos();

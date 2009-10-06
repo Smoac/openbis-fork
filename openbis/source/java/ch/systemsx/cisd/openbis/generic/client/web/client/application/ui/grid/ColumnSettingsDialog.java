@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -15,7 +16,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.FilterGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.GridCustomColumnGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.GridCustomFilterGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IResultUpdater;
 
 /**
@@ -28,6 +30,8 @@ public class ColumnSettingsDialog extends Dialog
     public static final String TAB_PANEL_ID_PREFIX = GenericConstants.ID_PREFIX + "tab-panel";
 
     public static final String FILTERS_TAB = GenericConstants.ID_PREFIX + "filters-tab";
+
+    public static final String COLUMNS_TAB = GenericConstants.ID_PREFIX + "columns-tab";
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -58,21 +62,26 @@ public class ColumnSettingsDialog extends Dialog
     {
         assert columnModels != null : "columnModels not specified";
         removeAll();
-        final ColumnSettingsChooser columnChooser =
-                new ColumnSettingsChooser(columnModels, viewContext);
-        final IDisposableComponent filters =
-                FilterGrid.create(viewContext, gridDisplayId, columnModels);
         TabPanel panel = new TabPanel();
         panel.setId(TAB_PANEL_ID_PREFIX + gridDisplayId);
-        TabItem columnsTab = new TabItem(viewContext.getMessage(Dict.COLUMNS));
-        columnsTab.setLayout(new FitLayout());
-        columnsTab.add(columnChooser.getComponent());
+
+        final ColumnSettingsChooser columnChooser =
+                new ColumnSettingsChooser(columnModels, viewContext);
+        TabItem columnsTab = createTabItem(columnChooser.getComponent(), Dict.COLUMNS, "");
         panel.add(columnsTab);
-        TabItem filtersTab = new TabItem(viewContext.getMessage(Dict.CUSTOM_FILTERS));
-        filtersTab.setId(FILTERS_TAB + gridDisplayId);
-        filtersTab.setLayout(new FitLayout());
-        filtersTab.add(filters.getComponent());
-        panel.add(filtersTab);
+
+        final IDisposableComponent filters =
+                GridCustomFilterGrid.create(viewContext, gridDisplayId, columnModels);
+        TabItem customFiltersTab =
+                createTabItem(filters.getComponent(), Dict.GRID_CUSTOM_FILTERS, FILTERS_TAB);
+        panel.add(customFiltersTab);
+
+        final IDisposableComponent columns =
+                GridCustomColumnGrid.create(viewContext, gridDisplayId, columnModels);
+        TabItem customColumnsTab =
+                createTabItem(columns.getComponent(), Dict.GRID_CUSTOM_COLUMNS, COLUMNS_TAB);
+        panel.add(customColumnsTab);
+
         add(panel);
         super.show();
         Button okButton = getButtonBar().getButtonById("ok");
@@ -84,9 +93,18 @@ public class ColumnSettingsDialog extends Dialog
                 {
                     resultUpdater.update(columnChooser.getModels());
                     filters.dispose();
+                    columns.dispose();
                     hide();
                 }
             });
     }
 
+    private TabItem createTabItem(final Component component, String titleDictKey, String tabIdPrefix)
+    {
+        TabItem customColumnsTab = new TabItem(viewContext.getMessage(titleDictKey));
+        customColumnsTab.setId(tabIdPrefix + gridDisplayId);
+        customColumnsTab.setLayout(new FitLayout());
+        customColumnsTab.add(component);
+        return customColumnsTab;
+    }
 }

@@ -797,15 +797,21 @@ public abstract class Dict
 
     public static final String EXPRESSION = "expression";
 
+    public static final String COLUMN = "column";
+
     public static final String COLUMNS = "columns";
 
-    public static final String CUSTOM_FILTERS = "custom_filters";
+    public static final String GRID_CUSTOM_FILTERS = "grid_custom_filters";
+
+    public static final String GRID_CUSTOM_COLUMNS = "grid_custom_columns";
 
     public static final String APPLY_FILTER = "apply_filter";
 
     public static final String RESET_FILTER = "reset_filter";
 
     public static final String ADD_NEW_FILTER = "add_new_filter";
+
+    public static final String ADD_NEW_COLUMN = "add_new_column";
 
     public static final String HOW_TO_ADDRESS = "how_to_address";
 
