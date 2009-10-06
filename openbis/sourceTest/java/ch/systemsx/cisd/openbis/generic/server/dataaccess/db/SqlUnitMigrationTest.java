@@ -181,6 +181,7 @@ public final class SqlUnitMigrationTest
         System.setProperty("database.create-from-scratch", "false");
         System.setProperty("authorization-component-factory", "no-authorization");
         System.setProperty("script-folder", "source");
+        System.setProperty("hibernate.search.index-mode", "NO_INDEX");
         final ClassPathXmlApplicationContext applicationContext =
                 new ClassPathXmlApplicationContext(contextFileNames, true);
         return applicationContext;
@@ -246,7 +247,7 @@ public final class SqlUnitMigrationTest
      * script. Note that this test can be used to generate new migration scripts! When you introduce
      * a new database version, just create an empty migration script and run this test.
      */
-    public final void testMigrationFrom018() throws Exception
+    public final void testMigrationFrom034() throws Exception
     {
         final String databaseKind = "test_migration";
         final DatabaseConfigurationContext configurationContext =
@@ -254,7 +255,7 @@ public final class SqlUnitMigrationTest
         AbstractApplicationContext applicationContext = null;
         try
         {
-            final String initialVersion = "018";
+            final String initialVersion = "034";
             DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(configurationContext,
                     initialVersion);
             applicationContext = createBeanFactoryFrom("applicationContext.xml");
