@@ -1,0 +1,4 @@
+#show allResults
+
+{root} = ch.ethz.bsse.cisd.dsu
+{dss} = ${root}.dss
