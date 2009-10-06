@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.common;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.common;
 
 /**
  * Allows to access the expression value and the cursor position.

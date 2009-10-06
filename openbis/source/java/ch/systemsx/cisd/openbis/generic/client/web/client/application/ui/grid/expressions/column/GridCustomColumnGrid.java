@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.column;
 
 import java.util.List;
 
@@ -33,13 +33,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.CustomGridFilterColDefKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.common.AbstractGridCustomExpressionEditOrRegisterDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.CustomGridColumnColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.common.AbstractGridCustomExpressionEditOrRegisterDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -49,23 +49,24 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractGridExpression;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * Allows to display, update, delete and create new custom grid filters.
+ * Allows to display, update, delete and create new custom grid columns.
  * 
  * @author Tomasz Pylak
  */
-public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFilter>
+public class GridCustomColumnGrid extends AbstractSimpleBrowserGrid<GridCustomColumn>
 {
-    private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "filter-browser";
+    private static final String BROWSER_ID =
+            GenericConstants.ID_PREFIX + "custom-grid-column-browser";
 
     public static IDisposableComponent create(IViewContext<ICommonClientServiceAsync> viewContext,
             String gridDisplayId, List<ColumnDataModel> columnModels)
     {
-        return new GridCustomFilterGrid(viewContext, gridDisplayId, columnModels)
+        return new GridCustomColumnGrid(viewContext, gridDisplayId, columnModels)
                 .asDisposableWithoutToolbar();
     }
 
@@ -93,7 +94,7 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
         addEntityOperationsLabel();
         final Button addButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD, viewContext
-                        .getMessage(Dict.FILTER)), new SelectionListener<ComponentEvent>()
+                        .getMessage(Dict.COLUMN)), new SelectionListener<ComponentEvent>()
                     {
                         @Override
                         public void componentSelected(ComponentEvent ce)
@@ -106,11 +107,11 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
         addButton(addButton);
         final Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
-                        new ISelectedEntityInvoker<BaseEntityModel<GridCustomFilter>>()
+                        new ISelectedEntityInvoker<BaseEntityModel<GridCustomColumn>>()
                             {
-                                public void invoke(BaseEntityModel<GridCustomFilter> selectedItem)
+                                public void invoke(BaseEntityModel<GridCustomColumn> selectedItem)
                                 {
-                                    final GridCustomFilter selected = selectedItem.getBaseObject();
+                                    final GridCustomColumn selected = selectedItem.getBaseObject();
                                     createEditDialog(selected).show();
                                 }
 
@@ -121,7 +122,7 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
                         new AbstractCreateDialogListener()
                             {
                                 @Override
-                                protected Dialog createDialog(List<GridCustomFilter> selected,
+                                protected Dialog createDialog(List<GridCustomColumn> selected,
                                         IBrowserGridActionInvoker invoker)
                                 {
                                     return new DeletionConfirmationDialog(viewContext, selected,
@@ -152,7 +153,7 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
                 final IDelegatedAction postRegistrationCallback, String gridId,
                 List<ColumnDataModel> columnModels)
         {
-            super(viewContext, viewContext.getMessage(Dict.ADD_NEW_FILTER),
+            super(viewContext, viewContext.getMessage(Dict.ADD_NEW_COLUMN),
                     postRegistrationCallback, gridId, columnModels);
             this.viewContext = viewContext;
         }
@@ -161,7 +162,7 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
         protected void register(AsyncCallback<Void> registrationCallback)
         {
             NewColumnOrFilter newItem = getNewItemInfo();
-            viewContext.getService().registerFilter(newItem, registrationCallback);
+            viewContext.getService().registerColumn(newItem, registrationCallback);
         }
     }
 
@@ -176,7 +177,7 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
                 List<ColumnDataModel> columnModels, AbstractGridExpression itemToUpdate)
         {
             super(viewContext, viewContext.getMessage(Dict.EDIT_TITLE, viewContext
-                    .getMessage(Dict.FILTER), itemToUpdate.getName()), postRegistrationCallback,
+                    .getMessage(Dict.COLUMN), itemToUpdate.getName()), postRegistrationCallback,
                     gridId, columnModels);
             this.viewContext = viewContext;
             this.itemToUpdate = itemToUpdate;
@@ -187,12 +188,12 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
         protected void register(AsyncCallback<Void> registrationCallback)
         {
             update(itemToUpdate);
-            viewContext.getService().updateFilter(itemToUpdate, registrationCallback);
+            viewContext.getService().updateColumn(itemToUpdate, registrationCallback);
         }
     }
 
     private static class DeletionConfirmationDialog extends
-            AbstractDataConfirmationDialog<List<GridCustomFilter>>
+            AbstractDataConfirmationDialog<List<GridCustomColumn>>
     {
         private static final int LABEL_WIDTH = 60;
 
@@ -203,7 +204,7 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
         private final AbstractAsyncCallback<Void> callback;
 
         public DeletionConfirmationDialog(IViewContext<ICommonClientServiceAsync> viewContext,
-                List<GridCustomFilter> data, AbstractAsyncCallback<Void> callback)
+                List<GridCustomColumn> data, AbstractAsyncCallback<Void> callback)
         {
             super(viewContext, data, viewContext.getMessage(Dict.DELETE_CONFIRMATION_TITLE));
             this.callback = callback;
@@ -220,61 +221,61 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
         @Override
         protected String createMessage()
         {
-            return "Do you really want to delete selected (" + data.size() + ") filter(s)?";
+            return "Do you really want to delete selected (" + data.size() + ") column(s)?";
         }
 
         @Override
         protected void executeConfirmedAction()
         {
-            viewContext.getCommonService().deleteFilters(TechId.createList(data), callback);
+            viewContext.getCommonService().deleteColumns(TechId.createList(data), callback);
         }
 
     }
 
-    private GridCustomFilterGrid(IViewContext<ICommonClientServiceAsync> viewContext,
+    private GridCustomColumnGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String gridDisplayId, List<ColumnDataModel> columnModels)
     {
         super(viewContext, createBrowserId(gridDisplayId), createGridId(gridDisplayId),
-                DisplayTypeIDGenerator.FILTER_BROWSER_GRID);
+                DisplayTypeIDGenerator.CUSTOM_GRID_COLUMN_GRID);
         this.gridDisplayId = gridDisplayId;
         this.columnModels = columnModels;
         extendBottomToolbar();
     }
 
     @Override
-    protected IColumnDefinitionKind<GridCustomFilter>[] getStaticColumnsDefinition()
+    protected IColumnDefinitionKind<GridCustomColumn>[] getStaticColumnsDefinition()
     {
-        return CustomGridFilterColDefKind.values();
+        return CustomGridColumnColDefKind.values();
     }
 
     @Override
-    protected void listEntities(DefaultResultSetConfig<String, GridCustomFilter> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<GridCustomFilter>> callback)
+    protected void listEntities(DefaultResultSetConfig<String, GridCustomColumn> resultSetConfig,
+            AbstractAsyncCallback<ResultSet<GridCustomColumn>> callback)
     {
-        viewContext.getService().listFilters(gridDisplayId, resultSetConfig, callback);
+        viewContext.getService().listColumns(gridDisplayId, resultSetConfig, callback);
     }
 
     @Override
-    protected void prepareExportEntities(TableExportCriteria<GridCustomFilter> exportCriteria,
+    protected void prepareExportEntities(TableExportCriteria<GridCustomColumn> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        viewContext.getService().prepareExportFilters(exportCriteria, callback);
+        viewContext.getService().prepareExportColumns(exportCriteria, callback);
     }
 
     @Override
-    protected List<IColumnDefinition<GridCustomFilter>> getInitialFilters()
+    protected List<IColumnDefinition<GridCustomColumn>> getInitialFilters()
     {
-        return asColumnFilters(new CustomGridFilterColDefKind[]
-            { CustomGridFilterColDefKind.NAME, CustomGridFilterColDefKind.PUBLIC });
+        return asColumnFilters(new CustomGridColumnColDefKind[]
+            { CustomGridColumnColDefKind.NAME, CustomGridColumnColDefKind.PUBLIC });
     }
 
     @Override
-    protected ColumnDefsAndConfigs<GridCustomFilter> createColumnsDefinition()
+    protected ColumnDefsAndConfigs<GridCustomColumn> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<GridCustomFilter> schema = super.createColumnsDefinition();
-        schema.setGridCellRendererFor(CustomGridFilterColDefKind.DESCRIPTION.id(),
+        ColumnDefsAndConfigs<GridCustomColumn> schema = super.createColumnsDefinition();
+        schema.setGridCellRendererFor(CustomGridColumnColDefKind.DESCRIPTION.id(),
                 createMultilineStringCellRenderer());
-        schema.setGridCellRendererFor(CustomGridFilterColDefKind.EXPRESSION.id(),
+        schema.setGridCellRendererFor(CustomGridColumnColDefKind.EXPRESSION.id(),
                 createMultilineStringCellRenderer());
         return schema;
     }
@@ -282,7 +283,7 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.GRID_CUSTOM_FILTER),
-                    DatabaseModificationKind.edit(ObjectKind.GRID_CUSTOM_FILTER) };
+            { DatabaseModificationKind.createOrDelete(ObjectKind.GRID_CUSTOM_COLUMN),
+                    DatabaseModificationKind.edit(ObjectKind.GRID_CUSTOM_COLUMN) };
     }
 }

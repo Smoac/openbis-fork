@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnSettingsDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 

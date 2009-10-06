@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter.common;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.common;
 
 import java.util.List;
 

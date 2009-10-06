@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.filter;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter;
 
 import java.util.ArrayList;
 import java.util.List;
