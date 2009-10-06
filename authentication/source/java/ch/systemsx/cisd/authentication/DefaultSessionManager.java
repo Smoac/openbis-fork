@@ -36,8 +36,8 @@ import ch.systemsx.cisd.common.utilities.TokenGenerator;
  * Default session manager. Needs
  * <ul>
  * <li>a {@link ISessionFactory} for creating new session objects,
- * <li>a {@link ILogMessagePrefixGenerator} for generating log messages which are logged by a
- * logger with category {@link LogCategory#AUTH},
+ * <li>a {@link ILogMessagePrefixGenerator} for generating log messages which are logged by a logger
+ * with category {@link LogCategory#AUTH},
  * <li>a {@link IAuthenticationService} for authenticating users,
  * <li>a {@link IRemoteHostProvider} for providing the remote host of the user client.
  * </ul>
@@ -253,7 +253,8 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             final String[] splittedToken = StringUtils.split(sessionToken, SESSION_TOKEN_SEPARATOR);
             if (splittedToken.length < 2)
             {
-                final String msg = "Session token '" + sessionToken + "' is malformed.";
+                final String msg =
+                        "Session token '" + sessionToken + "' is malformed. Please login again.";
                 if (authenticationLog.isInfoEnabled())
                 {
                     authenticationLog.info(msg);
@@ -274,7 +275,9 @@ public class DefaultSessionManager<T extends BasicSession> implements ISessionMa
             }
             if (sessionToken.equals(session.getSession().getSessionToken()) == false)
             {
-                final String msg = "Session token '" + sessionToken + "' is invalid: wrong token.";
+                final String msg =
+                        "Session token '" + sessionToken
+                                + "' is invalid: wrong token. Please login again.";
                 if (operationLog.isInfoEnabled())
                 {
                     operationLog.info(msg);
