@@ -168,6 +168,8 @@ public class DataSetInformation implements Serializable
      * Returns the basic information about the experiment.
      */
     // TODO 2009-09-18 Tomasz Pylak: change to getExperiment()
+    // But it can be null when we use e.g. CifexDataSetInfoExtractor - only identifier is set.
+    // This bean is too complex and can be easily misused...
     public Experiment tryToGetExperiment()
     {
         return experiment == null ? (sample == null ? null : sample.getExperiment()) : experiment;

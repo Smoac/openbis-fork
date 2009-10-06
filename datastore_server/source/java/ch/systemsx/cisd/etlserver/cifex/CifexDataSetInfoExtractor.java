@@ -79,6 +79,7 @@ public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
         {
             ExperimentIdentifier experimentIdentifier =
                     new ExperimentIdentifierFactory(info.getExperiment()).createIdentifier();
+            dataSetInformation.setExperimentIdentifier(experimentIdentifier);
             dataSetInformation.setGroupCode(experimentIdentifier.getGroupCode());
             dataSetInformation.setParentDataSetCodes(Arrays.asList(info.getParents()));
         }
