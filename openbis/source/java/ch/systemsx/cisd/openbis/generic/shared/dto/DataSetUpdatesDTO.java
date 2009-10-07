@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicDataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -29,6 +30,8 @@ public class DataSetUpdatesDTO extends BasicDataSetUpdates
 
     private SampleIdentifier sampleIdentifierOrNull;
 
+    private ExperimentIdentifier experimentIdentifierOrNull;
+
     public SampleIdentifier getSampleIdentifierOrNull()
     {
         return sampleIdentifierOrNull;
@@ -37,6 +40,16 @@ public class DataSetUpdatesDTO extends BasicDataSetUpdates
     public void setSampleIdentifierOrNull(SampleIdentifier sampleIdentifierOrNull)
     {
         this.sampleIdentifierOrNull = sampleIdentifierOrNull;
+    }
+
+    public ExperimentIdentifier getExperimentIdentifierOrNull()
+    {
+        return experimentIdentifierOrNull;
+    }
+
+    public void setExperimentIdentifierOrNull(ExperimentIdentifier experimentIdentifierOrNull)
+    {
+        this.experimentIdentifierOrNull = experimentIdentifierOrNull;
     }
 
 }

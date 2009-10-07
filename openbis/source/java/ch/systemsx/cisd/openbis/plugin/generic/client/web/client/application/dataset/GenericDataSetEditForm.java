@@ -21,6 +21,10 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.application.fra
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.FieldEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -30,11 +34,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeSelectionWidget.FileFormatTypeModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField.SampleChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
@@ -57,13 +66,24 @@ public final class GenericDataSetEditForm extends
 {
     private static final String SAMPLE_FIELD_ID_SUFFIX = "sample_field";
 
+    private static final String EXPERIMENT_FIELD_ID_SUFFIX = "experiment_field";
+
     private final String simpleId;
 
     private FileFormatTypeSelectionWidget fileFormatTypeSelectionWidget;
 
-    private SampleChooserFieldAdaptor sampleField;
+    private CheckBoxField connectedWithSampleCheckbox;
+
+    // two options:
+    // 1. connected with sample
+    private SampleChooserFieldAdaptor sampleChooser;
+
+    // 2. not connected with sample
+    private ExperimentChooserFieldAdaptor experimentChooser;
 
     private DataSetParentsArea parentsArea;
+
+    // 
 
     private ExternalData originalDataSet;
 
@@ -99,15 +119,32 @@ public final class GenericDataSetEditForm extends
         result.setDatasetId(techIdOrNull);
         result.setProperties(extractProperties());
         result.setVersion(originalDataSet.getModificationDate());
-        result.setModifiedParentDatasetCodesOrNull(extractParentDatasetCodes());
-        result.setSampleIdentifierOrNull(extractSampleIdentifier());
         result.setFileFormatTypeCode(extractFileFormatTypeCode());
+        if (isConnectedWithSample())
+        {
+            result.setSampleIdentifierOrNull(extractSampleIdentifier());
+        } else
+        {
+            result.setExperimentIdentifierOrNull(extractExperimentIdentifier());
+            result.setModifiedParentDatasetCodesOrNull(extractParentDatasetCodes());
+        }
         return result;
+    }
+
+    private Boolean isConnectedWithSample()
+    {
+        return connectedWithSampleCheckbox.getValue();
     }
 
     private String extractSampleIdentifier()
     {
-        return sampleField.getValue();
+        return sampleChooser.getValue();
+    }
+
+    private String extractExperimentIdentifier()
+    {
+        ExperimentIdentifier identifierOrNull = experimentChooser.tryToGetValue();
+        return identifierOrNull == null ? null : identifierOrNull.getIdentifier();
     }
 
     protected String[] extractParentDatasetCodes()
@@ -147,9 +184,11 @@ public final class GenericDataSetEditForm extends
     private void updateOriginalValues(String[] parentCodes)
     {
         updatePropertyFieldsOriginalValues();
-        sampleField.updateOriginalValue();
+        sampleChooser.updateOriginalValue();
+        experimentChooser.updateOriginalValue();
         parentsArea.setParentCodes(parentCodes);
         fileFormatTypeSelectionWidget.updateOriginalValue(fileFormatTypeSelectionWidget.getValue());
+        connectedWithSampleCheckbox.updateOriginalValue(connectedWithSampleCheckbox.getValue());
     }
 
     @Override
@@ -166,8 +205,10 @@ public final class GenericDataSetEditForm extends
         ArrayList<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
         // TODO 2009-08-01, Piotr Buczek: add other fields specified in LMS-1003
+        fields.add(wrapUnaware(connectedWithSampleCheckbox));
+        fields.add(wrapUnaware(sampleChooser.getField()));
+        fields.add(wrapUnaware(experimentChooser.getField()));
         fields.add(wrapUnaware(parentsArea));
-        fields.add(wrapUnaware(sampleField.getField()));
         fields.add(wrapUnaware(fileFormatTypeSelectionWidget));
         return fields;
     }
@@ -175,14 +216,24 @@ public final class GenericDataSetEditForm extends
     @Override
     protected void createEntitySpecificFormFields()
     {
+        this.connectedWithSampleCheckbox = createConnectedWithSampleCheckbox();
+        this.sampleChooser = createSampleField();
+        this.experimentChooser = createExperimentChooserField();
         this.parentsArea = createParentsArea();
-        this.sampleField = createSampleField();
         this.fileFormatTypeSelectionWidget = createFileFormatTypeField();
     }
 
-    private DataSetParentsArea createParentsArea()
+    private CheckBoxField createConnectedWithSampleCheckbox()
     {
-        return new DataSetParentsArea(viewContext, simpleId);
+        CheckBoxField result = new CheckBoxField("Connected with Sample", false);
+        result.addListener(Events.Change, new Listener<FieldEvent>()
+            {
+                public void handleEvent(FieldEvent be)
+                {
+                    updateFieldsVisibility();
+                }
+            });
+        return result;
     }
 
     private SampleChooserFieldAdaptor createSampleField()
@@ -191,10 +242,27 @@ public final class GenericDataSetEditForm extends
         String originalSampleOrNull = originalDataSet.getSampleIdentifier();
         // one cannot select a sample from shared group or a sample that has no experiment
         final SampleChooserFieldAdaptor result =
-                SampleChooserField.create(label, false, originalSampleOrNull, false, true,
+                SampleChooserField.create(label, true, originalSampleOrNull, false, true,
                         viewContext.getCommonViewContext());
         result.getField().setId(createChildId(SAMPLE_FIELD_ID_SUFFIX));
         return result;
+    }
+
+    private ExperimentChooserFieldAdaptor createExperimentChooserField()
+    {
+        String label = viewContext.getMessage(Dict.EXPERIMENT);
+        ExperimentIdentifier originalExperiment =
+                ExperimentIdentifier.createIdentifier(originalDataSet.getExperiment());
+        final ExperimentChooserFieldAdaptor result =
+                ExperimentChooserField.create(label, true, originalExperiment, viewContext
+                        .getCommonViewContext());
+        result.getField().setId(createChildId(EXPERIMENT_FIELD_ID_SUFFIX));
+        return result;
+    }
+
+    private DataSetParentsArea createParentsArea()
+    {
+        return new DataSetParentsArea(viewContext, simpleId);
     }
 
     private FileFormatTypeSelectionWidget createFileFormatTypeField()
@@ -208,15 +276,26 @@ public final class GenericDataSetEditForm extends
     @Override
     protected void initializeFormFields()
     {
+        boolean connectedWithSample = StringUtils.isEmpty(sampleChooser.getValue()) == false;
+        connectedWithSampleCheckbox.setValue(connectedWithSample);
+        updateFieldsVisibility();
+
         propertiesEditor.initWithProperties(originalDataSet.getDataSetType()
                 .getAssignedPropertyTypes(), originalDataSet.getProperties());
         codeField.setValue(originalDataSet.getCode());
         fileFormatTypeSelectionWidget.setValue(new FileFormatTypeModel(originalDataSet
                 .getFileFormatType()));
-        // parents Area
-        parentsArea.setEnabled(false);
+        // sample and experiment fields are initialized when they are created
         parentsArea.setValue(viewContext.getMessage(Dict.LOAD_IN_PROGRESS));
         loadParentsInBackground();
+    }
+
+    private void updateFieldsVisibility()
+    {
+        boolean connectedWithSample = isConnectedWithSample();
+        FieldUtil.setVisibility(connectedWithSample, sampleChooser.getField());
+        FieldUtil.setVisibility(connectedWithSample == false, experimentChooser.getField(),
+                parentsArea);
     }
 
     private void setOriginalData(ExternalData data)
@@ -270,7 +349,10 @@ public final class GenericDataSetEditForm extends
         protected void process(ResultSetWithEntityTypes<ExternalData> result)
         {
             parentsArea.setParents(result.getResultSet().getList());
-            parentsArea.setEnabled(true);
+            if (parentsArea.isVisible())
+            {
+                parentsArea.setEnabled(true);
+            }
         }
     }
 }

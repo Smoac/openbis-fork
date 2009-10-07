@@ -85,7 +85,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 /**
  * The {@link IGenericClientService} implementation.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 @Component(value = ResourceNames.GENERIC_PLUGIN_SERVICE)
 public final class GenericClientService extends AbstractClientService implements
@@ -501,6 +501,9 @@ public final class GenericClientService extends AbstractClientService implements
         String sampleIdentifierOrNull = updates.getSampleIdentifierOrNull();
         updatesDTO.setSampleIdentifierOrNull(sampleIdentifierOrNull == null ? null
                 : SampleIdentifierFactory.parse(sampleIdentifierOrNull));
+        String experimentIdentifierOrNull = updates.getExperimentIdentifierOrNull();
+        updatesDTO.setExperimentIdentifierOrNull(experimentIdentifierOrNull == null ? null
+                : new ExperimentIdentifierFactory(experimentIdentifierOrNull).createIdentifier());
         updatesDTO.setFileFormatTypeCode(updates.getFileFormatTypeCode());
         return updatesDTO;
     }

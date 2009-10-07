@@ -33,15 +33,18 @@ public class DataSetUpdates extends BasicDataSetUpdates
 
     private String sampleIdentifierOrNull;
 
+    private String experimentIdentifierOrNull;
+
     public DataSetUpdates()
     {
     }
 
     public DataSetUpdates(TechId sampleId, List<IEntityProperty> properties, Date version,
-            String sampleIdentifierOrNull)
+            String sampleIdentifierOrNull, String experimentIdentifierOrNull)
     {
         super(sampleId, properties, version);
         this.sampleIdentifierOrNull = sampleIdentifierOrNull;
+        this.experimentIdentifierOrNull = experimentIdentifierOrNull;
     }
 
     public String getSampleIdentifierOrNull()
@@ -52,6 +55,16 @@ public class DataSetUpdates extends BasicDataSetUpdates
     public void setSampleIdentifierOrNull(String sampleIdentifierOrNull)
     {
         this.sampleIdentifierOrNull = sampleIdentifierOrNull;
+    }
+
+    public String getExperimentIdentifierOrNull()
+    {
+        return experimentIdentifierOrNull;
+    }
+
+    public void setExperimentIdentifierOrNull(String experimentIdentifierOrNull)
+    {
+        this.experimentIdentifierOrNull = experimentIdentifierOrNull;
     }
 
 }

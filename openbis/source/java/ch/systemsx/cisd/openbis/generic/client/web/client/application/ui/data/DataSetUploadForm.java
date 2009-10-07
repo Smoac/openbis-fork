@@ -76,7 +76,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
 
     private final DataSetParentsArea parentsArea;
 
-    //
+    // 
 
     public DataSetUploadForm(IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -124,7 +124,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
 
     private void updateFieldsVisibility()
     {
-        boolean connectedWithSample = connectedWithSampleCheckbox.getValue();
+        boolean connectedWithSample = isConnectedWithSample();
         FieldUtil.setVisibility(connectedWithSample, sampleChooser.getField());
         FieldUtil.setVisibility(connectedWithSample == false, experimentChooser.getField(),
                 parentsArea);

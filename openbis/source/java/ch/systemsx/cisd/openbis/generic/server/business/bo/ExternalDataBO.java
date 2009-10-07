@@ -50,18 +50,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 @Friend(toClasses = DataPE.class)
 public class ExternalDataBO extends AbstractExternalDataBusinessObject implements IExternalDataBO
@@ -295,11 +297,23 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         {
             throwModifiedEntityException("Data set");
         }
-        updateProperties(updates.getProperties());
-        updateSample(updates.getSampleIdentifierOrNull());
-        updateParents(updates.getModifiedParentDatasetCodesOrNull());
-        // TODO 2009-09-10, Piotr Buczek: write updateExperiment when we allow to change it
+        final SampleIdentifier sampleIdentifierOrNull = updates.getSampleIdentifierOrNull();
+        if (sampleIdentifierOrNull != null)
+        {
+        	// update sample and indirectly experiment
+            updateSample(updates.getSampleIdentifierOrNull()); 
+            // remove connections with parents 
+            // (new colelction is needed bacause old one will be removed)
+            removeParents(new ArrayList<DataPE>(externalData.getParents()));
+        } else
+        {
+            updateExperiment(updates.getExperimentIdentifierOrNull());
+            updateParents(updates.getModifiedParentDatasetCodesOrNull());
+            // remove connection with sample
+            externalData.setSample(null);
+        }
         updateFileFormatType(updates.getFileFormatTypeCode());
+		updateProperties(updates.getProperties());
         entityPropertiesConverter.checkMandatoryProperties(externalData.getProperties(),
                 externalData.getDataSetType());
         validateAndSave();
@@ -479,36 +493,52 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
 
     private void updateSample(SampleIdentifier sampleIdentifierOrNull)
     {
-        SamplePE sampleOrNull = null;
-        if (sampleIdentifierOrNull != null)
-        {
-            sampleOrNull = tryToGetSampleByIdentifier(sampleIdentifierOrNull);
-        }
+        assert sampleIdentifierOrNull != null;
+        SamplePE newSample = getSampleByIdentifier(sampleIdentifierOrNull);
         SamplePE previousSampleOrNull = externalData.tryGetSample();
-        if ((sampleOrNull == null && previousSampleOrNull == null)
-                || (sampleOrNull != null && sampleOrNull.equals(previousSampleOrNull)))
+        if (newSample.equals(previousSampleOrNull))
         {
             return; // nothing to change
         }
-        if (sampleOrNull != null)
+        if (newSample.getGroup() == null)
         {
-            if (sampleOrNull.getGroup() == null)
-            {
-                throw createWrongSampleException(sampleOrNull, "the sample is shared");
-            }
-            ExperimentPE experiment = sampleOrNull.getExperiment();
-            if (experiment == null)
-            {
-                throw createWrongSampleException(sampleOrNull,
-                        "the sample is not connected to any experiment");
-            }
-            // move dataset to the experiment if needed
-            if (experiment.equals(externalData.getExperiment()) == false)
-            {
-                externalData.setExperiment(experiment);
-            }
+            throw createWrongSampleException(newSample, "the new sample is shared");
         }
-        externalData.setSample(sampleOrNull);
+        ExperimentPE experiment = newSample.getExperiment();
+        if (experiment == null)
+        {
+            throw createWrongSampleException(newSample,
+                    "the new sample is not connected to any experiment");
+        }
+        // move dataset to the experiment if needed
+        if (experiment.equals(externalData.getExperiment()) == false)
+        {
+            externalData.setExperiment(experiment);
+        }
+        externalData.setSample(newSample);
+    }
+
+    private void updateExperiment(ExperimentIdentifier experimentIdentifierOrNull)
+    {
+        assert experimentIdentifierOrNull != null;
+        ExperimentPE experiment = getExperimentByIdentifier(experimentIdentifierOrNull);
+        externalData.setExperiment(experiment);
+    }
+
+    private ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)
+    {
+        assert identifier != null : "Experiment identifier unspecified.";
+        final ProjectPE project =
+                getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
+                        identifier.getGroupCode(), identifier.getProjectCode());
+        if (project == null)
+        {
+            throw new UserFailureException("Unkown experiment because of unkown project: "
+                    + identifier);
+        }
+        final ExperimentPE exp =
+                getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
+        return exp;
     }
 
     private void updateFileFormatType(String fileFormatTypeCode)

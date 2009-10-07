@@ -35,9 +35,10 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  * 
  * @author Piotr Buczek
  */
+// TODO 2009-10-07, Piotr Buczek: add tests where sample/experiment is modified
 public class GenericDataSetEditorTest extends AbstractGWTTestCase
 {
-    private static final String DS_WITH_DIRECT_SAMPLE_CONNECTION_CODE = "20081105092158673-1";
+    // private static final String DS_WITH_DIRECT_SAMPLE_CONNECTION_CODE = "20081105092158673-1";
 
     private static final String DS_WITH_MANY_PARENTS_CODE = "20081105092259000-9";
 
@@ -82,26 +83,6 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
                         .with("Data Set '" + modifiedDataSetCode + "' is an ancestor of Data Set '"
                                 + descendantCode
                                 + "' and cannot be at the same time set as its child.");
-        remoteConsole.prepare(failureExpectation);
-
-        launchTest(20 * SECOND);
-    }
-
-    // This test is needed among system tests because a deferred trigger is executed
-    // just before commit and another test in DAO layer uses manual commit that is unnatural.
-    public final void testAddDataSetParentFailWithDeferredTriggerError()
-    {
-        final String modifiedDataSetCode = DS_WITH_DIRECT_SAMPLE_CONNECTION_CODE;
-        final String addedParentCode = "20081105092159111-1";
-
-        prepareShowDataSetEditor(modifiedDataSetCode);
-
-        remoteConsole.prepare(new FillDataSetEditForm().modifyParents(addedParentCode));
-        FailureExpectation failureExpectation =
-                new FailureExpectation(GenericDataSetEditForm.UpdateDataSetCallback.class)
-                        .with("ERROR: Insert/Update of Data Set (Code: "
-                                + modifiedDataSetCode
-                                + ") failed because it cannot be connected with a Sample and a parent Data Set at the same time.");
         remoteConsole.prepare(failureExpectation);
 
         launchTest(20 * SECOND);

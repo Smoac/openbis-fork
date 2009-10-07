@@ -55,7 +55,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
@@ -77,6 +79,10 @@ public class ExternalDataBOTest extends AbstractBOTest
 
     private static final SampleIdentifier SAMPLE_IDENTIFIER =
             new SampleIdentifier(GROUP_IDENTIFIER, "EXAMPLE_SAMPLE");
+
+    private static final ExperimentIdentifier EXPERIMENT_IDENTIFIER =
+            new ExperimentIdentifier(new ProjectIdentifier(GROUP_IDENTIFIER,
+                    ManagerTestTool.EXAMPLE_PROJECT.getCode()), "EXPERIMENT_CODE");
 
     private static final String DATA_STORE_CODE = "dss1";
 
@@ -285,8 +291,9 @@ public class ExternalDataBOTest extends AbstractBOTest
     {
         final SamplePE sample = new SamplePE();
         sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
-        final ExternalDataPE dataSet = createDataSet(sample);
-        DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(dataSet);
+        final ExternalDataPE dataSet = createDataSet(sample, null);
+        DataSetUpdatesDTO dataSetUpdatesDTO =
+                createDataSetUpdates(dataSet, SAMPLE_IDENTIFIER, null);
         prepareForUpdate(dataSet, sample);
         context.checking(new Expectations()
             {
@@ -313,14 +320,16 @@ public class ExternalDataBOTest extends AbstractBOTest
     @Test
     public void testUpdateWithDataSetAsItsOwnParent()
     {
-        final SamplePE sample = new SamplePE();
-        sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
-        final ExternalDataPE dataSet = createDataSet(sample);
-        DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(dataSet);
+        final ExperimentPE experiment = new ExperimentPE();
+        experiment.setCode(EXPERIMENT_IDENTIFIER.getExperimentCode());
+
+        final ExternalDataPE dataSet = createDataSet(null, experiment);
+        DataSetUpdatesDTO dataSetUpdatesDTO =
+                createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] parentCodes =
             { dataSet.getCode() };
         dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(parentCodes);
-        prepareForUpdate(dataSet, sample);
+        prepareForUpdate(dataSet, experiment);
 
         IExternalDataBO dataBO = createExternalDataBO();
         try
@@ -338,14 +347,16 @@ public class ExternalDataBOTest extends AbstractBOTest
     @Test
     public void testUpdateWithNonExistingParentDataSet()
     {
-        final SamplePE sample = new SamplePE();
-        sample.setCode(SAMPLE_IDENTIFIER.getSampleCode());
-        final ExternalDataPE dataSet = createDataSet(sample);
-        DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(dataSet);
+        final ExperimentPE experiment = new ExperimentPE();
+        experiment.setCode(EXPERIMENT_IDENTIFIER.getExperimentCode());
+
+        final ExternalDataPE dataSet = createDataSet(null, experiment);
+        DataSetUpdatesDTO dataSetUpdatesDTO =
+                createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] parentCodes =
             { PARENT_CODE };
         dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(parentCodes);
-        prepareForUpdate(dataSet, sample);
+        prepareForUpdate(dataSet, experiment);
         context.checking(new Expectations()
             {
                 {
@@ -397,23 +408,53 @@ public class ExternalDataBOTest extends AbstractBOTest
             });
     }
 
-    private DataSetUpdatesDTO createDataSetUpdates(final ExternalDataPE dataSet)
+    private void prepareForUpdate(final ExternalDataPE dataSet, final ExperimentPE experiment)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(externalDataDAO).tryGetByTechId(TECH_ID, ExternalDataBO.PROPERTY_TYPES);
+                    will(returnValue(dataSet));
+
+                    ExperimentIdentifier identifier = EXPERIMENT_IDENTIFIER;
+
+                    one(daoFactory).getProjectDAO();
+                    will(returnValue(projectDAO));
+                    one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
+                            identifier.getGroupCode(), identifier.getProjectCode());
+                    will(returnValue(ManagerTestTool.EXAMPLE_PROJECT));
+
+                    one(daoFactory).getExperimentDAO();
+                    will(returnValue(experimentDAO));
+                    one(experimentDAO).tryFindByCodeAndProject(ManagerTestTool.EXAMPLE_PROJECT,
+                            identifier.getExperimentCode());
+                    will(returnValue(experiment));
+                }
+            });
+    }
+
+    private DataSetUpdatesDTO createDataSetUpdates(final ExternalDataPE dataSet,
+            final SampleIdentifier sampleIdentifierOrNull,
+            final ExperimentIdentifier experimentIdentifierOrNull)
     {
         DataSetUpdatesDTO dataSetUpdatesDTO = new DataSetUpdatesDTO();
         dataSetUpdatesDTO.setDatasetId(TECH_ID);
         dataSetUpdatesDTO.setVersion(dataSet.getModificationDate());
-        dataSetUpdatesDTO.setSampleIdentifierOrNull(SAMPLE_IDENTIFIER);
+        dataSetUpdatesDTO.setSampleIdentifierOrNull(sampleIdentifierOrNull);
+        dataSetUpdatesDTO.setExperimentIdentifierOrNull(experimentIdentifierOrNull);
         dataSetUpdatesDTO.setFileFormatTypeCode(FILE_FORMAT_TYPE.getCode());
         return dataSetUpdatesDTO;
     }
 
-    private ExternalDataPE createDataSet(final SamplePE sample)
+    private ExternalDataPE createDataSet(final SamplePE sampleOrNull,
+            final ExperimentPE experimentOrNull)
     {
         final ExternalDataPE dataSet = new ExternalDataPE();
         dataSet.setId(TECH_ID.getId());
         dataSet.setCode(DATA_SET_CODE);
         dataSet.setModificationDate(PRODUCTION_DATE);
-        dataSet.setSample(sample);
+        dataSet.setSample(sampleOrNull);
+        dataSet.setExperiment(experimentOrNull);
         return dataSet;
     }
 
