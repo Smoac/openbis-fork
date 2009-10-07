@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
@@ -182,6 +183,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         return service.tryToGetExperiment(sessionToken, experimentIdentifier);
     }
+    
+    private List<Sample> primListSamples(ListSampleCriteria criteria)
+    {
+        return service.listSamples(sessionToken, criteria);
+    }
 
     private final Sample primTryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
     {
@@ -238,6 +244,21 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
     
+    synchronized public List<Sample> listSamples(ListSampleCriteria criteria)
+    {
+        assert criteria != null : "Unspecifed criteria.";
+        
+        checkSessionToken();
+        try
+        {
+            return primListSamples(criteria);
+        } catch (InvalidSessionException ex)
+        {
+            authenticate();
+            return primListSamples(criteria);
+        }
+    }
+
     synchronized public final Sample tryGetSampleWithExperiment(
             final SampleIdentifier sampleIdentifier)
     {

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -53,6 +54,11 @@ public interface IEncapsulatedOpenBISService
      */
     public Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
             throws UserFailureException;
+    
+    /**
+     * Gets all sample in accordance to the specified criteria.
+     */
+    public List<Sample> listSamples(final ListSampleCriteria criteria) throws UserFailureException;
     
     /**
      * Gets a sample with the specified identifier. Sample is enriched with properties and the
