@@ -115,7 +115,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
 
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
-        externalData.setupExperiment(pickAnExperiment());
+        externalData.setExperiment(pickAnExperiment());
         if (sampleOrNull != null)
         {
             externalData.setSampleAcquiredFrom(sampleOrNull);
@@ -156,7 +156,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         String dataSetCode = daoFactory.getPermIdDAO().createPermId();
         data.setCode(dataSetCode);
         data.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
-        data.setupExperiment(pickAnExperiment());
+        data.setExperiment(pickAnExperiment());
         data.setSampleAcquiredFrom(pickASample());
         data.setPlaceholder(true);
         data.setDataStore(pickADataStore());
@@ -168,7 +168,7 @@ public final class ExternalDataDAOTest extends AbstractDAOTest
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(getDataSetType(DataSetTypeCode.UNKNOWN));
         externalData.setDataStore(pickADataStore());
-        externalData.setupExperiment(pickAnExperiment());
+        externalData.setExperiment(pickAnExperiment());
         externalData.setSampleAcquiredFrom(pickASample());
         externalData.setFileFormatType(pickAFileFormatType());
         externalData.setLocatorType(pickALocatorType());

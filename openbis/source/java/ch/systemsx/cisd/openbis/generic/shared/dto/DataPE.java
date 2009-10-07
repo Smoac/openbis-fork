@@ -387,7 +387,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         return code;
     }
 
-    public void setupExperiment(final ExperimentPE experiment)
+    public void setExperiment(final ExperimentPE experiment)
     {
         if (experiment != null)
         {

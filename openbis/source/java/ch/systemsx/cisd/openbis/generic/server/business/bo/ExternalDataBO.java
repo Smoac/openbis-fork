@@ -140,7 +140,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         define(data, sourceType);
 
         externalData.setSample(sample);
-        externalData.setupExperiment(sample.getExperiment());
+        externalData.setExperiment(sample.getExperiment());
     }
 
     public void define(NewExternalData data, ExperimentPE experiment, SourceType sourceType)
@@ -148,7 +148,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         assert experiment != null : "Undefined experiment.";
         DataStorePE dataStore = define(data, sourceType);
 
-        externalData.setupExperiment(experiment);
+        externalData.setExperiment(experiment);
         final List<String> parentDataSetCodes = data.getParentDataSetCodes();
         if (parentDataSetCodes != null)
         {
@@ -250,7 +250,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
             parent.setCode(parentDataSetCode);
             String code = DataSetTypeCode.UNKNOWN.getCode();
             parent.setDataSetType(getDataSetTypeDAO().tryToFindDataSetTypeByCode(code));
-            parent.setupExperiment(experiment);
+            parent.setExperiment(experiment);
             parent.setPlaceholder(true);
             dataDAO.createDataSet(parent);
         }
@@ -513,7 +513,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
         // move dataset to the experiment if needed
         if (experiment.equals(externalData.getExperiment()) == false)
         {
-            externalData.setupExperiment(experiment);
+            externalData.setExperiment(experiment);
         }
         externalData.setSample(newSample);
     }
@@ -522,7 +522,7 @@ public class ExternalDataBO extends AbstractExternalDataBusinessObject implement
     {
         assert experimentIdentifierOrNull != null;
         ExperimentPE experiment = getExperimentByIdentifier(experimentIdentifierOrNull);
-        externalData.setupExperiment(experiment);
+        externalData.setExperiment(experiment);
     }
 
     private ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)

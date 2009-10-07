@@ -211,7 +211,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         final DataPE parentData = new DataPE();
         parentData.setCode(PARENT_CODE);
         parentData.setDataSetType(dataSetTypeUnknown);
-        parentData.setupExperiment(createExperiment("EXP1"));
+        parentData.setExperiment(createExperiment("EXP1"));
         parentData.setPlaceholder(true);
         context.checking(new Expectations()
             {
@@ -258,7 +258,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         parentData.setCode(PARENT_CODE);
         parentData.setDataSetType(dataSetTypeUnknown);
         ExperimentPE experiment = createExperiment("EXP1");
-        parentData.setupExperiment(experiment);
+        parentData.setExperiment(experiment);
         parentData.setPlaceholder(true);
         context.checking(new Expectations()
             {
@@ -454,7 +454,7 @@ public class ExternalDataBOTest extends AbstractBOTest
         dataSet.setCode(DATA_SET_CODE);
         dataSet.setModificationDate(PRODUCTION_DATE);
         dataSet.setSample(sampleOrNull);
-        dataSet.setupExperiment(experimentOrNull);
+        dataSet.setExperiment(experimentOrNull);
         return dataSet;
     }
 

@@ -324,7 +324,7 @@ public final class DBCreator extends AbstractDAOTest
         String dataSetCode = daoFactory.getPermIdDAO().createPermId();
         externalData.setCode(dataSetCode);
         externalData.setDataSetType(defaultDataSetType);
-        externalData.setupExperiment(sample.getExperiment());
+        externalData.setExperiment(sample.getExperiment());
         externalData.setSampleAcquiredFrom(sample);
         externalData.setFileFormatType(pickAFileFormatType());
         externalData.setLocatorType(pickALocatorType());

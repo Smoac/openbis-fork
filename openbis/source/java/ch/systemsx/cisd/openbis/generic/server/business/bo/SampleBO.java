@@ -340,7 +340,7 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     {
         for (DataPE dataset : datasets)
         {
-            dataset.setupExperiment(experiment);
+            dataset.setExperiment(experiment);
         }
     }
 

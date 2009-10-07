@@ -406,7 +406,7 @@ public final class ExternalDataTableTest extends AbstractBOTest
         group.setDatabaseInstance(instance);
         project.setGroup(group);
         experiment.setProject(project);
-        data.setupExperiment(experiment);
+        data.setExperiment(experiment);
         return data;
     }
 
