@@ -98,7 +98,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         groupPE.setDatabaseInstance(databaseInstancePE);
         projectPE.setGroup(groupPE);
         experimentPE.setProject(projectPE);
-        externalDataPE.setExperiment(experimentPE);
+        externalDataPE.setupExperiment(experimentPE);
         externalDataPE.setProductionDate(new Date(1));
         externalDataPE.setRegistrationDate(new Date(2));
         SamplePE samplePE = new SamplePE();
@@ -163,7 +163,7 @@ public class ExternalDataTranslatorTest extends AssertJUnit
         groupPE.setDatabaseInstance(databaseInstancePE);
         projectPE.setGroup(groupPE);
         experimentPE.setProject(projectPE);
-        externalDataPE.setExperiment(experimentPE);
+        externalDataPE.setupExperiment(experimentPE);
 
         externalDataPE.addParent(createParent("parent-1"));
         externalDataPE.addParent(createParent("parent-2"));

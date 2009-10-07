@@ -252,7 +252,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         // Currently there is no such experiment in test DB so we first add a data set
         // to an empty experiment (with no connections).
         final ExternalDataPE dataSet = findExternalData("20081105092158673-1");
-        dataSet.setExperiment(deletedExperiment);
+        dataSet.setupExperiment(deletedExperiment);
         daoFactory.getExternalDataDAO().validateAndSaveUpdatedEntity(dataSet);
 
         assertTrue(deletedExperiment.getAttachments().isEmpty());

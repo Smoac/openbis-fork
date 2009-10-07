@@ -169,7 +169,7 @@ public class UploadingCommandTest extends AssertJUnit
         DataSetTypePE dataSetTypePE = new DataSetTypePE();
         dataSetTypePE.setCode("D");
         externalData.setDataSetType(dataSetTypePE);
-        externalData.setExperiment(createExperiment());
+        externalData.setupExperiment(createExperiment());
         // TODO 2009-09-15, Piotr Buczek: write a test with no parents but with sample connection
         // Does it make any difference how many parents are added here?
         externalData.addParent(createParent("parent1"));
