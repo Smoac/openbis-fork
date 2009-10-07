@@ -1,0 +1,2 @@
+#!/bin/bash
+rsync -xavz --delete *.png *.htm wernersa@yellowcouch.org:/home/analysis/public_html/dsu/qr/$1

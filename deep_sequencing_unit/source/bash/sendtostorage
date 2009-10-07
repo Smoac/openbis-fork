@@ -1,0 +1,41 @@
+#!/bin/bash
+getmetainfo
+a=`pwd`
+b=`basename $a`
+
+echo $b
+
+mysql -N -r -u bsse --password=theycconnection -h yellowcouch.org -D BsseSampleTracking >send-tmp-cmd <<EOF
+SELECT CONCAT(
+'chmod -R ugo-rwx,u=rwX,',permission,' Data\n',
+'chgrp -R ',\`group\`,' Data\n',
+'rsync -xav --delete --delete-excluded --exclude "*-tmp-*" --exclude "Images" --exclude "*~" --exclude "s_',mask,'*" Data/ ',hostdirectory,E.institute,'-',E.pi,'-',sample_id,'-',flow_id,'-',lane_id
+) as command
+FROM FlowCells F
+JOIN Id2External I ON (F.sample_id=I.id)
+JOIN External E ON (E.external_id=I.external_id)
+JOIN Cust2Target C
+JOIN ExcludeMask USING (lane_id)
+WHERE C.institute=E.institute and C.pi=E.pi and flow_id='$b' and lane_id='$1'
+
+UNION
+
+SELECT CONCAT(
+'chmod -R ugo-rwx,u=rwX,',permission,' Data\n',
+'chgrp -R ',\`group\`,' Data\n',
+'rsync -xav --delete --delete-excluded --exclude "*-tmp-*" --exclude "Images" --exclude "*~" --exclude "s_',mask,'*" Data/ ',hostdirectory,E.institute,'-',E.pi,'-',sample_id,'-',flow_id,'-',lane_id
+) as command
+FROM FlowCells F
+JOIN Id2Others O ON (F.sample_id=O.id)
+JOIN Cust2Target C
+JOIN ExcludeMask USING (lane_id)
+JOIN Id2External I2 ON (F.sample_id=I2.id)
+JOIN External E ON (E.external_id=I2.external_id)
+WHERE C.institute=O.institute and C.pi=O.pi and flow_id='$b' and lane_id='$1'
+
+EOF
+
+chmod 700 send-tmp-cmd
+cat send-tmp-cmd
+./send-tmp-cmd
+rm send-tmp-cmd
