@@ -57,6 +57,7 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.rinn.restrictions.Friend;
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
@@ -401,7 +402,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
         return getExperimentInternal();
     }
 
-    void setExperimentInternal(final ExperimentPE experiment)
+    @Private
+    public void setExperimentInternal(final ExperimentPE experiment)
     {
         this.experiment = experiment;
     }
