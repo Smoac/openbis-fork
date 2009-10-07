@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo.DataSetUploadInfoHelper;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.DataSetParentsArea;
 
 /**
  * Panel that allows to specify information necessary to upload data sets and redirects user to
