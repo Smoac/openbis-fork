@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SimpleDataSetHelper;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -45,6 +46,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
@@ -265,6 +268,13 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         }
         return ExperimentTranslator.translate(experiment, session.getBaseIndexURL(),
                 LoadableFields.PROPERTIES);
+    }
+
+    public List<Sample> listSamples(String sessionToken, ListSampleCriteria criteria)
+    {
+        final Session session = getSession(sessionToken);
+        final ISampleLister sampleLister = boFactory.createSampleLister(session);
+        return sampleLister.list(new ListOrSearchSampleCriteria(criteria));
     }
 
     public Sample tryGetSampleWithExperiment(String sessionToken, SampleIdentifier sampleIdentifier)

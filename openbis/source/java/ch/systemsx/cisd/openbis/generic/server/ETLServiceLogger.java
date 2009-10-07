@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
@@ -94,6 +95,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
             ExperimentIdentifier experimentIdentifier) throws UserFailureException
     {
         logAccess(sessionToken, "get_experiment", "EXPERIMENT(%s)", experimentIdentifier);
+        return null;
+    }
+
+    public List<Sample> listSamples(String sessionToken, ListSampleCriteria criteria)
+    {
+        logAccess(sessionToken, "list_samples", "CRITERIA(%s)", criteria);
         return null;
     }
 
