@@ -19,6 +19,7 @@ package ch.ethz.bsse.cisd.dsu.dss;
 import java.util.Properties;
 
 import ch.systemsx.cisd.etlserver.DelegatingStorageProcessorWithDropbox;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
  * Storage processor which feeds flow-line drop boxes. Needs the property
@@ -31,7 +32,7 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
 {
     public StorageProcessor(Properties properties)
     {
-        super(properties, new FlowLineFeeder(properties));
+        super(properties, new FlowLineFeeder(properties, ServiceProvider.getOpenBISService()));
     }
 
 }
