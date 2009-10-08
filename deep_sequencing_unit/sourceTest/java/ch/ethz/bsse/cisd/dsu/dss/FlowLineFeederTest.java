@@ -256,6 +256,7 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
         // last-modified date of the other file.
         originalFlowLine.setLastModified(4711000);
         assertEquals(4711000, flowLine.lastModified());
+        assertEquals(true, new File(ds, FlowLineFeeder.META_DATA_FILE_NAME).exists());
     }
     
     private Sample createFlowLineSample(int flowLineNumber)

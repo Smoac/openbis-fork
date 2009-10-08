@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 class FlowLineFeeder implements IPostRegistrationDatasetHandler
 {
+    static final String META_DATA_FILE_NAME = "meta-data.tsv";
     static final String FLOW_LINE_DROP_BOX_TEMPLATE = "flow-line-drop-box-template";
     static final String FILE_TYPE = ".srf";
     
@@ -143,7 +144,7 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
         {
             addLine(builder, property.getPropertyType().getLabel(), property.tryGetAsString());
         }
-        FileUtilities.writeToFile(new File(flowLineDataSet, "meta-data.tsv"), builder.toString());
+        FileUtilities.writeToFile(new File(flowLineDataSet, META_DATA_FILE_NAME), builder.toString());
     }
     
     private void addLine(StringBuilder builder, String key, String value)
