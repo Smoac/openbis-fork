@@ -55,6 +55,15 @@ public enum VocabularyTermColDefKind implements IColumnDefinitionKind<Vocabulary
             }
         }),
 
+	ORDINAL(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.ORDINAL, 100, true)
+        {
+            @Override
+            public String tryGetValue(VocabularyTermWithStats entity)
+            {
+                return entity.getTerm().getOrdinal().toString();
+            }
+        }),
+
     URL(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.URL, 200)
         {
             @Override
@@ -63,7 +72,7 @@ public enum VocabularyTermColDefKind implements IColumnDefinitionKind<Vocabulary
                 return entity.getTerm().getUrl();
             }
         }),
-
+        
     REGISTRATOR(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.REGISTRATOR)
         {
             @Override
@@ -82,8 +91,8 @@ public enum VocabularyTermColDefKind implements IColumnDefinitionKind<Vocabulary
                 return renderRegistrationDate(entity.getTerm());
             }
         }),
-
-    TOTAL_USAGE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.TERM_TOTAL_USAGE)
+        
+	TOTAL_USAGE(new AbstractColumnDefinitionKind<VocabularyTermWithStats>(Dict.TERM_TOTAL_USAGE)
         {
             @Override
             public String tryGetValue(VocabularyTermWithStats entity)

@@ -16,3 +16,9 @@ CREATE INDEX GRID_CUSTOM_COLUMNS_DBIN_FK_I ON GRID_CUSTOM_COLUMNS (DBIN_ID);
 -- drop troublesome unique constraint in events table
 
 ALTER TABLE EVENTS DROP CONSTRAINT EVNT_BK_UK;
+
+-- add ordinal column to controlled vocabulary terms table with initial value equal to id
+ALTER TABLE controlled_vocabulary_terms ADD COLUMN ordinal BIGINT;
+UPDATE controlled_vocabulary_terms SET ordinal = id;
+ALTER TABLE controlled_vocabulary_terms ALTER COLUMN ordinal SET NOT NULL;
+

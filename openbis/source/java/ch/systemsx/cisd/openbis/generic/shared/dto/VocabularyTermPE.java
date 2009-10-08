@@ -70,6 +70,8 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
 
     private String description;
 
+    private Long ordinal;
+
     private VocabularyPE vocabulary;
 
     public VocabularyTermPE()
@@ -111,6 +113,17 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     public void setLabel(final String label)
     {
         this.label = label;
+    }
+
+    @Column(name = ColumnNames.ORDINAL_COLUMN)
+    public Long getOrdinal()
+    {
+        return ordinal;
+    }
+
+    public void setOrdinal(Long ordinal)
+    {
+        this.ordinal = ordinal;
     }
 
     public void setId(final long id)
@@ -210,7 +223,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
 
     public final int compareTo(final VocabularyTermPE o)
     {
-        return AbstractIdAndCodeHolder.compare(this, o);
+        return this.getOrdinal().compareTo(o.getOrdinal());
     }
 
     @Transient

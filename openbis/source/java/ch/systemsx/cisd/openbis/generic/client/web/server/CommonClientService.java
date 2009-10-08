@@ -1198,6 +1198,12 @@ public final class CommonClientService extends AbstractClientService implements
                                 .getOriginalFilename()));
                 results.addAll(loadedTerms);
             }
+            // set initial order equivalent with order from the file
+            Long order = 1L;
+            for (VocabularyTerm term : results)
+            {
+                term.setOrdinal(order++);
+            }
             return results;
         }
 

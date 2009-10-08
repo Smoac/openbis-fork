@@ -129,7 +129,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setCode(sampleIdentifier.getSampleSubCode());
         samplePE.setRegistrator(findRegistrator());
         samplePE.setSampleType(sampleTypePE);
-        samplePE.setGroup(sampleOwner.tryGetGroup());
+        samplePE.setGroup(sampleOwner.tryGetGroup()); // FIXME 2009-10-08, Piotr Buczek
         samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         defineSampleProperties(samplePE, newSample.getProperties());
         String parentIdentifier = newSample.getParentIdentifier();

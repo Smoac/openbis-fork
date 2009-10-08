@@ -104,6 +104,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyTermPE.setDescription(description);
         vocabularyTermPE.setLabel(label);
         vocabularyTermPE.setRegistrator(findRegistrator());
+        vocabularyTermPE.setOrdinal(new Long(vocabularyPE.getTerms().size()));
         vocabularyPE.addTerm(vocabularyTermPE);
     }
 

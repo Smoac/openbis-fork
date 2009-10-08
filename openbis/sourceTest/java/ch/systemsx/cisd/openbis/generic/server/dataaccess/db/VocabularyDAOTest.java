@@ -45,11 +45,12 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Friend(toClasses = VocabularyPE.class)
 public final class VocabularyDAOTest extends AbstractDAOTest
 {
-    private final VocabularyTermPE createVocabularyTerm(final String code)
+    private final VocabularyTermPE createVocabularyTerm(final String code, final int ordinal)
     {
         final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
         vocabularyTermPE.setRegistrator(getSystemPerson());
         vocabularyTermPE.setCode(code);
+        vocabularyTermPE.setOrdinal(new Long(ordinal));
         return vocabularyTermPE;
     }
 
@@ -92,9 +93,9 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         vocabularyPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         vocabularyPE.setDescription("The format description");
         vocabularyPE.setRegistrator(registrator);
-        vocabularyPE.addTerm(createVocabularyTerm("SMALL"));
-        vocabularyPE.addTerm(createVocabularyTerm("MEDIUM"));
-        vocabularyPE.addTerm(createVocabularyTerm("BIG:.-_-"));
+        vocabularyPE.addTerm(createVocabularyTerm("SMALL", 1));
+        vocabularyPE.addTerm(createVocabularyTerm("MEDIUM", 2));
+        vocabularyPE.addTerm(createVocabularyTerm("BIG:.-_-", 3));
         vocabularyDAO.createOrUpdateVocabulary(vocabularyPE);
         // Check saved vocabulary.
         final VocabularyPE savedVocabulary = vocabularyDAO.tryFindVocabularyByCode(vocabularyCode);
@@ -120,7 +121,7 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         VocabularyTermPE termPE =
                 vocabularyDAO.tryFindVocabularyTermByCode(vocabularyPE, realTermCode);
         assertNotNull(termPE);
-        VocabularyTermPE realTermPE = createVocabularyTerm(realTermCode);
+        VocabularyTermPE realTermPE = createVocabularyTerm(realTermCode, 8);
         realTermPE.setVocabulary(vocabularyPE);
         assertEquals(termPE, realTermPE);
     }

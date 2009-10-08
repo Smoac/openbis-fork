@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -66,6 +65,7 @@ public class VocabularyTermSelectionWidget extends
                 viewContext, null, initialTermCodeOrNull).asDatabaseModificationAware();
     }
 
+    // TODO 2009-10-08, Piotr Buczek: use this for ordinal edition
     /**
      * Allows to choose one of the specified vocabulary terms.
      */
@@ -104,7 +104,6 @@ public class VocabularyTermSelectionWidget extends
     {
         final List<VocabularyTermModel> models = new ArrayList<VocabularyTermModel>();
         models.addAll(convertItems(terms));
-        Collections.sort(models);
         updateStore(models);
         getPropertyEditor().setList(store.getModels());
     }
@@ -168,15 +167,15 @@ public class VocabularyTermSelectionWidget extends
     }
 
     private native String getTooltipTemplate(String displayField, String tooltipField) /*-{ 
-             return  [ 
-             '<tpl for=".">', 
-             '<div class="x-combo-list-item" qtip="{[values.',
-             tooltipField,
-             ']}">{[values.',
-             displayField,
-             ']}</div>', 
-             '</tpl>' 
-             ].join(""); 
-           }-*/;
+                   return  [ 
+                   '<tpl for=".">', 
+                   '<div class="x-combo-list-item" qtip="{[values.',
+                   tooltipField,
+                   ']}">{[values.',
+                   displayField,
+                   ']}</div>', 
+                   '</tpl>' 
+                   ].join(""); 
+                 }-*/;
 
 }

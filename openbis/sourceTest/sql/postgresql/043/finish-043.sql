@@ -63,8 +63,6 @@ ALTER TABLE ONLY experiment_type_property_types
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_pk PRIMARY KEY (id);
 ALTER TABLE ONLY events
-    ADD CONSTRAINT evnt_bk_uk UNIQUE (event_type, entity_type, identifier);
-ALTER TABLE ONLY events
     ADD CONSTRAINT evnt_pk PRIMARY KEY (id);
 ALTER TABLE ONLY attachment_contents
     ADD CONSTRAINT exac_pk PRIMARY KEY (id);
@@ -496,5 +494,24 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
-
+REVOKE ALL ON SEQUENCE authorization_group_id_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE authorization_group_id_seq FROM buczekp;
+GRANT ALL ON SEQUENCE authorization_group_id_seq TO buczekp;
+GRANT SELECT ON SEQUENCE authorization_group_id_seq TO openbis_readonly;
+REVOKE ALL ON TABLE authorization_group_persons FROM PUBLIC;
+REVOKE ALL ON TABLE authorization_group_persons FROM buczekp;
+GRANT ALL ON TABLE authorization_group_persons TO buczekp;
+GRANT SELECT ON TABLE authorization_group_persons TO openbis_readonly;
+REVOKE ALL ON TABLE authorization_groups FROM PUBLIC;
+REVOKE ALL ON TABLE authorization_groups FROM buczekp;
+GRANT ALL ON TABLE authorization_groups TO buczekp;
+GRANT SELECT ON TABLE authorization_groups TO openbis_readonly;
+REVOKE ALL ON SEQUENCE filter_id_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE filter_id_seq FROM buczekp;
+GRANT ALL ON SEQUENCE filter_id_seq TO buczekp;
+GRANT SELECT ON SEQUENCE filter_id_seq TO openbis_readonly;
+REVOKE ALL ON TABLE filters FROM PUBLIC;
+REVOKE ALL ON TABLE filters FROM buczekp;
+GRANT ALL ON TABLE filters TO buczekp;
+GRANT SELECT ON TABLE filters TO openbis_readonly;
 

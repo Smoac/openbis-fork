@@ -1,6 +1,5 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
-
 /**
  * A record object for a vocabulary term.
  */
@@ -13,4 +12,6 @@ public class VocabularyTermRecord extends BaseEntityPropertyRecord
     public String code;
 
     public String label;
+
+    public long ordinal;
 }

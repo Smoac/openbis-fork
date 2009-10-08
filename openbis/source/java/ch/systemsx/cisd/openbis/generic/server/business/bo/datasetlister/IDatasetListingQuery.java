@@ -143,7 +143,7 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
      * 
      * @param entityIds The set of sample ids to get the property values for.
      */
-    @Select(sql = "select pr.ds_id as entity_id, etpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label"
+    @Select(sql = "select pr.ds_id as entity_id, etpt.prty_id, cvte.id, cvte.covo_id, cvte.code, cvte.label, cvte.ordinal"
             + "      from data_set_properties pr"
             + "      join data_set_type_property_types etpt on pr.dstpt_id=etpt.id"
             + "      join controlled_vocabulary_terms cvte on pr.cvte_id=cvte.id"

@@ -342,7 +342,8 @@ CREATE TABLE controlled_vocabulary_terms (
     covo_id tech_id NOT NULL,
     pers_id_registerer tech_id NOT NULL,
     label column_label,
-    description description_1000
+    description description_1000,
+    ordinal bigint NOT NULL
 );
 CREATE SEQUENCE cvte_id_seq
     INCREMENT BY 1

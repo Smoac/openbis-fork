@@ -61,14 +61,14 @@ insert into controlled_vocabularies
        , description
        , pers_id_registerer
        , is_managed_internally
-       , dbin_id )
+       , dbin_id)
 values  (nextval('CONTROLLED_VOCABULARY_ID_SEQ')
        , 'STORAGE_FORMAT'
        , true
        , 'The on-disk storage format of a data set'
        , (select id from persons where user_id ='system')
        , true
-       ,(select id from database_instances where code = 'SYSTEM_DEFAULT'));
+       , (select id from database_instances where code = 'SYSTEM_DEFAULT'));
 
 
 -----------------------------------------------------------------------------------
@@ -78,21 +78,25 @@ insert into controlled_vocabulary_terms
        ( id
        , code
        , covo_id 
-       , pers_id_registerer )
+       , pers_id_registerer
+       , ordinal )
 values  (nextval('CVTE_ID_SEQ')
        , 'PROPRIETARY'
        , (select id from controlled_vocabularies where code = 'STORAGE_FORMAT' and is_internal_namespace = true)
-       , (select id from persons where user_id ='system'));
+       , (select id from persons where user_id ='system')
+       , 1);
 
 insert into controlled_vocabulary_terms 
        ( id
        , code
        , covo_id 
-       , pers_id_registerer )
+       , pers_id_registerer
+       , ordinal)
 values  (nextval('CVTE_ID_SEQ')
        , 'BDS_DIRECTORY'
        , (select id from controlled_vocabularies where code = 'STORAGE_FORMAT' and is_internal_namespace = true)
-       , (select id from persons where user_id ='system'));
+       , (select id from persons where user_id ='system')
+       , 2);
 
 ------------------------------------------------------------------
 --  Purpose:  Insert an initial data set into the table DATA_TYPES

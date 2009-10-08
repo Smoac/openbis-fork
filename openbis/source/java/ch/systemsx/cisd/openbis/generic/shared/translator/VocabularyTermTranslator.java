@@ -47,6 +47,7 @@ public class VocabularyTermTranslator
         result.setCode(StringEscapeUtils.escapeHtml(vt.getCode()));
         result.setLabel(StringEscapeUtils.escapeHtml(vt.getLabel()));
         result.setDescription(StringEscapeUtils.escapeHtml(vt.getDescription()));
+        result.setOrdinal(vt.getOrdinal());
         result.setUrl(StringEscapeUtils.escapeHtml(vt.getUrl()));
         result.setRegistrationDate(vt.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(vt.getRegistrator()));

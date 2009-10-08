@@ -36,6 +36,8 @@ public final class VocabularyTerm extends CodeWithRegistration<Vocabulary> imple
 
     private String url;
 
+    private Long ordinal;
+
     public VocabularyTerm()
     {
     }
@@ -99,5 +101,15 @@ public final class VocabularyTerm extends CodeWithRegistration<Vocabulary> imple
     public void setUrl(String url)
     {
         this.url = url;
+    }
+
+    public Long getOrdinal()
+    {
+        return ordinal;
+    }
+
+    public void setOrdinal(Long ordinal)
+    {
+        this.ordinal = ordinal;
     }
 }

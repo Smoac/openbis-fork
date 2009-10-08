@@ -150,6 +150,8 @@ public final class ColumnNames
 
     public static final String MATERIAL_TYPE_PROPERTY_TYPE_COLUMN = "mtpt_id";
 
+    public static final String ORDINAL_COLUMN = "ordinal";
+
     public static final String PARENT_DATA_SET_CODE_COLUMN = "data_producer_code";
 
     public static final String PART_OF_DEPTH = "part_of_depth";

@@ -29,6 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  */
 public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
     private ListSampleCriteria listCriteria;
 
     private Collection<Long> sampleIds;

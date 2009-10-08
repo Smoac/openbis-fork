@@ -39,9 +39,9 @@ public class VocabularyTermModel extends BaseModel implements Comparable<Vocabul
     public VocabularyTermModel(VocabularyTerm term)
     {
         set(ModelDataPropertyNames.CODE, term.getCode());
+        set(ModelDataPropertyNames.ORDINAL, term.getOrdinal());
         set(ModelDataPropertyNames.CODE_WITH_LABEL, getCodeWithLabel(term));
-        set(ModelDataPropertyNames.TOOLTIP, VocabularyPropertyColRenderer
-                .renderAsTooltip(term));
+        set(ModelDataPropertyNames.TOOLTIP, VocabularyPropertyColRenderer.renderAsTooltip(term));
         set(ModelDataPropertyNames.OBJECT, term);
     }
 
@@ -76,9 +76,9 @@ public class VocabularyTermModel extends BaseModel implements Comparable<Vocabul
     }
 
     /** @return value that will be used to compare Vocabulary Terms and display them in order */
-    private String getValueToCompare()
+    private Long getValueToCompare()
     {
-        return get(ModelDataPropertyNames.CODE_WITH_LABEL);
+        return get(ModelDataPropertyNames.ORDINAL); 
     }
 
 }
