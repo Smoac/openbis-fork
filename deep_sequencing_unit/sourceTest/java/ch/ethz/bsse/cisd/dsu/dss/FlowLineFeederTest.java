@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -186,8 +187,8 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
     public void testUndoLastOperation()
     {
         testHappyCase();
-        assertEquals(1, new File(workingDirectory, DROP_BOX_PREFIX + "1").list().length);
-        assertEquals(1, new File(workingDirectory, DROP_BOX_PREFIX + "2").list().length);
+        assertEquals(2, new File(workingDirectory, DROP_BOX_PREFIX + "1").list().length);
+        assertEquals(2, new File(workingDirectory, DROP_BOX_PREFIX + "2").list().length);
         
         flowLineFeeder.undoLastOperation();
         
@@ -245,7 +246,8 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
     private void checkFlowLineDataSet(File originalFlowLine, String flowLineNumber)
     {
         File dropBox = new File(workingDirectory, DROP_BOX_PREFIX + flowLineNumber);
-        File ds = new File(dropBox, "abc_" + flowLineNumber);
+        String fileName = "abc_" + flowLineNumber;
+        File ds = new File(dropBox, fileName);
         assertEquals(true, ds.isDirectory());
 
         File flowLine = new File(ds, originalFlowLine.getName());
@@ -257,6 +259,7 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
         originalFlowLine.setLastModified(4711000);
         assertEquals(4711000, flowLine.lastModified());
         assertEquals(true, new File(ds, FlowLineFeeder.META_DATA_FILE_NAME).exists());
+        assertEquals(true, new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName).exists());
     }
     
     private Sample createFlowLineSample(int flowLineNumber)

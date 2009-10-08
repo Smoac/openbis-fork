@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -82,7 +83,8 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
         {
             String flowLine = extractFlowLine(file);
             File dropBox = createDropBoxFile(flowLine);
-            File flowLineDataSet = new File(dropBox, flowcellID + "_" + flowLine);
+            String fileName = flowcellID + "_" + flowLine;
+            File flowLineDataSet = new File(dropBox, fileName);
             if (flowLineDataSet.exists())
             {
                 throw new EnvironmentFailureException("There is already a data set for flow line "
@@ -103,6 +105,9 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
                         + file.getAbsolutePath() + "' in folder '"
                         + flowLineDataSet.getAbsolutePath() + "'.");
             }
+            File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName);
+            flowLineDataSets.add(markerFile);
+            FileUtilities.writeToFile(markerFile, "");
         }
 
     }
@@ -198,7 +203,10 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
     {
         for (File file : flowLineDataSets)
         {
-            fileOperations.deleteRecursively(file);
+            if (file.exists())
+            {
+                fileOperations.deleteRecursively(file);
+            }
         }
     }
 
