@@ -239,7 +239,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     {
         if (getVocabularyTerm() != null)
         {
-            return getVocabularyTerm().getCode();
+            return getVocabularyTerm().getCode() + " " + getVocabularyTerm().getLabel();
         } else if (getMaterialValue() != null)
         {
             return createMaterialIdentifier(getMaterialValue()).print();
