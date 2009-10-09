@@ -302,7 +302,7 @@ public final class CommonServerTest extends AbstractServerTestCase
 
         final Session s = createServer().tryToAuthenticate(user, password);
 
-        assertSame(session, s);
+        assertEquals(session.toString(), s.toString());
         assertEquals(person, s.tryGetPerson());
 
         context.assertIsSatisfied();
