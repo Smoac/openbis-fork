@@ -98,6 +98,7 @@ public class DataSetUploadForm extends AbstractRegistrationForm
                         viewContext);
         formPanel.add(experimentChooser.getField());
         formPanel.add(parentsArea = new DataSetParentsArea(viewContext, ID_SUFFIX));
+        parentsArea.setMaxLength(1500);
 
         connectedWithSampleCheckbox.addListener(Events.Change, new Listener<FieldEvent>()
             {
