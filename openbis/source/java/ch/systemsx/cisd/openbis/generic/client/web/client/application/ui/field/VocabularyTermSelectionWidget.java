@@ -51,8 +51,6 @@ public class VocabularyTermSelectionWidget extends
 
     private String initialTermCodeOrNull;
 
-    private boolean dataLoaded = false;
-
     /**
      * Allows to choose one of the specified vocabulary's terms, is able to refresh the available
      * terms by calling the server.
@@ -65,7 +63,6 @@ public class VocabularyTermSelectionWidget extends
                 viewContext, null, initialTermCodeOrNull).asDatabaseModificationAware();
     }
 
-    // TODO 2009-10-08, Piotr Buczek: use this for ordinal edition
     /**
      * Allows to choose one of the specified vocabulary terms.
      */
@@ -106,6 +103,7 @@ public class VocabularyTermSelectionWidget extends
         models.addAll(convertItems(terms));
         updateStore(models);
         getPropertyEditor().setList(store.getModels());
+        selectInitialValue();
     }
 
     @Override
@@ -129,10 +127,9 @@ public class VocabularyTermSelectionWidget extends
         return DatabaseModificationKind.any(ObjectKind.VOCABULARY_TERM);
     }
 
-    public void selectTermAndUpdateOriginal(String term)
+    public void selectInitialValue()
     {
-        this.initialTermCodeOrNull = term;
-        if (dataLoaded && initialTermCodeOrNull != null)
+        if (initialTermCodeOrNull != null)
         {
             trySelectByCode(initialTermCodeOrNull);
             updateOriginalValue();
@@ -161,8 +158,7 @@ public class VocabularyTermSelectionWidget extends
         public void process(List<VocabularyTerm> result)
         {
             super.process(result);
-            dataLoaded = true;
-            selectTermAndUpdateOriginal(initialTermCodeOrNull);
+            selectInitialValue();
         }
     }
 
@@ -177,5 +173,4 @@ public class VocabularyTermSelectionWidget extends
                    '</tpl>' 
                    ].join(""); 
                  }-*/;
-
 }

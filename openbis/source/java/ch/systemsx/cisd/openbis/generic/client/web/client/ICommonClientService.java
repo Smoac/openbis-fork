@@ -459,9 +459,12 @@ public interface ICommonClientService extends IClientService
      */
     public void updateVocabulary(final IVocabularyUpdates updates) throws UserFailureException;
 
-    /** Adds specified terms to the specified vocabulary. */
-    public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms)
-            throws UserFailureException;
+    /**
+     * Adds specified terms to the specified vocabulary after specified ordinal (first shift all
+     * terms with bigger ordinal).
+     */
+    public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
+            Long previousTermOrdinal) throws UserFailureException;
 
     /**
      * Updates vocabulary term.

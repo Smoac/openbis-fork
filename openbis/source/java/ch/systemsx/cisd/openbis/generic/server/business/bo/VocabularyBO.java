@@ -76,46 +76,58 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         vocabularyPE.setDescription(vocabulary.getDescription());
         vocabularyPE.setChosenFromList(vocabulary.isChosenFromList());
         vocabularyPE.setURLTemplate(vocabulary.getURLTemplate());
+        Long currentTermOrdinal = 1L;
         for (final VocabularyTerm term : vocabulary.getTerms())
         {
-            addTerm(term);
+            addTerm(term, currentTermOrdinal++);
         }
     }
 
-    public void addNewTerms(List<String> newTermCodes)
+    public void addNewTerms(List<String> newTermCodes, Long previousTermOrdinal)
     {
         assert vocabularyPE != null : "Unspecified vocabulary";
+        assert previousTermOrdinal != null : "Unspecified previous term ordinal";
         if (vocabularyPE.isManagedInternally())
         {
             throw new UserFailureException(
                     "Not allowed to add terms to an internally managed vocabulary.");
         }
 
+        // need to shift existing terms to create space for new terms
+        increaseVocabularyTermOrdinals(previousTermOrdinal + 1, newTermCodes.size());
+        Long currentTermOrdinal = previousTermOrdinal + 1;
         for (String code : newTermCodes)
         {
-            addTerm(code);
+            addTerm(code, currentTermOrdinal++);
         }
     }
 
-    private void addTerm(String code, String description, String label)
+    /** shift terms in vocabulary by specified increment starting from term with specified ordinal */
+    private void increaseVocabularyTermOrdinals(Long startOrdinal, int increment)
+    {
+        getVocabularyTermDAO()
+                .increaseVocabularyTermOrdinals(vocabularyPE, startOrdinal, increment);
+    }
+
+    private void addTerm(String code, String description, String label, Long ordinal)
     {
         final VocabularyTermPE vocabularyTermPE = new VocabularyTermPE();
         vocabularyTermPE.setCode(code);
         vocabularyTermPE.setDescription(description);
         vocabularyTermPE.setLabel(label);
         vocabularyTermPE.setRegistrator(findRegistrator());
-        vocabularyTermPE.setOrdinal(new Long(vocabularyPE.getTerms().size()));
+        vocabularyTermPE.setOrdinal(ordinal);
         vocabularyPE.addTerm(vocabularyTermPE);
     }
 
-    private void addTerm(String code)
+    private void addTerm(String code, Long ordinal)
     {
-        addTerm(code, null, null);
+        addTerm(code, null, null, ordinal);
     }
 
-    private void addTerm(VocabularyTerm term)
+    private void addTerm(VocabularyTerm term, Long ordinal)
     {
-        addTerm(term.getCode(), term.getDescription(), term.getLabel());
+        addTerm(term.getCode(), term.getDescription(), term.getLabel(), ordinal);
     }
 
     public void delete(List<VocabularyTerm> termsToBeDeleted,

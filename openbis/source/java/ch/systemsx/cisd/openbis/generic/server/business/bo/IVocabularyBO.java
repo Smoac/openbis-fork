@@ -70,8 +70,10 @@ public interface IVocabularyBO extends IEntityBusinessObject
 
     /**
      * Add terms with specified codes to a loaded vocabulary.
+     * 
+     * @param previousTermOrdinal ordinal of term after which new terms should be added
      */
-    void addNewTerms(List<String> newTerms);
+    void addNewTerms(List<String> newTerms, Long previousTermOrdinal);
 
     /**
      * Deletes the specified terms from a loaded vocabulary and replaces terms which are used.

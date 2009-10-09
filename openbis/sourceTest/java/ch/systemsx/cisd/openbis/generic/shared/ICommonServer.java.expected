@@ -456,13 +456,13 @@ public interface ICommonServer extends IServer
             String reason);
 
     /**
-     * Adds new terms to a vocabulary.
+     * Adds new terms to a vocabulary starting from specified ordinal + 1.
      */
     @Transactional
     @RolesAllowed(RoleSet.POWER_USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.VOCABULARY_TERM)
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<String> vocabularyTerms);
+            List<String> vocabularyTerms, Long previousTermOrdinal);
 
     /**
      * Updates a vocabulary term.

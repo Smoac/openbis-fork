@@ -49,8 +49,19 @@ public final class VocabularyTermBO extends AbstractBusinessObject implements IV
 
         vocabularyTermPE.setDescription(updates.getDescription());
         vocabularyTermPE.setLabel(updates.getLabel());
-
+        // if ordinal was changed some terms in vocabulary need to be shifted by 1
+        if (vocabularyTermPE.getOrdinal().equals(updates.getOrdinal()) == false)
+        {
+            increaseVocabularyTermOrdinals(updates.getOrdinal());
+            vocabularyTermPE.setOrdinal(updates.getOrdinal());
+        }
         validateAndSave();
+    }
+
+    private void increaseVocabularyTermOrdinals(Long fromOrdinal)
+    {
+        getVocabularyTermDAO().increaseVocabularyTermOrdinals(vocabularyTermPE.getVocabulary(),
+                fromOrdinal, 1);
     }
 
     private void validateAndSave()

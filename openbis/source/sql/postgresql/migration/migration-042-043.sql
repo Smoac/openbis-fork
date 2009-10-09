@@ -17,8 +17,15 @@ CREATE INDEX GRID_CUSTOM_COLUMNS_DBIN_FK_I ON GRID_CUSTOM_COLUMNS (DBIN_ID);
 
 ALTER TABLE EVENTS DROP CONSTRAINT EVNT_BK_UK;
 
--- add ordinal column to controlled vocabulary terms table with initial value equal to id
+-- Add ordinal column that is a positive and not null integer to controlled vocabulary terms table. 
+-- Initially ordinal values of terms in one controlled vocabulary start from 1 
+-- and increase with increase of term id (so initial order will depend on registration order). 
+-- Ordinals should be unique inside a controlled vocabulary but because we use bulk update we can't
+-- easily create this constraint.
 ALTER TABLE controlled_vocabulary_terms ADD COLUMN ordinal BIGINT;
-UPDATE controlled_vocabulary_terms SET ordinal = id;
+UPDATE controlled_vocabulary_terms SET ordinal = (
+	SELECT count(*) FROM controlled_vocabulary_terms c 
+	WHERE c.covo_id = controlled_vocabulary_terms.covo_id AND c.id <= controlled_vocabulary_terms.id
+);
 ALTER TABLE controlled_vocabulary_terms ALTER COLUMN ordinal SET NOT NULL;
-
+ALTER TABLE controlled_vocabulary_terms ADD CONSTRAINT cvte_ck CHECK (ordinal > 0);

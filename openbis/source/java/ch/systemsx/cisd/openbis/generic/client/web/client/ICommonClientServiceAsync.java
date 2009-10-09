@@ -390,9 +390,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateVocabulary(final IVocabularyUpdates updates,
             final AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#addVocabularyTerms(TechId, List) */
+    /** @see ICommonClientService#addVocabularyTerms(TechId, List, Long) */
     public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
-            AsyncCallback<Void> callback);
+            Long previousTermOrdinal, AsyncCallback<Void> callback);
 
     /** @see ICommonClientService#updateVocabularyTerm(IVocabularyTermUpdates) */
     public void updateVocabularyTerm(final IVocabularyTermUpdates updates,

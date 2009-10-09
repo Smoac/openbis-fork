@@ -24,7 +24,10 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * <i>Data Access Object</i> implementation for {@link VocabularyTermPE}.
@@ -52,5 +55,14 @@ final class VocabularyTermDAO extends AbstractGenericEntityDAO<VocabularyTermPE>
     {
         assert pe != null : "pe is null";
         validatePE(pe);
+    }
+
+    public void increaseVocabularyTermOrdinals(VocabularyPE vocabulary, Long fromOrdinal,
+            int increment)
+    {
+        Long vocabularyId = HibernateUtils.getId(vocabulary);
+        executeUpdate("UPDATE " + TableNames.CONTROLLED_VOCABULARY_TERM_TABLE
+                + " SET ordinal = ordinal + ?" + " WHERE covo_id = ? AND ordinal >= ?", increment,
+                vocabularyId, fromOrdinal);
     }
 }

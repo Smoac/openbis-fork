@@ -1209,7 +1209,8 @@ public final class CommonClientService extends AbstractClientService implements
 
     }
 
-    public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms)
+    public void addVocabularyTerms(TechId vocabularyId, List<String> vocabularyTerms,
+            Long previousTermOrdinal)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert vocabularyId != null : "Unspecified vocabulary id.";
@@ -1219,7 +1220,8 @@ public final class CommonClientService extends AbstractClientService implements
             try
             {
                 final String sessionToken = getSessionToken();
-                commonServer.addVocabularyTerms(sessionToken, vocabularyId, vocabularyTerms);
+                commonServer.addVocabularyTerms(sessionToken, vocabularyId, vocabularyTerms,
+                        previousTermOrdinal);
             } catch (final UserFailureException e)
             {
                 throw UserFailureExceptionTranslator.translate(e);

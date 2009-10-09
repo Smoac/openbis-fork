@@ -29,4 +29,6 @@ public interface IVocabularyTermUpdates extends IIdHolder, ICodeProvider
     String getDescription();
 
     String getLabel();
+
+    Long getOrdinal();
 }

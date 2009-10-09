@@ -893,6 +893,7 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final List<String> terms = Arrays.asList("a", "b");
         final TechId vocabularyId = CommonTestUtils.TECH_ID;
+        final Long previousTermOrdinal = 0L;
         prepareGetSession();
         context.checking(new Expectations()
             {
@@ -901,12 +902,12 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(vocabularyBO));
 
                     one(vocabularyBO).loadDataByTechId(vocabularyId);
-                    one(vocabularyBO).addNewTerms(terms);
+                    one(vocabularyBO).addNewTerms(terms, previousTermOrdinal);
                     one(vocabularyBO).save();
                 }
             });
 
-        createServer().addVocabularyTerms(SESSION_TOKEN, vocabularyId, terms);
+        createServer().addVocabularyTerms(SESSION_TOKEN, vocabularyId, terms, previousTermOrdinal);
 
         context.assertIsSatisfied();
     }

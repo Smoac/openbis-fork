@@ -23,12 +23,9 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
@@ -37,7 +34,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -80,10 +76,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTermWithStats>
 {
-    private static final int NEW_TERMS_DIALOG_WIDTH = 300;
-
-    private static final int NEW_TERMS_DIALOG_HEIGHT = 250;
-
     private static final int FIELD_WIDTH_IN_REPLACEMENT_DIALOG = 200;
 
     private static final int LABEL_WIDTH_IN_REPLACEMENT_DIALOG = 200;
@@ -135,7 +127,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    askForNewTerms();
+                    createAddNewTermsDialog().show();
                 }
             });
         addButton(addButton);
@@ -195,11 +187,12 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
 
                 private final TextField<String> labelField;
 
+                private final VocabularyTermSelectionWidget termSelectionWidget;
+
                 {
                     boolean mandatory = false;
 
                     labelField = createTextField(viewContext.getMessage(Dict.LABEL), mandatory);
-
                     labelField.setValue(StringEscapeUtils.unescapeHtml(label));
                     labelField.setMaxLength(GenericConstants.COLUMN_LABEL);
                     addField(labelField);
@@ -207,6 +200,16 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     descriptionField = createDescriptionField(viewContext, mandatory);
                     descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
                     addField(descriptionField);
+
+                    // if vocabulary term cannot be choosen from list there is no need to edit order
+                    if (vocabulary.isChosenFromList())
+                    {
+                        termSelectionWidget = createTermSelectionWidget();
+                        addField(termSelectionWidget);
+                    } else
+                    {
+                        termSelectionWidget = null;
+                    }
                 }
 
                 @Override
@@ -216,6 +219,44 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     term.setLabel(labelField.getValue());
 
                     viewContext.getService().updateVocabularyTerm(term, registrationCallback);
+                }
+
+                private VocabularyTermSelectionWidget createTermSelectionWidget()
+                {
+                    List<VocabularyTerm> allTerms = getTerms();
+                    String previousTermCodeOrNull = null;
+                    for (int i = 0; i < allTerms.size(); i++)
+                    {
+                        final String currentTermCode = allTerms.get(i).getCode();
+                        if (term.getCode().equals(currentTermCode))
+                        {
+                            allTerms.remove(i);
+                            break;
+                        }
+                        previousTermCodeOrNull = currentTermCode;
+                    }
+                    boolean mandatory = false;
+                    VocabularyTermSelectionWidget result =
+                            new VocabularyTermSelectionWidget(getId() + term, "Position after",
+                                    mandatory, allTerms, previousTermCodeOrNull);
+                    result.setEmptyText("empty value == beginning");
+
+                    result
+                            .addSelectionChangedListener(new SelectionChangedListener<VocabularyTermModel>()
+                                {
+                                    @Override
+                                    public void selectionChanged(
+                                            SelectionChangedEvent<VocabularyTermModel> se)
+                                    {
+                                        VocabularyTermModel selectedItem = se.getSelectedItem();
+                                        // set ordinal to:
+                                        // - 0 if nothing is selected,
+                                        // - (otherwise) selected term's ordinal + 1
+                                        term.setOrdinal((selectedItem != null) ? selectedItem
+                                                .getTerm().getOrdinal() + 1 : 0);
+                                    }
+                                });
+                    return result;
                 }
             };
     }
@@ -292,43 +333,87 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         viewContext.getService().prepareExportVocabularyTerms(exportCriteria, callback);
     }
 
-    private void askForNewTerms()
+    private Window createAddNewTermsDialog()
     {
-        final TextArea textArea = new TextArea();
-        textArea.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
-        textArea.setValidator(new VocabularyTermValidator(viewContext));
-        String heading = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_TITLE);
-        String okButtonLabel = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_OK_BUTTON);
-        HorizontalPanel panel = new HorizontalPanel();
-        panel.setLayout(new FitLayout());
-        panel.add(textArea);
-        panel.setBorders(false);
-        final SimpleDialog dialog = new SimpleDialog(panel, heading, okButtonLabel, viewContext);
-        dialog.setWidth(NEW_TERMS_DIALOG_WIDTH);
-        textArea.setWidth(NEW_TERMS_DIALOG_WIDTH - 65);
-        dialog.setHeight(NEW_TERMS_DIALOG_HEIGHT);
-        textArea.setHeight(NEW_TERMS_DIALOG_HEIGHT - 65);
-        textArea.addKeyListener(new KeyListener()
+        final String title = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_TITLE);
+
+        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
+                private final VocabularyTermSelectionWidget termSelectionWidget;
+
+                private final TextArea newTermCodesArea;
+
+                {
+                    newTermCodesArea = createNewTermCodesArea();
+                    addField(newTermCodesArea);
+
+                    // if vocabulary term cannot be choosen from list there is no need to edit order
+                    if (vocabulary.isChosenFromList())
+                    {
+                        termSelectionWidget = createTermSelectionWidget();
+                        addField(termSelectionWidget);
+                    } else
+                    {
+                        termSelectionWidget = null;
+                    }
+                }
+
                 @Override
-                public void handleEvent(ComponentEvent ce)
+                protected void register(AsyncCallback<Void> registrationCallback)
                 {
-                    textArea.validate();
-                    dialog.setEnableOfAcceptButton(textArea.isValid());
+                    List<String> newVocabularyTermCodes = extractNewVocabularyTermCodes();
+                    Long previousTermOrdinal = extractPreviousTermOrdinal();
+                    viewContext.getService().addVocabularyTerms(TechId.create(vocabulary),
+                            newVocabularyTermCodes, previousTermOrdinal, registrationCallback);
                 }
-            });
-        dialog.setAcceptAction(new IDelegatedAction()
-            {
-                public void execute()
+
+                private TextArea createNewTermCodesArea()
                 {
-                    viewContext.getCommonService().addVocabularyTerms(TechId.create(vocabulary),
-                            VocabularyTermValidator.getTerms(textArea.getValue()),
-                            new RefreshCallback(viewContext));
+                    final TextArea result = new TextArea();
+                    result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
+                    result.setValidator(new VocabularyTermValidator(viewContext));
+                    return result;
                 }
-            });
-        dialog.setEnableOfAcceptButton(false);
-        dialog.layout();
-        dialog.show();
+
+                private VocabularyTermSelectionWidget createTermSelectionWidget()
+                {
+                    // by default - append
+                    final List<VocabularyTerm> allTerms = getTerms();
+                    final String lastTermCodeOrNull =
+                            (allTerms.size() > 0) ? allTerms.get(allTerms.size() - 1).getCode()
+                                    : null;
+                    boolean mandatory = false;
+                    VocabularyTermSelectionWidget result =
+                            new VocabularyTermSelectionWidget(getId() + "_add_terms",
+                                    "Position after", mandatory, allTerms, lastTermCodeOrNull);
+                    result.setEmptyText("empty value == beginning");
+                    return result;
+                }
+
+                private List<String> extractNewVocabularyTermCodes()
+                {
+                    return VocabularyTermValidator.getTerms(newTermCodesArea.getValue());
+                }
+
+                /**
+                 * extracts ordinal of a term after which new terms will be added
+                 */
+                private Long extractPreviousTermOrdinal()
+                {
+                    if (termSelectionWidget == null)
+                    {
+                        // last terms position (append) if vocabulary will not be chosen from list
+                        final List<VocabularyTerm> allTerms = getTerms();
+                        return (allTerms.size() > 0) ? allTerms.get(allTerms.size() - 1)
+                                .getOrdinal() : 0L;
+                    } else
+                    {
+                        // 0 if nothing was selected to enable prepend
+                        VocabularyTermModel selectedItem = termSelectionWidget.getValue();
+                        return selectedItem != null ? selectedItem.getTerm().getOrdinal() : 0L;
+                    }
+                }
+            };
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

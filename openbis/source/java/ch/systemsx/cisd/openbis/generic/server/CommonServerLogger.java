@@ -45,9 +45,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IGroupUpdates;
@@ -369,10 +369,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public void addVocabularyTerms(String sessionToken, TechId vocabularyId,
-            List<String> vocabularyTerms)
+            List<String> vocabularyTerms, Long previousTermOrdinal)
     {
-        logTracking(sessionToken, "add_vocabulary_terms", "ID(%s) NUMBER_OF_TERMS(%s)",
-                vocabularyId, Integer.toString(vocabularyTerms.size()));
+        logTracking(sessionToken, "add_vocabulary_terms",
+                "ID(%s) NUMBER_OF_TERMS(%s) PREVIOUS_ORDINAL(%s)", vocabularyId, Integer
+                        .toString(vocabularyTerms.size()), Long.toString(previousTermOrdinal));
     }
 
     public void updateVocabularyTerm(String sessionToken, IVocabularyTermUpdates updates)

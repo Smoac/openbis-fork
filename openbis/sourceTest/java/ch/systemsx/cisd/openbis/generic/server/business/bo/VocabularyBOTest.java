@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -246,24 +245,36 @@ public final class VocabularyBOTest extends AbstractBOTest
     public void testAddNewTerms()
     {
         final VocabularyPE vocabulary = new VocabularyPE();
+        final VocabularyBO vocabularyBO = createVocabularyBO();
+        final List<String> newTerms = Arrays.asList("a", "b");
+        final Long previousTermPosition = 5L;
+
         context.checking(new Expectations()
             {
                 {
                     one(vocabularyDAO).tryFindVocabularyByCode("voc-code");
                     will(returnValue(vocabulary));
+
+                    one(vocabularyTermDAO).increaseVocabularyTermOrdinals(vocabulary,
+                            previousTermPosition + 1, newTerms.size());
                 }
             });
 
-        VocabularyBO vocabularyBO = createVocabularyBO();
         vocabularyBO.load("voc-code");
-        List<String> newTerms = Arrays.asList("a");
-        vocabularyBO.addNewTerms(newTerms);
+        vocabularyBO.addNewTerms(newTerms, previousTermPosition);
 
-        Set<VocabularyTermPE> terms = vocabularyBO.getVocabulary().getTerms();
-        assertEquals(1, terms.size());
-        VocabularyTermPE term = terms.iterator().next();
-        assertEquals("A", term.getCode());
-        assertSame(EXAMPLE_SESSION.tryGetPerson(), term.getRegistrator());
+        List<VocabularyTermPE> terms =
+                new ArrayList<VocabularyTermPE>(vocabularyBO.getVocabulary().getTerms());
+        Collections.sort(terms);
+        assertEquals(2, terms.size());
+        VocabularyTermPE term1 = terms.get(0);
+        assertEquals("A", term1.getCode());
+        assertEquals(new Long(previousTermPosition + 1), term1.getOrdinal());
+        assertSame(EXAMPLE_SESSION.tryGetPerson(), term1.getRegistrator());
+        VocabularyTermPE term2 = terms.get(1);
+        assertEquals("B", term2.getCode());
+        assertEquals(new Long(previousTermPosition + 2), term2.getOrdinal());
+        assertSame(EXAMPLE_SESSION.tryGetPerson(), term2.getRegistrator());
         context.assertIsSatisfied();
     }
 
@@ -285,7 +296,7 @@ public final class VocabularyBOTest extends AbstractBOTest
         List<String> newTerms = Arrays.asList("a");
         try
         {
-            vocabularyBO.addNewTerms(newTerms);
+            vocabularyBO.addNewTerms(newTerms, 0L);
         } catch (UserFailureException e)
         {
             assertEquals("Not allowed to add terms to an internally managed vocabulary.", e

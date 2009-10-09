@@ -168,7 +168,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     }
 
     @Transient
-    VocabularyPE getVocabulary()
+    public VocabularyPE getVocabulary()
     {
         return getVocabularyInternal();
     }

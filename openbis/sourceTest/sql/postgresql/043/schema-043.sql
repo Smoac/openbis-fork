@@ -343,7 +343,8 @@ CREATE TABLE controlled_vocabulary_terms (
     pers_id_registerer tech_id NOT NULL,
     label column_label,
     description description_1000,
-    ordinal bigint NOT NULL
+    ordinal bigint NOT NULL,
+    CONSTRAINT cvte_ck CHECK ((ordinal > 0))
 );
 CREATE SEQUENCE cvte_id_seq
     INCREMENT BY 1
