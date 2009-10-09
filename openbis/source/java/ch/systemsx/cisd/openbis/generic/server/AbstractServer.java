@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.DataSetServerPluginRegistr
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
+import ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -261,7 +262,10 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
             person.setRoleAssignments(Collections.singleton(roleAssignment));
             daoFactory.getPersonDAO().updatePerson(person);
         }
-        return session;
+        // need to transform session because it contains PersonPE and is transfered to DSS
+        final Session transformedSession =
+                HibernateTransformer.HIBERNATE_BEAN_REPLICATOR.get().copy(session);
+        return transformedSession;
     }
 
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings)
