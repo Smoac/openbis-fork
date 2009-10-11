@@ -28,6 +28,8 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -193,6 +195,8 @@ public class LoginWidget extends VerticalPanel
 
     public final class LoginCallback extends AbstractAsyncCallback<SessionContext>
     {
+        private static final int TIMER_PERIOD = 30 * 60 * 1000; // 30min
+
         private LoginCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {
             super(viewContext);
@@ -237,7 +241,40 @@ public class LoginWidget extends VerticalPanel
                                 }
                             });
                 viewContext.getPageController().reload(false);
+                keepSessionAlive();
             }
+        }
+
+        /** tries to keep session alive until user logs out or closes browser */
+        private void keepSessionAlive()
+        {
+            Timer t = new Timer()
+                {
+                    @Override
+                    public void run()
+                    {
+                        // callback will cancel keeping session alive if something went wrong
+                        // or user logged out
+                        AsyncCallback<Boolean> callback = new AsyncCallback<Boolean>()
+                            {
+
+                                public void onSuccess(Boolean result)
+                                {
+                                    if (result == false)
+                                    {
+                                        cancel();
+                                    }
+                                }
+
+                                public void onFailure(Throwable caught)
+                                {
+                                    cancel();
+                                }
+                            };
+                        viewContext.getCommonService().keepSessionAlive(callback);
+                    }
+                };
+            t.scheduleRepeating(TIMER_PERIOD);
         }
     }
 }

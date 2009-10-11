@@ -1829,4 +1829,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         createGridCustomColumnBO(sessionToken).update(updates);
     }
 
+    // --
+
+    public void keepSessionAlive(String sessionToken) throws UserFailureException
+    {
+        checkSession(sessionToken);
+    }
+
 }

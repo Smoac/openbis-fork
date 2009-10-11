@@ -95,6 +95,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats
  */
 public interface ICommonClientServiceAsync extends IClientServiceAsync
 {
+    /** @see ICommonClientService#keepSessionAlive() */
+    public void keepSessionAlive(final AsyncCallback<Boolean> asyncCallback);
+
     /** @see ICommonClientService#listGroups(DefaultResultSetConfig) */
     public void listGroups(DefaultResultSetConfig<String, Group> criteria,
             final AsyncCallback<ResultSet<Group>> asyncCallback);

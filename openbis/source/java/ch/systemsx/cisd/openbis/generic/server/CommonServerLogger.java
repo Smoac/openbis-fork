@@ -800,4 +800,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 updates.getName());
     }
 
+    public void keepSessionAlive(String sessionToken)
+    {
+        logTracking(sessionToken, "keepSessionAlive", "TOKEN(%s)", sessionToken);
+    }
+
 }

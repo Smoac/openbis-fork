@@ -99,6 +99,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats
 public interface ICommonClientService extends IClientService
 {
     /**
+     * Keeps the logged in user session alive.
+     * 
+     * @return 'true' if session was successfully prolonged, 'false' otherwise
+     */
+    public Boolean keepSessionAlive() throws UserFailureException;
+
+    /**
      * Returns a list of all groups.
      */
     public ResultSet<Group> listGroups(DefaultResultSetConfig<String, Group> criteria)
