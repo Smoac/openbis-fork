@@ -111,6 +111,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 public interface ICommonServer extends IServer
 {
     /** Keeps the session with specified token alive. */
+    @Transactional(readOnly = true)
+    @RolesAllowed
     public void keepSessionAlive(String sessionToken);
 
     /**
