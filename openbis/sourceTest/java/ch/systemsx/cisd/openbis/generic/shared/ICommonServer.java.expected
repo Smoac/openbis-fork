@@ -110,6 +110,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public interface ICommonServer extends IServer
 {
+    /** Keeps the session with specified token alive. */
+    public void keepSessionAlive(String sessionToken);
+
     /**
      * Returns all groups which belong to the specified database instance. *
      * 
