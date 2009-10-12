@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
@@ -193,6 +194,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         return service.tryGetSampleWithExperiment(sessionToken, sampleIdentifier);
     }
+    
+    private void primRegisterSample(NewSample newSample)
+    {
+        service.registerSample(sessionToken, newSample);
+    }
 
     private final void primRegisterDataSet(final DataSetInformation dataSetInformation,
             final NewExternalData data)
@@ -272,6 +278,21 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             authenticate();
             return primTryGetSampleWithExperiment(sampleIdentifier);
+        }
+    }
+
+    synchronized public void registerSample(NewSample newSample) throws UserFailureException
+    {
+        assert newSample != null : "Unspecified sample.";
+        
+        checkSessionToken();
+        try
+        {
+            primRegisterSample(newSample);
+        } catch (final InvalidSessionException ex)
+        {
+            authenticate();
+            primRegisterSample(newSample);
         }
     }
 

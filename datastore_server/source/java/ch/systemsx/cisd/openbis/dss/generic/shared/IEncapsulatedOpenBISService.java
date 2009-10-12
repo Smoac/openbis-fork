@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
@@ -69,6 +70,11 @@ public interface IEncapsulatedOpenBISService
     public Sample tryGetSampleWithExperiment(final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
 
+    /**
+     * Registers the specified sample.
+     */
+    public void registerSample(final NewSample newSample) throws UserFailureException;
+    
     /**
      * Registers the specified data.
      * <p>
