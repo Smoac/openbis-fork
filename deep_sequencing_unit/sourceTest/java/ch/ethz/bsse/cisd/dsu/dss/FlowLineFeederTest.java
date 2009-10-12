@@ -17,6 +17,7 @@
 package ch.ethz.bsse.cisd.dsu.dss;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -34,12 +35,15 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericValueEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -51,6 +55,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class FlowLineFeederTest extends AbstractFileSystemTestCase
 {
+    private static final String AFFILIATION = "fmi";
+    private static final String TRANSFER_DROP_BOX = "transfer-drop-box";
     private static final Sample EXAMPLE_FLOW_CELL_SAMPLE = createFlowCellSample();
     private static final DataSetInformation EXAMPLE_DATA_SET_INFO = createDataSetInfo();
     private static final String SAMPLE_CODE = "fc";
@@ -74,20 +80,30 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
     private FlowLineFeeder flowLineFeeder;
     private Mockery context;
     private IEncapsulatedOpenBISService service;
+    private File dropBox1;
+    private File dropBox2;
+    private File transferDropBox;
 
     @Override
     @BeforeMethod
     public void setUp() throws IOException
     {
         super.setUp();
+        LogInitializer.init();
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
-        assertEquals(true, new File(workingDirectory, DROP_BOX_PREFIX + "1").mkdirs());
-        assertEquals(true, new File(workingDirectory, DROP_BOX_PREFIX + "2").mkdirs());
+        FileUtilities.deleteRecursively(workingDirectory);
+        dropBox1 = new File(workingDirectory, DROP_BOX_PREFIX + "1");
+        assertEquals(true, dropBox1.mkdirs());
+        dropBox2 = new File(workingDirectory, DROP_BOX_PREFIX + "2");
+        assertEquals(true, dropBox2.mkdirs());
+        transferDropBox = new File(workingDirectory, TRANSFER_DROP_BOX);
+        assertEquals(true, transferDropBox.mkdirs());
         Properties properties = new Properties();
         properties.setProperty(FlowLineFeeder.FLOW_LINE_DROP_BOX_TEMPLATE, new File(
                 workingDirectory, DROP_BOX_PREFIX).getAbsolutePath()
                 + "{0}");
+        properties.setProperty(FlowLineFeeder.TRANSFER_PREFIX + AFFILIATION, transferDropBox.getAbsolutePath());
         flowLineFeeder = new FlowLineFeeder(properties, service);
     }
     
@@ -180,20 +196,42 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
         checkFlowLineDataSet(originalFlowLine1, "1");
         checkFlowLineDataSet(originalFlowLine2, "2");
         
+        File[] transferedFiles = transferDropBox.listFiles();
+        assertEquals(1, transferedFiles.length);
+        assertEquals("abc_2", transferedFiles[0].getName());
+        getFile(transferedFiles[0], FlowLineFeeder.META_DATA_FILE_NAME);
+        assertHardLinkOnSameFile(originalFlowLine2, getFile(transferedFiles[0], "2.srf"));
+        
         context.assertIsSatisfied();
+    }
+    
+    private File getFile(File folder, final String fileName)
+    {
+        File[] files = folder.listFiles(new FilenameFilter()
+            {
+                
+                public boolean accept(File dir, String name)
+                {
+                    return fileName.equals(name);
+                }
+            });
+        assertEquals(1, files.length);
+        return files[0];
     }
     
     @Test
     public void testUndoLastOperation()
     {
         testHappyCase();
-        assertEquals(2, new File(workingDirectory, DROP_BOX_PREFIX + "1").list().length);
-        assertEquals(2, new File(workingDirectory, DROP_BOX_PREFIX + "2").list().length);
+        assertEquals(2, dropBox1.list().length);
+        assertEquals(2, dropBox2.list().length);
+        assertEquals(1, transferDropBox.list().length);
         
         flowLineFeeder.undoLastOperation();
         
-        assertEquals(0, new File(workingDirectory, DROP_BOX_PREFIX + "1").list().length);
-        assertEquals(0, new File(workingDirectory, DROP_BOX_PREFIX + "2").list().length);
+        assertEquals(0, dropBox1.list().length);
+        assertEquals(0, dropBox2.list().length);
+        assertEquals(0, transferDropBox.list().length);
     }
     
     private void prepareLoadFlowCellSample(final Sample flowCellSample)
@@ -238,6 +276,16 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
                         SampleIdentifier identifier =
                                 SampleIdentifierFactory.parse(sample.getIdentifier());
                         one(service).getPropertiesOfTopSampleRegisteredFor(identifier);
+                        if (sample.getSubCode().equals("2"))
+                        {
+                            GenericValueEntityProperty p = new GenericValueEntityProperty();
+                            p.setValue(AFFILIATION);
+                            PropertyType propertyType = new PropertyType();
+                            propertyType.setCode(FlowLineFeeder.AFFILIATION_KEY);
+                            propertyType.setLabel(FlowLineFeeder.AFFILIATION_KEY.toLowerCase());
+                            p.setPropertyType(propertyType);
+                            will(returnValue(new GenericValueEntityProperty[] {p}));
+                        }
                     }
                 }
             });
@@ -254,12 +302,17 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
         assertEquals(true, flowLine.isFile());
         assertEquals(FileUtilities.loadToString(originalFlowLine), FileUtilities
                 .loadToString(flowLine));
-        // check hard-link copy by changing last-modified date of one file should change
-        // last-modified date of the other file.
-        originalFlowLine.setLastModified(4711000);
-        assertEquals(4711000, flowLine.lastModified());
+        assertHardLinkOnSameFile(originalFlowLine, flowLine);
         assertEquals(true, new File(ds, FlowLineFeeder.META_DATA_FILE_NAME).exists());
         assertEquals(true, new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName).exists());
+    }
+
+    private void assertHardLinkOnSameFile(File file1, File file2)
+    {
+        // check hard-link copy by changing last-modified date of one file should change
+        // last-modified date of the other file.
+        file1.setLastModified(4711000);
+        assertEquals(4711000, file2.lastModified());
     }
     
     private Sample createFlowLineSample(int flowLineNumber)

@@ -19,10 +19,15 @@ package ch.ethz.bsse.cisd.dsu.dss;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.TimingParameters;
@@ -33,6 +38,9 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
@@ -41,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -53,15 +62,21 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 class FlowLineFeeder implements IPostRegistrationDatasetHandler
 {
+    static final String TRANSFER_PREFIX = "transfer.";
+    static final String AFFILIATION_KEY = "AFFILIATION";
     static final String META_DATA_FILE_NAME = "meta-data.tsv";
     static final String FLOW_LINE_DROP_BOX_TEMPLATE = "flow-line-drop-box-template";
     static final String FILE_TYPE = ".srf";
+    
+    private final static Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, FlowLineFeeder.class);
     
     private final IEncapsulatedOpenBISService service;
     private final MessageFormat flowLineDropBoxTemplate;
     private final IImmutableCopier copier;
     private final IFileOperations fileOperations;
-    private final List<File> flowLineDataSets = new ArrayList<File>();
+    private final List<File> createdFiles = new ArrayList<File>();
+    private final Map<String, File> transferDropBoxes = new HashMap<String, File>();
     
     FlowLineFeeder(Properties properties, IEncapsulatedOpenBISService service)
     {
@@ -71,6 +86,21 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
                         FLOW_LINE_DROP_BOX_TEMPLATE));
         copier = FastRecursiveHardLinkMaker.tryCreate(TimingParameters.getDefaultParameters());
         fileOperations = FileOperations.getInstance();
+        Properties transferDropBoxMapping =
+                ExtendedProperties.getSubset(properties, TRANSFER_PREFIX, true);
+        Set<Entry<Object, Object>> entries = transferDropBoxMapping.entrySet();
+        for (Entry<Object, Object> entry : entries)
+        {
+            String affiliation = entry.getKey().toString();
+            String dropBoxPath = entry.getValue().toString();
+            File dropBox = new File(dropBoxPath);
+            if (dropBox.isDirectory() == false)
+            {
+                throw new EnvironmentFailureException("Transfer drop box for " + affiliation
+                        + " doen't exist or isn't a folder: " + dropBox.getAbsolutePath());
+            }
+            transferDropBoxes.put(affiliation, dropBox);
+        }
     }
 
     public void handle(File originalData, DataSetInformation dataSetInformation)
@@ -90,24 +120,24 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
                 throw new EnvironmentFailureException("There is already a data set for flow line "
                         + flowLine + ".");
             }
-            flowLineDataSets.add(flowLineDataSet);
+            createdFiles.add(flowLineDataSet);
             boolean success = flowLineDataSet.mkdir();
             if (success == false)
             {
                 throw new EnvironmentFailureException("Couldn't create folder '"
                         + flowLineDataSet.getAbsolutePath() + "'.");
             }
-            createMetaDataFile(flowLineDataSet, flowLineSampleMap, flowLine);
-            success = copier.copyImmutably(file, flowLineDataSet, null);
-            if (success == false)
-            {
-                throw new EnvironmentFailureException("Couldn't create a hard-link copy of '"
-                        + file.getAbsolutePath() + "' in folder '"
-                        + flowLineDataSet.getAbsolutePath() + "'.");
-            }
+            createHartLink(file, flowLineDataSet);
+            createMetaDataFileAndHartLinkInTransferDropBox(flowLineDataSet, flowLineSampleMap, flowLine);
             File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName);
-            flowLineDataSets.add(markerFile);
+            createdFiles.add(markerFile);
             FileUtilities.writeToFile(markerFile, "");
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Flow line file '" + file
+                        + "' successfully dropped into drop box '" + dropBox
+                        + "' as '" + flowLineDataSet.getName() + "'.");
+            }
         }
 
     }
@@ -131,8 +161,8 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
         return flowLineSampleMap;
     }
 
-    private void createMetaDataFile(File flowLineDataSet, Map<String, Sample> flowLineSampleMap,
-            String flowLine)
+    private void createMetaDataFileAndHartLinkInTransferDropBox(File flowLineDataSet,
+            Map<String, Sample> flowLineSampleMap, String flowLine)
     {
         Sample flowLineSample = flowLineSampleMap.get(flowLine);
         if (flowLineSample == null)
@@ -145,11 +175,28 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
         addLine(builder, "Contact Person Email", flowLineSample.getRegistrator().getEmail());
         SampleIdentifier identifier = SampleIdentifierFactory.parse(flowLineSample.getIdentifier());
         IEntityProperty[] properties = service.getPropertiesOfTopSampleRegisteredFor(identifier);
+        File dropBox = null;
         for (IEntityProperty property : properties)
         {
-            addLine(builder, property.getPropertyType().getLabel(), property.tryGetAsString());
+            PropertyType propertyType = property.getPropertyType();
+            String value = property.tryGetAsString();
+            addLine(builder, propertyType.getLabel(), value);
+            if (propertyType.getCode().equals(AFFILIATION_KEY))
+            {
+                dropBox = transferDropBoxes.get(value);
+            }
         }
         FileUtilities.writeToFile(new File(flowLineDataSet, META_DATA_FILE_NAME), builder.toString());
+        if (dropBox != null)
+        {
+            createHartLink(flowLineDataSet, dropBox);
+            createdFiles.add(new File(dropBox, flowLineDataSet.getName()));
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Flow line data set '" + flowLineDataSet.getName()
+                        + "' successfully transfered to drop box '" + dropBox + "'");
+            }
+        }
     }
     
     private void addLine(StringBuilder builder, String key, String value)
@@ -157,6 +204,18 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
         builder.append(key).append('\t').append(value).append('\n');
     }
 
+    private void createHartLink(File file, File folder)
+    {
+        boolean success;
+        success = copier.copyImmutably(file, folder, null);
+        if (success == false)
+        {
+            throw new EnvironmentFailureException("Couldn't create a hard-link copy of '"
+                    + file.getAbsolutePath() + "' in folder '"
+                    + folder.getAbsolutePath() + "'.");
+        }
+    }
+    
     private File createDropBoxFile(String flowLine)
     {
         File dropBox = new File(flowLineDropBoxTemplate.format(new Object[] {flowLine}));
@@ -201,7 +260,12 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
 
     public void undoLastOperation()
     {
-        for (File file : flowLineDataSets)
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info("Undo last operation by deleting following files: " + createdFiles);
+        }
+            
+        for (File file : createdFiles)
         {
             if (file.exists())
             {
