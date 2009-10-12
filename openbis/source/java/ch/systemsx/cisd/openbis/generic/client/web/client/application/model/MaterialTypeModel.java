@@ -22,7 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.EntityTypeTooltipRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
@@ -38,7 +38,8 @@ public class MaterialTypeModel extends BaseModelData
     public MaterialTypeModel(final MaterialType type)
     {
         this(type.getCode(), type);
-        set(ModelDataPropertyNames.TOOLTIP, EntityTypeTooltipRenderer.renderAsTooltip(type));
+        set(ModelDataPropertyNames.TOOLTIP, TooltipRenderer.renderAsTooltip(type.getCode(), type
+                .getDescription()));
     }
 
     private static MaterialTypeModel createNone(String label)

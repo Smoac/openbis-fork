@@ -16,24 +16,23 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 
 /**
- * A renderer for tooltips entity type tooltips (used in drop down lists).
+ * A helper used to render tooltips for entities chosen from combo-boxes.
  * 
  * @author Piotr Buczek
  */
-public class EntityTypeTooltipRenderer
+public class TooltipRenderer
 {
-    public static final String renderAsTooltip(EntityType entityType)
+    public static final String renderAsTooltip(String code, String descriptionOrNull)
     {
-        final String code = entityType.getCode();
-        final String description = entityType.getDescription();
+        assert code != null;
         final StringBuilder sb = new StringBuilder();
         sb.append("<b>" + code + "</b>");
-        if (description != null)
+        if (StringUtils.isEmpty(descriptionOrNull) == false)
         {
-            sb.append("<br><hr>description: <i>" + description + "</i>");
+            sb.append("<br><hr>description: <i>" + descriptionOrNull + "</i>");
         }
         return sb.toString();
     }

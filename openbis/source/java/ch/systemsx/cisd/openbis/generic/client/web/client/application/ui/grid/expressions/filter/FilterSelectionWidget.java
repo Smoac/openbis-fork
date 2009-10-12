@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisplayTypeIDProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -35,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  * 
  * @author Izabela Adamczyk
  */
-public final class FilterSelectionWidget extends DropDownList<FilterModel, GridCustomFilter> 
+public final class FilterSelectionWidget extends DropDownList<FilterModel, GridCustomFilter>
 {
     private static final String LIST_ITEMS_CALLBACK = "ListItemsCallback";
 
@@ -57,6 +58,8 @@ public final class FilterSelectionWidget extends DropDownList<FilterModel, GridC
         this.withStandard = true;
         setAutoSelectFirst(withStandard);
         setCallbackId(createCallbackId());
+        setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.NAME,
+                ModelDataPropertyNames.TOOLTIP));
     }
 
     public static String createCallbackId()

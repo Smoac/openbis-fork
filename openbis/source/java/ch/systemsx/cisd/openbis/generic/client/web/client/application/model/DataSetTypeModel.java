@@ -22,7 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.EntityTypeTooltipRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
@@ -39,7 +39,8 @@ public class DataSetTypeModel extends BaseModelData
     {
         set(ModelDataPropertyNames.CODE, dataSetType.getCode());
         set(ModelDataPropertyNames.OBJECT, dataSetType);
-        set(ModelDataPropertyNames.TOOLTIP, EntityTypeTooltipRenderer.renderAsTooltip(dataSetType));
+        set(ModelDataPropertyNames.TOOLTIP, TooltipRenderer.renderAsTooltip(dataSetType.getCode(),
+                dataSetType.getDescription()));
     }
 
     public final static List<DataSetTypeModel> convert(final List<DataSetType> dataSetTypes)

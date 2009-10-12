@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 
 /**
@@ -40,6 +41,8 @@ public class FilterModel extends BaseModelData
         set(ModelDataPropertyNames.NAME, filter.getName());
         set(ModelDataPropertyNames.DESCRIPTION, filter.getDescription());
         set(ModelDataPropertyNames.OBJECT, filter);
+        set(ModelDataPropertyNames.TOOLTIP, TooltipRenderer.renderAsTooltip(filter.getName(),
+                filter.getDescription()));
     }
 
     public final static List<FilterModel> convert(final List<GridCustomFilter> filters,
