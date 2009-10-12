@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
@@ -75,6 +76,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                 code, downloadUrl, port, dssSessionToken, services
                         .getReportingServiceDescriptions(), services
                         .getProcessingServiceDescriptions());
+    }
+
+    public void registerSample(String sessionToken, NewSample newSample)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
+                .getSampleType(), newSample.getIdentifier());
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,

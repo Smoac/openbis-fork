@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
@@ -404,6 +405,28 @@ public class ETLServiceTest extends AbstractServerTestCase
         propertyPE.setEntityTypePropertyType(entityTypePropertyTypePE);
         propertyPE.setValue(value);
         return propertyPE;
+    }
+    
+    @Test
+    public void testRegisterSample()
+    {
+        prepareGetSession();
+        final NewSample sample = new NewSample();
+        context.checking(new Expectations()
+            {
+                {
+                    one(boFactory).createSampleBO(SESSION);
+                    will(returnValue(sampleBO));
+
+                    one(sampleBO).define(sample);
+                    one(sampleBO).save();
+
+                }
+            });
+
+        createService().registerSample(SESSION_TOKEN, sample);
+        
+        context.assertIsSatisfied();
     }
     
     @Test
