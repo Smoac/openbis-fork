@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.EntityTypeTooltipRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
@@ -38,6 +39,7 @@ public class SampleTypeModel extends BaseModelData
     {
         set(ModelDataPropertyNames.CODE, sampleType.getCode());
         set(ModelDataPropertyNames.OBJECT, sampleType);
+        set(ModelDataPropertyNames.TOOLTIP, EntityTypeTooltipRenderer.renderAsTooltip(sampleType));
     }
 
     public final static List<SampleTypeModel> convert(final List<SampleType> sampleTypes,

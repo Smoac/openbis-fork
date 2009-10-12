@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -53,6 +54,8 @@ public final class ExperimentTypeSelectionWidget extends
         this.viewContext = viewContext;
         this.withAll = withAll;
         setAutoSelectFirst(withAll);
+        setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
+                ModelDataPropertyNames.TOOLTIP));
     }
 
     public ExperimentTypeSelectionWidget(final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -87,4 +90,5 @@ public final class ExperimentTypeSelectionWidget extends
     {
         return DatabaseModificationKind.any(ObjectKind.EXPERIMENT_TYPE);
     }
+
 }

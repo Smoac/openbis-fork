@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -57,6 +58,8 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
         this.withAll = withAll;
         this.withTypeInFile = withTypeInFile;
         setAutoSelectFirst(withAll);
+        setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
+                ModelDataPropertyNames.TOOLTIP));
     }
 
     public SampleTypeSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,

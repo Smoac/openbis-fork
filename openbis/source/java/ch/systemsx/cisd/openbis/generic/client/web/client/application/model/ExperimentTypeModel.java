@@ -24,6 +24,7 @@ import java.util.Set;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.EntityTypeTooltipRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
@@ -42,6 +43,8 @@ public class ExperimentTypeModel extends BaseModelData
     {
         set(ModelDataPropertyNames.CODE, experimentType.getCode());
         set(ModelDataPropertyNames.OBJECT, experimentType);
+        set(ModelDataPropertyNames.TOOLTIP, EntityTypeTooltipRenderer
+                .renderAsTooltip(experimentType));
     }
 
     public final static List<ExperimentTypeModel> convert(

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataSetTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -48,6 +49,8 @@ public final class DataSetTypeSelectionWidget extends DropDownList<DataSetTypeMo
         super(viewContext, SUFFIX + idSuffix, Dict.DATA_SET_TYPE, ModelDataPropertyNames.CODE,
                 "data set type", "data set types");
         this.viewContext = viewContext;
+        setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
+                ModelDataPropertyNames.TOOLTIP));
     }
 
     /**

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -82,6 +83,8 @@ public final class MaterialTypeSelectionWidget extends
                 "material type", "material types");
         this.viewContext = viewContext;
         this.additionalOptionLabelOrNull = additionalOptionLabelOrNull;
+        setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
+                ModelDataPropertyNames.TOOLTIP));
     }
 
     /**

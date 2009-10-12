@@ -269,4 +269,20 @@ public final class GWTUtils
         $wnd.allowConfirmOnExit = allowConfirmOnExit;
     }-*/;
 
+    /**
+     * Tooltip template displayed when mouse is over drop down list.
+     */
+    public final static native String getTooltipTemplate(String displayField, String tooltipField)
+    /*-{ 
+       return  [ 
+       '<tpl for=".">', 
+       '<div class="x-combo-list-item" qtip="{[values.',
+       tooltipField,
+       ']}">{[values.',
+       displayField,
+       ']}</div>', 
+       '</tpl>' 
+       ].join(""); 
+     }-*/;
+
 }

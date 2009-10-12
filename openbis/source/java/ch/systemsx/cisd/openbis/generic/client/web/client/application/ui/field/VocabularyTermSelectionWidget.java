@@ -87,7 +87,7 @@ public class VocabularyTermSelectionWidget extends
         {
             setTerms(termsOrNull);
         }
-        setTemplate(getTooltipTemplate(ModelDataPropertyNames.CODE_WITH_LABEL,
+        setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE_WITH_LABEL,
                 ModelDataPropertyNames.TOOLTIP));
     }
 
@@ -162,15 +162,4 @@ public class VocabularyTermSelectionWidget extends
         }
     }
 
-    private native String getTooltipTemplate(String displayField, String tooltipField) /*-{ 
-                   return  [ 
-                   '<tpl for=".">', 
-                   '<div class="x-combo-list-item" qtip="{[values.',
-                   tooltipField,
-                   ']}">{[values.',
-                   displayField,
-                   ']}</div>', 
-                   '</tpl>' 
-                   ].join(""); 
-                 }-*/;
 }
