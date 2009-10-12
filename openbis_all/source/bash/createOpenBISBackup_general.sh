@@ -29,7 +29,7 @@ fi
 umask 077
 echo "* Creating snapshot of productive databases at $DATE"
 for DATABASE in $DATABASES; do
-    $POSTGRES_BIN/pg_dump -Fc $DATABASE > $BACKUP_DIR/${DATE}_$DATABASE-db.dmp
+    $POSTGRES_BIN/pg_dump -Uopenbis -Fc $DATABASE > $BACKUP_DIR/${DATE}_$DATABASE-db.dmp
     if [ $? -ne 0 ]; then
         echo -e "Postgres DB backup broken ... :-(" | $MAILX -s "Backup from $BOX for $DATABASE is BROKEN !" $MAIL_LIST
     else 
