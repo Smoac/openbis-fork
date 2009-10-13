@@ -64,6 +64,11 @@ public final class PredicateExecutor
     {
         PredicateExecutor.predicateFactory = predicateProvider;
     }
+    
+    static final IPredicateFactory getPredicateFactory()
+    {
+        return predicateFactory;
+    }
 
     /**
      * Statically sets the {@link IAuthorizationDAOFactory} implementation.
