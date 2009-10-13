@@ -77,6 +77,17 @@ public final class PredicateExecutor
     {
         PredicateExecutor.authorizationDataProvider = new AuthorizationDataProvider(daoFactory);
     }
+    
+
+    static final IAuthorizationDataProvider getAuthorizationDataProvider()
+    {
+        return authorizationDataProvider;
+    }
+
+    static final void setAuthorizationDataProvider(IAuthorizationDataProvider authorizationDataProvider)
+    {
+        PredicateExecutor.authorizationDataProvider = authorizationDataProvider;
+    }
 
     /**
      * Creates, casts and ensures that the returned {@link IPredicate} is not <code>null</code>.

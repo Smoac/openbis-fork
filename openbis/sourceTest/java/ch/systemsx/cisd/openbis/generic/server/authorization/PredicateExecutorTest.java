@@ -57,6 +57,8 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
 
     private IPredicateFactory previousFactory;
 
+    private IAuthorizationDataProvider previousProvider;
+
     private List<RoleWithIdentifier> createAllowedRoles()
     {
         return Collections.singletonList(createGroupRole(RoleCode.USER,
@@ -86,6 +88,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
                 will(returnValue(Collections.EMPTY_LIST));
             }
         });
+        previousProvider = PredicateExecutor.getAuthorizationDataProvider();
         PredicateExecutor.setDAOFactory(daoFactory);
     }
 
@@ -93,6 +96,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
     @AfterMethod
     public void tearDown()
     {
+        PredicateExecutor.setAuthorizationDataProvider(previousProvider);
         PredicateExecutor.setPredicateFactory(previousFactory);
         super.tearDown();
     }
