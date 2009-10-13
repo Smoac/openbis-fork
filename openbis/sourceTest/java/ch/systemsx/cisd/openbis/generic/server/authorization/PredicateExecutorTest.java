@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jmock.Expectations;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -54,6 +55,8 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
     
     private IDatabaseInstanceDAO dbInstanceDAO;
 
+    private IPredicateFactory previousFactory;
+
     private List<RoleWithIdentifier> createAllowedRoles()
     {
         return Collections.singletonList(createGroupRole(RoleCode.USER,
@@ -70,6 +73,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         predicateFactory = context.mock(IPredicateFactory.class);
         daoFactory = context.mock(IAuthorizationDAOFactory.class);
         dbInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
+        previousFactory = PredicateExecutor.getPredicateFactory();
         PredicateExecutor.setPredicateFactory(predicateFactory);
         context.checking(new Expectations()
         {
@@ -83,6 +87,14 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
             }
         });
         PredicateExecutor.setDAOFactory(daoFactory);
+    }
+
+    @Override
+    @AfterMethod
+    public void tearDown()
+    {
+        PredicateExecutor.setPredicateFactory(previousFactory);
+        super.tearDown();
     }
 
     @SuppressWarnings("unchecked")
