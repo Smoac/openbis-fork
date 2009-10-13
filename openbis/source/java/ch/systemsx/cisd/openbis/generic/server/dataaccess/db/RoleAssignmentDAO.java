@@ -51,7 +51,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
 
     private static final String PERSON_INTERNAL_USER_ID = "personInternal.userId";
 
-    public final static Class<RoleAssignmentPE> ENTITY_CLASS = RoleAssignmentPE.class;
+    public static final Class<RoleAssignmentPE> ENTITY_CLASS = RoleAssignmentPE.class;
 
     private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
 
@@ -73,7 +73,13 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
 
     public final List<RoleAssignmentPE> listRoleAssignments()
     {
-        final List<RoleAssignmentPE> list = cast(getHibernateTemplate().loadAll(ENTITY_CLASS));
+        // returns roles connected directly or indirectly (through group) to current db instance
+        final List<RoleAssignmentPE> list =
+                cast(getHibernateTemplate().find(
+                        String.format("select r from %s r left join r.databaseInstance ri"
+                                + " left join r.group g left join g.databaseInstance gi"
+                                + " where ri = ? or (ri is null and gi = ?)", TABLE_NAME),
+                        toArray(getDatabaseInstance(), getDatabaseInstance())));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d role assignment(s) have been found.",

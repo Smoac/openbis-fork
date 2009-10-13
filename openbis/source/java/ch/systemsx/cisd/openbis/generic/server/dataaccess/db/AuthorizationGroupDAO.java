@@ -40,19 +40,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<AuthorizationGroupPE> implements
         IAuthorizationGroupDAO
 {
+    public static final Class<AuthorizationGroupPE> ENTITY_CLASS = AuthorizationGroupPE.class;
+
+    private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AuthorizationGroupDAO.class);
 
     protected AuthorizationGroupDAO(final SessionFactory sessionFactory,
             final DatabaseInstancePE databaseInstance)
     {
-        super(sessionFactory, databaseInstance, AuthorizationGroupPE.class);
+        super(sessionFactory, databaseInstance, ENTITY_CLASS);
     }
 
     public List<AuthorizationGroupPE> list()
     {
         final List<AuthorizationGroupPE> list =
-                cast(getHibernateTemplate().loadAll(AuthorizationGroupPE.class));
+                cast(getHibernateTemplate().find(
+                        String.format("from %s a where a.databaseInstance = ?", TABLE_NAME),
+                        toArray(getDatabaseInstance())));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d authorization group(s) have been found.",
@@ -78,7 +84,7 @@ public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<Authorizatio
 
     public AuthorizationGroupPE tryFindByCode(String code)
     {
-        final Criteria criteria = getSession().createCriteria(AuthorizationGroupPE.class);
+        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(code)));
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         return (AuthorizationGroupPE) criteria.uniqueResult();

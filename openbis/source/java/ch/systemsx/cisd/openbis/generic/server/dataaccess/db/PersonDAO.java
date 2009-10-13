@@ -39,12 +39,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 /**
  * Implementation of {@link IPersonDAO} for databases.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implements IPersonDAO
 {
+    private static final Class<PersonPE> ENTITY_CLASS = PersonPE.class;
 
-    private final static Class<PersonPE> ENTITY_CLASS = PersonPE.class;
+    private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
 
     /**
      * This logger does not output any SQL statement. If you want to do so, you had better set an
@@ -112,7 +113,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         final List<PersonPE> persons =
                 cast(getHibernateTemplate().find(
                         String.format("from %s p where p.userId = ? "
-                                + "and p.databaseInstance = ?", ENTITY_CLASS.getSimpleName()),
+                                + "and p.databaseInstance = ?", TABLE_NAME),
                         toArray(userId, getDatabaseInstance())));
         final PersonPE person = tryFindEntity(persons, "persons", userId);
         if (operationLog.isDebugEnabled())
@@ -127,8 +128,8 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
     {
         final List<PersonPE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s p where p.databaseInstance = ?", ENTITY_CLASS
-                                .getSimpleName()), toArray(getDatabaseInstance())));
+                        String.format("from %s p where p.databaseInstance = ?", TABLE_NAME),
+                        toArray(getDatabaseInstance())));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d person(s) have been found.", MethodUtils
