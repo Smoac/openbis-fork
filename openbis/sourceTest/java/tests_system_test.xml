@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="System Test">
+    <test verbose="2" name="System Test" annotations="JDK">
+        <groups>
+            <run>
+                <include name="system test" />
+                <exclude name="broken" />
+            </run>
+        </groups>
+        <packages>
+            <package name="ch.systemsx.cisd.openbis.*" />
+        </packages>
+    </test>
+</suite>

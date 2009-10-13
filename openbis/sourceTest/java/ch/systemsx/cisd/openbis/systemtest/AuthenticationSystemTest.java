@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
  *
  * @author Franz-Josef Elmer
  */
+@Test(groups = "system test")
 public class AuthenticationSystemTest extends SystemTestCase
 {
     @Test

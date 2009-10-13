@@ -23,11 +23,23 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javassist.bytecode.ExceptionsAttribute;
+
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 
 /**
@@ -35,9 +47,30 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
  *
  * @author Franz-Josef Elmer
  */
+@Test(groups = "system test")
 public class FilterSystemTest extends SystemTestCase
 {
     private static final String GRID_ID = "blabla";
+    
+    private Mockery context;
+
+    private IColumnDefinition<GridCustomFilter> columnDefinition;
+    
+    @SuppressWarnings("unchecked")
+    @BeforeMethod
+    public void setUp()
+    {
+        context = new Mockery();
+        columnDefinition = context.mock(IColumnDefinition.class);
+    }
+    
+    @AfterMethod
+    public void tearDown()
+    {
+        // To following line of code should also be called at the end of each test method.
+        // Otherwise one does not known which test failed.
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testRegisterAndDeleteFilter()
@@ -86,6 +119,39 @@ public class FilterSystemTest extends SystemTestCase
         assertEquals("[factor, threshold]", parameters.toString());
         
         commonClientService.deleteFilters(Arrays.asList(new TechId(filters.get(0).getId())));
+    }
+    
+    @Test
+    public void testApplyFilter()
+    {
+        logIntoCommonClientService();
+        commonClientService.registerFilter(createFilter());
+        
+        DefaultResultSetConfig<String, GridCustomFilter> config = createConfig("24");
+        assertEquals(1, commonClientService.listFilters(GRID_ID, config).getList().size());
+        
+        config = createConfig("43");
+        assertEquals(0, commonClientService.listFilters(GRID_ID, config).getList().size());
+        
+        Long id = commonClientService.listFilters(GRID_ID).get(0).getId();
+        commonClientService.deleteFilters(Arrays.asList(new TechId(id)));
+        
+        context.assertIsSatisfied();
+    }
+
+    private DefaultResultSetConfig<String, GridCustomFilter> createConfig(String thresholdValue)
+    {
+        DefaultResultSetConfig<String, GridCustomFilter> config =
+                new DefaultResultSetConfig<String, GridCustomFilter>();
+        config.setAvailableColumns(Collections.<IColumnDefinition<GridCustomFilter>>emptySet());
+        CustomFilterInfo<GridCustomFilter> customFilterInfo = new CustomFilterInfo<GridCustomFilter>();
+        customFilterInfo.setExpression("${threshold} < 42");
+        ParameterWithValue parameterWithValue = new ParameterWithValue();
+        parameterWithValue.setParameter("threshold");
+        parameterWithValue.setValue(thresholdValue);
+        customFilterInfo.setParameters(Collections.singleton(parameterWithValue));
+        config.setCustomFilterInfo(customFilterInfo);
+        return config;
     }
 
     private NewColumnOrFilter createFilter()
