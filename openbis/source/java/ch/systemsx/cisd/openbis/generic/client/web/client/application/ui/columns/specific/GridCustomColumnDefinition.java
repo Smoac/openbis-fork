@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 
 /**
  * Column definition for a grid custom column.

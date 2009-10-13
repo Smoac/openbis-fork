@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 
 /**
  * Definition of table columns for entities of type <code>T</code> together with the instructions to

@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 
 public final class InternalAbundanceColumnDefinition extends AbstractColumnDefinition<ProteinInfo>

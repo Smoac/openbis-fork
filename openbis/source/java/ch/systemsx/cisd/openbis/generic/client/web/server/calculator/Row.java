@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**

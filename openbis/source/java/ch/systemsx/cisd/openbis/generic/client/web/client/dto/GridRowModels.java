@@ -21,6 +21,8 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+
 /**
  * A list of {@link GridRowModel} together with metadata about custom columns.
  * 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
+package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+
 
 /**
  * Stores the original object which will be a basis to calculate a grid row together with calculated

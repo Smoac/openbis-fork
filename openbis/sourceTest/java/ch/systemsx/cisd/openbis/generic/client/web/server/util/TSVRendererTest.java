@@ -25,8 +25,8 @@ import junit.framework.Assert;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
