@@ -9,17 +9,6 @@
 
 	<target name="compile" depends="build-common.compile, clean" />
 
-	<target name="run-tests">
-		<copy todir="${classes}">
-			<fileset dir="${sources}">
-				<include name="**/*.xsd" />
-			</fileset>
-		</copy>
-		<antcall target="build-common.run-tests">
-			<param name="test.suite" value="tests.xml" />
-		</antcall>
-	</target>
-
         <!--
         // Task for creating distributions
         -->
