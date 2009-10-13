@@ -80,6 +80,7 @@
         <copy todir="${classes}">
             <fileset dir="${src}">
                 <include name="**/*.xml" />
+                <include name="**/*.xsd" />
                 <include name="**/*.properties" />
                 <include name="**/*.jpg" />
                 <include name="**/*.png" />
