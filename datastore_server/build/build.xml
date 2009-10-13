@@ -36,6 +36,7 @@
 		<recursive-jar destfile="${dss-jar.file}">
 			<fileset dir="${classes}">
 				<include name="**/*.class" />
+				<include name="**/*.xsd" />
 				<include name="${build.info.filename}" />
 			</fileset>
 			<fileset dir="${nativeroot}">
