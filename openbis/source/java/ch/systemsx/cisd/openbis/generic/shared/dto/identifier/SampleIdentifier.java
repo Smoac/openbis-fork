@@ -41,15 +41,7 @@ public class SampleIdentifier extends SampleOwnerIdentifier
             final GroupIdentifier groupIdentOrNull, final String sampleCode)
     {
         super(databaseInstanceIdentOrNull, groupIdentOrNull);
-        this.sampleCode = sampleCode;
-        if (sampleCode != null) // for tests
-        {
-            String[] sampleCodeTokens = sampleCode.split(CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING);
-            this.sampleSubCode = sampleCodeTokens[sampleCodeTokens.length - 1];
-        } else
-        {
-            sampleSubCode = sampleCode;
-        }
+        setSampleCode(sampleCode);
     }
 
     public static SampleIdentifier createOwnedBy(final SampleOwnerIdentifier owner,
@@ -115,6 +107,22 @@ public class SampleIdentifier extends SampleOwnerIdentifier
     public void setSampleCode(final String sampleCode)
     {
         this.sampleCode = sampleCode;
+        if (sampleCode != null) // for tests
+        {
+            String[] sampleCodeTokens = sampleCode.split(CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING);
+            this.sampleSubCode = sampleCodeTokens[sampleCodeTokens.length - 1];
+        } else
+        {
+            this.sampleSubCode = sampleCode;
+        }
+    }
+
+    public void addContainerCode(final String containerCode)
+    {
+        assert containerCode != null;
+        assert containerCode.contains(CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING) == false;
+        assert sampleSubCode.equals(sampleCode);
+        setSampleCode(containerCode + CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING + sampleSubCode);
     }
 
     // for bean conversion only!

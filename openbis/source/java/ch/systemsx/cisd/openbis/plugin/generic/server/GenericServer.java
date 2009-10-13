@@ -81,7 +81,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 /**
  * Implementation of client-server interface.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 @Component(ResourceNames.GENERIC_PLUGIN_SERVER)
 public final class GenericServer extends AbstractServer<IGenericServer> implements
@@ -304,8 +304,15 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         if (newExperiment.getSamples() != null && newExperiment.getSamples().length > 0)
         {
             ExperimentPE experiment = experimentBO.getExperiment();
-            List<SampleIdentifier> sampleIdentifiers =
-                    IdentifierHelper.extractSampleIdentifiers(newExperiment.getSamples());
+            List<SampleIdentifier> sampleIdentifiers = null;
+            if (newExperiment.getNewSamples() == null)
+            {
+                sampleIdentifiers =
+                        IdentifierHelper.extractSampleIdentifiers(newExperiment.getSamples());
+            } else
+            {
+                sampleIdentifiers = IdentifierHelper.extractSampleIdentifiers(newExperiment);
+            }
             for (SampleIdentifier si : sampleIdentifiers)
             {
                 IdentifierHelper

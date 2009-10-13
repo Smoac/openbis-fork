@@ -20,9 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -199,6 +203,28 @@ public final class IdentifierHelper
                 new ExperimentIdentifier(createProjectIdentifier(experiment.getProject()),
                         experiment.getCode());
         return experimentIdentifier;
+    }
+
+    public static final List<SampleIdentifier> extractSampleIdentifiers(NewExperiment newExperiment)
+    {
+        final List<SampleIdentifier> result = new ArrayList<SampleIdentifier>();
+        for (NewSamplesWithTypes samplesWithTypes : newExperiment.getNewSamples())
+        {
+            for (NewSample sample : samplesWithTypes.getNewSamples())
+            {
+                final SampleIdentifier identifier =
+                        SampleIdentifierFactory.parse(sample.getIdentifier());
+                if (StringUtils.isEmpty(sample.getContainerIdentifier()) == false)
+                {
+                    // need to add missing container code part
+                    final SampleIdentifier containerIdentifier =
+                            SampleIdentifierFactory.parse(sample.getContainerIdentifier());
+                    identifier.addContainerCode(containerIdentifier.getSampleCode());
+                }
+                result.add(identifier);
+            }
+        }
+        return result;
     }
 
     public static final List<SampleIdentifier> extractSampleIdentifiers(String[] samples)
