@@ -38,10 +38,10 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
+import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
@@ -75,18 +75,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
     { AbstractDAO.class })
 public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringContextTests
 {
-    static final String LUCENE_INDEX_PATH = "targets/lucene/indices";
-
     static
     {
-        LogInitializer.init();
-        System.setProperty("database.create-from-scratch", "true");
-        System.setProperty("database.kind", "test");
-        System.setProperty("script-folder", "sourceTest");
-        System.setProperty("hibernate.search.index-mode", "NO_INDEX");
-        System.setProperty("hibernate.search.index-base", LUCENE_INDEX_PATH);
-        System.setProperty("hibernate.search.worker.execution", "sync");
-        System.setProperty("mass-upload-folder", "sourceTest/sql/postgresql");
+        TestInitializer.init();
     }
 
     static final Long ANOTHER_DATABASE_INSTANCE_ID = new Long(2);

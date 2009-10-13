@@ -1,0 +1,101 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.openbis.systemtest;
+
+import static org.testng.AssertJUnit.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
+
+/**
+ * 
+ *
+ * @author Franz-Josef Elmer
+ */
+public class FilterSystemTest extends SystemTestCase
+{
+    private static final String GRID_ID = "blabla";
+
+    @Test
+    public void testRegisterAndDeleteFilter()
+    {
+        logIntoCommonClientService();
+        List<GridCustomFilter> filters = commonClientService.listFilters(GRID_ID);
+        assertEquals(0, filters.size());
+        
+        NewColumnOrFilter filter = createFilter();
+        commonClientService.registerFilter(filter);
+        
+        filters = commonClientService.listFilters(GRID_ID);
+        assertEquals(1, filters.size());
+        assertEquals(filter.getName(), filters.get(0).getName());
+        assertEquals(filter.getDescription(), filters.get(0).getDescription());
+        assertEquals(filter.getExpression(), StringEscapeUtils.unescapeHtml(filters.get(0).getExpression()));
+        assertEquals(filter.isPublic(), filters.get(0).isPublic());
+        assertEquals("[threshold]", filters.get(0).getParameters().toString());
+        
+        commonClientService.deleteFilters(Arrays.asList(new TechId(filters.get(0).getId())));
+        
+        assertEquals(0, commonClientService.listFilters(GRID_ID).size());
+    }
+    
+    @Test
+    public void testEditFilter()
+    {
+        logIntoCommonClientService();
+        commonClientService.registerFilter(createFilter());
+        GridCustomFilter filter = commonClientService.listFilters(GRID_ID).get(0);
+        filter.setName(filter.getName() + "2");
+        filter.setDescription(filter.getDescription() + " (updated)");
+        filter.setExpression(filter.getExpression() + " * ${factor}");
+        filter.setPublic(filter.isPublic() == false);
+        
+        commonClientService.updateFilter(filter);
+        
+        List<GridCustomFilter> filters = commonClientService.listFilters(GRID_ID);
+        assertEquals(1, filters.size());
+        assertEquals(filter.getName(), filters.get(0).getName());
+        assertEquals(filter.getDescription(), filters.get(0).getDescription());
+        assertEquals(filter.getExpression(), StringEscapeUtils.unescapeHtml(filters.get(0).getExpression()));
+        assertEquals(filter.isPublic(), filters.get(0).isPublic());
+        List<String> parameters = new ArrayList<String>(filters.get(0).getParameters());
+        Collections.sort(parameters);
+        assertEquals("[factor, threshold]", parameters.toString());
+        
+        commonClientService.deleteFilters(Arrays.asList(new TechId(filters.get(0).getId())));
+    }
+
+    private NewColumnOrFilter createFilter()
+    {
+        NewColumnOrFilter filter = new NewColumnOrFilter();
+        filter.setGridId(GRID_ID);
+        filter.setName("my filter");
+        filter.setDescription("A test filter");
+        filter.setExpression("${threshold} < 42");
+        filter.setPublic(true);
+        return filter;
+    }
+}

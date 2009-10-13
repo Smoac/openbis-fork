@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexerRunnable;
+import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -84,7 +85,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     // create a fresh copy of the Lucene index
     private static void restoreSearchIndex()
     {
-        File targetPath = new File(LUCENE_INDEX_PATH);
+        File targetPath = new File(TestInitializer.LUCENE_INDEX_PATH);
         FileUtilities.deleteRecursively(targetPath);
         targetPath.mkdirs();
         File srcPath = new File(LUCENE_INDEX_TEMPLATE_PATH);
