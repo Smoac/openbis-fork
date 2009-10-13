@@ -173,6 +173,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private static final int PAGE_SIZE = 50;
 
+    // set to true to see some useful debugging messages
+    private static final boolean DEBUG = false;
+
     private final PagingLoader<PagingLoadConfig> pagingLoader;
 
     private final ContentPanel contentPanel;
@@ -446,6 +449,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
                 public void dispose()
                 {
+                    debug("dispose a tab");
                     self.disposeCache();
                 }
 
@@ -499,11 +503,21 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     DefaultResultSetConfig<String, T> resultSetConfig =
                             createPagingConfig(loadConfig, columnDefinitions, appliedFilters,
                                     resultSetKey, tryGetCustomFilter(), getGridDisplayTypeID());
+                    debug("create a refresh callback");
                     ListEntitiesCallback listCallback =
                             new ListEntitiesCallback(viewContext, callback, resultSetConfig);
                     listEntities(resultSetConfig, listCallback);
                 }
             };
+    }
+
+    private void debug(String msg)
+    {
+        if (DEBUG)
+        {
+	        String text = "[grid: " + getGridDisplayTypeID() + ", cache: " + resultSetKey + "] " + msg;
+            System.out.println(text);
+        }
     }
 
     private CustomFilterInfo<T> tryGetCustomFilter()
@@ -934,6 +948,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             String headerOrNull, boolean refreshColumnsDefinition)
     {
         pagingToolbar.updateDefaultRefreshButton(false);
+        debug("clean cache for refresh");
         disposeCache();
         this.refreshCallback = createRefreshCallback(externalRefreshCallbackOrNull);
         setHeader(headerOrNull);
@@ -1190,8 +1205,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         String oldResultSetKey = resultSetKey;
         resultSetKey = newResultSetKey;
+        debug("saving new cache key");
         if (oldResultSetKey != null && oldResultSetKey.equals(newResultSetKey) == false)
         {
+            debug("cleaning old cache " + oldResultSetKey);
             removeResultSet(oldResultSetKey);
         }
     }
@@ -1253,20 +1270,22 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                             {
                                 recreateColumnModelAndRefreshColumnsWithFilters();
                             }
-
                             boolean filtersChanged =
                                     rebuildFiltersFromIds(getFilteredColumnIds(newColumnDataModels));
-                            // refresh the data - some filters may have been removed
-                            if (filtersChanged)
-                            {
-                                createApplyFiltersDelagator().execute();
-                            }
-
+                            
                             if (customColumnsChanged)
                             {
+                                debug("refreshing custom columns");
+                                // if filters refresh filters, so we can ignore filtersChanged state
                                 refresh();
                             } else
                             {
+                                if (filtersChanged)
+                                {
+		                            // refresh the data - some filters may have been removed
+                                    createApplyFiltersDelagator().execute();
+                                }
+                                debug("refreshing filters and columns settings");
 
                                 // settings will be automatically stored because of event handling
                                 refreshColumnsSettings();

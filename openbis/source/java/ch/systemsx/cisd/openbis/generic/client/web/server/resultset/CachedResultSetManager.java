@@ -287,18 +287,20 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         K dataKey = resultConfig.getResultSetKey();
         if (dataKey == null)
         {
-            debug("Unknown result set key: retrieving the data.");
             dataKey = resultSetKeyProvider.createKey();
+            debug("Unknown result set key: retrieving the data with a new key " + dataKey);
             List<T> rows = dataProvider.getOriginalData();
             data = calculateCustomColumns(sessionToken, rows, resultConfig);
             results.put(dataKey, data);
         } else
         {
-            debug(String.format("Data for result set key '%s' already cached.", dataKey));
+            debug(String.format("Fetching the result from the specifed result set key '%s'.",
+                    dataKey));
             data = cast(results.get(dataKey));
             if (data == null)
             {
-                debug(String.format("Invalid result set key '%s'.", dataKey));
+                debug(String
+                        .format("Invalid result set key '%s'. This should not happen.", dataKey));
             }
         }
         assert data != null : "Unspecified data";
