@@ -32,17 +32,6 @@
 		</recursive-jar>
 	</target>
 
-	<target name="run-tests">
-		<copy todir="${classes}">
-			<fileset dir="${sources}">
-				<include name="**/*.xsd" />
-			</fileset>
-		</copy>
-		<antcall target="build-common.run-tests">
-			<param name="test.suite" value="tests.xml" />
-		</antcall>
-	</target>
-
       <!--
       // Task for continuous integration server.
       -->
