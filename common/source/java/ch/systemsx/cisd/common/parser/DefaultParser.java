@@ -58,23 +58,6 @@ public class DefaultParser<E> implements IParser<E>
         return factory.createObject(tokens);
     }
 
-    /**
-     * Parses given <code>line</code> into an element.
-     * <p>
-     * Uses <code>ILineTokenizer</code> to do its job.
-     * </p>
-     * 
-     * @param lineNumber line number.
-     */
-    private final String[] parseLine(final int lineNumber, final String line)
-    {
-        return lineTokenizer.tokenize(line);
-    }
-
-    //
-    // Parser
-    //
-
     public final List<E> parse(final Iterator<Line> lineIterator, final ILineFilter lineFilter,
             final int headerLength) throws ParsingException
     {
@@ -89,12 +72,8 @@ public class DefaultParser<E> implements IParser<E>
                 final int number = line.getNumber();
                 if (lineFilter.acceptLine(nextLine, number))
                 {
-                    final String[] tokens = parseLine(number, nextLine);
                     E object = null;
-                    if (tokens.length != headerLength)
-                    {
-                        throw new ColumnSizeMismatchException(tokens, number, headerLength);
-                    }
+                    String[] tokens = parseLine(number, nextLine, headerLength);
                     try
                     {
                         object = createObject(tokens);
@@ -108,11 +87,30 @@ public class DefaultParser<E> implements IParser<E>
             lineTokenizer.destroy();
             return elements;
         }
-
     }
 
     public final void setObjectFactory(final IParserObjectFactory<E> factory)
     {
         this.factory = factory;
+    }
+    
+    private String[] parseLine(final int lineNumber, final String nextLine, final int headerLength)
+    {
+        String[] tokens = lineTokenizer.tokenize(nextLine);
+        if (tokens.length > headerLength)
+        {
+            throw new ColumnSizeMismatchException(tokens, lineNumber, headerLength);
+        }
+        if (tokens.length < headerLength)
+        {
+            String[] newTokens = new String[headerLength];
+            System.arraycopy(tokens, 0, newTokens, 0, tokens.length);
+            for (int i = tokens.length; i < headerLength; i++)
+            {
+                newTokens[i] = "";
+            }
+            tokens = newTokens;
+        }
+        return tokens;
     }
 }

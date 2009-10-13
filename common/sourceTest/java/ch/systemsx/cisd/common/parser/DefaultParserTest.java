@@ -37,6 +37,16 @@ public final class DefaultParserTest
                     "Charles\tDarwin\tHumboldt Ave. 1865\t4242 Somewhere",
                     "Albert\tEinstein\tNewton Road 1905\t4711 Princton");
 
+    private final static List<String> textWithTab =
+        Arrays.asList("", "# This is a comment", "firstName\tlastName\taddress\tcity",
+                "Charles\tDarwin\tHumboldt Ave. 1865\t4242 Somewhere",
+        "Albert\t\tNewton Road 1905\t");
+    
+    private final static List<String> textWithMissingLastCells =
+        Arrays.asList("", "# This is a comment", "firstName\tlastName\taddress\tcity",
+                "\tDarwin\tHumboldt Ave. 1865",
+        "Albert\tEinstein");
+    
     private final static int HEADER_LENGTH = 4;
 
     private final static IParser<String[]> createParser()
@@ -51,7 +61,7 @@ public final class DefaultParserTest
     {
         final IParser<String[]> parser = createParser();
         final List<String[]> result =
-                parser.parse(createLineIterator(), new HeaderLineFilter(), HEADER_LENGTH);
+                parser.parse(createLineIterator(text), new HeaderLineFilter(), HEADER_LENGTH);
         assertEquals(3, result.size());
         assertEquals(result.get(0)[0], "firstName");
         assertEquals(result.get(1)[1], "Darwin");
@@ -64,10 +74,40 @@ public final class DefaultParserTest
     {
         final IParser<String[]> parser = createParser();
         final List<String[]> result =
-                parser.parse(createLineIterator(), new HeaderLineFilter(3), HEADER_LENGTH);
+                parser.parse(createLineIterator(text), new HeaderLineFilter(3), HEADER_LENGTH);
         assertEquals(2, result.size());
         assertEquals(result.get(0)[0], "Charles");
         assertEquals(result.get(1)[1], "Einstein");
+    }
+    
+    @Test
+    public final void testParseFileWithTabs()
+    {
+        final IParser<String[]> parser = createParser();
+        final List<String[]> result =
+            parser.parse(createLineIterator(textWithTab), new HeaderLineFilter(), HEADER_LENGTH);
+        assertEquals(3, result.size());
+        assertEquals("Albert", result.get(2)[0]);
+        assertEquals("", result.get(2)[1]);
+        assertEquals("Newton Road 1905", result.get(2)[2]);
+        assertEquals("", result.get(2)[3]);
+    }
+    
+    @Test
+    public final void testParseFileWithMissingLastCells()
+    {
+        final IParser<String[]> parser = createParser();
+        final List<String[]> result =
+            parser.parse(createLineIterator(textWithMissingLastCells), new HeaderLineFilter(), HEADER_LENGTH);
+        assertEquals(3, result.size());
+        assertEquals("", result.get(1)[0]);
+        assertEquals("Darwin", result.get(1)[1]);
+        assertEquals("Humboldt Ave. 1865", result.get(1)[2]);
+        assertEquals("", result.get(1)[3]);
+        assertEquals("Albert", result.get(2)[0]);
+        assertEquals("Einstein", result.get(2)[1]);
+        assertEquals("", result.get(2)[2]);
+        assertEquals("", result.get(2)[3]);
     }
 
     @Test
@@ -76,7 +116,7 @@ public final class DefaultParserTest
         final IParser<String[]> parser = createParser();
         try
         {
-            parser.parse(createLineIterator(), new HeaderLineFilter(3), HEADER_LENGTH + 1);
+            parser.parse(createLineIterator(text), new HeaderLineFilter(3), HEADER_LENGTH + 1);
         } catch (final ColumnSizeMismatchException ex)
         {
             assertEquals(
@@ -104,7 +144,7 @@ public final class DefaultParserTest
         parser.setObjectFactory(IParserObjectFactory.STRING_ARRAY_OBJECT_FACTORY);
         try
         {
-            parser.parse(createLineIterator(), new HeaderLineFilter(2), HEADER_LENGTH);
+            parser.parse(createLineIterator(text), new HeaderLineFilter(2), HEADER_LENGTH);
             fail(String.format("'%s' exception expected.", ParsingException.class));
         } catch (final ParsingException ex)
         {
@@ -115,11 +155,11 @@ public final class DefaultParserTest
         }
     }
 
-    private Iterator<Line> createLineIterator()
+    private Iterator<Line> createLineIterator(final List<String> lines)
     {
         return new Iterator<Line>()
             {
-                private final Iterator<String> iterator = text.iterator();
+                private final Iterator<String> iterator = lines.iterator();
 
                 private int lineNumber;
 
