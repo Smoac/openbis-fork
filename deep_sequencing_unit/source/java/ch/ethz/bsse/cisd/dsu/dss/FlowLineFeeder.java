@@ -62,10 +62,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 class FlowLineFeeder implements IPostRegistrationDatasetHandler
 {
+    static final String META_DATA_FILE_TYPE = ".tsv";
     static final String TRANSFER_PREFIX = "transfer.";
     static final String AFFILIATION_KEY = "AFFILIATION";
-    static final String META_DATA_FILE_NAME = "meta-data.tsv";
+    static final String EXTERNAL_SAMPLE_NAME_KEY = "EXTERNAL_SAMPLE_NAME";
     static final String FLOW_LINE_DROP_BOX_TEMPLATE = "flow-line-drop-box-template";
+    static final String ENTITY_SEPARATOR_KEY = "entity-separator";
+    static final String DEFAULT_ENTITY_SEPARATOR = "_";
     static final String FILE_TYPE = ".srf";
     
     private final static Logger operationLog =
@@ -73,6 +76,7 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
     
     private final IEncapsulatedOpenBISService service;
     private final MessageFormat flowLineDropBoxTemplate;
+    private final String entitySepaparator;
     private final IImmutableCopier copier;
     private final IFileOperations fileOperations;
     private final List<File> createdFiles = new ArrayList<File>();
@@ -84,6 +88,7 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
         flowLineDropBoxTemplate =
                 new MessageFormat(PropertyUtils.getMandatoryProperty(properties,
                         FLOW_LINE_DROP_BOX_TEMPLATE));
+        entitySepaparator = properties.getProperty(ENTITY_SEPARATOR_KEY, DEFAULT_ENTITY_SEPARATOR);
         copier = FastRecursiveHardLinkMaker.tryCreate(TimingParameters.getDefaultParameters());
         fileOperations = FileOperations.getInstance();
         Properties transferDropBoxMapping =
@@ -112,8 +117,11 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
         for (File file : files)
         {
             String flowLine = extractFlowLine(file);
+            Sample flowLineSample = flowLineSampleMap.get(flowLine);
             File dropBox = createDropBoxFile(flowLine);
-            String fileName = flowcellID + "_" + flowLine;
+            String fileName =
+                    flowLineSample.getGroup().getCode() + entitySepaparator + flowcellID
+                            + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING + flowLine;
             File flowLineDataSet = new File(dropBox, fileName);
             if (flowLineDataSet.exists())
             {
@@ -128,7 +136,7 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
                         + flowLineDataSet.getAbsolutePath() + "'.");
             }
             createHartLink(file, flowLineDataSet);
-            createMetaDataFileAndHartLinkInTransferDropBox(flowLineDataSet, flowLineSampleMap, flowLine);
+            createMetaDataFileAndHartLinkInTransferDropBox(flowLineDataSet, flowLineSample, flowLine);
             File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName);
             createdFiles.add(markerFile);
             FileUtilities.writeToFile(markerFile, "");
@@ -162,9 +170,8 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
     }
 
     private void createMetaDataFileAndHartLinkInTransferDropBox(File flowLineDataSet,
-            Map<String, Sample> flowLineSampleMap, String flowLine)
+            Sample flowLineSample, String flowLine)
     {
-        Sample flowLineSample = flowLineSampleMap.get(flowLine);
         if (flowLineSample == null)
         {
             throw new UserFailureException("No flow line sample for flow line " + flowLine + " exists");
@@ -176,17 +183,26 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
         SampleIdentifier identifier = SampleIdentifierFactory.parse(flowLineSample.getIdentifier());
         IEntityProperty[] properties = service.getPropertiesOfTopSampleRegisteredFor(identifier);
         File dropBox = null;
+        String externalSampleName = null;
         for (IEntityProperty property : properties)
         {
             PropertyType propertyType = property.getPropertyType();
             String value = property.tryGetAsString();
             addLine(builder, propertyType.getLabel(), value);
-            if (propertyType.getCode().equals(AFFILIATION_KEY))
+            String code = propertyType.getCode();
+            if (code.equals(AFFILIATION_KEY))
             {
                 dropBox = transferDropBoxes.get(value);
             }
+            if (code.equals(EXTERNAL_SAMPLE_NAME_KEY))
+            {
+                externalSampleName = value;
+            }
         }
-        FileUtilities.writeToFile(new File(flowLineDataSet, META_DATA_FILE_NAME), builder.toString());
+        String metaFileName =
+                flowLineSample.getCode()
+                        + (externalSampleName == null ? "" : "_" + externalSampleName) + META_DATA_FILE_TYPE;
+        FileUtilities.writeToFile(new File(flowLineDataSet, metaFileName), builder.toString());
         if (dropBox != null)
         {
             createHartLink(flowLineDataSet, dropBox);
