@@ -700,14 +700,14 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     // -- custom grid columns
 
     /**
-     * @see ICommonClientService#listColumns(String)
+     * @see ICommonClientService#listGridCustomColumns(String)
      */
-    public void listColumns(String gridId, AsyncCallback<List<GridCustomColumn>> callback);
+    public void listGridCustomColumns(String gridId, AsyncCallback<List<GridCustomColumn>> callback);
 
     /**
-     * @see ICommonClientService#listColumns(String, DefaultResultSetConfig)
+     * @see ICommonClientService#listGridCustomColumns(String, DefaultResultSetConfig)
      */
-    public void listColumns(String gridId,
+    public void listGridCustomColumns(String gridId,
             DefaultResultSetConfig<String, GridCustomColumn> resultSetConfig,
             AsyncCallback<ResultSet<GridCustomColumn>> callback);
 

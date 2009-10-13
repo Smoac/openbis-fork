@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
@@ -32,13 +30,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
  */
 public final class ResultSet<T> implements IsSerializable
 {
-    private List<T> list;
+    private GridRowModels<T> list;
 
     private int totalLength;
 
     private String resultSetKey;
 
-    public final void setList(final List<T> result)
+    public final void setList(final GridRowModels<T> result)
     {
         this.list = result;
     }
@@ -64,7 +62,7 @@ public final class ResultSet<T> implements IsSerializable
     /**
      * Returns the list produced by a given {@link IResultSetConfig}.
      */
-    public List<T> getList()
+    public GridRowModels<T> getList()
     {
         return list;
     }

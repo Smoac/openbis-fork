@@ -25,23 +25,27 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
- * Row object used in jython expressions to access column values. 
+ * Row object used in jython expressions to access column values.
  * <p>
  * All public methods of this class are part of the Filter/Calculated Column API.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public final class Row<T>
+final class Row<T>
 {
-    
-    private final Map<String, IColumnDefinition<T>> definitionsByID = new LinkedHashMap<String, IColumnDefinition<T>>();
-    private final Map<String, List<ColumnDefinition>> definitionsByProperties = new HashMap<String, List<ColumnDefinition>>();
-    
-    private T row;
-    
+
+    private final Map<String, IColumnDefinition<T>> definitionsByID =
+            new LinkedHashMap<String, IColumnDefinition<T>>();
+
+    private final Map<String, List<ColumnDefinition>> definitionsByProperties =
+            new HashMap<String, List<ColumnDefinition>>();
+
+    private GridRowModel<T> row;
+
     Row(Set<IColumnDefinition<T>> availableColumns)
     {
         for (IColumnDefinition<T> columnDefinition : availableColumns)
@@ -49,8 +53,8 @@ public final class Row<T>
             definitionsByID.put(columnDefinition.getIdentifier(), columnDefinition);
         }
     }
-    
-    void setRowData(T row)
+
+    void setRowData(GridRowModel<T> row)
     {
         this.row = row;
     }
@@ -67,6 +71,7 @@ public final class Row<T>
         {
             throw new IllegalArgumentException("Undefined column: " + columnID);
         }
+
         return columnDefinition.getComparableValue(row);
     }
 
@@ -87,7 +92,8 @@ public final class Row<T>
             for (Entry<String, IColumnDefinition<T>> entry : entries)
             {
                 IColumnDefinition<T> columnDefinition = entry.getValue();
-                if (propertyKeyOrNull == null || columnDefinition.tryToGetProperty(propertyKeyOrNull) != null)
+                if (propertyKeyOrNull == null
+                        || columnDefinition.tryToGetProperty(propertyKeyOrNull) != null)
                 {
                     definitions.add(new ColumnDefinition(columnDefinition));
                 }
@@ -117,7 +123,7 @@ public final class Row<T>
         }
         return Collections.unmodifiableList(values);
     }
-    
+
     /**
      * Returns all column values grouped by the property value of the property specified by the key.
      * 
@@ -146,5 +152,5 @@ public final class Row<T>
         }
         return Collections.unmodifiableList(groups);
     }
-    
+
 }

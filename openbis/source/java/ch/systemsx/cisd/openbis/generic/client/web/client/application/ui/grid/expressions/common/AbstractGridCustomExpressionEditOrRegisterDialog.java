@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.e
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils.unescapeHtml;
 
-import java.util.List;
-
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -35,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.L
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnSettingsDataModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractGridExpression;
@@ -82,7 +80,7 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
     public AbstractGridCustomExpressionEditOrRegisterDialog(
             final IViewContext<ICommonClientServiceAsync> viewContext, final String title,
             final IDelegatedAction postRegistrationCallback, final String gridId,
-            final List<ColumnDataModel> columnModels)
+            final AbstractColumnSettingsDataModelProvider columnDataModelProvider)
     {
         super(viewContext, title, postRegistrationCallback);
         this.viewContext = viewContext;
@@ -94,7 +92,8 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
         addField(expressionField = createExpressionField());
         expressionField.setId(createId(gridId, EXPRESSION_FIELD));
         addField(insertColumnsLink =
-                createInsertColumnsLink(viewContext.getMessage(Dict.INSERT_COLUMNS), columnModels));
+                createInsertColumnsLink(viewContext.getMessage(Dict.INSERT_COLUMNS),
+                        columnDataModelProvider));
         insertColumnsLink.setId(createId(gridId, INSERT_COLUMNS_LINK));
         addField(publicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false));
         publicField.setId(createId(gridId, PUBLIC_FIELD));
@@ -113,7 +112,7 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
     }
 
     private LabelField createInsertColumnsLink(final String label,
-            final List<ColumnDataModel> columnModels)
+            final AbstractColumnSettingsDataModelProvider columnDataModelProvider)
     {
         LabelField result = new LabelField(LinkRenderer.renderAsLink(label));
         result.sinkEvents(Event.ONCLICK);
@@ -121,7 +120,7 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    GridColumnChooserDialog.show(viewContext, columnModels, gridId,
+                    GridColumnChooserDialog.show(viewContext, columnDataModelProvider, gridId,
                             asExpressionHolder(expressionField));
                 }
             });

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ren
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 
 /**
@@ -35,7 +36,7 @@ class HyperlinkPropertyColRenderer<T extends IEntityPropertiesHolder> extends
     }
 
     @Override
-    protected String renderValue(T entity)
+    protected String renderValue(GridRowModel<T> entity)
     {
         String value = colDef.getValue(entity);
         return ExternalHyperlink.createAnchorString(value, value);

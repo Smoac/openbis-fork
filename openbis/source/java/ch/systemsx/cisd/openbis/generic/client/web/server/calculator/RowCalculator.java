@@ -23,21 +23,18 @@ import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.evaluator.Evaluator;
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class RowCalculator<T>
+class RowCalculator<T>
 {
     private static final String INITIAL_SCRIPT =
             "from " + StandardFunctions.class.getCanonicalName() + " import *\n"
-            + "def int(x):return toInt(x)\n"
-            + "def float(x):return toFloat(x)\n"
-            ;
+                    + "def int(x):return toInt(x)\n" + "def float(x):return toFloat(x)\n";
 
     private final Evaluator evaluator;
 
@@ -46,27 +43,28 @@ public class RowCalculator<T>
     public RowCalculator(Set<IColumnDefinition<T>> availableColumns, String expression,
             Set<ParameterWithValue> parameters)
     {
-        evaluator = new Evaluator(substitudeParameters(expression, parameters), Math.class,
-                INITIAL_SCRIPT);
+        evaluator =
+                new Evaluator(substitudeParameters(expression, parameters), Math.class,
+                        INITIAL_SCRIPT);
         row = new Row<T>(availableColumns);
         evaluator.set("row", row);
     }
-    
-    public void setRowData(T rowData)
+
+    public void setRowData(GridRowModel<T> rowData)
     {
         row.setRowData(rowData);
     }
-    
+
     public boolean evalToBoolean() throws EvaluatorException
     {
         return evaluator.evalToBoolean();
     }
-    
+
     public int evalToInt() throws EvaluatorException
     {
         return evaluator.evalToInt();
     }
-    
+
     public BigInteger evalToBigInt() throws EvaluatorException
     {
         return evaluator.evalToBigInt();
@@ -81,8 +79,9 @@ public class RowCalculator<T>
     {
         return evaluator.evalAsString();
     }
-    
-    private String substitudeParameters(String originalExpression, Set<ParameterWithValue> parameters)
+
+    private String substitudeParameters(String originalExpression,
+            Set<ParameterWithValue> parameters)
     {
         String expression = originalExpression;
         for (ParameterWithValue pw : parameters)

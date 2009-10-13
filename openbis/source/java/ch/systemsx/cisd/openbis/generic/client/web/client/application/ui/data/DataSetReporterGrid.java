@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
@@ -151,7 +152,7 @@ public class DataSetReporterGrid extends
     }
 
     @Override
-    protected BaseEntityModel<TableModelRow> createModel(TableModelRow entity)
+    protected BaseEntityModel<TableModelRow> createModel(GridRowModel<TableModelRow> entity)
     {
         return new BaseEntityModel<TableModelRow>(entity, createColumnDefinitions(tableHeader));
     }

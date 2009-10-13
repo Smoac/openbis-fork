@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
@@ -776,12 +775,6 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     // -- columns
-
-    public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
-    {
-        logAccess(sessionToken, "listGridCustomColumns", "GRID(%s)", gridId);
-        return null;
-    }
 
     public void registerGridCustomColumn(String sessionToken, NewColumnOrFilter column)
     {

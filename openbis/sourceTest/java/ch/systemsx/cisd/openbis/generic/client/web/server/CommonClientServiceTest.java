@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -36,8 +39,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager.ICustomColumnsProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRendererTest;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -47,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -154,9 +161,16 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(resultSetManager).getResultSet(
+                    IResultSet<String, String> entityTypeResultMock =
+                            context.mock(IResultSet.class);
+                    one(entityTypeResultMock).getList();
+                    will(returnValue(new GridRowModels<String>(
+                            new ArrayList<GridCustomColumnInfo>())));
+
+                    one(resultSetManager).getResultSet(with(SESSION_TOKEN),
                             with(Expectations.any(IResultSetConfig.class)),
                             with(Expectations.any(IOriginalDataProvider.class)));
+                    will(returnValue(entityTypeResultMock));
                 }
             });
         final ResultSetWithEntityTypes<Sample> resultSet =
@@ -199,7 +213,8 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     {
         final String resultSetKey = "131";
         final DefaultResultSet<String, T> defaultResultSet =
-                new DefaultResultSet<String, T>(resultSetKey, entities, entities.size());
+                new DefaultResultSet<String, T>(resultSetKey, TSVRendererTest.asRowModel(entities),
+                        entities.size());
         context.checking(new Expectations()
             {
                 {
@@ -216,14 +231,14 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
     @SuppressWarnings("unchecked")
     private <T> void prepareGetResultSet(Expectations exp, IResultSetConfig<String, T> criteria)
     {
-        exp.one(resultSetManager).getResultSet(exp.with(criteria),
+        exp.one(resultSetManager).getResultSet(exp.with(SESSION_TOKEN), exp.with(criteria),
                 exp.with(Expectations.any(IOriginalDataProvider.class)));
     }
 
     private <T> void assertEqualEntities(List<T> entities, final ResultSet<T> resultSet)
     {
         assertEquals(entities.size(), resultSet.getList().size());
-        assertEquals(entities.get(0), resultSet.getList().get(0));
+        assertEquals(entities.get(0), resultSet.getList().get(0).getOriginalObject());
         assertEquals(entities.size(), resultSet.getTotalLength());
     }
 
@@ -347,7 +362,15 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     prepareGetSessionToken(this);
                     allowing(httpSession).getAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
                     will(returnValue(new CachedResultSetManager<String>(
-                            new TokenBasedResultSetKeyGenerator())));
+                            new TokenBasedResultSetKeyGenerator(), new ICustomColumnsProvider()
+                                {
+                                    public List<GridCustomColumn> getGridCustomColumn(
+                                            String sessionToken, String gridDisplayId)
+                                    {
+                                        return new ArrayList<GridCustomColumn>();
+                                    }
+
+                                })));
 
                     one(commonServer).listExperimentExternalData(SESSION_TOKEN, experimentId);
                     will(returnValue(Collections.singletonList(externalData)));
@@ -357,7 +380,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         ResultSetWithEntityTypes<ExternalData> resultSet =
                 commonClientService.listExperimentDataSets(experimentId,
                         new DefaultResultSetConfig<String, ExternalData>());
-        List<ExternalData> list = resultSet.getResultSet().getList();
+        List<ExternalData> list = resultSet.getResultSet().getList().extractOriginalObjects();
         assertEquals(1, list.size());
         ExternalData data = list.get(0);
         assertEquals(DATA_STORE_BASE_URL + "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME, data

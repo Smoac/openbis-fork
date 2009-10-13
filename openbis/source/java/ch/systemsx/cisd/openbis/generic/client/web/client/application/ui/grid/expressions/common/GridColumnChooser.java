@@ -13,6 +13,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnSettingsDataModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
@@ -28,7 +29,8 @@ class GridColumnChooser
 
     private final Grid<ColumnDataModel> grid;
 
-    public GridColumnChooser(List<ColumnDataModel> list, IMessageProvider messageProvider)
+    public GridColumnChooser(AbstractColumnSettingsDataModelProvider columnDataModelProvider,
+            IMessageProvider messageProvider)
     {
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
@@ -47,7 +49,10 @@ class GridColumnChooser
             column.setMenuDisabled(true);
         }
 
-        grid = new Grid<ColumnDataModel>(createStore(list), new ColumnModel(configs));
+        grid =
+                new Grid<ColumnDataModel>(
+                        createStore(columnDataModelProvider.getColumnDataModels()),
+                        new ColumnModel(configs));
         grid.setHideHeaders(false);
         grid.getSelectionModel().setSelectionMode(SelectionMode.MULTI);
     }

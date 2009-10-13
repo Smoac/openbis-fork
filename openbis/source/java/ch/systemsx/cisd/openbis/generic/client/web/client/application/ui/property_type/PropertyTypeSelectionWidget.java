@@ -100,7 +100,7 @@ public final class PropertyTypeSelectionWidget extends
         {
             final ListStore<PropertyTypeComboModel> propertyTypeStore = getStore();
             propertyTypeStore.removeAll();
-            propertyTypeStore.add(convertItems(result.getList()));
+            propertyTypeStore.add(convertItems(result.getList().extractOriginalObjects()));
             if (propertyTypeStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));

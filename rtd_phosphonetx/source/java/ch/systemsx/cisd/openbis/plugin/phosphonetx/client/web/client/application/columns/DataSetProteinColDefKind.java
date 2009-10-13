@@ -18,12 +18,11 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public enum DataSetProteinColDefKind implements IColumnDefinitionKind<DataSetProtein>
@@ -35,8 +34,7 @@ public enum DataSetProteinColDefKind implements IColumnDefinitionKind<DataSetPro
             {
                 return entity.getDataSetPermID();
             }
-        }), 
-    SEQUENCE_NAME(new AbstractColumnDefinitionKind<DataSetProtein>(Dict.SEQUENCE_NAME, 80)
+        }), SEQUENCE_NAME(new AbstractColumnDefinitionKind<DataSetProtein>(Dict.SEQUENCE_NAME, 80)
         {
             @Override
             public String tryGetValue(DataSetProtein entity)
@@ -52,35 +50,36 @@ public enum DataSetProteinColDefKind implements IColumnDefinitionKind<DataSetPro
             {
                 return Integer.toString(entity.getPeptideCount());
             }
-            
+
             @Override
-            public Comparable<?> getComparableValue(DataSetProtein entity)
+            public Comparable<?> getComparableValue(GridRowModel<DataSetProtein> entity)
             {
-                return entity.getPeptideCount();
+                return entity.getOriginalObject().getPeptideCount();
             }
         }),
-                
+
     FDR(new AbstractColumnDefinitionKind<DataSetProtein>(Dict.FDR, 80)
+        {
+            @Override
+            public String tryGetValue(DataSetProtein entity)
             {
-                @Override
-                public String tryGetValue(DataSetProtein entity)
-                {
-                    int perMille = (int) (1000 * entity.getFalseDiscoveryRate() + 0.5);
-                    return (perMille / 10) + "." + (perMille % 10) + " %";
-                }
-                
-                @Override
-                public Comparable<?> getComparableValue(DataSetProtein entity)
-                {
-                    return entity.getFalseDiscoveryRate();
-                }
-            }),
-                        
+                int perMille = (int) (1000 * entity.getFalseDiscoveryRate() + 0.5);
+                return (perMille / 10) + "." + (perMille % 10) + " %";
+            }
+
+            @Override
+            public Comparable<?> getComparableValue(GridRowModel<DataSetProtein> entity)
+            {
+                return entity.getOriginalObject().getFalseDiscoveryRate();
+            }
+        }),
+
     ;
 
     private final AbstractColumnDefinitionKind<DataSetProtein> columnDefinitionKind;
 
-    private DataSetProteinColDefKind(AbstractColumnDefinitionKind<DataSetProtein> columnDefinitionKind)
+    private DataSetProteinColDefKind(
+            AbstractColumnDefinitionKind<DataSetProtein> columnDefinitionKind)
     {
         this.columnDefinitionKind = columnDefinitionKind;
     }
@@ -94,6 +93,5 @@ public enum DataSetProteinColDefKind implements IColumnDefinitionKind<DataSetPro
     {
         return columnDefinitionKind;
     }
-
 
 }

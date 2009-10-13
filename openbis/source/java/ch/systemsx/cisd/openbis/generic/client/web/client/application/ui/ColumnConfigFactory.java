@@ -42,16 +42,10 @@ public final class ColumnConfigFactory
         return createRegistratorColumnConfig(messageProvider, ModelDataPropertyNames.REGISTRATOR);
     }
 
-    public final static ColumnConfig createRegistratorColumnConfig(
+    private final static ColumnConfig createRegistratorColumnConfig(
             final IMessageProvider messageProvider, String id)
     {
         return createDefaultColumnConfig(messageProvider.getMessage(Dict.REGISTRATOR), id);
-    }
-
-    public final static ColumnConfig createCodeColumnConfig(final IMessageProvider messageProvider,
-            String id)
-    {
-        return createDefaultColumnConfig(messageProvider.getMessage(Dict.CODE), id);
     }
 
     public final static ColumnConfig createRegistrationDateColumnConfig(
@@ -61,7 +55,7 @@ public final class ColumnConfigFactory
                 ModelDataPropertyNames.REGISTRATION_DATE);
     }
 
-    public final static ColumnConfig createRegistrationDateColumnConfig(
+    private final static ColumnConfig createRegistrationDateColumnConfig(
             final IMessageProvider messageProvider, String id)
     {
         final ColumnConfig registrationDateColumnConfig =

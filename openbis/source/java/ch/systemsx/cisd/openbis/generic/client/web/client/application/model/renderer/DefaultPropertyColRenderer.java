@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 
 /**
@@ -34,7 +35,7 @@ class DefaultPropertyColRenderer<T extends IEntityPropertiesHolder> extends
     }
 
     @Override
-    protected String renderValue(T entity)
+    protected String renderValue(GridRowModel<T> entity)
     {
         return colDef.getValue(entity);
     }

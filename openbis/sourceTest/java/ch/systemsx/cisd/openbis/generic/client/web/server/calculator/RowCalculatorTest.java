@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
@@ -70,9 +72,9 @@ public class RowCalculatorTest extends AssertJUnit
                 }
 
                 @Override
-                public Comparable<?> getComparableValue(Data rowModel)
+                public Comparable<?> getComparableValue(GridRowModel<Data> rowModel)
                 {
-                    return rowModel.getValue();
+                    return rowModel.getOriginalObject().getValue();
                 }
             });
     }
@@ -95,15 +97,16 @@ public class RowCalculatorTest extends AssertJUnit
     {
         Set<ParameterWithValue> parameters = createParameters("x", "10");
         parameters.addAll(createParameters("y", "1"));
-        RowCalculator<Data> calculator = createCalculator(parameters, "${x} * row.col('VALUE') + ${y}");
-        
+        RowCalculator<Data> calculator =
+                createCalculator(parameters, "${x} * row.col('VALUE') + ${y}");
+
         calculator.setRowData(createData(2.5));
         assertEquals(26.0, calculator.evalToDouble());
-        
+
         calculator.setRowData(createData(10));
         assertEquals(101.0, calculator.evalToDouble());
     }
-    
+
     @Test
     public void testEvalToBoolean()
     {
@@ -169,38 +172,38 @@ public class RowCalculatorTest extends AssertJUnit
         calculator.setRowData(createData(3.15));
         assertEquals(0.0, calculator.evalToDouble());
     }
-    
+
     @Test
     public void testIntFunctionOverloaded()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
         RowCalculator<Data> calculator =
                 createCalculator(parameters, "map(int, [${x},'  ',2,2.5,'3'])");
-        
+
         assertEquals("[0, -2147483648, 2, 2, 3]", calculator.evalAsString());
-        
+
     }
-    
+
     @Test
     public void testFloatFunctionOverloaded()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
         RowCalculator<Data> calculator =
-            createCalculator(parameters, "map(float, [${x},'  ',2,2.5,'3'])");
-        
+                createCalculator(parameters, "map(float, [${x},'  ',2,2.5,'3'])");
+
         assertEquals("[0.0, -1.7976931348623157E308, 2.0, 2.5, 3.0]", calculator.evalAsString());
-        
+
     }
-    
+
     @Test
     public void testMinFunctionOverloaded()
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
         RowCalculator<Data> calculator =
-            createCalculator(parameters, "min([${x},None,'  ',-2,'-3'])");
-        
+                createCalculator(parameters, "min([${x},None,'  ',-2,'-3'])");
+
         assertEquals(-3.0, calculator.evalToDouble());
-        
+
     }
 
     @Test
@@ -208,12 +211,12 @@ public class RowCalculatorTest extends AssertJUnit
     {
         Set<ParameterWithValue> parameters = createParameters("x", "0.0");
         RowCalculator<Data> calculator =
-            createCalculator(parameters, "max([${x},None,'  ',-2,'-3'])");
-        
+                createCalculator(parameters, "max([${x},None,'  ',-2,'-3'])");
+
         assertEquals(0.0, calculator.evalToDouble());
-        
+
     }
-    
+
     private RowCalculator<Data> createCalculator(Set<ParameterWithValue> parameters,
             String expression)
     {
@@ -228,10 +231,10 @@ public class RowCalculatorTest extends AssertJUnit
         return new LinkedHashSet<ParameterWithValue>(Arrays.asList(parameter));
     }
 
-    private Data createData(double value)
+    private GridRowModel<Data> createData(double value)
     {
         Data data = new Data();
         data.setValue(value);
-        return data;
+        return new GridRowModel<Data>(data, new HashMap<String, String>());
     }
 }

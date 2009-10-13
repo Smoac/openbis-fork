@@ -1,9 +1,11 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
-import java.util.List;
 
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.TabItem;
@@ -18,7 +20,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.column.GridCustomColumnGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.GridCustomFilterGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IResultUpdater;
 
 /**
  * {@link Dialog} displaying {@link ColumnSettingsChooser}.
@@ -38,10 +39,9 @@ public class ColumnSettingsDialog extends Dialog
     private final String gridDisplayId;
 
     public static void show(IViewContext<ICommonClientServiceAsync> viewContext,
-            List<ColumnDataModel> columnModels,
-            IResultUpdater<List<ColumnDataModel>> resultUpdater, String gridDisplayId)
+            AbstractColumnSettingsDataModelProvider columnDataModelProvider, String gridDisplayId)
     {
-        new ColumnSettingsDialog(viewContext, gridDisplayId).show(columnModels, resultUpdater);
+        new ColumnSettingsDialog(viewContext, gridDisplayId).show(columnDataModelProvider);
     }
 
     private ColumnSettingsDialog(IViewContext<ICommonClientServiceAsync> viewContext, String gridId)
@@ -57,27 +57,33 @@ public class ColumnSettingsDialog extends Dialog
     /**
      * Shows window containing {@link ColumnSettingsChooser} based on given {@link ColumnModel}.
      */
-    private void show(final List<ColumnDataModel> columnModels,
-            final IResultUpdater<List<ColumnDataModel>> resultUpdater)
+    private void show(final AbstractColumnSettingsDataModelProvider columnDataModelProvider)
     {
-        assert columnModels != null : "columnModels not specified";
+        assert columnDataModelProvider != null : "columnDataModelProvider not specified";
         removeAll();
         TabPanel panel = new TabPanel();
         panel.setId(TAB_PANEL_ID_PREFIX + gridDisplayId);
 
         final ColumnSettingsChooser columnChooser =
-                new ColumnSettingsChooser(columnModels, viewContext);
+                new ColumnSettingsChooser(columnDataModelProvider, viewContext);
         TabItem columnsTab = createTabItem(columnChooser.getComponent(), Dict.COLUMNS, "");
+        columnsTab.addListener(Events.Select, new Listener<TabPanelEvent>()
+            {
+                public final void handleEvent(final TabPanelEvent be)
+                {
+                    columnChooser.refresh();
+                }
+            });
         panel.add(columnsTab);
 
         final IDisposableComponent filters =
-                GridCustomFilterGrid.create(viewContext, gridDisplayId, columnModels);
+                GridCustomFilterGrid.create(viewContext, gridDisplayId, columnDataModelProvider);
         TabItem customFiltersTab =
                 createTabItem(filters.getComponent(), Dict.GRID_CUSTOM_FILTERS, FILTERS_TAB);
         panel.add(customFiltersTab);
 
         final IDisposableComponent columns =
-                GridCustomColumnGrid.create(viewContext, gridDisplayId, columnModels);
+                GridCustomColumnGrid.create(viewContext, gridDisplayId, columnDataModelProvider);
         TabItem customColumnsTab =
                 createTabItem(columns.getComponent(), Dict.GRID_CUSTOM_COLUMNS, COLUMNS_TAB);
         panel.add(customColumnsTab);
@@ -91,7 +97,7 @@ public class ColumnSettingsDialog extends Dialog
                 @Override
                 public void componentSelected(ComponentEvent ce)
                 {
-                    resultUpdater.update(columnChooser.getModels());
+                    columnDataModelProvider.onClose(columnChooser.getModels());
                     filters.dispose();
                     columns.dispose();
                     hide();

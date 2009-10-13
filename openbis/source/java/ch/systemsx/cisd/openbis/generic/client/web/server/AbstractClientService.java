@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDat
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager.ICustomColumnsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.ResultSetTranslator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
@@ -54,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -119,7 +122,8 @@ public abstract class AbstractClientService implements IClientService
     {
         final IResultSetManager<String> resultSetManager = getResultSetManager();
         final IResultSet<String, T> result =
-                resultSetManager.getResultSet(resultSetConfig, dummyDataProvider);
+                resultSetManager
+                        .getResultSet(getSessionToken(), resultSetConfig, dummyDataProvider);
         return result;
     }
 
@@ -130,7 +134,7 @@ public abstract class AbstractClientService implements IClientService
         criteria.setResultSetKey(resultSetKey);
         final IResultSet<String, T> allData = getResultSet(criteria, dataProvider);
         Set<BasicEntityType> result = new HashSet<BasicEntityType>();
-        for (T row : allData.getList())
+        for (T row : allData.getList().extractOriginalObjects())
         {
             result.add(row.getEntityType());
         }
@@ -252,7 +256,15 @@ public abstract class AbstractClientService implements IClientService
 
     private CachedResultSetManager<String> createCachedResultSetManager()
     {
-        return new CachedResultSetManager<String>(new TokenBasedResultSetKeyGenerator());
+        return new CachedResultSetManager<String>(new TokenBasedResultSetKeyGenerator(),
+                new ICustomColumnsProvider()
+                    {
+                        public List<GridCustomColumn> getGridCustomColumn(String sessionToken,
+                                String gridDisplayId)
+                        {
+                            return getServer().listGridCustomColumns(sessionToken, gridDisplayId);
+                        }
+                    });
     }
 
     /** Returns the {@link IServer} implementation for this client service. */

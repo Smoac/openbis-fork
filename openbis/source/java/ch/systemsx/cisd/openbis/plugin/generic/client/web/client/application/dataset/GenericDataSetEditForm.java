@@ -349,7 +349,7 @@ public final class GenericDataSetEditForm extends
         @Override
         protected void process(ResultSetWithEntityTypes<ExternalData> result)
         {
-            parentsArea.setParents(result.getResultSet().getList());
+            parentsArea.setParents(result.getResultSet().getList().extractOriginalObjects());
             if (parentsArea.isVisible())
             {
                 parentsArea.setEnabled(true);

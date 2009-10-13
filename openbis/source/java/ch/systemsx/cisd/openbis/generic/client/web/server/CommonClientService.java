@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParam
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
@@ -70,7 +71,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailure
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -187,7 +187,8 @@ public final class CommonClientService extends AbstractClientService implements
         return exportCriteria;
     }
 
-    private final <T> List<T> fetchCachedEntities(final TableExportCriteria<T> exportCriteria)
+    private final <T> GridRowModels<T> fetchCachedEntities(
+            final TableExportCriteria<T> exportCriteria)
     {
         IResultSetConfig<String, T> resultSetConfig = createExportListCriteria(exportCriteria);
         IOriginalDataProvider<T> dummyDataProvider = createDummyDataProvider();
@@ -215,8 +216,8 @@ public final class CommonClientService extends AbstractClientService implements
         criteria.setFilterInfos(exportCriteria.getFilterInfos());
         criteria.setResultSetKey(exportCriteria.getResultSetKey());
         criteria.setCustomFilterInfo(exportCriteria.tryGetCustomFilterInfo());
-        criteria.setAvailableColumns(new HashSet<IColumnDefinition<T>>(exportCriteria
-                .getColumnDefs()));
+        criteria.setAvailableColumns(exportCriteria.getAvailableColumns());
+        criteria.setGridDisplayId(exportCriteria.getGridDisplayId());
         return criteria;
     }
 
@@ -238,7 +239,7 @@ public final class CommonClientService extends AbstractClientService implements
             // Not directly needed but this refreshes the session.
             getSessionToken();
             final TableExportCriteria<T> exportCriteria = getAndRemoveExportCriteria(exportDataKey);
-            final List<T> entities = fetchCachedEntities(exportCriteria);
+            final GridRowModels<T> entities = fetchCachedEntities(exportCriteria);
             return TSVRenderer.createTable(entities, exportCriteria.getColumnDefs(), lineSeparator);
         } catch (final UserFailureException e)
         {
@@ -538,7 +539,7 @@ public final class CommonClientService extends AbstractClientService implements
             TableExportCriteria<? extends IEntityInformationHolder> displayedEntitiesCriteria =
                     criteria.tryGetDisplayedEntities();
             assert displayedEntitiesCriteria != null : "displayedEntitiesCriteria is null";
-            entities = fetchCachedEntities(displayedEntitiesCriteria);
+            entities = fetchCachedEntities(displayedEntitiesCriteria).extractOriginalObjects();
         }
         return new DataSetRelatedEntities(entities);
     }
@@ -1975,7 +1976,8 @@ public final class CommonClientService extends AbstractClientService implements
             TableExportCriteria<ExternalData> displayedItemsCriteria =
                     displayedOrSelectedDatasetCriteria.tryGetDisplayedItems();
             assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
-            List<ExternalData> datasets = fetchCachedEntities(displayedItemsCriteria);
+            List<ExternalData> datasets =
+                    fetchCachedEntities(displayedItemsCriteria).extractOriginalObjects();
             if (serviceDescriptionOrNull != null)
             {
                 datasets = filterDatasets(datasets, serviceDescriptionOrNull);
@@ -2135,7 +2137,7 @@ public final class CommonClientService extends AbstractClientService implements
             TableExportCriteria<T> displayedItemsCriteria =
                     displayedOrSelectedEntitiesCriteria.tryGetDisplayedItems();
             assert displayedItemsCriteria != null : "displayedItemsCriteria is null";
-            List<T> entities = fetchCachedEntities(displayedItemsCriteria);
+            List<T> entities = fetchCachedEntities(displayedItemsCriteria).extractOriginalObjects();
             return TechId.createList(entities);
         }
     }
@@ -2213,7 +2215,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     // -- grid custom columns
 
-    public List<GridCustomColumn> listColumns(String gridId)
+    public List<GridCustomColumn> listGridCustomColumns(String gridId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
@@ -2225,7 +2227,7 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public ResultSet<GridCustomColumn> listColumns(final String gridId,
+    public ResultSet<GridCustomColumn> listGridCustomColumns(final String gridId,
             DefaultResultSetConfig<String, GridCustomColumn> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -2233,7 +2235,7 @@ public final class CommonClientService extends AbstractClientService implements
             {
                 public List<GridCustomColumn> getOriginalData() throws UserFailureException
                 {
-                    return listColumns(gridId);
+                    return listGridCustomColumns(gridId);
                 }
             });
     }

@@ -214,7 +214,7 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
         @Override
         protected void process(final ResultSet<Project> result)
         {
-            List<Project> projects = result.getList();
+            List<Project> projects = result.getList().extractOriginalObjects();
             rebuildTree(projects);
 
             if (selectedProjectOrNull != null)

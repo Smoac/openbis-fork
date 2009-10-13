@@ -115,7 +115,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
             {
                 groupStore.add(new GroupModel(createSharedGroup()));
             }
-            groupStore.add(convertItems(result.getList()));
+            groupStore.add(convertItems(result.getList().extractOriginalObjects()));
             if (groupStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -26,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Enti
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.SampleAbundanceColDefKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
@@ -46,7 +46,7 @@ public final class SampleAbundanceModelFactory
     }
 
     public static BaseEntityModel<SampleWithPropertiesAndAbundance> createModel(
-            SampleWithPropertiesAndAbundance entity)
+            GridRowModel<SampleWithPropertiesAndAbundance> entity)
     {
         List<IColumnDefinitionUI<SampleWithPropertiesAndAbundance>> allColumnsDefinition =
                 new SampleAbundanceModelFactory().createColumnsSchemaForRendering(entity);
@@ -65,7 +65,7 @@ public final class SampleAbundanceModelFactory
     }
 
     private List<IColumnDefinitionUI<SampleWithPropertiesAndAbundance>> createColumnsSchemaForRendering(
-            SampleWithPropertiesAndAbundance sample)
+            GridRowModel<SampleWithPropertiesAndAbundance> sample)
     {
         List<IColumnDefinitionUI<SampleWithPropertiesAndAbundance>> columns =
                 entityGridModelFactory.createColumnsSchemaForRendering(sample);
@@ -80,16 +80,5 @@ public final class SampleAbundanceModelFactory
         ColumnDefsAndConfigs<SampleWithPropertiesAndAbundance> columns =
                 entityGridModelFactory.createColumnsSchema(messageProvider, propertyTypes);
         return columns;
-    }
-
-    public final static List<ModelData> asSampleModels(
-            final List<SampleWithPropertiesAndAbundance> samples)
-    {
-        final List<ModelData> sampleModels = new ArrayList<ModelData>(samples.size());
-        for (final SampleWithPropertiesAndAbundance sample : samples)
-        {
-            sampleModels.add(SampleAbundanceModelFactory.createModel(sample));
-        }
-        return sampleModels;
     }
 }

@@ -31,14 +31,15 @@ import org.apache.commons.lang.text.StrTokenizer;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.FilterUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
@@ -56,27 +57,30 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CachedResultSetManager.class);
 
-    private static final String FILTER_EVALUATION_ERROR_MSG =
-            "Problem occured during applying the filter.<br><br>Check that all provided parameter values are correct. "
-                    + "If everything seems fine contact filter registrator or instance admin about a possible bug in the filter definition.";
-
-    private static final String FILTER_EVALUATION_SERIOUS_ERROR_MSG =
-            "Serious problem occured during applying the filter: ";
-
     private final IResultSetKeyGenerator<K> resultSetKeyProvider;
+
+    private final ICustomColumnsProvider customColumnsProvider;
 
     @Private
     final Map<K, List<?>> results = new HashMap<K, List<?>>();
 
-    public CachedResultSetManager(final IResultSetKeyGenerator<K> resultSetKeyProvider)
+    public interface ICustomColumnsProvider
+    {
+        // used to fetch grid custom columns definition for the specified grid id
+        List<GridCustomColumn> getGridCustomColumn(String sessionToken, String gridDisplayId);
+    }
+
+    public CachedResultSetManager(final IResultSetKeyGenerator<K> resultSetKeyProvider,
+            ICustomColumnsProvider customColumnsProvider)
     {
         this.resultSetKeyProvider = resultSetKeyProvider;
+        this.customColumnsProvider = customColumnsProvider;
     }
 
     @SuppressWarnings("unchecked")
-    private final <T> List<T> cast(final List<?> list)
+    private final <T> T cast(final Object object)
     {
-        return (List<T>) list;
+        return (T) object;
     }
 
     /**
@@ -118,58 +122,49 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         }
     }
 
-    private static final <T> List<T> filterData(final List<T> rows,
+    private static final <T> GridRowModels<T> filterData(final GridRowModels<T> rows,
             Set<IColumnDefinition<T>> availableColumns, final List<GridFilterInfo<T>> filterInfos,
             CustomFilterInfo<T> customFilterInfo)
     {
-        List<T> filtered = new ArrayList<T>();
         if (customFilterInfo != null)
         {
-            try
-            {
-                FilterUtils.applyCustomFilter(rows, availableColumns, customFilterInfo, filtered);
-            } catch (Exception ex)
-            {
-                String msg;
-                String details = null;
-                if (ex instanceof EvaluatorException)
-                {
-                    msg = FILTER_EVALUATION_ERROR_MSG;
-                    details = ex.getMessage();
-                } else
-                {
-                    msg = FILTER_EVALUATION_SERIOUS_ERROR_MSG + ex;
-                }
-                if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info(msg + " DETAILS: " + details, ex);
-                }
-                throw new UserFailureException(msg, details);
-            }
+            return GridExpressionUtils.applyCustomFilter(rows, availableColumns, customFilterInfo);
         } else
         {
-            List<FilterInfo<T>> serverFilterInfos =
-                    new ArrayList<FilterInfo<T>>(filterInfos.size());
-            for (GridFilterInfo<T> info : filterInfos)
-            {
-                serverFilterInfos.add(FilterInfo.create(info));
+            return applyStandardColumnFilter(rows, filterInfos);
+        }
+    }
 
-            }
-            for (T row : rows)
+    private static <T> GridRowModels<T> applyStandardColumnFilter(final GridRowModels<T> rows,
+            final List<GridFilterInfo<T>> filterInfos)
+    {
+        GridRowModels<T> filtered = new GridRowModels<T>(rows.getCustomColumnsMetadata());
+        List<FilterInfo<T>> serverFilterInfos = processFilters(filterInfos);
+        for (GridRowModel<T> row : rows)
+        {
+            if (isMatching(row, serverFilterInfos))
             {
-                if (isMatching(row, serverFilterInfos))
-                {
-                    filtered.add(row);
-                }
+                filtered.add(row);
             }
         }
         return filtered;
     }
 
-    // returns true if a row matches all the filters
-    private static final <T> boolean isMatching(final T row, final List<FilterInfo<T>> filterInfos)
+    private static <T> List<FilterInfo<T>> processFilters(final List<GridFilterInfo<T>> filterInfos)
     {
-        for (FilterInfo<T> filter : filterInfos)
+        List<FilterInfo<T>> serverFilterInfos = new ArrayList<FilterInfo<T>>(filterInfos.size());
+        for (GridFilterInfo<T> info : filterInfos)
+        {
+            serverFilterInfos.add(FilterInfo.create(info));
+        }
+        return serverFilterInfos;
+    }
+
+    // returns true if a row matches all the filters
+    private static final <T> boolean isMatching(final GridRowModel<T> row,
+            final List<FilterInfo<T>> serverFilterInfos)
+    {
+        for (FilterInfo<T> filter : serverFilterInfos)
         {
             if (isMatching(row, filter) == false)
             {
@@ -179,7 +174,8 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return true;
     }
 
-    private static final <T> boolean isMatching(final T row, final FilterInfo<T> filterInfo)
+    private static final <T> boolean isMatching(final GridRowModel<T> row,
+            final FilterInfo<T> filterInfo)
     {
         IColumnDefinition<T> filteredField = filterInfo.getFilteredField();
         String value = filteredField.getValue(row).toLowerCase();
@@ -198,7 +194,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return false;
     }
 
-    private final <T> void sortData(final List<T> data, final SortInfo<T> sortInfo)
+    private final <T> void sortData(final GridRowModels<T> data, final SortInfo<T> sortInfo)
     {
         assert data != null : "Unspecified data.";
         assert sortInfo != null : "Unspecified sort information.";
@@ -212,18 +208,18 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             return;
         }
-        Comparator<T> comparator = createComparator(sortDir, sortField);
+        Comparator<GridRowModel<T>> comparator = createComparator(sortDir, sortField);
         Collections.sort(data, comparator);
     }
 
-    private static <T> Comparator<T> createComparator(final SortDir sortDir,
+    private static <T> Comparator<GridRowModel<T>> createComparator(final SortDir sortDir,
             final IColumnDefinition<T> sortField)
     {
-        Comparator<T> comparator = new Comparator<T>()
+        Comparator<GridRowModel<T>> comparator = new Comparator<GridRowModel<T>>()
             {
 
                 @SuppressWarnings("unchecked")
-                public int compare(T o1, T o2)
+                public int compare(GridRowModel<T> o1, GridRowModel<T> o2)
                 {
                     Comparable v1 = sortField.getComparableValue(o1);
                     Comparable v2 = sortField.getComparableValue(o2);
@@ -271,28 +267,30 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
      * Encapsulates list returned by {@link List#subList(int, int)} in a new <code>List</code> as
      * <i>GWT</i> complains because of a serialization concern.
      */
-    private final static <T> List<T> subList(final List<T> data, final int offset, final int limit)
+    private final static <T> GridRowModels<T> subList(final GridRowModels<T> data,
+            final int offset, final int limit)
     {
         final int toIndex = offset + limit;
-        return new ArrayList<T>(data.subList(offset, toIndex));
+        return new GridRowModels<T>(data.subList(offset, toIndex), data.getCustomColumnsMetadata());
     }
 
     //
     // IDataManager
     //
 
-    public final synchronized <T> IResultSet<K, T> getResultSet(
+    public final synchronized <T> IResultSet<K, T> getResultSet(final String sessionToken,
             final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
     {
         assert resultConfig != null : "Unspecified result configuration";
         assert dataProvider != null : "Unspecified data retriever";
-        List<T> data;
+        GridRowModels<T> data;
         K dataKey = resultConfig.getResultSetKey();
         if (dataKey == null)
         {
             debug("Unknown result set key: retrieving the data.");
             dataKey = resultSetKeyProvider.createKey();
-            data = dataProvider.getOriginalData();
+            List<T> rows = dataProvider.getOriginalData();
+            data = calculateCustomColumns(sessionToken, rows, resultConfig);
             results.put(dataKey, data);
         } else
         {
@@ -312,8 +310,24 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         final int limit = getLimit(size, resultConfig.getLimit(), offset);
         final SortInfo<T> sortInfo = resultConfig.getSortInfo();
         sortData(data, sortInfo);
-        final List<T> list = subList(data, offset, limit);
+        final GridRowModels<T> list = subList(data, offset, limit);
         return new DefaultResultSet<K, T>(dataKey, list, size);
+    }
+
+    private <T> GridRowModels<T> calculateCustomColumns(String sessionToken, List<T> rows,
+            IResultSetConfig<?, T> resultConfig)
+    {
+        String gridId = resultConfig.tryGetGridDisplayId();
+        List<GridCustomColumn> customColumns;
+        if (gridId == null)
+        {
+            customColumns = new ArrayList<GridCustomColumn>();
+        } else
+        {
+            customColumns = customColumnsProvider.getGridCustomColumn(sessionToken, gridId);
+        }
+        return GridExpressionUtils.evalCustomColumns(rows, customColumns, resultConfig
+                .getAvailableColumns());
     }
 
     public final synchronized void removeResultSet(final K resultSetKey)

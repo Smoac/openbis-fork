@@ -39,7 +39,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -48,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleSession;
+import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomColumnTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -303,5 +306,13 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
     {
         final Session session = getSessionManager().getSession(sessionToken);
         session.setBaseIndexURL(baseIndexURL);
+    }
+
+    public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
+    {
+        checkSession(sessionToken);
+        List<GridCustomColumnPE> columns =
+                getDAOFactory().getGridCustomColumnDAO().listColumns(gridId);
+        return GridCustomColumnTranslator.translate(columns);
     }
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimplePersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -32,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * are similar, but cannot extend a class directly (they are enums, not classes).
  * </p>
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public abstract class AbstractColumnDefinitionKind<T>
 {
@@ -90,9 +91,9 @@ public abstract class AbstractColumnDefinitionKind<T>
         return headerMsgKey;
     }
 
-    public Comparable<?> getComparableValue(T entity)
+    public Comparable<?> getComparableValue(GridRowModel<T> entity)
     {
-        String value = tryGetValue(entity);
+        String value = tryGetValue(entity.getOriginalObject());
         return value == null ? "" : value;
     }
 

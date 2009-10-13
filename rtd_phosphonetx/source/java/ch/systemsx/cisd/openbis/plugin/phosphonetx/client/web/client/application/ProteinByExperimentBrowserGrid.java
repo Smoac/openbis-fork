@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -142,7 +143,8 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                     properties.put(treatment.getTypeCode(), treatment.getValue());
                 }
             }
-            columns.add(new InternalAbundanceColumnDefinition(header, properties, 100, false, sampleID));
+            columns.add(new InternalAbundanceColumnDefinition(header, properties, 100, false,
+                    sampleID));
         }
         definitions.addColumns(columns);
         definitions.setGridCellRendererFor(ProteinColDefKind.ACCESSION_NUMBER.id(), LinkRenderer
@@ -151,7 +153,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     }
 
     @Override
-    protected BaseEntityModel<ProteinInfo> createModel(ProteinInfo entity)
+    protected BaseEntityModel<ProteinInfo> createModel(GridRowModel<ProteinInfo> entity)
     {
         Set<IColumnDefinition<ProteinInfo>> columnDefs = createColumnsDefinition().getColumnDefs();
         return new BaseEntityModel<ProteinInfo>(entity,

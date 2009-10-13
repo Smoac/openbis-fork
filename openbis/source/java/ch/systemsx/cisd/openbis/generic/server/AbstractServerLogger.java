@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -26,6 +28,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -161,6 +164,12 @@ public abstract class AbstractServerLogger implements IServer
     {
         String groupId = groupIdOrNull == null ? "null" : groupIdOrNull.toString();
         logTracking(sessionToken, "change_user_home_group (%s)", groupId);
+    }
+
+    public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
+    {
+        logAccess(sessionToken, "listGridCustomColumns GRID_ID(%s)", gridId);
+        return null;
     }
 
     public void setBaseIndexURL(String sessionToken, String baseURL)

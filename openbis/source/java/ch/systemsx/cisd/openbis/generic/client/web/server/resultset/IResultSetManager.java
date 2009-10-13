@@ -28,14 +28,16 @@ public interface IResultSetManager<K>
 {
 
     /**
-     * Produces a {@link IResultSet} from given <var>resultConfig</var> and given <var>dataProvider</var>.
+     * Produces a {@link IResultSet} from given <var>resultConfig</var> and given
+     * <var>dataProvider</var>.
      * <p>
      * In case of cached data, the {@link IOriginalDataProvider} implementation is only used in the
      * first call, when the full data are not already there.
      * </p>
      */
-    public <T> IResultSet<K, T> getResultSet(final IResultSetConfig<K, T> resultConfig,
-            final IOriginalDataProvider<T> dataProvider) throws UserFailureException;
+    public <T> IResultSet<K, T> getResultSet(final String sessionToken,
+            final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
+            throws UserFailureException;
 
     /**
      * Remove the data mapped to given <var>resultSetKey</var>.

@@ -17,12 +17,16 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
@@ -41,8 +45,18 @@ public class TSVRendererTest
             { "x", "y" });
         entities.add(new String[]
             { "a", "b" });
-        String content = TSVRenderer.createTable(entities, columnDefs, "#");
+        String content = TSVRenderer.createTable(asRowModel(entities), columnDefs, "#");
         Assert.assertEquals("h0\th1#x\ty#a\tb#", content);
+    }
+
+    public static <T> GridRowModels<T> asRowModel(List<T> entities)
+    {
+        List<GridRowModel<T>> list = new ArrayList<GridRowModel<T>>();
+        for (T entity : entities)
+        {
+            list.add(new GridRowModel<T>(entity, new HashMap<String, String>()));
+        }
+        return new GridRowModels<T>(list, new ArrayList<GridCustomColumnInfo>());
     }
 
     private static List<IColumnDefinition<String[]>> createColumnDefs(int colNum)
@@ -60,7 +74,7 @@ public class TSVRendererTest
     {
         List<IColumnDefinition<String[]>> columnDefs = createColumnDefs(2);
         List<String[]> entities = new ArrayList<String[]>();
-        String content = TSVRenderer.createTable(entities, columnDefs, "\n");
+        String content = TSVRenderer.createTable(asRowModel(entities), columnDefs, "\n");
         Assert.assertEquals("h0\th1\n", content);
     }
 
@@ -79,12 +93,12 @@ public class TSVRendererTest
                     return null;
                 }
 
-                public String getValue(String[] rowModel)
+                public String getValue(GridRowModel<String[]> rowModel)
                 {
-                    return rowModel[colIx];
+                    return rowModel.getOriginalObject()[colIx];
                 }
 
-                public Comparable<?> getComparableValue(String[] rowModel)
+                public Comparable<?> getComparableValue(GridRowModel<String[]> rowModel)
                 {
                     return getValue(rowModel);
                 }

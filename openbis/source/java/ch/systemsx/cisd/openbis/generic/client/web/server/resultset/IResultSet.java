@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
-import java.util.List;
-
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetKeyHolder;
 
@@ -31,7 +30,7 @@ public interface IResultSet<K, T> extends IResultSetKeyHolder<K>
     /**
      * Returns the list produced by a given {@link IResultSetConfig}.
      */
-    public List<T> getList();
+    public GridRowModels<T> getList();
 
     /**
      * Returns the total count.

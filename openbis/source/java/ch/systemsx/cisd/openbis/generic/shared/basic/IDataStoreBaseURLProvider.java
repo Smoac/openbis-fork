@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
+
 /**
  * Implementation of this interface provides a way to expose the data store base URL.
  * 
@@ -7,5 +8,5 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
  */
 public interface IDataStoreBaseURLProvider
 {
-    public String getDataStoreBaseURL();
+    String getDataStoreBaseURL();
 }

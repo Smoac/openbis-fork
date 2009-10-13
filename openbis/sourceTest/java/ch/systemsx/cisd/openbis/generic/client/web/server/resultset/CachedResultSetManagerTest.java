@@ -33,8 +33,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager.ICustomColumnsProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRendererTest;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
@@ -48,6 +52,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 @Friend(toClasses = CachedResultSetManager.class)
 public final class CachedResultSetManagerTest
 {
+    static private final String SESSION_TOKEN = "SESSION_TOKEN";
+
     private IResultSetConfig<String, String> resultSetConfig;
 
     private IOriginalDataProvider<String> originalDataProvider;
@@ -78,7 +84,7 @@ public final class CachedResultSetManagerTest
         expectations.will(Expectations.returnValue(null));
     }
 
-    private final static List<Sample> createSampleList()
+    private final static GridRowModels<Sample> createSampleList()
     {
         final int size = 3;
         final List<Sample> list = new ArrayList<Sample>(size);
@@ -88,7 +94,7 @@ public final class CachedResultSetManagerTest
             sample.setCode("code" + i);
             list.add(sample);
         }
-        return list;
+        return TSVRendererTest.asRowModel(list);
     }
 
     @SuppressWarnings("unchecked")
@@ -104,7 +110,16 @@ public final class CachedResultSetManagerTest
     private final static IResultSetManager<String> createResultSetManager()
     {
         final CachedResultSetManager<String> resultSetManager =
-                new CachedResultSetManager<String>(new TokenBasedResultSetKeyGenerator());
+                new CachedResultSetManager<String>(new TokenBasedResultSetKeyGenerator(),
+                        new ICustomColumnsProvider()
+                            {
+                                public List<GridCustomColumn> getGridCustomColumn(
+                                        String sessionToken, String gridDisplayId)
+                                {
+                                    return new ArrayList<GridCustomColumn>();
+                                }
+
+                            });
         resultSetManager.results.put("1", createSampleList());
         return resultSetManager;
     }
@@ -123,7 +138,7 @@ public final class CachedResultSetManagerTest
         boolean fail = true;
         try
         {
-            resultSetManager.getResultSet(null, null);
+            resultSetManager.getResultSet(null, null, null);
         } catch (final AssertionError e)
         {
             fail = false;
@@ -165,9 +180,12 @@ public final class CachedResultSetManagerTest
                     one(resultSetConfig).getResultSetKey();
                     will(returnValue(null));
 
-                    one(resultSetConfig).getAvailableColumns();
+                    allowing(resultSetConfig).getAvailableColumns();
                     will(returnValue(null));
-                    
+
+                    one(resultSetConfig).tryGetGridDisplayId();
+                    will(returnValue(null));
+
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(Collections.emptyList()));
 
@@ -175,7 +193,7 @@ public final class CachedResultSetManagerTest
                 }
             });
         final IResultSet<String, String> resultSet =
-                resultSetManager.getResultSet(resultSetConfig, originalDataProvider);
+                resultSetManager.getResultSet(SESSION_TOKEN, resultSetConfig, originalDataProvider);
         assertEquals(0, resultSet.getList().size());
         assertEquals(0, resultSet.getTotalLength());
         assertTrue(StringUtils.isNotEmpty(resultSet.getResultSetKey()));
@@ -191,14 +209,14 @@ public final class CachedResultSetManagerTest
                     one(resultSetConfig).getResultSetKey();
                     will(returnValue("1"));
 
-                    one(resultSetConfig).getAvailableColumns();
+                    allowing(resultSetConfig).getAvailableColumns();
                     will(returnValue(null));
-                    
+
                     allowResultSetCreation(this);
                 }
             });
         final IResultSet<String, ?> resultSet =
-                resultSetManager.getResultSet(resultSetConfig, originalDataProvider);
+                resultSetManager.getResultSet(SESSION_TOKEN, resultSetConfig, originalDataProvider);
         assertEquals(2, resultSet.getList().size());
         assertEquals(3, resultSet.getTotalLength());
         assertEquals("1", resultSet.getResultSetKey());
@@ -215,9 +233,12 @@ public final class CachedResultSetManagerTest
                     one(resultSetConfig).getResultSetKey();
                     will(returnValue(null));
 
-                    one(resultSetConfig).getAvailableColumns();
+                    allowing(resultSetConfig).getAvailableColumns();
                     will(returnValue(null));
-                    
+
+                    one(resultSetConfig).tryGetGridDisplayId();
+                    will(returnValue(null));
+
                     one(originalDataProvider).getOriginalData();
                     will(returnValue(Collections.singletonList(value)));
 
@@ -225,11 +246,11 @@ public final class CachedResultSetManagerTest
                 }
             });
         final IResultSet<String, ?> resultSet =
-                resultSetManager.getResultSet(resultSetConfig, originalDataProvider);
+                resultSetManager.getResultSet(SESSION_TOKEN, resultSetConfig, originalDataProvider);
         assertEquals(1, resultSet.getList().size());
         assertEquals(1, resultSet.getTotalLength());
         assertNotNull(resultSet.getResultSetKey());
-        assertEquals(value, resultSet.getList().get(0));
+        assertEquals(value, resultSet.getList().get(0).getOriginalObject());
         context.assertIsSatisfied();
     }
 

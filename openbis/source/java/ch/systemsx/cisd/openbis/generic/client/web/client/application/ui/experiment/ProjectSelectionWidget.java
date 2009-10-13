@@ -128,7 +128,7 @@ public final class ProjectSelectionWidget extends
         {
             final ListStore<ProjectComboModel> projectStore = getStore();
             projectStore.removeAll();
-            projectStore.add(convertItems(result.getList()));
+            projectStore.add(convertItems(result.getList().extractOriginalObjects()));
             if (projectStore.getCount() > 0)
             {
                 setEmptyText(viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, CHOOSE_SUFFIX));

@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
  * 
  * @author Franz-Josef Elmer
  */
-public class ColumnDefinition
+class ColumnDefinition
 {
     private final IColumnDefinition<?> definition;
 

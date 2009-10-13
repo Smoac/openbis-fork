@@ -145,7 +145,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
         @Override
         protected void process(final ResultSet<PropertyType> result)
         {
-            propertyTypes = result.getList();
+            propertyTypes = result.getList().extractOriginalObjects();
 
             final ListStore<DetailedSearchFieldComboModel> propertyTypeStore = getStore();
             propertyTypeStore.removeAll();

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
@@ -36,7 +37,7 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
         this.columnHeader = columnHeader;
     }
 
-    public Comparable<?> getComparableValue(TableModelRow rowModel)
+    public Comparable<?> getComparableValue(GridRowModel<TableModelRow> rowModel)
     {
         TableModelColumnType type = columnHeader.getType();
         String value = getValue(rowModel);
@@ -74,12 +75,12 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
         return "colIndex_" + columnHeader.getIndex();
     }
 
-    public String getValue(TableModelRow rowModel)
+    public String getValue(GridRowModel<TableModelRow> rowModel)
     {
         int index = columnHeader.getIndex();
-        return rowModel.getValues().get(index);
+        return rowModel.getOriginalObject().getValues().get(index);
     }
-    
+
     public String tryToGetProperty(String key)
     {
         return null;

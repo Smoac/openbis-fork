@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
-import java.util.List;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 
 /**
  * A default {@link IResultSet} implementation.
@@ -27,11 +27,11 @@ public final class DefaultResultSet<K, T> implements IResultSet<K, T>
 {
     private final K resultSetKey;
 
-    private final List<T> list;
+    private final GridRowModels<T> list;
 
     private final int totalLength;
 
-    public DefaultResultSet(final K resultSetKey, final List<T> list, final int totalLength)
+    public DefaultResultSet(final K resultSetKey, final GridRowModels<T> list, final int totalLength)
     {
         assert resultSetKey != null : "Unspecified result set key";
         assert list != null : "Unspecified list.";
@@ -50,7 +50,7 @@ public final class DefaultResultSet<K, T> implements IResultSet<K, T>
         return resultSetKey;
     }
 
-    public final List<T> getList()
+    public final GridRowModels<T> getList()
     {
         return list;
     }

@@ -26,6 +26,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -34,6 +36,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 /**
  * Factory for creating model or column definitions for grids which displays entities with
  * properties.
+ * <p>
+ * Note that we do not create {@link IColumnDefinition} for custom columns. We do not need this both
+ * in the case of row values rendering (row model has all needed information) and in case of grid
+ * header construction (custom columns definition will be constructed later when the row data will
+ * be fetched).
+ * </p>
  * 
  * @author Tomasz Pylak
  */
@@ -48,7 +56,7 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
         this.staticColumnDefinitions = staticColumnDefinitions;
     }
 
-    public BaseEntityModel<T> createModel(T entity)
+    public BaseEntityModel<T> createModel(GridRowModel<T> entity)
     {
         List<IColumnDefinitionUI<T>> allColumnsDefinition =
                 new EntityGridModelFactory<T>(staticColumnDefinitions)
@@ -60,11 +68,10 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
      * here we create the columns definition having just one table row. We need them only to render
      * column values (headers have been already created), so no message provider is needed.
      */
-    public List<IColumnDefinitionUI<T>> createColumnsSchemaForRendering(
-            IEntityPropertiesHolder entity)
+    public List<IColumnDefinitionUI<T>> createColumnsSchemaForRendering(GridRowModel<T> rowModel)
     {
         List<IColumnDefinitionUI<T>> list = createStaticColumnDefinitions(null);
-        for (IEntityProperty prop : entity.getProperties())
+        for (IEntityProperty prop : rowModel.getOriginalObject().getProperties())
         {
             PropertyType propertyType = prop.getPropertyType();
             EntityPropertyColDef<T> colDef = new EntityPropertyColDef<T>(propertyType, true, null);

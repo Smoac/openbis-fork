@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -323,7 +324,7 @@ public class PropertyTypeAssignmentGrid extends
 
     @Override
     protected BaseEntityModel<EntityTypePropertyType<?>> createModel(
-            EntityTypePropertyType<?> entity)
+            GridRowModel<EntityTypePropertyType<?>> entity)
     {
         BaseEntityModel<EntityTypePropertyType<?>> model = super.createModel(entity);
         model.renderAsMultilineStringWithTooltip(PropertyTypeAssignmentColDefKind.DESCRIPTION.id());

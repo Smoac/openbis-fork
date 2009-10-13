@@ -71,6 +71,11 @@ public class ColumnDataModel extends BaseModelData
         return get(HAS_FILTER);
     }
 
+    public String getHeader()
+    {
+        return get(HEADER);
+    }
+
     public String getAddress()
     {
         return get(ADDRESS);

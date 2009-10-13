@@ -73,7 +73,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
         @Override
         protected void process(ResultSetWithEntityTypes<Sample> result)
         {
-            samplesArea.setSamples(result.getResultSet().getList());
+            samplesArea.setSamples(result.getResultSet().getList().extractOriginalObjects());
             samplesArea.setEnabled(true);
         }
     }

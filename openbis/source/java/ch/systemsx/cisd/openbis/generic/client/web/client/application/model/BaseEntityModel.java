@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnValue;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractRegistrationHolder;
@@ -41,26 +43,38 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * The generic model which can be created automatically using the array of
  * {@link IColumnDefinitionKind} or {@link IColumnDefinition}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  * @author Tomasz Pylak
  */
 public class BaseEntityModel<T> extends BaseModelData
 {
     private static final long serialVersionUID = 1L;
 
-    public BaseEntityModel(final T entity, IColumnDefinitionKind<T>[] staticColumnDefinitions)
+    public BaseEntityModel(final GridRowModel<T> entity,
+            IColumnDefinitionKind<T>[] staticColumnDefinitions)
     {
         this(entity, createColumnsDefinition(staticColumnDefinitions, null));
     }
 
-    public BaseEntityModel(final T entity, List<? extends IColumnDefinition<T>> columnDefinitions)
+    /** NOTE: it's assumed that columnDefinitions do not contain custom columns */
+    public BaseEntityModel(final GridRowModel<T> entity,
+            List<? extends IColumnDefinition<T>> columnDefinitions)
     {
-        set(ModelDataPropertyNames.OBJECT, entity);
+        set(ModelDataPropertyNames.OBJECT, entity.getOriginalObject());
 
         for (IColumnDefinition<T> column : columnDefinitions)
         {
             String value = renderColumnValue(entity, column);
             set(column.getIdentifier(), value);
+        }
+        addCustomColumns(entity.getCalculatedColumnValues());
+    }
+
+    private void addCustomColumns(List<GridCustomColumnValue> list)
+    {
+        for (GridCustomColumnValue column : list)
+        {
+            set(column.getColumnId(), column.getValue());
         }
     }
 
@@ -103,23 +117,27 @@ public class BaseEntityModel<T> extends BaseModelData
     }
 
     // ugly, ugly, ugly!
-    protected String renderColumnValue(final T entity, IColumnDefinition<T> column)
+    protected String renderColumnValue(final GridRowModel<T> entity, IColumnDefinition<T> column)
     {
         String value = column.getValue(entity);
         if (column instanceof CommonColumnDefinition<?>)
         {
             String headerMsgKey = ((CommonColumnDefinition<?>) column).getHeaderMsgKey();
+            T originalRecord = entity.getOriginalObject();
             if (headerMsgKey.equals(Dict.REGISTRATOR)
-                    && entity instanceof AbstractRegistrationHolder)
+                    && originalRecord instanceof AbstractRegistrationHolder)
             {
-                Person registrator = ((AbstractRegistrationHolder) entity).getRegistrator();
+                Person registrator = ((AbstractRegistrationHolder) originalRecord).getRegistrator();
                 if (registrator != null)
                 {
                     value = PersonRenderer.createPersonAnchor(registrator, value);
                 }
-            } else if (headerMsgKey.equals(Dict.CODE) && entity instanceof IInvalidationProvider)
+            } else if (headerMsgKey.equals(Dict.CODE)
+                    && originalRecord instanceof IInvalidationProvider)
             {
-                value = InvalidableWithCodeRenderer.render((IInvalidationProvider) entity, value);
+                value =
+                        InvalidableWithCodeRenderer.render((IInvalidationProvider) originalRecord,
+                                value);
             }
         }
         return value;

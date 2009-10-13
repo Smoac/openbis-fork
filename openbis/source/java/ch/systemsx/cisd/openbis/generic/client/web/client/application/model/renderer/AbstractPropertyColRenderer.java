@@ -18,13 +18,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ren
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 
 /**
  * An abstract decorator for {@link EntityPropertyColDef} to be used in grids for rendering values
  * in a different way in grids than in export. <br>
- * It changes {@link EntityPropertyColDef#getValue(Object)} behavior distinguishing certain property
+ * It changes {@link EntityPropertyColDef#getValue(GridRowModel)} behavior distinguishing certain property
  * types so in grid there can be e.g. a link displayed for hyperlink property. Other methods are
  * delegated without any change.
  * 
@@ -63,12 +64,12 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
         this.colDef = colDef;
     }
 
-    public String getValue(T entity)
+    public String getValue(GridRowModel<T> entity)
     {
         return renderValue(entity);
     }
 
-    public Comparable<?> getComparableValue(T rowModel)
+    public Comparable<?> getComparableValue(GridRowModel<T> rowModel)
     {
         return colDef.getComparableValue(rowModel);
     }
@@ -76,7 +77,7 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
     /**
      * @return given <var>value</var> rendered depending on property type
      */
-    protected abstract String renderValue(T entity);
+    protected abstract String renderValue(GridRowModel<T> entity);
 
     // default delegate methods
 

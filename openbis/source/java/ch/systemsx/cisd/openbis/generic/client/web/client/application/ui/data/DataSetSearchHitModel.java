@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -40,21 +41,22 @@ public class DataSetSearchHitModel extends BaseEntityModel<ExternalData>
 
     private static final int PROPERTY_COLUMN_WIDTH = 150;
 
-    public DataSetSearchHitModel(final ExternalData entity)
+    public DataSetSearchHitModel(final GridRowModel<ExternalData> entity)
     {
         super(entity, createColumnsSchema(entity));
     }
 
     // here we create the columns definition having just one table row. We need them only to render
     // column values (headers have been already created), so no message provider is needed.
-    private static List<IColumnDefinitionUI<ExternalData>> createColumnsSchema(ExternalData entity)
+    private static List<IColumnDefinitionUI<ExternalData>> createColumnsSchema(
+            GridRowModel<ExternalData> entity)
     {
         List<IColumnDefinitionUI<ExternalData>> list = createCommonColumnsSchema(null);
 
-        List<PropertyType> datasetProperties =
-                extractPropertyTypes(DataSetPropertyColDef.getDataSetProperties(entity));
+        List<IEntityProperty> properties =
+                DataSetPropertyColDef.getDataSetProperties(entity.getOriginalObject());
+        List<PropertyType> datasetProperties = extractPropertyTypes(properties);
         list.addAll(createDatasetPropertyTypeColDefs(datasetProperties));
-
         return list;
     }
 

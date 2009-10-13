@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -45,7 +46,16 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
     // which columns should be exported
     private List<IColumnDefinition<T>> columnDefs;
 
+    // all available columns in the grid which is exported. Used to calculate expressions in
+    // custom filters and columns.
+    private Set<IColumnDefinition<T>> availableColumns;
+
     private CustomFilterInfo<T> customFilterInfo;
+
+    // This field would be used only if the exported data could not be found in the
+    // cache and custom columns would have to be computed. In fact it should be always a case that
+    // data are in a cache.
+    private String gridDisplayId;
 
     // GWT only
     public TableExportCriteria()
@@ -54,13 +64,16 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
 
     public TableExportCriteria(String resultSetKey, SortInfo<T> sortInfo,
             List<GridFilterInfo<T>> filterInfos, List<IColumnDefinition<T>> columnDefs,
-            CustomFilterInfo<T> customFilterInfo)
+            Set<IColumnDefinition<T>> availableColumns, CustomFilterInfo<T> customFilterInfo,
+            String gridDisplayId)
     {
         this.resultSetKey = resultSetKey;
         this.sortInfo = sortInfo;
         this.filterInfos = filterInfos;
         this.columnDefs = columnDefs;
+        this.availableColumns = availableColumns;
         this.customFilterInfo = customFilterInfo;
+        this.gridDisplayId = gridDisplayId;
     }
 
     public String getResultSetKey()
@@ -86,5 +99,20 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
     public CustomFilterInfo<T> tryGetCustomFilterInfo()
     {
         return customFilterInfo;
+    }
+
+    public Set<IColumnDefinition<T>> getAvailableColumns()
+    {
+        return availableColumns;
+    }
+
+    public void setGridDisplayId(String gridDisplayId)
+    {
+        this.gridDisplayId = gridDisplayId;
+    }
+
+    public String getGridDisplayId()
+    {
+        return gridDisplayId;
     }
 }

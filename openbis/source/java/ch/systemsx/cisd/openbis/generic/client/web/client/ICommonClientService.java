@@ -795,12 +795,12 @@ public interface ICommonClientService extends IClientService
     /**
      * Lists custom grid columns available for given grid.
      */
-    public List<GridCustomColumn> listColumns(String gridId) throws UserFailureException;
+    public List<GridCustomColumn> listGridCustomColumns(String gridId) throws UserFailureException;
 
     /**
      * Returns {@link GridCustomColumn}s for given grid and display criteria.
      */
-    public ResultSet<GridCustomColumn> listColumns(String gridId,
+    public ResultSet<GridCustomColumn> listGridCustomColumns(String gridId,
             DefaultResultSetConfig<String, GridCustomColumn> resultSetConfig)
             throws UserFailureException;
 

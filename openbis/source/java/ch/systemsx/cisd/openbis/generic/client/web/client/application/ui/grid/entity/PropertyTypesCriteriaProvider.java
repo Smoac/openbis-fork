@@ -58,7 +58,7 @@ public class PropertyTypesCriteriaProvider implements ICriteriaProvider<Property
         @Override
         protected void process(ResultSet<PropertyType> result)
         {
-            List<PropertyType> properties = result.getList();
+            List<PropertyType> properties = result.getList().extractOriginalObjects();
             if (propertiesFilterOrNull != null)
             {
                 properties =

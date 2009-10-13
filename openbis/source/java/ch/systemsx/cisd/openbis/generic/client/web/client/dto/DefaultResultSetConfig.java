@@ -36,8 +36,6 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     private int limit = NO_LIMIT;
 
     private int offset = 0;
-    
-    private Set<IColumnDefinition<T>> availableColumns;
 
     private SortInfo<T> sortInfo = new SortInfo<T>();
 
@@ -51,7 +49,12 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
      */
     private K resultSetKeyOrNull;
 
-    private CustomFilterInfo<T> customFilterInfo;
+    private Set<IColumnDefinition<T>> availableColumns;
+
+    private CustomFilterInfo<T> customFilterInfoOrNull;
+
+    // null if no custom columns are needed
+    private String gridDisplayIdOrNull;
 
     public static <K, T> DefaultResultSetConfig<K, T> createFetchAll()
     {
@@ -97,6 +100,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         setFilterInfos(resultSetConfig.getFilterInfos());
         setResultSetKey(resultSetConfig.getResultSetKey());
         setCustomFilterInfo(resultSetConfig.tryGetCustomFilterInfo());
+        setGridDisplayId(resultSetConfig.tryGetGridDisplayId());
     }
 
     //
@@ -117,7 +121,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     {
         return availableColumns;
     }
-    
+
     public final SortInfo<T> getSortInfo()
     {
         return sortInfo;
@@ -136,12 +140,21 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
 
     public CustomFilterInfo<T> tryGetCustomFilterInfo()
     {
-        return customFilterInfo;
+        return customFilterInfoOrNull;
     }
 
     public void setCustomFilterInfo(CustomFilterInfo<T> customFilterInfo)
     {
-        this.customFilterInfo = customFilterInfo;
+        this.customFilterInfoOrNull = customFilterInfo;
     }
 
+    public void setGridDisplayId(String gridDisplayIdOrNull)
+    {
+        this.gridDisplayIdOrNull = gridDisplayIdOrNull;
+    }
+
+    public String tryGetGridDisplayId()
+    {
+        return gridDisplayIdOrNull;
+    }
 }

@@ -21,13 +21,15 @@ import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
+
 /**
  * Stores information describing the common part of grid custom filter and column.
  * 
  * @author Izabela Adamczyk
  */
 public abstract class AbstractGridExpression extends AbstractRegistrationHolder implements
-        IsSerializable, Serializable, IFilterOrColumnUpdates
+        IsSerializable, Serializable, IIdHolder, IFilterOrColumnUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 

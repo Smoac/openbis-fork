@@ -51,4 +51,20 @@ public class MoveableColumnModel extends ColumnModel
         }
     }
 
+    /**
+     * Removes the column from the specified position.
+     */
+    public void remove(int fromIndex)
+    {
+        config.remove(fromIndex);
+    }
+
+    /**
+     * Adds the column at the specified position.
+     */
+    public void addAt(int index, ColumnConfig columnConfig)
+    {
+        config.add(index, columnConfig);
+    }
+
 }

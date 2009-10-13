@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
+
 /**
  * Definition of table columns for entities of type <code>T</code> together with the instructions to
  * render each column value.
  * 
  * @author Tomasz Pylak
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class CommonColumnDefinition<T> extends AbstractColumnDefinition<T>
 {
@@ -58,7 +60,7 @@ public class CommonColumnDefinition<T> extends AbstractColumnDefinition<T>
     }
 
     @Override
-    public Comparable<?> getComparableValue(T rowModel)
+    public Comparable<?> getComparableValue(GridRowModel<T> rowModel)
     {
         return columnDefinitionKind.getDescriptor().getComparableValue(rowModel);
     }

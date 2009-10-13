@@ -92,7 +92,6 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
     {
         DefaultResultSetConfig<String, Vocabulary> criteria =
                 DefaultResultSetConfig.createFetchAll();
-        // TODO 2009-03-31, Tomasz Pylak: clean the server-side cache at some point
         viewContext.getService().listVocabularies(false, true, criteria,
                 new AsyncCallback<ResultSet<Vocabulary>>()
                     {
@@ -103,7 +102,7 @@ public class VocabularySelectionWidget extends DropDownList<BaseModelData, Vocab
 
                         public void onSuccess(ResultSet<Vocabulary> result)
                         {
-                            callback.onSuccess(result.getList());
+                            callback.onSuccess(result.getList().extractOriginalObjects());
                         }
                     });
     }

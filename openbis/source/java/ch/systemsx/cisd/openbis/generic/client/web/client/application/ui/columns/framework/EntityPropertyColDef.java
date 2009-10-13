@@ -21,6 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -111,9 +112,9 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     }
 
     @Override
-    public Comparable<?> getComparableValue(T rowModel)
+    public Comparable<?> getComparableValue(GridRowModel<T> rowModel)
     {
-        String valueAsString = tryGetValue(rowModel);
+        String valueAsString = tryGetValue(rowModel.getOriginalObject());
         DataTypeCode dataType = propertyType.getDataType().getCode();
         switch (dataType)
         {

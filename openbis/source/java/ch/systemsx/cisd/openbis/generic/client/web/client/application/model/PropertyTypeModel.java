@@ -22,6 +22,7 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -34,7 +35,8 @@ public class PropertyTypeModel extends BaseEntityModel<PropertyType>
 {
     private static final long serialVersionUID = 1L;
 
-    public PropertyTypeModel(PropertyType entity, IColumnDefinitionKind<PropertyType>[] colDefKinds)
+    public PropertyTypeModel(GridRowModel<PropertyType> entity,
+            IColumnDefinitionKind<PropertyType>[] colDefKinds)
     {
         super(entity, colDefKinds);
 

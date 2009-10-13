@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.ParentGeneratedFromSampleColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -51,11 +52,12 @@ public final class SampleModelFactory
                 parentColumnsSchema);
     }
 
-    public static BaseEntityModel<Sample> createModel(Sample entity)
+    public static BaseEntityModel<Sample> createModel(GridRowModel<Sample> sampleModel)
     {
-        List<IColumnDefinitionUI<Sample>> allColumnsDefinition =
-                new SampleModelFactory().createColumnsSchemaForRendering(entity);
-        BaseEntityModel<Sample> model = new BaseEntityModel<Sample>(entity, allColumnsDefinition);
+        List<? extends IColumnDefinitionUI<Sample>> allColumnsDefinition =
+                new SampleModelFactory().createColumnsSchemaForRendering(sampleModel);
+        BaseEntityModel<Sample> model =
+                new BaseEntityModel<Sample>(sampleModel, allColumnsDefinition);
         return model;
     }
 
@@ -67,18 +69,20 @@ public final class SampleModelFactory
                 new EntityGridModelFactory<Sample>(CommonSampleColDefKind.values());
     }
 
-    private List<IColumnDefinitionUI<Sample>> createColumnsSchemaForRendering(Sample sample)
+    private List<IColumnDefinitionUI<Sample>> createColumnsSchemaForRendering(
+            GridRowModel<Sample> sampleModel)
     {
         List<IColumnDefinitionUI<Sample>> columns =
-                entityGridModelFactory.createColumnsSchemaForRendering(sample);
+                entityGridModelFactory.createColumnsSchemaForRendering(sampleModel);
         List<AbstractParentSampleColDef> parentColumns =
-                createParentColumnsSchema(null, sample.getSampleType());
+                createParentColumnsSchema(null, sampleModel.getOriginalObject().getSampleType());
         columns.addAll(parentColumns);
         return columns;
     }
 
     private ColumnDefsAndConfigs<Sample> doCreateColumnsSchema(IMessageProvider messageProvider,
-            List<PropertyType> propertyTypes, List<AbstractParentSampleColDef> parentColumnsSchema)
+            List<PropertyType> propertyTypes,
+            List<? extends IColumnDefinitionUI<Sample>> parentColumnsSchema)
     {
         assert messageProvider != null : "message provider needed to create table headers";
 

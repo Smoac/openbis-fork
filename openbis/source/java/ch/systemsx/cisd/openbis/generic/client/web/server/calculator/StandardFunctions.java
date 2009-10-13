@@ -29,7 +29,7 @@ import org.apache.commons.lang.StringUtils;
  *
  * @author Franz-Josef Elmer
  */
-public final class StandardFunctions
+final class StandardFunctions
 {
     static final Double DOUBLE_DEFAULT_VALUE = new Double(-Double.MAX_VALUE);
     static final Integer INTEGER_DEFAULT_VALUE = new Integer(Integer.MIN_VALUE);

@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 
-public final class InternalAbundanceColumnDefinition extends
-        AbstractColumnDefinition<ProteinInfo>
+public final class InternalAbundanceColumnDefinition extends AbstractColumnDefinition<ProteinInfo>
 {
     private static final Double ZERO = new Double(1e-9);
-    
+
     private long sampleID;
 
     private Map<String, String> properties;
@@ -36,8 +36,8 @@ public final class InternalAbundanceColumnDefinition extends
         super();
     }
 
-    public InternalAbundanceColumnDefinition(String headerTextOrNull, Map<String, String> propertiesOrNull, int width,
-            boolean isHidden, long sampleID)
+    public InternalAbundanceColumnDefinition(String headerTextOrNull,
+            Map<String, String> propertiesOrNull, int width, boolean isHidden, long sampleID)
     {
         super(headerTextOrNull, width, isHidden);
         this.properties = propertiesOrNull;
@@ -48,7 +48,7 @@ public final class InternalAbundanceColumnDefinition extends
     {
         return "abundance-" + Long.toString(sampleID);
     }
-    
+
     @Override
     protected String tryGetValue(ProteinInfo entity)
     {
@@ -57,12 +57,12 @@ public final class InternalAbundanceColumnDefinition extends
     }
 
     @Override
-    public Comparable<?> getComparableValue(ProteinInfo rowModel)
+    public Comparable<?> getComparableValue(GridRowModel<ProteinInfo> rowModel)
     {
-        Double abundance = tryToGetAbundance(rowModel);
+        Double abundance = tryToGetAbundance(rowModel.getOriginalObject());
         return abundance == null ? ZERO : abundance;
     }
-    
+
     @Override
     public boolean isNumeric()
     {

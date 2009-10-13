@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PersonRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 
 /**
@@ -33,13 +34,14 @@ public final class MatchingEntityModel extends BaseEntityModel<MatchingEntity>
 {
     private static final long serialVersionUID = 1L;
 
-    public MatchingEntityModel(final MatchingEntity entity)
+    public MatchingEntityModel(final GridRowModel<MatchingEntity> entity)
     {
         super(entity, getStaticColumnsDefinition());
 
         // override registrator column adding a link
-        set(MatchingEntityColumnKind.REGISTRATOR.id(), PersonRenderer.createPersonAnchor(entity
-                .getRegistrator()));
+        String person =
+                PersonRenderer.createPersonAnchor(entity.getOriginalObject().getRegistrator());
+        set(MatchingEntityColumnKind.REGISTRATOR.id(), person);
     }
 
     public static IColumnDefinitionKind<MatchingEntity>[] getStaticColumnsDefinition()

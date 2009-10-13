@@ -42,8 +42,13 @@ class ColumnSettingsChooser
 
     private final Grid<ColumnDataModel> grid;
 
-    public ColumnSettingsChooser(List<ColumnDataModel> list, IMessageProvider messageProvider)
+    private final AbstractColumnSettingsDataModelProvider columnDataModelProvider;
+
+    public ColumnSettingsChooser(AbstractColumnSettingsDataModelProvider columnDataModelProvider,
+            IMessageProvider messageProvider)
     {
+        this.columnDataModelProvider = columnDataModelProvider;
+
         List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
 
         CheckColumnConfig isVisibleColumn =
@@ -64,7 +69,7 @@ class ColumnSettingsChooser
             column.setMenuDisabled(true);
         }
 
-        grid = new Grid<ColumnDataModel>(createStore(list), new ColumnModel(configs));
+        grid = new Grid<ColumnDataModel>(createStore(), new ColumnModel(configs));
         grid.setHideHeaders(false);
         grid.addPlugin(isVisibleColumn);
         grid.addPlugin(hasFilterColumn);
@@ -95,11 +100,56 @@ class ColumnSettingsChooser
                     });
     }
 
-    private static ListStore<ColumnDataModel> createStore(List<ColumnDataModel> list)
+    private ListStore<ColumnDataModel> createStore()
     {
+        List<ColumnDataModel> columnDataModels = columnDataModelProvider.getColumnDataModels();
+
+        // we want to create a store with new items but the order of old items should be kept
+        List<ColumnDataModel> newOrderedItems;
+        if (grid == null || grid.getStore() == null)
+        {
+            newOrderedItems = columnDataModels;
+        } else
+        {
+            newOrderedItems = keepPreviousOrder(columnDataModels, grid.getStore().getModels());
+        }
         ListStore<ColumnDataModel> store = new ListStore<ColumnDataModel>();
-        store.add(list);
+        store.add(newOrderedItems);
         return store;
+    }
+
+    private static List<ColumnDataModel> keepPreviousOrder(
+            List<ColumnDataModel> newColumnDataModels, List<ColumnDataModel> prevOrderedItems)
+    {
+        List<ColumnDataModel> temporaryModels = new ArrayList<ColumnDataModel>(newColumnDataModels);
+
+        List<ColumnDataModel> newOrderedItems = new ArrayList<ColumnDataModel>();
+        for (ColumnDataModel prevModel : prevOrderedItems)
+        {
+            int ix = findIx(temporaryModels, prevModel.getColumnID());
+            if (ix != -1)
+            {
+                newOrderedItems.add(temporaryModels.get(ix));
+                temporaryModels.remove(ix);
+            }
+        }
+        for (ColumnDataModel newItems : temporaryModels)
+        {
+            newOrderedItems.add(newItems);
+        }
+        return newOrderedItems;
+    }
+
+    private static int findIx(List<ColumnDataModel> columnDataModels, String columnID)
+    {
+        for (int i = 0; i < columnDataModels.size(); i++)
+        {
+            if (columnDataModels.get(i).getColumnID().equals(columnID))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public Component getComponent()
@@ -199,9 +249,14 @@ class ColumnSettingsChooser
             };
     }
 
+    /** rebuilds columns which can be chosen */
+    public void refresh()
+    {
+        grid.reconfigure(createStore(), grid.getColumnModel());
+    }
+
     public List<ColumnDataModel> getModels()
     {
         return grid.getStore().getModels();
     }
-
 }

@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
@@ -35,23 +37,23 @@ public class TSVRenderer
 
     /**
      * @param entities list of entities which will be exported
-     * @param columnDefs column definitions. Each definition know column's header and is able to
-     *            extract an appropriate value from the entity.
+     * @param list column definitions. Each definition know column's header and is able to extract
+     *            an appropriate value from the entity.
      * @param lineSeparator character used as a lineSeparator separator
      */
-    public static <T> String createTable(List<T> entities, List<IColumnDefinition<T>> columnDefs,
-            String lineSeparator)
+    public static <T> String createTable(GridRowModels<T> entities,
+            List<IColumnDefinition<T>> list, String lineSeparator)
     {
-        return new TSVRenderer(lineSeparator).createTable(entities, columnDefs);
+        return new TSVRenderer(lineSeparator).createTable(entities, list);
     }
 
-    private <T> String createTable(List<T> entities, List<IColumnDefinition<T>> columnDefs)
+    private <T> String createTable(GridRowModels<T> entities, List<IColumnDefinition<T>> list)
     {
         StringBuffer sb = new StringBuffer();
-        appendHeader(columnDefs, sb);
-        for (T entity : entities)
+        appendHeader(list, sb);
+        for (GridRowModel<T> entity : entities)
         {
-            appendEntity(entity, columnDefs, sb);
+            appendEntity(entity, list, sb);
         }
         return sb.toString();
     }
@@ -61,10 +63,11 @@ public class TSVRenderer
         this.lineSeparator = lineSeparator;
     }
 
-    private <T> void appendEntity(T entity, List<IColumnDefinition<T>> columnDefs, StringBuffer sb)
+    private <T> void appendEntity(GridRowModel<T> entity, List<IColumnDefinition<T>> list,
+            StringBuffer sb)
     {
         boolean isFirst = true;
-        for (IColumnDefinition<T> column : columnDefs)
+        for (IColumnDefinition<T> column : list)
         {
             if (isFirst == false)
             {
@@ -73,7 +76,8 @@ public class TSVRenderer
             {
                 isFirst = false;
             }
-            sb.append(cleanWhitespaces(column.getValue(entity)));
+            String value = column.getValue(entity);
+            sb.append(cleanWhitespaces(value));
         }
         sb.append(lineSeparator);
     }

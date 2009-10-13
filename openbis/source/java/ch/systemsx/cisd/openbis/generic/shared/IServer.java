@@ -16,12 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -52,13 +55,20 @@ public interface IServer extends ISessionProvider
     public Session tryToAuthenticate(final String user, final String password);
 
     /**
-     * Sets the base URL (including "index.html") that the web server is reachable at for this client.
+     * Sets the base URL (including "index.html") that the web server is reachable at for this
+     * client.
      */
     @Transactional
     public void setBaseIndexURL(String sessionToken, String baseIndexURL);
 
     @Transactional
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings);
+
+    /**
+     * Lists grid custom columns for a given grid id.
+     */
+    @Transactional
+    public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridDisplayId);
 
     /** Changes logged user home group to the one with given technical id. */
     @Transactional

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
+
 /**
  * @author Tomasz Pylak
  */
@@ -61,13 +63,13 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
         return headerText;
     }
 
-    public String getValue(T entity)
+    public String getValue(GridRowModel<T> entity)
     {
-        String value = tryGetValue(entity);
+        String value = tryGetValue(entity.getOriginalObject());
         return value != null ? value : "";
     }
 
-    public Comparable<?> getComparableValue(T rowModel)
+    public Comparable<?> getComparableValue(GridRowModel<T> rowModel)
     {
         return getValue(rowModel);
     }
@@ -82,5 +84,4 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
         return null;
     }
 
-    
 }

@@ -20,6 +20,7 @@ import java.util.Date;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 
@@ -40,7 +41,7 @@ class TimestampPropertyColRenderer<T extends IEntityPropertiesHolder> extends
     }
 
     @Override
-    protected String renderValue(T entity)
+    protected String renderValue(GridRowModel<T> entity)
     {
         String value = colDef.getValue(entity);
         if (value == null)

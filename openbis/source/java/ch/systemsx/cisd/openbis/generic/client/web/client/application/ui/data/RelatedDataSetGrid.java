@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -80,7 +81,7 @@ public class RelatedDataSetGrid extends AbstractExternalDataGrid
     }
 
     @Override
-    protected DataSetSearchHitModel createModel(ExternalData entity)
+    protected DataSetSearchHitModel createModel(GridRowModel<ExternalData> entity)
     {
         return new DataSetSearchHitModel(entity);
     }

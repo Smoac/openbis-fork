@@ -34,8 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.CustomGridFilterColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnSettingsDataModelProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDataModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -63,9 +63,9 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
     private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "filter-browser";
 
     public static IDisposableComponent create(IViewContext<ICommonClientServiceAsync> viewContext,
-            String gridDisplayId, List<ColumnDataModel> columnModels)
+            String gridDisplayId, AbstractColumnSettingsDataModelProvider columnDataModelProvider)
     {
-        return new GridCustomFilterGrid(viewContext, gridDisplayId, columnModels)
+        return new GridCustomFilterGrid(viewContext, gridDisplayId, columnDataModelProvider)
                 .asDisposableWithoutToolbar();
     }
 
@@ -86,7 +86,7 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
 
     protected final String gridDisplayId;
 
-    private final List<ColumnDataModel> columnModels;
+    private final AbstractColumnSettingsDataModelProvider columnDataModelProvider;
 
     private void extendBottomToolbar()
     {
@@ -135,13 +135,14 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
 
     private Window createAddDialog()
     {
-        return new AddDialog(viewContext, createRefreshGridAction(), gridDisplayId, columnModels);
+        return new AddDialog(viewContext, createRefreshGridAction(), gridDisplayId,
+                columnDataModelProvider);
     }
 
     private Window createEditDialog(AbstractGridExpression updatedItem)
     {
-        return new EditDialog(viewContext, createRefreshGridAction(), gridDisplayId, columnModels,
-                updatedItem);
+        return new EditDialog(viewContext, createRefreshGridAction(), gridDisplayId,
+                columnDataModelProvider, updatedItem);
     }
 
     private static class AddDialog extends AbstractGridCustomExpressionEditOrRegisterDialog
@@ -150,10 +151,10 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
 
         public AddDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
                 final IDelegatedAction postRegistrationCallback, String gridId,
-                List<ColumnDataModel> columnModels)
+                AbstractColumnSettingsDataModelProvider columnDataModelProvider)
         {
             super(viewContext, viewContext.getMessage(Dict.ADD_NEW_FILTER),
-                    postRegistrationCallback, gridId, columnModels);
+                    postRegistrationCallback, gridId, columnDataModelProvider);
             this.viewContext = viewContext;
         }
 
@@ -173,11 +174,11 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
 
         public EditDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
                 final IDelegatedAction postRegistrationCallback, String gridId,
-                List<ColumnDataModel> columnModels, AbstractGridExpression itemToUpdate)
+                AbstractColumnSettingsDataModelProvider columnDataModelProvider, AbstractGridExpression itemToUpdate)
         {
             super(viewContext, viewContext.getMessage(Dict.EDIT_TITLE, viewContext
                     .getMessage(Dict.FILTER), itemToUpdate.getName()), postRegistrationCallback,
-                    gridId, columnModels);
+                    gridId, columnDataModelProvider);
             this.viewContext = viewContext;
             this.itemToUpdate = itemToUpdate;
             initializeValues(itemToUpdate);
@@ -232,12 +233,12 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
     }
 
     private GridCustomFilterGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            String gridDisplayId, List<ColumnDataModel> columnModels)
+            String gridDisplayId, AbstractColumnSettingsDataModelProvider columnDataModelProvider)
     {
         super(viewContext, createBrowserId(gridDisplayId), createGridId(gridDisplayId),
                 DisplayTypeIDGenerator.FILTER_BROWSER_GRID);
         this.gridDisplayId = gridDisplayId;
-        this.columnModels = columnModels;
+        this.columnDataModelProvider = columnDataModelProvider;
         extendBottomToolbar();
     }
 

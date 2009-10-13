@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ren
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -37,9 +38,9 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
     }
 
     @Override
-    protected String renderValue(T entity)
+    protected String renderValue(GridRowModel<T> entity)
     {
-        final IEntityProperty property = colDef.tryGetProperty(entity);
+        final IEntityProperty property = colDef.tryGetProperty(entity.getOriginalObject());
         String result = "";
         if (property != null)
         {

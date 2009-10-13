@@ -136,7 +136,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         return getCustomFilterSelectedState(true);
     }
 
-    public boolean isCustomFilterSelected()
+    private boolean isCustomFilterSelected()
     {
         return getCustomFilterSelectedState(false);
     }
