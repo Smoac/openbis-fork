@@ -57,6 +57,7 @@
 		<jar update="true" destfile="${dss-jar.file}">
 			<fileset dir="../datastore_server/${sources}">
 				<include name="**/*.xml" />
+				<include name="**/*.xsd" />
 			</fileset>
 			<zipfileset src="${lib}/gwt/gwt-user.jar"
 			            includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
