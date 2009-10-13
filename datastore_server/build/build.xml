@@ -19,6 +19,11 @@
 	<target name="compile" depends="build-common.compile, clean" />
 
 	<target name="run-tests">
+		<copy todir="${classes}">
+			<fileset dir="../datastore_server/${sources}">
+				<include name="**/*.xsd" />
+			</fileset>
+		</copy>
 		<antcall target="build-common.run-tests">
 			<param name="test.suite" value="tests.xml" />
 		</antcall>
@@ -66,13 +71,13 @@
 
 	<target name="dist">
 		<antcall target="make-dist">
-                        <param name="variant" value="" />
+			<param name="variant" value="" />
 		</antcall>
 	</target>
 
 	<!-- parameters: 
 					variant - will be used in the distribution file name  
-		--> 
+		-->
 	<target name="make-dist" depends="dss-jar">
 		<copy file="${dss-jar.file}" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.datastore_server.lib}" />
@@ -90,7 +95,7 @@
 		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-dbcp/commons-dbcp.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-pool/commons-pool.jar" todir="${dist.datastore_server.lib}" />
-                <copy file="${lib}/postgresql/postgresql.jar" todir="${dist.datastore_server.lib}" />
+		<copy file="${lib}/postgresql/postgresql.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/eodsql/eodsql.jar" todir="${dist.datastore_server.lib}" />
