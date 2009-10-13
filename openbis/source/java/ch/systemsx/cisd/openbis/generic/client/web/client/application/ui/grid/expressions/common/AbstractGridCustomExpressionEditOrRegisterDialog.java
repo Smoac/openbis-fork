@@ -87,7 +87,7 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
         this.gridId = gridId;
         addField(nameField = createTextField(viewContext.getMessage(Dict.NAME), true));
         nameField.setId(createId(gridId, NAME_FIELD));
-        addField(descriptionField = createDescriptionField(viewContext, true));
+        addField(descriptionField = createDescriptionField(viewContext, false));
         descriptionField.setId(createId(gridId, DESCRIPTION_FIELD));
         addField(expressionField = createExpressionField());
         expressionField.setId(createId(gridId, EXPRESSION_FIELD));
