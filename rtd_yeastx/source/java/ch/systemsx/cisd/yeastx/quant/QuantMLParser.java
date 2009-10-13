@@ -17,20 +17,14 @@
 package ch.systemsx.cisd.yeastx.quant;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.UnmarshallerHandler;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
-
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
