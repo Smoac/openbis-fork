@@ -315,7 +315,7 @@ final class SampleListingWorker
         {
             return null;
         }
-        return query.getSamples(new LongOpenHashSet(ids));
+        return query.getSamples(databaseInstanceId, new LongOpenHashSet(ids));
     }
 
     private Iterable<SampleRecord> tryGetIteratorForGroupSamples()
@@ -542,7 +542,8 @@ final class SampleListingWorker
             return;
         }
         requestedSamples.keySet().removeAll(sampleMap.keySet());
-        retrieveDependentBasicSamples(query.getSamples(requestedSamples.keySet()));
+        retrieveDependentBasicSamples(query.getSamples(databaseInstanceId, requestedSamples
+                .keySet()));
         retrieveDependentSamplesRecursively();
     }
 
