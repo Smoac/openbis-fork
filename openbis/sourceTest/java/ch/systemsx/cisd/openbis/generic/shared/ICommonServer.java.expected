@@ -112,7 +112,7 @@ public interface ICommonServer extends IServer
 {
     /** Keeps the session with specified token alive. */
     @Transactional(readOnly = true)
-    @RolesAllowed
+    @RolesAllowed(RoleSet.OBSERVER)
     public void keepSessionAlive(String sessionToken);
 
     /**
