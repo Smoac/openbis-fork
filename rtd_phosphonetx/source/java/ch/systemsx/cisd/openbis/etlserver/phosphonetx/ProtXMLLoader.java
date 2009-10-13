@@ -17,12 +17,21 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.UnmarshallerHandler;
+
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinProphetDetails;
 import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 
@@ -34,15 +43,29 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 class ProtXMLLoader
 {
     private final Unmarshaller unmarshaller;
+    private final XMLInfraStructure xmlInfraStructure;
     
-    ProtXMLLoader()
+    ProtXMLLoader(boolean validating)
     {
         try
         {
             JAXBContext context =
                     JAXBContext.newInstance(ProteinSummary.class, ProteinProphetDetails.class);
             unmarshaller = context.createUnmarshaller();
-        } catch (JAXBException ex)
+            xmlInfraStructure = new XMLInfraStructure(validating);
+            xmlInfraStructure.setEntityResolver(new EntityResolver()
+                {
+                    public InputSource resolveEntity(String publicId, String systemId) throws SAXException,
+                            IOException
+                    {
+                        String schemaVersion = systemId.substring(systemId.lastIndexOf('/'));
+                        String resource = "/" + ProtXMLLoader.class.getPackage().getName().replace('.', '/') + schemaVersion;
+                        InputStream inputStream = ProtXMLLoader.class.getResourceAsStream(resource);
+                        return inputStream == null ? null : new InputSource(inputStream);
+                    }
+                });
+                
+        } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
@@ -52,14 +75,15 @@ class ProtXMLLoader
     {
         try
         {
-            Object object = unmarshaller.unmarshal(dataSet);
+            UnmarshallerHandler unmarshallerHandler = unmarshaller.getUnmarshallerHandler();
+            xmlInfraStructure.parse(new FileReader(dataSet), unmarshallerHandler);
+            Object object = unmarshallerHandler.getResult();
             if (object instanceof ProteinSummary == false)
             {
                 throw new IllegalArgumentException("Wrong type: " + object);
             }
-            ProteinSummary summary = (ProteinSummary) object;
-            return summary;
-        } catch (JAXBException ex)
+            return (ProteinSummary) object;
+        } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }

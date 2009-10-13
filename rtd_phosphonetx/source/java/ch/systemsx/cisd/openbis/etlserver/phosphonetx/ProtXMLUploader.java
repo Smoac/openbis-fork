@@ -41,6 +41,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
  */
 public class ProtXMLUploader implements IDataSetUploader
 {
+    private static final String VALIDATING_XML = "validating-xml";
+    
     private static final String DATABASE_ENGINE = "database.engine";
 
     private static final String DATABASE_URL_HOST_PART = "database.url-host-part";
@@ -78,7 +80,7 @@ public class ProtXMLUploader implements IDataSetUploader
     {
         dataSource = createDataSource(properties);
         this.openbisService = openbisService;
-        loader = new ProtXMLLoader();
+        loader = new ProtXMLLoader(PropertyUtils.getBoolean(properties, VALIDATING_XML, false));
     }
 
     public void upload(File dataSet, DataSetInformation dataSetInformation)

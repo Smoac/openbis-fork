@@ -46,7 +46,7 @@ public class ProtXMLLoaderTest extends ProtXMLTestCase
     {
         File file = new File(workingDirectory, "test.xml");
         FileUtilities.writeToFile(file, EXAMPLE);
-        ProteinSummary summary = new ProtXMLLoader().readProtXML(file);
+        ProteinSummary summary = new ProtXMLLoader(true).readProtXML(file);
         
         ProteinSummaryHeader header = summary.getSummaryHeader();
         assertEquals("some/path/uniprot.HUMAN.v125.fasta", header.getReferenceDatabase());
