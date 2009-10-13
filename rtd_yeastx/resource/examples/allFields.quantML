@@ -2,8 +2,8 @@
 <quantML>
    <msQuantification>
       <source>msSoft</source>
-      <valid>true</valid>
       <comment>no comment</comment>
+      <valid>true</valid>
       <registrationDate>04-Apr-1980 12:00:21</registrationDate>
       <registrator>John Doe</registrator>
       <concentration>

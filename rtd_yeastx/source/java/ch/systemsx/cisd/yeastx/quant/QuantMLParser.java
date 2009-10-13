@@ -17,16 +17,23 @@
 package ch.systemsx.cisd.yeastx.quant;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.UnmarshallerHandler;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.utilities.XMLInfraStructure;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationsDTO;
 
 /**
@@ -46,6 +53,9 @@ class QuantMLParser
     private QuantMLParser()
     {
         this.unmarshaller = createUnmarshaller();
+        unmarshaller.setSchema(XMLInfraStructure.createSchema("/"
+                + QuantMLParser.class.getPackage().getName().replace('.', '/')
+                + "/quantml-schema.xsd"));
     }
 
     private static Unmarshaller createUnmarshaller()
@@ -90,7 +100,7 @@ class QuantMLParser
                 throw new IllegalArgumentException("Wrong type: " + object);
             }
             return (MSQuantificationsDTO) object;
-        } catch (JAXBException ex)
+        } catch (Exception ex)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
