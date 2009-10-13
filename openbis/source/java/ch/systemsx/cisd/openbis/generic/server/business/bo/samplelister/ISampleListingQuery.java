@@ -25,7 +25,6 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.EoDException;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
-import net.lemnik.eodsql.TypeMapper;
 import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -226,9 +225,9 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, "
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
-            + "   from samples s where dbin_id=?{1} and s.id = any(?{2})", parameterBindings =
-        { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getSamples(long dbInstanceId, LongSet sampleIds);
+            + "   from samples s where s.id = any(?{1})", parameterBindings =
+        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamples(LongSet sampleIds);
 
     //
     // Sample Properties

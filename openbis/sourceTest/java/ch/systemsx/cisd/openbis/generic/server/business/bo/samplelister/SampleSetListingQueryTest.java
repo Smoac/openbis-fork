@@ -113,7 +113,7 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
     public void testQuerySamples()
     {
         LongSet ids = createSet(CELL_PLATE_ID_CP_TEST_1, CELL_PLATE_ID_CP_TEST_2);
-        List<SampleRecord> samples = asList(query.getSamples(dbInstanceId, ids));
+        List<SampleRecord> samples = asList(query.getSamples(ids));
         assertEquals(ids.size(), samples.size());
         for (SampleRecord sampleRowVO : samples)
         {
