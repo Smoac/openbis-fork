@@ -58,7 +58,7 @@ public class GridExpressionUtils
             EVALUATION_SERIOUS_ERROR_MSG + "applying the filter: ";
 
     private static final String COLUMN_EVALUATION_SERIOUS_ERROR_TEMPLATE =
-            "Error: calculating the value of a custom column '%s' failed, conntact you administrator: ";
+            "Error: calculating the value of a custom column '%s' failed, contact your administrator: ";
 
     private static final String COLUMN_EVALUATION_ERROR_TEMPLATE =
             COLUMN_EVALUATION_SERIOUS_ERROR_TEMPLATE + "invalid column definition. ";
@@ -115,8 +115,7 @@ public class GridExpressionUtils
         Map<String, RowCalculator<T>> calculators = new HashMap<String, RowCalculator<T>>();
         for (GridCustomColumn customColumn : customColumns)
         {
-            String expression = StringEscapeUtils.unescapeHtml(customColumn.getExpression());
-            RowCalculator<T> rowCalculator = new RowCalculator<T>(availableColumns, expression);
+            RowCalculator<T> rowCalculator = createRowCalculator(availableColumns, customColumn);
             calculators.put(customColumn.getCode(), rowCalculator);
         }
         for (T rowData : allRows)
@@ -133,6 +132,19 @@ public class GridExpressionUtils
             result.add(new GridRowModel<T>(rowData, customColumnValues));
         }
         return result;
+    }
+
+    private static <T> RowCalculator<T> createRowCalculator(
+            Set<IColumnDefinition<T>> availableColumns, GridCustomColumn customColumn)
+    {
+        String expression = StringEscapeUtils.unescapeHtml(customColumn.getExpression());
+        try
+        {
+            return new RowCalculator<T>(availableColumns, expression);
+        } catch (Exception ex)
+        {
+            throw new UserFailureException(createCustomColumnErrorMessage(customColumn, ex));
+        }
     }
 
     private static List<GridCustomColumnInfo> extractColumnInfos(
