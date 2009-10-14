@@ -27,6 +27,8 @@
 			</fileset>
 			<fileset dir="source">
 				<include name="**/*.sql" />
+			</fileset>	
+			<fileset dir="source/java">
 				<include name="**/*.xsd" />
 			</fileset>	
 		</recursive-jar>
