@@ -123,7 +123,7 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
         {
             return expression;
         }
-        throw new UserFailureException("Unexpected parameters '" + parameters + "' in expression: "
+        throw new UserFailureException("Unexpected parameters " + parameters + " in expression: "
                 + expression);
     }
 

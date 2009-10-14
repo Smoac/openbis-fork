@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +37,7 @@ public class ExpressionUtil
      */
     public static Set<String> extractParameters(String expression)
     {
-        Set<String> list = new LinkedHashSet<String>();
+        Set<String> list = new HashSet<String>();
         Matcher matcher = PATTERN.matcher(expression);
         while (matcher.find())
         {
