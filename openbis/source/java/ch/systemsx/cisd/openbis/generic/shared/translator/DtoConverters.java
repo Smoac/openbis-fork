@@ -105,6 +105,7 @@ public class DtoConverters
         // BeanUtils.Converter
         //
 
+        @SuppressWarnings("unused")
         public final DataTypeCode convertToCode(final DataTypePE dataType)
         {
             return DataTypeCode.valueOf(dataType.getCode().name());
@@ -129,11 +130,13 @@ public class DtoConverters
         // BeanUtils.Converter
         //
 
+        @SuppressWarnings("unused")
         public final String convertToDescription(final VocabularyPE vocabulary)
         {
             return StringEscapeUtils.escapeHtml(vocabulary.getDescription());
         }
 
+        @SuppressWarnings("unused")
         public final List<VocabularyTerm> convertToTerms(final VocabularyPE vocabulary)
         {
             final Set<VocabularyTermPE> terms = vocabulary.getTerms();

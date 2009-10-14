@@ -89,8 +89,6 @@ public class AttachmentFileUploadField extends FileUploadField
     private static final class AttachmentsFileSet extends FieldSet
     {
 
-        public static final String ID = "attachment_details_field_set";
-
         private final int labelWidth;
 
         private final int fieldWidth;
