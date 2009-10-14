@@ -122,17 +122,21 @@ public final class AnnotationUtilsTest
     private static class A
     {
 
+        @SuppressWarnings("unused")
         Object a;
 
+        @SuppressWarnings("unused")
         @Deprecated
         Object b;
 
+        @SuppressWarnings("unused")
         @BeanProperty
         void setA(final Object a)
         {
             this.a = a;
         }
 
+        @SuppressWarnings("unused")
         void doSomething(final Object c, final String d, @Deprecated
         final Object e)
         {
@@ -142,6 +146,7 @@ public final class AnnotationUtilsTest
     private final static class B extends A
     {
 
+        @SuppressWarnings("unused")
         @Deprecated
         Object c;
 
