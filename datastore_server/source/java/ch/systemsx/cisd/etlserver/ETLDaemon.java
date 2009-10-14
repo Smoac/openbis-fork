@@ -220,8 +220,8 @@ public final class ETLDaemon
         if (size == 0)
         {
             if (operationLog.isDebugEnabled())
-            operationLog.debug(String.format("No instance directory has been renamed "
-                    + "in store root directory '%s'.", absolutePath));
+                operationLog.debug(String.format("No instance directory has been renamed "
+                        + "in store root directory '%s'.", absolutePath));
         } else
         {
             final File instanceDir = instanceDirs[0];
@@ -316,7 +316,7 @@ public final class ETLDaemon
                                 .deleteUnidentified());
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 createDirectoryScanningHandler(pathHandler, highwaterMarkWatcher,
-                        incomingDataDirectory, parameters.reprocessFaultyDatasets());
+                        incomingDataDirectory, threadParameters.reprocessFaultyDatasets());
         FileFilter fileFilter =
                 createFileFilter(incomingDataDirectory, threadParameters.useIsFinishedMarkerFile(),
                         parameters);

@@ -58,6 +58,8 @@ public final class ThreadParameters
 
     private static final String DELETE_UNIDENTIFIED_KEY = "delete-unidentified";
 
+    private static final String REPROCESS_FAULTY_DATASETS_NAME = "reprocess-faulty-datasets";
+
     /**
      * The (local) directory to monitor for new files and directories to move to the remote side.
      * The directory where data to be processed by the ETL server become available.
@@ -74,6 +76,8 @@ public final class ThreadParameters
 
     private final boolean deleteUnidentified;
 
+    private boolean reprocessFaultyDatasets;
+
     /**
      * @param threadProperties parameters for one processing thread together with general
      *            parameters.
@@ -89,6 +93,10 @@ public final class ThreadParameters
         this.useIsFinishedMarkerFile = parseCompletenessCondition(completenessCondition);
         this.deleteUnidentified =
                 "true".equals(threadProperties.getProperty(DELETE_UNIDENTIFIED_KEY, "false"));
+        this.reprocessFaultyDatasets =
+                Boolean.parseBoolean(threadProperties.getProperty(REPROCESS_FAULTY_DATASETS_NAME,
+                        "false"));
+
         this.threadName = threadName;
     }
 
@@ -211,5 +219,10 @@ public final class ThreadParameters
     public boolean deleteUnidentified()
     {
         return deleteUnidentified;
+    }
+
+    public boolean reprocessFaultyDatasets()
+    {
+        return reprocessFaultyDatasets;
     }
 }
