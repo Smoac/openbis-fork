@@ -24,6 +24,7 @@ import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyLong;
+import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
@@ -85,9 +86,9 @@ public final class Evaluator
      * @param expression The expression to evaluate.
      * @param supportFunctionsOrNull If not <code>null</code>, all public static methods of the
      *            given class will be available to the evaluator as "supporting functions".
-     * @param initialScriptOrNull If not <code>null</code>, this has to be a valid (Python)
-     *            script which is evaluated initially, e.g. to define some new functions. Note: this
-     *            script is trusted, so don't run any unvalidated code here!
+     * @param initialScriptOrNull If not <code>null</code>, this has to be a valid (Python) script
+     *            which is evaluated initially, e.g. to define some new functions. Note: this script
+     *            is trusted, so don't run any unvalidated code here!
      */
     public Evaluator(String expression, Class<?> supportFunctionsOrNull, String initialScriptOrNull)
             throws EvaluatorException
@@ -150,8 +151,8 @@ public final class Evaluator
     public ReturnType getType()
     {
         doEval();
-        final Object obj = interpreter.get("__result__");
-        if (obj instanceof PyInteger || obj instanceof PyInteger)
+        final Object obj = getInterpreterResult();
+        if (obj instanceof PyInteger)
         {
             return ReturnType.INTEGER_OR_BOOLEAN;
         } else if (obj instanceof PyLong)
@@ -170,6 +171,37 @@ public final class Evaluator
     }
 
     /**
+     * Evaluates the expression of this evaluator and returns the result. Use this method if you do
+     * not know what will be the result type.
+     * 
+     * @return evaluation result which can be of Long, Double or String type. All other types are
+     *         converted to String representation.
+     */
+    public Object eval()
+    {
+        doEval();
+        final Object obj = getInterpreterResult();
+        if (obj instanceof PyInteger)
+        {
+            return new Long(((PyInteger) obj).getValue());
+        } else if (obj instanceof PyLong)
+        {
+            return new Long(((PyLong) obj).getValue().longValue());
+        } else if (obj instanceof PyFloat)
+        {
+            return new Double(((PyFloat) obj).getValue());
+        } else
+        {
+            return obj.toString();
+        }
+    }
+
+    private PyObject getInterpreterResult()
+    {
+        return interpreter.get("__result__");
+    }
+
+    /**
      * Evaluates the expression of this evaluator and returns the result, assuming that the
      * expression has a boolean return type.
      */
@@ -178,7 +210,7 @@ public final class Evaluator
         doEval();
         try
         {
-            return ((PyInteger) interpreter.get("__result__")).getValue() > 0;
+            return ((PyInteger) getInterpreterResult()).getValue() > 0;
         } catch (ClassCastException ex)
         {
             final ReturnType type = getType();
@@ -196,7 +228,7 @@ public final class Evaluator
         doEval();
         try
         {
-            return ((PyInteger) interpreter.get("__result__")).getValue();
+            return ((PyInteger) getInterpreterResult()).getValue();
         } catch (ClassCastException ex)
         {
             final ReturnType type = getType();
@@ -214,7 +246,7 @@ public final class Evaluator
         doEval();
         try
         {
-            return ((PyLong) interpreter.get("__result__")).getValue();
+            return ((PyLong) getInterpreterResult()).getValue();
         } catch (ClassCastException ex)
         {
             final ReturnType type = getType();
@@ -232,7 +264,7 @@ public final class Evaluator
         doEval();
         try
         {
-            return ((PyFloat) interpreter.get("__result__")).getValue();
+            return ((PyFloat) getInterpreterResult()).getValue();
         } catch (ClassCastException ex)
         {
             final ReturnType type = getType();
@@ -248,7 +280,7 @@ public final class Evaluator
     public String evalAsString() throws EvaluatorException
     {
         doEval();
-        return interpreter.get("__result__").toString();
+        return getInterpreterResult().toString();
     }
 
     private void doEval() throws EvaluatorException
