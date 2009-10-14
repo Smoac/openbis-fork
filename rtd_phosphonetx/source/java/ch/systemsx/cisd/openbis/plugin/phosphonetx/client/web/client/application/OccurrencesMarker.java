@@ -152,9 +152,6 @@ public class OccurrencesMarker
 
         private final int startIndex;
 
-        // helper flag for additional processing
-        private boolean visited;
-
         public Occurrence(String word, int startIndex)
         {
             this.word = word;
@@ -174,16 +171,6 @@ public class OccurrencesMarker
         public int getEndIndex()
         {
             return startIndex + word.length() - 1;
-        }
-
-        public boolean isVisited()
-        {
-            return visited;
-        }
-
-        public void setVisited(boolean visited)
-        {
-            this.visited = visited;
         }
 
         public int compareTo(Occurrence o)
