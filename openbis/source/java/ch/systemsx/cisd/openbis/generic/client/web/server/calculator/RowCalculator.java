@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,6 +41,11 @@ class RowCalculator<T>
 
     private final Row<T> row;
 
+    public RowCalculator(Set<IColumnDefinition<T>> availableColumns, String expression)
+    {
+        this(availableColumns, expression, Collections.<ParameterWithValue>emptySet());
+    }
+    
     public RowCalculator(Set<IColumnDefinition<T>> availableColumns, String expression,
             Set<ParameterWithValue> parameters)
     {

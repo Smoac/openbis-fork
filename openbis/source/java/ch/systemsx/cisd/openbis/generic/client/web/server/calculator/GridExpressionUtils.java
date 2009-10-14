@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -28,8 +28,8 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
@@ -111,13 +111,21 @@ public class GridExpressionUtils
             List<GridCustomColumn> customColumns, Set<IColumnDefinition<T>> availableColumns)
     {
         GridRowModels<T> result = new GridRowModels<T>(extractColumnInfos(customColumns));
+        Map<String, RowCalculator<T>> calculators = new HashMap<String, RowCalculator<T>>();
+        for (GridCustomColumn customColumn : customColumns)
+        {
+            String expression = StringEscapeUtils.unescapeHtml(customColumn.getExpression());
+            RowCalculator<T> rowCalculator = new RowCalculator<T>(availableColumns, expression);
+            calculators.put(customColumn.getCode(), rowCalculator);
+        }
         for (T rowData : allRows)
         {
             HashMap<String, String> customColumnValues = new HashMap<String, String>();
             for (GridCustomColumn customColumn : customColumns)
             {
                 String columnId = customColumn.getCode();
-                String value = evalCustomColumn(rowData, customColumn, availableColumns);
+                RowCalculator<T> calculator = calculators.get(columnId);
+                String value = evalCustomColumn(rowData, customColumn, calculator);
                 customColumnValues.put(columnId, value);
             }
             result.add(new GridRowModel<T>(rowData, customColumnValues));
@@ -139,9 +147,8 @@ public class GridExpressionUtils
     }
 
     private static <T> String evalCustomColumn(T rowData, GridCustomColumn customColumn,
-            Set<IColumnDefinition<T>> availableColumns)
+            RowCalculator<T> calculator)
     {
-        String expression = StringEscapeUtils.unescapeHtml(customColumn.getExpression());
         // NOTE: we do not allow a calculated column to reference other calculated columns. It's
         // a simplest way to ensure that there are no cyclic dependencies between custom
         // columns. To allow custom columns dependencies we would have to ensure that
@@ -151,9 +158,6 @@ public class GridExpressionUtils
                 new GridRowModel<T>(rowData, new HashMap<String, String>());
         try
         {
-            RowCalculator<T> calculator =
-                    new RowCalculator<T>(availableColumns, expression,
-                            new HashSet<ParameterWithValue>());
             calculator.setRowData(rowDataWithEmptyCustomColumns);
             return calculator.evalAsString();
         } catch (Exception ex)
