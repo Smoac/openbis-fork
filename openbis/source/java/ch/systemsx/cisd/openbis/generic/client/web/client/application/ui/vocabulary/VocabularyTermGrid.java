@@ -218,6 +218,10 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 {
                     term.setDescription(descriptionField.getValue());
                     term.setLabel(labelField.getValue());
+                    if (termSelectionWidget != null)
+                    {
+                        term.setOrdinal(extractPreviousTermOrdinal() + 1);
+                    }
 
                     viewContext.getService().updateVocabularyTerm(term, registrationCallback);
                 }
@@ -241,23 +245,18 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                             new VocabularyTermSelectionWidget(getId() + term, "Position after",
                                     mandatory, allTerms, previousTermCodeOrNull);
                     result.setEmptyText("empty value == beginning");
-
-                    result
-                            .addSelectionChangedListener(new SelectionChangedListener<VocabularyTermModel>()
-                                {
-                                    @Override
-                                    public void selectionChanged(
-                                            SelectionChangedEvent<VocabularyTermModel> se)
-                                    {
-                                        VocabularyTermModel selectedItem = se.getSelectedItem();
-                                        // set ordinal to:
-                                        // - 0 if nothing is selected,
-                                        // - (otherwise) selected term's ordinal + 1
-                                        term.setOrdinal((selectedItem != null) ? selectedItem
-                                                .getTerm().getOrdinal() + 1 : 0);
-                                    }
-                                });
                     return result;
+                }
+
+                /**
+                 * extracts ordinal of a term after which edited terms should be put
+                 */
+                private Long extractPreviousTermOrdinal()
+                {
+                    // - 0 if nothing is selected (move to the beginning),
+                    // - (otherwise) selected term's ordinal
+                    VocabularyTermModel selectedItem = termSelectionWidget.getValue();
+                    return selectedItem != null ? selectedItem.getTerm().getOrdinal() : 0;
                 }
             };
     }
