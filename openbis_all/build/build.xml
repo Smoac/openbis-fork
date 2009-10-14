@@ -6,6 +6,7 @@
 	<target name="dist">
 		<antcall target="_dist"><param name="project" value="openbis"/></antcall>
 		<antcall target="_dist"><param name="project" value="datastore_server"/></antcall>
+		<antcall target="_dist"><param name="project" value="deep_sequencing_unit"/></antcall>
 		<antcall target="_dist"><param name="project" value="rtd_phosphonetx"/></antcall>
 		<antcall target="_dist"><param name="project" value="rtd_yeastx"/></antcall>
 	</target>
@@ -27,6 +28,7 @@
 		<delete dir="${dist}" />
 		<antcall target="_clean"><param name="project" value="openbis"/></antcall>
 		<antcall target="_clean"><param name="project" value="datastore_server"/></antcall>
+		<antcall target="_clean"><param name="project" value="deep_sequencing_unit"/></antcall>
 		<antcall target="_clean"><param name="project" value="rtd_phosphonetx"/></antcall>
 		<antcall target="_clean"><param name="project" value="rtd_yeastx"/></antcall>
 	</target>

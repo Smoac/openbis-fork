@@ -12,5 +12,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/rtd_phosphonetx"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/eu_agronomics"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/rtd_yeastx"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/deep_sequencing_unit"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
