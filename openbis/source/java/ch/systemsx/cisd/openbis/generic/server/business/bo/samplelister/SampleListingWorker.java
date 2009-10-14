@@ -408,16 +408,19 @@ final class SampleListingWorker
         final boolean primarySample = (sampleListOrNull != null);
         for (SampleRecord row : sampleIteratorOrNull)
         {
-            final Sample sample = createSample(row, baseIndexURLOrNull, primarySample);
-            sampleMap.put(sample.getId(), sample);
-            if (sampleListOrNull != null)
+            final Sample sampleOrNull = tryCreateSample(row, baseIndexURLOrNull, primarySample);
+            if (sampleOrNull != null) // null == different db instance
             {
-                sampleListOrNull.add(sample);
+                sampleMap.put(sampleOrNull.getId(), sampleOrNull);
+                if (sampleListOrNull != null)
+                {
+                    sampleListOrNull.add(sampleOrNull);
+                }
             }
         }
     }
 
-    private Sample createSample(SampleRecord row, final String baseIndexURLOrNull,
+    private Sample tryCreateSample(SampleRecord row, final String baseIndexURLOrNull,
             final boolean primarySample)
     {
         final Sample sample = new Sample();
@@ -428,10 +431,25 @@ final class SampleListingWorker
         // set group or instance
         if (row.grou_id == null)
         {
-            setDatabaseInstance(sample);
+            if (row.dbin_id.equals(databaseInstanceId))
+            {
+                setDatabaseInstance(sample);
+            } else
+            // different db instance
+            {
+                return null;
+            }
         } else
         {
-            setGroup(sample, groupMap.get(row.grou_id));
+            final Group groupOrNull = groupMap.get(row.grou_id);
+            if (groupOrNull != null)
+            {
+                setGroup(sample, groupMap.get(row.grou_id));
+            } else
+            // different db instance
+            {
+                return null;
+            }
         }
         // set properties needed for primary samples
         if (primarySample)
