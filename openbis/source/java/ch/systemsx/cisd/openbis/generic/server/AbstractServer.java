@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlug
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
 import ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.CustomGridExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -310,9 +312,23 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
 
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
     {
-        checkSession(sessionToken);
-        List<GridCustomColumnPE> columns =
+        Session session = getSession(sessionToken);
+
+        List<GridCustomColumnPE> columnPEs =
                 getDAOFactory().getGridCustomColumnDAO().listColumns(gridId);
-        return GridCustomColumnTranslator.translate(columns);
+
+        List<GridCustomColumn> result = new ArrayList<GridCustomColumn>();
+        List<GridCustomColumn> columns = GridCustomColumnTranslator.translate(columnPEs);
+        // we have to remove private columns of different users to avoid calculating them
+        CustomGridExpressionValidator validator = new CustomGridExpressionValidator();
+        PersonPE currentPerson = session.tryGetPerson();
+        for (GridCustomColumn column : columns)
+        {
+            if (validator.isValid(currentPerson, column))
+            {
+                result.add(column);
+            }
+        }
+        return result;
     }
 }

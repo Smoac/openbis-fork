@@ -56,7 +56,7 @@ public final class CustomGridExpressionValidator extends
                         registrator.getDatabaseInstance().getCode());
     }
 
-    public boolean isInstanceAdmin(final PersonPE person, final DatabaseInstance databaseInstance)
+    private static boolean isInstanceAdmin(final PersonPE person, final DatabaseInstance databaseInstance)
     {
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
