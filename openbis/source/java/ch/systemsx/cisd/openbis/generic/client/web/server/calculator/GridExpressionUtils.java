@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
  * Utility class containing functions helpful with dealing with grid custom filters or columns.
@@ -58,7 +59,7 @@ public class GridExpressionUtils
             EVALUATION_SERIOUS_ERROR_MSG + "applying the filter: ";
 
     private static final String COLUMN_EVALUATION_SERIOUS_ERROR_TEMPLATE =
-            "Error: calculating the value of a custom column '%s' failed, contact your administrator: ";
+            "Error: calculating the value of a custom column '%s' failed, conntact '%s' who has defined this column: ";
 
     private static final String COLUMN_EVALUATION_ERROR_TEMPLATE =
             COLUMN_EVALUATION_SERIOUS_ERROR_TEMPLATE + "invalid column definition. ";
@@ -143,7 +144,8 @@ public class GridExpressionUtils
             return new RowCalculator<T>(availableColumns, expression);
         } catch (Exception ex)
         {
-            throw new UserFailureException(createCustomColumnErrorMessage(customColumn, ex));
+            String msg = createCustomColumnErrorMessage(customColumn, ex).replace("'", "\\'");
+            return new RowCalculator<T>(availableColumns, "'" + msg + "'");
         }
     }
 
@@ -187,13 +189,15 @@ public class GridExpressionUtils
         String msg;
         String details = null;
         String columnDesc = customColumn.getName() + " (" + customColumn.getCode() + ")";
+        Person registrator = customColumn.getRegistrator();
+        String creator = registrator + " <" + registrator.getEmail() + ">";
         if (ex instanceof EvaluatorException)
         {
-            msg = String.format(COLUMN_EVALUATION_ERROR_TEMPLATE, columnDesc);
+            msg = String.format(COLUMN_EVALUATION_ERROR_TEMPLATE, columnDesc, creator);
             details = ex.getMessage();
         } else
         {
-            msg = String.format(COLUMN_EVALUATION_SERIOUS_ERROR_TEMPLATE, columnDesc) + ex;
+            msg = String.format(COLUMN_EVALUATION_SERIOUS_ERROR_TEMPLATE, columnDesc, creator) + ex;
         }
         return msg + " DETAILS: " + details;
     }
