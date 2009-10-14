@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
  * Stores the original object which will be a basis to calculate a grid row together with calculated
  * all custom columns values.
@@ -38,16 +37,17 @@ public class GridRowModel<T> implements IsSerializable
     // displaying serialization warnings in GWT 1.5. It was fixed in GWT 1.6
     private List<GridCustomColumnValue> calculatedColumnValues;
 
-    public GridRowModel(T originalObject, HashMap<String, String> calculatedColumnMap)
+    public GridRowModel(T originalObject,
+            HashMap<String, PrimitiveValue> calculatedColumnMap)
     {
         this.originalObject = originalObject;
         this.calculatedColumnValues = asList(calculatedColumnMap);
     }
 
-    private List<GridCustomColumnValue> asList(HashMap<String, String> map)
+    private List<GridCustomColumnValue> asList(HashMap<String, PrimitiveValue> map)
     {
         List<GridCustomColumnValue> result = new ArrayList<GridCustomColumnValue>();
-        for (Entry<String, String> entry : map.entrySet())
+        for (Entry<String, PrimitiveValue> entry : map.entrySet())
         {
             GridCustomColumnValue column = new GridCustomColumnValue();
             column.setColumnId(entry.getKey());
@@ -74,7 +74,7 @@ public class GridRowModel<T> implements IsSerializable
         this.calculatedColumnValues = calculatedColumnValues;
     }
 
-    public String findColumnValue(String columnId)
+    public PrimitiveValue findColumnValue(String columnId)
     {
         for (GridCustomColumnValue value : calculatedColumnValues)
         {

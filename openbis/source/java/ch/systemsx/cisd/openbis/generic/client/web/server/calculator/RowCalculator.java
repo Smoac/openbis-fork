@@ -27,6 +27,7 @@ import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 
 /**
  * @author Franz-Josef Elmer
@@ -59,6 +60,21 @@ class RowCalculator<T>
     public void setRowData(GridRowModel<T> rowData)
     {
         row.setRowData(rowData);
+    }
+
+    public PrimitiveValue getTypedResult()
+    {
+        Object value = evaluator.eval();
+        if (value instanceof Long)
+        {
+            return new PrimitiveValue((Long) value);
+        } else if (value instanceof Double)
+        {
+            return new PrimitiveValue((Double) value);
+        } else
+        {
+            return new PrimitiveValue(value.toString());
+        }
     }
 
     public boolean evalToBoolean() throws EvaluatorException

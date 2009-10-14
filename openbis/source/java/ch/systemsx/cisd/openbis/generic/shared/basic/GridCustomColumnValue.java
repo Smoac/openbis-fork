@@ -27,7 +27,7 @@ public class GridCustomColumnValue implements IsSerializable
 {
     private String columnId;
 
-    private String value;
+    private PrimitiveValue value;
 
     public String getColumnId()
     {
@@ -39,12 +39,12 @@ public class GridCustomColumnValue implements IsSerializable
         this.columnId = columnId;
     }
 
-    public String getValue()
+    public PrimitiveValue getValue()
     {
         return value;
     }
 
-    public void setValue(String value)
+    public void setValue(PrimitiveValue value)
     {
         this.value = value;
     }

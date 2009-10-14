@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 
 /**
@@ -120,12 +121,13 @@ public class GridExpressionUtils
         }
         for (T rowData : allRows)
         {
-            HashMap<String, String> customColumnValues = new HashMap<String, String>();
+            HashMap<String, PrimitiveValue> customColumnValues =
+                    new HashMap<String, PrimitiveValue>();
             for (GridCustomColumn customColumn : customColumns)
             {
                 String columnId = customColumn.getCode();
                 RowCalculator<T> calculator = calculators.get(columnId);
-                String value = evalCustomColumn(rowData, customColumn, calculator);
+                PrimitiveValue value = evalCustomColumn(rowData, customColumn, calculator);
                 customColumnValues.put(columnId, value);
             }
             result.add(new GridRowModel<T>(rowData, customColumnValues));
@@ -133,7 +135,8 @@ public class GridExpressionUtils
         return result;
     }
 
-    private static List<GridCustomColumnInfo> extractColumnInfos(List<GridCustomColumn> customColumns)
+    private static List<GridCustomColumnInfo> extractColumnInfos(
+            List<GridCustomColumn> customColumns)
     {
         List<GridCustomColumnInfo> result = new ArrayList<GridCustomColumnInfo>();
         for (GridCustomColumn column : customColumns)
@@ -146,7 +149,7 @@ public class GridExpressionUtils
         return result;
     }
 
-    private static <T> String evalCustomColumn(T rowData, GridCustomColumn customColumn,
+    private static <T> PrimitiveValue evalCustomColumn(T rowData, GridCustomColumn customColumn,
             RowCalculator<T> calculator)
     {
         // NOTE: we do not allow a calculated column to reference other calculated columns. It's
@@ -155,14 +158,15 @@ public class GridExpressionUtils
         // dependencies create a DAG. Then the columns should be evaluated in a topological
         // order.
         GridRowModel<T> rowDataWithEmptyCustomColumns =
-                new GridRowModel<T>(rowData, new HashMap<String, String>());
+                new GridRowModel<T>(rowData, new HashMap<String, PrimitiveValue>());
         try
         {
             calculator.setRowData(rowDataWithEmptyCustomColumns);
-            return calculator.evalAsString();
+
+            return calculator.getTypedResult();
         } catch (Exception ex)
         {
-            return createCustomColumnErrorMessage(customColumn, ex);
+            return new PrimitiveValue(createCustomColumnErrorMessage(customColumn, ex));
         }
     }
 

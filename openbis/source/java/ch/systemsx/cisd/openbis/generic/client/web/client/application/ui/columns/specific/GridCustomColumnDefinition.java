@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 
 /**
  * Column definition for a grid custom column.
@@ -52,13 +53,19 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
 
     public Comparable<?> getComparableValue(GridRowModel<T> rowModel)
     {
-        return getValue(rowModel);
+        return getPrimitiveValue(rowModel).getComparableValue();
+    }
+
+    private PrimitiveValue getPrimitiveValue(GridRowModel<T> rowModel)
+    {
+        String columnId = columnMetadata.getCode();
+        PrimitiveValue value = rowModel.findColumnValue(columnId);
+        return value;
     }
 
     public String getValue(GridRowModel<T> rowModel)
     {
-        String columnId = columnMetadata.getCode();
-        return rowModel.findColumnValue(columnId);
+        return getPrimitiveValue(rowModel).toString();
     }
 
     public String getHeader()

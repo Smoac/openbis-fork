@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnIn
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 
 /**
  * Tests of {@link TSVRenderer}
@@ -54,7 +55,7 @@ public class TSVRendererTest
         List<GridRowModel<T>> list = new ArrayList<GridRowModel<T>>();
         for (T entity : entities)
         {
-            list.add(new GridRowModel<T>(entity, new HashMap<String, String>()));
+            list.add(new GridRowModel<T>(entity, new HashMap<String, PrimitiveValue>()));
         }
         return new GridRowModels<T>(list, new ArrayList<GridCustomColumnInfo>());
     }
