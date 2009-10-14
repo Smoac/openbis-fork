@@ -83,8 +83,6 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
         testSuite.addTestSuite(ProjectRegistrationTest.class);
         testSuite.addTestSuite(EntityTypeBrowserTest.class);
-        // TODO 2009-10-02, Tomasz Pylak: switch of until LMS-1222 is closed
-        //testSuite.addTestSuite(FilterTest.class);
         return testSuite;
     }
 }
