@@ -71,7 +71,7 @@ public class SecondaryEntityListingQueryTest extends AbstractDAOTest
     @Test
     public void testGetExperiment()
     {
-        Experiment expFull = dao.getExperiment(firstExperiment.getId());
+        Experiment expFull = dao.tryGetExperiment(firstExperiment.getId());
         assertEquals(firstExperiment.getCode(), expFull.getCode());
         ProjectPE project = firstExperiment.getProject();
         assertEquals(project.getCode(), expFull.getProject().getCode());

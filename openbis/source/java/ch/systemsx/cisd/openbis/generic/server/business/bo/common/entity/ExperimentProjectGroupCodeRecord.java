@@ -3,7 +3,8 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity;
 import ch.rinn.restrictions.Private;
 
 /**
- * A class representing an experiment, project and group code.
+ * A class representing an experiment, project and group code. It contains also code of experiment
+ * type and database instance id.
  */
 @Private
 public class ExperimentProjectGroupCodeRecord
@@ -15,4 +16,6 @@ public class ExperimentProjectGroupCodeRecord
     public String p_code;
 
     public String g_code;
+
+    public Long dbin_id;
 }

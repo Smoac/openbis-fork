@@ -179,8 +179,9 @@ public class DatasetLister implements IDatasetLister
         loadSmallConnectedTables();
         List<DatasetRecord> datasetRecords = asList(datasets);
         final Long2ObjectMap<ExternalData> datasetMap = createPrimaryDatasets(datasetRecords);
-        enrichWithProperties(datasetMap);
         enrichWithExperiments(datasetMap);
+        filterDatasetsWithNullExperiments(datasetMap);
+        enrichWithProperties(datasetMap);
         enrichWithSamples(datasetMap);
         return asList(datasetMap);
     }
@@ -243,12 +244,29 @@ public class DatasetLister implements IDatasetLister
         {
             long experimentId = dataset.getExperiment().getId();
             Experiment experiment = experimentMap.get(experimentId);
-            if (experiment == null)
+            // null value is put if experiment is from different db instance
+            if (experimentMap.containsKey(experimentId) == false)
             {
-                experiment = referencedEntityDAO.getExperiment(experimentId);
+                experiment = referencedEntityDAO.tryGetExperiment(experimentId);
                 experimentMap.put(experimentId, experiment);
             }
             dataset.setExperiment(experiment);
+        }
+    }
+
+    private void filterDatasetsWithNullExperiments(Long2ObjectMap<ExternalData> datasetMap)
+    {
+        LongSet datasetsToRemove = new LongOpenHashSet();
+        for (ExternalData dataset : datasetMap.values())
+        {
+            if (dataset.getExperiment() == null)
+            {
+                datasetsToRemove.add(dataset.getId());
+            }
+        }
+        for (Long datasetId : datasetsToRemove)
+        {
+            datasetMap.remove(datasetId);
         }
     }
 
@@ -293,6 +311,7 @@ public class DatasetLister implements IDatasetLister
     private ExternalData createPrimaryDataset(DatasetRecord record)
     {
         ExternalData dataset = createBasicDataset(record);
+        dataset.setId(record.id);
         dataset.setComplete(resolve(record.is_complete));
         dataset.setDataProducerCode(escapeHtml(record.data_producer_code));
         dataset.setDataStore(dataStores.get(record.dast_id));

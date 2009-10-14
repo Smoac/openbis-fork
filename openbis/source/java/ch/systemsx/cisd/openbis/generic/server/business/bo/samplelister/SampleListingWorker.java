@@ -289,7 +289,7 @@ final class SampleListingWorker
 
     private Experiment createAndSaveExperiment(final long experimentId)
     {
-        final Experiment experiment = referencedEntityDAO.getExperiment(experimentId);
+        final Experiment experiment = referencedEntityDAO.tryGetExperiment(experimentId);
         experiments.put(experimentId, experiment);
         return experiment;
     }

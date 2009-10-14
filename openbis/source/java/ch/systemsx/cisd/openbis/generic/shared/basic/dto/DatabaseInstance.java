@@ -17,11 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class DatabaseInstance extends Code<DatabaseInstance>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private Long id;
 
     private String uuid;
 
@@ -45,5 +47,15 @@ public class DatabaseInstance extends Code<DatabaseInstance>
     public void setIdentifier(String identifier)
     {
         this.identifier = identifier;
+    }
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
     }
 }

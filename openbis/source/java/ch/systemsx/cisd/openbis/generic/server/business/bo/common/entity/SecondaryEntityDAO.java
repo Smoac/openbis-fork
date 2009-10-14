@@ -90,7 +90,7 @@ public class SecondaryEntityDAO
         this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstancePE);
     }
 
-    public Experiment getExperiment(final long experimentId)
+    public Experiment tryGetExperiment(final long experimentId)
     {
         final ExperimentProjectGroupCodeRecord record =
                 query.getExperimentAndProjectAndGroupCodeForId(experimentId);
@@ -98,12 +98,16 @@ public class SecondaryEntityDAO
         {
             throw new EmptyResultDataAccessException(1);
         }
-        return createExperiment(experimentId, record);
+        return tryCreateExperiment(experimentId, record);
     }
 
-    private Experiment createExperiment(final long experimentId,
+    private Experiment tryCreateExperiment(final long experimentId,
             final ExperimentProjectGroupCodeRecord record)
     {
+        if (record.dbin_id.equals(databaseInstance.getId()) == false)
+        {
+            return null; // experiment is connected (through group) with different db instance
+        }
         final Group group = new Group();
         group.setCode(escapeHtml(record.g_code));
         group.setInstance(databaseInstance);

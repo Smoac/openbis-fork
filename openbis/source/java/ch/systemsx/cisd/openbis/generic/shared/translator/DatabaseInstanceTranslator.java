@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link DatabaseInstance} &lt;---&gt; {@link DatabaseInstancePE} translator.
@@ -42,6 +43,7 @@ public final class DatabaseInstanceTranslator
             return null;
         }
         final DatabaseInstance result = new DatabaseInstance();
+        result.setId(HibernateUtils.getId(databaseInstance));
         result.setCode(StringEscapeUtils.escapeHtml(databaseInstance.getCode()));
         result.setUuid(StringEscapeUtils.escapeHtml(databaseInstance.getUuid()));
         result.setIdentifier(StringEscapeUtils.escapeHtml(IdentifierHelper
