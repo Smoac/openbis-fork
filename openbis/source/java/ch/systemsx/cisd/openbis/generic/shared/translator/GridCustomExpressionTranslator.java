@@ -19,11 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -33,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractGridExpressionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
+import ch.systemsx.cisd.openbis.generic.shared.util.ExpressionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -82,8 +79,6 @@ public final class GridCustomExpressionTranslator
      */
     public static final class GridCustomFilterTranslator
     {
-        private static final String PARAMETER_PATTERN = "\\$\\{.*?\\}";
-
         public final static List<GridCustomFilter> translate(final List<GridCustomFilterPE> filters)
         {
             final List<GridCustomFilter> result = new ArrayList<GridCustomFilter>();
@@ -102,23 +97,10 @@ public final class GridCustomExpressionTranslator
             }
             final GridCustomFilter result = new GridCustomFilter();
             result.setName(escapeHtml(original.getName()));
-            result.setParameters(extractParameters(original.getExpression()));
+            result.setParameters(ExpressionUtil.extractParameters(original.getExpression()));
 
             translateGridExpression(original, result);
             return result;
-        }
-
-        static Set<String> extractParameters(String expression)
-        {
-            Pattern parameterPattern = Pattern.compile(PARAMETER_PATTERN);
-            Set<String> list = new HashSet<String>();
-            Matcher matcher = parameterPattern.matcher(expression);
-            while (matcher.find())
-            {
-                String group = matcher.group();
-                list.add(group.substring(2, group.length() - 1));
-            }
-            return list;
         }
 
     }

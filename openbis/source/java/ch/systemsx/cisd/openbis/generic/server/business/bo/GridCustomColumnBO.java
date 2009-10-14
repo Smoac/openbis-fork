@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
+import java.util.Set;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataRetrievalFailureException;
 
@@ -26,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.util.ExpressionUtil;
 
 /**
  * Operations on grid custom columns.
@@ -51,7 +54,7 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
         column.setLabel(newColumn.getName());
 
         column.setDescription(newColumn.getDescription());
-        column.setExpression(newColumn.getExpression());
+        column.setExpression(checkExpressionFreeOfParameters(newColumn.getExpression()));
         column.setGridId(newColumn.getGridId());
         column.setPublic(newColumn.isPublic());
         column.setRegistrator(findRegistrator());
@@ -107,10 +110,21 @@ public class GridCustomColumnBO extends AbstractBusinessObject implements
 
         column.setLabel(updates.getName());
         column.setDescription(updates.getDescription());
-        column.setExpression(updates.getExpression());
+        column.setExpression(checkExpressionFreeOfParameters(updates.getExpression()));
         column.setPublic(updates.isPublic());
 
         validateAndSave();
+    }
+    
+    private String checkExpressionFreeOfParameters(String expression)
+    {
+        Set<String> parameters = ExpressionUtil.extractParameters(expression);
+        if (parameters.isEmpty())
+        {
+            return expression;
+        }
+        throw new UserFailureException("Unexpected parameters '" + parameters + "' in expression: "
+                + expression);
     }
 
     private void validateAndSave()
