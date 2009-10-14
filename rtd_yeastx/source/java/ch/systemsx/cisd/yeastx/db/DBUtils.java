@@ -92,35 +92,62 @@ public class DBUtils
      */
     public static void createDataSet(IGenericDAO dao, DMDataSetDTO dataSet)
     {
-        DMExperimentDTO experiment = dao.getExperimentByPermId(dataSet.getExperiment().getPermId());
-        if (experiment == null)
-        {
-            experiment = dataSet.getExperiment();
-            final long experimentId = dao.addExperiment(experiment);
-            experiment.setId(experimentId);
-            dataSet.setExperimentId(experimentId); // make sure all the ids are set correctly.
-        } else
-        {
-            dataSet.setExperimentId(experiment.getId()); // make sure all the ids are set correctly.
-        }
+        DMExperimentDTO experiment = getOrCreateExperiment(dao, dataSet);
+        dataSet.setExperimentId(experiment.getId()); // make sure all the ids are set correctly.
 
         if (dataSet.getSample() != null)
         {
-            DMSampleDTO sample = dao.getSampleByPermId(dataSet.getSample().getPermId());
-            if (sample == null)
+            String permId = dataSet.getSample().getPermId();
+            DMSampleDTO sample;
+            // it may have happened that the sample has been created by another thread after
+            // we checked that it does not exist
+            synchronized (IGenericDAO.class)
             {
-                sample = dataSet.getSample();
-                sample.setExperiment(experiment);
-                final long sampleId = dao.addSample(sample);
-                sample.setId(sampleId);
-                dataSet.setSample(sample); // make sure all the ids are set correctly.
-            } else
-            {
-                dataSet.setSample(sample);
-                sample.setExperiment(experiment);
+                sample = dao.getSampleByPermId(permId);
+                if (sample == null)
+                {
+                    sample = dataSet.getSample();
+                    sample.setExperiment(experiment);
+                    sample = createSample(dao, sample, permId);
+                }
             }
+            sample.setExperiment(experiment);
+            dataSet.setSample(sample); // make sure all the ids are set correctly.
         }
         long dataSetId = dao.addDataSet(dataSet);
         dataSet.setId(dataSetId);
+    }
+
+    private static DMSampleDTO createSample(IGenericDAO dao, DMSampleDTO sample, String samplePermId)
+    {
+        final long sampleId = dao.addSample(sample);
+        sample.setId(sampleId);
+        return sample;
+    }
+
+    private static DMExperimentDTO getOrCreateExperiment(IGenericDAO dao, DMDataSetDTO dataSet)
+    {
+        String permId = dataSet.getExperiment().getPermId();
+        // it may have happened that the experiment has been created by another thread after
+        // we checked that it does not exist
+        synchronized (IGenericDAO.class)
+        {
+            DMExperimentDTO experiment = dao.getExperimentByPermId(permId);
+            if (experiment == null)
+            {
+                experiment = createExperiment(dao, dataSet, permId);
+            }
+            return experiment;
+        }
+    }
+
+    private static DMExperimentDTO createExperiment(IGenericDAO dao, DMDataSetDTO dataSet,
+            String permId)
+    {
+        DMExperimentDTO experiment;
+        experiment = dataSet.getExperiment();
+        long experimentId = dao.addExperiment(experiment);
+        experiment.setId(experimentId);
+        return experiment;
     }
 }
