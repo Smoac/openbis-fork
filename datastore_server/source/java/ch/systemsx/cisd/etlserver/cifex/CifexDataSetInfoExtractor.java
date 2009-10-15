@@ -81,7 +81,8 @@ public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
                     new ExperimentIdentifierFactory(info.getExperiment()).createIdentifier();
             dataSetInformation.setExperimentIdentifier(experimentIdentifier);
             dataSetInformation.setGroupCode(experimentIdentifier.getGroupCode());
-            dataSetInformation.setParentDataSetCodes(Arrays.asList(info.getParents()));
+            String[] parents = info.getParents() != null ? info.getParents() : new String[0];
+            dataSetInformation.setParentDataSetCodes(Arrays.asList(parents));
         }
 
         dataSetInformation.setUploadingUserEmail(CifexExtratorHelper
