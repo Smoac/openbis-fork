@@ -163,12 +163,12 @@ public abstract class AbstractServerLogger implements IServer
     public void changeUserHomeGroup(String sessionToken, TechId groupIdOrNull)
     {
         String groupId = groupIdOrNull == null ? "null" : groupIdOrNull.toString();
-        logTracking(sessionToken, "change_user_home_group (%s)", groupId);
+        logTracking(sessionToken, "change_user_home_group", "GROUP_ID (%s)", groupId);
     }
 
     public List<GridCustomColumn> listGridCustomColumns(String sessionToken, String gridId)
     {
-        logAccess(sessionToken, "listGridCustomColumns GRID_ID(%s)", gridId);
+        logAccess(sessionToken, "listGridCustomColumns", "GRID_ID(%s)", gridId);
         return null;
     }
 
