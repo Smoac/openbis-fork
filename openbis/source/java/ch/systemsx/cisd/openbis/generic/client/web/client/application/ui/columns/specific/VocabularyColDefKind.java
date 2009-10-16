@@ -81,6 +81,16 @@ public enum VocabularyColDefKind implements IColumnDefinitionKind<Vocabulary>
             {
                 return entity.getURLTemplate();
             }
+        }),
+
+    SHOW_IN_CHOOSERS(new AbstractColumnDefinitionKind<Vocabulary>(
+            Dict.VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS, true)
+        {
+            @Override
+            public String tryGetValue(Vocabulary entity)
+            {
+                return SimpleYesNoRenderer.render(entity.isChosenFromList());
+            }
         });
 
     private final AbstractColumnDefinitionKind<Vocabulary> columnDefinitionKind;
