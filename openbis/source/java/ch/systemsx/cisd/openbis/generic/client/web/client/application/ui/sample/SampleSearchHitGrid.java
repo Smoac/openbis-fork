@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -128,6 +129,12 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
     private ListSampleDisplayCriteria tryGetDisplayCriteria()
     {
         return getCriteriaProvider().tryGetCriteria();
+    }
+
+    @Override
+    protected EntityType tryToGetEntityType()
+    {
+        return null;
     }
 
 }
