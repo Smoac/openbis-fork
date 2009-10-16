@@ -46,7 +46,7 @@ echo Making a database dump...
 # A custom-format dump (-Fc flag) is not a script for psql, but instead must be
 # restored with pg_restore, for example:
 # pg_restore -d dbname filename
-pg_dump -Fc $DB_NAME > $DB_SNAPSHOT/$SERVERS_PREV_VER-$DB_NAMEi_${DATE}.dmp
+pg_dump -Uopenbis -Fc $DB_NAME > $DB_SNAPSHOT/$SERVERS_PREV_VER-$DB_NAMEi_${DATE}.dmp
 # we actually need to clean that up from time to time
 /usr/bin/find $DB_SNAPSHOT -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
 
@@ -87,9 +87,14 @@ export JAVA_HOME=/usr
 cd
 mv -f *.zip tmp
 rm -rf openbis
+cd ~/sprint/openBIS-server
+rm apache-tomcat.zip install.sh openbis.conf openBIS.keystore openBIS.war passwd.sh server.xml service.properties tomcat-version.txt
 
 # Reset the rm command alias
 alias 'rm=rm -i'
 alias 'cp=cp -ipR'
 
-echo Done, run sprint_post_install.sh and all-up.sh to start the servers!
+echo Running ~/bin/sprint_post_install.sh
+~/bin/sprint_post_install.sh
+
+echo Done, run 'has-config-changed.sh' and start the servers!
