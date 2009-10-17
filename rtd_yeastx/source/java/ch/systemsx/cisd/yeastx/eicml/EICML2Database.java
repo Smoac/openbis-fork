@@ -28,6 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.TransactionQuery;
 
+import org.springframework.dao.DataAccessException;
 import org.xml.sax.SAXException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -100,7 +101,13 @@ public class EICML2Database
             transaction.close(true);
         } catch (Throwable th)
         {
-            DBUtils.rollbackAndClose(transaction);
+            try
+            {
+                DBUtils.rollbackAndClose(transaction);
+            } catch (DataAccessException ex)
+            {
+                // Avoid this exception shadowing the original exception.
+            }
             throw CheckedExceptionTunnel.wrapIfNecessary(th);
         }
     }
@@ -115,8 +122,8 @@ public class EICML2Database
         int permId = 0;
         for (String f : new File(dir).list(new EICMLFilenameFilter()))
         {
-            eicML2Database.uploadEicMLFile(new File(dir, f), new DMDataSetDTO(
-                    Integer.toString(++permId), "sample1", "the sample name", "experiment1",
+            eicML2Database.uploadEicMLFile(new File(dir, f), new DMDataSetDTO(Integer
+                    .toString(++permId), "sample1", "the sample name", "experiment1",
                     "the experiment name"));
         }
         System.out.println((System.currentTimeMillis() - start) / 1000.0);

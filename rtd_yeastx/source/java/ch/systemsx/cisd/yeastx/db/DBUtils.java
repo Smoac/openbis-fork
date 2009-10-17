@@ -89,20 +89,27 @@ public class DBUtils
      * Creates the data set based on the information given in <var>dataSet</var>. The sample and
      * experiment of the data set may already exist in the database. If they don't, they are created
      * as well.
+     * <p>
+     * NOTE: Code responsible for trying to get sample and experiment from the DB and creating them
+     * if they don't exist is in synchronized block and uses currently opened transaction. Then the
+     * transaction is closed and data set is added to the DB in second transaction. If second
+     * transaction will be rolled back sample and experiment created in first transaction will stay
+     * in the DB.
      */
     public static void createDataSet(IGenericDAO dao, DMDataSetDTO dataSet)
     {
-        DMExperimentDTO experiment = getOrCreateExperiment(dao, dataSet);
-        dataSet.setExperimentId(experiment.getId()); // make sure all the ids are set correctly.
-
-        if (dataSet.getSample() != null)
+        synchronized (IGenericDAO.class)
         {
-            String permId = dataSet.getSample().getPermId();
-            DMSampleDTO sample;
-            // it may have happened that the sample has been created by another thread after
-            // we checked that it does not exist
-            synchronized (IGenericDAO.class)
+            DMExperimentDTO experiment = getOrCreateExperiment(dao, dataSet);
+            dataSet.setExperimentId(experiment.getId()); // make sure all the ids are set correctly.
+
+            if (dataSet.getSample() != null)
             {
+                String permId = dataSet.getSample().getPermId();
+                DMSampleDTO sample;
+                // it may have happened that the sample has been created by another thread after
+                // we checked that it does not exist
+
                 sample = dao.getSampleByPermId(permId);
                 if (sample == null)
                 {
@@ -110,10 +117,13 @@ public class DBUtils
                     sample.setExperiment(experiment);
                     sample = createSample(dao, sample, permId);
                 }
+
+                sample.setExperiment(experiment);
+                dataSet.setSample(sample); // make sure all the ids are set correctly.
             }
-            sample.setExperiment(experiment);
-            dataSet.setSample(sample); // make sure all the ids are set correctly.
+            dao.close(true);
         }
+
         long dataSetId = dao.addDataSet(dataSet);
         dataSet.setId(dataSetId);
     }
