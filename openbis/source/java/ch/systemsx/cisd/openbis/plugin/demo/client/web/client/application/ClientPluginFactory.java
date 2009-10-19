@@ -131,11 +131,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<IDemo
         }
 
         public final DatabaseModificationAwareWidget createRegistrationForEntityType(
-                final SampleType sampleTypeCode)
+                final SampleType sampleType)
         {
             GenericSampleRegistrationForm form =
                     new GenericSampleRegistrationForm(new GenericViewContext(getViewContext()
-                            .getCommonViewContext()), sampleTypeCode);
+                            .getCommonViewContext()), sampleType);
             return new DatabaseModificationAwareWidget(form, form);
         }
 
@@ -194,9 +194,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<IDemo
         return DefaultTabItem.createUnaware(identifier, component, false);
     }
 
-//    @Override
-//    public IModule tryGetModule()
-//    {
-//        return new DemoModule(getViewContext());
-//    }
+    // @Override
+    // public IModule tryGetModule()
+    // {
+    // return new DemoModule(getViewContext());
+    // }
 }

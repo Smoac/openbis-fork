@@ -35,8 +35,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  */
 public final class GenericSampleRegistrationForm extends AbstractGenericSampleRegisterEditForm
 {
-    private final SampleType sampleType;
-
     public GenericSampleRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {

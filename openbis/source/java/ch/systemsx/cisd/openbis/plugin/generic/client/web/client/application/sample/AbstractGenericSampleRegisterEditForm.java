@@ -61,6 +61,8 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     public static final String ID_SUFFIX_EXPERIMENT = "experiment";
 
+    protected SampleType sampleType; // used for container and parent field visibility
+
     protected AttachmentsFileFieldManager attachmentsManager;
 
     protected String attachmentsSessionKey;
@@ -196,6 +198,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
                 }
             });
         redefineSaveListeners();
+        setContainerAndParentVisibility(sampleType);
     }
 
     protected final String createSampleIdentifier()
@@ -210,6 +213,15 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
         }
         builder.append(code);
         return builder.toString().toUpperCase();
+    }
+
+    /** sets visibility of container and parent fields dependent on sample type */
+    private final void setContainerAndParentVisibility(final SampleType sampleType)
+    {
+        boolean showContainer = sampleType.getContainerHierarchyDepth() > 0;
+        boolean showParent = sampleType.getGeneratedFromHierarchyDepth() > 0;
+        container.getField().setVisible(showContainer);
+        parent.getField().setVisible(showParent);
     }
 
 }

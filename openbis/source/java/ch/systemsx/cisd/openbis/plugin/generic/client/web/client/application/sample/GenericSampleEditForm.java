@@ -109,6 +109,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
     private void setOriginalSample(Sample sample)
     {
         this.originalSample = sample;
+        this.sampleType = sample.getSampleType();
     }
 
     @Override
