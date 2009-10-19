@@ -117,6 +117,8 @@ public class FIAMLTest extends AbstractDBTest
             // This will fail with a DataIntegrityViolationException.
             DBUtils.createDataSet(fiamsDAO, new DMDataSetDTO("data set perm id 4",
                     "sample perm id4", "sample name", "experiment perm id", "experiment name"));
+            // There is transaction commit inside createDataSet method before DS is added to DB.
+            // DS created in first invocation will be be commited in second invocation.
         } catch (RuntimeException ex)
         {
             // This isn't actually necessary for PostgreSQL, but e.g. Oracle does commit a
@@ -131,7 +133,7 @@ public class FIAMLTest extends AbstractDBTest
     {
         assertEquals(2, fiamsDAO.listDataSetsForSample("sample perm id").length);
         assertEquals(1, fiamsDAO.listDataSetsForSample("sample perm id2").length);
-        assertEquals(0, fiamsDAO.listDataSetsForSample("sample perm id4").length);
+        assertEquals(1, fiamsDAO.listDataSetsForSample("sample perm id4").length);
     }
 
 }
