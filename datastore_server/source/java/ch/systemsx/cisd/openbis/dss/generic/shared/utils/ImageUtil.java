@@ -25,12 +25,18 @@ import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 
 /**
- * 
+ * Utility function on images.
  *
  * @author Franz-Josef Elmer
  */
 public class ImageUtil
 {
+    /**
+     * Loads an image from specified file. Supported file formats are GIF, JPG, PNG, and TIFF.
+     * 
+     * @throws IllegalArgumentException if either the file does not exist or it isn't a valid image
+     *             file.
+     */
     public static BufferedImage loadImage(File file)
     {
         if (file.exists() == false)
@@ -47,6 +53,12 @@ public class ImageUtil
         }
     }
     
+    /**
+     * Creates a thumbnail from the specified image by preserving the aspect ratio.
+     * 
+     * @param maxWidth Maximum width of the thumbnail.
+     * @param maxHeight Maximum height of the thumbnail.
+     */
     public static BufferedImage createThumbnail(BufferedImage image, int maxWidth, int maxHeight)
     {
         int width = image.getWidth();
