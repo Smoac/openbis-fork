@@ -515,7 +515,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         if (DEBUG)
         {
-	        String text = "[grid: " + getGridDisplayTypeID() + ", cache: " + resultSetKey + "] " + msg;
+            String text =
+                    "[grid: " + getGridDisplayTypeID() + ", cache: " + resultSetKey + "] " + msg;
             System.out.println(text);
         }
     }
@@ -1247,7 +1248,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                         @Override
                         public void onClose(List<ColumnDataModel> newColumnDataModels)
                         {
-                            updateColumnsSettingsModel(getColumnModel(), newColumnDataModels);
+                            MoveableColumnModel cm = getColumnModel();
+                            updateColumnsSettingsModel(cm, newColumnDataModels);
 
                             // refresh the whole grid if custom columns changed
                             List<GridCustomColumnInfo> newCustomColumns = tryGetCustomColumnsInfo();
@@ -1264,7 +1266,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                             }
                             boolean filtersChanged =
                                     rebuildFiltersFromIds(getFilteredColumnIds(newColumnDataModels));
-                            
+                            saveColumnSettings(cm);
+
                             if (customColumnsChanged)
                             {
                                 debug("refreshing custom columns");
@@ -1274,7 +1277,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                             {
                                 if (filtersChanged)
                                 {
-		                            // refresh the data - some filters may have been removed
+                                    // refresh the data - some filters may have been removed
                                     createApplyFiltersDelagator().execute();
                                 }
                                 debug("refreshing filters and columns settings");
@@ -1287,6 +1290,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                         }
                     };
         ColumnSettingsDialog.show(viewContext, provider, getGridDisplayTypeID());
+    }
+
+    private static void saveColumnSettings(MoveableColumnModel cm)
+    {
+        cm.fireEvent(AppEvents.ColumnSettingsChanged, new ColumnModelEvent(cm));
     }
 
     // @Private - for tests
@@ -1390,9 +1398,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     /**
-     * Updates specified model (<code>cm</code>) with settings from <code>columnModels</code>.<br>
-     * <br>
-     * Fires {@link AppEvents.ColumnSettingsChanged} event when finished.
+     * Updates specified model (<code>cm</code>) with visibility and order settings from
+     * <code>columnModels</code>.
      */
     private static void updateColumnsSettingsModel(final MoveableColumnModel cm,
             List<ColumnDataModel> columnModels)
@@ -1416,7 +1423,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             cm.remove(cm.getColumnCount() - 1);
         }
-        cm.fireEvent(AppEvents.ColumnSettingsChanged, new ColumnModelEvent(cm));
     }
 
     // This column config is created just to make user settings persistent.
@@ -1501,10 +1507,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 String previousValue = previousFilterWidgetOrNull.getRawValue();
                 if (previousValue != "")
                 {
+                    // simply setting value with setValue does not work
                     filterWidget.setRawValue(previousFilterWidgetOrNull.getRawValue());
                     filterWidget.validate(); // a hack to show previous value as black text
-                    // simply setting value does not work:
-                    // filterWidget.setValue(previousFilterWidgetOrNull.getValue());
                 }
             }
         }
