@@ -2,6 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="source/java"/>
 	<classpathentry kind="src" path="sourceTest/java"/>
+	<classpathentry kind="lib" path="/libraries/jai/jai_codec.jar"/>
+	<classpathentry kind="lib" path="/libraries/jai/jai_core.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/common"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>

@@ -19,10 +19,13 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import static ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer.APPLICATION_CONTEXT_KEY;
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -32,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
+import javax.imageio.ImageIO;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -43,6 +47,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -52,6 +57,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
@@ -60,7 +66,32 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
  */
 public class DatasetDownloadServlet extends HttpServlet
 {
+    private static final class Size
+    {
+        private final int width;
+        private final int height;
+
+        Size(int width, int height)
+        {
+            this.width = width;
+            this.height = height;
+        }
+        
+        public int getWidth()
+        {
+            return width;
+        }
+        
+        public int getHeight()
+        {
+            return height;
+        }
+    }
+    
+    private static final Size DEFAULT_THUMBNAIL_SIZE = new Size(100, 60);
     private static final String TEXT_MODE_DISPLAY = "txt";
+    private static final String HTML_MODE_DISPLAY = "html";
+    private static final String THUMBNAIL_MODE_DISPLAY = "thumbnail";
 
     static final String DATA_SET_KEY = "data-set";
 
@@ -151,18 +182,18 @@ public class DatasetDownloadServlet extends HttpServlet
 
         private final String sessionIdOrNull;
 
-        private final boolean isPlainTextMode;
-
         private final String urlPrefixWithDataset;
 
+        private final String displayMode;
+
         public RequestParams(String dataSetCode, String pathInfo, String sessionIdOrNull,
-                String urlPrefixWithDataset, boolean isPlainTextMode)
+                String urlPrefixWithDataset, String displayMode)
         {
             this.dataSetCode = dataSetCode;
             this.pathInfo = pathInfo;
             this.sessionIdOrNull = sessionIdOrNull;
             this.urlPrefixWithDataset = urlPrefixWithDataset;
-            this.isPlainTextMode = isPlainTextMode;
+            this.displayMode = displayMode;
         }
 
         public String getDataSetCode()
@@ -180,17 +211,17 @@ public class DatasetDownloadServlet extends HttpServlet
             return sessionIdOrNull;
         }
 
-        public boolean isPlainTextMode()
+        public String getDisplayMode()
         {
-            return isPlainTextMode;
+            return displayMode;
         }
-
+        
         public String getURLPrefix()
         {
             return urlPrefixWithDataset;
         }
     }
-
+    
     @Override
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
@@ -200,7 +231,7 @@ public class DatasetDownloadServlet extends HttpServlet
         {
             RequestParams requestParams =
                     parseRequestURL(request, DATA_STORE_SERVER_WEB_APPLICATION_NAME);
-            rendererFactory = createRendererFactory(requestParams.isPlainTextMode());
+            rendererFactory = createRendererFactory(requestParams.getDisplayMode());
 
             obtainDataSetFromServer(requestParams.getDataSetCode(),
                     requestParams.tryGetSessionId(), request);
@@ -240,14 +271,14 @@ public class DatasetDownloadServlet extends HttpServlet
         renderPage(rendererFactory, response, dataSet, context, requestParams);
     }
 
-    private IRendererFactory createRendererFactory(boolean plainTextMode)
+    private IRendererFactory createRendererFactory(String displayMode)
     {
-        if (plainTextMode)
-        {
-            return new PlainTextRendererFactory();
-        } else
+        if (displayMode.equals(HTML_MODE_DISPLAY))
         {
             return new HTMLRendererFactory();
+        } else
+        {
+            return new PlainTextRendererFactory();
         }
     }
 
@@ -278,11 +309,14 @@ public class DatasetDownloadServlet extends HttpServlet
                 requestURI.substring(0, requestURI.length() - pathInfo.length());
 
         final String sessionIDOrNull = request.getParameter(SESSION_ID_KEY);
-        final String displayMode = request.getParameter(DISPLAY_MODE_KEY);
-        final boolean isTextMode = (displayMode != null && displayMode.equals(TEXT_MODE_DISPLAY));
+        String displayMode = request.getParameter(DISPLAY_MODE_KEY);
+        if (displayMode == null)
+        {
+            displayMode = HTML_MODE_DISPLAY;
+        }
 
         return new RequestParams(dataSetCode, pathInfo, sessionIDOrNull, urlPrefixWithDataset,
-                isTextMode);
+                displayMode);
     }
 
     private void printError(IRendererFactory rendererFactory, final HttpServletRequest request,
@@ -326,7 +360,7 @@ public class DatasetDownloadServlet extends HttpServlet
             createPage(rendererFactory, response, dataSet, renderingContext, file);
         } else
         {
-            deliverFile(response, dataSet, file, requestParams.isPlainTextMode());
+            deliverFile(response, dataSet, file, requestParams.getDisplayMode());
         }
     }
 
@@ -377,30 +411,72 @@ public class DatasetDownloadServlet extends HttpServlet
             IOUtils.closeQuietly(writer);
         }
     }
-
+    
     private void deliverFile(final HttpServletResponse response, ExternalData dataSet, File file,
-            boolean plainTextMode) throws IOException, FileNotFoundException
+            String displayMode) throws IOException, FileNotFoundException
     {
-        long size = file.length();
+        ServletOutputStream outputStream = null;
+        InputStream inputStream = null;
+        String contentType;
+        int size;
+        String infoPostfix;
+        if (displayMode.startsWith(THUMBNAIL_MODE_DISPLAY))
+        {
+            Size thumbnailSize = extractSize(displayMode);
+            BufferedImage image = ImageUtil.loadImage(file);
+            int width = thumbnailSize.getWidth();
+            int height = thumbnailSize.getHeight();
+            BufferedImage thumbnail = ImageUtil.createThumbnail(image, width, height);
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            ImageIO.write(thumbnail, "png", output);
+            size = output.size();
+            infoPostfix = " as a thumbnail.";
+            contentType = "image/png";
+            inputStream = new ByteArrayInputStream(output.toByteArray());
+        } else
+        {
+            size = (int) file.length();
+            infoPostfix = " (" + size + " bytes).";
+            contentType = getMimeType(file, displayMode.equals(TEXT_MODE_DISPLAY));
+            inputStream = new FileInputStream(file);
+        }
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("For data set '" + dataSet.getCode() + "' deliver file "
-                    + file.getAbsolutePath() + " (" + size + " bytes).");
+                    + file.getAbsolutePath() + infoPostfix);
         }
-        response.setContentLength((int) size);
+        response.setContentLength(size);
         response.setHeader("Content-Disposition", "inline; filename=" + file.getName());
-        ServletOutputStream outputStream = null;
-        FileInputStream fileInputStream = null;
-        response.setContentType(getMimeType(file, plainTextMode));
+        response.setContentType(contentType);
         try
         {
             outputStream = response.getOutputStream();
-            fileInputStream = new FileInputStream(file);
-            IOUtils.copy(fileInputStream, outputStream);
+            IOUtils.copy(inputStream, outputStream);
         } finally
         {
-            IOUtils.closeQuietly(fileInputStream);
+            IOUtils.closeQuietly(inputStream);
             IOUtils.closeQuietly(outputStream);
+        }
+    }
+
+    private Size extractSize(String displayMode)
+    {
+        String sizeDescription = displayMode.substring(THUMBNAIL_MODE_DISPLAY.length());
+        int indexOfSeparator = sizeDescription.indexOf('x');
+        if (indexOfSeparator < 0)
+        {
+            return DEFAULT_THUMBNAIL_SIZE;
+        }
+        try
+        {
+            int width = Integer.parseInt(sizeDescription.substring(0, indexOfSeparator));
+            int height = Integer.parseInt(sizeDescription.substring(indexOfSeparator + 1));
+            return new Size(width, height);
+        } catch (NumberFormatException ex)
+        {
+            operationLog.warn("Invalid numbers in displayMode '" + displayMode
+                    + "'. Default thumbnail size is used.");
+            return DEFAULT_THUMBNAIL_SIZE;
         }
     }
 

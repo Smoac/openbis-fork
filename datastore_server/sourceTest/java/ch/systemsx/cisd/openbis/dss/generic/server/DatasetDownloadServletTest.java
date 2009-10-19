@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -133,6 +136,7 @@ public class DatasetDownloadServletTest
     @BeforeMethod
     public void setUp()
     {
+        System.setProperty("java.awt.headless", "true");
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
         context = new Mockery();
         request = context.mock(HttpServletRequest.class);
@@ -382,6 +386,56 @@ public class DatasetDownloadServletTest
 
         context.assertIsSatisfied();
     }
+    
+    @Test
+    public void testDoGetThumbnail() throws Exception
+    {
+        BufferedImage image = new BufferedImage(10, 20, BufferedImage.TYPE_INT_RGB);
+        ImageIO.write(image, "png", EXAMPLE_FILE);
+        final ExternalData externalData = createExternalData();
+        prepareParseRequestURLForThumbnail();
+        prepareForObtainingDataSetFromServer(externalData);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        context.checking(new Expectations()
+            {
+                {
+                    one(request).getRequestURI();
+                    will(returnValue(REQUEST_URI_PREFIX + EXAMPLE_DATA_SET_CODE + "/" + EXAMPLE_FILE_NAME));
+
+                    one(request).getSession(false);
+                    will(returnValue(httpSession));
+                    
+                    one(httpSession).getAttribute(DatasetDownloadServlet.DATA_SET_KEY);
+                    Map<String, ExternalData> map = new HashMap<String, ExternalData>();
+                    map.put(externalData.getCode(), externalData);
+                    will(returnValue(map));
+                  
+                    one(response).setContentType("image/png");
+                    one(response).setContentLength(72);
+                    one(response).setHeader("Content-Disposition",
+                            "inline; filename=" + EXAMPLE_FILE_NAME);
+                    one(response).getOutputStream();
+                    will(returnValue(new ServletOutputStream()
+                        {
+                            @Override
+                            public void write(int b) throws IOException
+                            {
+                                outputStream.write(b);
+                            }
+                        }));
+                }
+            });
+
+        DatasetDownloadServlet servlet = createServlet();
+        servlet.doGet(request, response);
+        ImageIO.read(new ByteArrayInputStream(outputStream.toByteArray()));
+        assertEquals(LOG_INFO + "Data set '1234-1' obtained from openBIS server."
+                + OSUtilities.LINE_SEPARATOR + LOG_INFO
+                + "For data set '1234-1' deliver file <wd>/data set #123/read me @home.txt "
+                + "as a thumbnail.", getNormalizedLogContent());
+
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void testDoGetNonExistingFile() throws Exception
@@ -549,6 +603,20 @@ public class DatasetDownloadServletTest
             });
     }
 
+    private void prepareParseRequestURLForThumbnail()
+    {
+        context.checking(new Expectations()
+        {
+            {
+                one(request).getParameter(DatasetDownloadServlet.SESSION_ID_KEY);
+                will(returnValue(EXAMPLE_SESSION_ID));
+                
+                one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_KEY);
+                will(returnValue("thumbnail20x30"));
+            }
+        });
+    }
+    
     private void prepareForObtainingDataSetFromServer(final ExternalData externalData)
     {
         context.checking(new Expectations()
