@@ -390,10 +390,10 @@ public class DatasetDownloadServletTest
     @Test
     public void testDoGetThumbnail() throws Exception
     {
-        BufferedImage image = new BufferedImage(10, 20, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(100, 200, BufferedImage.TYPE_INT_RGB);
         ImageIO.write(image, "png", EXAMPLE_FILE);
         final ExternalData externalData = createExternalData();
-        prepareParseRequestURLForThumbnail();
+        prepareParseRequestURLForThumbnail(100, 50);
         prepareForObtainingDataSetFromServer(externalData);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         context.checking(new Expectations()
@@ -411,7 +411,7 @@ public class DatasetDownloadServletTest
                     will(returnValue(map));
                   
                     one(response).setContentType("image/png");
-                    one(response).setContentLength(72);
+                    one(response).setContentLength(84);
                     one(response).setHeader("Content-Disposition",
                             "inline; filename=" + EXAMPLE_FILE_NAME);
                     one(response).getOutputStream();
@@ -428,7 +428,9 @@ public class DatasetDownloadServletTest
 
         DatasetDownloadServlet servlet = createServlet();
         servlet.doGet(request, response);
-        ImageIO.read(new ByteArrayInputStream(outputStream.toByteArray()));
+        BufferedImage thumbnail = ImageIO.read(new ByteArrayInputStream(outputStream.toByteArray()));
+        assertEquals(25, thumbnail.getWidth());
+        assertEquals(50, thumbnail.getHeight());
         assertEquals(LOG_INFO + "Data set '1234-1' obtained from openBIS server."
                 + OSUtilities.LINE_SEPARATOR + LOG_INFO
                 + "For data set '1234-1' deliver file <wd>/data set #123/read me @home.txt "
@@ -603,7 +605,7 @@ public class DatasetDownloadServletTest
             });
     }
 
-    private void prepareParseRequestURLForThumbnail()
+    private void prepareParseRequestURLForThumbnail(final int width, final int height)
     {
         context.checking(new Expectations()
         {
@@ -612,7 +614,7 @@ public class DatasetDownloadServletTest
                 will(returnValue(EXAMPLE_SESSION_ID));
                 
                 one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_KEY);
-                will(returnValue("thumbnail20x30"));
+                will(returnValue("thumbnail" + width + "x" + height));
             }
         });
     }
