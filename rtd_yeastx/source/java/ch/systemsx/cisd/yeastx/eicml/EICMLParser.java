@@ -33,7 +33,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import ch.systemsx.cisd.base.convert.NativeData;
 import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
+import ch.systemsx.cisd.yeastx.utils.XmlDateAdapter;
 
 /**
  * A file for parsing <code>eicML</code> files.
@@ -63,7 +63,7 @@ public class EICMLParser extends DefaultHandler
         DateFormat dateFormat = dateFormatHolder.get();
         if (dateFormat == null)
         {
-            dateFormat = new SimpleDateFormat(DBUtils.DATE_PATTERN);
+            dateFormat = new SimpleDateFormat(XmlDateAdapter.DATE_PATTERN);
             dateFormatHolder.set(dateFormat);
         }
         return dateFormat;

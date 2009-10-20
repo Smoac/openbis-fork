@@ -33,8 +33,6 @@ public class DBUtils
     /** Current version of the database. */
     public static final String DATABASE_VERSION = "003";
 
-    public static final String DATE_PATTERN = "dd-MMM-yyyy HH:mm:ss";
-
     static
     {
         QueryTool.getTypeMap().put(float[].class, new FloatArrayMapper());

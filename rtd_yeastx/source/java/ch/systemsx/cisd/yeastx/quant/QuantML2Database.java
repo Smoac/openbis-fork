@@ -36,6 +36,7 @@ import ch.systemsx.cisd.yeastx.quant.dto.ConcentrationCompounds;
 import ch.systemsx.cisd.yeastx.quant.dto.MSConcentrationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationsDTO;
+import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
 
 /**
  * Tool for uploading <code>quantML</code> files to the database.
@@ -62,7 +63,8 @@ public class QuantML2Database
         {
             transaction = dao;
             DBUtils.createDataSet(dao, dataSet);
-            MSQuantificationsDTO quantifications = QuantMLParser.parseQuantifications(file);
+            MSQuantificationsDTO quantifications =
+                    JaxbXmlParser.parse(MSQuantificationsDTO.class, file, false);
             uploadQuantifications(quantifications, dataSet);
             transaction.close(true);
         } catch (Throwable th)
@@ -89,8 +91,7 @@ public class QuantML2Database
         }
     }
 
-    private void uploadConcentrations(long quantificationId,
-            List<MSConcentrationDTO> concentrations)
+    private void uploadConcentrations(long quantificationId, List<MSConcentrationDTO> concentrations)
     {
         for (MSConcentrationDTO concentration : concentrations)
         {

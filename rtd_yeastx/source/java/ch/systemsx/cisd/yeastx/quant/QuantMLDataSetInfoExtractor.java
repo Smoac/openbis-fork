@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.yeastx.quant.dto.MSConcentrationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationsDTO;
+import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
 
 /**
  * A default data set info extractor enriched with parent dataset codes.
@@ -59,7 +60,7 @@ public class QuantMLDataSetInfoExtractor implements IDataSetInfoExtractor
     private static List<String> extractParentDatasetCodes(File incomingDataSetPath)
     {
         MSQuantificationsDTO quantifications =
-                QuantMLParser.parseQuantifications(incomingDataSetPath);
+                JaxbXmlParser.parse(MSQuantificationsDTO.class, incomingDataSetPath, true);
         List<String> parentDatasets = new ArrayList<String>();
         for (MSQuantificationDTO q : quantifications.getQuantifications())
         {

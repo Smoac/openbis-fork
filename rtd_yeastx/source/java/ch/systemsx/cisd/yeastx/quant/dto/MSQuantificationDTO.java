@@ -22,7 +22,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import ch.systemsx.cisd.yeastx.quant.XmlDateAdapter;
+import ch.systemsx.cisd.yeastx.utils.XmlDateAdapter;
 
 /**
  * Stores the content of one quantification.

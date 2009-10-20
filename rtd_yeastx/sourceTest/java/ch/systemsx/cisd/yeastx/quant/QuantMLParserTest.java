@@ -26,17 +26,27 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.yeastx.quant.dto.MSConcentrationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationsDTO;
+import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
+import ch.systemsx.cisd.yeastx.utils.XmlDateAdapter;
 
 /**
+ * Tests that *.quantML files can be parsed to the {@link MSQuantificationsDTO} bean.
+ * 
  * @author Tomasz Pylak
  */
 public class QuantMLParserTest extends AssertJUnit
 {
+
+    private MSQuantificationsDTO parse(File file)
+    {
+        return JaxbXmlParser.parse(MSQuantificationsDTO.class, file, true);
+    }
+
     @Test
     public void testParseQuantFileRealContent()
     {
         File file = new File("resource/examples/TEST&TEST_PROJECT&TEST_EXP.quantML");
-        MSQuantificationsDTO quantifications = QuantMLParser.parseQuantifications(file);
+        MSQuantificationsDTO quantifications = parse(file);
         assertEquals(1, quantifications.getQuantifications().size());
         MSQuantificationDTO quantification = quantifications.getQuantifications().get(0);
         assertEquals("msSoft", quantification.getSource());
@@ -65,7 +75,7 @@ public class QuantMLParserTest extends AssertJUnit
     public void testParseQuantFileFullContent() throws Exception
     {
         File file = new File("resource/examples/allFields.quantML");
-        MSQuantificationsDTO quantifications = QuantMLParser.parseQuantifications(file);
+        MSQuantificationsDTO quantifications = parse(file);
         assertEquals(1, quantifications.getQuantifications().size());
         MSQuantificationDTO quantification = quantifications.getQuantifications().get(0);
         assertEquals("msSoft", quantification.getSource());
