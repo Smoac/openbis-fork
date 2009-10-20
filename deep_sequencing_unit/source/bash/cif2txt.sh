@@ -35,7 +35,7 @@ fi
 
 
 # INT_NSE_DIR  there?
-[ -d $INT_NSE_DIRR ] || mkdir -p $INT_NSE_DIR
+[ -d $INT_NSE_DIR ] || mkdir -p $INT_NSE_DIR
 
 for (( l = 1; l <= $NUMBER_OF_LANES; l++ )); do
  for (( t = 1; t <= $NUMBER_OF_TILES; t++ )); do
