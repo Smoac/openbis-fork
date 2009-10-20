@@ -95,6 +95,8 @@
 		<copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/eodsql/eodsql.jar" todir="${dist.datastore_server.lib}" />
+		<copy file="${lib}/jai/jai_codec.jar" todir="${dist.datastore_server.lib}" />
+		<copy file="${lib}/jai/jai_core.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/jaxb/jaxb-api.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/jaxb/jaxb-impl.jar" todir="${dist.datastore_server.lib}" />
 		<copy file="${lib}/jaxb/jsr173_1.0_api.jar" todir="${dist.datastore_server.lib}" />
