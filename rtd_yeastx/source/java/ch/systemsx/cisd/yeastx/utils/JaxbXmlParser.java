@@ -67,7 +67,7 @@ public class JaxbXmlParser<T>
         try
         {
             JAXBContext context = JAXBContext.newInstance(beanClass);
-            debugGenerateXmlSchema(context);
+            // debugGenerateXmlSchema(context);
             return context.createUnmarshaller();
         } catch (JAXBException ex)
         {
@@ -85,7 +85,7 @@ public class JaxbXmlParser<T>
                     public Result createOutput(String namespaceUri, String schemaName)
                             throws IOException
                     {
-                        return new StreamResult(new File("resource", schemaName));
+                        return new StreamResult(new File(".", schemaName));
                     }
                 });
         } catch (IOException ex)
