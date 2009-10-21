@@ -66,6 +66,10 @@ public class GenerationDetection
 
     private static final int MIN_PIXELS_PER_PARENT = MAX_PIXELS_PER_NEW_BORN_CELL;
 
+    // maximal number of frames from the last frame that is allowed for a new born cell to appear
+    // on and not exist on any subsequent frame
+    private static final int MAX_DISAPPEARING_NEW_BORN_CELL_DIST_FROM_LAST_FRAME = 5;
+
     private static final String SEPARATOR = "\t";
 
     private static final String NEW_LINE = "\n";
@@ -730,6 +734,24 @@ public class GenerationDetection
     {
         if (cell.getNumPix() < MAX_PIXELS_PER_NEW_BORN_CELL)
         {
+            // If the cell appears only on one frame it is most likely a segmentation problem, e.g.:
+            // - cell moves a bit and its id is changed,
+            // - big cell is 'split' on two or more cells even though no division occurred.
+            // Sometimes it seems that a cell that is being washed away is caught on a picture.
+            // Ignore these cells because they are likely to mess up genealogy tree.
+            // Don't ignore cells like these that appear in the last few frames.
+            if (maxFrame - cell.getFrame() > MAX_DISAPPEARING_NEW_BORN_CELL_DIST_FROM_LAST_FRAME
+                    && cellsByIdAndFrame.get(cell.getId()).size() == 1)
+            {
+                System.err
+                        .println(String
+                                .format(
+                                        "Cell with id '%d' that appears on frame '%d' "
+                                                + "for the first time with '%d'px size is ignored by generation detection "
+                                                + "algorithm because the it disappears in the next frame and never reappears.",
+                                        cell.getId(), cell.getFrame(), cell.getNumPix()));
+                return false;
+            }
             return true;
         } else
         {
