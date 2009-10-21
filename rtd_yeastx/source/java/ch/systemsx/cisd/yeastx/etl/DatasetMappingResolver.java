@@ -229,23 +229,18 @@ class DatasetMappingResolver
             return false;
         }
 
-        boolean conversionRequired = isConversionRequired(mapping);
-        if (conversion == MLConversionType.NONE && conversionRequired)
-        {
-            log.datasetMappingError(mapping, "conversion column cannot be empty "
-                    + "for this type of file.");
-            return false;
-        }
-        if (conversion != MLConversionType.NONE && conversionRequired == false)
+        boolean conversionAllowed = isConversionAllowed(mapping);
+        if (conversion != MLConversionType.NONE && conversionAllowed == false)
         {
             log.datasetMappingError(mapping, "conversion column must be empty "
                     + "for this type of file.");
             return false;
+            
         }
         return true;
     }
 
-    private static boolean isConversionRequired(final DataSetMappingInformation dataset)
+    private static boolean isConversionAllowed(final DataSetMappingInformation dataset)
     {
         String extension = FilenameUtils.getExtension(dataset.getFileName());
         boolean conversionRequired = extension.equalsIgnoreCase(ConstantsYeastX.MZXML_EXT);
