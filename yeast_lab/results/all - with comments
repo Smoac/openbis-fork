@@ -25,8 +25,8 @@
 +16	857 (check excentricity)
 12	932
 
-33 	 f:6 	 p:16 	 c(3):
-++16	389
+FAKE:33 	 f:6 	 p:16 	 c(3):
++16	389 (wrong id - 32)
 14	1405
 12	1780
 
@@ -185,7 +185,7 @@ FAKE:69 	 f:52 	 p:17 	 c(8):
 49	1640 (far)
 19	4049
 
-FAKE POS:72 	 f:57 	 p:49 	 c(1):
+FAKE:72 	 f:57 	 p:49 	 c(1):
 49	685 (small appears close)
 
 FAKE:75 	 f:58 	 p:74 	 c(4):

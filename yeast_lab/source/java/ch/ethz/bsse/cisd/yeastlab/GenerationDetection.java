@@ -43,7 +43,13 @@ public class GenerationDetection
 
     private static final String OUTPUT_FILE = "resource/examples/output/pos2";
 
+    private static final boolean DEBUG = true;
+
     private static final int FIRST_FRAME_NUM = 0;
+
+    private static final int INITIAL_GENERATION = 1;
+
+    private static final int FAKE_CELL_GENERATION = 0;
 
     @SuppressWarnings("unused")
     private static final String PARENT_ID_COL_NAME = "parentID";
@@ -98,8 +104,10 @@ public class GenerationDetection
     // no need to use distance values and getting sqrt from values is an additional operation
     private static int maxAxisSq; // (ceiling of) square of maximal major axis found in input data
 
+    private static int maxFrame; // maximal frame number (easy to read from file)
+
     /** information about a cell in given */
-    private static class Cell
+    static class Cell
     {
         /** cell identification number */
         private final int id; // cellID
@@ -146,12 +154,7 @@ public class GenerationDetection
 
         // new data to output
 
-        private int parentCellId = -1; // present from the beginning
-
-        private int generation = 1; // number of children produced +1
-
-        // ids of all candidates for parent
-        private ParentCandidate[] parentCandidates = new ParentCandidate[0];
+        private int generation = INITIAL_GENERATION; // number of children produced +1
 
         public Cell(final String inputRow)
         {
@@ -175,19 +178,21 @@ public class GenerationDetection
             this.sphereVol = Double.parseDouble(StringUtils.trim(tokens[SPHERE_VOL_POSITION]));
         }
 
+        private ParentCandidate[] getParentCandidates()
+        {
+            return parentCandidatesByChildId.get(id); // not null - initialized at startup
+        }
+
         public int getParentCellId()
         {
-            return parentCellId;
-        }
-
-        public void setParentCellId(int parentCellId)
-        {
-            this.parentCellId = parentCellId;
-        }
-
-        public void setParentCandidates(ParentCandidate parentCandidates[])
-        {
-            this.parentCandidates = parentCandidates;
+            final ParentCandidate[] candidates = getParentCandidates();
+            if (candidates.length == 0)
+            {
+                return -1;
+            } else
+            {
+                return candidates[0].parent.id;
+            }
         }
 
         public int getGeneration()
@@ -272,7 +277,7 @@ public class GenerationDetection
 
         private int getAlternatives()
         {
-            return parentCandidates.length - 1;
+            return getParentCandidates().length - 1;
         }
 
         @Override
@@ -284,12 +289,13 @@ public class GenerationDetection
         public String parentInformation()
         {
             final StringBuilder sb = new StringBuilder();
-            for (ParentCandidate candidate : parentCandidates)
+            final ParentCandidate[] candidates = getParentCandidates();
+            for (ParentCandidate candidate : candidates)
             {
-                sb.append(candidate.parent.id + "\t" + candidate.distanceSq);
+                sb.append(candidate.parent.id + "\t" + candidate.distanceSq + ",");
             }
-            return String.format("%d \t f:%d \t p:%d \t c(%d):%s", id, frame + 1, parentCellId,
-                    parentCandidates.length, sb.toString());
+            return String.format("%d \t f:%d \t p:%d \t c(%d):%s", id, frame + 1,
+                    getParentCellId(), candidates.length, sb.toString());
         }
 
         public String longToString()
@@ -302,7 +308,7 @@ public class GenerationDetection
                                 Double.toString(fTot), Double.toString(aTot),
                                 Double.toString(rotVol), Double.toString(conVol),
                                 Double.toString(aSurf), Double.toString(sphereVol),
-                                Integer.toString(parentCellId),
+                                Integer.toString(getParentCellId()),
                                 Integer.toString(getAlternatives()), Integer.toString(generation) };
             return StringUtils.join(tokens, SEPARATOR);
         }
@@ -400,14 +406,18 @@ public class GenerationDetection
 
     }
 
-    // // <id, <frame, cell>>
-    // private static Map<Integer, Map<Integer, Cell>> cellsByIdAndFrame;
+    // <id, <frame, cell>>
+    private static Map<Integer, Map<Integer, Cell>> cellsByIdAndFrame;
+
     //
     // // <frame, <id, cell>>
     // private static Map<Integer, Map<Integer, Cell>> cellsByFrameAndId;
 
     // <frame, cells>
     private static Map<Integer, Set<Cell>> cellsByFrame;
+
+    // <child id, parent candidates sorted in order (first cell is most likely a parent)>
+    private static Map<Integer, ParentCandidate[]> parentCandidatesByChildId;
 
     public static void main(String[] args)
     {
@@ -473,27 +483,39 @@ public class GenerationDetection
         }
 
         System.err.println((System.currentTimeMillis() - start) / 1000.0);
-        for (String cellInfo : newBornCellsInfo)
+        
+        if (DEBUG)
         {
-            System.out.println(cellInfo);
+            for (Cell cell : newBornCells)
+            {
+                System.out.println(cell.parentInformation());
+            }
+            GenerationDetectionAccuracyTester.computeResultsAccuracy(newBornCells);
         }
     }
 
     private static void createDataStructures(List<Cell> cells)
     {
-        // cellsByIdAndFrame = new LinkedHashMap<Integer, Map<Integer, Cell>>();
+
+        // common empty array to avoid null checks
+        final ParentCandidate[] initialCandidates = new ParentCandidate[0];
+        cellsByIdAndFrame = new LinkedHashMap<Integer, Map<Integer, Cell>>();
         // cellsByFrameAndId = new LinkedHashMap<Integer, Map<Integer, Cell>>();
         cellsByFrame = new LinkedHashMap<Integer, Set<Cell>>();
+        parentCandidatesByChildId = new LinkedHashMap<Integer, ParentCandidate[]>();
         double maxAxis = 0;
+        maxFrame = -1;
         for (Cell cell : cells)
         {
-            // // cellsByIdAndFrame
-            // Map<Integer, Cell> byFrame = cellsByIdAndFrame.get(cell.getId());
-            // if (byFrame == null)
-            // {
-            // byFrame = new HashMap<Integer, Cell>();
-            // }
-            // byFrame.put(cell.getFrame(), cell);
+            // cellsByIdAndFrame
+            Map<Integer, Cell> byFrame = cellsByIdAndFrame.get(cell.getId());
+            if (byFrame == null)
+            {
+                // increasing order of frames (not needed)
+                byFrame = new LinkedHashMap<Integer, Cell>();
+                cellsByIdAndFrame.put(cell.getId(), byFrame);
+            }
+            byFrame.put(cell.getFrame(), cell);
             // // cellsByFrameAndId
             // Map<Integer, Cell> byId = cellsByFrameAndId.get(cell.getFrame());
             // if (byId == null)
@@ -509,10 +531,16 @@ public class GenerationDetection
                 cellsByFrame.put(cell.getFrame(), frameCells);
             }
             frameCells.add(cell);
+            // initialize candidates
+            parentCandidatesByChildId.put(cell.getId(), initialCandidates);
             //
             if (cell.getMajAxis() > maxAxis)
             {
                 maxAxis = cell.getMajAxis();
+            }
+            if (cell.getFrame() > maxFrame)
+            {
+                maxFrame = cell.getFrame();
             }
         }
         maxAxisSq = (int) Math.ceil(maxAxis * maxAxis);
@@ -539,7 +567,7 @@ public class GenerationDetection
         }
     }
 
-    private static List<String> newBornCellsInfo = new ArrayList<String>();
+    private static List<Cell> newBornCells = new ArrayList<Cell>();
 
     private static void analyzeNewFrameCells(int frame, Set<Cell> newCells) throws Exception
     {
@@ -552,6 +580,7 @@ public class GenerationDetection
         {
             if (isValidNewBornCell(cell) == false) // ignore cells that are not new born
             {
+                cell.generation = FAKE_CELL_GENERATION;
                 continue;
             }
             // could take previousFrameCells from previous step
@@ -563,8 +592,6 @@ public class GenerationDetection
             // }
             final List<ParentCandidate> parentCandidates = new ArrayList<ParentCandidate>(4);
 
-            // final List<Cell> possibleParents = new ArrayList<Cell>();
-            // final List<Integer> possibleParentDistances = new ArrayList<Integer>();
             for (Cell previousFrameCell : previousFrameCells)
             {
                 final ParentCandidate candidate = new ParentCandidate(previousFrameCell, cell);
@@ -574,14 +601,17 @@ public class GenerationDetection
                 // Parent cells have to be bigger than new born cells.
                 if (candidate.isDistanceValid()) // simplify
                 {
-                    // System.err.println(candidate.parent.id + " distance is OK");
                     if (candidate.isNumPixValid()) // could be tested before candidate is created
                     {
-                        // System.err.println(candidate.parent.id + " size is OK");
                         parentCandidates.add(candidate);
                     } else
                     {
-                        System.err.println(candidate.parent.id + " is too small");
+                        System.err
+                                .println(String
+                                        .format(
+                                                "Cell %d is to small (%d) to be a parent of %d that appeared on frame %d.",
+                                                candidate.parent.id, +candidate.parent.numPix,
+                                                cell.id, candidate.distanceSq, frame));
                     }
                 }
             }
@@ -595,21 +625,35 @@ public class GenerationDetection
                 // sort parent - best will be first
                 Collections.sort(parentCandidates);
                 setParents(cell, parentCandidates.toArray(new ParentCandidate[0]));
-                newBornCellsInfo.add(cell.toString());
+                newBornCells.add(cell);
             }
         }
 
     }
 
-    private static void setParents(Cell cell, ParentCandidate... candidates)
+    private static void setParents(Cell child, ParentCandidate... candidates)
     {
         assert candidates.length != 0;
-
         final Cell parent = candidates[0].parent;
-        // TODO 2009-10-20, Piotr Buczek: keep parents and generation separate from cells
-        cell.setParentCellId(parent.getId());
-        parent.increaseGeneration();
-        cell.setParentCandidates(candidates);
+        parentCandidatesByChildId.put(child.id, candidates);
+        increaseGeneration(parent.getId(), parent.getFrame()); // change to child.getFrame()?
+    }
+
+    /**
+     * Increases generations of all cells with specified <var>id</var> and frame number at least
+     * equal to <var>startFrame</var>.
+     */
+    private static void increaseGeneration(int cellID, int startFrame)
+    {
+        for (Entry<Integer, Cell> byFrame : cellsByIdAndFrame.get(cellID).entrySet())
+        {
+            final Integer frame = byFrame.getKey();
+            final Cell cell = byFrame.getValue();
+            if (frame >= startFrame)
+            {
+                cell.increaseGeneration();
+            }
+        }
     }
 
     private static boolean isValidNewBornCell(Cell cell)
