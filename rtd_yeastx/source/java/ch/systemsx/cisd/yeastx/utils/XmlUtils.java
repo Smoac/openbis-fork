@@ -43,8 +43,12 @@ public class XmlUtils
      * 
      * @param durationText should be a valid representation of {@link Duration}) object
      */
-    public static double asSeconds(String durationText)
+    public static Double tryAsSeconds(String durationText)
     {
+        if (durationText == null)
+        {
+            return null;
+        }
         Duration duration = DATATYPE_FACTORY.newDuration(durationText);
         if (duration.getMonths() != 0 || duration.getYears() != 0)
         {

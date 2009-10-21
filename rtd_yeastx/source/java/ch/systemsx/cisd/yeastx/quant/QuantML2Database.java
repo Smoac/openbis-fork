@@ -85,7 +85,7 @@ public class QuantML2Database
         for (MSQuantificationDTO quantification : quantifications.getQuantifications())
         {
             long quantificationId =
-                    dao.addQuantification(dataSet.getId(), dataSet.getExperimentId(),
+                    dao.addQuantification(dataSet.getExperimentId(), dataSet.getId(),
                             quantification);
             uploadConcentrations(quantificationId, quantification.getConcentrations());
         }

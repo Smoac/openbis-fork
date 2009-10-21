@@ -23,7 +23,6 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzInstrumentDTO;
-import ch.systemsx.cisd.yeastx.mzxml.dto.MzPeaksDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzPrecursorDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzRunDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzScanDTO;
@@ -48,7 +47,7 @@ public class MzXMLParserTest extends AssertJUnit
     @Test
     public void testParseFile()
     {
-        MzRunDTO content = parse("resource/examples/example1.mzXML");
+        MzRunDTO content = parse("resource/examples/example.mzXML");
         MzInstrumentDTO instrument = content.getInstrument();
         assertNotNull(instrument);
         assertEquals("ABI / SCIEX", instrument.getInstrumentManufacturer().getValue());
@@ -59,38 +58,28 @@ public class MzXMLParserTest extends AssertJUnit
         assertEquals(19, scans.size());
         MzScanDTO scan = scans.get(0);
         assertEquals(1, scan.getNumber());
-        assertEquals(2, scan.getLevel());
-        assertEquals(5408, scan.getPeaksCount());
+        assertEquals(3, scan.getLevel());
+        assertEquals(725, scan.getPeaksCount());
         assertEquals("+", scan.getPolarity());
-        assertEquals("EPI", scan.getScanType());
-        assertEquals(0.005, XmlUtils.asSeconds(scan.getRetentionTime()));
-        assertEquals(150.12, scan.getLowMz());
-        assertEquals(699.78, scan.getHighMz());
+        assertEquals("MS3", scan.getScanType());
+        assertEquals(0.006, XmlUtils.tryAsSeconds(scan.getRetentionTime()));
+        assertEquals(174.6, scan.getLowMz());
+        assertEquals(695.88, scan.getHighMz());
         assertNull(scan.getCollisionEnergy());
 
         List<MzPrecursorDTO> precursors = scan.getPrecursors();
         assertEquals(1, precursors.size());
         MzPrecursorDTO precursor = precursors.get(0);
         assertEquals(654.2, precursor.getMz());
-        assertEquals(59916700.0, precursor.getIntensity());
+        assertEquals(32333300.0, precursor.getIntensity());
         assertNull(precursor.getCharge());
 
-        MzPeaksDTO peaks = scan.getPeaks();
-        float[] peakFloats = XmlUtils.asFloats(peaks.getPeaks());
-        assertEquals(10816, peakFloats.length);
+        float[] peakFloats = scan.getPeaks();
+        assertEquals(scan.getPeaksCount() * 2, peakFloats.length);
 
-        assertEquals(150.12F, peakFloats[0]);
+        assertEquals(174.6F, peakFloats[0]);
         assertEquals(16666.666F, peakFloats[1]);
-        assertEquals(699.78F, peakFloats[10814]);
-        assertEquals(16666.666F, peakFloats[10815]);
+        assertEquals(695.88F, peakFloats[peakFloats.length - 2]);
+        assertEquals(16666.666F, peakFloats[peakFloats.length - 1]);
     }
-
-    @Test
-    public void testParseExamplesFiles()
-    {
-        assertNotNull(parse("resource/examples/example2.mzXML"));
-        assertNotNull(parse("resource/examples/example3.mzXML"));
-        assertNotNull(parse("resource/examples/example4.mzXML"));
-    }
-
 }

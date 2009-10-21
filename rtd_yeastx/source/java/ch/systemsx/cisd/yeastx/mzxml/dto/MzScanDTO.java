@@ -105,7 +105,6 @@ public class MzScanDTO
         this.scanType = scanType;
     }
 
-    /** Use {@link XmlUtils#asSeconds(String)} to convert this value into seconds. */
     @XmlAttribute(name = "retentionTime")
     public String getRetentionTime()
     {
@@ -162,14 +161,27 @@ public class MzScanDTO
     }
 
     @XmlElement(name = "peaks", namespace = MzXmlDTO.NAMESPACE)
-    public MzPeaksDTO getPeaks()
+    // TODO 2009--, Tomasz Pylak: can be nullable? test it if yes.
+    public MzPeaksDTO getPeaksBytes()
     {
         return peaks;
     }
 
-    public void setPeaks(MzPeaksDTO peaks)
+    public void setPeaksBytes(MzPeaksDTO peaks)
     {
         this.peaks = peaks;
     }
 
+    // --- getters which do not map to xml directly ---------------
+
+    public Double getRetentionTimeInSeconds()
+    {
+        return XmlUtils.tryAsSeconds(retentionTime);
+    }
+
+    /** the array has mz on even positions and intensities on odd positions */
+    public float[] getPeaks()
+    {
+        return XmlUtils.asFloats(peaks.getPeaks());
+    }
 }

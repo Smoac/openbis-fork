@@ -33,25 +33,25 @@ import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
  */
 public class QuantMSDAOTest extends AbstractDBTest
 {
-    private IQuantMSDAO quantmsDAO;
+    private IQuantMSDAO dao;
 
     @BeforeMethod(alwaysRun = true)
     public void setDAO() throws SQLException
     {
-        quantmsDAO = QueryTool.getQuery(datasource, IQuantMSDAO.class);
+        dao = QueryTool.getQuery(datasource, IQuantMSDAO.class);
     }
 
     @AfterMethod(alwaysRun = true)
     public void close()
     {
-        if (quantmsDAO != null)
+        if (dao != null)
         {
-            quantmsDAO.close();
+            dao.close();
         }
     }
 
     @Test
-    public void testUploadFiaML() throws SQLException
+    public void testUpload() throws SQLException
     {
         QuantML2Database uploader = new QuantML2Database(datasource);
         DMDataSetDTO dataSetDTO =

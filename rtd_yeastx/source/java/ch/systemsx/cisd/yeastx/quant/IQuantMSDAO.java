@@ -31,10 +31,10 @@ import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
 public interface IQuantMSDAO extends IGenericDAO
 {
     @Select(sql = "insert into MS_QUANTIFICATIONS "
-            + "( DS_ID, EXPE_ID, SOURCE, VALID, COMMENT, REGISTRATOR, REGISTRATION_DATE ) "
+            + "(  EXPE_ID, DS_ID, SOURCE, VALID, COMMENT, REGISTRATOR, REGISTRATION_DATE ) "
             + "values (?{1}, ?{2}, ?{3.source}, ?{3.valid}, ?{3.comment}, "
             + "        ?{3.registrator}, ?{3.registrationDate} ) returning ID")
-    public long addQuantification(long datasetId, long experimentId,
+    public long addQuantification(long experimentId, long datasetId,
             MSQuantificationDTO quantification);
 
     @Select(sql = "insert into MS_QUANT_CONCENTRATIONS "

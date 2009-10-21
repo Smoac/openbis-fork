@@ -24,30 +24,31 @@ import javax.xml.bind.annotation.XmlValue;
  */
 public class MzPrecursorDTO
 {
-    private double mz;
+    private Double mz;
 
-    private double intensity;
+    private Double intensity;
 
     private Integer charge;
 
     @XmlValue
-    public double getMz()
+    // not null
+    public Double getMz()
     {
         return mz;
     }
 
-    public void setMz(double mz)
+    public void setMz(Double mz)
     {
         this.mz = mz;
     }
 
     @XmlAttribute(name = "precursorIntensity", required = true)
-    public double getIntensity()
+    public Double getIntensity()
     {
         return intensity;
     }
 
-    public void setIntensity(double intensity)
+    public void setIntensity(Double intensity)
     {
         this.intensity = intensity;
     }
