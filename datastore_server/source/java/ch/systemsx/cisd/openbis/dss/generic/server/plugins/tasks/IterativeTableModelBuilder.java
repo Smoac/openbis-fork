@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -35,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnType;
 
 /**
  * A table model builder that can take new columns and rows iteratively.
@@ -123,49 +121,6 @@ public class IterativeTableModelBuilder
         }
     }
 
-    private boolean isIntCol(Collection<String> values)
-    {
-        for (String val : values)
-        {
-            try
-            {
-                Long.parseLong(val);
-            } catch (NumberFormatException ex)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    private boolean isRealCol(Collection<String> values)
-    {
-        for (String val : values)
-        {
-            try
-            {
-                Double.parseDouble(val);
-            } catch (NumberFormatException ex)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    private TableModelColumnType inferType(Collection<String> values)
-    {
-        if (isIntCol(values))
-        {
-            return TableModelColumnType.INTEGER;
-        }
-        if (isRealCol(values))
-        {
-            return TableModelColumnType.REAL;
-        }
-        return TableModelColumnType.TEXT;
-    }
-
     /**
      * Returns the table model that was built iteratively.
      */
@@ -177,8 +132,7 @@ public class IterativeTableModelBuilder
         int idx = 0;
         for (Entry<String, Map<String, String>> column : columnMap.entrySet())
         {
-            headers.add(new TableModelColumnHeader(column.getKey(), inferType(column.getValue()
-                    .values()), idx++));
+            headers.add(new TableModelColumnHeader(column.getKey(), idx++));
         }
         for (String rowId : rowIdentifiers)
         {

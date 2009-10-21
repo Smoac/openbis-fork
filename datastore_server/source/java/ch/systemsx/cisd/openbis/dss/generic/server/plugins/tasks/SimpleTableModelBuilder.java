@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnType;
 
 /**
  * Helps in building a {@link TableModel}
@@ -42,9 +41,9 @@ public class SimpleTableModelBuilder
         this.header = new ArrayList<TableModelColumnHeader>();
     }
 
-    public void addHeader(String title, TableModelColumnType type)
+    public void addHeader(String title)
     {
-        header.add(new TableModelColumnHeader(title, type, header.size()));
+        header.add(new TableModelColumnHeader(title, header.size()));
     }
 
     public void addRow(List<ISerializableComparable> values)

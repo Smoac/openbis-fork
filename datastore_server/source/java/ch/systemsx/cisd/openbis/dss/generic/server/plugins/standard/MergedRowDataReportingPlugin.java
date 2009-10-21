@@ -27,7 +27,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -50,14 +49,14 @@ public class MergedRowDataReportingPlugin extends AbstractDataMergingReportingPl
     public TableModel createReport(List<DatasetDescription> datasets)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
-        builder.addHeader("Data Set Code", TableModelColumnType.TEXT);
+        builder.addHeader("Data Set Code");
         if (datasets.isEmpty() == false)
         {
             final DatasetDescription firstDataset = datasets.get(0);
             final String[] titles = getHeaderTitles(firstDataset);
             for (String title : titles)
             {
-                builder.addHeader(title, TableModelColumnType.TEXT);
+                builder.addHeader(title);
             }
             for (DatasetDescription dataset : datasets)
             {

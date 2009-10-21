@@ -30,9 +30,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableMode
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NumberTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -52,10 +52,10 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
     public TableModel createReport(List<DatasetDescription> datasets)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
-        builder.addHeader("Dataset Code", TableModelColumnType.TEXT);
-        builder.addHeader("Thumbnail", TableModelColumnType.THUMBNAIL);
-        builder.addHeader("Name", TableModelColumnType.TEXT);
-        builder.addHeader("Size", TableModelColumnType.INTEGER);
+        builder.addHeader("Dataset Code");
+        builder.addHeader("Thumbnail");
+        builder.addHeader("Name");
+        builder.addHeader("Size");
         for (DatasetDescription dataset : datasets)
         {
             File file = getDataSubDir(dataset);
@@ -114,7 +114,7 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
         List<ISerializableComparable> row =
                 Arrays.<ISerializableComparable> asList(new StringTableCell(dataset
                         .getDatasetCode()), image, new StringTableCell(file.getName()),
-                        new StringTableCell("" + getSize(file)));
+                        new NumberTableCell(getSize(file)));
         builder.addRow(row);
     }
 

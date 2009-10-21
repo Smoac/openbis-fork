@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -71,13 +70,9 @@ public class MergedColumnDataReportingPluginTest
         final TableModel model = plugin.createReport(Arrays.asList(dsd1, dsd2, dsd3));
         assertEquals(4, model.getHeader().size());
         assertEquals("key", model.getHeader().get(0).getTitle());
-        assertEquals(TableModelColumnType.TEXT, model.getHeader().get(0).getType());
         assertEquals("val1", model.getHeader().get(1).getTitle());
-        assertEquals(TableModelColumnType.TEXT, model.getHeader().get(1).getType());
         assertEquals("val2", model.getHeader().get(2).getTitle());
-        assertEquals(TableModelColumnType.INTEGER, model.getHeader().get(2).getType());
         assertEquals("val3", model.getHeader().get(3).getTitle());
-        assertEquals(TableModelColumnType.REAL, model.getHeader().get(3).getType());
         assertEquals(4, model.getRows().size());
         assertEquals("one\t1\t\t0", StringUtils.join(model.getRows().get(0).getValues(), '\t'));
         assertEquals("two\t2.2\t17\t1.9e+5", StringUtils.join(model.getRows().get(1).getValues(),

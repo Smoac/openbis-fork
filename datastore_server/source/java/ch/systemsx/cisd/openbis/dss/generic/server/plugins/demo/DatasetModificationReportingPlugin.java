@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableMode
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -50,8 +49,8 @@ public class DatasetModificationReportingPlugin extends AbstractDatastorePlugin 
     public TableModel createReport(List<DatasetDescription> datasets)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
-        builder.addHeader("File", TableModelColumnType.TEXT);
-        builder.addHeader("Modification date", TableModelColumnType.DATE);
+        builder.addHeader("File");
+        builder.addHeader("Modification date");
         for (DatasetDescription dataset : datasets)
         {
             File file = getDataSubDir(dataset);
