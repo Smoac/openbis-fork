@@ -82,7 +82,7 @@ public class TableModel implements IsSerializable, Serializable
 
     public static enum TableModelColumnType implements IsSerializable
     {
-        DATE, INTEGER, REAL, TEXT, BOOLEAN
+        DATE, INTEGER, REAL, TEXT, BOOLEAN, THUMBNAIL
     }
 
     public static class TableModelColumnHeader implements IsSerializable, Serializable

@@ -70,23 +70,9 @@ public class DataSetReporterGrid extends
             TableModelReference tableModelReference, DatastoreServiceDescription service)
     {
         final DataSetReporterGrid grid =
-                new DataSetReporterGrid(viewContext, tableModelReference, service.getKey());
+                new DataSetReporterGrid(viewContext, tableModelReference, service.getKey(), service
+                        .getDownloadURL());
         return grid.asDisposableWithoutToolbar();
-    }
-
-    private static List<IColumnDefinitionUI<TableModelRow>> createColumnDefinitions(
-            List<TableModelColumnHeader> header)
-    {
-        List<IColumnDefinitionUI<TableModelRow>> columns =
-                new ArrayList<IColumnDefinitionUI<TableModelRow>>();
-        int i = 0;
-        for (TableModelColumnHeader columnHeader : header)
-        {
-            boolean isHidden = (i > MAX_SHOWN_COLUMNS);
-            columns.add(new DatasetReportColumnUI(columnHeader, isHidden));
-            i++;
-        }
-        return columns;
     }
 
     public static class DatasetReportColumnUI extends DataSetReportColumnDefinition implements
@@ -94,9 +80,10 @@ public class DataSetReporterGrid extends
     {
         private boolean isHidden;
 
-        public DatasetReportColumnUI(TableModelColumnHeader columnHeader, boolean isHidden)
+        public DatasetReportColumnUI(TableModelColumnHeader columnHeader, String downloadURL,
+                String sessionID, boolean isHidden)
         {
-            super(columnHeader);
+            super(columnHeader, downloadURL, sessionID);
             this.isHidden = isHidden;
         }
 
@@ -119,7 +106,7 @@ public class DataSetReporterGrid extends
         @SuppressWarnings("unused")
         private DatasetReportColumnUI()
         {
-            this(null, false);
+            this(null, null, null, false);
         }
     }
 
@@ -134,10 +121,13 @@ public class DataSetReporterGrid extends
 
     private final String reportKind;
 
+    private final String downloadURL;
+
     private DataSetReporterGrid(IViewContext<ICommonClientServiceAsync> viewContext,
-            TableModelReference tableModelReference, String reportKind)
+            TableModelReference tableModelReference, String reportKind, String downloadURL)
     {
         super(viewContext, GRID_ID, false, true, DisplayTypeIDGenerator.DATA_SET_REPORTING_GRID);
+        this.downloadURL = downloadURL;
         setId(BROWSER_ID);
         this.tableHeader = tableModelReference.getHeader();
         this.resultSetKey = tableModelReference.getResultSetKey();
@@ -154,7 +144,7 @@ public class DataSetReporterGrid extends
     @Override
     protected BaseEntityModel<TableModelRow> createModel(GridRowModel<TableModelRow> entity)
     {
-        return new BaseEntityModel<TableModelRow>(entity, createColumnDefinitions(tableHeader));
+        return new BaseEntityModel<TableModelRow>(entity, createColDefinitions());
     }
 
     @Override
@@ -214,6 +204,21 @@ public class DataSetReporterGrid extends
     @Override
     protected ColumnDefsAndConfigs<TableModelRow> createColumnsDefinition()
     {
-        return ColumnDefsAndConfigs.create(createColumnDefinitions(tableHeader));
+        return ColumnDefsAndConfigs.create(createColDefinitions());
+    }
+
+    private List<IColumnDefinitionUI<TableModelRow>> createColDefinitions()
+    {
+        String sessionID = viewContext.getModel().getSessionContext().getSessionID();
+        List<IColumnDefinitionUI<TableModelRow>> columns =
+                new ArrayList<IColumnDefinitionUI<TableModelRow>>();
+        int i = 0;
+        for (TableModelColumnHeader columnHeader : tableHeader)
+        {
+            boolean isHidden = (i > MAX_SHOWN_COLUMNS);
+            columns.add(new DatasetReportColumnUI(columnHeader, downloadURL, sessionID, isHidden));
+            i++;
+        }
+        return columns;
     }
 }

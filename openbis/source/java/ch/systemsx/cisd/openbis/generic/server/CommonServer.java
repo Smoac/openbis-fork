@@ -1586,8 +1586,11 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     {
         String[] datasetTypeCodes = extractCodes(service.getDatasetTypes());
         String dssCode = service.getDataStore().getCode();
-        return new DatastoreServiceDescription(service.getKey(), service.getLabel(),
-                datasetTypeCodes, dssCode);
+        DatastoreServiceDescription dssDescription =
+                new DatastoreServiceDescription(service.getKey(), service.getLabel(),
+                        datasetTypeCodes, dssCode);
+        dssDescription.setDownloadURL(service.getDataStore().getDownloadUrl());
+        return dssDescription;
     }
 
     private static String[] extractCodes(Set<DataSetTypePE> datasetTypes)

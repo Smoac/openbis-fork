@@ -27,7 +27,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class DatastoreServiceDescription implements IsSerializable, Serializable
 {
-    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String key;
 
@@ -36,6 +36,8 @@ public class DatastoreServiceDescription implements IsSerializable, Serializable
     private String[] datasetTypeCodes;
 
     private String datastoreCode;
+
+    private String downloadURL;
 
     @SuppressWarnings("unused")
     // for GWT serialization
@@ -75,6 +77,16 @@ public class DatastoreServiceDescription implements IsSerializable, Serializable
         return datastoreCode;
     }
 
+    public String getDownloadURL()
+    {
+        return downloadURL;
+    }
+
+    public void setDownloadURL(String downloadURL)
+    {
+        this.downloadURL = downloadURL;
+    }
+    
     // for GWT serialization
 
     @SuppressWarnings("unused")

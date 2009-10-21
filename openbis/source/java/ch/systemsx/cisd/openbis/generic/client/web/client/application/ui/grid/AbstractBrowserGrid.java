@@ -659,6 +659,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             onComplete(false);
             pagingToolbar.enable(); // somehow enabling toolbar is lost in its handleEvent() method
             // no need to show error message - it should be shown by DEFAULT_CALLBACK_LISTENER
+            caught.printStackTrace();
             delegate.onFailure(caught);
         }
 

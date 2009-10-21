@@ -16,46 +16,65 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import java.io.Serializable;
-import java.util.List;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * The content of one row, without the header specification.
- * 
- * @author Tomasz Pylak
+ * Table cell wrapping a string.
+ *
+ * @author Franz-Josef Elmer
  */
-public class TableModelRow implements IsSerializable, Serializable
+public class StringTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+    
+    private String string;
 
-    // values in each column from left to right
-    private List<ISerializableComparable> values;
-
-    public TableModelRow(List<ISerializableComparable> values)
+    public StringTableCell(String string)
     {
-        this.values = values;
+        if (string == null)
+        {
+            throw new IllegalArgumentException("Unspecified string.");
+        }
+        this.string = string;
     }
 
-    public List<ISerializableComparable> getValues()
+    public int compareTo(ISerializableComparable o)
     {
-        return values;
+        return string.compareTo(o.toString());
     }
 
+    @Override
+    public boolean equals(Object obj)
+    {
+        return this == obj
+                || (obj instanceof StringTableCell && string.equals(((StringTableCell) obj).string));
+   }
+    
+    @Override
+    public int hashCode()
+    {
+        return string.hashCode();
+    }
+    
+    @Override
+    public String toString()
+    {
+        return string;
+    }
+    
     // ---------------------------
 
     // GWT only
     @SuppressWarnings("unused")
-    private TableModelRow()
+    private StringTableCell()
     {
     }
 
     // GWT only
     @SuppressWarnings("unused")
-    private void setValues(List<ISerializableComparable> values)
+    private void setString(String string)
     {
-        this.values = values;
+        this.string = string;
     }
 
+    
 }
