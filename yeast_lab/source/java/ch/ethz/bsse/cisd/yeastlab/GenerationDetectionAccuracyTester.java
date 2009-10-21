@@ -16,7 +16,9 @@
 
 package ch.ethz.bsse.cisd.yeastlab;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,12 +86,10 @@ public class GenerationDetectionAccuracyTester
 
     public static void computeResultsAccuracy(List<Cell> results)
     {
-        int rightResults = 0;
-        int wrongResults = 0;
-        int fakeResults = 0;
-        int missingResults = 0;
-
-        Set<Integer> missingChildrenIds = parents.keySet();
+        final List<Cell> rightResults = new ArrayList<Cell>(results.size());
+        final List<Cell> wrongResults = new ArrayList<Cell>(results.size());
+        final List<Cell> fakeResults = new ArrayList<Cell>(results.size());
+        final Set<Integer> missingChildrenIds = new HashSet<Integer>(parents.keySet());
 
         for (Cell result : results)
         {
@@ -97,31 +97,45 @@ public class GenerationDetectionAccuracyTester
             Integer rightParentId = parents.get(result.getId());
             if (rightParentId == null)
             {
-                fakeResults++;
+                fakeResults.add(result);
             } else
             {
                 if (resultParentId.equals(rightParentId))
                 {
-                    rightResults++;
+                    rightResults.add(result);
                 } else
                 {
-                    wrongResults++;
+                    wrongResults.add(result);
                 }
             }
             missingChildrenIds.remove(result.getId());
         }
 
-        missingResults = missingChildrenIds.size();
+        final int rightResultsSize = rightResults.size();
+        final int wrongResultsSize = wrongResults.size();
+        final int fakeResultsSize = fakeResults.size();
+        final int missingResultsSize = missingChildrenIds.size();
         final int resultsSize = results.size();
-        final int withoutFakeSize = resultsSize - fakeResults;
+        final int resultsWithoutFakeSize = resultsSize - fakeResultsSize;
 
         System.out.println("\nAccuracy results:\n");
-        System.out.println(percentageMessage("right", "", rightResults, resultsSize));
-        System.out.println(percentageMessage("right", "(no fake)", rightResults, withoutFakeSize));
-        System.out.println(percentageMessage("wrong", "", wrongResults, resultsSize));
-        System.out.println(percentageMessage("wrong", "(no fake)", wrongResults, withoutFakeSize));
-        System.out.println(percentageMessage("fake", "", fakeResults, resultsSize));
-        System.out.println(percentageMessage("miss", "", missingResults, resultsSize));
+        System.out.println(percentageMessage("all", "", resultsSize, parents.size()));
+        System.out.println(percentageMessage("right", "", rightResultsSize, resultsSize));
+        System.out.println(percentageMessage("right", "(ignoring fake)", rightResultsSize,
+                resultsWithoutFakeSize));
+        System.out.println(percentageMessage("wrong", "", wrongResultsSize, resultsSize));
+        System.out.println(percentageMessage("wrong", "(ignoring fake)", wrongResultsSize,
+                resultsWithoutFakeSize));
+        System.out.println(percentageMessage("fake", "", fakeResultsSize, resultsSize));
+        System.out.println(percentageMessage("miss", "", missingResultsSize, resultsSize));
+        System.out.println("\nAlternatives:\n");
+        System.out.println(alternativesMessage("all", "", results));
+        System.out.println(alternativesMessage("right", "", rightResults));
+        System.out.println(alternativesMessage("wrong", "", wrongResults));
+        System.out.println(alternativesMessage("fake", "", fakeResults));
+        final List<Cell> resultsWithoutFakes = new ArrayList<Cell>(results);
+        results.removeAll(fakeResults);
+        System.out.println(alternativesMessage("all", "(ignoring fake)", resultsWithoutFakes));
     }
 
     private static String percentageMessage(String prefix, String suffix, int numerator,
@@ -131,7 +145,29 @@ public class GenerationDetectionAccuracyTester
         sb.append(prefix + ":\t");
         sb.append(numerator + "/" + denominator);
         sb.append(" = " + (numerator * 100) / denominator + "%");
-        sb.append("\t" + suffix);
+        sb.append(" " + suffix);
         return sb.toString();
+    }
+
+    private static String alternativesMessage(String prefix, String suffix, List<Cell> cells)
+    {
+        int sum = 0;
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+        for (Cell cell : cells)
+        {
+            final int current = cell.getAlternatives();
+            sum += current;
+            if (current > max)
+            {
+                max = current;
+            }
+            if (current < min)
+            {
+                min = current;
+            }
+        }
+        return String.format("%s:\t min:%d\t max:%d\t mean:%1.2f %s", prefix, min, max,
+                (double) sum / (double) cells.size(), suffix);
     }
 }
