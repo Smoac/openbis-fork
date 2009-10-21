@@ -29,7 +29,8 @@ public class URLMethodWithParametersTest extends AssertJUnit
     @Test
     public void test()
     {
-        URLMethodWithParameters method = new URLMethodWithParameters("http://my.host:1234/The string Ÿ@foo-bar");
-        assertEquals("http://my.host:1234/The+string+%fc%40foo-bar", method.toString());
+        URLMethodWithParameters method = new URLMethodWithParameters("http://my.host:1234/The string & my@foo-bar");
+        method.addParameter("p%rcentage", "1/10^2");
+        assertEquals("http://my.host:1234/The+string+%26+my%40foo-bar?p%25rcentage=1%2f10%5e2", method.toString());
     }
 }

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
@@ -24,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnType;
 
 /**
  * Definition of dataset report table columns.
@@ -46,30 +44,7 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
 
     public Comparable<?> getComparableValue(GridRowModel<TableModelRow> rowModel)
     {
-        TableModelColumnType type = columnHeader.getType();
-        String value = getValue(rowModel);
-        if (type == TableModelColumnType.REAL)
-        {
-            try
-            {
-                return StringUtils.isEmpty(value) ? Double.MIN_VALUE : new Double(value);
-            } catch (NumberFormatException e)
-            {
-                return Double.MIN_VALUE;
-            }
-        } else if (type == TableModelColumnType.INTEGER)
-        {
-            try
-            {
-                return StringUtils.isEmpty(value) ? Long.MIN_VALUE : new Long(value);
-            } catch (NumberFormatException e)
-            {
-                return Long.MIN_VALUE;
-            }
-        } else
-        {
-            return value;
-        }
+        return getCellValue(rowModel);
     }
 
     public String getHeader()
@@ -84,9 +59,7 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
 
     public String getValue(GridRowModel<TableModelRow> rowModel)
     {
-        int index = columnHeader.getIndex();
-        TableModelRow originalObject = rowModel.getOriginalObject();
-        ISerializableComparable cell = originalObject.getValues().get(index);
+        ISerializableComparable cell = getCellValue(rowModel);
         if (cell instanceof ImageTableCell == false)
         {
             return cell.toString();
@@ -101,6 +74,14 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
         String imageURL = methodWithParameters.toString();
         return "<div align='center'><a class='link-style' href='" + linkURL + "' target='_blank'><img src='"
                 + imageURL + "' alt='" + cell.toString() + "'/></a></div>";
+    }
+
+    private ISerializableComparable getCellValue(GridRowModel<TableModelRow> rowModel)
+    {
+        int index = columnHeader.getIndex();
+        TableModelRow originalObject = rowModel.getOriginalObject();
+        ISerializableComparable cell = originalObject.getValues().get(index);
+        return cell;
     }
     
     public String tryToGetProperty(String key)

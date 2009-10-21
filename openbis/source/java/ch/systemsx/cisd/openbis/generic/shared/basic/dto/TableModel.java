@@ -80,37 +80,24 @@ public class TableModel implements IsSerializable, Serializable
         this.header = header;
     }
 
-    public static enum TableModelColumnType implements IsSerializable
-    {
-        DATE, INTEGER, REAL, TEXT, BOOLEAN, THUMBNAIL
-    }
-
     public static class TableModelColumnHeader implements IsSerializable, Serializable
     {
         private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
         private String title;
 
-        private TableModelColumnType type;
-
         // allows to fetch the value for this column from the row content
         private int index;
 
-        public TableModelColumnHeader(String title, TableModelColumnType type, int index)
+        public TableModelColumnHeader(String title, int index)
         {
             this.title = title;
-            this.type = type;
             this.index = index;
         }
 
         public String getTitle()
         {
             return title;
-        }
-
-        public TableModelColumnType getType()
-        {
-            return type;
         }
 
         public int getIndex()
@@ -129,13 +116,6 @@ public class TableModel implements IsSerializable, Serializable
         private void setTitle(String title)
         {
             this.title = title;
-        }
-
-        // GWT only
-        @SuppressWarnings("unused")
-        private void setType(TableModelColumnType type)
-        {
-            this.type = type;
         }
 
         // GWT only
