@@ -121,7 +121,7 @@ public final class AnnotationUtilsTest
 
     private static class A
     {
-
+        @Deprecated
         protected Object a;
 
         protected Object b;
@@ -139,6 +139,8 @@ public final class AnnotationUtilsTest
 
     private final static class B extends A
     {
+        @Deprecated
+        protected Object x;
 
         //
         // A
