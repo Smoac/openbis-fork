@@ -52,7 +52,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
     private IPredicateFactory predicateFactory;
 
     private IAuthorizationDAOFactory daoFactory;
-    
+
     private IDatabaseInstanceDAO dbInstanceDAO;
 
     private IPredicateFactory previousFactory;
@@ -61,8 +61,8 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
 
     private List<RoleWithIdentifier> createAllowedRoles()
     {
-        return Collections.singletonList(createGroupRole(RoleCode.USER,
-                new GroupIdentifier("DB1", "3V")));
+        return Collections.singletonList(createGroupRole(RoleCode.USER, new GroupIdentifier("DB1",
+                "3V")));
     }
 
     @Override
@@ -78,16 +78,16 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         previousFactory = PredicateExecutor.getPredicateFactory();
         PredicateExecutor.setPredicateFactory(predicateFactory);
         context.checking(new Expectations()
-        {
             {
-                allowing(daoFactory).getDatabaseInstanceDAO();
-                will(returnValue(dbInstanceDAO));
-                one(dbInstanceDAO).getHomeInstance();
-                will(returnValue(null));
-                one(dbInstanceDAO).listDatabaseInstances();
-                will(returnValue(Collections.EMPTY_LIST));
-            }
-        });
+                {
+                    allowing(daoFactory).getDatabaseInstanceDAO();
+                    will(returnValue(dbInstanceDAO));
+                    one(dbInstanceDAO).getHomeInstance();
+                    will(returnValue(null));
+                    one(dbInstanceDAO).listDatabaseInstances();
+                    will(returnValue(Collections.EMPTY_LIST));
+                }
+            });
         previousProvider = PredicateExecutor.getAuthorizationDataProvider();
         PredicateExecutor.setDAOFactory(daoFactory);
     }
@@ -107,7 +107,6 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         return (Class<? extends IPredicate<String>>) stringPredicate.getClass();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public final void testEvaluateWithSimpleObject()
     {
@@ -131,7 +130,6 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         context.assertIsSatisfied();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public final void testEvaluateWithArray()
     {
@@ -158,7 +156,6 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         context.assertIsSatisfied();
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public final void testEvaluateWithCollection()
     {
