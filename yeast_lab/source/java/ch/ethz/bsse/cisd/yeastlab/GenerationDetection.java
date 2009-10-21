@@ -398,15 +398,27 @@ public class GenerationDetection
     private static class ParentCandidate implements Comparable<ParentCandidate>
     {
 
+        @SuppressWarnings("unused")
+        private final Cell previousFrameParent;
+
+        /**
+         * parent cell from the same frame that the child appeared on or from the previous frame if
+         * parent disappeared just after division
+         */
         private final Cell parent;
 
         private final Cell child;
 
         private final Integer distanceSq;
 
-        public ParentCandidate(Cell parent, Cell child)
+        public ParentCandidate(Cell previousFrameParent, Cell child)
         {
-            this.parent = parent;
+            this.previousFrameParent = previousFrameParent;
+            // on the frame that child appeared parent could disappear (5 cases in test data)
+            final Cell childFrameParentOrNull =
+                    cellsByIdAndFrame.get(previousFrameParent.id).get(child.frame);
+            this.parent =
+                    (childFrameParentOrNull != null) ? childFrameParentOrNull : previousFrameParent;
             this.child = child;
             this.distanceSq = distanceSq(parent, child);
         }
