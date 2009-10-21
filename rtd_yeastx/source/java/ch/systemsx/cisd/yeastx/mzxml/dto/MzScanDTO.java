@@ -161,7 +161,6 @@ public class MzScanDTO
     }
 
     @XmlElement(name = "peaks", namespace = MzXmlDTO.NAMESPACE)
-    // TODO 2009--, Tomasz Pylak: can be nullable? test it if yes.
     public MzPeaksDTO getPeaksBytes()
     {
         return peaks;
