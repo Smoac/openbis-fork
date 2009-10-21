@@ -113,7 +113,7 @@ function assert_correct_errorlogs {
 
 	local errorlogs=$WORK/incoming_current_content.txt
 	print_incoming_errorlog_fingerprint $incoming_dir > $errorlogs
-	echo [INFO] Comparing error logs in the incoming directory with the expected template.
+	echo [INFO] Comparing error logs in the incoming directory with the expected template $TEMPLATE_INCOMING_CONTENT.
 	diff -w $TEMPLATE_INCOMING_CONTENT $errorlogs
 
 	if [ $? -ne 0 ]; then
@@ -134,16 +134,23 @@ function count_db_table_records {
 function assert_correct_datasets_metabol_database {
     local eicms_runs=`count_db_table_records $METABOL_DB eic_ms_runs`
     local fiams_runs=`count_db_table_records $METABOL_DB fia_ms_runs`
-    local quantms_runs=`count_db_table_records $METABOL_DB ms_quantifications`
-    local quantms_concentrations=`count_db_table_records $METABOL_DB ms_quant_concentrations`
-    local quantms_component_ids=`count_db_table_records $METABOL_DB ms_quant_compounds`
-    
+    local mzxml_runs=`count_db_table_records $METABOL_DB mz_ms_runs`
 		# one run comes from the incoming and one from incoming-*ml
     assert_equals "Wrong number of eic MS runs in the metablomics db" 2 $eicms_runs  
     assert_equals "Wrong number of fia MS runs in the metablomics db" 2 $fiams_runs
+    assert_equals "Wrong number of mzXML  runs in the metablomics db" 1 $mzxml_runs
+
+    local quantms_runs=`count_db_table_records $METABOL_DB ms_quantifications`
+    local quantms_concentrations=`count_db_table_records $METABOL_DB ms_quant_concentrations`
+    local quantms_component_ids=`count_db_table_records $METABOL_DB ms_quant_compounds`
     assert_equals "Wrong number of quantifications in the metablomics db" 1 $quantms_runs
     assert_equals "Wrong number of quant. concentrations in the metablomics db" 2 $quantms_concentrations
     assert_equals "Wrong number of quant. component ids in the metablomics db" 3 $quantms_component_ids
+
+	  local mz_scans=`count_db_table_records $METABOL_DB mz_scans`
+    local mz_peaks=`count_db_table_records $METABOL_DB mz_peaks`
+	  assert_equals "Wrong number of mz scans in the metablomics db" 19 $mz_scans
+    assert_equals "Wrong number of mz peaks in the metablomics db" 13775 $mz_peaks
 }
 
 function assert_correct_incoming_contents {
@@ -160,7 +167,7 @@ function assert_correct_incoming_contents {
 	assert_correct_incoming_content faulty-to-many-mapping-files 4 true
 	assert_correct_incoming_content faulty-unknown-property 4 true
 	assert_correct_incoming_content faulty-unknown-mapping 8 true
-	assert_correct_incoming_content faulty-wrong-conversion 6 true
+	assert_correct_incoming_content faulty-wrong-conversion 5 true
 	assert_correct_incoming_content ignore-empty-dir 0 false
 	assert_correct_incoming_content ignore-no-index 1 false
 	
@@ -171,7 +178,7 @@ function assert_correct_incoming_contents {
 	assert_files_number "$MY_DATA/dropbox-fiaml/TEST&TEST_PROJECT&EXP_TEST.*.mzXML" 2
 	assert_dir_empty $MY_DATA/incoming-quantml
 	
-	local registered_datasets=17
+	local registered_datasets=18
 	# check content of the store	
 	local store=$MY_DATA/store
 	local store_files_count=`find $store -type f | wc -l`
@@ -225,3 +232,4 @@ function test_without_build {
 }
 
 test_without_build
+#build_from_local_source_and_test

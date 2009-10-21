@@ -35,7 +35,6 @@ faulty-unknown-property --------------------
 ERROR: file1.mzXML - cannot upload the file: Property type with code 'unknown-property' does not exist!
 
 faulty-wrong-conversion --------------------
-ERROR: file1.mzXML - cannot upload the file: conversion column cannot be empty for this type of file.
 ERROR: file2.eicML - cannot upload the file: conversion column must be empty for this type of file.
 ERROR: file2.fiaML - cannot upload the file: conversion column must be empty for this type of file.
 

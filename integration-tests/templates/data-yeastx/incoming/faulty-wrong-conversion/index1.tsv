@@ -1,6 +1,5 @@
 # openbis-user@mailinator.pl
 file_name	sample	group	conversion
-file1.mzXML	s32	TEST	
 file2.eicML	s32	TEST	fiaML
 file2.fiaML	s32	TEST	eicML
 file3.mzXML	s32	TEST	fiaML
