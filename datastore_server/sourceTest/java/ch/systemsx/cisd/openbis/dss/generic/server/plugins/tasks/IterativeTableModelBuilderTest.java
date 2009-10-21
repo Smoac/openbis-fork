@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
@@ -62,18 +63,18 @@ public class IterativeTableModelBuilderTest
         assertEquals(1, headers.get(1).getIndex());
         final List<TableModelRow> rows = model.getRows();
         assertEquals(3, rows.size());
-        final List<String> row0 = rows.get(0).getValues();
+        final List<ISerializableComparable> row0 = rows.get(0).getValues();
         assertEquals(2, row0.size());
-        assertEquals("a", row0.get(0));
-        assertEquals("A", row0.get(1));
-        final List<String> row1 = rows.get(1).getValues();
+        assertEquals("a", row0.get(0).toString());
+        assertEquals("A", row0.get(1).toString());
+        final List<ISerializableComparable> row1 = rows.get(1).getValues();
         assertEquals(2, row1.size());
-        assertEquals("b", row1.get(0));
-        assertEquals("B", row1.get(1));
-        final List<String> row2 = rows.get(2).getValues();
+        assertEquals("b", row1.get(0).toString());
+        assertEquals("B", row1.get(1).toString());
+        final List<ISerializableComparable> row2 = rows.get(2).getValues();
         assertEquals(2, row2.size());
-        assertEquals("c", row2.get(0));
-        assertEquals("C", row2.get(1));
+        assertEquals("c", row2.get(0).toString());
+        assertEquals("C", row2.get(1).toString());
     }
 
     private DatasetDescription createDatasetDescription()
@@ -107,21 +108,21 @@ public class IterativeTableModelBuilderTest
         assertEquals(2, headers.get(2).getIndex());
         final List<TableModelRow> rows = model.getRows();
         assertEquals(3, rows.size());
-        final List<String> row0 = rows.get(0).getValues();
+        final List<ISerializableComparable> row0 = rows.get(0).getValues();
         assertEquals(3, row0.size());
-        assertEquals("a", row0.get(0));
-        assertEquals("A", row0.get(1));
-        assertEquals("D", row0.get(2));
-        final List<String> row1 = rows.get(1).getValues();
+        assertEquals("a", row0.get(0).toString());
+        assertEquals("A", row0.get(1).toString());
+        assertEquals("D", row0.get(2).toString());
+        final List<ISerializableComparable> row1 = rows.get(1).getValues();
         assertEquals(3, row1.size());
-        assertEquals("b", row1.get(0));
-        assertEquals("B", row1.get(1));
-        assertEquals("E", row1.get(2));
-        final List<String> row2 = rows.get(2).getValues();
+        assertEquals("b", row1.get(0).toString());
+        assertEquals("B", row1.get(1).toString());
+        assertEquals("E", row1.get(2).toString());
+        final List<ISerializableComparable> row2 = rows.get(2).getValues();
         assertEquals(3, row2.size());
-        assertEquals("c", row2.get(0));
-        assertEquals("C", row2.get(1));
-        assertEquals("F", row2.get(2));
+        assertEquals("c", row2.get(0).toString());
+        assertEquals("C", row2.get(1).toString());
+        assertEquals("F", row2.get(2).toString());
     }
 
     @Test
@@ -149,31 +150,31 @@ public class IterativeTableModelBuilderTest
         assertEquals(2, headers.get(2).getIndex());
         final List<TableModelRow> rows = model.getRows();
         assertEquals(5, rows.size());
-        final List<String> row0 = rows.get(0).getValues();
+        final List<ISerializableComparable> row0 = rows.get(0).getValues();
         assertEquals(3, row0.size());
-        assertEquals("a", row0.get(0));
-        assertEquals("A", row0.get(1));
-        assertEquals("", row0.get(2));
-        final List<String> row1 = rows.get(1).getValues();
+        assertEquals("a", row0.get(0).toString());
+        assertEquals("A", row0.get(1).toString());
+        assertEquals("", row0.get(2).toString());
+        final List<ISerializableComparable> row1 = rows.get(1).getValues();
         assertEquals(3, row1.size());
-        assertEquals("b", row1.get(0));
-        assertEquals("B", row1.get(1));
-        assertEquals("E", row1.get(2));
-        final List<String> row2 = rows.get(2).getValues();
+        assertEquals("b", row1.get(0).toString());
+        assertEquals("B", row1.get(1).toString());
+        assertEquals("E", row1.get(2).toString());
+        final List<ISerializableComparable> row2 = rows.get(2).getValues();
         assertEquals(3, row2.size());
-        assertEquals("c", row2.get(0));
-        assertEquals("C", row2.get(1));
-        assertEquals("", row2.get(2));
-        final List<String> row3 = rows.get(3).getValues();
+        assertEquals("c", row2.get(0).toString());
+        assertEquals("C", row2.get(1).toString());
+        assertEquals("", row2.get(2).toString());
+        final List<ISerializableComparable> row3 = rows.get(3).getValues();
         assertEquals(3, row3.size());
-        assertEquals("d", row3.get(0));
-        assertEquals("", row3.get(1));
-        assertEquals("D", row3.get(2));
-        final List<String> row4 = rows.get(4).getValues();
+        assertEquals("d", row3.get(0).toString());
+        assertEquals("", row3.get(1).toString());
+        assertEquals("D", row3.get(2).toString());
+        final List<ISerializableComparable> row4 = rows.get(4).getValues();
         assertEquals(3, row4.size());
-        assertEquals("f", row4.get(0));
-        assertEquals("", row4.get(1));
-        assertEquals("F", row4.get(2));
+        assertEquals("f", row4.get(0).toString());
+        assertEquals("", row4.get(1).toString());
+        assertEquals("F", row4.get(2).toString());
     }
 
     @Test
@@ -198,21 +199,21 @@ public class IterativeTableModelBuilderTest
         assertEquals(2, headers.get(2).getIndex());
         final List<TableModelRow> rows = model.getRows();
         assertEquals(3, rows.size());
-        final List<String> row0 = rows.get(0).getValues();
+        final List<ISerializableComparable> row0 = rows.get(0).getValues();
         assertEquals(3, row0.size());
-        assertEquals("a", row0.get(0));
-        assertEquals("A", row0.get(1));
-        assertEquals("A", row0.get(2));
-        final List<String> row1 = rows.get(1).getValues();
+        assertEquals("a", row0.get(0).toString());
+        assertEquals("A", row0.get(1).toString());
+        assertEquals("A", row0.get(2).toString());
+        final List<ISerializableComparable> row1 = rows.get(1).getValues();
         assertEquals(3, row1.size());
-        assertEquals("b", row1.get(0));
-        assertEquals("B", row1.get(1));
-        assertEquals("B", row1.get(2));
-        final List<String> row2 = rows.get(2).getValues();
+        assertEquals("b", row1.get(0).toString());
+        assertEquals("B", row1.get(1).toString());
+        assertEquals("B", row1.get(2).toString());
+        final List<ISerializableComparable> row2 = rows.get(2).getValues();
         assertEquals(3, row2.size());
-        assertEquals("c", row2.get(0));
-        assertEquals("C", row2.get(1));
-        assertEquals("C", row2.get(2));
+        assertEquals("c", row2.get(0).toString());
+        assertEquals("C", row2.get(1).toString());
+        assertEquals("C", row2.get(2).toString());
     }
 
     @Test
@@ -253,17 +254,17 @@ public class IterativeTableModelBuilderTest
         assertEquals(1, headers.get(1).getIndex());
         final List<TableModelRow> rows = model.getRows();
         assertEquals(3, rows.size());
-        final List<String> row0 = rows.get(0).getValues();
+        final List<ISerializableComparable> row0 = rows.get(0).getValues();
         assertEquals(2, row0.size());
-        assertEquals("a", row0.get(0));
-        assertEquals("A", row0.get(1));
-        final List<String> row1 = rows.get(1).getValues();
+        assertEquals("a", row0.get(0).toString());
+        assertEquals("A", row0.get(1).toString());
+        final List<ISerializableComparable> row1 = rows.get(1).getValues();
         assertEquals(2, row1.size());
-        assertEquals("b", row1.get(0));
-        assertEquals("B", row1.get(1));
-        final List<String> row2 = rows.get(2).getValues();
+        assertEquals("b", row1.get(0).toString());
+        assertEquals("B", row1.get(1).toString());
+        final List<ISerializableComparable> row2 = rows.get(2).getValues();
         assertEquals(2, row2.size());
-        assertEquals("c", row2.get(0));
-        assertEquals("C", row2.get(1));
+        assertEquals("c", row2.get(0).toString());
+        assertEquals("C", row2.get(1).toString());
     }
 }

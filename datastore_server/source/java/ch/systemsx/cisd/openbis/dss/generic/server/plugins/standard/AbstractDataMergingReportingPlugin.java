@@ -21,7 +21,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -35,6 +34,8 @@ import ch.systemsx.cisd.common.parser.ParsingException;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLines;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -90,9 +91,12 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
     protected static void addDataRow(SimpleTableModelBuilder builder, String datasetCode,
             String[] dataTokens)
     {
-        List<String> row = new ArrayList<String>();
-        row.add(datasetCode);
-        row.addAll(Arrays.asList(dataTokens));
+        List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
+        row.add(new StringTableCell(datasetCode));
+        for (String token : dataTokens)
+        {
+            row.add(new StringTableCell(token));
+        }
         builder.addRow(row);
     }
 

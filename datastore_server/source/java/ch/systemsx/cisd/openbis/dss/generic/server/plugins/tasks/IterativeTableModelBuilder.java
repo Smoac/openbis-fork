@@ -30,6 +30,8 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
@@ -180,11 +182,11 @@ public class IterativeTableModelBuilder
         }
         for (String rowId : rowIdentifiers)
         {
-            final List<String> rowValues = new ArrayList<String>(headers.size());
+            final List<ISerializableComparable> rowValues = new ArrayList<ISerializableComparable>(headers.size());
             for (TableModelColumnHeader header : headers)
             {
                 final String valueOrNull = columnMap.get(header.getTitle()).get(rowId);
-                rowValues.add((valueOrNull == null) ? "" : valueOrNull);
+                rowValues.add(new StringTableCell((valueOrNull == null) ? "" : valueOrNull));
             }
             rows.add(new TableModelRow(rowValues));
         }

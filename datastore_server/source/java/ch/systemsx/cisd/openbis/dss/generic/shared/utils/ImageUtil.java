@@ -20,6 +20,10 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
@@ -31,6 +35,28 @@ import javax.media.jai.PlanarImage;
  */
 public class ImageUtil
 {
+    private static final Set<String> FILE_TYPES =
+            Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("gif", "jpg", "jpeg",
+                    "tif", "tiff")));
+
+    /**
+     * Returns <code>true</code> if the specified file is a supported image file. Supported formats
+     * are GIF, JPG, PNG, TIFF. Only file type is taken into account for figuring out the image
+     * format. Following file types are recognized:
+     * <code>.gif, .jpg, .jpeg, .png, .tif, .tiff</code>
+     */
+    public static boolean isImageFile(File file)
+    {
+        String name = file.getName();
+        int lastIndexOfDot = name.lastIndexOf('.');
+        if (lastIndexOfDot < 0)
+        {
+            return false;
+        }
+        String fileType = name.substring(lastIndexOfDot + 1).toLowerCase();
+        return FILE_TYPES.contains(fileType);
+    }
+    
     /**
      * Loads an image from specified file. Supported file formats are GIF, JPG, PNG, and TIFF.
      * 

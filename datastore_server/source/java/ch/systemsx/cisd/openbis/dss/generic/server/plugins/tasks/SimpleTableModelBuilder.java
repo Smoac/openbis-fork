@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
@@ -46,7 +47,7 @@ public class SimpleTableModelBuilder
         header.add(new TableModelColumnHeader(title, type, header.size()));
     }
 
-    public void addRow(List<String> values)
+    public void addRow(List<ISerializableComparable> values)
     {
         assert values.size() == header.size() : "header has different number of columns than a row";
         rows.add(new TableModelRow(values));

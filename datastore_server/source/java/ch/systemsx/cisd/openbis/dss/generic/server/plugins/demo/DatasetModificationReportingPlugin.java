@@ -25,6 +25,8 @@ import java.util.Properties;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -54,7 +56,9 @@ public class DatasetModificationReportingPlugin extends AbstractDatastorePlugin 
         {
             File file = getDataSubDir(dataset);
             String datasetCode = dataset.getDatasetCode();
-            List<String> row = Arrays.asList(datasetCode, new Date(file.lastModified()).toString());
+            List<ISerializableComparable> row =
+                    Arrays.<ISerializableComparable> asList(new StringTableCell(datasetCode),
+                            new StringTableCell(new Date(file.lastModified()).toString()));
             builder.addRow(row);
         }
         return builder.getTableModel();

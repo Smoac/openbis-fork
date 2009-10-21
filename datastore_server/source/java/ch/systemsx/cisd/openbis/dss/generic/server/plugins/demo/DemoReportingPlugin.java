@@ -27,6 +27,10 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -48,7 +52,8 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
     public TableModel createReport(List<DatasetDescription> datasets)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
-        builder.addHeader("Dataset code", TableModelColumnType.TEXT);
+        builder.addHeader("Dataset Code", TableModelColumnType.TEXT);
+        builder.addHeader("Thumbnail", TableModelColumnType.THUMBNAIL);
         builder.addHeader("Name", TableModelColumnType.TEXT);
         builder.addHeader("Size", TableModelColumnType.INTEGER);
         for (DatasetDescription dataset : datasets)
@@ -83,15 +88,33 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
     private void describeUnknown(SimpleTableModelBuilder builder, DatasetDescription dataset, File file)
     {
         String datasetCode = dataset.getDatasetCode();
-        List<String> row = Arrays.asList(datasetCode, file.getName(), "[does not exist]");
+        ISerializableComparable image = createImageCell(dataset, file);
+        List<ISerializableComparable> row =
+                Arrays.<ISerializableComparable> asList(new StringTableCell(datasetCode), image,
+                        new StringTableCell(file.getName()),
+                        new StringTableCell("[does not exist]"));
         builder.addRow(row);
+    }
+
+    private static ISerializableComparable createImageCell(DatasetDescription dataset, File file)
+    {
+        if (ImageUtil.isImageFile(file))
+        {
+            String code = dataset.getDatasetCode();
+            String location = dataset.getDataSetLocation();
+            return new ImageTableCell(code, location, file.getPath(), 100, 60);
+        }
+        return new StringTableCell(file.getName());
     }
 
     private static void describeFile(SimpleTableModelBuilder builder, DatasetDescription dataset,
             File file)
     {
-        List<String> row =
-                Arrays.asList(dataset.getDatasetCode(), file.getName(), "" + getSize(file));
+        ISerializableComparable image = createImageCell(dataset, file);
+        List<ISerializableComparable> row =
+                Arrays.<ISerializableComparable> asList(new StringTableCell(dataset
+                        .getDatasetCode()), image, new StringTableCell(file.getName()),
+                        new StringTableCell("" + getSize(file)));
         builder.addRow(row);
     }
 
