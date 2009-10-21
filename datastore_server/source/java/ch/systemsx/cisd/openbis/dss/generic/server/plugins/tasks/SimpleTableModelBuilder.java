@@ -21,8 +21,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
 
 /**
  * Helps in building a {@link TableModel}
@@ -41,11 +41,16 @@ public class SimpleTableModelBuilder
         this.header = new ArrayList<TableModelColumnHeader>();
     }
 
-    public void addHeader(String title)
+    public void addHeader(String title, boolean numeric)
     {
-        header.add(new TableModelColumnHeader(title, header.size()));
+        header.add(new TableModelColumnHeader(title, header.size(), numeric));
     }
 
+    public void addHeader(String title)
+    {
+        addHeader(title, false);
+    }
+    
     public void addRow(List<ISerializableComparable> values)
     {
         assert values.size() == header.size() : "header has different number of columns than a row";

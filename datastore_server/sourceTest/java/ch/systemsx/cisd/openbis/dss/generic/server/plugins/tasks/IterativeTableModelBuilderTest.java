@@ -28,8 +28,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
