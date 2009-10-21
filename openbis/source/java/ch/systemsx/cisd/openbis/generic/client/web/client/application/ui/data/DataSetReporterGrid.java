@@ -41,8 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
 
 /**
  * Grid displaying dataset reporting results. This grid is special comparing to other grids, because
@@ -95,11 +95,6 @@ public class DataSetReporterGrid extends
         public boolean isHidden()
         {
             return isHidden;
-        }
-
-        public boolean isNumeric()
-        {
-            return false;
         }
 
         // GWT only

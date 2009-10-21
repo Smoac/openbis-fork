@@ -51,7 +51,6 @@ public class ImageTableCell implements ISerializableComparable
     
     public ImageTableCell(String path, int maxThumbnailWidth, int maxThumbnailHeight)
     {
-        System.out.println("path:"+path);
         this.path = path;
         this.maxThumbnailWidth = maxThumbnailWidth;
         this.maxThumbnailHeight = maxThumbnailHeight;

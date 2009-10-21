@@ -21,8 +21,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel.TableModelColumnHeader;
 
 /**
  * Definition of dataset report table columns.
@@ -76,6 +76,11 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
                 + imageURL + "' alt='" + cell.toString() + "'/></a></div>";
     }
 
+    public boolean isNumeric()
+    {
+        return columnHeader.isNumeric();
+    }
+    
     private ISerializableComparable getCellValue(GridRowModel<TableModelRow> rowModel)
     {
         int index = columnHeader.getIndex();

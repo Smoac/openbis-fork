@@ -16,35 +16,40 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Date;
+
 /**
- * Table cell wrapping a number of type double.
+ * Table cell wrapping a {@link Date}.
  *
  * @author Franz-Josef Elmer
  */
-public class NumberTableCell implements ISerializableComparable
+public class DateTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
     
-    private double number;
+    private long dateTime;
     
-    public NumberTableCell(double doubleValue)
+    public DateTableCell(long dateTime)
     {
-        this.number = doubleValue;
+        this.dateTime = dateTime;
     }
     
-    public double getNumber()
+    public DateTableCell(Date date)
     {
-        return number;
+        dateTime = date.getTime();
     }
     
+    public Date getDateTime()
+    {
+        return new Date(dateTime);
+    }
+
     public int compareTo(ISerializableComparable o)
     {
-        if (o instanceof NumberTableCell)
+        if (o instanceof DateTableCell)
         {
-            double v1 = number;
-            NumberTableCell numberTableCell = (NumberTableCell) o;
-            double v2 = numberTableCell.number;
-            return v1 < v2 ? -1 : (v1 > v2 ? 1 : 0);
+            DateTableCell cell = (DateTableCell) o;
+            return dateTime < cell.dateTime ? -1 : (dateTime > cell.dateTime ? 1 : 0);
         }
         return toString().compareTo(o.toString());
     }
@@ -53,35 +58,33 @@ public class NumberTableCell implements ISerializableComparable
     public boolean equals(Object obj)
     {
         return this == obj
-                || (obj instanceof NumberTableCell && number == ((NumberTableCell) obj).number);
+                || (obj instanceof DateTableCell && dateTime == ((DateTableCell) obj).dateTime);
     }
 
     @Override
     public int hashCode()
     {
-        return (int) number;
+        return (int) dateTime;
     }
 
     @Override
     public String toString()
     {
-        return Double.toString(number);
+        return new Date(dateTime).toString();
     }
-    
     // ---------------------------
 
     // GWT only
     @SuppressWarnings("unused")
-    private NumberTableCell()
+    private DateTableCell()
     {
     }
-
+    
     // GWT only
     @SuppressWarnings("unused")
-    private void setNumber(double number)
+    private void setDateTime(long dateTime)
     {
-        this.number = number;
+        this.dateTime = dateTime;
     }
 
-    
 }

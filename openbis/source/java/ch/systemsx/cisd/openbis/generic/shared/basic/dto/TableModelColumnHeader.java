@@ -17,66 +17,76 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
-import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * A table with a list of rows and columns specification. Each column has header and type.
+ * Column header for {@link TableModel}.
  * 
  * @author Tomasz Pylak
  */
-public class TableModel implements IsSerializable, Serializable
+public class TableModelColumnHeader implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private List<TableModelRow> rows;
+    private String title;
 
-    private List<TableModelColumnHeader> header;
+    // allows to fetch the value for this column from the row content
+    private int index;
 
-    public TableModel(List<TableModelColumnHeader> header, List<TableModelRow> rows)
+    private boolean numeric;
+    
+    public TableModelColumnHeader(String title, int index)
     {
-        this.rows = rows;
-        this.header = header;
-        validate();
+        this(title, index, false);
+    }
+    
+    public TableModelColumnHeader(String title, int index, boolean numeric)
+    {
+        this.title = title;
+        this.index = index;
+        this.numeric = numeric;
     }
 
-    private void validate()
+    public String getTitle()
     {
-        int columnsNo = header.size();
-        for (TableModelRow row : rows)
-        {
-            assert row.getValues().size() == columnsNo : "row has a different number of columns than the table header";
-        }
+        return title;
     }
 
-    public List<TableModelRow> getRows()
+    public int getIndex()
     {
-        return rows;
+        return index;
     }
 
-    public List<TableModelColumnHeader> getHeader()
+    public boolean isNumeric()
     {
-        return header;
+        return numeric;
+    }
+    
+    // GWT only
+    @SuppressWarnings("unused")
+    private TableModelColumnHeader()
+    {
     }
 
     // GWT only
     @SuppressWarnings("unused")
-    private TableModel()
+    private void setTitle(String title)
     {
+        this.title = title;
     }
 
     // GWT only
     @SuppressWarnings("unused")
-    private void setRows(List<TableModelRow> rows)
+    private void setIndex(int index)
     {
-        this.rows = rows;
+        this.index = index;
     }
-
+    
     // GWT only
     @SuppressWarnings("unused")
-    private void setHeader(List<TableModelColumnHeader> header)
+    private void setNumeric(boolean numeric)
     {
-        this.header = header;
+        this.numeric = numeric;
     }
 }
