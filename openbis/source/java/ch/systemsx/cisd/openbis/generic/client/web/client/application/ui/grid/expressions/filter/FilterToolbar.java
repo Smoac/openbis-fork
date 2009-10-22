@@ -214,7 +214,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 Field f = (Field) field;
                 // Simple 'f.reset()' causes automatic filter application,
                 // but we want to reload data only once after all filters are cleared.
-                f.setRawValue("");
+                f.setRawValue(f.getEmptyText());
             }
         }
     }

@@ -37,13 +37,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntit
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager;
+import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManagerTest;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.DefaultResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager.ICustomColumnsProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRendererTest;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -164,8 +164,7 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     IResultSet<String, String> entityTypeResultMock =
                             context.mock(IResultSet.class);
                     one(entityTypeResultMock).getList();
-                    will(returnValue(new GridRowModels<String>(
-                            new ArrayList<GridCustomColumnInfo>())));
+                    will(returnValue(createGridRowModels(new ArrayList<GridCustomColumnInfo>())));
 
                     one(resultSetManager).getResultSet(with(SESSION_TOKEN),
                             with(Expectations.any(IResultSetConfig.class)),
@@ -212,9 +211,9 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
             final DefaultResultSetConfig<String, T> criteria)
     {
         final String resultSetKey = "131";
+        GridRowModels<T> rowModels = createGridRowModels(entities);
         final DefaultResultSet<String, T> defaultResultSet =
-                new DefaultResultSet<String, T>(resultSetKey, TSVRendererTest.asRowModel(entities),
-                        entities.size());
+                new DefaultResultSet<String, T>(resultSetKey, rowModels, entities.size());
         context.checking(new Expectations()
             {
                 {
@@ -226,6 +225,11 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                     will(returnValue(defaultResultSet));
                 }
             });
+    }
+
+    private <T> GridRowModels<T> createGridRowModels(List<T> entities)
+    {
+        return CachedResultSetManagerTest.createGridRowModels(entities);
     }
 
     @SuppressWarnings("unchecked")

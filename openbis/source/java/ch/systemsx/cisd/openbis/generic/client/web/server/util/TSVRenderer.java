@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
@@ -41,13 +40,13 @@ public class TSVRenderer
      *            an appropriate value from the entity.
      * @param lineSeparator character used as a lineSeparator separator
      */
-    public static <T> String createTable(GridRowModels<T> entities,
+    public static <T> String createTable(List<GridRowModel<T>> entities,
             List<IColumnDefinition<T>> list, String lineSeparator)
     {
         return new TSVRenderer(lineSeparator).createTable(entities, list);
     }
 
-    private <T> String createTable(GridRowModels<T> entities, List<IColumnDefinition<T>> list)
+    private <T> String createTable(List<GridRowModel<T>> entities, List<IColumnDefinition<T>> list)
     {
         StringBuffer sb = new StringBuffer();
         appendHeader(list, sb);

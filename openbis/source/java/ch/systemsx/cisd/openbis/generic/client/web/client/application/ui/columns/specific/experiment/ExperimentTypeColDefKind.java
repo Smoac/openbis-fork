@@ -37,7 +37,7 @@ public enum ExperimentTypeColDefKind implements IColumnDefinitionKind<Experiment
 
     DATABASE_INSTANCE(experimentTypeColDefKindFactory.createDatabaseInstanceColDefKind());
 
-    // no specific Sample Type columns
+    // no specific Experiment Type columns
 
     private final AbstractColumnDefinitionKind<ExperimentType> columnDefinitionKind;
 

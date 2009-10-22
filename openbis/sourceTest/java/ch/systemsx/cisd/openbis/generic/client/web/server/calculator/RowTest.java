@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -30,7 +29,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 
 /**
  * @author Franz-Josef Elmer
@@ -231,8 +229,7 @@ public class RowTest extends AssertJUnit
     private GridRowModel<Data> createData(double value)
     {
         Data originalObject = new Data(value);
-        return new GridRowModel<Data>(originalObject,
-                new HashMap<String, PrimitiveValue>());
+        return GridRowModel.createWithoutCustomColumns(originalObject);
     }
 
     @Test

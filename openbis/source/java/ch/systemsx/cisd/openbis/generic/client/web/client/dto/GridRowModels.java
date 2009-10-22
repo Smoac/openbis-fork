@@ -37,15 +37,27 @@ public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSe
      */
     private List<GridCustomColumnInfo> customColumnsMetadata;
 
-    public GridRowModels(List<GridCustomColumnInfo> customColumnsMetadata)
+    /**
+     * Information about distinct values in the columns. Only those columns which user wanted to
+     * filter and which at the same time had values belonging to a small set are included.<br>
+     * Note that all rows are taken into account to compute distinct values, not only those from
+     * this grid row model.<br>
+     */
+    private List<ColumnDistinctValues> columnDistinctValues;
+
+    /** Creates a new instance with the specified list of data and previous values for other fields */
+    public GridRowModels<T> cloneWithData(List<GridRowModel<T>> list)
     {
-        this.customColumnsMetadata = customColumnsMetadata;
+        return new GridRowModels<T>(list, this.getCustomColumnsMetadata(), this
+                .getColumnDistinctValues());
     }
 
-    public GridRowModels(List<GridRowModel<T>> list, List<GridCustomColumnInfo> customColumnsMetadata)
+    public GridRowModels(List<GridRowModel<T>> list,
+            List<GridCustomColumnInfo> customColumnsMetadata, List<ColumnDistinctValues> arrayList)
     {
         super(list);
         this.customColumnsMetadata = customColumnsMetadata;
+        this.columnDistinctValues = arrayList;
     }
 
     /** Used when items are not displayed in a grid (usually we need the values for comboboxes */
@@ -68,17 +80,14 @@ public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSe
         return customColumnsMetadata;
     }
 
+    public List<ColumnDistinctValues> getColumnDistinctValues()
+    {
+        return columnDistinctValues;
+    }
+
     // GWT only
     @SuppressWarnings("unused")
     private GridRowModels()
     {
     }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setCustomColumnsMetadata(List<GridCustomColumnInfo> customColumnsMetadata)
-    {
-        this.customColumnsMetadata = customColumnsMetadata;
-    }
-
 }

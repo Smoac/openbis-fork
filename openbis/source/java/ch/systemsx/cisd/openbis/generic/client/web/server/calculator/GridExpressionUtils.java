@@ -30,7 +30,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -68,10 +67,10 @@ public class GridExpressionUtils
      * Applies the filter described by <code>customFilterInfo</code> to
      * <code>allRows<code> and returns the result.
      */
-    public static <T> GridRowModels<T> applyCustomFilter(final GridRowModels<T> rows,
+    public static <T> List<GridRowModel<T>> applyCustomFilter(final List<GridRowModel<T>> rows,
             Set<IColumnDefinition<T>> availableColumns, CustomFilterInfo<T> customFilterInfo)
     {
-        GridRowModels<T> filtered = new GridRowModels<T>(rows.getCustomColumnsMetadata());
+        List<GridRowModel<T>> filtered = new ArrayList<GridRowModel<T>>();
         String expression = StringEscapeUtils.unescapeHtml(customFilterInfo.getExpression());
         Set<ParameterWithValue> parameters = customFilterInfo.getParameters();
         try
@@ -109,10 +108,10 @@ public class GridExpressionUtils
         return new UserFailureException(msg, details);
     }
 
-    public static <T> GridRowModels<T> evalCustomColumns(final List<T> allRows,
+    public static <T> ArrayList<GridRowModel<T>> evalCustomColumns(final List<T> allRows,
             List<GridCustomColumn> customColumns, Set<IColumnDefinition<T>> availableColumns)
     {
-        GridRowModels<T> result = new GridRowModels<T>(extractColumnInfos(customColumns));
+        ArrayList<GridRowModel<T>> result = new ArrayList<GridRowModel<T>>();
         Map<String, RowCalculator<T>> calculators = new HashMap<String, RowCalculator<T>>();
         for (GridCustomColumn customColumn : customColumns)
         {
@@ -144,13 +143,14 @@ public class GridExpressionUtils
             return new RowCalculator<T>(availableColumns, expression);
         } catch (Exception ex)
         {
+            // if a column definition is faulty than we replace the original expression with the one
+            // which always evaluates to an error message
             String msg = createCustomColumnErrorMessage(customColumn, ex).replace("'", "\\'");
             return new RowCalculator<T>(availableColumns, "'" + msg + "'");
         }
     }
 
-    private static List<GridCustomColumnInfo> extractColumnInfos(
-            List<GridCustomColumn> customColumns)
+    public static List<GridCustomColumnInfo> extractColumnInfos(List<GridCustomColumn> customColumns)
     {
         List<GridCustomColumnInfo> result = new ArrayList<GridCustomColumnInfo>();
         for (GridCustomColumn column : customColumns)
@@ -172,7 +172,7 @@ public class GridExpressionUtils
         // dependencies create a DAG. Then the columns should be evaluated in a topological
         // order.
         GridRowModel<T> rowDataWithEmptyCustomColumns =
-                new GridRowModel<T>(rowData, new HashMap<String, PrimitiveValue>());
+                GridRowModel.createWithoutCustomColumns(rowData);
         try
         {
             calculator.setRowData(rowDataWithEmptyCustomColumns);

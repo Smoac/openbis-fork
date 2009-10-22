@@ -48,7 +48,10 @@ public interface IResultSetConfig<K, T> extends IResultSetKeyHolder<K>
      */
     public int getLimit();
 
-    /** Returns all non-custom columns available. Needed for customized filters and columns. */
+    /**
+     * Returns all columns available. Needed for customized filters and columns. The result will
+     * include custom columns only if this information was already fetched.
+     */
     public Set<IColumnDefinition<T>> getAvailableColumns();
 
     /**
@@ -56,7 +59,11 @@ public interface IResultSetConfig<K, T> extends IResultSetKeyHolder<K>
      */
     public SortInfo<T> getSortInfo();
 
-    /** The filters which should be applied for the result */
+    /**
+     * The column filters which are visible for the user, they should be applied for the result if
+     * they are not empty. They will be also used to calculate distinct values in columns for more
+     * convenient filtering.
+     */
     public List<GridFilterInfo<T>> getFilterInfos();
 
     /**

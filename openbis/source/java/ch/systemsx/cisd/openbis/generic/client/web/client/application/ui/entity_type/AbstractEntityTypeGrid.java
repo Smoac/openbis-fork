@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
@@ -222,43 +221,6 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
         }
     }
 
-    protected IColumnDefinitionKind<T> cast(final IColumnDefinitionKind<EntityType> colDefKind)
-    {
-        final AbstractColumnDefinitionKind<EntityType> descriptor = colDefKind.getDescriptor();
-        return new IColumnDefinitionKind<T>()
-            {
-
-                public AbstractColumnDefinitionKind<T> getDescriptor()
-                {
-                    return new AbstractColumnDefinitionKind<T>(descriptor.getHeaderMsgKey(),
-                            descriptor.getWidth(), descriptor.isHidden())
-                        {
-                            @Override
-                            public String tryGetValue(T entity)
-                            {
-                                return descriptor.tryGetValue(entity);
-                            }
-                        };
-                }
-
-                public String id()
-                {
-                    return colDefKind.id();
-                }
-            };
-    }
-
-    protected List<IColumnDefinitionKind<T>> asList(final IColumnDefinitionKind<EntityType>[] table)
-    {
-        final List<IColumnDefinitionKind<T>> list =
-                new ArrayList<IColumnDefinitionKind<T>>(table.length);
-        for (IColumnDefinitionKind<EntityType> colDefKind : table)
-        {
-            list.add(cast(colDefKind));
-        }
-        return list;
-    }
-
     @Override
     protected ColumnDefsAndConfigs<T> createColumnsDefinition()
     {
@@ -273,7 +235,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
     protected List<IColumnDefinition<T>> getInitialFilters()
     {
         return asColumnFilters((new IColumnDefinitionKind[]
-            { cast(EntityTypeColDefKind.CODE) }));
+            { EntityTypeColDefKind.CODE }));
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

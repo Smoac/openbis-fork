@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -85,7 +84,7 @@ public class FilterUtilsTest extends AssertJUnit
                 }
             });
 
-        GridRowModels<Data> filterdList =
+        List<GridRowModel<Data>> filterdList =
                 GridExpressionUtils.applyCustomFilter(createData(57, 34), availableColumns,
                         filterInfo);
 
@@ -93,7 +92,7 @@ public class FilterUtilsTest extends AssertJUnit
         assertEquals(34.0, filterdList.get(0).getOriginalObject().getValue());
     }
 
-    private GridRowModels<Data> createData(double... values)
+    private List<GridRowModel<Data>> createData(double... values)
     {
         List<Data> list = new ArrayList<Data>();
         for (double value : values)

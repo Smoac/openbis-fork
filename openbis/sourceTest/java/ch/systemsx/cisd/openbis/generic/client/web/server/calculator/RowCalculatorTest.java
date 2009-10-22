@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -30,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 
 /**
  * @author Franz-Josef Elmer
@@ -236,6 +234,6 @@ public class RowCalculatorTest extends AssertJUnit
     {
         Data data = new Data();
         data.setValue(value);
-        return new GridRowModel<Data>(data, new HashMap<String, PrimitiveValue>());
+        return GridRowModel.createWithoutCustomColumns(data);
     }
 }

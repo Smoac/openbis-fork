@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +34,9 @@ import org.apache.log4j.Logger;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
@@ -56,6 +59,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CachedResultSetManager.class);
+
+    /** how many values can one column have to consider it reasonably distinct */
+    @Private
+    static final int MAX_DISTINCT_COLUMN_VALUES_SIZE = 50;
 
     private final IResultSetKeyGenerator<K> resultSetKeyProvider;
 
@@ -92,7 +99,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
         private final String[] filterExpressionAlternatives;
 
-        FilterInfo(GridFilterInfo<T> gridFilterInfo)
+        private FilterInfo(GridFilterInfo<T> gridFilterInfo)
         {
             this.filteredField = gridFilterInfo.getFilteredField();
 
@@ -100,15 +107,20 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             // - tokens are separated with whitespace
             // - quotes (both double and single quote) wrap data into tokens
             StrTokenizer tokenizer =
-                    new StrTokenizer(gridFilterInfo.getFilterPattern().toLowerCase());
+                    new StrTokenizer(gridFilterInfo.tryGetFilterPattern().toLowerCase());
             tokenizer.setQuoteMatcher(StrMatcher.quoteMatcher());
             this.filterExpressionAlternatives = tokenizer.getTokenArray();
         }
 
-        @SuppressWarnings("unchecked")
-        static <T> FilterInfo<T> create(GridFilterInfo<T> filterInfo)
+        static <T> FilterInfo<T> tryCreate(GridFilterInfo<T> filterInfo)
         {
-            return new FilterInfo(filterInfo);
+            if (filterInfo.tryGetFilterPattern() == null)
+            {
+                return null;
+            } else
+            {
+                return new FilterInfo<T>(filterInfo);
+            }
         }
 
         final IColumnDefinition<T> getFilteredField()
@@ -126,23 +138,26 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             Set<IColumnDefinition<T>> availableColumns, final List<GridFilterInfo<T>> filterInfos,
             CustomFilterInfo<T> customFilterInfo)
     {
+        List<GridRowModel<T>> filteredRows;
         if (customFilterInfo != null)
         {
-            return GridExpressionUtils.applyCustomFilter(rows, availableColumns, customFilterInfo);
+            filteredRows =
+                    GridExpressionUtils.applyCustomFilter(rows, availableColumns, customFilterInfo);
         } else
         {
-            return applyStandardColumnFilter(rows, filterInfos);
+            filteredRows = applyStandardColumnFilter(rows, filterInfos);
         }
+        return rows.cloneWithData(filteredRows);
     }
 
-    private static <T> GridRowModels<T> applyStandardColumnFilter(final GridRowModels<T> rows,
+    private static <T> List<GridRowModel<T>> applyStandardColumnFilter(final GridRowModels<T> rows,
             final List<GridFilterInfo<T>> filterInfos)
     {
-        GridRowModels<T> filtered = new GridRowModels<T>(rows.getCustomColumnsMetadata());
-        List<FilterInfo<T>> serverFilterInfos = processFilters(filterInfos);
+        List<GridRowModel<T>> filtered = new ArrayList<GridRowModel<T>>();
+        List<FilterInfo<T>> appliedFilterInfos = processAppliedFilters(filterInfos);
         for (GridRowModel<T> row : rows)
         {
-            if (isMatching(row, serverFilterInfos))
+            if (isMatching(row, appliedFilterInfos))
             {
                 filtered.add(row);
             }
@@ -150,12 +165,17 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return filtered;
     }
 
-    private static <T> List<FilterInfo<T>> processFilters(final List<GridFilterInfo<T>> filterInfos)
+    private static <T> List<FilterInfo<T>> processAppliedFilters(
+            final List<GridFilterInfo<T>> filterInfos)
     {
         List<FilterInfo<T>> serverFilterInfos = new ArrayList<FilterInfo<T>>(filterInfos.size());
-        for (GridFilterInfo<T> info : filterInfos)
+        for (GridFilterInfo<T> filterInfo : filterInfos)
         {
-            serverFilterInfos.add(FilterInfo.create(info));
+            FilterInfo<T> info = FilterInfo.tryCreate(filterInfo);
+            if (info != null)
+            {
+                serverFilterInfos.add(info);
+            }
         }
         return serverFilterInfos;
     }
@@ -271,7 +291,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             final int offset, final int limit)
     {
         final int toIndex = offset + limit;
-        return new GridRowModels<T>(data.subList(offset, toIndex), data.getCustomColumnsMetadata());
+        return data.cloneWithData(data.subList(offset, toIndex));
     }
 
     //
@@ -290,7 +310,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             dataKey = resultSetKeyProvider.createKey();
             debug("Unknown result set key: retrieving the data with a new key " + dataKey);
             List<T> rows = dataProvider.getOriginalData();
-            data = calculateCustomColumns(sessionToken, rows, resultConfig);
+            data = calculateRowModels(sessionToken, rows, resultConfig);
             results.put(dataKey, data);
         } else
         {
@@ -316,20 +336,70 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         return new DefaultResultSet<K, T>(dataKey, list, size);
     }
 
-    private <T> GridRowModels<T> calculateCustomColumns(String sessionToken, List<T> rows,
+    private <T> GridRowModels<T> calculateRowModels(String sessionToken, List<T> rows,
             IResultSetConfig<?, T> resultConfig)
     {
+        List<GridCustomColumn> customColumns =
+                fetchCustomColumnsMetadata(sessionToken, resultConfig);
+        List<GridRowModel<T>> rowModels =
+                GridExpressionUtils.evalCustomColumns(rows, customColumns, resultConfig
+                        .getAvailableColumns());
+
+        List<ColumnDistinctValues> columnDistinctValues =
+                calculateColumnDistinctValues(rowModels, resultConfig.getFilterInfos());
+
+        List<GridCustomColumnInfo> customColumnInfos =
+                GridExpressionUtils.extractColumnInfos(customColumns);
+
+        return new GridRowModels<T>(rowModels, customColumnInfos, columnDistinctValues);
+    }
+
+    @Private
+    static <T> List<ColumnDistinctValues> calculateColumnDistinctValues(
+            List<GridRowModel<T>> rowModels, List<GridFilterInfo<T>> columns)
+    {
+        List<ColumnDistinctValues> result = new ArrayList<ColumnDistinctValues>();
+        for (GridFilterInfo<T> column : columns)
+        {
+            ColumnDistinctValues distinctValues =
+                    tryCalculateColumnDistinctValues(rowModels, column.getFilteredField());
+            if (distinctValues != null)
+            {
+                result.add(distinctValues);
+            }
+        }
+        return result;
+    }
+
+    /** @return null if values are not from a small set */
+    private static <T> ColumnDistinctValues tryCalculateColumnDistinctValues(
+            List<GridRowModel<T>> rowModels, IColumnDefinition<T> column)
+    {
+        Set<String> distinctValues = new HashSet<String>();
+        for (GridRowModel<T> rowModel : rowModels)
+        {
+            String value = column.getValue(rowModel);
+            distinctValues.add(value);
+            if (distinctValues.size() > MAX_DISTINCT_COLUMN_VALUES_SIZE)
+            {
+                return null;
+            }
+        }
+        ArrayList<String> distinctValuesList = new ArrayList<String>(distinctValues);
+        return new ColumnDistinctValues(column.getIdentifier(), distinctValuesList);
+    }
+
+    private List<GridCustomColumn> fetchCustomColumnsMetadata(String sessionToken,
+            IResultSetConfig<?, ?> resultConfig)
+    {
         String gridId = resultConfig.tryGetGridDisplayId();
-        List<GridCustomColumn> customColumns;
         if (gridId == null)
         {
-            customColumns = new ArrayList<GridCustomColumn>();
+            return new ArrayList<GridCustomColumn>();
         } else
         {
-            customColumns = customColumnsProvider.getGridCustomColumn(sessionToken, gridId);
+            return customColumnsProvider.getGridCustomColumn(sessionToken, gridId);
         }
-        return GridExpressionUtils.evalCustomColumns(rows, customColumns, resultConfig
-                .getAvailableColumns());
     }
 
     public final synchronized void removeResultSet(final K resultSetKey)

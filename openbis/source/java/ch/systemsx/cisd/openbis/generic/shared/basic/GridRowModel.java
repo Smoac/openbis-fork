@@ -37,8 +37,12 @@ public class GridRowModel<T> implements IsSerializable
     // displaying serialization warnings in GWT 1.5. It was fixed in GWT 1.6
     private List<GridCustomColumnValue> calculatedColumnValues;
 
-    public GridRowModel(T originalObject,
-            HashMap<String, PrimitiveValue> calculatedColumnMap)
+    public static <T> GridRowModel<T> createWithoutCustomColumns(T originalObject)
+    {
+        return new GridRowModel<T>(originalObject, new HashMap<String, PrimitiveValue>());
+    }
+
+    public GridRowModel(T originalObject, HashMap<String, PrimitiveValue> calculatedColumnMap)
     {
         this.originalObject = originalObject;
         this.calculatedColumnValues = asList(calculatedColumnMap);
@@ -90,12 +94,5 @@ public class GridRowModel<T> implements IsSerializable
     @SuppressWarnings("unused")
     private GridRowModel()
     {
-    }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setOriginalObject(T originalObject)
-    {
-        this.originalObject = originalObject;
     }
 }

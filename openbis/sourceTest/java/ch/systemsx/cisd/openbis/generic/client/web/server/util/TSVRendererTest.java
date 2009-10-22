@@ -17,18 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 
 /**
  * Tests of {@link TSVRenderer}
@@ -50,14 +46,14 @@ public class TSVRendererTest
         Assert.assertEquals("h0\th1#x\ty#a\tb#", content);
     }
 
-    public static <T> GridRowModels<T> asRowModel(List<T> entities)
+    public static <T> List<GridRowModel<T>> asRowModel(List<T> entities)
     {
         List<GridRowModel<T>> list = new ArrayList<GridRowModel<T>>();
         for (T entity : entities)
         {
-            list.add(new GridRowModel<T>(entity, new HashMap<String, PrimitiveValue>()));
+            list.add(GridRowModel.createWithoutCustomColumns(entity));
         }
-        return new GridRowModels<T>(list, new ArrayList<GridCustomColumnInfo>());
+        return list;
     }
 
     private static List<IColumnDefinition<String[]>> createColumnDefs(int colNum)

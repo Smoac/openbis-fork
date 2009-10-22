@@ -534,11 +534,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             for (PagingColumnFilter<T> filterWidget : filterWidgets)
             {
-                GridFilterInfo<T> filter = filterWidget.tryGetFilter();
-                if (filter != null)
-                {
-                    filters.add(filter);
-                }
+                filters.add(filterWidget.getFilter());
             }
         }
         return filters;

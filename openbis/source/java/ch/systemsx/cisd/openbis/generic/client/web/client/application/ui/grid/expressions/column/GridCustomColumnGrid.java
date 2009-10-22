@@ -285,8 +285,7 @@ public class GridCustomColumnGrid extends AbstractSimpleBrowserGrid<GridCustomCo
                             {
                                 pageResult.add(allModel.get(i));
                             }
-                            result.setList(new GridRowModels<GridCustomColumn>(pageResult, allModel
-                                    .getCustomColumnsMetadata()));
+                            result.setList(allModel.cloneWithData(pageResult));
                         }
 
                         public void onFailure(Throwable caught)

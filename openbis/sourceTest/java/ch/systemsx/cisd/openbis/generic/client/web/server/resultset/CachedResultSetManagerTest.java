@@ -33,11 +33,15 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager.ICustomColumnsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRendererTest;
+import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -77,7 +81,7 @@ public final class CachedResultSetManagerTest
         expectations.one(resultSetConfig).getSortInfo();
         expectations.will(Expectations.returnValue(sortInfo));
 
-        expectations.one(resultSetConfig).getFilterInfos();
+        expectations.allowing(resultSetConfig).getFilterInfos();
         expectations.will(Expectations.returnValue(new ArrayList<GridFilterInfo<String>>()));
 
         expectations.one(resultSetConfig).tryGetCustomFilterInfo();
@@ -94,7 +98,19 @@ public final class CachedResultSetManagerTest
             sample.setCode("code" + i);
             list.add(sample);
         }
-        return TSVRendererTest.asRowModel(list);
+        return createGridRowModels(list);
+    }
+
+    public static <T> GridRowModels<T> createGridRowModels(List<T> entities)
+    {
+        ArrayList<GridCustomColumnInfo> customColumnsMetadata =
+                new ArrayList<GridCustomColumnInfo>();
+        ArrayList<ColumnDistinctValues> columnDistinctValues =
+                new ArrayList<ColumnDistinctValues>();
+        GridRowModels<T> rowModels =
+                new GridRowModels<T>(TSVRendererTest.asRowModel(entities), customColumnsMetadata,
+                        columnDistinctValues);
+        return rowModels;
     }
 
     @SuppressWarnings("unchecked")
@@ -268,4 +284,70 @@ public final class CachedResultSetManagerTest
         assertFalse(fail);
         context.assertIsSatisfied();
     }
+
+    @Test
+    public void testCalculateColumnDistinctValues()
+    {
+        String separator = " ";
+        List<GridFilterInfo<String>> filterList =
+                createFilterList(createColDef("c1", separator, 0), createColDef("c2", separator, 1));
+        List<GridRowModel<String>> rows = new ArrayList<GridRowModel<String>>();
+        for (int i = 0; i < CachedResultSetManager.MAX_DISTINCT_COLUMN_VALUES_SIZE * 2; i++)
+        {
+            rows.add(GridRowModel.createWithoutCustomColumns(i + separator + (i % 2)));
+        }
+        List<ColumnDistinctValues> result =
+                CachedResultSetManager.calculateColumnDistinctValues(rows, filterList);
+
+        assertEquals(1, result.size());
+        ColumnDistinctValues distinctValues = result.get(0);
+        assertEquals("c2", distinctValues.getColumnIdentifier());
+        List<String> values = distinctValues.getDistinctValues();
+        assertEquals(2, values.size());
+        assertEquals("0", values.get(0));
+        assertEquals("1", values.get(1));
+    }
+
+    private static List<GridFilterInfo<String>> createFilterList(IColumnDefinition<String> c1,
+            IColumnDefinition<String> c2)
+    {
+        List<GridFilterInfo<String>> result = new ArrayList<GridFilterInfo<String>>();
+        result.add(new GridFilterInfo<String>(c1, null));
+        result.add(new GridFilterInfo<String>(c2, null));
+        return result;
+    }
+
+    private static IColumnDefinition<String> createColDef(final String identifier,
+            final String separator, final int tokenIndex)
+    {
+        return new IColumnDefinition<String>()
+            {
+                public String getValue(GridRowModel<String> rowModel)
+                {
+                    return rowModel.getOriginalObject().split(separator)[tokenIndex];
+                }
+
+                public String getIdentifier()
+                {
+                    return identifier;
+                }
+
+                public Comparable<?> getComparableValue(GridRowModel<String> rowModel)
+                {
+                    return getValue(rowModel);
+                }
+
+                public String getHeader()
+                {
+                    return null; // unused
+                }
+
+                public String tryToGetProperty(String key)
+                {
+                    return null; // unused
+                }
+
+            };
+    }
+
 }

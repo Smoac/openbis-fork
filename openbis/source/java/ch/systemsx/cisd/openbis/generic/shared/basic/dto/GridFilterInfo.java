@@ -31,8 +31,8 @@ public class GridFilterInfo<T> implements IsSerializable
     // allows to fetch the value from the row model
     private IColumnDefinition<T> filteredField;
 
-    // the value has to match to this pattern
-    private String filterText;
+    // the value has to match to this pattern, If null filter should not be applied.
+    private String filterTextOrNull;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -40,10 +40,10 @@ public class GridFilterInfo<T> implements IsSerializable
     {
     }
 
-    public GridFilterInfo(IColumnDefinition<T> filteredField, String filterText)
+    public GridFilterInfo(IColumnDefinition<T> filteredField, String filterTextOrNull)
     {
         this.filteredField = filteredField;
-        this.filterText = filterText;
+        this.filterTextOrNull = filterTextOrNull;
     }
 
     public IColumnDefinition<T> getFilteredField()
@@ -51,9 +51,9 @@ public class GridFilterInfo<T> implements IsSerializable
         return filteredField;
     }
 
-    public String getFilterPattern()
+    public String tryGetFilterPattern()
     {
-        return filterText;
+        return filterTextOrNull;
     }
 
 }
