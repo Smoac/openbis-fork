@@ -50,12 +50,4 @@ public class TableModelRow implements IsSerializable, Serializable
     private TableModelRow()
     {
     }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setValues(List<ISerializableComparable> values)
-    {
-        this.values = values;
-    }
-
 }

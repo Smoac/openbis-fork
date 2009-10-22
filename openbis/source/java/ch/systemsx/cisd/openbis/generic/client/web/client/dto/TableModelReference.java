@@ -57,19 +57,4 @@ public class TableModelReference implements IsSerializable
     private TableModelReference()
     {
     }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setResultSetKey(String resultSetKey)
-    {
-        this.resultSetKey = resultSetKey;
-    }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setHeader(List<TableModelColumnHeader> header)
-    {
-        this.header = header;
-    }
-
 }

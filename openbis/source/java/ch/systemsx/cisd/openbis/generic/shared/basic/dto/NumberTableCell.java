@@ -75,13 +75,4 @@ public class NumberTableCell implements ISerializableComparable
     private NumberTableCell()
     {
     }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setNumber(double number)
-    {
-        this.number = number;
-    }
-
-    
 }

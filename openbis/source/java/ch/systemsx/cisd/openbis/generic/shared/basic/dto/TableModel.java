@@ -65,18 +65,4 @@ public class TableModel implements IsSerializable, Serializable
     private TableModel()
     {
     }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setRows(List<TableModelRow> rows)
-    {
-        this.rows = rows;
-    }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setHeader(List<TableModelColumnHeader> header)
-    {
-        this.header = header;
-    }
 }

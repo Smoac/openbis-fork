@@ -79,12 +79,4 @@ public class DateTableCell implements ISerializableComparable
     private DateTableCell()
     {
     }
-    
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setDateTime(long dateTime)
-    {
-        this.dateTime = dateTime;
-    }
-
 }

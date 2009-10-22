@@ -71,33 +71,4 @@ public final class DisplayedOrSelectedDatasetCriteria implements IsSerializable
     private DisplayedOrSelectedDatasetCriteria()
     {
     }
-
-    @SuppressWarnings("unused")
-    // GWT only
-    private TableExportCriteria<ExternalData> getDisplayedItemsOrNull()
-    {
-        return displayedItemsOrNull;
-    }
-
-    @SuppressWarnings("unused")
-    // GWT only
-    private void setDisplayedItemsOrNull(TableExportCriteria<ExternalData> displayedItemsOrNull)
-    {
-        this.displayedItemsOrNull = displayedItemsOrNull;
-    }
-
-    @SuppressWarnings("unused")
-    // GWT only
-    private List<String> getSelectedDatasetCodesOrNull()
-    {
-        return selectedDatasetCodesOrNull;
-    }
-
-    @SuppressWarnings("unused")
-    // GWT only
-    private void setSelectedDatasetCodesOrNull(List<String> selectedDatasetCodesOrNull)
-    {
-        this.selectedDatasetCodesOrNull = selectedDatasetCodesOrNull;
-    }
-
 }

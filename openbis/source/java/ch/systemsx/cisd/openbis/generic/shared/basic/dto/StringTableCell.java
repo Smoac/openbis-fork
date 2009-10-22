@@ -68,13 +68,4 @@ public class StringTableCell implements ISerializableComparable
     private StringTableCell()
     {
     }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setString(String string)
-    {
-        this.string = string;
-    }
-
-    
 }

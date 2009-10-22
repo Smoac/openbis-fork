@@ -87,32 +87,6 @@ public class DatastoreServiceDescription implements IsSerializable, Serializable
         this.downloadURL = downloadURL;
     }
     
-    // for GWT serialization
-
-    @SuppressWarnings("unused")
-    private void setKey(String key)
-    {
-        this.key = key;
-    }
-
-    @SuppressWarnings("unused")
-    private void setLabel(String label)
-    {
-        this.label = label;
-    }
-
-    @SuppressWarnings("unused")
-    private void setDatasetTypeCodes(String[] datasetTypeCodes)
-    {
-        this.datasetTypeCodes = datasetTypeCodes;
-    }
-
-    @SuppressWarnings("unused")
-    private void setDatastoreCode(String datastoreCode)
-    {
-        this.datastoreCode = datastoreCode;
-    }
-
     @Override
     public String toString()
     {

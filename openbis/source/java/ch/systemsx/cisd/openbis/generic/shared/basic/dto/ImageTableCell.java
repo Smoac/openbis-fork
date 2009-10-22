@@ -101,26 +101,5 @@ public class ImageTableCell implements ISerializableComparable
     private ImageTableCell()
     {
     }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setPath(String path)
-    {
-        this.path = path;
-    }
-    
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setMaxThumbnailWidth(int maxThumbnailWidth)
-    {
-        this.maxThumbnailWidth = maxThumbnailWidth;
-    }
-    
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setMaxThumbnailHeight(int maxThumbnailHeight)
-    {
-        this.maxThumbnailHeight = maxThumbnailHeight;
-    }
 }
 
