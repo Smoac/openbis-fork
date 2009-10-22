@@ -67,12 +67,12 @@ public class GenerationDetection
     // max distance from a perfect circle measure - < 1 makes things worse
     private static final double MAX_NEW_BORN_CELL_FFT_STAT = 1;
 
-    // 0.2 - 24fake, 0miss
+    // 0.2 - 24fake, 0miss (safe)
     // 0.3 - 20fake, 1miss
     // 0.4 - 17fake, 2miss
     // 0.5 - 12fake, 4miss: 70,93,131,77 - size should increase (exc. 70 that may be important)
     // 0.6 - 5fake, 13miss
-    private static final double MIN_NEW_BORN_CELL_ECCENTRICITY = 0.2;
+    private static final double MIN_NEW_BORN_CELL_ECCENTRICITY = 0.5;
 
     private static final int MIN_PARENT_PIXELS = MAX_NEW_BORN_CELL_PIXELS;
 
