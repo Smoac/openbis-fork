@@ -46,7 +46,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
 
     private Set<IColumnDefinition<T>> availableColumns;
 
-    private GridFilters<T> filters;
+    private GridFilters<T> filters = GridFilters.createEmptyFilter();
 
     // null if no custom columns are needed
     private String gridDisplayIdOrNull;

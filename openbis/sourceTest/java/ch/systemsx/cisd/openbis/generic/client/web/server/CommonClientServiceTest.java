@@ -381,9 +381,10 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
                 }
             });
 
+        DefaultResultSetConfig<String, ExternalData> resultSetConfig =
+                DefaultResultSetConfig.createFetchAll();
         ResultSetWithEntityTypes<ExternalData> resultSet =
-                commonClientService.listExperimentDataSets(experimentId,
-                        new DefaultResultSetConfig<String, ExternalData>());
+                commonClientService.listExperimentDataSets(experimentId, resultSetConfig);
         List<ExternalData> list = resultSet.getResultSet().getList().extractOriginalObjects();
         assertEquals(1, list.size());
         ExternalData data = list.get(0);
