@@ -72,9 +72,13 @@ public class GenerationDetection
     // 0.4 - 17fake, 2miss
     // 0.5 - 12fake, 4miss: 70,93,131,77 - size should increase (exc. 70 that may be important)
     // 0.6 - 5fake, 13miss
-    private static final double MIN_NEW_BORN_CELL_MIN_MAJ_AXIS_RATIO = 0.2;
+    private static final double MIN_NEW_BORN_CELL_ECCENTRICITY = 0.2;
 
     private static final int MIN_PARENT_PIXELS = MAX_NEW_BORN_CELL_PIXELS;
+
+    // if cell eccentricity increases more than this value it is more likely a parent
+    // (it gets closer to circle)
+    private static final double MIN_PARENT_ECCENTRICITY_INC = 0.1;
 
     // maximal number of frames from the last frame that is allowed for a new born cell to appear
     // on and not exist on any subsequent frame
@@ -155,6 +159,9 @@ public class GenerationDetection
         /** length of the minor axis in pixel units */
         private final double minAxis;
 
+        /** minAxis/majAxis (circle == 1) */
+        private final double eccentricity;
+
         /** sum of the fluorescence image for all the pixels found in that cell */
         private final double fTot; // f.tot
 
@@ -197,6 +204,7 @@ public class GenerationDetection
 
             this.majAxis = Double.parseDouble(StringUtils.trim(tokens[MAJ_AXIS_POSITION]));
             this.minAxis = Double.parseDouble(StringUtils.trim(tokens[MIN_AXIS_POSITION]));
+            this.eccentricity = minAxis / majAxis;
 
             this.aVacuole = Double.parseDouble(StringUtils.trim(tokens[A_VACUOLE_POSITION]));
             this.fVacuole = Double.parseDouble(StringUtils.trim(tokens[F_VACUOLE_POSITION]));
@@ -315,6 +323,11 @@ public class GenerationDetection
             return fVacuole;
         }
 
+        public double getEccentricity()
+        {
+            return eccentricity;
+        }
+
         public String getInputRow()
         {
             return inputRow;
@@ -378,11 +391,12 @@ public class GenerationDetection
                         { Integer.toString(id), Integer.toString(frame + 1), Integer.toString(x),
                                 Integer.toString(y), Integer.toString(numPix),
                                 doubleToString(majAxis), doubleToString(minAxis),
-                                doubleToString(fftStat), doubleToString(perim),
-                                doubleToString(aVacuole), doubleToString(fVacuole),
-                                doubleToString(fTot), doubleToString(rotVol),
-                                doubleToString(conVol), doubleToString(aSurf),
-                                doubleToString(sphereVol), Integer.toString(getParentCellId()),
+                                doubleToString(eccentricity), doubleToString(fftStat),
+                                doubleToString(perim), doubleToString(aVacuole),
+                                doubleToString(fVacuole), doubleToString(fTot),
+                                doubleToString(rotVol), doubleToString(conVol),
+                                doubleToString(aSurf), doubleToString(sphereVol),
+                                Integer.toString(getParentCellId()),
                                 Integer.toString(getAlternatives()), Integer.toString(generation) };
             return StringUtils.join(tokens, SEPARATOR);
         }
@@ -492,10 +506,37 @@ public class GenerationDetection
         // Comparable
         //
 
-        // simplest comparator - parent that is closer is better
+        // closer is better, but if only one had big eccentricity increase it is more important
         public int compareTo(ParentCandidate o)
         {
-            return this.getDistanceSq().compareTo(o.getDistanceSq());
+            if (this.getEccentricityIncrease() > MIN_PARENT_ECCENTRICITY_INC)
+            {
+                if (o.getEccentricityIncrease() > MIN_PARENT_ECCENTRICITY_INC)
+                {
+                    // both cell shapes are much closer to circle
+                    return this.getDistanceSq().compareTo(o.getDistanceSq());
+                } else
+                {
+                    // only this cell shape got much closer to circle - more probable parent
+                    return -1;
+                }
+            } else
+            {
+                if (o.getEccentricityIncrease() > MIN_PARENT_ECCENTRICITY_INC)
+                {
+                    // only the other cell shape got much closer to circle - more probable parent
+                    return 1;
+                } else
+                {
+                    // both cell shapes didn't got much closer to circle
+                    return this.getDistanceSq().compareTo(o.getDistanceSq());
+                }
+            }
+        }
+
+        private double getEccentricityIncrease()
+        {
+            return parent.getEccentricity() - previousFrameParent.getEccentricity();
         }
 
     }
@@ -541,10 +582,10 @@ public class GenerationDetection
             // writer.append(SEPARATOR + GENERATION_COL_NAME + NEW_LINE);
 
             String[] tokens =
-                        { "cellID", "frame", "x", "y", "numPix", "maxAxis", "minAxis", "fftStat",
-                                "perim", "aVacuole", "fVacuole", "fTot", "aTot", "rotVol",
-                                "conVol", "aSurf", "sphereVol", "parent", "alternatives",
-                                "generation" };
+                        { "cellID", "frame", "x", "y", "numPix", "majAxis", "minAxis",
+                                "eccentricity", "fftStat", "perim", "aVacuole", "fVacuole", "fTot",
+                                "aTot", "rotVol", "conVol", "aSurf", "sphereVol", "parent",
+                                "alternatives", "generation" };
             writer.append(StringUtils.join(tokens, SEPARATOR));
             writer.append(NEW_LINE);
             Integer previousId = -1;
@@ -802,16 +843,15 @@ public class GenerationDetection
             return false;
         }
         // The shape of a new born cell should not be too far from a circle
-        if (cell.getMinAxis() / cell.getMajAxis() < MIN_NEW_BORN_CELL_MIN_MAJ_AXIS_RATIO)
+        if (cell.getMinAxis() / cell.getMajAxis() < MIN_NEW_BORN_CELL_ECCENTRICITY)
         {
             System.err
                     .println(String
                             .format(
                                     "Ignoring new cell with id:%d appearing on frame:%d. "
                                             + "Reason: minAxis/majAxis ratio=%f is below minimal allowed value for a new born cell (%f).",
-                                    cell.getId(), cell.getFrame(), cell.getMinAxis()
-                                            / cell.getMajAxis(),
-                                    MIN_NEW_BORN_CELL_MIN_MAJ_AXIS_RATIO));
+                                    cell.getId(), cell.getFrame(), cell.getEccentricity(),
+                                    MIN_NEW_BORN_CELL_ECCENTRICITY));
             return false;
         }
         return true;

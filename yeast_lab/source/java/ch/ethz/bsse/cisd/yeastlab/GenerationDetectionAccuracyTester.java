@@ -130,8 +130,11 @@ public class GenerationDetectionAccuracyTester
                 resultsWithoutFakeSize));
         System.out.println(percentageMessage("fake", "", fakeResultsSize, resultsSize));
         System.out.println(percentageMessage("miss", "", missingResultsSize, parents.size()));
-        System.out.println("\nMissing:\n");
-        System.out.println(StringUtils.join(missingChildrenIds, ","));
+        if (missingResultsSize > 0)
+        {
+            System.out.println("\nMissing:\n");
+            System.out.println(StringUtils.join(missingChildrenIds, ","));
+        }
         System.out.println("\nAlternatives:\n");
         System.out.println(alternativesMessage("all", "", results));
         System.out.println(alternativesMessage("right", "", rightResults));
