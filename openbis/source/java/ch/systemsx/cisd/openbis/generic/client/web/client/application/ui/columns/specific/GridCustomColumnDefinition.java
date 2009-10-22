@@ -88,19 +88,4 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
     private GridCustomColumnDefinition()
     {
     }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private GridCustomColumnInfo getColumnMetadata()
-    {
-        return columnMetadata;
-    }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setColumnMetadata(GridCustomColumnInfo columnMetadata)
-    {
-        this.columnMetadata = columnMetadata;
-    }
-
 }

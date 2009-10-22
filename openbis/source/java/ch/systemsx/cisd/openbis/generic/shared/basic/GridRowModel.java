@@ -71,13 +71,6 @@ public class GridRowModel<T> implements IsSerializable
         return calculatedColumnValues;
     }
 
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setCalculatedColumnValues(List<GridCustomColumnValue> calculatedColumnValues)
-    {
-        this.calculatedColumnValues = calculatedColumnValues;
-    }
-
     public PrimitiveValue findColumnValue(String columnId)
     {
         for (GridCustomColumnValue value : calculatedColumnValues)

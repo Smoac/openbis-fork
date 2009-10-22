@@ -32,7 +32,7 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
     private boolean isHidden;
 
     // GWT only
-    public AbstractColumnDefinition()
+    protected AbstractColumnDefinition()
     {
         this(null, 0, false);
     }

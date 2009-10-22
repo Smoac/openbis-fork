@@ -43,13 +43,6 @@ public class GridCustomColumnInfo implements IsSerializable
         return code;
     }
 
-    @SuppressWarnings("unused")
-    // GWT only
-    private void setCode(String code)
-    {
-        this.code = code;
-    }
-
     public String getLabel()
     {
         return label;
@@ -61,23 +54,9 @@ public class GridCustomColumnInfo implements IsSerializable
     {
     }
 
-    @SuppressWarnings("unused")
-    // GWT only
-    private void setLabel(String label)
-    {
-        this.label = label;
-    }
-
     public String getDescription()
     {
         return description;
-    }
-
-    @SuppressWarnings("unused")
-    // GWT only
-    private void setDescription(String description)
-    {
-        this.description = description;
     }
 
     @Override
