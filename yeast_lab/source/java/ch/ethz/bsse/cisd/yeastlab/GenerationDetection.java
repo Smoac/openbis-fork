@@ -78,7 +78,7 @@ public class GenerationDetection
 
     // if cell eccentricity increases more than this value it is more likely a parent
     // (it gets closer to circle)
-    private static final double MIN_PARENT_ECCENTRICITY_INC = 0.1;
+    private static final double SIGNIFICANT_PARENT_ECCENTRICITY_INC = 0.1;
 
     // maximal number of frames from the last frame that is allowed for a new born cell to appear
     // on and not exist on any subsequent frame
@@ -496,6 +496,11 @@ public class GenerationDetection
             return parent.getNumPix() >= MIN_PARENT_PIXELS;
         }
 
+        public double getEccentricityIncrease()
+        {
+            return parent.getEccentricity() - previousFrameParent.getEccentricity();
+        }
+
         @Override
         public String toString()
         {
@@ -506,37 +511,10 @@ public class GenerationDetection
         // Comparable
         //
 
-        // closer is better, but if only one had big eccentricity increase it is more important
+        // simple comparator - closer is better
         public int compareTo(ParentCandidate o)
         {
-            if (this.getEccentricityIncrease() > MIN_PARENT_ECCENTRICITY_INC)
-            {
-                if (o.getEccentricityIncrease() > MIN_PARENT_ECCENTRICITY_INC)
-                {
-                    // both cell shapes are much closer to circle
-                    return this.getDistanceSq().compareTo(o.getDistanceSq());
-                } else
-                {
-                    // only this cell shape got much closer to circle - more probable parent
-                    return -1;
-                }
-            } else
-            {
-                if (o.getEccentricityIncrease() > MIN_PARENT_ECCENTRICITY_INC)
-                {
-                    // only the other cell shape got much closer to circle - more probable parent
-                    return 1;
-                } else
-                {
-                    // both cell shapes didn't got much closer to circle
-                    return this.getDistanceSq().compareTo(o.getDistanceSq());
-                }
-            }
-        }
-
-        private double getEccentricityIncrease()
-        {
-            return parent.getEccentricity() - previousFrameParent.getEccentricity();
+            return this.getDistanceSq().compareTo(o.getDistanceSq());
         }
 
     }
@@ -765,11 +743,30 @@ public class GenerationDetection
             {
                 // sort parent - best will be first
                 Collections.sort(parentCandidates);
+                filterCandidatesWithEccentricity(parentCandidates);
                 setParents(cell, parentCandidates.toArray(new ParentCandidate[0]));
                 newBornCells.add(cell);
             }
         }
 
+    }
+
+    private static void filterCandidatesWithEccentricity(List<ParentCandidate> parentCandidates)
+    {
+        // If some candidates have significant eccentricity increase (above given threshold)
+        // they are better candidates and other candidates will be filtered out
+        final List<ParentCandidate> betterCandidates = new ArrayList<ParentCandidate>();
+        for (ParentCandidate candidate : parentCandidates)
+        {
+            if (candidate.getEccentricityIncrease() >= SIGNIFICANT_PARENT_ECCENTRICITY_INC)
+            {
+                betterCandidates.add(candidate);
+            }
+        }
+        if (betterCandidates.size() > 0)
+        {
+            parentCandidates.retainAll(betterCandidates);
+        }
     }
 
     private static void setParents(Cell child, ParentCandidate... candidates)
