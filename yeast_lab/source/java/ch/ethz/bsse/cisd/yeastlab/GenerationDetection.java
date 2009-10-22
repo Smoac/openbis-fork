@@ -62,9 +62,19 @@ public class GenerationDetection
 
     // Could be used as a parameter that user needs to specify but on test data
     // using value that is higher produces more results that should rather be ignored.
-    private static final int MAX_PIXELS_PER_NEW_BORN_CELL = 300;
+    private static final int MAX_NEW_BORN_CELL_PIXELS = 300;
 
-    private static final int MIN_PIXELS_PER_PARENT = MAX_PIXELS_PER_NEW_BORN_CELL;
+    // max distance from a perfect circle measure - < 1 makes things worse
+    private static final double MAX_NEW_BORN_CELL_FFT_STAT = 1;
+
+    // 0.2 - 24fake, 0miss
+    // 0.3 - 20fake, 1miss
+    // 0.4 - 17fake, 2miss
+    // 0.5 - 12fake, 4miss: 70,93,131,77 - size should increase (exc. 70 that may be important)
+    // 0.6 - 5fake, 13miss
+    private static final double MIN_NEW_BORN_CELL_MIN_MAJ_AXIS_RATIO = 0.2;
+
+    private static final int MIN_PARENT_PIXELS = MAX_NEW_BORN_CELL_PIXELS;
 
     // maximal number of frames from the last frame that is allowed for a new born cell to appear
     // on and not exist on any subsequent frame
@@ -84,8 +94,6 @@ public class GenerationDetection
     private static final int Y_POS_POSITION = 4;
 
     private static final int F_TOT_POSITION = 5;
-
-    private static final int A_TOT_POSITION = 6;
 
     private static final int NUM_PIX_POSITION = 7;
 
@@ -150,9 +158,6 @@ public class GenerationDetection
         /** sum of the fluorescence image for all the pixels found in that cell */
         private final double fTot; // f.tot
 
-        /** area of the cell in pixels */
-        private final double aTot; // a.tot
-
         /** volume of rotation of the cell around its major axis */
         private final double rotVol; // rot.vol
 
@@ -197,7 +202,6 @@ public class GenerationDetection
             this.fVacuole = Double.parseDouble(StringUtils.trim(tokens[F_VACUOLE_POSITION]));
 
             this.fTot = Double.parseDouble(StringUtils.trim(tokens[F_TOT_POSITION]));
-            this.aTot = Double.parseDouble(StringUtils.trim(tokens[A_TOT_POSITION]));
             this.rotVol = Double.parseDouble(StringUtils.trim(tokens[ROT_VOL_POSITION]));
             this.conVol = Double.parseDouble(StringUtils.trim(tokens[CON_VOL_POSITION]));
             this.aSurf = Double.parseDouble(StringUtils.trim(tokens[A_SURF_POSITION]));
@@ -271,11 +275,6 @@ public class GenerationDetection
             return fTot;
         }
 
-        public double getATot()
-        {
-            return aTot;
-        }
-
         public double getRotVol()
         {
             return rotVol;
@@ -338,10 +337,38 @@ public class GenerationDetection
             final ParentCandidate[] candidates = getParentCandidates();
             for (ParentCandidate candidate : candidates)
             {
-                sb.append(candidate.parent.id + " " + candidate.distanceSq + ", ");
+                sb.append(longCandidateInformation(candidate));
+                // sb.append(candidate.parent.id + " " + candidate.distanceSq + ", ");
             }
             return String.format("%d \t f:%d \t p:%d \t c(%d):%s", id, frame + 1,
                     getParentCellId(), candidates.length, sb.toString());
+        }
+
+        private String longCandidateInformation(ParentCandidate candidate)
+        {
+            String prefix = "-"; // wrong
+            if (DEBUG)
+            {
+                Integer rightParentIdOrNull =
+                        GenerationDetectionAccuracyTester.parents.get(candidate.child.id);
+                if (rightParentIdOrNull == null)
+                {
+                    prefix = "F"; // fake
+                } else if (rightParentIdOrNull.equals(candidate.parent.id))
+                {
+                    prefix = "+"; // ok
+                }
+            }
+
+            Cell parent = candidate.parent;
+            Cell previousParent = candidate.previousFrameParent;
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("\n" + SEPARATOR + prefix + SEPARATOR + candidate.distanceSq + SEPARATOR
+                    + previousParent.longToString());
+            sb.append("\n" + SEPARATOR + prefix + SEPARATOR + candidate.distanceSq + SEPARATOR
+                    + parent.longToString());
+            return sb.toString();
         }
 
         public String longToString()
@@ -350,15 +377,19 @@ public class GenerationDetection
             String[] tokens =
                         { Integer.toString(id), Integer.toString(frame + 1), Integer.toString(x),
                                 Integer.toString(y), Integer.toString(numPix),
-                                Double.toString(majAxis), Double.toString(minAxis),
-                                Double.toString(fftStat), Double.toString(perim),
-                                Double.toString(aVacuole), Double.toString(fVacuole),
-                                Double.toString(fTot), Double.toString(aTot),
-                                Double.toString(rotVol), Double.toString(conVol),
-                                Double.toString(aSurf), Double.toString(sphereVol),
-                                Integer.toString(getParentCellId()),
+                                doubleToString(majAxis), doubleToString(minAxis),
+                                doubleToString(fftStat), doubleToString(perim),
+                                doubleToString(aVacuole), doubleToString(fVacuole),
+                                doubleToString(fTot), doubleToString(rotVol),
+                                doubleToString(conVol), doubleToString(aSurf),
+                                doubleToString(sphereVol), Integer.toString(getParentCellId()),
                                 Integer.toString(getAlternatives()), Integer.toString(generation) };
             return StringUtils.join(tokens, SEPARATOR);
+        }
+
+        private String doubleToString(double value)
+        {
+            return String.format("%1.2f", value);
         }
 
         public String getOutputString()
@@ -402,7 +433,6 @@ public class GenerationDetection
     private static class ParentCandidate implements Comparable<ParentCandidate>
     {
 
-        @SuppressWarnings("unused")
         private final Cell previousFrameParent;
 
         /**
@@ -435,7 +465,7 @@ public class GenerationDetection
         // The tightest condition that we could use as a threshold for valid distance is
         // (maxAxis+currentMajorAxis)/2
         // which is the longest possible distance that current cell can be from another cell
-        // assuming they touch each other. We take 120% of this value because sometimes there is a
+        // assuming they touch each other. We take 110% of this value because sometimes there is a
         // bit of a space between parent and child.
         // We could use a less tighter threshold like maxAxis if we find that we have some false
         // negatives but on the test data the results are better with this tighter threshold.
@@ -443,13 +473,13 @@ public class GenerationDetection
         // maxAxis > (maxAxis+currentMajorAxis)/2.
         public boolean isDistanceValid()
         {
-            double maxValidDistance = 1 * (maxAxis + child.getMajAxis()) / 2;
+            double maxValidDistance = 1.1 * ((maxAxis + child.getMajAxis()) / 2);
             return getDistanceSq() <= square(maxValidDistance);
         }
 
         public boolean isNumPixValid()
         {
-            return parent.getNumPix() >= MIN_PIXELS_PER_PARENT;
+            return parent.getNumPix() >= MIN_PARENT_PIXELS;
         }
 
         @Override
@@ -517,11 +547,17 @@ public class GenerationDetection
                                 "generation" };
             writer.append(StringUtils.join(tokens, SEPARATOR));
             writer.append(NEW_LINE);
+            Integer previousId = -1;
             for (Cell cell : cells)
             {
-                writer.append(cell.longToString());
-                writer.append(NEW_LINE);
-                // writer.append(cell.getOutputString());
+                if (cell.getParentCellId() >= 0 && (previousId.equals(cell.getId()) == false))
+                // FIXME remove
+                {
+                    writer.append(cell.longToString());
+                    writer.append(NEW_LINE);
+                    // writer.append(cell.getOutputString());
+                    previousId = cell.getId();
+                }
             }
         } catch (final IOException ex)
         {
@@ -732,35 +768,53 @@ public class GenerationDetection
 
     private static boolean isValidNewBornCell(Cell cell)
     {
-        if (cell.getNumPix() < MAX_PIXELS_PER_NEW_BORN_CELL)
+        if (cell.getNumPix() > MAX_NEW_BORN_CELL_PIXELS)
         {
-            // If the cell appears only on one frame it is most likely a segmentation problem, e.g.:
-            // - cell moves a bit and its id is changed,
-            // - big cell is 'split' on two or more cells even though no division occurred.
-            // Sometimes it seems that a cell that is being washed away is caught on a picture.
-            // Ignore these cells because they are likely to mess up genealogy tree.
-            // Don't ignore cells like these that appear in the last few frames.
-            if (maxFrame - cell.getFrame() > MAX_DISAPPEARING_NEW_BORN_CELL_DIST_FROM_LAST_FRAME
-                    && cellsByIdAndFrame.get(cell.getId()).size() == 1)
-            {
-                System.err
-                        .println(String
-                                .format(
-                                        "Cell with id '%d' that appears on frame '%d' "
-                                                + "for the first time with '%d'px size is ignored by generation detection "
-                                                + "algorithm because the it disappears in the next frame and never reappears.",
-                                        cell.getId(), cell.getFrame(), cell.getNumPix()));
-                return false;
-            }
-            return true;
-        } else
-        {
-            System.err.println(String.format("Cell with id '%d' that appears on frame '%d' "
-                    + "for the first time with '%d'px size is ignored by generation detection "
-                    + "algorithm because the size exceeds maximal size of a new born cell (%d).",
-                    cell.getId(), cell.getFrame(), cell.getNumPix(), MAX_PIXELS_PER_NEW_BORN_CELL));
+            System.err.println(String.format("Ignoring new cell with id:%d appearing on frame:%d. "
+                    + "Reason: size=%d exceeds maximal allowed value for a new born cell (%d).",
+                    cell.getId(), cell.getFrame(), cell.getNumPix(), MAX_NEW_BORN_CELL_PIXELS));
             return false;
         }
+        // If the cell appears only on one frame it is most likely a segmentation problem, e.g.:
+        // - cell moves a bit and its id is changed,
+        // - big cell is 'split' on two or more cells even though no division occurred.
+        // Sometimes it seems that a cell that is being washed away is caught on a picture.
+        // Ignore these cells because they are likely to mess up genealogy tree.
+        // Don't ignore cells like these that appear in the last few frames.
+        if (maxFrame - cell.getFrame() > MAX_DISAPPEARING_NEW_BORN_CELL_DIST_FROM_LAST_FRAME
+                && cellsByIdAndFrame.get(cell.getId()).size() == 1)
+        {
+            System.err.println(String.format("Ignoring new cell with id:%d appearing on frame:%d. "
+                    + "Reason: disappears on the next frame and never reappears.", cell.getId(),
+                    cell.getFrame()));
+            return false;
+        }
+        // The shape of a new born cell should not be too far from a circle
+        if (cell.getFftStat() > MAX_NEW_BORN_CELL_FFT_STAT)
+        {
+            System.err
+                    .println(String
+                            .format(
+                                    "Ignoring new cell with id:%d appearing on frame:%d. "
+                                            + "Reason: circularity measure=%d exceeds maximal allowed value for a new born cell (%d).",
+                                    cell.getId(), cell.getFrame(), cell.getFftStat(),
+                                    MAX_NEW_BORN_CELL_FFT_STAT));
+            return false;
+        }
+        // The shape of a new born cell should not be too far from a circle
+        if (cell.getMinAxis() / cell.getMajAxis() < MIN_NEW_BORN_CELL_MIN_MAJ_AXIS_RATIO)
+        {
+            System.err
+                    .println(String
+                            .format(
+                                    "Ignoring new cell with id:%d appearing on frame:%d. "
+                                            + "Reason: minAxis/majAxis ratio=%f is below minimal allowed value for a new born cell (%f).",
+                                    cell.getId(), cell.getFrame(), cell.getMinAxis()
+                                            / cell.getMajAxis(),
+                                    MIN_NEW_BORN_CELL_MIN_MAJ_AXIS_RATIO));
+            return false;
+        }
+        return true;
     }
 
     private static int distanceSq(Cell c1, Cell c2)
