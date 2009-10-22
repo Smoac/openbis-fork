@@ -744,8 +744,12 @@ public class GenerationDetection
                 // sort parent - best will be first
                 Collections.sort(parentCandidates);
                 filterCandidatesWithEccentricity(parentCandidates);
-                setParents(cell, parentCandidates.toArray(new ParentCandidate[0]));
-                newBornCells.add(cell);
+                // if we have more than 2 candidates it is rather difficult to decide
+                if (parentCandidates.size() <= 2)
+                {
+                    setParents(cell, parentCandidates.toArray(new ParentCandidate[0]));
+                    newBornCells.add(cell);
+                }
             }
         }
 
