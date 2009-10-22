@@ -633,6 +633,17 @@ public class GenerationDetection
                     }
                 }
             }
+            System.err.println("\nParent connections found:\n");
+            System.err.println("child\t frame\t parent\t candidates");
+            for (Cell cell : newBornCells)
+            {
+                System.err.println(cell.parentInformation());
+            }
+            if (PRODUCTIVE == false)
+            {
+                GenerationDetectionAccuracyTester.computeResultsAccuracy(newBornCells);
+            }
+            System.err.println("\nDone!\n");
         } catch (final IOException ex)
         {
             ex.printStackTrace();
@@ -655,16 +666,6 @@ public class GenerationDetection
             {
                 ex.printStackTrace();
             }
-        }
-        System.err.println("\nParent connections found:\n");
-        System.err.println("child\t frame\t parent\t candidates");
-        for (Cell cell : newBornCells)
-        {
-            System.err.println(cell.parentInformation());
-        }
-        if (PRODUCTIVE == false)
-        {
-            GenerationDetectionAccuracyTester.computeResultsAccuracy(newBornCells);
         }
     }
 
