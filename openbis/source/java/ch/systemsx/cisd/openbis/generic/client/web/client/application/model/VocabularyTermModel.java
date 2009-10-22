@@ -33,13 +33,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
  */
 public class VocabularyTermModel extends BaseModel implements Comparable<VocabularyTermModel>
 {
+    private static final String ORDINAL = "ordinal";
 
     private static final long serialVersionUID = 1L;
 
     public VocabularyTermModel(VocabularyTerm term)
     {
         set(ModelDataPropertyNames.CODE, term.getCode());
-        set(ModelDataPropertyNames.ORDINAL, term.getOrdinal());
+        set(ORDINAL, term.getOrdinal());
         set(ModelDataPropertyNames.CODE_WITH_LABEL, getCodeWithLabel(term));
         set(ModelDataPropertyNames.TOOLTIP, VocabularyPropertyColRenderer.renderAsTooltip(term));
         set(ModelDataPropertyNames.OBJECT, term);
@@ -78,7 +79,7 @@ public class VocabularyTermModel extends BaseModel implements Comparable<Vocabul
     /** @return value that will be used to compare Vocabulary Terms and display them in order */
     private Long getValueToCompare()
     {
-        return get(ModelDataPropertyNames.ORDINAL); 
+        return get(ORDINAL);
     }
 
 }

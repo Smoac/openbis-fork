@@ -411,7 +411,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                         {
                             String column =
                                     attachmentGrid.getColumnModel().getColumn(be.colIndex).getId();
-                            if (ModelDataPropertyNames.VERSION_FILE_NAME.equals(column))
+                            if (AttachmentVersionModel.VERSION_FILE_NAME.equals(column))
                             {
                                 final AttachmentVersionModel selectedItem =
                                         (AttachmentVersionModel) be.grid.getStore().getAt(
@@ -458,7 +458,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
             final ColumnConfig column =
                     ColumnConfigFactory.createDefaultColumnConfig(messageProvider
                             .getMessage(Dict.VERSION_FILE_NAME),
-                            ModelDataPropertyNames.VERSION_FILE_NAME);
+                            AttachmentVersionModel.VERSION_FILE_NAME);
             column.setWidth(200);
             column.setRenderer(new GridCellRenderer<AttachmentVersionModel>()
                 {

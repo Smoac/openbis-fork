@@ -21,8 +21,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
@@ -137,8 +137,8 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         checkExperiment.property("Gender").asProperty("MALE");
         final CheckTableCommand attachmentsTable =
                 checkExperiment.attachmentsTable().expectedSize(1);
-        attachmentsTable.expectedRow(new Row().withCell(ModelDataPropertyNames.FILE_NAME,
-                "exampleExperiments.txt").withCell(ModelDataPropertyNames.VERSION, 4));
+        attachmentsTable.expectedRow(new Row().withCell(AttachmentColDefKind.FILE_NAME.id(),
+                "exampleExperiments.txt").withCell(AttachmentColDefKind.VERSION.id(), 4));
         remoteConsole.prepare(checkExperiment);
 
         launchTest(60000);
@@ -176,10 +176,10 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 ".*<a href=\".*permId=" + EXP_REUSE_PERM_ID + ".*>" + EXP_REUSE_PERM_ID + "</a>.*");
         final CheckTableCommand attachmentsTable =
                 checkExperiment.attachmentsTable().expectedSize(2);
-        attachmentsTable.expectedRow(new Row().withCell(ModelDataPropertyNames.FILE_NAME,
-                "exampleExperiments.txt").withCell(ModelDataPropertyNames.VERSION, 1));
-        attachmentsTable.expectedRow(new Row().withCell(ModelDataPropertyNames.FILE_NAME,
-                "cellPlates.txt").withCell(ModelDataPropertyNames.VERSION, 1));
+        attachmentsTable.expectedRow(new Row().withCell(AttachmentColDefKind.FILE_NAME.id(),
+                "exampleExperiments.txt").withCell(AttachmentColDefKind.VERSION.id(), 1));
+        attachmentsTable.expectedRow(new Row().withCell(AttachmentColDefKind.FILE_NAME.id(),
+                "cellPlates.txt").withCell(AttachmentColDefKind.VERSION.id(), 1));
         remoteConsole.prepare(checkExperiment);
 
         launchTest(60000);

@@ -36,11 +36,14 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
  */
 public final class ModelDataPropertyNames
 {
+    /**
+     * Try to avoid using this class! Define your model keys as private constants in the model and
+     * expose them with getters.
+     */
+
     public static final String CODE = "code";
 
     public static final String CODE_WITH_LABEL = "code_with_label";
-
-    public static final String ORDINAL = "ordinal";
 
     public static final String TOOLTIP = "tooltip";
 
@@ -48,55 +51,13 @@ public final class ModelDataPropertyNames
 
     public static final String DATA_SET_TYPES = "data_set_types";
 
-    public static final String FILE_NAME = "fileName";
-
-    public static final String VERSION = "version";
-
-    public static final String TITLE = "title";
-
     public static final String DESCRIPTION = "description";
 
-    public static final String EMAIL = "email";
-
-    public static final String FILE_FORMAT_TYPE = "fileFormatType";
-
-    public static final String FIRST_NAME = "firstName";
-
-    public static final String GROUP = "group";
-
-    public static final String DATABASE_INSTANCE = "databaseInstance";
-
-    public static final String IS_INVALID = "isInvalid";
-
-    public static final String LAST_NAME = "lastName";
-
-    public static final String LOCATION = "location";
-
     public static final String OBJECT = "object";
-
-    public static final String PERSON = "person";
 
     public static final String REGISTRATION_DATE = "registrationDate";
 
     public static final String REGISTRATOR = "registrator";
-
-    public static final String ROLE = "role";
-
-    public static final String ROLES = "roles";
-
-    public static final String USER_ID = "userId";
-
-    public static final String PROJECT = "project";
-
-    public static final String VERSIONS = "versions";
-
-    public static final String VERSION_FILE_NAME = "versionsFileName";
-
-    public static final String DATA_TYPE = "dataType";
-
-    public static final String CONTROLLED_VOCABULARY = "controlledVocabulary";
-
-    public static final String IS_MANAGED_INTERNALLY = "isManagedInternally";
 
     public static final String PROJECT_IDENTIFIER = "projectIdentifier";
 

@@ -32,6 +32,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
  */
 public class AttachmentVersionModel extends BaseModelData
 {
+    public static final String VERSION = "version";
+
+    public static final String VERSION_FILE_NAME = "versionsFileName";
+    
     private static final long serialVersionUID = 1L;
 
     public AttachmentVersionModel()
@@ -40,8 +44,8 @@ public class AttachmentVersionModel extends BaseModelData
 
     private AttachmentVersionModel(final Attachment attachament)
     {
-        set(ModelDataPropertyNames.VERSION_FILE_NAME, createDescription(attachament));
-        set(ModelDataPropertyNames.VERSION, attachament.getVersion());
+        set(VERSION_FILE_NAME, createDescription(attachament));
+        set(VERSION, attachament.getVersion());
         set(ModelDataPropertyNames.REGISTRATOR, PersonRenderer.createPersonAnchor(attachament
                 .getRegistrator()));
         set(ModelDataPropertyNames.REGISTRATION_DATE, attachament.getRegistrationDate());
