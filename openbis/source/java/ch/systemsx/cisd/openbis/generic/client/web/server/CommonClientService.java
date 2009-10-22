@@ -213,9 +213,8 @@ public final class CommonClientService extends AbstractClientService implements
     {
         final DefaultResultSetConfig<String, T> criteria = DefaultResultSetConfig.createFetchAll();
         criteria.setSortInfo(exportCriteria.getSortInfo());
-        criteria.setFilterInfos(exportCriteria.getFilterInfos());
+        criteria.setFilters(exportCriteria.getFilters());
         criteria.setResultSetKey(exportCriteria.getResultSetKey());
-        criteria.setCustomFilterInfo(exportCriteria.tryGetCustomFilterInfo());
         criteria.setAvailableColumns(exportCriteria.getAvailableColumns());
         criteria.setGridDisplayId(exportCriteria.getGridDisplayId());
         return criteria;

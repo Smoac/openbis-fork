@@ -35,6 +35,8 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
@@ -43,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRendererTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
@@ -81,11 +82,9 @@ public final class CachedResultSetManagerTest
         expectations.one(resultSetConfig).getSortInfo();
         expectations.will(Expectations.returnValue(sortInfo));
 
-        expectations.allowing(resultSetConfig).getFilterInfos();
-        expectations.will(Expectations.returnValue(new ArrayList<GridFilterInfo<String>>()));
-
-        expectations.one(resultSetConfig).tryGetCustomFilterInfo();
-        expectations.will(Expectations.returnValue(null));
+        expectations.allowing(resultSetConfig).getFilters();
+        GridFilters<String> filters = GridFilters.createEmptyFilter();
+        expectations.will(Expectations.returnValue(filters));
     }
 
     private final static GridRowModels<Sample> createSampleList()
@@ -289,7 +288,7 @@ public final class CachedResultSetManagerTest
     public void testCalculateColumnDistinctValues()
     {
         String separator = " ";
-        List<GridFilterInfo<String>> filterList =
+        List<GridColumnFilterInfo<String>> filterList =
                 createFilterList(createColDef("c1", separator, 0), createColDef("c2", separator, 1));
         List<GridRowModel<String>> rows = new ArrayList<GridRowModel<String>>();
         for (int i = 0; i < CachedResultSetManager.MAX_DISTINCT_COLUMN_VALUES_SIZE * 2; i++)
@@ -297,7 +296,8 @@ public final class CachedResultSetManagerTest
             rows.add(GridRowModel.createWithoutCustomColumns(i + separator + (i % 2)));
         }
         List<ColumnDistinctValues> result =
-                CachedResultSetManager.calculateColumnDistinctValues(rows, filterList);
+                CachedResultSetManager.calculateColumnDistinctValues(rows, GridFilters
+                        .createColumnFilter(filterList));
 
         assertEquals(1, result.size());
         ColumnDistinctValues distinctValues = result.get(0);
@@ -308,12 +308,12 @@ public final class CachedResultSetManagerTest
         assertEquals("1", values.get(1));
     }
 
-    private static List<GridFilterInfo<String>> createFilterList(IColumnDefinition<String> c1,
+    private static List<GridColumnFilterInfo<String>> createFilterList(IColumnDefinition<String> c1,
             IColumnDefinition<String> c2)
     {
-        List<GridFilterInfo<String>> result = new ArrayList<GridFilterInfo<String>>();
-        result.add(new GridFilterInfo<String>(c1, null));
-        result.add(new GridFilterInfo<String>(c2, null));
+        List<GridColumnFilterInfo<String>> result = new ArrayList<GridColumnFilterInfo<String>>();
+        result.add(new GridColumnFilterInfo<String>(c1, null));
+        result.add(new GridColumnFilterInfo<String>(c2, null));
         return result;
     }
 

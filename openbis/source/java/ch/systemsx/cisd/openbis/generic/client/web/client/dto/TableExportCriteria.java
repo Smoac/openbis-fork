@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 
 /**
@@ -40,8 +38,8 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
 
     private SortInfo<T> sortInfo = new SortInfo<T>();
 
-    /** @see IResultSetConfig#getFilterInfos() */
-    private List<GridFilterInfo<T>> filterInfos = new ArrayList<GridFilterInfo<T>>();
+    /** @see IResultSetConfig#getFilters() */
+    private GridFilters<T> filters;
 
     // which columns should be exported
     private List<IColumnDefinition<T>> columnDefs;
@@ -49,8 +47,6 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
     // all available columns in the grid which is exported. Used to calculate expressions in
     // custom filters and columns.
     private Set<IColumnDefinition<T>> availableColumns;
-
-    private CustomFilterInfo<T> customFilterInfo;
 
     // This field would be used only if the exported data could not be found in the
     // cache and custom columns would have to be computed. In fact it should be always a case that
@@ -62,17 +58,15 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
     {
     }
 
-    public TableExportCriteria(String resultSetKey, SortInfo<T> sortInfo,
-            List<GridFilterInfo<T>> filterInfos, List<IColumnDefinition<T>> columnDefs,
-            Set<IColumnDefinition<T>> availableColumns, CustomFilterInfo<T> customFilterInfo,
+    public TableExportCriteria(String resultSetKey, SortInfo<T> sortInfo, GridFilters<T> filters,
+            List<IColumnDefinition<T>> columnDefs, Set<IColumnDefinition<T>> availableColumns,
             String gridDisplayId)
     {
         this.resultSetKey = resultSetKey;
         this.sortInfo = sortInfo;
-        this.filterInfos = filterInfos;
+        this.filters = filters;
         this.columnDefs = columnDefs;
         this.availableColumns = availableColumns;
-        this.customFilterInfo = customFilterInfo;
         this.gridDisplayId = gridDisplayId;
     }
 
@@ -86,9 +80,9 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
         return sortInfo;
     }
 
-    public List<GridFilterInfo<T>> getFilterInfos()
+    public GridFilters<T> getFilters()
     {
-        return filterInfos;
+        return filters;
     }
 
     public List<IColumnDefinition<T>> getColumnDefs()
@@ -96,19 +90,9 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
         return columnDefs;
     }
 
-    public CustomFilterInfo<T> tryGetCustomFilterInfo()
-    {
-        return customFilterInfo;
-    }
-
     public Set<IColumnDefinition<T>> getAvailableColumns()
     {
         return availableColumns;
-    }
-
-    public void setGridDisplayId(String gridDisplayId)
-    {
-        this.gridDisplayId = gridDisplayId;
     }
 
     public String getGridDisplayId()

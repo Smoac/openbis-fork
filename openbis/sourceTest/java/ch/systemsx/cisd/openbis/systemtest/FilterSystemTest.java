@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -35,38 +36,37 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups = "system test")
 public class FilterSystemTest extends SystemTestCase
 {
     private static final String GRID_ID = "blabla";
-    
+
     @Test
     public void testRegisterAndDeleteFilter()
     {
         logIntoCommonClientService();
         List<GridCustomFilter> filters = commonClientService.listFilters(GRID_ID);
         assertEquals(0, filters.size());
-        
+
         NewColumnOrFilter filter = createFilter();
         commonClientService.registerFilter(filter);
-        
+
         filters = commonClientService.listFilters(GRID_ID);
         assertEquals(1, filters.size());
         assertEquals(filter.getName(), filters.get(0).getName());
         assertEquals(filter.getDescription(), filters.get(0).getDescription());
-        assertEquals(filter.getExpression(), StringEscapeUtils.unescapeHtml(filters.get(0).getExpression()));
+        assertEquals(filter.getExpression(), StringEscapeUtils.unescapeHtml(filters.get(0)
+                .getExpression()));
         assertEquals(filter.isPublic(), filters.get(0).isPublic());
         assertEquals("[threshold]", filters.get(0).getParameters().toString());
-        
+
         commonClientService.deleteFilters(Arrays.asList(new TechId(filters.get(0).getId())));
-        
+
         assertEquals(0, commonClientService.listFilters(GRID_ID).size());
     }
-    
+
     @Test
     public void testEditFilter()
     {
@@ -77,34 +77,35 @@ public class FilterSystemTest extends SystemTestCase
         filter.setDescription(filter.getDescription() + " (updated)");
         filter.setExpression(filter.getExpression() + " * ${factor}");
         filter.setPublic(filter.isPublic() == false);
-        
+
         commonClientService.updateFilter(filter);
-        
+
         List<GridCustomFilter> filters = commonClientService.listFilters(GRID_ID);
         assertEquals(1, filters.size());
         assertEquals(filter.getName(), filters.get(0).getName());
         assertEquals(filter.getDescription(), filters.get(0).getDescription());
-        assertEquals(filter.getExpression(), StringEscapeUtils.unescapeHtml(filters.get(0).getExpression()));
+        assertEquals(filter.getExpression(), StringEscapeUtils.unescapeHtml(filters.get(0)
+                .getExpression()));
         assertEquals(filter.isPublic(), filters.get(0).isPublic());
         List<String> parameters = new ArrayList<String>(filters.get(0).getParameters());
         Collections.sort(parameters);
         assertEquals("[factor, threshold]", parameters.toString());
-        
+
         commonClientService.deleteFilters(Arrays.asList(new TechId(filters.get(0).getId())));
     }
-    
+
     @Test
     public void testApplyFilter()
     {
         logIntoCommonClientService();
         commonClientService.registerFilter(createFilter());
-        
+
         DefaultResultSetConfig<String, GridCustomFilter> config = createConfig("24");
         assertEquals(1, commonClientService.listFilters(GRID_ID, config).getList().size());
-        
+
         config = createConfig("43");
         assertEquals(0, commonClientService.listFilters(GRID_ID, config).getList().size());
-        
+
         Long id = commonClientService.listFilters(GRID_ID).get(0).getId();
         commonClientService.deleteFilters(Arrays.asList(new TechId(id)));
     }
@@ -113,14 +114,15 @@ public class FilterSystemTest extends SystemTestCase
     {
         DefaultResultSetConfig<String, GridCustomFilter> config =
                 new DefaultResultSetConfig<String, GridCustomFilter>();
-        config.setAvailableColumns(Collections.<IColumnDefinition<GridCustomFilter>>emptySet());
-        CustomFilterInfo<GridCustomFilter> customFilterInfo = new CustomFilterInfo<GridCustomFilter>();
+        config.setAvailableColumns(Collections.<IColumnDefinition<GridCustomFilter>> emptySet());
+        CustomFilterInfo<GridCustomFilter> customFilterInfo =
+                new CustomFilterInfo<GridCustomFilter>();
         customFilterInfo.setExpression("${threshold} < 42");
         ParameterWithValue parameterWithValue = new ParameterWithValue();
         parameterWithValue.setParameter("threshold");
         parameterWithValue.setValue(thresholdValue);
         customFilterInfo.setParameters(Collections.singleton(parameterWithValue));
-        config.setCustomFilterInfo(customFilterInfo);
+        config.setFilters(GridFilters.createCustomFilter(customFilterInfo));
         return config;
     }
 

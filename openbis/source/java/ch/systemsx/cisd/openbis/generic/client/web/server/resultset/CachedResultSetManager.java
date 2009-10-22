@@ -37,13 +37,14 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 
@@ -99,7 +100,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
         private final String[] filterExpressionAlternatives;
 
-        private FilterInfo(GridFilterInfo<T> gridFilterInfo)
+        private FilterInfo(GridColumnFilterInfo<T> gridFilterInfo)
         {
             this.filteredField = gridFilterInfo.getFilteredField();
 
@@ -112,7 +113,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             this.filterExpressionAlternatives = tokenizer.getTokenArray();
         }
 
-        static <T> FilterInfo<T> tryCreate(GridFilterInfo<T> filterInfo)
+        static <T> FilterInfo<T> tryCreate(GridColumnFilterInfo<T> filterInfo)
         {
             if (filterInfo.tryGetFilterPattern() == null)
             {
@@ -135,15 +136,17 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     }
 
     private static final <T> GridRowModels<T> filterData(final GridRowModels<T> rows,
-            Set<IColumnDefinition<T>> availableColumns, final List<GridFilterInfo<T>> filterInfos,
-            CustomFilterInfo<T> customFilterInfo)
+            Set<IColumnDefinition<T>> availableColumns, GridFilters<T> filters)
     {
-        List<GridRowModel<T>> filteredRows;
+        List<GridRowModel<T>> filteredRows = rows;
+        CustomFilterInfo<T> customFilterInfo = filters.tryGetCustomFilterInfo();
         if (customFilterInfo != null)
         {
             filteredRows =
                     GridExpressionUtils.applyCustomFilter(rows, availableColumns, customFilterInfo);
-        } else
+        }
+        List<GridColumnFilterInfo<T>> filterInfos = filters.tryGetFilterInfos();
+        if (filterInfos != null)
         {
             filteredRows = applyStandardColumnFilter(rows, filterInfos);
         }
@@ -151,7 +154,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     }
 
     private static <T> List<GridRowModel<T>> applyStandardColumnFilter(final GridRowModels<T> rows,
-            final List<GridFilterInfo<T>> filterInfos)
+            final List<GridColumnFilterInfo<T>> filterInfos)
     {
         List<GridRowModel<T>> filtered = new ArrayList<GridRowModel<T>>();
         List<FilterInfo<T>> appliedFilterInfos = processAppliedFilters(filterInfos);
@@ -166,10 +169,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     }
 
     private static <T> List<FilterInfo<T>> processAppliedFilters(
-            final List<GridFilterInfo<T>> filterInfos)
+            final List<GridColumnFilterInfo<T>> filterInfos)
     {
         List<FilterInfo<T>> serverFilterInfos = new ArrayList<FilterInfo<T>>(filterInfos.size());
-        for (GridFilterInfo<T> filterInfo : filterInfos)
+        for (GridColumnFilterInfo<T> filterInfo : filterInfos)
         {
             FilterInfo<T> info = FilterInfo.tryCreate(filterInfo);
             if (info != null)
@@ -324,9 +327,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
             }
         }
         assert data != null : "Unspecified data";
-        data =
-                filterData(data, resultConfig.getAvailableColumns(), resultConfig.getFilterInfos(),
-                        resultConfig.tryGetCustomFilterInfo());
+        data = filterData(data, resultConfig.getAvailableColumns(), resultConfig.getFilters());
         final int size = data.size();
         final int offset = getOffset(size, resultConfig.getOffset());
         final int limit = getLimit(size, resultConfig.getLimit(), offset);
@@ -346,7 +347,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                         .getAvailableColumns());
 
         List<ColumnDistinctValues> columnDistinctValues =
-                calculateColumnDistinctValues(rowModels, resultConfig.getFilterInfos());
+                calculateColumnDistinctValues(rowModels, resultConfig.getFilters());
 
         List<GridCustomColumnInfo> customColumnInfos =
                 GridExpressionUtils.extractColumnInfos(customColumns);
@@ -356,10 +357,15 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     @Private
     static <T> List<ColumnDistinctValues> calculateColumnDistinctValues(
-            List<GridRowModel<T>> rowModels, List<GridFilterInfo<T>> columns)
+            List<GridRowModel<T>> rowModels, GridFilters<T> gridFilters)
     {
         List<ColumnDistinctValues> result = new ArrayList<ColumnDistinctValues>();
-        for (GridFilterInfo<T> column : columns)
+        List<GridColumnFilterInfo<T>> filterInfos = gridFilters.tryGetFilterInfos();
+        if (filterInfos == null)
+        {
+            return result;
+        }
+        for (GridColumnFilterInfo<T> column : filterInfos)
         {
             ColumnDistinctValues distinctValues =
                     tryCalculateColumnDistinctValues(rowModels, column.getFilteredField());

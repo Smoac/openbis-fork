@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.List;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 
 /**
@@ -59,18 +57,8 @@ public interface IResultSetConfig<K, T> extends IResultSetKeyHolder<K>
      */
     public SortInfo<T> getSortInfo();
 
-    /**
-     * The column filters which are visible for the user, they should be applied for the result if
-     * they are not empty. They will be also used to calculate distinct values in columns for more
-     * convenient filtering.
-     */
-    public List<GridFilterInfo<T>> getFilterInfos();
-
-    /**
-     * The custom filter which should be applied for the result. If not null the standard filter is
-     * not used.
-     */
-    public CustomFilterInfo<T> tryGetCustomFilterInfo();
+    /** The filters which should be applied for the result. */
+    public GridFilters<T> getFilters();
 
     /**
      * @return grid id which can be used to figure out what are the available custom columns and how

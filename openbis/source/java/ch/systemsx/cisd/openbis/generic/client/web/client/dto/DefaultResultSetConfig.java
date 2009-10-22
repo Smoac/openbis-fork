@@ -16,14 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 
 /**
@@ -39,8 +36,6 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
 
     private SortInfo<T> sortInfo = new SortInfo<T>();
 
-    private List<GridFilterInfo<T>> filterInfos = new ArrayList<GridFilterInfo<T>>();
-
     /**
      * The result set key.
      * <p>
@@ -51,7 +46,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
 
     private Set<IColumnDefinition<T>> availableColumns;
 
-    private CustomFilterInfo<T> customFilterInfoOrNull;
+    private GridFilters<T> filters;
 
     // null if no custom columns are needed
     private String gridDisplayIdOrNull;
@@ -81,9 +76,9 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         this.resultSetKeyOrNull = resultSetKey;
     }
 
-    public List<GridFilterInfo<T>> getFilterInfos()
+    public GridFilters<T> getFilters()
     {
-        return filterInfos;
+        return filters;
     }
 
     public final void setAvailableColumns(Set<IColumnDefinition<T>> availableColumns)
@@ -97,9 +92,8 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         setOffset(resultSetConfig.getOffset());
         setAvailableColumns(resultSetConfig.getAvailableColumns());
         setSortInfo(resultSetConfig.getSortInfo());
-        setFilterInfos(resultSetConfig.getFilterInfos());
+        setFilters(resultSetConfig.getFilters());
         setResultSetKey(resultSetConfig.getResultSetKey());
-        setCustomFilterInfo(resultSetConfig.tryGetCustomFilterInfo());
         setGridDisplayId(resultSetConfig.tryGetGridDisplayId());
     }
 
@@ -133,19 +127,9 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         return resultSetKeyOrNull;
     }
 
-    public void setFilterInfos(List<GridFilterInfo<T>> filterInfos)
+    public void setFilters(GridFilters<T> filters)
     {
-        this.filterInfos = filterInfos;
-    }
-
-    public CustomFilterInfo<T> tryGetCustomFilterInfo()
-    {
-        return customFilterInfoOrNull;
-    }
-
-    public void setCustomFilterInfo(CustomFilterInfo<T> customFilterInfo)
-    {
-        this.customFilterInfoOrNull = customFilterInfo;
+        this.filters = filters;
     }
 
     public void setGridDisplayId(String gridDisplayIdOrNull)

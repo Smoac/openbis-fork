@@ -1,7 +1,10 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -30,8 +33,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.PagingColumnFilter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
 
@@ -46,6 +53,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     static final String RESET_ID = "reset_button";
 
+    private final IMessageProvider messageProvider;
+
     private final List<PagingColumnFilter<T>> columnFilters;
 
     private final LayoutContainer filterContainer;
@@ -59,12 +68,12 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     private final TextToolItem resetTool;
 
     public FilterToolbar(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
-            IDisplayTypeIDProvider displayTypeIDProvider,
-            final List<PagingColumnFilter<T>> filterWidgets, IDelegatedAction applyFiltersAction)
+            IDisplayTypeIDProvider displayTypeIDProvider, IDelegatedAction applyFiltersAction)
     {
-        this.columnFilters = filterWidgets;
+        this.messageProvider = viewContext;
+        this.columnFilters = new ArrayList<PagingColumnFilter<T>>();
         this.applyFiltersAction = applyFiltersAction;
-        add(new LabelToolItem(viewContext.getMessage(Dict.FILTER) + ": "));
+        add(new LabelToolItem(messageProvider.getMessage(Dict.FILTER) + ": "));
         filterSelectionWidget =
                 new FilterSelectionWidget(viewContext, gridId, displayTypeIDProvider);
         filterContainer = new LayoutContainer(new FillLayout(Orientation.HORIZONTAL));
@@ -72,12 +81,12 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         AdapterToolItem filterTool = new AdapterToolItem(filterSelectionWidget);
         add(filterTool);
         add(new AdapterToolItem(filterContainer));
-        applyTool = new TextToolItem(viewContext.getMessage(Dict.APPLY_FILTER));
+        applyTool = new TextToolItem(messageProvider.getMessage(Dict.APPLY_FILTER));
         applyTool.setId(createId(APPLY_ID, gridId));
         applyTool.setEnabled(false);
         applyTool.hide();
         add(applyTool);
-        resetTool = new TextToolItem(viewContext.getMessage(Dict.RESET_FILTER));
+        resetTool = new TextToolItem(messageProvider.getMessage(Dict.RESET_FILTER));
         resetTool.setId(createId(RESET_ID, gridId));
         add(resetTool);
 
@@ -124,14 +133,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         return GenericConstants.ID_PREFIX + prefix + gridId;
     }
 
-    public void updateColumnFilter(final List<PagingColumnFilter<T>> newFilters)
-    {
-        this.columnFilters.clear();
-        this.columnFilters.addAll(newFilters);
-        updateFilterFields();
-    }
-
-    public boolean isColumnFilterSelected()
+    private boolean isColumnFilterSelected()
     {
         return getCustomFilterSelectedState(true);
     }
@@ -149,7 +151,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 && (selected.getName().equals(GridCustomFilter.COLUMN_FILTER) == requiredState);
     }
 
-    public CustomFilterInfo<T> tryGetCustomFilter()
+    private CustomFilterInfo<T> tryGetCustomFilter()
     {
         if (isCustomFilterSelected() && isValid())
         {
@@ -289,4 +291,106 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         filterSelectionWidget.refreshStore();
     }
 
+    // ------------------------------------
+
+    /** @return filters specified on this filter toolbar to be applied to the rows of the grid. */
+    public GridFilters<T> getFilters()
+    {
+        if (isColumnFilterSelected())
+        {
+            return GridFilters.createColumnFilter(getColumnFiltersInfo());
+        }
+        CustomFilterInfo<T> customFilter = tryGetCustomFilter();
+        if (customFilter != null)
+        {
+            return GridFilters.createCustomFilter(customFilter);
+        }
+        return GridFilters.createEmptyFilter();
+    }
+
+    // returns filters which user wants to apply to the data
+    private List<GridColumnFilterInfo<T>> getColumnFiltersInfo()
+    {
+        List<GridColumnFilterInfo<T>> filters = new ArrayList<GridColumnFilterInfo<T>>();
+
+        for (PagingColumnFilter<T> filterWidget : columnFilters)
+        {
+            filters.add(filterWidget.getFilter());
+        }
+        return filters;
+    }
+
+    // true if the toolbar with filters has just disappeared or appeared
+    public void rebuildColumnFilters(List<IColumnDefinition<T>> filteredColumns)
+    {
+        List<PagingColumnFilter<T>> newFilterWidgets =
+                createColumnFilterWidgets(filteredColumns, applyFiltersAction);
+        rebuildColumnFilterWidgets(newFilterWidgets, this.columnFilters, messageProvider);
+
+        this.columnFilters.clear();
+        this.columnFilters.addAll(newFilterWidgets);
+        updateFilterFields();
+    }
+
+    private static <T> List<PagingColumnFilter<T>> createColumnFilterWidgets(
+            List<IColumnDefinition<T>> availableFilters, IDelegatedAction onFilterAction)
+    {
+        List<PagingColumnFilter<T>> filterWidgets = new ArrayList<PagingColumnFilter<T>>();
+        for (IColumnDefinition<T> columnDefinition : availableFilters)
+        {
+            PagingColumnFilter<T> filterWidget =
+                    new PagingColumnFilter<T>(columnDefinition, onFilterAction);
+            filterWidgets.add(filterWidget);
+        }
+        return filterWidgets;
+    }
+
+    // Sets the value of filter widgets using the previous filter widgets
+    private static <T> void rebuildColumnFilterWidgets(List<PagingColumnFilter<T>> filterWidgets,
+            List<PagingColumnFilter<T>> previousFilterWidgetsOrNull,
+            IMessageProvider messageProvider)
+    {
+        if (filterWidgets.size() == 0)
+        {
+            return;
+        }
+
+        Map<String, PagingColumnFilter<T>> previousFiltersByColumnId =
+                new HashMap<String, PagingColumnFilter<T>>();
+        if (previousFilterWidgetsOrNull != null)
+        {
+            for (PagingColumnFilter<T> filter : previousFilterWidgetsOrNull)
+            {
+                previousFiltersByColumnId.put(filter.getFilteredColumnId(), filter);
+            }
+        }
+
+        for (PagingColumnFilter<T> filterWidget : filterWidgets)
+        {
+            // restore previous value if set
+            PagingColumnFilter<T> previousFilterWidgetOrNull =
+                    previousFiltersByColumnId.get(filterWidget.getFilteredColumnId());
+            if (previousFilterWidgetOrNull != null)
+            {
+                String previousValue = previousFilterWidgetOrNull.getRawValue();
+                if (previousValue != "")
+                {
+                    // simply setting value with setValue does not work
+                    filterWidget.setRawValue(previousFilterWidgetOrNull.getRawValue());
+                    filterWidget.validate(); // a hack to show previous value as black text
+                }
+            }
+        }
+    }
+
+    /** @return ids of columns which have filtering switched on at the column filters toolbar */
+    public List<String> extractFilteredColumnIds()
+    {
+        List<String> filteredColumnsIds = new ArrayList<String>();
+        for (PagingColumnFilter<T> filter : columnFilters)
+        {
+            filteredColumnsIds.add(filter.getFilteredColumnId());
+        }
+        return filteredColumnsIds;
+    }
 }

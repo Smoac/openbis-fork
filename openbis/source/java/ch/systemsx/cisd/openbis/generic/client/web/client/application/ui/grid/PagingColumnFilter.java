@@ -21,8 +21,8 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.StoreFilterField;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridFilterInfo;
 
 /**
  * {@link StoreFilterField} extension for filtering columns in cached grid with paging.
@@ -51,14 +51,14 @@ public class PagingColumnFilter<T/* entity */> extends StoreFilterField<ModelDat
     }
 
     /** @return filter with the pattern */
-    public GridFilterInfo<T> getFilter()
+    public GridColumnFilterInfo<T> getFilter()
     {
         String pattern = getRawValue();
         if (pattern.length() == 0)
         {
             pattern = null;
         }
-        return new GridFilterInfo<T>(filteredField, pattern);
+        return new GridColumnFilterInfo<T>(filteredField, pattern);
     }
 
     @Override
