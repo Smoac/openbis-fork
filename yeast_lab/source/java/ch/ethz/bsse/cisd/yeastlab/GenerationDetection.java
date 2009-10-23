@@ -125,34 +125,59 @@ public class GenerationDetection
     private static enum IgnoreNewCellReason
     {
         /** cell existed on the first frame */
-        FIRST_FRAME(-1),
+        FIRST_FRAME(-1, "cell existed on the first frame"),
 
         /** cell is too big to be a child */
-        TOO_BIG(-2),
+        TOO_BIG(-2, "cell is too big to be a child"),
 
         /** cell has wrong shape (very flat - far from circle) */
-        WRONG_SHAPE(-3),
+        WRONG_SHAPE(-3, "cell has wrong shape (very flat - far from circle)"),
 
         /** cell disappears just after being created */
-        DISAPPEARS(-4),
+        DISAPPEARS(-4, "cell disappears just after being created"),
 
         /** cell has too many cells near that are good candidates for a parent */
-        TOO_MANY_CANDIDATES(-5),
+        TOO_MANY_CANDIDATES(-5,
+                "cell has too many cells near that are good candidates for a parent"),
 
-        /** cell has no cells that are good candidates for a parent (usually isolated cell) */
-        NO_CANDIDATES(-6);
+        /** cell has no cells near that are good candidates for a parent (usually isolated cell) */
+        NO_CANDIDATES(-6,
+                "cell has no cells near that are good candidates for a parent (usually isolated cell)");
 
         private final int fakeParentId;
 
-        IgnoreNewCellReason(int fakeParentId)
+        private final String description;
+
+        private int counter = 0;
+
+        IgnoreNewCellReason(int fakeParentId, String description)
         {
             this.fakeParentId = fakeParentId;
+            this.description = description;
         }
 
         /** fake value used in parentID column to inform about the reason why cell is ignored */
         public int getFakeParentId()
         {
             return fakeParentId;
+        }
+
+        /** short description of the reason */
+        public String getDescription()
+        {
+            return description;
+        }
+
+        /** number of cells ignored with this reason */
+        public int getCounter()
+        {
+            return counter;
+        }
+
+        /** increase number of cells ignored with this reason */
+        public void incCounter()
+        {
+            counter++;
         }
     }
 
@@ -633,17 +658,24 @@ public class GenerationDetection
                     }
                 }
             }
-            System.err.println("\nParent connections found:\n");
-            System.err.println("child\t frame\t parent\t candidates");
+            log(String.format("\nParent connections found (%d):\n", newBornCells.size()));
+            log("child\t frame\t parent\t candidates");
             for (Cell cell : newBornCells)
             {
-                System.err.println(cell.parentInformation());
+                log(cell.parentInformation());
             }
             if (PRODUCTIVE == false)
             {
                 GenerationDetectionAccuracyTester.computeResultsAccuracy(newBornCells);
             }
-            System.err.println("\nDone!\n");
+            log("\nIgnored newly appearing cell reason statistics:\n");
+            log("code\t count\t description");
+            for (IgnoreNewCellReason reason : IgnoreNewCellReason.values())
+            {
+                log(String.format("%4d\t %5d\t %s", reason.getFakeParentId(), reason.getCounter(),
+                        reason.getDescription()));
+            }
+            log("\nDone!\n");
         } catch (final IOException ex)
         {
             ex.printStackTrace();
@@ -732,7 +764,7 @@ public class GenerationDetection
         {
             final int currentFrame = entry.getKey();
             final Set<Cell> currentFrameCells = entry.getValue();
-            System.err.println(String.format("analyzing frame %s...", currentFrame));
+            log(String.format("analyzing frame %s...", currentFrame));
             // analyze genealogy of cells that appeared in current frame
             final Set<Cell> newCells = new LinkedHashSet<Cell>(currentFrameCells);
             newCells.removeAll(cellsFromOldFrames);
@@ -784,22 +816,18 @@ public class GenerationDetection
                         parentCandidates.add(candidate);
                     } else
                     {
-                        System.err
-                                .println(String
-                                        .format(
-                                                "Cell %d is to small (%d) to be a parent of %d that appeared on frame %d.",
-                                                candidate.parent.id, +candidate.parent.numPix,
-                                                cell.id, candidate.distanceSq, frame));
+                        log(String
+                                .format(
+                                        "Cell %d is to small (%d) to be a parent of %d that appeared on frame %d.",
+                                        candidate.parent.id, +candidate.parent.numPix, cell.id,
+                                        candidate.distanceSq, frame));
                     }
                 }
             }
             if (parentCandidates.size() == 0)
             {
                 ignore(cell, IgnoreNewCellReason.NO_CANDIDATES);
-                System.err.println(String.format(
-                        "Ignoring new cell with id:%d appearing on frame:%d. "
-                                + "Reason: no candidate for a parent found near the cell.", cell
-                                .getId(), cell.getFrame()));
+                log(String.format("Reason: no candidate for a parent found near the cell."));
                 // continue
             } else
             {
@@ -814,12 +842,10 @@ public class GenerationDetection
                 } else
                 {
                     ignore(cell, IgnoreNewCellReason.TOO_MANY_CANDIDATES);
-                    System.err
-                            .println(String
-                                    .format(
-                                            "Ignoring new cell with id:%d appearing on frame:%d. "
-                                                    + "Reason: too many (%d) equally good candidates found near the cell to decide.",
-                                            cell.getId(), cell.getFrame(), parentCandidates.size()));
+                    log(String
+                            .format(
+                                    "Reason: too many (%d) equally good candidates found near the cell to decide.",
+                                    parentCandidates.size()));
                 }
             }
         }
@@ -854,7 +880,10 @@ public class GenerationDetection
 
     private static void ignore(Cell child, IgnoreNewCellReason reason)
     {
+        reason.incCounter();
         ignoredChildrenFakeParentIds.put(child.id, reason.getFakeParentId());
+        log(String.format("Ignoring new cell with id:%d appearing on frame:%d.", child.id,
+                child.frame));
     }
 
     /**
@@ -878,7 +907,7 @@ public class GenerationDetection
         }
         if (count == 0) // 5 cases in test data
         {
-            System.err.println(String.format("Cell with id '%d' disappears on frame '%d' "
+            log(String.format("Cell with id '%d' disappears on frame '%d' "
                     + "just after producing a cell with id '%d' (on previous frame).", parentID,
                     childFrame, child.getId()));
         }
@@ -890,9 +919,9 @@ public class GenerationDetection
         if (cell.getNumPix() > MAX_NEW_BORN_CELL_PIXELS)
         {
             ignore(cell, IgnoreNewCellReason.TOO_BIG);
-            System.err.println(String.format("Ignoring new cell with id:%d appearing on frame:%d. "
-                    + "Reason: size=%d exceeds maximal allowed value for a new born cell (%d).",
-                    cell.getId(), cell.getFrame(), cell.getNumPix(), MAX_NEW_BORN_CELL_PIXELS));
+            log(String.format(
+                    "Reason: size=%d exceeds maximal allowed value for a new born cell (%d).", cell
+                            .getNumPix(), MAX_NEW_BORN_CELL_PIXELS));
             return false;
         }
         // If the cell appears only on one frame it is most likely a segmentation problem, e.g.:
@@ -905,35 +934,27 @@ public class GenerationDetection
                 && cellsByIdAndFrame.get(cell.getId()).size() == 1)
         {
             ignore(cell, IgnoreNewCellReason.DISAPPEARS);
-            System.err.println(String.format("Ignoring new cell with id:%d appearing on frame:%d. "
-                    + "Reason: disappears on the next frame and never reappears.", cell.getId(),
-                    cell.getFrame()));
+            log(String.format("Reason: disappears on the next frame and never reappears."));
             return false;
         }
         // The shape of a new born cell should not be too far from a circle
         if (cell.getMinAxis() / cell.getMajAxis() < MIN_NEW_BORN_CELL_ECCENTRICITY)
         {
             ignore(cell, IgnoreNewCellReason.WRONG_SHAPE);
-            System.err
-                    .println(String
-                            .format(
-                                    "Ignoring new cell with id:%d appearing on frame:%d. "
-                                            + "Reason: minAxis/majAxis ratio=%1.2f is below minimal allowed value for a new born cell (%1.2f).",
-                                    cell.getId(), cell.getFrame(), cell.getEccentricity(),
-                                    MIN_NEW_BORN_CELL_ECCENTRICITY));
+            log(String
+                    .format(
+                            "Reason: minAxis/majAxis ratio=%1.2f is below minimal allowed value for a new born cell (%1.2f).",
+                            cell.getEccentricity(), MIN_NEW_BORN_CELL_ECCENTRICITY));
             return false;
         }
         // The shape of a new born cell should not be too far from a circle
         if (cell.getFftStat() > MAX_NEW_BORN_CELL_FFT_STAT)
         {
             ignore(cell, IgnoreNewCellReason.WRONG_SHAPE);
-            System.err
-                    .println(String
-                            .format(
-                                    "Ignoring new cell with id:%d appearing on frame:%d. "
-                                            + "Reason: circularity measure=%d exceeds maximal allowed value for a new born cell (%d).",
-                                    cell.getId(), cell.getFrame(), cell.getFftStat(),
-                                    MAX_NEW_BORN_CELL_FFT_STAT));
+            log(String
+                    .format(
+                            "Reason: circularity measure=%d exceeds maximal allowed value for a new born cell (%d).",
+                            cell.getFftStat(), MAX_NEW_BORN_CELL_FFT_STAT));
             return false;
         }
         return true;
@@ -966,5 +987,11 @@ public class GenerationDetection
             result.add(new Cell(line));
         }
         return result;
+    }
+
+    /** log (on stderr) */
+    private static void log(String message)
+    {
+        System.err.println(message);
     }
 }
