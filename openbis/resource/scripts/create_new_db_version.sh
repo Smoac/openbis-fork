@@ -2,7 +2,7 @@
 # Author: Tomasz Pylak
 # Creates new database version (all sql files) which is identical to the previous version.
 
-SQL_DIR=../source/sql/
+SQL_DIR=../../source/sql/
 
 PREV_NUM=`ls -1 $SQL_DIR/postgresql | grep 0 | sort | tail -n 1 | tr -d "0"`
 PREV_VER=0$PREV_NUM
