@@ -551,6 +551,7 @@ public class GenerationDetection
         // negatives but on the test data the results are better with this tighter threshold.
         // Of course:
         // maxAxis > (maxAxis+currentMajorAxis)/2.
+        // More strict condition using parent majAxis instead of maxAxis is used in additional step.
         public boolean isDistanceValid()
         {
             double maxValidDistance = 1.1 * ((maxAxis + child.getMajAxis()) / 2);
@@ -833,6 +834,7 @@ public class GenerationDetection
             {
                 // sort parent - best will be first
                 Collections.sort(parentCandidates);
+                filterCandidatesWithDistance(parentCandidates);
                 filterCandidatesWithEccentricity(parentCandidates);
                 // if we have many candidates it is rather difficult to decide
                 if (parentCandidates.size() <= MAX_PARENT_CANDIDATES)
@@ -860,6 +862,27 @@ public class GenerationDetection
         for (ParentCandidate candidate : parentCandidates)
         {
             if (candidate.getEccentricityIncrease() >= SIGNIFICANT_PARENT_ECCENTRICITY_INC)
+            {
+                betterCandidates.add(candidate);
+            }
+        }
+        if (betterCandidates.size() > 0)
+        {
+            parentCandidates.retainAll(betterCandidates);
+        }
+    }
+
+    private static void filterCandidatesWithDistance(List<ParentCandidate> parentCandidates)
+    {
+        // If some candidates almost touch the child cell they are better candidates
+        // and other candidates will be filtered out
+        final List<ParentCandidate> betterCandidates = new ArrayList<ParentCandidate>();
+        for (ParentCandidate candidate : parentCandidates)
+        {
+            final double closeDistance =
+                    (candidate.parent.getMajAxis() + candidate.child.getMajAxis()) / 2;
+            final double maxDistanceSq = square(1.2 * closeDistance);
+            if (maxDistanceSq >= candidate.distanceSq)
             {
                 betterCandidates.add(candidate);
             }
@@ -953,7 +976,7 @@ public class GenerationDetection
             ignore(cell, IgnoreNewCellReason.WRONG_SHAPE);
             log(String
                     .format(
-                            "Reason: circularity measure=%d exceeds maximal allowed value for a new born cell (%d).",
+                            "Reason: circularity measure=%1.2f exceeds maximal allowed value for a new born cell (%1.2f).",
                             cell.getFftStat(), MAX_NEW_BORN_CELL_FFT_STAT));
             return false;
         }
