@@ -270,6 +270,8 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         // need to transform session because it contains PersonPE and is transfered to DSS
         final Session transformedSession =
                 HibernateTransformer.HIBERNATE_BEAN_REPLICATOR.get().copy(session);
+        transformedSession.tryGetPerson().setDisplaySettings(
+                session.tryGetPerson().getDisplaySettings());
         return transformedSession;
     }
 
