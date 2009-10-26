@@ -188,7 +188,7 @@ class FlowLineFeeder implements IPostRegistrationDatasetHandler
         {
             PropertyType propertyType = property.getPropertyType();
             String value = property.tryGetAsString();
-            addLine(builder, propertyType.getLabel(), value);
+            addLine(builder, propertyType.getCode(), value);
             String code = propertyType.getCode();
             if (code.equals(AFFILIATION_KEY))
             {
