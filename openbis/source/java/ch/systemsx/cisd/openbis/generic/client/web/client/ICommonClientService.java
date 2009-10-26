@@ -442,7 +442,7 @@ public interface ICommonClientService extends IClientService
      * Updates specified property type assignment.
      */
     public void updatePropertyTypeAssignment(EntityKind entityKind, String propertyTypeCode,
-            String entityTypeCode, boolean isMandatory, String defaultValue)
+            String entityTypeCode, String section, boolean isMandatory, String defaultValue)
             throws UserFailureException;
 
     /**

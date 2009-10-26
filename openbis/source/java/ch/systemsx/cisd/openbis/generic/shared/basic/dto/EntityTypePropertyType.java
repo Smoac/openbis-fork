@@ -127,14 +127,16 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
             return false;
         }
         EntityTypePropertyType<T> that = (EntityTypePropertyType<T>) obj;
-        return this.compareTo(that) == 0;
-        // FIXME doesn't take into account entity type
+        return getPropertyType().equals(that.getPropertyType())
+                && getEntityType().equals(that.getEntityType());
     }
 
     @Override
     public int hashCode()
     {
-        return getPropertyType().hashCode();
+        int hashCode = getPropertyType().hashCode();
+        hashCode ^= getEntityType().hashCode();
+        return hashCode;
     }
 
     //
@@ -144,9 +146,19 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
     public final int compareTo(final EntityTypePropertyType<T> o)
     {
         assert o != null : "Unspecified entity type property type.";
-        final PropertyType propertyType1 = getPropertyType();
-        final PropertyType propertyType2 = o.getPropertyType();
-        return propertyType1.compareTo(propertyType2);
+
+        final EntityType entityType1 = getEntityType();
+        final EntityType entityType2 = o.getEntityType();
+        final Long ordinal1 = getOrdinal();
+        final Long ordinal2 = o.getOrdinal();
+        // first sort by entity type and then use ordinal information
+        if (entityType1.equals(entityType2))
+        {
+            return ordinal1.compareTo(ordinal2);
+        } else
+        {
+            return entityType1.compareTo(entityType2);
+        }
     }
 
 }

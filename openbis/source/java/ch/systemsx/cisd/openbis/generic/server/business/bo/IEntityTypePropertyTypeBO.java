@@ -50,6 +50,7 @@ public interface IEntityTypePropertyTypeBO
     /**
      * Updates loaded assignment. Does nothing if no assignment loaded.
      */
-    void updateLoadedAssignment(final boolean isMandatory, final String defaultValue);
+    void updateLoadedAssignment(final String section, final boolean isMandatory,
+            final String defaultValue);
 
 }

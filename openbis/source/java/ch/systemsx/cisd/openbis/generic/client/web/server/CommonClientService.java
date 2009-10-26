@@ -584,6 +584,8 @@ public final class CommonClientService extends AbstractClientService implements
                 public List<EntityTypePropertyType<?>> getOriginalData()
                         throws UserFailureException
                 {
+                    // TODO 2009-10-26, Piotr Buczek: add information about other assignments of
+                    // this entity type
                     return extractAssignments(listPropertyTypes(true));
                 }
             });
@@ -597,6 +599,7 @@ public final class CommonClientService extends AbstractClientService implements
         {
             extractAssignments(result, propertyType);
         }
+        Collections.sort(result);
         return result;
     }
 
@@ -986,15 +989,15 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public void updatePropertyTypeAssignment(final EntityKind entityKind,
-            final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
-            final String defaultValue)
+            final String propertyTypeCode, final String entityTypeCode, final String section,
+            final boolean isMandatory, final String defaultValue)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             commonServer.updatePropertyTypeAssignment(sessionToken, entityKind, propertyTypeCode,
-                    entityTypeCode, isMandatory, defaultValue);
+                    entityTypeCode, section, isMandatory, defaultValue);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -234,12 +235,19 @@ public class PropertyTypeAssignmentGrid extends
 
                 private final boolean originalIsMandatory;
 
+                private final Field<String> sectionField;
+
                 private final CheckBox mandatoryCheckbox;
 
                 private final Field<?> defaultValueField;
 
                 {
                     originalIsMandatory = etpt.isMandatory();
+
+                    // TODO 2009-10-26, Piotr Buczek: use combo box
+                    sectionField = new VarcharField(viewContext.getMessage(Dict.SECTION), false);
+                    sectionField.setValue(etpt.getSection());
+                    addField(sectionField);
 
                     mandatoryCheckbox = new CheckBox();
                     mandatoryCheckbox.setFieldLabel(viewContext.getMessage(Dict.MANDATORY));
@@ -271,6 +279,11 @@ public class PropertyTypeAssignmentGrid extends
                     }
                 }
 
+                private String getSectionValue()
+                {
+                    return sectionField.getValue();
+                }
+
                 private String getDefaultValue()
                 {
                     if (defaultValueField != null)
@@ -288,18 +301,9 @@ public class PropertyTypeAssignmentGrid extends
                 @Override
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
-                    boolean isMandatory = getMandatoryValue();
-                    // update only if isMandatory value has changed
-                    if (isMandatory != originalIsMandatory)
-                    {
-                        viewContext.getService().updatePropertyTypeAssignment(entityKind,
-                                propertyTypeCode, entityTypeCode, getMandatoryValue(),
-                                getDefaultValue(), registrationCallback);
-                    } else
-                    {
-                        final String alertMsg = "Nothing to update.";
-                        MessageBox.info("Information", alertMsg, null);
-                    }
+                    viewContext.getService().updatePropertyTypeAssignment(entityKind,
+                            propertyTypeCode, entityTypeCode, getSectionValue(),
+                            getMandatoryValue(), getDefaultValue(), registrationCallback);
                 }
             };
     }
@@ -345,6 +349,7 @@ public class PropertyTypeAssignmentGrid extends
             DefaultResultSetConfig<String, EntityTypePropertyType<?>> resultSetConfig,
             AbstractAsyncCallback<ResultSet<EntityTypePropertyType<?>>> callback)
     {
+        // TODO 2009-10-26, Piotr Buczek: extract information about assignments to specific entity type
         viewContext.getService().listPropertyTypeAssignments(resultSetConfig, callback);
     }
 

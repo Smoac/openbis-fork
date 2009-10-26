@@ -381,7 +381,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             viewContext.getService().assignPropertyType(entityKind,
                     propertyTypeSelectionWidget.tryGetSelectedPropertyTypeCode(),
                     getSelectedEntityCode(), getMandatoryCheckbox().getValue(), getDefaultValue(),
-                    new AssignPropertyTypeCallback(viewContext));
+                    new AssignPropertyTypeCallback(viewContext));                     
+                    // TODO 2009-10-26, Piotr Buczek: add previousOrdinal
         }
     }
 

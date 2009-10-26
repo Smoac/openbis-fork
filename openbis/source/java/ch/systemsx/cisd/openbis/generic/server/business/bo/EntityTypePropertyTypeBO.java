@@ -93,7 +93,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     public void createAssignment(String propertyTypeCode, String entityTypeCode,
             boolean isMandatory, String defaultValue)
     {
-        EntityTypePE entityType = findEntityType(entityTypeCode);
+        EntityTypePE entityType = findEntityType(entityTypeCode); // TODO init property types
         PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
         assignment = createAssignment(isMandatory, entityType, propertyType);
         // fill default property values
@@ -143,8 +143,10 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         }
     }
 
-    public void updateLoadedAssignment(final boolean isMandatory, final String defaultValue)
+    public void updateLoadedAssignment(final String section, final boolean isMandatory,
+            final String defaultValue)
     {
+        assignment.setSection(section);
         assignment.setMandatory(isMandatory);
         // fill missing property values if we change from optional to mandatory
         if (isMandatory)
