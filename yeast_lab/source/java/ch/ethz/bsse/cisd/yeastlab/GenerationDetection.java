@@ -39,13 +39,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class GenerationDetection
 {
-    private static final boolean PRODUCTIVE = true;
+    private static final boolean PRODUCTION = true;
 
     private static final int FIRST_FRAME_NUM = 0;
 
     private static final int INITIAL_GENERATION = 1;
 
-    private static final String PARENT_ID_COL_NAME = "parentID";
+    private static final String PARENT_ID_COL_NAME = "motherID";
 
     private static final String ALTERNATIVES_COL_NAME = "alternatives";
 
@@ -127,8 +127,8 @@ public class GenerationDetection
         /** cell existed on the first frame */
         FIRST_FRAME(-1, "cell existed on the first frame"),
 
-        /** cell is too big to be a child */
-        TOO_BIG(-2, "cell is too big to be a child"),
+        /** cell is too big to be a new born cell */
+        TOO_BIG(-2, "cell is too big to be a new born cell"),
 
         /** cell has wrong shape (very flat - far from circle) */
         WRONG_SHAPE(-3, "cell has wrong shape (very flat - far from circle)"),
@@ -136,13 +136,13 @@ public class GenerationDetection
         /** cell disappears just after being created */
         DISAPPEARS(-4, "cell disappears just after being created"),
 
-        /** cell has too many cells near that are good candidates for a parent */
+        /** cell has too many cells near that are good candidates for a mother */
         TOO_MANY_CANDIDATES(-5,
-                "cell has too many cells near that are good candidates for a parent"),
+                "cell has too many cells near that are good candidates for a mother"),
 
-        /** cell has no cells near that are good candidates for a parent (usually isolated cell) */
+        /** cell has no cells near that are good candidates for a mother (usually isolated cell) */
         NO_CANDIDATES(-6,
-                "cell has no cells near that are good candidates for a parent (usually isolated cell)");
+                "cell has no cells near that are good candidates for a mother (usually isolated cell)");
 
         private final int fakeParentId;
 
@@ -411,7 +411,7 @@ public class GenerationDetection
 
         private String candidateInformation(ParentCandidate candidate)
         {
-            if (PRODUCTIVE)
+            if (PRODUCTION)
             {
                 return Integer.toString(candidate.parent.id);
             } else
@@ -627,7 +627,7 @@ public class GenerationDetection
             analyzeData();
 
             writer = new PrintWriter(output);
-            if (PRODUCTIVE)
+            if (PRODUCTION)
             {
                 writer.append(headerInputRow);
                 writer.append(SEPARATOR + PARENT_ID_COL_NAME);
@@ -659,13 +659,13 @@ public class GenerationDetection
                     }
                 }
             }
-            log(String.format("\nParent connections found (%d):\n", newBornCells.size()));
-            log("child\t frame\t parent\t candidates");
+            log(String.format("\nMother connections found (%d):\n", newBornCells.size()));
+            log("daughter\t frame\t mother\t candidates");
             for (Cell cell : newBornCells)
             {
                 log(cell.parentInformation());
             }
-            if (PRODUCTIVE == false)
+            if (PRODUCTION == false)
             {
                 GenerationDetectionAccuracyTester.computeResultsAccuracy(newBornCells);
             }
@@ -819,7 +819,7 @@ public class GenerationDetection
                     {
                         log(String
                                 .format(
-                                        "Cell %d is to small (%d) to be a parent of %d that appeared on frame %d.",
+                                        "Cell %d is to small (%d) to be a mother of %d that appeared on frame %d.",
                                         candidate.parent.id, +candidate.parent.numPix, cell.id,
                                         candidate.distanceSq, frame));
                     }
@@ -828,7 +828,7 @@ public class GenerationDetection
             if (parentCandidates.size() == 0)
             {
                 ignore(cell, IgnoreNewCellReason.NO_CANDIDATES);
-                log(String.format("Reason: no candidate for a parent found near the cell."));
+                log(String.format("Reason: no candidate for a mother found near the cell."));
                 // continue
             } else
             {
