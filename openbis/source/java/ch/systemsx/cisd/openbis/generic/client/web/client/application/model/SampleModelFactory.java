@@ -52,10 +52,11 @@ public final class SampleModelFactory
                 parentColumnsSchema);
     }
 
-    public static BaseEntityModel<Sample> createModel(GridRowModel<Sample> sampleModel)
+    public static BaseEntityModel<Sample> createModel(GridRowModel<Sample> sampleModel,
+            SampleType sampleType)
     {
         List<? extends IColumnDefinitionUI<Sample>> allColumnsDefinition =
-                new SampleModelFactory().createColumnsSchemaForRendering(sampleModel);
+                new SampleModelFactory().createColumnsSchemaForRendering(sampleModel, sampleType);
         BaseEntityModel<Sample> model =
                 new BaseEntityModel<Sample>(sampleModel, allColumnsDefinition);
         return model;
@@ -70,12 +71,12 @@ public final class SampleModelFactory
     }
 
     private List<IColumnDefinitionUI<Sample>> createColumnsSchemaForRendering(
-            GridRowModel<Sample> sampleModel)
+            GridRowModel<Sample> sampleModel, SampleType sampleType)
     {
         List<IColumnDefinitionUI<Sample>> columns =
                 entityGridModelFactory.createColumnsSchemaForRendering(sampleModel);
         List<AbstractParentSampleColDef> parentColumns =
-                createParentColumnsSchema(null, sampleModel.getOriginalObject().getSampleType());
+                createParentColumnsSchema(null, sampleType);
         columns.addAll(parentColumns);
         return columns;
     }

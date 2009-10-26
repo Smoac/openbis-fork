@@ -443,7 +443,7 @@ public class SampleBrowserGrid extends
     @Override
     protected BaseEntityModel<Sample> createModel(GridRowModel<Sample> entity)
     {
-        return SampleModelFactory.createModel(entity);
+        return SampleModelFactory.createModel(entity, criteria.tryGetSampleType());
     }
 
     @Override
