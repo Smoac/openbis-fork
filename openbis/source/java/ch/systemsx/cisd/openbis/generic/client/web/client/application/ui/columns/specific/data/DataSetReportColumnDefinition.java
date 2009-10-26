@@ -99,26 +99,4 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
     private DataSetReportColumnDefinition()
     {
     }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setColumnHeader(TableModelColumnHeader columnHeader)
-    {
-        this.columnHeader = columnHeader;
-    }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setDownloadURL(String downloadURL)
-    {
-        this.downloadURL = downloadURL;
-    }
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setSessionID(String sessionID)
-    {
-        this.sessionID = sessionID;
-    }
-
 }
