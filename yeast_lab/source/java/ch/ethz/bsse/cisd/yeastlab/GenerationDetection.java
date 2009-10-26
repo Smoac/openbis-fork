@@ -660,7 +660,7 @@ public class GenerationDetection
                 }
             }
             log(String.format("\nMother connections found (%d):\n", newBornCells.size()));
-            log("daughter\t frame\t mother\t candidates");
+            log("cellID\t frame\t mother\t candidates");
             for (Cell cell : newBornCells)
             {
                 log(cell.parentInformation());
