@@ -974,14 +974,15 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public String assignPropertyType(final EntityKind entityKind, final String propertyTypeCode,
-            final String entityTypeCode, final boolean isMandatory, final String defaultValue)
+            final String entityTypeCode, final boolean isMandatory, final String defaultValue,
+            final String section, final Long previousETPTOrdinal)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         try
         {
             final String sessionToken = getSessionToken();
             return commonServer.assignPropertyType(sessionToken, entityKind, propertyTypeCode,
-                    entityTypeCode, isMandatory, defaultValue);
+                    entityTypeCode, isMandatory, defaultValue, section, previousETPTOrdinal);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

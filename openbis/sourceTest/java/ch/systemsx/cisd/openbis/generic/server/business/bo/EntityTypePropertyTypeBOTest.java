@@ -55,11 +55,11 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                 {
                     one(entityPropertyTypeDAO).tryFindAssignment(experimentType, propertyType);
                     will(returnValue(etpt));
-                    
+
                     one(entityPropertyTypeDAO).delete(etpt);
                 }
             });
-        
+
         IEntityTypePropertyTypeBO bo = createEntityTypePropertyTypeBO(entityKind);
         bo.loadAssignment(propertyType.getCode(), experimentType.getCode());
         bo.deleteLoadedAssignment();
@@ -84,20 +84,20 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
         final ExperimentTypePropertyTypePE etpt = new ExperimentTypePropertyTypePE();
         prepareExperimentTypeAndPropertyType(entityKind, experimentType, propertyType);
         context.checking(new Expectations()
-        {
             {
-                one(entityPropertyTypeDAO).tryFindAssignment(experimentType, propertyType);
-                will(returnValue(etpt));
-            }
-        });
-        
+                {
+                    one(entityPropertyTypeDAO).tryFindAssignment(experimentType, propertyType);
+                    will(returnValue(etpt));
+                }
+            });
+
         IEntityTypePropertyTypeBO bo = createEntityTypePropertyTypeBO(entityKind);
         bo.loadAssignment(propertyType.getCode(), experimentType.getCode());
-        
+
         assertSame(etpt, bo.getLoadedAssignment());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCreateAssignment()
     {
@@ -105,6 +105,7 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
         final EntityKind entityKind = EntityKind.EXPERIMENT;
         boolean mandatory = true;
         final String defaultValue = "50";
+        final String section = "section 1";
 
         final ExperimentPE experiment = new ExperimentPE();
         experiment.setCode("MAN");
@@ -114,10 +115,12 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
         final PropertyTypePE propertyType = createPropertyType();
         prepareExperimentTypeAndPropertyType(entityKind, experimentType, propertyType);
         context.checking(new Expectations()
-                    {
-                        {
+            {
+                {
                     one(entityPropertyTypeDAO).tryFindAssignment(experimentType, propertyType);
                     will(returnValue(null));
+
+                    one(entityPropertyTypeDAO).increaseOrdinals(experimentType, 2L, 1);
 
                     one(entityPropertyTypeDAO).createEntityPropertyTypeAssignment(
                             with(any(ExperimentTypePropertyTypePE.class)));
@@ -136,7 +139,8 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
                 }
             });
         final EntityTypePropertyTypeBO bo = createEntityTypePropertyTypeBO(EntityKind.EXPERIMENT);
-        bo.createAssignment(propertyType.getCode(), experimentType.getCode(), mandatory, defaultValue);
+        bo.createAssignment(propertyType.getCode(), experimentType.getCode(), mandatory,
+                defaultValue, section, 1L);
         assertTrue(experiment.getProperties().size() == 1);
         assertEquals(property, experiment.getProperties().toArray()[0]);
         assertEquals(experiment, property.getEntity());
@@ -164,8 +168,9 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
 
                     allowing(daoFactory).getEntityPropertyTypeDAO(entityKind);
                     will(returnValue(entityPropertyTypeDAO));
-                    
-                }});
+
+                }
+            });
     }
 
     private ExperimentTypePE createExperimentType()

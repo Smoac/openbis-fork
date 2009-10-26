@@ -212,6 +212,7 @@ var common = {
   confirm_vocabulary_show_available_terms_in_chooosers_msg: "If this vocabulary has many terms (more than 100) application will slow down.<br><br>Are you sure?",
   vocabulary_show_available_terms_in_choosers: "Show available terms in choosers",
   missing_vocabulary_terms: "Missing vocabulary term.",
+  section_tooltip: "The name of the section in which the assigned property should appear in entity registration and edition forms.",
   default_value: "Initial Value",
   default_value_tooltip: "The value of the assigned property for all currently existing entities.",
   entity_type_assignments: "{0} Type Assignment{1}",

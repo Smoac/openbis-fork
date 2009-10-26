@@ -30,7 +30,7 @@ public interface IEntityTypePropertyTypeBO
      * Create a new Entity Type - Property Type relation.
      */
     void createAssignment(String propertyTypeCode, String entityTypeCode, boolean isMandatory,
-            String defaultValue);
+            String defaultValue, String section, Long previousETPTOrdinal);
 
     /**
      * Loads assignments between specified property type and entity type.

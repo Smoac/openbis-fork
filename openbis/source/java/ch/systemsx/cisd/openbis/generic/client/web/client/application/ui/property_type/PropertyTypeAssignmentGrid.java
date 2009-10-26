@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -53,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
@@ -344,13 +348,47 @@ public class PropertyTypeAssignmentGrid extends
                     PropertyTypeAssignmentColDefKind.ENTITY_KIND });
     }
 
+    private Map<EntityType, List<EntityTypePropertyType<?>>> entityTypePropertyTypes;
+
+    private void extractETPTs(List<EntityTypePropertyType<?>> etpts)
+    {
+        entityTypePropertyTypes = new HashMap<EntityType, List<EntityTypePropertyType<?>>>();
+        for (EntityTypePropertyType<?> etpt : etpts)
+        {
+            List<EntityTypePropertyType<?>> list =
+                    entityTypePropertyTypes.get(etpt.getEntityType());
+            if (list == null)
+            {
+                list = new ArrayList<EntityTypePropertyType<?>>();
+                entityTypePropertyTypes.put(etpt.getEntityType(), list);
+            }
+            list.add(etpt);
+        }
+    }
+
     @Override
     protected void listEntities(
             DefaultResultSetConfig<String, EntityTypePropertyType<?>> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<EntityTypePropertyType<?>>> callback)
+            final AbstractAsyncCallback<ResultSet<EntityTypePropertyType<?>>> callback)
     {
-        // TODO 2009-10-26, Piotr Buczek: extract information about assignments to specific entity type
-        viewContext.getService().listPropertyTypeAssignments(resultSetConfig, callback);
+        AbstractAsyncCallback<ResultSet<EntityTypePropertyType<?>>> extendedCallback =
+                new AbstractAsyncCallback<ResultSet<EntityTypePropertyType<?>>>(viewContext)
+                    {
+                        @Override
+                        protected void process(ResultSet<EntityTypePropertyType<?>> result)
+                        {
+                            extractETPTs(result.getList().extractOriginalObjects());
+                            callback.onSuccess(result);
+                        }
+
+                        @Override
+                        public void finishOnFailure(Throwable caught)
+                        {
+                            callback.finishOnFailure(caught);
+                        }
+
+                    };
+        viewContext.getService().listPropertyTypeAssignments(resultSetConfig, extendedCallback);
     }
 
     @Override

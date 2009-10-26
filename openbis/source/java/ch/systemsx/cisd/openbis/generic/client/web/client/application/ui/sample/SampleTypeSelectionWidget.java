@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -76,6 +77,23 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
     public final SampleType tryGetSelectedSampleType()
     {
         return super.tryGetSelected();
+    }
+
+    /**
+     * Returns the {@link SampleType} currently selected.
+     * 
+     * @return <code>null</code> if nothing is selected yet.
+     */
+    public final List<SampleTypePropertyType> tryGetSelectedSamplePropertyTypes()
+    {
+        final SampleType selectedOrNull = tryGetSelectedSampleType();
+        if (selectedOrNull == null)
+        {
+            return null;
+        } else
+        {
+            return selectedOrNull.getAssignedPropertyTypes();
+        }
     }
 
     @Override

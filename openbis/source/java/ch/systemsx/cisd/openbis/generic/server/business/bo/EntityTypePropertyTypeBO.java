@@ -91,11 +91,13 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     }
 
     public void createAssignment(String propertyTypeCode, String entityTypeCode,
-            boolean isMandatory, String defaultValue)
+            boolean isMandatory, String defaultValue, String section, Long previousETPTOrdinal)
     {
-        EntityTypePE entityType = findEntityType(entityTypeCode); // TODO init property types
+        EntityTypePE entityType = findEntityType(entityTypeCode);
         PropertyTypePE propertyType = findPropertyType(propertyTypeCode);
-        assignment = createAssignment(isMandatory, entityType, propertyType);
+        assignment =
+                createAssignment(isMandatory, section, previousETPTOrdinal, entityType,
+                        propertyType);
         // fill default property values
         if (isMandatory)
         {
@@ -178,15 +180,23 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     }
 
     private EntityTypePropertyTypePE createAssignment(final boolean mandatory,
-            final EntityTypePE entityType, final PropertyTypePE propertyType)
+            final String section, final Long previousETPTOrdinal, final EntityTypePE entityType,
+            final PropertyTypePE propertyType)
     {
         checkAssignmentDoesNotExist(entityType, propertyType);
+        // need to shift existing etpts to create space for new one
+        Long currentOrdinal = previousETPTOrdinal + 1;
+        increaseOrdinals(entityType, currentOrdinal, 1);
+
         final EntityTypePropertyTypePE etpt =
                 EntityTypePropertyTypePE.createEntityTypePropertyType(entityKind);
         etpt.setPropertyType(propertyType);
         etpt.setRegistrator(findRegistrator());
         etpt.setEntityType(entityType);
         etpt.setMandatory(mandatory);
+        etpt.setSection(section);
+        etpt.setOrdinal(currentOrdinal);
+
         try
         {
             getEntityPropertyTypeDAO(entityKind).createEntityPropertyTypeAssignment(etpt);
@@ -195,6 +205,17 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             throwException(e, createExceptionMessage(entityType, propertyType));
         }
         return etpt;
+    }
+
+    /**
+     * shift specified entity type etpts by specified increment starting from etpt with specified
+     * ordinal
+     * 
+     * @param entityType
+     */
+    private void increaseOrdinals(EntityTypePE entityType, Long startOrdinal, int increment)
+    {
+        getEntityPropertyTypeDAO(entityKind).increaseOrdinals(entityType, startOrdinal, increment);
     }
 
     private PropertyTypePE findPropertyType(String propertyTypeCode)

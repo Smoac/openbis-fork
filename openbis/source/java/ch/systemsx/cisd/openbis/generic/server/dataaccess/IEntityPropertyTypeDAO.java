@@ -105,4 +105,6 @@ public interface IEntityPropertyTypeDAO
      */
     public void delete(EntityTypePropertyTypePE assignment);
 
+    public void increaseOrdinals(EntityTypePE entityType, Long startOrdinal, int increment);
+
 }

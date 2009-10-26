@@ -357,11 +357,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void listDataTypes(final AsyncCallback<List<DataType>> asyncCallback);
 
     /**
-     * @see ICommonClientService#assignPropertyType(EntityKind, String, String, boolean, String)
+     * @see ICommonClientService#assignPropertyType(EntityKind, String, String, boolean, String,
+     *      String, Long)
      */
     public void assignPropertyType(EntityKind entityKind, String propertyTypeCode,
-            String entityTypeCode, boolean isMandatory, String defaultValue,
-            AsyncCallback<String> process);
+            String entityTypeCode, boolean isMandatory, String defaultValue, String section,
+            Long previousETPTOrdinal, AsyncCallback<String> process);
 
     /**
      * @see ICommonClientService#updatePropertyTypeAssignment(EntityKind, String, String, String,

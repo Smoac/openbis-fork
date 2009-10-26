@@ -318,6 +318,8 @@ public abstract class Dict
 
     public static final String MANDATORY = "mandatory";
 
+    public static final String SECTION_TOOLTIP = "section_tooltip";
+
     public static final String DEFAULT_VALUE = "default_value";
 
     public static final String DEFAULT_VALUE_TOOLTIP = "default_value_tooltip";

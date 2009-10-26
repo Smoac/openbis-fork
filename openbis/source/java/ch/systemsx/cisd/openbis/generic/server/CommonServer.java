@@ -630,7 +630,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
 
     public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
             final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
-            final String defaultValue)
+            final String defaultValue, final String section, final Long previousETPTOrdinal)
     {
         assert sessionToken != null : "Unspecified session token";
         Session session = getSession(sessionToken);
@@ -639,7 +639,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 DtoConverters.convertEntityKind(entityKind);
         IEntityTypePropertyTypeBO etptBO =
                 businessObjectFactory.createEntityTypePropertyTypeBO(session, kind);
-        etptBO.createAssignment(propertyTypeCode, entityTypeCode, isMandatory, defaultValue);
+        etptBO.createAssignment(propertyTypeCode, entityTypeCode, isMandatory, defaultValue,
+                section, previousETPTOrdinal);
         return String.format("%s property type '%s' successfully assigned to %s type '%s'",
                 isMandatory ? "Mandatory" : "Optional", propertyTypeCode, kind.getLabel(),
                 entityTypeCode);

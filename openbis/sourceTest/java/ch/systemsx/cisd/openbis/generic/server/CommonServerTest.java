@@ -1155,6 +1155,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final String entityTypeCode = "ARCHERY";
         final boolean mandatory = true;
         final String value = "50m";
+        final String section = "section 1";
         context.checking(new Expectations()
             {
                 {
@@ -1163,13 +1164,13 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(entityTypePropertyTypeBO));
 
                     one(entityTypePropertyTypeBO).createAssignment(propertyTypeCode,
-                            entityTypeCode, mandatory, value);
+                            entityTypeCode, mandatory, value, section, 1L);
                 }
             });
         assertEquals(
                 "Mandatory property type 'USER.DISTANCE' successfully assigned to experiment type 'ARCHERY'",
                 createServer().assignPropertyType(SESSION_TOKEN, entityKind, propertyTypeCode,
-                        entityTypeCode, mandatory, value));
+                        entityTypeCode, mandatory, value, section, 1L));
         context.assertIsSatisfied();
     }
 

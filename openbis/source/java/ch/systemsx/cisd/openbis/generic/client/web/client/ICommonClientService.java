@@ -429,8 +429,8 @@ public interface ICommonClientService extends IClientService
      * Assigns property type to entity type.
      */
     public String assignPropertyType(EntityKind entityKind, String propertyTypeCode,
-            String entityTypeCode, boolean isMandatory, String defaultValue)
-            throws UserFailureException;
+            String entityTypeCode, boolean isMandatory, String defaultValue, String section,
+            Long previousETPTOrdinal) throws UserFailureException;
 
     /**
      * Unassigns property type to entity type.

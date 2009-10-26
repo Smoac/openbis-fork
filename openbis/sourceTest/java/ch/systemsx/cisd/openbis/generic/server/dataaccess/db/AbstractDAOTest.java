@@ -294,6 +294,7 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
         result.setPropertyType(propertyType);
         result.setRegistrator(registrator);
         result.setRegistrationDate(new Date());
+        result.setOrdinal(1L);
         return result;
     }
 

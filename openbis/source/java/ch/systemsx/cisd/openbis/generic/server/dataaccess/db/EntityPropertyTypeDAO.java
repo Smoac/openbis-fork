@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * The unique {@link IEntityPropertyTypeDAO} implementation.
@@ -118,11 +119,6 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         validatePE(entityPropertyTypeAssignement);
 
         final HibernateTemplate template = getHibernateTemplate();
-        // FIXME 2009-10-26, Piotr Buczek: remove when ordinal will be set in BO
-        if (entityPropertyTypeAssignement.getOrdinal() == null)
-        {
-            entityPropertyTypeAssignement.setOrdinal(1L);
-        }
         template.save(entityPropertyTypeAssignement);
         template.flush();
         if (operationLog.isInfoEnabled())
@@ -257,6 +253,32 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
             operationLog.info("UPDATE: " + properties.size() + " of kind " + entityKind
                     + " updated.");
         }
+    }
+
+    public void increaseOrdinals(EntityTypePE entityType, Long fromOrdinal, int increment)
+    {
+        // TODO 2009-10-26, Piotr Buczek: try to rewrite in HQL
+        Long entityTypeId = HibernateUtils.getId(entityType);
+        String entityTypeIdColumnName = "";
+        String entityTypePropertyTypeTableName = entityKind.name() + "_type_property_types";
+        switch (entityKind)
+        {
+            case DATA_SET:
+                entityTypeIdColumnName = "dsty_id";
+                break;
+            case EXPERIMENT:
+                entityTypeIdColumnName = "exty_id";
+                break;
+            case SAMPLE:
+                entityTypeIdColumnName = "saty_id";
+                break;
+            case MATERIAL:
+                entityTypeIdColumnName = "maty_id";
+                break;
+        }
+        executeUpdate("UPDATE " + entityTypePropertyTypeTableName + " SET ordinal = ordinal + ?"
+                + " WHERE " + entityTypeIdColumnName + " = ? AND ordinal >= ?", increment,
+                entityTypeId, fromOrdinal);
     }
 
     public final void validateAndSaveUpdatedEntity(EntityTypePropertyTypePE entity)

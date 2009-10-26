@@ -386,7 +386,7 @@ public interface ICommonServer extends IServer
     @DatabaseCreateOrDeleteModification(value = ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
     public String assignPropertyType(final String sessionToken, final EntityKind entityKind,
             final String propertyTypeCode, final String entityTypeCode, final boolean isMandatory,
-            final String defaultValue);
+            final String defaultValue, final String section, final Long previousETPTOrdinal);
 
     /**
      * Update property type assignment to entity type.
