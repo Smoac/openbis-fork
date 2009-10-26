@@ -116,6 +116,7 @@ public class VocabularyTermPE extends HibernateAbstractRegistrationHolder implem
     }
 
     @Column(name = ColumnNames.ORDINAL_COLUMN)
+    // TODO 2009-10-26, Piotr Buczek: add not null?
     public Long getOrdinal()
     {
         return ordinal;

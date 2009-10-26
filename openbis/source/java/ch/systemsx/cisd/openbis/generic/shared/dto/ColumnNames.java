@@ -118,8 +118,6 @@ public final class ColumnNames
 
     public static final String IS_PUBLIC = "is_public";
 
-    public static final String IS_DISPLAYED = "is_displayed";
-
     public static final String IS_INTERNAL_NAMESPACE = "is_internal_namespace";
 
     public static final String IS_LISTABLE = "IS_LISTABLE";
@@ -149,6 +147,8 @@ public final class ColumnNames
     public static final String MATERIAL_TYPE_COLUMN = "maty_id";
 
     public static final String MATERIAL_TYPE_PROPERTY_TYPE_COLUMN = "mtpt_id";
+
+    public static final String SECTION_COLUMN = "section";
 
     public static final String ORDINAL_COLUMN = "ordinal";
 

@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 /**
  * A {@link SampleTypePropertyType} &lt;---&gt; {@link SampleTypePropertyTypePE} translator.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class SampleTypePropertyTypeTranslator
 
@@ -45,14 +45,10 @@ public final class SampleTypePropertyTypeTranslator
             extends
             AbstractEntityTypePropertyTypeTranslator<SampleType, SampleTypePropertyType, SampleTypePropertyTypePE>
     {
-        @Override
-        void setSpecificFields(SampleTypePropertyType result, SampleTypePropertyTypePE etptPE)
-        {
-            result.setDisplayed(etptPE.isDisplayed());
-        }
 
         @Override
-        SampleType translate(EntityTypePE entityTypePE, Map<PropertyTypePE, PropertyType> cacheOrNull)
+        SampleType translate(EntityTypePE entityTypePE,
+                Map<PropertyTypePE, PropertyType> cacheOrNull)
         {
             return SampleTypeTranslator.translate((SampleTypePE) entityTypePE, cacheOrNull);
         }

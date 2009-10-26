@@ -28,10 +28,12 @@ import javax.persistence.Transient;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -41,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * This represents an entry in <code>{entity}_type_property_types</code> table.
  * </p>
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  * @author Tomasz Pylak
  * @author Izabela Adamczyk
  */
@@ -54,6 +56,10 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     private boolean mandatory;
 
     private boolean managedInternally;
+
+    private Long ordinal;
+
+    private String section;
 
     protected transient Long id;
 
@@ -121,6 +127,30 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
         this.managedInternally = managedInternally;
     }
 
+    @Column(name = ColumnNames.ORDINAL_COLUMN)
+    // TODO 2009-10-26, Piotr Buczek: add not null?
+    public Long getOrdinal()
+    {
+        return ordinal;
+    }
+
+    public void setOrdinal(Long ordinal)
+    {
+        this.ordinal = ordinal;
+    }
+
+    @Column(name = ColumnNames.SECTION_COLUMN)
+    @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.SECTION_LENGTH_MESSAGE)
+    public String getSection()
+    {
+        return section;
+    }
+
+    public void setSection(String section)
+    {
+        this.section = section;
+    }
+
     // needed by Hibernate, must match the mapped getter name
     void setEntityTypeInternal(final EntityTypePE entityType)
     {
@@ -151,6 +181,8 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
         builder.append("mandatory", isMandatory());
         builder.append("propertyType", getPropertyType());
         builder.append("entityType", getEntityType());
+        builder.append("ordinal", getOrdinal());
+        builder.append("section", getSection());
         return builder.toString();
     }
 
@@ -180,4 +212,5 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
         builder.append(getEntityType());
         return builder.toHashCode();
     }
+
 }

@@ -41,11 +41,6 @@ public class MaterialTypePropertyTypeTranslator
             AbstractEntityTypePropertyTypeTranslator<MaterialType, MaterialTypePropertyType, MaterialTypePropertyTypePE>
     {
         @Override
-        void setSpecificFields(MaterialTypePropertyType result, MaterialTypePropertyTypePE etptPE)
-        {
-        }
-
-        @Override
         MaterialType translate(EntityTypePE entityTypePE,
                 Map<PropertyTypePE, PropertyType> cacheOrNull)
         {

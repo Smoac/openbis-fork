@@ -118,6 +118,11 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
         validatePE(entityPropertyTypeAssignement);
 
         final HibernateTemplate template = getHibernateTemplate();
+        // FIXME 2009-10-26, Piotr Buczek: remove when ordinal will be set in BO
+        if (entityPropertyTypeAssignement.getOrdinal() == null)
+        {
+            entityPropertyTypeAssignement.setOrdinal(1L);
+        }
         template.save(entityPropertyTypeAssignement);
         template.flush();
         if (operationLog.isInfoEnabled())

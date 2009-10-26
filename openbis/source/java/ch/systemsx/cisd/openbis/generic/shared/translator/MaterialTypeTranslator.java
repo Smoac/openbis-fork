@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -64,8 +65,9 @@ public class MaterialTypeTranslator
         {
             unsetMaterialTypes(entityTypeOrNull.getMaterialTypePropertyTypes());
         }
-        result.setMaterialTypePropertyTypes(MaterialTypePropertyTypeTranslator.translate(
-                entityTypeOrNull.getMaterialTypePropertyTypes(), result, cacheOrNull));
+        result.setMaterialTypePropertyTypes(EntityType
+                .sortedInternally(MaterialTypePropertyTypeTranslator.translate(entityTypeOrNull
+                        .getMaterialTypePropertyTypes(), result, cacheOrNull)));
         return result;
     }
 

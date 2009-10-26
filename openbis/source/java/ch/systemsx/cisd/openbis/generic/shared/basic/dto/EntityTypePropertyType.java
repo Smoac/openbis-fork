@@ -36,6 +36,10 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
 
     private boolean managedInternally;
 
+    private Long ordinal;
+
+    private String section;
+
     private PropertyType propertyType;
 
     private T entityType;
@@ -90,6 +94,26 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
         this.entityType = entityType;
     }
 
+    public Long getOrdinal()
+    {
+        return ordinal;
+    }
+
+    public void setOrdinal(Long ordinal)
+    {
+        this.ordinal = ordinal;
+    }
+
+    public String getSection()
+    {
+        return section;
+    }
+
+    public void setSection(String section)
+    {
+        this.section = section;
+    }
+
     //
     // Object
     //
@@ -104,6 +128,7 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
         }
         EntityTypePropertyType<T> that = (EntityTypePropertyType<T>) obj;
         return this.compareTo(that) == 0;
+        // FIXME doesn't take into account entity type
     }
 
     @Override
@@ -123,4 +148,5 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
         final PropertyType propertyType2 = o.getPropertyType();
         return propertyType1.compareTo(propertyType2);
     }
+
 }

@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -51,8 +52,9 @@ public class DataSetTypeTranslator
         result.setDescription(StringEscapeUtils.escapeHtml(entityTypeOrNull.getDescription()));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
                 .getDatabaseInstance()));
-        result.setDataSetTypePropertyTypes(DataSetTypePropertyTypeTranslator.translate(
-                entityTypeOrNull.getDataSetTypePropertyTypes(), result, cacheOrNull));
+        result.setDataSetTypePropertyTypes(EntityType
+                .sortedInternally(DataSetTypePropertyTypeTranslator.translate(entityTypeOrNull
+                        .getDataSetTypePropertyTypes(), result, cacheOrNull)));
         return result;
     }
 

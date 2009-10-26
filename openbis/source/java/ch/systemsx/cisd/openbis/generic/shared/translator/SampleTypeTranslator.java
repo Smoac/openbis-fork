@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
@@ -50,8 +51,9 @@ public class SampleTypeTranslator
         result.setDescription(StringEscapeUtils.escapeHtml(sampleTypePE.getDescription()));
         result.setGeneratedFromHierarchyDepth(sampleTypePE.getGeneratedFromHierarchyDepth());
         result.setContainerHierarchyDepth(sampleTypePE.getContainerHierarchyDepth());
-        result.setSampleTypePropertyTypes(SampleTypePropertyTypeTranslator.translate(sampleTypePE
-                .getSampleTypePropertyTypes(), result, cacheOrNull));
+        result.setSampleTypePropertyTypes(EntityType
+                .sortedInternally(SampleTypePropertyTypeTranslator.translate(sampleTypePE
+                        .getSampleTypePropertyTypes(), result, cacheOrNull)));
         result.setDatabaseInstance(DatabaseInstanceTranslator.translate(sampleTypePE
                 .getDatabaseInstance()));
         return result;

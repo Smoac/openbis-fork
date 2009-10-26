@@ -12,6 +12,7 @@ var common = {
   attachment: "Attachment",
   code: "Code",
   ordinal: "Ordinal",
+  section: "Section",
   file: "File",
   perm_id: "PermID",
   registrator: "Registrator",

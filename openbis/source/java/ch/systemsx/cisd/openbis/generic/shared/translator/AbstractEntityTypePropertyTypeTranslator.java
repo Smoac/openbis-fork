@@ -39,7 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends EntityType, ETPT extends EntityTypePropertyType<ET>, ETPTPE extends EntityTypePropertyTypePE>
 {
 
-    public ETPT translate(ETPTPE entityTypePropertyType, Map<PropertyTypePE, PropertyType> cacheOrNull)
+    public ETPT translate(ETPTPE entityTypePropertyType,
+            Map<PropertyTypePE, PropertyType> cacheOrNull)
     {
         return translate(entityTypePropertyType, null, null, cacheOrNull);
     }
@@ -88,7 +89,8 @@ abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends Entity
         }
         result.setManagedInternally(etptPE.isManagedInternally());
         result.setMandatory(etptPE.isMandatory());
-        setSpecificFields(result, etptPE);
+        result.setOrdinal(etptPE.getOrdinal());
+        result.setSection(etptPE.getSection());
         return result;
     }
 
@@ -109,8 +111,6 @@ abstract public class AbstractEntityTypePropertyTypeTranslator<ET extends Entity
     }
 
     abstract ETPT create();
-
-    abstract void setSpecificFields(ETPT result, final ETPTPE etptPE);
 
     abstract ET translate(EntityTypePE entityTypePE, Map<PropertyTypePE, PropertyType> cacheOrNull);
 

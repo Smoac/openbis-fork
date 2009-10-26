@@ -119,7 +119,7 @@ public class AttachmentFileUploadField extends FileUploadField
         {
             setHeading(messageProvider.getMessage(Dict.ATTACHMENT));
             setLayout(createFormLayout());
-            setWidth(labelWidth + fieldWidth);
+            setWidth(labelWidth + fieldWidth + 3);
             add(fileUploadField);
             add(descriptionField = new DescriptionField(messageProvider, false));
             add(titleField = createTitleField(messageProvider.getMessage(Dict.TITLE)));

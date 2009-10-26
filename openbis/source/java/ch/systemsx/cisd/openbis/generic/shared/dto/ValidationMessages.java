@@ -88,6 +88,8 @@ public final class ValidationMessages
     public final static String DESCRIPTION_LENGTH_MESSAGE =
             LENGTH_PREFIX + "description" + LENGTH_SUFFIX;
 
+    public final static String SECTION_LENGTH_MESSAGE = LENGTH_PREFIX + "section" + LENGTH_SUFFIX;
+
     public static final String DESCRIPTION_NOT_NULL_MESSAGE = "Description" + CAN_NOT_BE_NULL;
 
     public static final String DOWNLOAD_URL_NOT_NULL_MESSAGE = "Download URL" + CAN_NOT_BE_NULL;

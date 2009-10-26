@@ -50,6 +50,8 @@ public abstract class Dict
 
     public static final String ORDINAL = "ordinal";
 
+    public static final String SECTION = "section";
+
     public static final String FILE = "file";
 
     public static final String PERM_ID = "perm_id";

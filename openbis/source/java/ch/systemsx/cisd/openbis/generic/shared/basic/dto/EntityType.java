@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -39,5 +41,18 @@ abstract public class EntityType extends BasicEntityType
     public static final boolean isAllTypesCode(String entityTypeCode)
     {
         return ALL_TYPES_CODE.equals(entityTypeCode);
+    }
+
+    public static <T extends EntityTypePropertyType<?>> List<T> sortedInternally(List<T> etpts)
+    {
+        Collections.sort(etpts, new Comparator<EntityTypePropertyType<?>>()
+            {
+
+                public int compare(EntityTypePropertyType<?> o1, EntityTypePropertyType<?> o2)
+                {
+                    return o1.getOrdinal().compareTo(o2.getOrdinal());
+                }
+            });
+        return etpts;
     }
 }

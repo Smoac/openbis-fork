@@ -52,19 +52,6 @@ public class SampleTypePropertyTypePE extends EntityTypePropertyTypePE
 
     public static final SampleTypePropertyTypePE[] EMPTY_ARRAY = new SampleTypePropertyTypePE[0];
 
-    private boolean displayed;
-
-    @Column(name = ColumnNames.IS_DISPLAYED)
-    public boolean isDisplayed()
-    {
-        return displayed;
-    }
-
-    public void setDisplayed(final boolean displayed)
-    {
-        this.displayed = displayed;
-    }
-
     @NotNull(message = ValidationMessages.SAMPLE_TYPE_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = SampleTypePE.class)
     @JoinColumn(name = ColumnNames.SAMPLE_TYPE_COLUMN)

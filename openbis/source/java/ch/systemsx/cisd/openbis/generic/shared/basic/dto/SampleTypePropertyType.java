@@ -32,16 +32,4 @@ public class SampleTypePropertyType extends EntityTypePropertyType<SampleType> i
     {
         super(EntityKind.SAMPLE);
     }
-
-    private boolean isDisplayed;
-
-    public final boolean isDisplayed()
-    {
-        return isDisplayed;
-    }
-
-    public final void setDisplayed(final boolean isDisplayed)
-    {
-        this.isDisplayed = isDisplayed;
-    }
 }

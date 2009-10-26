@@ -21,10 +21,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
@@ -86,7 +91,6 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         List<DatabaseModificationAwareField<?>> result =
                 new ArrayList<DatabaseModificationAwareField<?>>();
         List<PropertyType> propertyTypes = getPropertyTypes(entityTypesPropertyTypes);
-
         for (final S stpt : entityTypesPropertyTypes)
         {
             String value = initialProperties.get(stpt.getPropertyType().getCode());
@@ -152,9 +156,9 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         for (final DatabaseModificationAwareField<?> field : propertyFields)
         {
             Object value = field.get().getValue();
-            if (value != null && PropertyFieldFactory.valueToString(value) != null)
+            final S etpt = field.get().getData(ETPT); // null for section labels
+            if (etpt != null && value != null && PropertyFieldFactory.valueToString(value) != null)
             {
-                final S etpt = field.get().getData(ETPT);
                 final IEntityProperty entityProperty = createEntityProperty();
                 entityProperty.setValue(PropertyFieldFactory.valueToString(value));
                 entityProperty.setPropertyType(etpt.getPropertyType());
@@ -172,6 +176,86 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     {
         assert propertyFields != null : "Not initialized.";
         return propertyFields;
+    }
+
+    public void addPropertyFieldsWithFieldsetToPanel(FormPanel form)
+    {
+        String previousSection = null;
+        FieldSet currentSectionFieldSet = null;
+        for (final DatabaseModificationAwareField<?> field : propertyFields)
+        {
+            final S etpt = field.get().getData(ETPT);
+            final String currentSection = etpt.getSection();
+
+            // if there was a section before and current field doesn't fit to it
+            // add previous section field set to the form
+            if (previousSection != null && previousSection.equals(currentSection) == false)
+            {
+                form.add(currentSectionFieldSet);
+            }
+            // update current section (create new one if needed)
+            if (currentSection != null)
+            {
+                if (currentSection.equals(previousSection) == false)
+                {
+                    currentSectionFieldSet = createSectionFieldSet(currentSection);
+                }
+            } else
+            {
+                currentSectionFieldSet = null;
+            }
+            // add current field to current field set if it exists or directly to form otherwise
+            if (currentSectionFieldSet != null)
+            {
+                currentSectionFieldSet.add(field.get());
+            } else
+            {
+                form.add(field.get());
+            }
+
+            previousSection = currentSection;
+        }
+        // add last section
+        if (currentSectionFieldSet != null)
+        {
+            form.add(currentSectionFieldSet);
+        }
+    }
+
+    private FieldSet createSectionFieldSet(String sectionName)
+    {
+        return new PropertiesSectionFileSet(sectionName);
+    }
+
+    private static final class PropertiesSectionFileSet extends FieldSet
+    {
+
+        private final int labelWidth;
+
+        private final int fieldWidth;
+
+        public PropertiesSectionFileSet(final String sectionName)
+        {
+            this.labelWidth = AbstractRegistrationForm.DEFAULT_LABEL_WIDTH;
+            this.fieldWidth = AbstractRegistrationForm.DEFAULT_FIELD_WIDTH;
+            createForm(sectionName);
+        }
+
+        private void createForm(final String sectionName)
+        {
+            setHeading(sectionName);
+            setLayout(createFormLayout());
+            setWidth(labelWidth + fieldWidth + 3);
+        }
+
+        private final FormLayout createFormLayout()
+        {
+            final FormLayout formLayout = new FormLayout();
+            formLayout.setLabelWidth(labelWidth);
+            formLayout.setDefaultWidth(fieldWidth - 15);
+            return formLayout;
+        }
+
     }
 
 }

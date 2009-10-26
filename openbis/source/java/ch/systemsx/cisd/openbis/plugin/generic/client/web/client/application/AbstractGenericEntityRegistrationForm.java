@@ -161,7 +161,8 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     {
         CompositeDatabaseModificationObserver compositeObserver =
                 new CompositeDatabaseModificationObserver();
-        compositeObserver.addObservers(getAllFormFields());
+        compositeObserver.addObservers(getFormFieldsWithoutPropertyFields());
+        compositeObserver.addObservers(getFormPropertyFields());
         return compositeObserver;
     }
 
@@ -196,9 +197,9 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
     }
 
     /**
-     * Returns all form fields.
+     * Returns form fields without fields for properties.
      */
-    protected final List<DatabaseModificationAwareField<?>> getAllFormFields()
+    private final List<DatabaseModificationAwareField<?>> getFormFieldsWithoutPropertyFields()
     {
         List<DatabaseModificationAwareField<?>> fields =
                 new ArrayList<DatabaseModificationAwareField<?>>();
@@ -207,11 +208,15 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
         {
             fields.add(specificField);
         }
-        for (DatabaseModificationAwareField<?> propertyField : propertiesEditor.getPropertyFields())
-        {
-            fields.add(propertyField);
-        }
         return fields;
+    }
+
+    /**
+     * Returns all form fields for properties.
+     */
+    private final List<DatabaseModificationAwareField<?>> getFormPropertyFields()
+    {
+        return propertiesEditor.getPropertyFields();
     }
 
     /**
@@ -232,10 +237,11 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
      */
     protected void addFormFieldsToPanel(FormPanel panel)
     {
-        for (DatabaseModificationAwareField<?> fieldHolder : getAllFormFields())
+        for (DatabaseModificationAwareField<?> fieldHolder : getFormFieldsWithoutPropertyFields())
         {
             panel.add(fieldHolder.get());
         }
+        propertiesEditor.addPropertyFieldsWithFieldsetToPanel(panel);
     }
 
     /**

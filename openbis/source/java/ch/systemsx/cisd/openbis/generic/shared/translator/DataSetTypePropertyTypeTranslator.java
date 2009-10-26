@@ -41,11 +41,6 @@ public class DataSetTypePropertyTypeTranslator
             AbstractEntityTypePropertyTypeTranslator<DataSetType, DataSetTypePropertyType, DataSetTypePropertyTypePE>
     {
         @Override
-        void setSpecificFields(DataSetTypePropertyType result, DataSetTypePropertyTypePE etptPE)
-        {
-        }
-
-        @Override
         DataSetType translate(EntityTypePE entityTypePE,
                 Map<PropertyTypePE, PropertyType> cacheOrNull)
         {

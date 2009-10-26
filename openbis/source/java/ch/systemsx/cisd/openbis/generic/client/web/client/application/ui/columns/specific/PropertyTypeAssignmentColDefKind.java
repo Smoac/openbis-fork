@@ -93,6 +93,24 @@ public enum PropertyTypeAssignmentColDefKind implements
             }
         }),
 
+    ORDINAL(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.ORDINAL, 100, true)
+        {
+            @Override
+            public String tryGetValue(EntityTypePropertyType<?> entity)
+            {
+                return entity.getOrdinal().toString();
+            }
+        }),
+
+    SECTION(new AbstractColumnDefinitionKind<EntityTypePropertyType<?>>(Dict.SECTION)
+        {
+            @Override
+            public String tryGetValue(EntityTypePropertyType<?> entity)
+            {
+                return entity.getSection();
+            }
+        }),
+
     ;
 
     private final AbstractColumnDefinitionKind<EntityTypePropertyType<?>> columnDefinitionKind;

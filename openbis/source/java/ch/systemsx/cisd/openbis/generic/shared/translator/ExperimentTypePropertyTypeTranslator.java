@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 /**
  * A {@link ExperimentTypePropertyType} &lt;---&gt; {@link ExperimentTypePropertyTypePE} translator.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class ExperimentTypePropertyTypeTranslator
 {
@@ -44,12 +44,6 @@ public final class ExperimentTypePropertyTypeTranslator
             extends
             AbstractEntityTypePropertyTypeTranslator<ExperimentType, ExperimentTypePropertyType, ExperimentTypePropertyTypePE>
     {
-        @Override
-        void setSpecificFields(ExperimentTypePropertyType result,
-                ExperimentTypePropertyTypePE etptPE)
-        {
-        }
-
         @Override
         ExperimentType translate(EntityTypePE entityTypePE,
                 Map<PropertyTypePE, PropertyType> cacheOrNull)
