@@ -371,6 +371,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 private TextArea createNewTermCodesArea()
                 {
                     final TextArea result = new TextArea();
+                    result.setFieldLabel(viewContext.getMessage(Dict.TERMS));
                     result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
                     result.setValidator(new VocabularyTermValidator(viewContext));
                     return result;
