@@ -396,7 +396,8 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.PROPERTY_TYPE_ASSIGNMENT)
     public void updatePropertyTypeAssignment(final String sessionToken,
             final EntityKind entityKind, final String propertyTypeCode,
-            final String entityTypeCode, final boolean isMandatory, final String defaultValue);
+            final String entityTypeCode, final String section, final boolean isMandatory,
+            final String defaultValue);
 
     /**
      * Unassigns property type to entity type.
