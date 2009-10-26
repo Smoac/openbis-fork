@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -54,7 +55,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  *
  * @author Franz-Josef Elmer
  */
-public class FlowLineFeederTest extends AbstractFileSystemTestCase
+public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 {
     private static final String AFFILIATION = "fmi";
     private static final String EXTERNAL_SAMPLE_NAME = "ext23";
@@ -79,7 +80,7 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
         return sample;
     }
     
-    private FlowLineFeeder flowLineFeeder;
+    private FlowLaneFeeder flowLaneFeeder;
     private Mockery context;
     private IEncapsulatedOpenBISService service;
     private File dropBox1;
@@ -102,11 +103,11 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
         transferDropBox = new File(workingDirectory, TRANSFER_DROP_BOX);
         assertEquals(true, transferDropBox.mkdirs());
         Properties properties = new Properties();
-        properties.setProperty(FlowLineFeeder.FLOW_LINE_DROP_BOX_TEMPLATE, new File(
+        properties.setProperty(FlowLaneFeeder.FLOW_LANE_DROP_BOX_TEMPLATE, new File(
                 workingDirectory, DROP_BOX_PREFIX).getAbsolutePath()
                 + "{0}");
-        properties.setProperty(FlowLineFeeder.TRANSFER_PREFIX + AFFILIATION, transferDropBox.getAbsolutePath());
-        flowLineFeeder = new FlowLineFeeder(properties, service);
+        properties.setProperty(FlowLaneFeeder.TRANSFER_PREFIX + AFFILIATION, transferDropBox.getAbsolutePath());
+        flowLaneFeeder = new FlowLaneFeeder(properties, service);
     }
     
     @AfterMethod
@@ -122,11 +123,11 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
     {
         try
         {
-            new FlowLineFeeder(new Properties(), service);
+            new FlowLaneFeeder(new Properties(), service);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals("Given key '" + FlowLineFeeder.FLOW_LINE_DROP_BOX_TEMPLATE
+            assertEquals("Given key '" + FlowLaneFeeder.FLOW_LANE_DROP_BOX_TEMPLATE
                     + "' not found in properties '[]'", ex.getMessage());
         }
         
@@ -138,13 +139,13 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
     {
         File flowCell = new File(workingDirectory, SAMPLE_CODE);
         assertEquals(true, flowCell.mkdir());
-        FileUtilities.writeToFile(new File(flowCell, "s_3.srf"), "hello flow line 3");
+        FileUtilities.writeToFile(new File(flowCell, "s_3.srf"), "hello flow lane 3");
         prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
-        prepareListFlowLines(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.<Sample>asList());
+        prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.<Sample>asList());
         
         try
         {
-            flowLineFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -162,12 +163,42 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
         
         try
         {
-            flowLineFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
             assertEquals("Unkown flow cell sample: " + EXAMPLE_DATA_SET_INFO.getSampleIdentifier(),
                     ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testNotEnoughFlowLaneFiles()
+    {
+        File flowCell = new File(workingDirectory, SAMPLE_CODE);
+        assertEquals(true, flowCell.mkdir());
+        File logs = new File(flowCell, "logs");
+        assertEquals(true, logs.mkdir());
+        FileUtilities.writeToFile(new File(logs, "basic.log"), "hello log");
+        File srfFolder = new File(flowCell, "SRF");
+        assertEquals(true, srfFolder.mkdir());
+        File originalFlowLane1 = new File(srfFolder, "s_1.srf");
+        FileUtilities.writeToFile(originalFlowLane1, "hello flow lane 1");
+        prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
+        
+        Sample fl1 = createFlowLaneSample(1);
+        Sample fl2 = createFlowLaneSample(2);
+        prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.asList(fl1, fl2));
+
+        try
+        {
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Only 1 flow lane files found instead of 2.", ex.getMessage());
         }
         
         context.assertIsSatisfied();
@@ -183,30 +214,31 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(new File(logs, "basic.log"), "hello log");
         File srfFolder = new File(flowCell, "SRF");
         assertEquals(true, srfFolder.mkdir());
-        File originalFlowLine1 = new File(srfFolder, "s_1.srf");
-        FileUtilities.writeToFile(originalFlowLine1, "hello flow line 1");
-        File originalFlowLine2 = new File(srfFolder, "2.srf");
-        FileUtilities.writeToFile(originalFlowLine2, "hello flow line 2");
+        File originalFlowLane1 = new File(srfFolder, "s_1.srf");
+        FileUtilities.writeToFile(originalFlowLane1, "hello flow lane 1");
+        File originalFlowLane2 = new File(srfFolder, "2.srf");
+        FileUtilities.writeToFile(originalFlowLane2, "hello flow lane 2");
         prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
         
-        Sample fl1 = createFlowLineSample(1);
-        Sample fl2 = createFlowLineSample(2);
-        prepareListFlowLines(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.asList(fl1, fl2));
-
-        flowLineFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+        Sample fl1 = createFlowLaneSample(1);
+        Sample fl2 = createFlowLaneSample(2);
+        prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.asList(fl1, fl2));
+        prepareGetProperties(Arrays.asList(fl1, fl2));
         
-        checkFlowLineDataSet(originalFlowLine1, "1");
-        checkFlowLineDataSet(originalFlowLine2, "2");
+        flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+        
+        checkFlowLaneDataSet(originalFlowLane1, "1");
+        checkFlowLaneDataSet(originalFlowLane2, "2");
         
         File[] transferedFiles = transferDropBox.listFiles();
         assertEquals(1, transferedFiles.length);
         String sampleName =
                 SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING + "2";
         assertEquals("G2_" + sampleName, transferedFiles[0].getName());
-        File metaFile = getFile(transferedFiles[0], FlowLineFeeder.META_DATA_FILE_TYPE);
-        assertEquals(sampleName + "_" + EXTERNAL_SAMPLE_NAME + FlowLineFeeder.META_DATA_FILE_TYPE,
+        File metaFile = getFile(transferedFiles[0], FlowLaneFeeder.META_DATA_FILE_TYPE);
+        assertEquals(sampleName + "_" + EXTERNAL_SAMPLE_NAME + FlowLaneFeeder.META_DATA_FILE_TYPE,
                 metaFile.getName());
-        assertHardLinkOnSameFile(originalFlowLine2, getFile(transferedFiles[0], "2.srf"));
+        assertHardLinkOnSameFile(originalFlowLane2, getFile(transferedFiles[0], "2.srf"));
         
         context.assertIsSatisfied();
     }
@@ -232,7 +264,7 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
         assertEquals(2, dropBox2.list().length);
         assertEquals(1, transferDropBox.list().length);
         
-        flowLineFeeder.undoLastOperation();
+        flowLaneFeeder.undoLastOperation();
         
         assertEquals(0, dropBox1.list().length);
         assertEquals(0, dropBox2.list().length);
@@ -250,7 +282,7 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
             });
     }
     
-    private void prepareListFlowLines(final Sample flowCellSample, final List<Sample> flowLineSamples)
+    private void prepareListFlowLanes(final Sample flowCellSample, final List<Sample> flowLaneSamples)
     {
         context.checking(new Expectations()
             {
@@ -275,8 +307,17 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
                                         + flowCellSample.getId());
                             }
                         }));
-                    will(returnValue(flowLineSamples));
-                    for (Sample sample : flowLineSamples)
+                    will(returnValue(flowLaneSamples));
+                }
+            });
+    }
+
+    private void prepareGetProperties(final List<Sample> flowLaneSamples)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    for (Sample sample : flowLaneSamples)
                     {
                         SampleIdentifier identifier =
                                 SampleIdentifierFactory.parse(sample.getIdentifier());
@@ -284,11 +325,12 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
                         if (sample.getSubCode().equals("2"))
                         {
                             GenericValueEntityProperty p1 =
-                                    createProperty(FlowLineFeeder.AFFILIATION_KEY, AFFILIATION);
+                                    createProperty(FlowLaneFeeder.AFFILIATION_KEY, AFFILIATION);
                             GenericValueEntityProperty p2 =
-                                    createProperty(FlowLineFeeder.EXTERNAL_SAMPLE_NAME_KEY,
+                                    createProperty(FlowLaneFeeder.EXTERNAL_SAMPLE_NAME_KEY,
                                             EXTERNAL_SAMPLE_NAME);
-                            will(returnValue(new GenericValueEntityProperty[] {p1, p2}));
+                            will(returnValue(new GenericValueEntityProperty[]
+                                { p1, p2 }));
                         }
                     }
                 }
@@ -305,26 +347,26 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
                 }
             });
     }
-
-    private void checkFlowLineDataSet(File originalFlowLine, String flowLineNumber)
+    
+    private void checkFlowLaneDataSet(File originalFlowLane, String flowLaneNumber)
     {
-        File dropBox = new File(workingDirectory, DROP_BOX_PREFIX + flowLineNumber);
-        String flowLineSampleCode =
+        File dropBox = new File(workingDirectory, DROP_BOX_PREFIX + flowLaneNumber);
+        String flowLaneSampleCode =
                 SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING
-                        + flowLineNumber;
+                        + flowLaneNumber;
         String fileName =
-                "G" + flowLineNumber + FlowLineFeeder.DEFAULT_ENTITY_SEPARATOR + flowLineSampleCode;
+                "G" + flowLaneNumber + FlowLaneFeeder.DEFAULT_ENTITY_SEPARATOR + flowLaneSampleCode;
         File ds = new File(dropBox, fileName);
         assertEquals(true, ds.isDirectory());
 
-        File flowLine = new File(ds, originalFlowLine.getName());
-        assertEquals(true, flowLine.isFile());
-        assertEquals(FileUtilities.loadToString(originalFlowLine), FileUtilities
-                .loadToString(flowLine));
-        assertHardLinkOnSameFile(originalFlowLine, flowLine);
+        File flowLane = new File(ds, originalFlowLane.getName());
+        assertEquals(true, flowLane.isFile());
+        assertEquals(FileUtilities.loadToString(originalFlowLane), FileUtilities
+                .loadToString(flowLane));
+        assertHardLinkOnSameFile(originalFlowLane, flowLane);
         String metaDataFileName =
-                flowLineSampleCode + (flowLineNumber.equals("2") ? "_" + EXTERNAL_SAMPLE_NAME : "")
-                        + FlowLineFeeder.META_DATA_FILE_TYPE;
+                flowLaneSampleCode + (flowLaneNumber.equals("2") ? "_" + EXTERNAL_SAMPLE_NAME : "")
+                        + FlowLaneFeeder.META_DATA_FILE_TYPE;
         assertEquals(true, new File(ds, metaDataFileName).exists());
         assertEquals(true, new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName).exists());
     }
@@ -337,21 +379,21 @@ public class FlowLineFeederTest extends AbstractFileSystemTestCase
         assertEquals(4711000, file2.lastModified());
     }
     
-    private Sample createFlowLineSample(int flowLineNumber)
+    private Sample createFlowLaneSample(int flowLaneNumber)
     {
         Sample sample = new Sample();
         sample.setCode(SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING
-                + flowLineNumber);
+                + flowLaneNumber);
         Group group = new Group();
-        group.setCode("G" + flowLineNumber);
+        group.setCode("G" + flowLaneNumber);
         sample.setGroup(group);
-        sample.setSubCode(Integer.toString(flowLineNumber));
+        sample.setSubCode(Integer.toString(flowLaneNumber));
         sample.setGeneratedFrom(EXAMPLE_FLOW_CELL_SAMPLE);
         Person registrator = new Person();
         registrator.setEmail("ab@c.de");
         sample.setRegistrator(registrator);
         sample.setIdentifier(SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING
-                + flowLineNumber);
+                + flowLaneNumber);
         return sample;
     }
     

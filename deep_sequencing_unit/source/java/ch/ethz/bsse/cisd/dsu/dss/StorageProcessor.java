@@ -32,7 +32,7 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
 {
     public StorageProcessor(Properties properties)
     {
-        super(properties, new FlowLineFeeder(properties, ServiceProvider.getOpenBISService()));
+        super(properties, new FlowLaneFeeder(properties, ServiceProvider.getOpenBISService()));
     }
 
 }
