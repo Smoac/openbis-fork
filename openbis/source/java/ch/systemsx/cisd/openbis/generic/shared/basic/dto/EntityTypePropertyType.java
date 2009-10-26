@@ -118,6 +118,8 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
     // Object
     //
 
+    // NOTE: Equals and hashCode don't take into account entity type.
+
     @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object obj)
@@ -127,16 +129,13 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
             return false;
         }
         EntityTypePropertyType<T> that = (EntityTypePropertyType<T>) obj;
-        return getPropertyType().equals(that.getPropertyType())
-                && getEntityType().equals(that.getEntityType());
+        return getPropertyType().equals(that.getPropertyType());
     }
 
     @Override
     public int hashCode()
     {
-        int hashCode = getPropertyType().hashCode();
-        hashCode ^= getEntityType().hashCode();
-        return hashCode;
+        return getPropertyType().hashCode();
     }
 
     //
@@ -160,5 +159,4 @@ public abstract class EntityTypePropertyType<T extends EntityType> implements Is
             return entityType1.compareTo(entityType2);
         }
     }
-
 }
