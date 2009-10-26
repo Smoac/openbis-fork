@@ -125,7 +125,7 @@ public final class PropertyTypeRegistrationForm extends AbstractRegistrationForm
         final VarcharField varcharField =
                 new VarcharField(viewContext.getMessage(Dict.LABEL), true);
         varcharField.setId(getId() + "_label");
-        varcharField.setMaxLength(40);
+        varcharField.setMaxLength(GenericConstants.COLUMN_LABEL);
         return varcharField;
     }
 
