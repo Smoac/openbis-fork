@@ -42,6 +42,6 @@ public class InfoBoxCallbackListener<T> extends CallbackListenerAdapter<T>
             final AbstractAsyncCallback<T> callback, final String failureMessage,
             final Throwable throwable)
     {
-        infoBox.displayError(failureMessage);
+        infoBox.displayError(failureMessage.replace("\n", "<br>"));
     }
 }

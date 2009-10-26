@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
 
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
@@ -55,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public class VocabularyBO extends AbstractBusinessObject implements IVocabularyBO
 {
+    private static final int MAX_NUMBER_OF_INVAID_TERMS_IN_ERROR_MESSAGE = 10;
     private VocabularyPE vocabularyPE;
 
     public VocabularyBO(final IDAOFactory daoFactory, final Session session)
@@ -209,9 +211,32 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         assert vocabularyPE != null : "Unspecified vocabulary";
         try
         {
+            StringBuilder builder = new StringBuilder();
+            int numberOfInvalidTerms = 0;
             for (VocabularyTermPE term : vocabularyPE.getTerms())
             {
-                getVocabularyTermDAO().validate(term);
+                try
+                {
+                    getVocabularyTermDAO().validate(term);
+                } catch (DataIntegrityViolationException ex)
+                {
+                    numberOfInvalidTerms++;
+                    if (numberOfInvalidTerms <= MAX_NUMBER_OF_INVAID_TERMS_IN_ERROR_MESSAGE)
+                    {
+                        builder.append('\n').append(ex.getMessage());
+                    }
+                }
+            }
+            if (builder.length() > 0)
+            {
+                builder.insert(0, "Invalid terms:");
+                int additionalTerms = numberOfInvalidTerms - MAX_NUMBER_OF_INVAID_TERMS_IN_ERROR_MESSAGE;
+                if (additionalTerms > 0)
+                {
+                    builder.append("\n").append("and ").append(additionalTerms);
+                    builder.append(" more invalid terms.");
+                }
+                throw new UserFailureException("Invalid terms:" + builder);
             }
             getVocabularyDAO().createOrUpdateVocabulary(vocabularyPE);
         } catch (final DataAccessException e)

@@ -206,7 +206,7 @@ public final class VocabularyBOTest extends AbstractBOTest
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
-                    one(vocabularyTermDAO).validate(with(aNonNull(VocabularyTermPE.class)));
+                    exactly(3).of(vocabularyTermDAO).validate(with(aNonNull(VocabularyTermPE.class)));
                     will(throwException(new DataIntegrityViolationException(null)));
                 }
             });
