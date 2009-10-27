@@ -86,6 +86,7 @@ public final class InfoBox extends Html
             setStyleAttribute("backgroundColor", type.backgroundColor);
             setStyleAttribute("borderColor", type.borderColor);
             setHtml(text);
+            getElement().scrollIntoView();
         }
     }
 
