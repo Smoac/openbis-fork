@@ -159,9 +159,9 @@ public final class ETLDaemon
         }
         if (TimerUtilities.isOperational())
         {
-            if (operationLog.isInfoEnabled())
+            if (operationLog.isDebugEnabled())
             {
-                operationLog.info("Timer task interruption is operational.");
+                operationLog.debug("Timer task interruption is operational.");
             }
         } else
         {
@@ -236,53 +236,6 @@ public final class ETLDaemon
         }
     }
 
-    @Private
-    final static List<File> findFiles(final File root, String prefix, int maxDepth)
-    {
-        ArrayList<File> files = new ArrayList<File>();
-        if (maxDepth == 0)
-        {
-            if (root.getName().startsWith(prefix))
-            {
-                files.add(root);
-            }
-        } else
-        {
-            if (root.isDirectory())
-            {
-                for (File file : root.listFiles())
-                {
-                    files.addAll(findFiles(file, prefix, maxDepth - 1));
-                }
-            }
-        }
-        return files;
-    }
-
-    @Private
-    final static void migrateDataStoreByRenamingObservableTypeToDataSetType(final File root)
-    {
-        final String observableTypeDirPrefix = "ObservableType_";
-        final String dataSetTypeDirPrefix = "DataSetType_";
-        final String observableTypeFilePrefix = "observable_type";
-        final String dataSetTypeFilePrefix = "data_set_type";
-
-        for (File file : findFiles(root, observableTypeDirPrefix, 5))
-        {
-            final File newName =
-                    new File(file.getAbsolutePath().replaceFirst(observableTypeDirPrefix,
-                            dataSetTypeDirPrefix));
-            file.renameTo(newName);
-        }
-        for (File file : findFiles(root, observableTypeFilePrefix, 10))
-        {
-            final File newName =
-                    new File(file.getAbsolutePath().replaceFirst(observableTypeFilePrefix,
-                            dataSetTypeFilePrefix));
-            file.renameTo(newName);
-        }
-    }
-
     private final static long getHighwaterMark(final Properties properties)
     {
         return PropertyUtils.getLong(properties,
@@ -305,7 +258,6 @@ public final class ETLDaemon
         final Properties properties = parameters.getProperties();
         final File storeRootDir = getStoreRootDir(properties);
         migrateStoreRootDir(storeRootDir, authorizedLimsService.getHomeDatabaseInstance());
-        migrateDataStoreByRenamingObservableTypeToDataSetType(storeRootDir);
         plugin.getStorageProcessor().setStoreRootDirectory(storeRootDir);
         final Properties mailProperties = parameters.getMailProperties();
         String dssCode = PropertyParametersUtil.getDataStoreCode(properties);

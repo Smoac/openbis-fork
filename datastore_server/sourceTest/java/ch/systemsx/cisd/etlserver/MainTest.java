@@ -18,7 +18,6 @@ package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
 
-import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
@@ -33,19 +32,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 @Friend(toClasses = ETLDaemon.class)
 public final class MainTest extends AbstractFileSystemTestCase
 {
-    private static final String DATA_SET_TYPE_PREFIX = "DataSetType_";
-
-    private static final String SAMPLE_PREFIX = "Sample_";
-
-    private static final String EXPERIMENT_PREFIX = "Experiment_";
-
-    private static final String PROJECT_PREFIX = "Project_";
-
     private static final String GROUP_PREFIX = "Group_";
 
     private static final String INSTANCE_PREFIX = "Instance_";
-
-    private static final String DATASET_PREFIX = "Dataset_";
 
     private final static DatabaseInstance createDatabaseInstance()
     {
@@ -79,64 +68,4 @@ public final class MainTest extends AbstractFileSystemTestCase
         assertTrue(new File(workingDirectory, INSTANCE_PREFIX + databaseInstancePE.getUuid())
                 .exists());
     }
-
-    @Test
-    public void testMigrateDataStoreByRenamingObservableTypeToDataSetType() throws Exception
-    {
-        String observableTypeValue = "DST1";
-        String observableTypeDirPrefix = "ObservableType_";
-        File instanceDir = new File(workingDirectory, INSTANCE_PREFIX + "I1");
-        File groupDir = new File(instanceDir, GROUP_PREFIX + "G1");
-        File projectDir = new File(groupDir, PROJECT_PREFIX + "P1");
-        File experimentDir = new File(projectDir, EXPERIMENT_PREFIX + "E1");
-        File observableTypeDir =
-                new File(experimentDir, observableTypeDirPrefix + observableTypeValue);
-        File sampleDir = new File(observableTypeDir, SAMPLE_PREFIX + "S1");
-        File dataSetDir = new File(sampleDir, DATASET_PREFIX + "D1");
-        File metadataDir = new File(dataSetDir, "metadata");
-        File metadataDataSetDir = new File(metadataDir, "data_set");
-
-        //
-        // Don't break when directory does not exist
-        //
-
-        ETLDaemon.migrateDataStoreByRenamingObservableTypeToDataSetType(workingDirectory);
-
-        //
-        // Rename ObservableType_<> directory and observable_type file
-        //
-
-        // create directories
-        metadataDataSetDir.mkdirs();
-        assertTrue(metadataDataSetDir.exists());
-        assertTrue(observableTypeDir.getName()
-                .equals(observableTypeDirPrefix + observableTypeValue));
-
-        // create files
-        String observableTypeFileName = "observable_type";
-        File observableTypeFile = new File(metadataDataSetDir, observableTypeFileName);
-        observableTypeFile.createNewFile();
-        assertTrue(observableTypeFile.exists());
-        AssertJUnit.assertEquals(observableTypeFileName, metadataDataSetDir.listFiles()[0]
-                .getName());
-        assertTrue(observableTypeFile.getName().equals(observableTypeFileName));
-
-        // Do the migration
-        ETLDaemon.migrateDataStoreByRenamingObservableTypeToDataSetType(workingDirectory);
-
-        // check directory renamed
-        AssertJUnit.assertEquals(DATA_SET_TYPE_PREFIX + observableTypeValue, experimentDir
-                .listFiles()[0].getName());
-
-        // update variables
-        observableTypeDir = new File(experimentDir, DATA_SET_TYPE_PREFIX + observableTypeValue);
-        sampleDir = new File(observableTypeDir, SAMPLE_PREFIX + "S1");
-        dataSetDir = new File(sampleDir, DATASET_PREFIX + "D1");
-        metadataDir = new File(dataSetDir, "metadata");
-        metadataDataSetDir = new File(metadataDir, "data_set");
-
-        // check file renamed
-        AssertJUnit.assertEquals("data_set_type", metadataDataSetDir.listFiles()[0].getName());
-    }
-
 }
