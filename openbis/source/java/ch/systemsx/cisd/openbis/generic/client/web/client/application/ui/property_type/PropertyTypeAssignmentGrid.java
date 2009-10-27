@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
@@ -243,7 +242,7 @@ public class PropertyTypeAssignmentGrid extends
 
                 private final boolean originalIsMandatory;
 
-                private final Field<String> sectionField;
+                private final SectionSelectionWidget sectionSelectionWidget;
 
                 private final EntityTypePropertyTypeSelectionWidget etptSelectionWidget;
 
@@ -283,32 +282,40 @@ public class PropertyTypeAssignmentGrid extends
                         defaultValueField = null;
                     }
 
-                    // TODO 2009-10-26, Piotr Buczek: use combo box
-                    sectionField = new VarcharField(viewContext.getMessage(Dict.SECTION), false);
-                    sectionField.setValue(etpt.getSection());
-                    addField(sectionField);
+                    final List<EntityTypePropertyType<?>> etpts =
+                            getEntityTypePropertyTypes(etpt.getEntityType());
 
-                    etptSelectionWidget = createETPTSelectionWidget();
+                    sectionSelectionWidget = createSectionSelectionWidget(etpts);
+                    sectionSelectionWidget.setSimpleValue(etpt.getSection());
+                    addField(sectionSelectionWidget);
+
+                    etptSelectionWidget = createETPTSelectionWidget(etpts);
                     addField(etptSelectionWidget);
                 }
 
-                private EntityTypePropertyTypeSelectionWidget createETPTSelectionWidget()
+                private SectionSelectionWidget createSectionSelectionWidget(
+                        List<EntityTypePropertyType<?>> etpts)
                 {
-                    final EntityType entityType = etpt.getEntityType();
+                    return SectionSelectionWidget.create(viewContext, etpts);
+                }
+
+                private EntityTypePropertyTypeSelectionWidget createETPTSelectionWidget(
+                        List<EntityTypePropertyType<?>> allETPTs)
+                {
                     // create a new list of items from all etpts assigned to entity type
-                    final List<EntityTypePropertyType<?>> all =
+                    final List<EntityTypePropertyType<?>> etpts =
                             new ArrayList<EntityTypePropertyType<?>>();
-                    all.add(null); // null will be transformed into '(top)'
+                    etpts.add(null); // null will be transformed into '(top)'
                     String initialPropertyTypeCodeOrNull = null;
                     String previousPropertyTypeCodeOrNull =
                             EntityTypePropertyTypeSelectionWidget.TOP_ITEM_CODE;
-                    for (EntityTypePropertyType<?> currentETPT : getPropertyTypes(entityType))
+                    for (EntityTypePropertyType<?> currentETPT : allETPTs)
                     {
                         final String currentPropertyTypeCode =
                                 currentETPT.getPropertyType().getCode();
                         if (propertyTypeCode.equals(currentPropertyTypeCode) == false)
                         {
-                            all.add(currentETPT);
+                            etpts.add(currentETPT);
                             previousPropertyTypeCodeOrNull = currentPropertyTypeCode;
                         } else
                         {
@@ -316,7 +323,7 @@ public class PropertyTypeAssignmentGrid extends
                         }
                     }
                     final EntityTypePropertyTypeSelectionWidget result =
-                            new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), all,
+                            new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), etpts,
                                     initialPropertyTypeCodeOrNull);
                     FieldUtil.setMandatoryFlag(result, true);
                     return result;
@@ -324,7 +331,7 @@ public class PropertyTypeAssignmentGrid extends
 
                 private String getSectionValue()
                 {
-                    return sectionField.getValue();
+                    return sectionSelectionWidget.getSimpleValue();
                 }
 
                 /**
@@ -397,7 +404,7 @@ public class PropertyTypeAssignmentGrid extends
                     PropertyTypeAssignmentColDefKind.ENTITY_KIND });
     }
 
-    private List<EntityTypePropertyType<?>> getPropertyTypes(EntityType entityType)
+    private List<EntityTypePropertyType<?>> getEntityTypePropertyTypes(EntityType entityType)
     {
         return entityTypePropertyTypes.get(entityType);
     }

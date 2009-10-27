@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
@@ -113,8 +112,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     private CheckBox mandatoryCheckbox;
 
-    // TODO 2009-10-26, Piotr Buczek: use combo box
-    private Field<String> sectionField;
+    private SectionSelectionWidget sectionSelectionWidget;
 
     private EntityTypePropertyTypeSelectionWidget etptSelectionWidget;
 
@@ -302,9 +300,9 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     private String getSectionValue()
     {
-        if (sectionField != null)
+        if (sectionSelectionWidget != null)
         {
-            return sectionField.getValue();
+            return sectionSelectionWidget.getSimpleValue();
         }
         return null;
     }
@@ -437,9 +435,11 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         final EntityType entityType = tryGetSelectedEntityType();
         if (propertyType != null && entityType != null)
         {
-            sectionField = createSectionField(entityType);
-            formPanel.add(sectionField);
-            etptSelectionWidget = createETPTSelectionWidget(entityType);
+            final List<EntityTypePropertyType<?>> etpts =
+                    new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
+            sectionSelectionWidget = createSectionSelectionWidget(etpts);
+            formPanel.add(sectionSelectionWidget);
+            etptSelectionWidget = createETPTSelectionWidget(etpts);
             formPanel.add(etptSelectionWidget);
         }
         layout();
@@ -447,39 +447,35 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     private void hideEntityTypePropertyTypeRelatedFields()
     {
-        if (sectionField != null && etptSelectionWidget != null)
+        if (sectionSelectionWidget != null && etptSelectionWidget != null)
         {
-            sectionField.hide();
+            sectionSelectionWidget.hide();
             etptSelectionWidget.hide();
-            formPanel.remove(sectionField);
+            formPanel.remove(sectionSelectionWidget);
             formPanel.remove(etptSelectionWidget);
-            sectionField = null;
+            sectionSelectionWidget = null;
             etptSelectionWidget = null;
         }
     }
 
-    private EntityTypePropertyTypeSelectionWidget createETPTSelectionWidget(EntityType entityType)
+    private EntityTypePropertyTypeSelectionWidget createETPTSelectionWidget(
+            List<EntityTypePropertyType<?>> etpts)
     {
         // by default - append
-        final List<EntityTypePropertyType<?>> all =
-                new ArrayList<EntityTypePropertyType<?>>(entityType.getAssignedPropertyTypes());
-        all.add(0, null); // null will be transformed into '(top)'
+        etpts.add(0, null); // null will be transformed into '(top)'
         final String lastCode =
-                (all.size() > 1) ? all.get(all.size() - 1).getPropertyType().getCode()
+                (etpts.size() > 1) ? etpts.get(etpts.size() - 1).getPropertyType().getCode()
                         : EntityTypePropertyTypeSelectionWidget.TOP_ITEM_CODE;
         final EntityTypePropertyTypeSelectionWidget result =
-                new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), all, lastCode);
+                new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), etpts, lastCode);
         FieldUtil.setMandatoryFlag(result, true);
         return result;
     }
 
-    private Field<String> createSectionField(EntityType entityType)
+    private SectionSelectionWidget createSectionSelectionWidget(
+            List<EntityTypePropertyType<?>> etpts)
     {
-        Field<String> result = new VarcharField(viewContext.getMessage(Dict.SECTION), false);
-        result.setToolTip(viewContext.getMessage(Dict.SECTION_TOOLTIP));
-        result.setId(createChildId(SECTION_VALUE_ID_PART + entityType.getCode()));
-        result.show();
-        return result;
+        return SectionSelectionWidget.create(viewContext, etpts);
     }
 
     //
