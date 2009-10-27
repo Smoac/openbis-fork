@@ -46,9 +46,9 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     private static final FileWithRegistererRowMapper FILE_WITH_REGISTERER_ROW_MAPPER =
             new FileWithRegistererRowMapper();
 
-    private static final ParameterizedRowMapper FILE_ROW_MAPPER = new FileRowMapper();
+    private static final ParameterizedRowMapper<FileDTO> FILE_ROW_MAPPER = new FileRowMapper();
 
-    private static final ParameterizedRowMapper SHARING_USER_ROW_MAPPER =
+    private static final ParameterizedRowMapper<UserDTO> SHARING_USER_ROW_MAPPER =
             new SharingUserRowMapper();
 
     private static final String SELECT_FILES =

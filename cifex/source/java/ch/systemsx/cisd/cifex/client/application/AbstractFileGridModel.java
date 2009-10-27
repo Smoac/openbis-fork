@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import com.gwtext.client.widgets.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.FileSizeRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
@@ -29,8 +30,9 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
  * 
  * @author Christian Ribeaud
  */
-abstract class AbstractFileGridModel extends AbstractDataGridModel
+public abstract class AbstractFileGridModel extends AbstractDataGridModel
 {
+    private static final long serialVersionUID = Constants.VERSION;
 
     protected static final String ID = "id";
 
@@ -57,14 +59,15 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
         super(messageResources);
     }
 
-    protected final ColumnConfig createIdColumnConfig()
+    protected final static ColumnConfig createIdColumnConfig()
     {
         final ColumnConfig columnConfig = createSortableColumnConfig(ID, "Id", 20);
         columnConfig.setHidden(true);
+        columnConfig.setFixed(true);
         return columnConfig;
     }
 
-    protected final ColumnConfig createNameColumnConfig()
+    protected final static ColumnConfig createNameColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig nameConfig =
                 createSortableColumnConfig(NAME, messageResources.getFileNameLabel(), 140);
@@ -72,14 +75,15 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
         return nameConfig;
     }
 
-    protected final ColumnConfig createCommentColumnConfig()
+    protected final static ColumnConfig createCommentColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig commentConfig =
                 createSortableColumnConfig(COMMENT, messageResources.getFileCommentLabel(), 140);
         return commentConfig;
     }
 
-    protected final ColumnConfig createExpirationDateColumnConfig()
+    protected final static ColumnConfig createExpirationDateColumnConfig(
+            IMessageResources messageResources)
     {
         final ColumnConfig expirationDateConfig =
                 createSortableColumnConfig(EXPIRATION_DATE, messageResources
@@ -88,7 +92,8 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
         return expirationDateConfig;
     }
 
-    protected final ColumnConfig createRegistrationDateColumnConfig()
+    protected final static ColumnConfig createRegistrationDateColumnConfig(
+            IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(REGISTRATION_DATE, messageResources
@@ -100,7 +105,8 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
     /**
      * Note that this column is not sortable.
      */
-    protected final ColumnConfig createRegistererColumnConfig()
+    protected final static ColumnConfig createRegistererColumnConfig(
+            IMessageResources messageResources)
     {
         final ColumnConfig registererConfig =
                 createColumnConfig(REGISTERER, messageResources.getFileRegistratorLabel(), 120);
@@ -110,21 +116,22 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
     /**
      * Note that this column is not sortable.
      */
-    protected final ColumnConfig createSharedWithColumnConfig()
+    protected final static ColumnConfig createSharedWithColumnConfig(
+            IMessageResources messageResources)
     {
         final ColumnConfig registererConfig =
                 createColumnConfig(SHARED_WITH, messageResources.getFileSharedWithLabel(), 120);
         return registererConfig;
     }
 
-    protected final ColumnConfig createActionColumnConfig()
+    static protected final ColumnConfig createActionColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig registererConfig =
-                createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 80);
+                createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 180);
         return registererConfig;
     }
 
-    protected final ColumnConfig createSizeColumnConfig()
+    protected final static ColumnConfig createSizeColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 60);
@@ -132,7 +139,8 @@ abstract class AbstractFileGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
-    protected final ColumnConfig createContentTypeColumnConfig()
+    protected final static ColumnConfig createContentTypeColumnConfig(
+            IMessageResources messageResources)
     {
         return createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(),
                 140);

@@ -16,14 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
-import java.util.List;
-
-import com.gwtext.client.widgets.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -33,6 +32,8 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public abstract class AbstractUserGridModel extends AbstractDataGridModel
 {
+    private static final long serialVersionUID = Constants.VERSION;
+
     public static final String USER_CODE = "userCode";
 
     public static final String USER_EMAIL = "userEmail";
@@ -40,7 +41,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
     public static final String FULL_NAME = "fullName";
 
     public static final String STATUS = "status";
-    
+
     public static final String ACTIVE = "active";
 
     public static final String REGISTRATOR = "registrator";
@@ -59,27 +60,30 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
      */
     protected final UserInfoDTO currentUser;
 
-    public AbstractUserGridModel(final IMessageResources messageResources, final UserInfoDTO currentUser)
+    public AbstractUserGridModel(final IMessageResources messageResources,
+            final UserInfoDTO currentUser)
     {
         super(messageResources);
         this.currentUser = currentUser;
     }
 
-    protected final ColumnConfig createActionColumnConfig()
+    protected final static ColumnConfig createActionColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig actionColumn =
-                createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 120);
+                createSortableColumnConfig(ACTION, messageResources.getActionLabel(), 200);
         return actionColumn;
     }
 
-    protected final ColumnConfig createUserCodeColumnConfig()
+    protected final static ColumnConfig createUserCodeColumnConfig(
+            IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(USER_CODE, messageResources.getUserCodeLabel(), 180);
         return columnConfig;
     }
 
-    protected final ColumnConfig createUserEmailColumnConfig()
+    protected final static ColumnConfig createUserEmailColumnConfig(
+            IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(USER_EMAIL, messageResources.getUserEmailLabel(), 180);
@@ -90,24 +94,26 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
     /**
      * Note that this column is NOT sortable.
      */
-    protected final ColumnConfig createRegistratorColumnConfig()
+    protected final static ColumnConfig createRegistratorColumnConfig(
+            IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
                 createColumnConfig(REGISTRATOR, messageResources.getRegistratorLabel(), 180);
         return columnConfig;
     }
 
-    protected final ColumnConfig createStatusColumnConfig()
+    protected final static ColumnConfig createStatusColumnConfig(IMessageResources messageResources)
     {
         return createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250);
     }
 
-    protected final ColumnConfig createActiveColumnConfig()
+    protected final static ColumnConfig createActiveColumnConfig(IMessageResources messageResources)
     {
         return createSortableColumnConfig(ACTIVE, messageResources.getUserActiveLabel(), 100);
     }
 
-    protected final ColumnConfig createFullNameColumnConfig()
+    protected final static ColumnConfig createFullNameColumnConfig(
+            IMessageResources messageResources)
     {
         return createSortableColumnConfig(FULL_NAME, messageResources.getUserFullNameLabel(), 180);
     }
@@ -133,11 +139,5 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
         }
         return stateField;
     }
-
-    public abstract List getColumnConfigs();
-
-    public abstract List getData(final Object[] data);
-
-    public abstract List getFieldDefs();
 
 }

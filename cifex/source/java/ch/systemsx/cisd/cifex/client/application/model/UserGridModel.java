@@ -19,9 +19,9 @@ package ch.systemsx.cisd.cifex.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gwtext.client.data.BooleanFieldDef;
-import com.gwtext.client.data.StringFieldDef;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
+import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
@@ -36,57 +36,48 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public final class UserGridModel extends AbstractUserGridModel
 {
+    private static final long serialVersionUID = Constants.VERSION;
 
     private final ViewContext context;
 
-    public UserGridModel(final ViewContext viewContext)
+    public UserGridModel(final ViewContext viewContext, UserInfoDTO user)
     {
         super(viewContext.getMessageResources(), viewContext.getModel().getUser());
         this.context = viewContext;
+        set(USER_CODE, user.getUserCode());// String
+        set(USER_EMAIL, user.getEmail());// String
+        set(FULL_NAME, user.getUserFullName());// String
+        set(STATUS, getUserRoleDescription(user));// String
+        set(ACTIVE, new Boolean(user.isActive()));// Boolean
+        set(REGISTRATOR, UserRenderer.createUserAnchor(user.getRegistrator()));// String
+        set(ACTION, listActionsForUser(user));// String
+
     }
 
-    public final List getColumnConfigs()
+    public final static List<UserGridModel> convert(ViewContext messageResources,
+            final List<UserInfoDTO> filters)
     {
-        final List configs = new ArrayList();
-        configs.add(createUserCodeColumnConfig());
-        configs.add(createUserEmailColumnConfig());
-        configs.add(createFullNameColumnConfig());
-        configs.add(createStatusColumnConfig());
-        configs.add(createActiveColumnConfig());
-        configs.add(createRegistratorColumnConfig());
-        configs.add(createActionColumnConfig());
-        return configs;
-    }
+        final List<UserGridModel> result = new ArrayList<UserGridModel>();
 
-    public final List getData(final Object[] data)
-    {
-        final List list = new ArrayList();
-        for (int i = 0; i < data.length; i++)
+        for (final UserInfoDTO filter : filters)
         {
-            final UserInfoDTO user = (UserInfoDTO) data[i];
-            final String stateField = getUserRoleDescription(user);
-            final String actions = listActionsForUser(user);
-            final Object[] objects =
-                    new Object[]
-                        { user.getUserCode(), user.getEmail(), user.getUserFullName(), stateField,
-                                new Boolean(user.isActive()),
-                                UserRenderer.createUserAnchor(user.getRegistrator()), actions };
-            list.add(objects);
+            result.add(new UserGridModel(messageResources, filter));
         }
-        return list;
+
+        return result;
     }
 
-    public final List getFieldDefs()
+    static public final List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
     {
-        final List fieldDefs = new ArrayList();
-        fieldDefs.add(new StringFieldDef(USER_CODE));
-        fieldDefs.add(new StringFieldDef(USER_EMAIL));
-        fieldDefs.add(new StringFieldDef(FULL_NAME));
-        fieldDefs.add(new StringFieldDef(STATUS));
-        fieldDefs.add(new BooleanFieldDef(ACTIVE));
-        fieldDefs.add(new StringFieldDef(REGISTRATOR));
-        fieldDefs.add(new StringFieldDef(ACTION));
-        return fieldDefs;
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        configs.add(createUserCodeColumnConfig(messageResources));
+        configs.add(createUserEmailColumnConfig(messageResources));
+        configs.add(createFullNameColumnConfig(messageResources));
+        configs.add(createStatusColumnConfig(messageResources));
+        configs.add(createActiveColumnConfig(messageResources));
+        configs.add(createRegistratorColumnConfig(messageResources));
+        configs.add(createActionColumnConfig(messageResources));
+        return configs;
     }
 
     protected String listActionsForUser(final UserInfoDTO user)

@@ -26,8 +26,8 @@ import ch.systemsx.cisd.cifex.server.util.ThresholdProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 
 /**
- * A <code>ProgressListener</code> implementation which sets a <code>FileUploadFeedback</code>
- * as session attribute.
+ * A <code>ProgressListener</code> implementation which sets a <code>FileUploadFeedback</code> as
+ * session attribute.
  * 
  * @author Christian Ribeaud
  */
@@ -88,6 +88,7 @@ final class FileUploadProgressListener extends ThresholdProgressListener
     // ProgressListener
     //
 
+    @Override
     public final void hasProgressed(final long bytesRead, final long contentLength, final int items)
     {
         final FileUploadFeedbackProvider feedbackProvider =

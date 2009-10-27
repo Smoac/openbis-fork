@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
+import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -33,44 +37,49 @@ public interface ICIFEXServiceAsync extends RemoteService
     /**
      * Authenticates given <code>user</code> with given <code>password</code>.
      */
-    public void tryLogin(final String userCode, final String password, final AsyncCallback callback);
+    public void tryLogin(final String userCode, final String password,
+            final AsyncCallback<UserInfoDTO> callback);
 
     /**
      * Logout the current user.
      */
-    public void logout(final AsyncCallback callback);
+    public void logout(final AsyncCallback<Void> callback);
 
     /**
      * Returns the configuration data of this CIFEX instance.
      */
-    public void getConfiguration(final AsyncCallback callback);
+    public void getConfiguration(final AsyncCallback<Configuration> callback);
 
     /**
      * Returns the currently logged user if this user is already authenticated.
      */
-    public void getCurrentUser(final AsyncCallback callback);
+    public void getCurrentUser(final AsyncCallback<UserInfoDTO> callback);
 
     /**
      * Returns a list of <code>User</code>s.
      */
-    public void listUsers(final AsyncCallback callback);
+    public void listUsers(final AsyncCallback<List<UserInfoDTO>> callback);
 
     /** Returns a list of users, which where registered by the given user. */
-    public void listUsersRegisteredBy(final String userCode, final AsyncCallback callback);
+    public void listUsersRegisteredBy(final String userCode,
+            final AsyncCallback<List<UserInfoDTO>> callback);
 
     /** Gets the user by the userCode. */
-    public void tryFindUserByUserCode(final String userCode, final AsyncCallback callback);
+    public void tryFindUserByUserCode(final String userCode,
+            final AsyncCallback<UserInfoDTO> callback);
 
     /** Returns a list of users with the given email. */
-    public void tryFindUserByEmail(final String email, final AsyncCallback callback);
+    public void tryFindUserByEmail(final String email,
+            final AsyncCallback<List<UserInfoDTO>> callback);
 
     /**
      * Creates a new <code>User</code> with the given <var>password</var>. If
-     * <var>registratorOrNull</var> is not <code>null</code>, it will be interpreted as the user
-     * who creates the new user.
+     * <var>registratorOrNull</var> is not <code>null</code>, it will be interpreted as the user who
+     * creates the new user.
      */
-    public void createUser(final UserInfoDTO user, final String password, final UserInfoDTO registratorOrNull,
-            final String comment, final AsyncCallback callback);
+    public void createUser(final UserInfoDTO user, final String password,
+            final UserInfoDTO registratorOrNull, final String comment,
+            final AsyncCallback<Void> callback);
 
     /**
      * Update the fields of the user in the database.
@@ -78,37 +87,38 @@ public interface ICIFEXServiceAsync extends RemoteService
      * @param sendUserNotification Should the user receive a mail with the new information?
      */
     public void updateUser(final UserInfoDTO user, final String password,
-            final boolean sendUserNotification, final AsyncCallback callback);
+            final boolean sendUserNotification, final AsyncCallback<Void> callback);
 
     /**
      * Changes the user code from <var>before</var> to <var>after</var>.
      */
-    public void changeUserCode(final String before, final String after, final AsyncCallback callback);
+    public void changeUserCode(final String before, final String after,
+            final AsyncCallback<Void> callback);
 
     /**
      * Deletes an user given by its <var>userCode</var>.
      */
-    public void deleteUser(final String userCode, final AsyncCallback callback);
+    public void deleteUser(final String userCode, final AsyncCallback<Void> callback);
 
     /**
      * List the files that have been uploaded for the currently logged in user.
      */
-    public void listDownloadFiles(final AsyncCallback callback);
+    public void listDownloadFiles(final AsyncCallback<List<FileInfoDTO>> callback);
 
     /**
      * List the files uploaded by the currently logged user.
      */
-    public void listUploadedFiles(final AsyncCallback fileAsyncCallback);
+    public void listUploadedFiles(final AsyncCallback<List<FileInfoDTO>> fileAsyncCallback);
 
     /**
      * List all files (only for admins).
      */
-    public void listFiles(final AsyncCallback fileAsyncCallback);
+    public void listFiles(final AsyncCallback<List<AdminFileInfoDTO>> fileAsyncCallback);
 
     /**
      * Deletes file given by its <code>idStr</code>.
      */
-    public void deleteFile(final String idStr, final AsyncCallback callback);
+    public void deleteFile(final String idStr, final AsyncCallback<Void> callback);
 
     /**
      * Registers the file names for the next upload request in the session.
@@ -117,7 +127,7 @@ public interface ICIFEXServiceAsync extends RemoteService
      *            empty.
      */
     public void registerFilenamesForUpload(final String[] filenamesForUpload,
-            final AsyncCallback callback);
+            final AsyncCallback<Void> callback);
 
     /**
      * Get file upload feedback.
@@ -126,36 +136,36 @@ public interface ICIFEXServiceAsync extends RemoteService
      * <code>AsyncCallback</code>.
      * </p>
      */
-    public void getFileUploadFeedback(final AsyncCallback callback);
+    public void getFileUploadFeedback(final AsyncCallback<FileUploadFeedback> callback);
 
     /**
-     * Update the Expiration Date of the file with the given <var>fileIdStr</var>. 
+     * Update the Expiration Date of the file with the given <var>fileIdStr</var>.
      */
-    public void updateFileExpiration(final String fileIdStr, final AsyncCallback callback);
+    public void updateFileExpiration(final String fileIdStr, final AsyncCallback<Void> callback);
 
     /**
      * List users the file with given <var>fileId</var> has been shared with.
      */
     public void listUsersFileSharedWith(String fileId,
-            AsyncCallback showUsersFileSharedWithAsyncCallback);
+            AsyncCallback<List<UserInfoDTO>> showUsersFileSharedWithAsyncCallback);
 
     /** Revokes user with given userCode access to file with fileId. */
-    public void deleteSharingLink(String fileId, String userCode, AsyncCallback callback);
+    public void deleteSharingLink(String fileId, String userCode, AsyncCallback<Void> callback);
 
     /**
      * Creates a sharing link between file and users.
      */
-    public void createSharingLink(String fileId, String emailsOfUsers, AsyncCallback callback);
+    public void createSharingLink(String fileId, String emailsOfUsers, AsyncCallback<Void> callback);
 
     /**
      * Try to change user type from internally authenticated to externally authenticated.
      */
     public void trySwitchToExternalAuthentication(final String userCode,
-            final String plainPassword, final AsyncCallback callback);
+            final String plainPassword, final AsyncCallback<UserInfoDTO> callback);
 
     /**
      * Checks if 'switch to external authentication' option should be available for given
      * <code>User<code>.
      */
-    public void showSwitchToExternalOption(UserInfoDTO user, AsyncCallback callback);
+    public void showSwitchToExternalOption(UserInfoDTO user, AsyncCallback<Boolean> callback);
 }

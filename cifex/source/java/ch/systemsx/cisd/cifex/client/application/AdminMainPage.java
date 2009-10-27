@@ -16,16 +16,20 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import com.gwtext.client.core.Ext;
-import com.gwtext.client.widgets.grid.Grid;
-import com.gwtext.client.widgets.layout.ContentPanel;
+import java.util.Arrays;
+import java.util.List;
 
-import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
-import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
-import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
+import ch.systemsx.cisd.cifex.client.application.utils.WidgetUtils;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -36,45 +40,26 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 final class AdminMainPage extends AbstractMainPage
 {
 
-    private VerticalPanel listUserPanel;
-
-    private VerticalPanel listFilesPanel;
-
-    private ModelBasedGrid filesGrid;
-
     AdminMainPage(final ViewContext context)
     {
         super(context);
     }
 
-    private final void loadListFileGrid()
+    @Override
+    protected final LayoutContainer createMainPanel()
     {
-        context.getCifexService().listFiles(new FileAdminAsyncCallback());
-    }
+        final LayoutContainer mainPanel = new LayoutContainer();
+        LayoutContainer createUserPanel = createUserPanel(true, context);
 
-    private final void createListUserGrid()
-    {
-        context.getCifexService().listUsers(new UserAsyncCallback());
-    }
-
-    //
-    // AbstractMainPage
-    //
-
-    protected final ContentPanel createMainPanel()
-    {
-        final ContentPanel mainPanel = new ContentPanel(Ext.generateId());
-        createUserPanel(true);
-
-        listFilesPanel = createVerticalPanelPart();
-        filesGrid = createFileTable(new FileInfoDTO[0]);
-        listFilesPanel.add(createPartTitle(context.getMessageResources().getFilesPartTitle()));
+        LayoutContainer listFilesPanel = createContainer();
+        Grid<AdminFileGridModel> filesGrid = createFileTable(new AdminFileInfoDTO[0], context);
+        addTitlePart(listFilesPanel, context.getMessageResources().getFilesPartTitle());
         listFilesPanel.add(filesGrid);
 
-        listUserPanel = createVerticalPanelPart();
-        createListUserGrid();
+        LayoutContainer listUserPanel = createContainer();
+        createListUserGrid(listUserPanel, filesGrid, context);
 
-        loadListFileGrid();
+        loadListFileGrid(filesGrid, context);
 
         mainPanel.add(createUserPanel);
         mainPanel.add(listUserPanel);
@@ -82,14 +67,31 @@ final class AdminMainPage extends AbstractMainPage
         return mainPanel;
     }
 
-    private final ModelBasedGrid createFileTable(final FileInfoDTO[] files)
+    static private final void loadListFileGrid(Grid<AdminFileGridModel> filesGrid,
+            ViewContext context)
     {
-        final IDataGridModel gridModel = new AdminFileGridModel(context.getMessageResources());
-        final ModelBasedGrid fileGrid =
-                new ModelBasedGrid(context.getMessageResources(), files, gridModel);
-        fileGrid.addGridCellListener(new FileDownloadGridCellListener());
-        fileGrid.addGridCellListener(new FileActionGridCellListener(true, context));
-        fileGrid.addGridCellListener(new FileCommentGridCellListener(context));
+        context.getCifexService().listFiles(new FileAdminAsyncCallback(context, filesGrid));
+    }
+
+    static private final void createListUserGrid(LayoutContainer listUserPanel,
+            Grid<AdminFileGridModel> filesGrid, ViewContext context)
+    {
+        context.getCifexService().listUsers(
+                new UserAsyncCallback(listUserPanel, context, filesGrid));
+    }
+
+    private static final Grid<AdminFileGridModel> createFileTable(final AdminFileInfoDTO[] files,
+            ViewContext context)
+    {
+        ListStore<AdminFileGridModel> store = new ListStore<AdminFileGridModel>();
+        store.add(AdminFileGridModel.convert(context.getMessageResources(), Arrays.asList(files)));
+        final Grid<AdminFileGridModel> fileGrid =
+                new Grid<AdminFileGridModel>(store, new ColumnModel(AdminFileGridModel
+                        .getColumnConfigs(context.getMessageResources())));
+        fileGrid.setHeight(Constants.GRID_HEIGHT);
+        fileGrid.addListener(Events.CellClick, new FileDownloadGridCellListener());
+        fileGrid.addListener(Events.CellClick, new AdminFileActionGridCellListener(context));
+        fileGrid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
         return fileGrid;
     }
 
@@ -97,28 +99,43 @@ final class AdminMainPage extends AbstractMainPage
      * An {@link com.google.gwt.user.client.rpc.AsyncCallback} that creates a table with all users
      * on success.
      */
-    private final class UserAsyncCallback extends AbstractAsyncCallback
+    private static final class UserAsyncCallback extends AbstractAsyncCallback<List<UserInfoDTO>>
     {
 
-        UserAsyncCallback()
+        private final LayoutContainer listUserPanel;
+
+        private final ViewContext context;
+
+        private final Grid<AdminFileGridModel> filesGrid;
+
+        UserAsyncCallback(LayoutContainer listUserPanel, ViewContext context,
+                Grid<AdminFileGridModel> filesGrid)
         {
             super(context);
+            this.listUserPanel = listUserPanel;
+            this.context = context;
+            this.filesGrid = filesGrid;
         }
 
-        private Widget createUserTable(final UserInfoDTO[] users)
+        private Widget createUserTable(final List<UserInfoDTO> users)
         {
-            final IDataGridModel gridModel = new UserGridModel(context);
-            final Grid userGrid =
-                    new ModelBasedGrid(context.getMessageResources(), users, gridModel);
+            ListStore<UserGridModel> store = new ListStore<UserGridModel>();
+            store.add(UserGridModel.convert(context, users));
+            final Grid<UserGridModel> userGrid =
+                    new Grid<UserGridModel>(store, new ColumnModel(UserGridModel
+                            .getColumnConfigs(context.getMessageResources())));
+            userGrid.setHeight(Constants.GRID_HEIGHT);
             // Delete user and change code function
-            userGrid.addGridCellListener(new UserActionGridCellListener(context, filesGrid));
+            userGrid.addListener(Events.CellClick,
+                    new UserActionGridCellListener<AdminFileGridModel>(context, filesGrid));
             return userGrid;
         }
 
-        public final void onSuccess(final Object result)
+        public final void onSuccess(final List<UserInfoDTO> result)
         {
-            listUserPanel.add(createPartTitle(messageResources.getUsersPartTitle()));
-            listUserPanel.add(createUserTable((UserInfoDTO[]) result));
+            addTitlePart(listUserPanel, context.getMessageResources().getUsersPartTitle());
+            listUserPanel.add(createUserTable(result));
+            listUserPanel.layout();
         }
     }
 
@@ -126,17 +143,25 @@ final class AdminMainPage extends AbstractMainPage
      * An {@link com.google.gwt.user.client.rpc.AsyncCallback} that creates a table with all files
      * on success.
      */
-    private final class FileAdminAsyncCallback extends AbstractAsyncCallback
+    private static final class FileAdminAsyncCallback extends
+            AbstractAsyncCallback<List<AdminFileInfoDTO>>
     {
 
-        FileAdminAsyncCallback()
+        private final ViewContext context;
+
+        private final Grid<AdminFileGridModel> filesGrid;
+
+        FileAdminAsyncCallback(ViewContext context, Grid<AdminFileGridModel> filesGrid)
         {
             super(context);
+            this.context = context;
+            this.filesGrid = filesGrid;
         }
 
-        public final void onSuccess(final Object result)
+        public final void onSuccess(final List<AdminFileInfoDTO> result)
         {
-            filesGrid.reloadStore((FileInfoDTO[]) result);
+            WidgetUtils.reloadStore(filesGrid, AdminFileGridModel.convert(context
+                    .getMessageResources(), result));
         }
     }
 

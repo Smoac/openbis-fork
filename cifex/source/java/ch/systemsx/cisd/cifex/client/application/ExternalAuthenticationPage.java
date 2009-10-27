@@ -16,19 +16,16 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.core.Ext;
-import com.gwtext.client.core.Position;
-import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.MessageBox;
-import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-import com.gwtext.client.widgets.form.Form;
-import com.gwtext.client.widgets.form.FormConfig;
-import com.gwtext.client.widgets.form.TextField;
-import com.gwtext.client.widgets.form.TextFieldConfig;
-import com.gwtext.client.widgets.layout.ContentPanel;
 
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -41,114 +38,83 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 final class ExternalAuthenticationPage extends AbstractMainPage
 {
 
-    private Button okButton;
-
     ExternalAuthenticationPage(final ViewContext context)
     {
         super(context);
     }
 
-    protected final void finishEditing()
+    @Override
+    protected final LayoutContainer createMainPanel()
     {
-        final IPageController pageController = context.getPageController();
-        final IHistoryController historyController = context.getHistoryController();
-        final Page previousPage = historyController.getPreviousPage();
-        assert previousPage != null : "Undefined previous page.";
-        pageController.createPage(previousPage);
-    }
-
-    //
-    // AbstractMainPage
-    //
-
-    protected final ContentPanel createMainPanel()
-    {
-        final ContentPanel mainPanel = new ContentPanel(Ext.generateId());
-        final VerticalPanel verticalPanel = createVerticalPanelPart();
-        verticalPanel.add(createPartTitle(context.getMessageResources()
-                .getExternalAuthenticationLabel()));
-        verticalPanel.add(getExplanationWidget());
-        final Form form = new Form(createFormConfig());
-        final TextField passwordField = createPasswordField();
+        final LayoutContainer mainPanel = new LayoutContainer();
+        final LayoutContainer verticalPanel = createContainer();
+        addTitlePart(verticalPanel, context.getMessageResources().getExternalAuthenticationLabel());
+        verticalPanel.add(getExplanationWidget(context.getMessageResources()));
+        final FormPanel form = new FormPanel();
+        form.setLabelAlign(LabelAlign.LEFT);
+        form.setButtonAlign(HorizontalAlignment.LEFT);
+        form.setLabelWidth(250);
+        final TextField<String> passwordField = createPasswordField(context.getMessageResources());
         form.add(passwordField);
-        addCancelButton(form);
-        addOKButton(form, passwordField);
+        addCancelButton(form, context);
+        addOKButton(form, passwordField, context);
         verticalPanel.add(form);
         mainPanel.add(verticalPanel);
-        form.render();
         return mainPanel;
     }
 
-    private final TextField createPasswordField()
+    private static final TextField<String> createPasswordField(IMessageResources messageResources)
     {
-        final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(context.getMessageResources()
-                .getExternalAuthenticationPasswordLabel());
-        fieldConfig.setPassword(true);
-        fieldConfig.setAllowBlank(false);
-        fieldConfig.setValidateOnBlur(false);
-        return new TextField(fieldConfig);
+        final TextField<String> field = new TextField<String>();
+        field.setFieldLabel(messageResources.getExternalAuthenticationPasswordLabel());
+        field.setPassword(true);
+        field.setAllowBlank(false);
+        field.setValidateOnBlur(false);
+        return field;
     }
 
-    private final static FormConfig createFormConfig()
+    static private final HTML getExplanationWidget(IMessageResources messageResources)
     {
-        final FormConfig formConfig = new FormConfig();
-        formConfig.setLabelAlign(Position.LEFT);
-        formConfig.setButtonAlign(Position.LEFT);
-        formConfig.setLabelWidth(250);
-        return formConfig;
+        return new HTML(messageResources.getExternalAuthenticationExplanation());
     }
 
-    private final HTML getExplanationWidget()
+    static private final void addOKButton(final FormPanel form, final TextField<String> textField,
+            final ViewContext context)
     {
-        return new HTML(getExplanation());
-    }
-
-    private final String getExplanation()
-    {
-        return context.getMessageResources().getExternalAuthenticationExplanation();
-    }
-
-    private final void addOKButton(final Form form, final TextField textField)
-    {
-        okButton = form.addButton(context.getMessageResources().getActionOKLabel());
-        okButton.addButtonListener(new ButtonListenerAdapter()
+        final Button okButton = new Button(context.getMessageResources().getActionOKLabel());
+        okButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
-
-                //
-                // ButtonListenerAdapter
-                //
-
-                public final void onClick(final Button button, final EventObject e)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
                     if (form.isValid())
                     {
                         okButton.disable();
                         context.getCifexService().trySwitchToExternalAuthentication(
-                                context.getModel().getUser().getUserCode(), textField.getText(),
-                                new FinishEditingAssyncCallback(context));
+                                context.getModel().getUser().getUserCode(), textField.getValue(),
+                                new FinishEditingAssyncCallback(context, okButton));
                     }
                 }
 
             });
+        form.addButton(okButton);
     }
 
-    private final void addCancelButton(final Form form)
+    static private final void addCancelButton(final FormPanel form, final ViewContext context)
     {
         final Button cancelButton =
-                form.addButton(context.getMessageResources().getActionCancelLabel());
-        cancelButton.addButtonListener(new ButtonListenerAdapter()
+                new Button(context.getMessageResources().getActionCancelLabel());
+        cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 
-                //
-                // ButtonListenerAdapter
-                //
-
-                public final void onClick(final Button button, final EventObject e)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
-                    finishEditing();
+                    finishEditing(context);
+
                 }
             });
+        form.addButton(cancelButton);
     }
 
     //
@@ -156,12 +122,19 @@ final class ExternalAuthenticationPage extends AbstractMainPage
     //
 
     /** Call <code>finishEditing</code> method after cifexService returned the answer. */
-    private final class FinishEditingAssyncCallback extends AbstractAsyncCallback
+    private static final class FinishEditingAssyncCallback extends
+            AbstractAsyncCallback<UserInfoDTO>
     {
 
-        FinishEditingAssyncCallback(final ViewContext context)
+        private final ViewContext context;
+
+        private final Button okButton;
+
+        FinishEditingAssyncCallback(final ViewContext context, Button okButton)
         {
             super(context);
+            this.context = context;
+            this.okButton = okButton;
         }
 
         private final void updateUserInViewContext(final UserInfoDTO user)
@@ -175,24 +148,31 @@ final class ExternalAuthenticationPage extends AbstractMainPage
             context.getModel().getUser().setRegistrator(user.getRegistrator());
         }
 
-        //
-        // AbstractAsyncCallback
-        //
-
-        public final void onSuccess(final Object result)
+        public final void onSuccess(final UserInfoDTO result)
         {
-            final UserInfoDTO user = (UserInfoDTO) result;
+            final UserInfoDTO user = result;
             updateUserInViewContext(user);
-            MessageBox.alert(messageResources.getMessageBoxInfoTitle(), messageResources
-                    .getExternalAuthenticationSuccessful());
-            finishEditing();
+            MessageBox.alert(context.getMessageResources().getMessageBoxInfoTitle(), context
+                    .getMessageResources().getExternalAuthenticationSuccessful(), null);
+            finishEditing(context);
         }
 
+        @Override
         public final void onFailure(final Throwable throwable)
         {
             okButton.enable();
-            MessageBox.alert(messageResources.getMessageBoxErrorTitle(), messageResources
-                    .getExternalAuthenticationFail(throwable.getMessage()));
+            MessageBox.alert(context.getMessageResources().getMessageBoxErrorTitle(), context
+                    .getMessageResources().getExternalAuthenticationFail(throwable.getMessage()),
+                    null);
         }
+    }
+
+    static private final void finishEditing(ViewContext context)
+    {
+        final IPageController pageController = context.getPageController();
+        final IHistoryController historyController = context.getHistoryController();
+        final Page previousPage = historyController.getPreviousPage();
+        assert previousPage != null : "Undefined previous page.";
+        pageController.createPage(previousPage);
     }
 }

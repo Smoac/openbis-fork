@@ -19,8 +19,7 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gwtext.client.widgets.form.TextArea;
-import com.gwtext.client.widgets.form.TextAreaConfig;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -32,9 +31,8 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 public class UserTextArea extends TextArea
 {
 
-    public UserTextArea(TextAreaConfig textAreaConfig)
+    public UserTextArea()
     {
-        super(textAreaConfig);
     }
 
     public final String[] getUserEntries()
@@ -44,7 +42,7 @@ public class UserTextArea extends TextArea
             return new String[0];
         }
 
-        final List list = new ArrayList();
+        final List<String> list = new ArrayList<String>();
         String[] entries = this.getValueAsString().split("[,\n\r\t\f ]");
         for (int i = 0; i < entries.length; i++)
         {
@@ -55,11 +53,17 @@ public class UserTextArea extends TextArea
         }
         if (list.size() > 0)
         {
-            return (String[]) list.toArray(new String[list.size()]);
+            return list.toArray(new String[list.size()]);
         } else
         {
             return new String[0];
         }
+    }
+
+    private String getValueAsString()
+    {
+        String valueOrNull = getValue();
+        return valueOrNull == null ? "" : valueOrNull;
     }
 
     public final void setUserEntries(final String[] users)
@@ -73,7 +77,7 @@ public class UserTextArea extends TextArea
             }
         }
     }
-    
+
     /**
      * Adds the email address to the textfield.
      */
@@ -88,7 +92,6 @@ public class UserTextArea extends TextArea
             {
                 this.setValue(this.getValueAsString() + ", " + email);
             }
-            render();
         }
     }
 

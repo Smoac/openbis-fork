@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
+
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
@@ -33,8 +35,8 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public class EditUserWidget extends UserWidget
 {
-    public EditUserWidget(final ViewContext context, final boolean addStatusField, final UserInfoDTO user,
-            final boolean withButton)
+    public EditUserWidget(final ViewContext context, final boolean addStatusField,
+            final UserInfoDTO user, final boolean withButton)
     {
         super(context, addStatusField, user, withButton);
     }
@@ -54,6 +56,7 @@ public class EditUserWidget extends UserWidget
     // UserWidget
     //
 
+    @Override
     public final void submitForm()
     {
 
@@ -69,12 +72,16 @@ public class EditUserWidget extends UserWidget
                 buttonOrNull.disable();
             }
             final UserInfoDTO user = createFromFields();
-            cifexService.updateUser(user, StringUtils.nullIfBlank(passwordField.getText()),
+            cifexService.updateUser(user, StringUtils.nullIfBlank(passwordField.getValue()),
                     (sendUpdateInformation != null && sendUpdateInformation.getValue()),
                     new UpdateUserAsyncCallBack());
+        } else
+        {
+            MessageBox.alert("Error", "Invalid data", null);
         }
     }
 
+    @Override
     public final String getSubmitButtonLabel()
     {
         return getMessageResources().getEditUserButtonLabel();
@@ -84,7 +91,7 @@ public class EditUserWidget extends UserWidget
     // Helper classes
     //
 
-    private final class UpdateUserAsyncCallBack extends AbstractAsyncCallback
+    private final class UpdateUserAsyncCallBack extends AbstractAsyncCallback<Void>
     {
 
         UpdateUserAsyncCallBack()
@@ -96,6 +103,7 @@ public class EditUserWidget extends UserWidget
         // AbstractAsyncCallback
         //
 
+        @Override
         public final void onFailure(final Throwable caught)
         {
             super.onFailure(caught);
@@ -105,7 +113,7 @@ public class EditUserWidget extends UserWidget
             }
         }
 
-        public final void onSuccess(final Object result)
+        public final void onSuccess(final Void result)
         {
             if (buttonOrNull != null)
             {
@@ -113,19 +121,17 @@ public class EditUserWidget extends UserWidget
             }
             final UserInfoDTO user = context.getModel().getUser();
             // Update current user, if it was the one who has been changed.
-            if (user.getUserCode().equals(userCodeField.getText()))
+            if (user.getUserCode().equals(userCodeField.getValue()))
             {
-                context.getCifexService().getCurrentUser(new AbstractAsyncCallback(context)
-                    {
-                        public void onSuccess(Object u)
-                        {
-                            if (u instanceof UserInfoDTO)
+                context.getCifexService().getCurrentUser(
+                        new AbstractAsyncCallback<UserInfoDTO>(context)
                             {
-                                context.getModel().setUser((UserInfoDTO) u);
-                            }
-                            finishEditing();
-                        }
-                    });
+                                public void onSuccess(UserInfoDTO u)
+                                {
+                                    context.getModel().setUser(u);
+                                    finishEditing();
+                                }
+                            });
             } else
             {
                 finishEditing();

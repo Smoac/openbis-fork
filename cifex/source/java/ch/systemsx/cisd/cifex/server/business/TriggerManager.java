@@ -166,8 +166,8 @@ class TriggerManager implements ITriggerManager
                     comment, mimeType, uploadedFile, crc32Value, recipients, url);
         }
 
-        public void sendMessage(String subject, String content, String replyTo,
-                From fromOrNull, String... recipients) throws EnvironmentFailureException
+        public void sendMessage(String subject, String content, String replyTo, From fromOrNull,
+                String... recipients) throws EnvironmentFailureException
         {
             mailClient.sendMessage(subject, content, replyTo, null, recipients);
         }
@@ -191,9 +191,9 @@ class TriggerManager implements ITriggerManager
         private Set<FileDTO> toBeDeletedOrNull;
 
         private boolean dismiss;
-        
+
         private Date timeOfRequest;
-        
+
         private Date timeOfExpiration;
 
         TriggerRequest(FileDTO fileDTO, File file, Set<FileDTO> toBeDeletedOrNull)
@@ -312,24 +312,24 @@ class TriggerManager implements ITriggerManager
             }
             return false;
         }
-        
+
         TriggerDescription(String triggerClassName, String triggerPropertyFileOrNull)
         {
             this.triggerClassName = triggerClassName;
             this.triggerPropertyFileOrNull = triggerPropertyFileOrNull;
             try
             {
-                final Class triggerClass = Class.forName(triggerClassName);
+                final Class<?> triggerClass = Class.forName(triggerClassName);
                 if (triggerClass.isAnnotationPresent(SingletonTrigger.class))
                 {
                     this.triggerObjectOrNull = createTrigger();
                 } else
                 {
-                    createTrigger(); // We create the trigger anyway to check whether it works. 
+                    createTrigger(); // We create the trigger anyway to check whether it works.
                     this.triggerObjectOrNull = null;
                 }
                 final AsynchronousTrigger asyncTrigger =
-                        (AsynchronousTrigger) triggerClass.getAnnotation(AsynchronousTrigger.class);
+                        triggerClass.getAnnotation(AsynchronousTrigger.class);
                 if (asyncTrigger != null)
                 {
                     asynchronous = true;
@@ -446,7 +446,8 @@ class TriggerManager implements ITriggerManager
         this.triggerMap = getTriggers();
         if (TriggerDescription.hasAsyncTriggers(triggerMap))
         {
-            this.triggerExecutor = new NamingThreadPoolExecutor("Triggers").corePoolSize(3).daemonize();
+            this.triggerExecutor =
+                    new NamingThreadPoolExecutor("Triggers").corePoolSize(3).daemonize();
             this.permits = new Semaphore(maxTriggerPermits);
         } else
         {

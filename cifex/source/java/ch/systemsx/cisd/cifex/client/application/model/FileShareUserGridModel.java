@@ -19,16 +19,15 @@ package ch.systemsx.cisd.cifex.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gwtext.client.data.BooleanFieldDef;
-import com.gwtext.client.data.Record;
-import com.gwtext.client.data.Store;
-import com.gwtext.client.data.StringFieldDef;
-import com.gwtext.client.widgets.grid.CellMetadata;
-import com.gwtext.client.widgets.grid.ColumnConfig;
-import com.gwtext.client.widgets.grid.Renderer;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -38,76 +37,70 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public final class FileShareUserGridModel extends AbstractUserGridModel
 {
+    private static final long serialVersionUID = Constants.VERSION;
 
     public static final String SHARE_FILE = "shareFile";
 
-    public FileShareUserGridModel(final IMessageResources messageResources, final UserInfoDTO currentUser)
+    public FileShareUserGridModel(final IMessageResources messageResources,
+            final UserInfoDTO currentUser, UserInfoDTO user)
     {
         super(messageResources, currentUser);
+        boolean checkedUser = true;
+        String registratorAnchor = null;
+        if (user.getRegistrator() != null)
+        {
+            registratorAnchor = UserRenderer.createUserAnchor(user.getRegistrator());
+        }
+        set(SHARE_FILE, new Boolean(checkedUser));// Boolean
+        set(USER_CODE, user.getUserCode());// String
+        set(USER_EMAIL, user.getEmail());// String
+        set(FULL_NAME, user.getUserFullName());// String
+        set(REGISTRATOR, registratorAnchor);// String
+        set(STATUS, getUserRoleDescription(user));// String
+        set(ACTIVE, new Boolean(user.isActive()));// Boolean
     }
 
-    public final List getColumnConfigs()
+    public final static List<FileShareUserGridModel> convert(IMessageResources messageResources,
+            final UserInfoDTO currentUser, final List<UserInfoDTO> users)
     {
-        final List configs = new ArrayList();
-        configs.add(createShareFileCheckboxColumnConfig());
-        configs.add(createUserCodeColumnConfig());
-        configs.add(createUserEmailColumnConfig());
-        configs.add(createFullNameColumnConfig());
-        configs.add(createRegistratorColumnConfig());
+        if (users == null)
+        {
+            return null;
+        }
+        final List<FileShareUserGridModel> result = new ArrayList<FileShareUserGridModel>();
+        for (final UserInfoDTO filter : users)
+        {
+            result.add(new FileShareUserGridModel(messageResources, currentUser, filter));
+        }
+        return result;
+    }
+
+    static public final List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
+    {
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        configs.add(createShareFileCheckboxColumnConfig(messageResources));
+        configs.add(createUserCodeColumnConfig(messageResources));
+        configs.add(createUserEmailColumnConfig(messageResources));
+        configs.add(createFullNameColumnConfig(messageResources));
+        configs.add(createRegistratorColumnConfig(messageResources));
         configs.add(createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 200));
         return configs;
     }
 
-    public final List getData(final Object[] data)
-    {
-        final List list = new ArrayList();
-        if (data != null)
-        {
-            for (int i = 0; i < data.length; i++)
-            {
-                final UserInfoDTO user = (UserInfoDTO) data[i];
-                boolean checkedUser = true;
-                String registratorAnchor = null;
-                if (user.getRegistrator() != null)
-                {
-                    registratorAnchor = UserRenderer.createUserAnchor(user.getRegistrator());
-                }
-                final Object[] objects =
-                        new Object[]
-                            { new Boolean(checkedUser), user.getUserCode(), user.getEmail(),
-                                    user.getUserFullName(), registratorAnchor,
-                                    getUserRoleDescription(user), new Boolean(user.isActive()) };
-                list.add(objects);
-            }
-        }
-        return list;
-    }
-
-    public final List getFieldDefs()
-    {
-        final List fieldDefs = new ArrayList();
-        fieldDefs.add(new BooleanFieldDef(SHARE_FILE));
-        fieldDefs.add(new StringFieldDef(USER_CODE));
-        fieldDefs.add(new StringFieldDef(USER_EMAIL));
-        fieldDefs.add(new StringFieldDef(FULL_NAME));
-        fieldDefs.add(new StringFieldDef(REGISTRATOR));
-        fieldDefs.add(new StringFieldDef(STATUS));
-        fieldDefs.add(new BooleanFieldDef(ACTIVE));
-        return fieldDefs;
-    }
-
-    private final ColumnConfig createShareFileCheckboxColumnConfig()
+    private final static ColumnConfig createShareFileCheckboxColumnConfig(
+            IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(SHARE_FILE, messageResources.getShareLabel(), 15);
+                createSortableColumnConfig(SHARE_FILE, messageResources.getShareLabel(), 45);
         columnConfig.setFixed(true);
-        columnConfig.setRenderer(new Renderer()
+        columnConfig.setRenderer(new GridCellRenderer<FileShareUserGridModel>()
             {
-
-                public String render(Object value, CellMetadata cellMetadata, Record record,
-                        int rowIndex, int colNum, Store store)
+                public Object render(FileShareUserGridModel model, String property,
+                        ColumnData config, int rowIndex, int colIndex,
+                        ListStore<FileShareUserGridModel> store, Grid<FileShareUserGridModel> grid)
                 {
-                    boolean checked = ((Boolean) value).booleanValue();
+                    Object propertyValue = model.get(property);
+                    boolean checked = (Boolean) propertyValue;
                     return "<img class=\"checkbox\" src=\"js/ext/resources/images/default/menu/"
                             + (checked ? "checked.gif" : "unchecked.gif") + "\"/>";
                 }

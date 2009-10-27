@@ -16,15 +16,14 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 
+import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
-import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.ui.UserWidget;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -40,7 +39,8 @@ public final class EditUserDialog extends DefaultLayoutDialog
 {
     private final EditUserWidget editUserWidget;
 
-    public EditUserDialog(final ViewContext context, final UserInfoDTO user, final ModelBasedGrid userGrid)
+    public EditUserDialog(final ViewContext context, final UserInfoDTO user,
+            final Grid<UserGridModel> userGrid)
     {
         super(context.getMessageResources(), context.getMessageResources().getEditUserDialogTitle(
                 user.getUserCode()), UserWidget.TOTAL_WIDTH + 30, 250);
@@ -48,50 +48,35 @@ public final class EditUserDialog extends DefaultLayoutDialog
                 new EditUserWidget(context, context.getModel().getUser().isAdmin(), user, false)
                     {
 
-                        //
-                        // EditUserWidget
-                        //
-
+                        @Override
                         protected final void finishEditing()
                         {
                             new UserGridRefresherCallback(context, userGrid).onSuccess(null);
                         }
                     };
+        add(editUserWidget);
         createUpdateButton();
-        addContentPanel();
     }
 
     private final void createUpdateButton()
     {
-        final Button button = addButton(editUserWidget.getSubmitButtonLabel());
-        button.addButtonListener(new ButtonListenerAdapter()
+        final Button button = new Button(editUserWidget.getSubmitButtonLabel());
+        button.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 
-                //
-                // ButtonListenerAdapter
-                //
-
-                public void onClick(final Button b, final EventObject e)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
                     editUserWidget.submitForm();
                     hide();
                 }
             });
+        addButton(button);
     }
-
-    //
-    // AbstractLayoutDialog
-    //
 
     protected final String getCloseButtonLabel()
     {
         return messageResources.getActionCancelLabel();
     }
 
-    protected final Widget createContentWidget()
-    {
-        final VerticalPanel panel = AbstractMainPage.createVerticalPanelPart();
-        panel.add(editUserWidget);
-        return panel;
-    }
 }

@@ -16,18 +16,22 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import java.util.List;
+
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.data.Record;
-import com.gwtext.client.widgets.BaseExtWidget;
-import com.gwtext.client.widgets.MessageBox;
-import com.gwtext.client.widgets.grid.Grid;
-import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
-import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
+import ch.systemsx.cisd.cifex.client.application.utils.WidgetUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -37,7 +41,8 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  * 
  * @author Christian Ribeaud
  */
-final class FileActionGridCellListener extends GridCellListenerAdapter
+abstract class FileActionGridCellListener<T extends AbstractFileGridModel> implements
+        Listener<GridEvent<T>>
 {
 
     private final ViewContext viewContext;
@@ -51,75 +56,17 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
     }
 
     //
-    // GridCellListenerAdapter
-    //
-
-    public final void onCellClick(final Grid grid, final int rowIndex, final int colindex,
-            final EventObject e)
-    {
-        final Record record = grid.getStore().getAt(rowIndex);
-        final String idStr = record.getAsString(AbstractFileGridModel.ID);
-        final String name = record.getAsString(AbstractFileGridModel.NAME);
-        final String dataIndex = grid.getColumnModel().getDataIndex(colindex);
-        if (dataIndex.equals(AbstractFileGridModel.ACTION))
-        {
-            final IMessageResources messageResources = viewContext.getMessageResources();
-            final Element element = e.getTarget();
-            if (element == null)
-            {
-                return;
-            }
-            final String targetId = DOM.getElementAttribute(e.getTarget(), "id");
-            // Delete
-            if (Constants.DELETE_ID.equals(targetId))
-            {
-                MessageBox.confirm(messageResources.getFileDeleteTitle(), messageResources
-                        .getFileDeleteConfirmText(name), new MessageBox.ConfirmCallback()
-                    {
-                        //
-                        // ConfirmCallback
-                        //
-
-                        public final void execute(final String btnID)
-                        {
-                            if (btnID.equals("yes"))
-                            {
-                                viewContext.getCifexService().deleteFile(idStr,
-                                        new DeleteFileAsyncCallback((ModelBasedGrid) grid));
-                            }
-                        }
-                    });
-            }
-            // Renew
-            if (Constants.RENEW_ID.equals(targetId))
-            {
-                viewContext.getCifexService().updateFileExpiration(idStr,
-                        new UpdateFileAsyncCallback((ModelBasedGrid) grid, viewContext, adminView));
-            }
-            // Shared
-            if (Constants.SHARED_ID.equals(targetId))
-            {
-                viewContext.getCifexService()
-                        .listUsersFileSharedWith(
-                                idStr,
-                                new ShowUsersFileSharedWithAsyncCallback((ModelBasedGrid) grid,
-                                        name, idStr));
-            }
-        }
-    }
-
-    //
     // Helper classes
     //
 
     /**
      * An {@link AsyncCallback} that updates the list of files after a file has been deleted.
      */
-    private final class DeleteFileAsyncCallback extends AbstractAsyncCallback
+    private final class DeleteUploadedFileAsyncCallback extends AbstractAsyncCallback<Void>
     {
-        private final ModelBasedGrid modelBasedGrid;
+        private final Grid<AbstractFileGridModel> modelBasedGrid;
 
-        DeleteFileAsyncCallback(final ModelBasedGrid modelBasedGrid)
+        DeleteUploadedFileAsyncCallback(final Grid<AbstractFileGridModel> modelBasedGrid)
         {
             super(viewContext);
             this.modelBasedGrid = modelBasedGrid;
@@ -129,59 +76,146 @@ final class FileActionGridCellListener extends GridCellListenerAdapter
         // AbstractAsyncCallback
         //
 
-        public final void onSuccess(final Object result)
+        public final void onSuccess(final Void result)
         {
-            final AsyncCallback callback = new AbstractAsyncCallback(viewContext)
-                {
+            assert adminView == false;
+            viewContext.getCifexService().listUploadedFiles(
+                    new AbstractAsyncCallback<List<FileInfoDTO>>(viewContext)
+                        {
+                            public final void onSuccess(final List<FileInfoDTO> res)
+                            {
+                                WidgetUtils.reloadStore(modelBasedGrid, UploadedFileGridModel
+                                        .convert(viewContext.getMessageResources(), res));
+                            }
+                        });
+        }
+    }
 
-                    //
-                    // AbstractAsyncCallback
-                    //
+    /**
+     * An {@link AsyncCallback} that updates the list of files after a file has been deleted.
+     */
+    private final class AdminDeleteFileAsyncCallback extends AbstractAsyncCallback<Void>
+    {
+        private final Grid<AbstractFileGridModel> modelBasedGrid;
 
-                    public final void onSuccess(final Object res)
-                    {
-                        modelBasedGrid.reloadStore((FileInfoDTO[]) res);
-                    }
-                };
-            if (adminView)
-            {
-                viewContext.getCifexService().listFiles(callback);
-            } else
-            {
-                viewContext.getCifexService().listUploadedFiles(callback);
-            }
+        AdminDeleteFileAsyncCallback(final Grid<AbstractFileGridModel> grid)
+        {
+            super(viewContext);
+            this.modelBasedGrid = grid;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        public final void onSuccess(final Void result)
+        {
+            assert adminView;
+            viewContext.getCifexService().listFiles(
+                    new AbstractAsyncCallback<List<AdminFileInfoDTO>>(viewContext)
+                        {
+                            public final void onSuccess(final List<AdminFileInfoDTO> res)
+                            {
+                                WidgetUtils.reloadStore(modelBasedGrid, AdminFileGridModel.convert(
+                                        viewContext.getMessageResources(), res));
+                            }
+                        });
         }
     }
 
     /**
      * An {@link AsyncCallback} that shows the list of users a file has been shared with.
      */
-    private final class ShowUsersFileSharedWithAsyncCallback extends AbstractAsyncCallback
+    private final class ShowUsersFileSharedWithAsyncCallback extends
+            AbstractAsyncCallback<List<UserInfoDTO>>
     {
 
         final String fileName;
 
         final String fileId;
 
-        private final BaseExtWidget modelBasedGrid;
-
-        ShowUsersFileSharedWithAsyncCallback(final ModelBasedGrid modelBasedGrid,
-                final String name, final String idStr)
+        ShowUsersFileSharedWithAsyncCallback(final String name, final String idStr)
         {
             super(viewContext);
             this.fileName = name;
             this.fileId = idStr;
-            this.modelBasedGrid = modelBasedGrid;
         }
 
-        public final void onSuccess(final Object result)
+        public final void onSuccess(final List<UserInfoDTO> result)
         {
-            final UserInfoDTO[] users = (UserInfoDTO[]) result;
+            final List<UserInfoDTO> users = result;
             final FileShareUpdateUserDialog dialog =
                     new FileShareUpdateUserDialog(viewContext, users, fileName, fileId);
-            dialog.show(modelBasedGrid.getEl());
+            dialog.show();
 
         }
     }
+
+    public void handleEvent(GridEvent<T> be)
+    {
+        final Grid<T> grid = be.getGrid();
+        int rowIndex = be.getRowIndex();
+        int colindex = be.getColIndex();
+        final ModelData record = grid.getStore().getAt(rowIndex);
+        final String idStr = record.get(AbstractFileGridModel.ID);
+        final String name = record.get(AbstractFileGridModel.NAME);
+        final String dataIndex = grid.getColumnModel().getDataIndex(colindex);
+        if (dataIndex.equals(AbstractFileGridModel.ACTION))
+        {
+            final IMessageResources messageResources = viewContext.getMessageResources();
+            final Element element = be.getTarget();
+            if (element == null)
+            {
+                return;
+            }
+            final String targetId = DOM.getElementAttribute(be.getTarget(), "id");
+            // Delete
+            if (Constants.DELETE_ID.equals(targetId))
+            {
+                MessageBox.confirm(messageResources.getFileDeleteTitle(), messageResources
+                        .getFileDeleteConfirmText(name), new Listener<MessageBoxEvent>()
+                    {
+
+                        @SuppressWarnings("unchecked")
+                        public void handleEvent(MessageBoxEvent messageEvent)
+                        {
+                            if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))
+                            {
+                                if (adminView)
+                                {
+                                    viewContext.getCifexService().deleteFile(
+                                            idStr,
+                                            new AdminDeleteFileAsyncCallback(
+                                                    (Grid<AbstractFileGridModel>) grid));
+                                } else
+                                {
+                                    viewContext.getCifexService().deleteFile(
+                                            idStr,
+                                            new DeleteUploadedFileAsyncCallback(
+                                                    (Grid<AbstractFileGridModel>) grid));
+                                }
+
+                            }
+                        }
+
+                    });
+            }
+            // Renew
+            if (Constants.RENEW_ID.equals(targetId))
+            {
+                viewContext.getCifexService().updateFileExpiration(idStr,
+                        createUpdateFilesCallback(grid, viewContext));
+            }
+            // Shared
+            if (Constants.SHARED_ID.equals(targetId))
+            {
+                viewContext.getCifexService().listUsersFileSharedWith(idStr,
+                        new ShowUsersFileSharedWithAsyncCallback(name, idStr));
+            }
+        }
+    }
+
+    protected abstract AsyncCallback<Void> createUpdateFilesCallback(Grid<T> grid,
+            ViewContext context);
 
 }

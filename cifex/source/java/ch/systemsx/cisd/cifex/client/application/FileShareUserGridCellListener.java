@@ -16,11 +16,11 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.Element;
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.data.Record;
-import com.gwtext.client.widgets.grid.Grid;
-import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
 
@@ -29,7 +29,7 @@ import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
  * 
  * @author Izabela Adamczyk
  */
-final class FileShareUserGridCellListener extends GridCellListenerAdapter
+public final class FileShareUserGridCellListener implements Listener<GridEvent<ModelData>>
 {
 
     private final AbstractFileShareUserDialog parentDialog;
@@ -39,24 +39,22 @@ final class FileShareUserGridCellListener extends GridCellListenerAdapter
         this.parentDialog = parentDialog;
     }
 
-    //
-    // GridCellListenerAdapter
-    //
-
-    public final void onCellClick(final Grid grid, final int rowIndex, final int colIndex,
-            final EventObject e)
+    public void handleEvent(GridEvent<ModelData> be)
     {
-        final Record record = grid.getStore().getAt(rowIndex);
-        final Element element = e.getTarget();
+        Grid<ModelData> grid = be.getGrid();
+        int rowIndex = be.getRowIndex();
+        int colIndex = be.getColIndex();
+        final ModelData record = grid.getStore().getAt(rowIndex);
+        final Element element = be.getTarget();
         if (element == null)
         {
             return;
         }
         if (grid.getColumnModel().getDataIndex(colIndex).equals(FileShareUserGridModel.SHARE_FILE)
-                && e.getTarget(".checkbox", 1) != null)
+                && be.getTarget(".checkbox", 1) != null)
         {
-            record.set(FileShareUserGridModel.SHARE_FILE, !record
-                    .getAsBoolean(FileShareUserGridModel.SHARE_FILE));
+            record.set(FileShareUserGridModel.SHARE_FILE, false == (Boolean) record
+                    .get(FileShareUserGridModel.SHARE_FILE));
 
             parentDialog.checkboxChangeAction();
         }

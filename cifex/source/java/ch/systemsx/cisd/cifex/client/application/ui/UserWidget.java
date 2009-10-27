@@ -16,33 +16,31 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.core.Ext;
-import com.gwtext.client.core.Position;
-import com.gwtext.client.data.SimpleStore;
-import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.MessageBox;
-import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-import com.gwtext.client.widgets.form.Checkbox;
-import com.gwtext.client.widgets.form.CheckboxConfig;
-import com.gwtext.client.widgets.form.ColumnConfig;
-import com.gwtext.client.widgets.form.ComboBox;
-import com.gwtext.client.widgets.form.ComboBoxConfig;
-import com.gwtext.client.widgets.form.Form;
-import com.gwtext.client.widgets.form.FormConfig;
-import com.gwtext.client.widgets.form.TextArea;
-import com.gwtext.client.widgets.form.TextAreaConfig;
-import com.gwtext.client.widgets.form.TextField;
-import com.gwtext.client.widgets.form.TextFieldConfig;
-import com.gwtext.client.widgets.form.VType;
-import com.gwtext.client.widgets.form.ValidationException;
-import com.gwtext.client.widgets.form.Validator;
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.layout.ColumnData;
+import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
-import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -50,17 +48,10 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  * 
  * @author Basil Neff
  */
-public abstract class UserWidget extends Form
+public abstract class UserWidget extends LayoutContainer
 {
-    private static final String STATUS_FIELD = "status";
-
-    private static final String ID_PREFIX = "UserWidget-";
 
     private static final int FIELD_WIDTH = 175;
-
-    private static final int COLUMN_WIDTH = 350;
-
-    private static final int LABEL_WIDTH = 120;
 
     public static final int TOTAL_WIDTH = 700;
 
@@ -72,31 +63,31 @@ public abstract class UserWidget extends Form
     protected final boolean addStatusField;
 
     /*
-     * Button to submit the form. <p> Note that this button can be <code>null</code> if <code>withButton==false</code>
-     * in the constructor. </p>
+     * Button to submit the form. <p> Note that this button can be <code>null</code> if
+     * <code>withButton==false</code> in the constructor. </p>
      */
     protected Button buttonOrNull;
 
-    protected TextField emailField;
+    protected TextField<String> emailField;
 
-    protected TextField usernameField;
+    protected TextField<String> usernameField;
 
-    protected TextField userCodeField;
+    protected TextField<String> userCodeField;
 
-    protected TextField passwordField;
+    protected TextField<String> passwordField;
 
-    protected TextField validatePasswordField;
+    protected TextField<String> validatePasswordField;
 
     protected TextArea commentArea;
 
-    protected Checkbox sendUpdateInformation;
-    
-    protected Checkbox userIsActiveField;
-    
-    protected TextField maxUploadSizeField;
+    protected CheckBox sendUpdateInformation;
 
-    protected TextField fileRetentionField;
-    
+    protected CheckBox userIsActiveField;
+
+    protected TextField<String> maxUploadSizeField;
+
+    protected TextField<String> fileRetentionField;
+
     /**
      * Status of the user.
      * <p>
@@ -104,7 +95,7 @@ public abstract class UserWidget extends Form
      * <i>Temporary</i>.
      * </p>
      */
-    protected ComboBox statusField;
+    protected SimpleComboBox<String> statusField;
 
     /**
      * Whether a submit button should be added to this form.
@@ -113,6 +104,8 @@ public abstract class UserWidget extends Form
      * </p>
      */
     private final boolean withButton;
+
+    private FormPanel formPanel;
 
     public UserWidget(final ViewContext context, final boolean addStatusField)
     {
@@ -128,14 +121,17 @@ public abstract class UserWidget extends Form
     UserWidget(final ViewContext context, final boolean addStatusField, final UserInfoDTO user,
             final boolean withButton)
     {
-        super(Ext.generateId(ID_PREFIX), createFormConfig());
+        setLayout(new FlowLayout(5));
+        setBorders(false);
+        setScrollMode(Scroll.AUTO);
+        setWidth(TOTAL_WIDTH);
         this.context = context;
         this.addStatusField = addStatusField;
         this.editUser = user;
         this.withButton = withButton;
         createCreateUserForm();
     }
-    
+
     protected UserInfoDTO createFromFields()
     {
         final UserInfoDTO user = new UserInfoDTO();
@@ -150,9 +146,9 @@ public abstract class UserWidget extends Form
             user.setActive(editUser.isActive());
             user.setRegistrator(editUser.getRegistrator());
         }
-        user.setEmail(emailField.getText());
-        user.setUserFullName(usernameField.getText());
-        user.setUserCode(userCodeField.getText());
+        user.setEmail(emailField.getValue());
+        user.setUserFullName(usernameField.getValue());
+        user.setUserCode(userCodeField.getValue());
         if (addStatusField)
         {
             user.setAdmin(isAdminStatus());
@@ -160,8 +156,8 @@ public abstract class UserWidget extends Form
         }
         if (maxUploadSizeField != null)
         {
-            String text = maxUploadSizeField.getText();
-            user.setMaxUploadRequestSizeInMB(text.length() == 0 ? null : new Long(text));
+            String text = maxUploadSizeField.getValue();
+            user.setMaxUploadRequestSizeInMB(StringUtils.isBlank(text) ? null : new Long(text));
         }
         if (userIsActiveField != null)
         {
@@ -169,8 +165,8 @@ public abstract class UserWidget extends Form
         }
         if (fileRetentionField != null)
         {
-            String text = fileRetentionField.getText();
-            if (text.length() > 0)
+            String text = fileRetentionField.getValue();
+            if (StringUtils.isBlank(text) == false)
             {
                 user.setFileRetention(new Integer(DateTimeUtils.parseDurationInMinutes(text)));
             } else
@@ -181,83 +177,84 @@ public abstract class UserWidget extends Form
         return user;
     }
 
-    protected final void createCreateUserForm()
+    private FormColumn createRigthColumn(FormData formData)
     {
-        final ColumnConfig leftColumn = new ColumnConfig();
-        leftColumn.setWidth(COLUMN_WIDTH);
-        leftColumn.setLabelWidth(LABEL_WIDTH);
-
-        column(leftColumn);
-
-        userCodeField = createUserCodeField();
-        add(userCodeField);
-
-        usernameField = createUsernameField();
-        add(usernameField);
-
-        // only add it, if a new user is created, not when editing a user.
-        if (editUser == null)
-        {
-            commentArea = createCommentArea();
-            add(commentArea);
-        } else if (editingMyself() == false)
-        {
-            sendUpdateInformation = createSendUserInformationCheckbox();
-            add(sendUpdateInformation);
-        }
+        FormColumn right = new FormColumn(formData);
+        right.setStyleAttribute("paddingLeft", "10px");
         if (context.getModel().getUser().isAdmin())
         {
-            maxUploadSizeField = createMaxUploadSizeField();
-            add(maxUploadSizeField);
+            right.addField(fileRetentionField = createFileRentention());
         }
-        // For editing we have more space on the left side.
-        if (editUser != null && editingMyself() == false && context.getModel().getUser().isAdmin())
-        {
-            userIsActiveField = createUserIsActiveCheckbox();
-            add(userIsActiveField);
-        }
-
-        end();
-
-        final ColumnConfig rightColumn = new ColumnConfig();
-        rightColumn.setWidth(COLUMN_WIDTH);
-        rightColumn.setLabelWidth(LABEL_WIDTH);
-        column(rightColumn);
-
-        if (context.getModel().getUser().isAdmin())
-        {
-            fileRetentionField = createFileRentention();
-            add(fileRetentionField);
-        }
-        emailField = createEmailField();
-        add(emailField);
-
-        passwordField = createPasswordField();
-        add(passwordField);
-
-        validatePasswordField = createValidatePasswordField();
-        add(validatePasswordField);
-
+        right.addField(emailField = createEmailField());
+        right.addField(passwordField = createPasswordField());
+        right.addField(validatePasswordField = createValidatePasswordField());
         if (addStatusField)
         {
-            statusField = createStatusComboBox();
-            add(statusField);
+            right.addField(statusField = createStatusComboBox());
         }
         // For creation we have more space on the right side.
         if (editUser == null && context.getModel().getUser().isAdmin())
         {
-            userIsActiveField = createUserIsActiveCheckbox();
-            add(userIsActiveField);
+            right.addField(userIsActiveField = createUserIsActiveCheckbox());
         }
+        return right;
+    }
 
-        end();
+    private FormColumn createLeftColumn(FormData formData)
+    {
+        FormColumn left = new FormColumn(formData);
+        left.setStyleAttribute("paddingRight", "10px");
+        left.addField(userCodeField = createUserCodeField());
+        left.addField(usernameField = createUsernameField());
+        // only add it, if a new user is created, not when editing a user.
+        if (editUser == null)
+        {
+            left.addField(commentArea = createCommentArea());
+        } else if (editingMyself() == false)
+        {
+            left.addField(sendUpdateInformation = createSendUserInformationCheckbox());
+        }
+        if (context.getModel().getUser().isAdmin())
+        {
+            left.addField(maxUploadSizeField = createMaxUploadSizeField());
+        }
+        // For editing we have more space on the left side.
+        if (editUser != null && editingMyself() == false && context.getModel().getUser().isAdmin())
+        {
+            left.addField(userIsActiveField = createUserIsActiveCheckbox());
+        }
+        return left;
+    }
 
-        createButton();
-        render();
+    protected final void createCreateUserForm()
+    {
+        FormData formData = new FormData("95%");
+        formPanel = new FormPanel();
+        formPanel.setHeaderVisible(false);
+        formPanel.setFrame(false);
+        formPanel.setBodyBorder(false);
+        formPanel.setBorders(false);
+        formPanel.setButtonAlign(HorizontalAlignment.CENTER);
+
+        LayoutContainer main = new LayoutContainer();
+        main.setLayout(new ColumnLayout());
+        main.add(createLeftColumn(formData), new ColumnData(.5));
+        main.add(createRigthColumn(formData), new ColumnData(.5));
+
+        formPanel.add(main);
+
+        tryCreateButton(formPanel);
         if (editUser != null && editUser.isExternallyAuthenticated())
         {
             disableInternalFields(true);
         }
+        add(formPanel);
+
+    }
+
+    public boolean isValid()
+    {
+        return formPanel.isValid();
     }
 
     protected boolean editingMyself()
@@ -266,21 +263,17 @@ public abstract class UserWidget extends Form
                 && editUser.getUserCode().equals(context.getModel().getUser().getUserCode());
     }
 
-    private final void createButton()
+    private final void tryCreateButton(LayoutContainer panel)
     {
         if (withButton == false)
         {
             return;
         }
-        buttonOrNull = addButton(getSubmitButtonLabel());
-        buttonOrNull.addButtonListener(new ButtonListenerAdapter()
+        panel.add(buttonOrNull = new Button(getSubmitButtonLabel()));
+        buttonOrNull.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
-
-                //
-                // ButtonListenerAdapter
-                //
-
-                public final void onClick(final Button but, final EventObject e)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
                     submitForm();
                 }
@@ -290,20 +283,26 @@ public abstract class UserWidget extends Form
 
     protected final boolean arePasswordsEqual()
     {
-        if (passwordField.getValueAsString().equals(validatePasswordField.getValueAsString()) == false)
+        if (equalOrBothNull() == false)
         {
             MessageBox.alert(getMessageResources().getMessageBoxErrorTitle(), getMessageResources()
-                    .getPasswordMissmatchMessage());
+                    .getPasswordMissmatchMessage(), null);
             return false;
         }
         return true;
+    }
+
+    private boolean equalOrBothNull()
+    {
+        return passwordField.getValue() == null && validatePasswordField.getValue() == null
+                || passwordField.getValue().equals(validatePasswordField.getValue());
     }
 
     /** Whether status specified by {@link #statusField} equals given <var>status</var>. */
     private final boolean isStatus(final String status)
     {
         assert statusField != null : "Undefined status field.";
-        return statusField.getValue().equals(status);
+        return statusField.getSimpleValue().equals(status);
     }
 
     protected final boolean isPermanentStatus()
@@ -321,49 +320,39 @@ public abstract class UserWidget extends Form
         return context.getMessageResources();
     }
 
-    private final TextField createUserCodeField()
+    private final TextField<String> createUserCodeField()
     {
-        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getUserCodeLabel());
-        fieldConfig.setAllowBlank(false);
-        fieldConfig.setValidator(CifexValidator.getUserCodeFieldValidator());
-        fieldConfig.setInvalidText(Constants.VALID_USER_CODE_DESCRIPTION);
-        fieldConfig.setValidateOnBlur(false);
-        final TextField textField = new TextField(fieldConfig);
+        final TextField<String> textField =
+                createTextField(getMessageResources().getUserCodeLabel());
+        textField.setAllowBlank(false);
+        textField.setValidator(CifexValidator.getUserCodeFieldValidator(context
+                .getMessageResources()));
+        textField.setValidateOnBlur(false);
         if (editUser != null && editUser.getUserCode() != null)
         {
             textField.setValue(editUser.getUserCode());
-            textField.setDisabled(true);
-
+            textField.setEnabled(false);
         }
         return textField;
     }
 
-    private TextFieldConfig createTextField(String label)
+    private TextField<String> createTextField(String label)
     {
-        final TextFieldConfig fieldConfig = new TextFieldConfig();
+        final TextField<String> fieldConfig = new TextField<String>();
         fieldConfig.setFieldLabel(label);
         fieldConfig.setWidth(FIELD_WIDTH);
         fieldConfig.setName(label);
         return fieldConfig;
     }
 
-    private static FormConfig createFormConfig()
+    private final TextField<String> createEmailField()
     {
-        final FormConfig formConfig = new FormConfig();
-        formConfig.setWidth(TOTAL_WIDTH);
-        formConfig.setLabelAlign(Position.LEFT);
-        formConfig.setButtonAlign(Position.LEFT);
-        formConfig.setLabelWidth(LABEL_WIDTH);
-        return formConfig;
-    }
-
-    private final TextField createEmailField()
-    {
-        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getUserEmailLabel());
-        fieldConfig.setVtype(VType.EMAIL);
-        fieldConfig.setAllowBlank(false);
-        fieldConfig.setValidateOnBlur(false);
-        final TextField textField = new TextField(fieldConfig);
+        final TextField<String> textField =
+                createTextField(getMessageResources().getUserEmailLabel());
+        textField
+                .setValidator(CifexValidator.getEmailFieldValidator(context.getMessageResources()));
+        textField.setAllowBlank(false);
+        textField.setValidateOnBlur(false);
         if (editUser != null && editUser.getEmail() != null)
         {
             textField.setValue(editUser.getEmail());
@@ -372,20 +361,21 @@ public abstract class UserWidget extends Form
         return textField;
     }
 
-    private void disableInternalFields(final boolean disabled)
+    private void disableInternalFields(final boolean isDisabled)
     {
-        usernameField.setDisabled(disabled);
-        passwordField.setDisabled(disabled);
-        validatePasswordField.setDisabled(disabled);
-        emailField.setDisabled(disabled);
+        boolean enabled = isDisabled == false;
+        usernameField.setEnabled(enabled);
+        passwordField.setEnabled(enabled);
+        validatePasswordField.setEnabled(enabled);
+        emailField.setEnabled(enabled);
     }
 
-    private final TextField createUsernameField()
+    private final TextField<String> createUsernameField()
     {
-        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getUserFullNameLabel());
-        fieldConfig.setAllowBlank(true);
-        fieldConfig.setValidateOnBlur(false);
-        final TextField textField = new TextField(fieldConfig);
+        final TextField<String> textField =
+                createTextField(getMessageResources().getUserFullNameLabel());
+        textField.setAllowBlank(true);
+        textField.setValidateOnBlur(false);
         if (editUser != null && editUser.getUserFullName() != null)
         {
             textField.setValue(editUser.getUserFullName());
@@ -393,99 +383,98 @@ public abstract class UserWidget extends Form
         return textField;
     }
 
-    private final TextField createPasswordField()
+    private final TextField<String> createPasswordField()
     {
-        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getPasswordLabel());
-        fieldConfig.setPassword(true);
-        fieldConfig.setAllowBlank(true);
-        fieldConfig.setValidateOnBlur(false);
-        fieldConfig.setMinLength(4);
-        final TextField textField = new TextField(fieldConfig);
+        final TextField<String> textField =
+                createTextField(getMessageResources().getPasswordLabel());
+        textField.setPassword(true);
+        textField.setAllowBlank(true);
+        textField.setValidateOnBlur(false);
+        textField.setMinLength(4);
         return textField;
     }
 
-    private final TextField createValidatePasswordField()
+    private final TextField<String> createValidatePasswordField()
     {
-        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getValidatePasswordLabel());
-        fieldConfig.setPassword(true);
-        fieldConfig.setAllowBlank(true);
-        fieldConfig.setValidateOnBlur(false);
-        fieldConfig.setMinLength(4);
-        final TextField textField = new TextField(fieldConfig);
+        final TextField<String> textField =
+                createTextField(getMessageResources().getValidatePasswordLabel());
+        textField.setPassword(true);
+        textField.setAllowBlank(true);
+        textField.setValidateOnBlur(false);
+        textField.setMinLength(4);
         return textField;
     }
 
     private final TextArea createCommentArea()
     {
-        final TextAreaConfig textAreaConfig = new TextAreaConfig();
-        textAreaConfig.setAllowBlank(true);
-        textAreaConfig.setFieldLabel(getMessageResources().getCommentLabel());
-        textAreaConfig.setName("user-comment");
-        textAreaConfig.setGrow(false);
-        textAreaConfig.setPreventScrollbars(true);
-        textAreaConfig.setWidth(FIELD_WIDTH);
-        return new TextArea(textAreaConfig);
+        final TextArea textArea = new TextArea();
+        textArea.setAllowBlank(true);
+        textArea.setFieldLabel(getMessageResources().getCommentLabel());
+        textArea.setName("user-comment");
+        textArea.setPreventScrollbars(true);
+        textArea.setWidth(FIELD_WIDTH);
+        return textArea;
     }
-    
-    private TextField createMaxUploadSizeField()
+
+    private TextField<String> createMaxUploadSizeField()
     {
-        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getMaxUploadSizeLabel());
-        fieldConfig.setValidator(new Validator()
+        final TextField<String> textField =
+                createTextField(getMessageResources().getMaxUploadSizeLabel());
+        textField.setValidator(new Validator()
             {
-                public boolean validate(String value) throws ValidationException
+                public String validate(Field<?> field, String value)
                 {
                     if (value == null)
                     {
-                        return false;
+                        return "Field required";
                     }
                     if (value.length() == 0)
                     {
-                        return true;
+                        return null;
                     }
                     try
                     {
                         int size = Integer.parseInt(value);
-                        return size > 0;
+                        return size > 0 ? null : "No files specified";
                     } catch (NumberFormatException ex)
                     {
-                        return false;
+                        return "Incorrect number";
                     }
                 }
             });
-        TextField textField = new TextField(fieldConfig);
         if (editUser != null && editUser.getMaxUploadRequestSizeInMB() != null)
         {
             textField.setValue(editUser.getMaxUploadRequestSizeInMB().toString());
         }
         return textField;
     }
-    
-    private TextField createFileRentention()
+
+    private TextField<String> createFileRentention()
     {
-        final TextFieldConfig fieldConfig = createTextField(getMessageResources().getFileRetention());
-        fieldConfig.setValidator(new Validator()
+        final TextField<String> textField =
+                createTextField(getMessageResources().getFileRetention());
+        textField.setValidator(new Validator()
             {
-                public boolean validate(String value) throws ValidationException
+                public String validate(Field<?> field, String value)
                 {
                     if (value == null)
                     {
-                        return false;
+                        return "Field required";
                     }
                     if (value.length() == 0)
                     {
-                        return true;
+                        return null;
                     }
                     try
                     {
                         int duration = DateTimeUtils.parseDurationInMinutes(value);
-                        return duration > 0;
+                        return duration > 0 ? null : "Incorrect duration";
                     } catch (NumberFormatException ex)
                     {
-                        return false;
+                        return "Incorrect number";
                     }
                 }
             });
-        TextField textField = new TextField(fieldConfig);
         if (editUser != null && editUser.getFileRetention() != null)
         {
             int fileRetentionTime = editUser.getFileRetention().intValue();
@@ -494,55 +483,49 @@ public abstract class UserWidget extends Form
         return textField;
     }
 
-    private final Checkbox createSendUserInformationCheckbox()
+    private final CheckBox createSendUserInformationCheckbox()
     {
-        final CheckboxConfig checkboxConfig = new CheckboxConfig();
-        checkboxConfig.setChecked(true);
-        checkboxConfig.setName("send-user-information");
-        checkboxConfig.setFieldLabel(getMessageResources().getSendUserUpdateInformationLabel());
-        checkboxConfig.setWidth(FIELD_WIDTH);
-        return new Checkbox(checkboxConfig);
+        CheckBox checkbox = new CheckBox();
+        checkbox.setValue(true);
+        checkbox.setName("send-user-information");
+        checkbox.setFieldLabel(getMessageResources().getSendUserUpdateInformationLabel());
+        checkbox.setWidth(FIELD_WIDTH);
+        return checkbox;
     }
 
-    private final Checkbox createUserIsActiveCheckbox()
+    private final CheckBox createUserIsActiveCheckbox()
     {
-        final CheckboxConfig checkboxConfig = new CheckboxConfig();
+        CheckBox checkBox = new CheckBox();
         if (editUser != null)
         {
-            checkboxConfig.setChecked(editUser.isActive());
+            checkBox.setValue(editUser.isActive());
 
         } else
         {
-            checkboxConfig.setChecked(true);
+            checkBox.setValue(true);
         }
-        checkboxConfig.setName("user-is-active");
-        checkboxConfig.setFieldLabel(getMessageResources().getUserActiveLabel());
-        checkboxConfig.setWidth(FIELD_WIDTH);
-        return new Checkbox(checkboxConfig);
+        checkBox.setName("user-is-active");
+        checkBox.setFieldLabel(getMessageResources().getUserActiveLabel());
+        checkBox.setWidth(FIELD_WIDTH);
+        return checkBox;
     }
 
-    private final ComboBox createStatusComboBox()
+    private final SimpleComboBox<String> createStatusComboBox()
     {
-        final ComboBoxConfig comboBoxConfig = new ComboBoxConfig();
+
+        SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
         final String adminRoleName = getMessageResources().getAdminRoleName();
         final String permanentRoleName = getMessageResources().getPermanentRoleName();
         final String temporaryRoleName = getMessageResources().getTemporaryRoleName();
-        final SimpleStore store = new SimpleStore(STATUS_FIELD, new String[][]
-            { new String[]
-                { adminRoleName }, new String[]
-                { permanentRoleName }, new String[]
-                { temporaryRoleName } });
-        store.load();
-        comboBoxConfig.setStore(store);
-        comboBoxConfig.setDisplayField(STATUS_FIELD);
-        comboBoxConfig.setWidth(FIELD_WIDTH);
-        comboBoxConfig.setMode(ComboBox.LOCAL);
-        comboBoxConfig.setTriggerAction(ComboBox.ALL);
-        comboBoxConfig.setFieldLabel(getMessageResources().getUserStatusLabel());
-        comboBoxConfig.setForceSelection(true);
-        comboBoxConfig.setEditable(false);
-        comboBoxConfig.setAllowBlank(false);
-        final ComboBox comboBox = new ComboBox(comboBoxConfig);
+        comboBox.add(adminRoleName);
+        comboBox.add(permanentRoleName);
+        comboBox.add(temporaryRoleName);
+        comboBox.setWidth(FIELD_WIDTH);
+        comboBox.setTriggerAction(TriggerAction.ALL);
+        comboBox.setFieldLabel(getMessageResources().getUserStatusLabel());
+        comboBox.setForceSelection(true);
+        comboBox.setEditable(false);
+        comboBox.setAllowBlank(false);
         String value = permanentRoleName;
         if (editUser != null)
         {
@@ -554,7 +537,7 @@ public abstract class UserWidget extends Form
                 value = temporaryRoleName;
             }
         }
-        comboBox.setValue(value);
+        comboBox.setSimpleValue(value);
         return comboBox;
     }
 

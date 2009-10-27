@@ -16,12 +16,12 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.data.Record;
-import com.gwtext.client.widgets.grid.Grid;
-import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.ui.FileDownloadHelper;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
@@ -33,24 +33,22 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
  * 
  * @author Christian Ribeaud
  */
-final class FileDownloadGridCellListener extends GridCellListenerAdapter
+public final class FileDownloadGridCellListener implements Listener<GridEvent<ModelData>>
 {
 
     FileDownloadGridCellListener()
     {
     }
 
-    //
-    // GridCellListenerAdapter
-    //
-
-    public final void onCellClick(final Grid grid, final int rowIndex, final int colIndex,
-            final EventObject e)
+    public void handleEvent(GridEvent<ModelData> be)
     {
+        Grid<ModelData> grid = be.getGrid();
+        int colIndex = be.getColIndex();
+        int rowIndex = be.getRowIndex();
         final String dataIndex = grid.getColumnModel().getDataIndex(colIndex);
         if (dataIndex.equals(AbstractFileGridModel.NAME))
         {
-            final Element element = e.getTarget();
+            final Element element = be.getTarget();
             if (element == null)
             {
                 return;
@@ -58,12 +56,13 @@ final class FileDownloadGridCellListener extends GridCellListenerAdapter
             final String targetId = DOM.getElementAttribute(element, "href");
             if (StringUtils.isBlank(targetId) == false)
             {
-                final Record record = grid.getStore().getAt(rowIndex);
-                final int id = record.getAsInteger(AbstractFileGridModel.ID);
+                ModelData record = grid.getStore().getAt(rowIndex);
+                final int id = Integer.parseInt((String) record.get(AbstractFileGridModel.ID));
                 final String url = FileDownloadHelper.createDownloadUrl(id);
                 WindowUtils.openNewDependentWindow(url);
             }
 
         }
+
     }
 }

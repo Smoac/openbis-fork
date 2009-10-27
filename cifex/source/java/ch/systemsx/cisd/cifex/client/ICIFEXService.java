@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
+import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -39,8 +42,8 @@ public interface ICIFEXService extends RemoteService
      * 
      * @return a <code>User</code> if the login was successful, <code>null</code> otherwise.
      */
-    public UserInfoDTO tryLogin(final String user, final String password) throws UserFailureException,
-            EnvironmentFailureException;
+    public UserInfoDTO tryLogin(final String user, final String password)
+            throws UserFailureException, EnvironmentFailureException;
 
     /**
      * Logout the current user.
@@ -66,14 +69,14 @@ public interface ICIFEXService extends RemoteService
     /**
      * Returns a list of <code>User</code>s.
      */
-    public UserInfoDTO[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException;
+    public List<UserInfoDTO> listUsers() throws InvalidSessionException,
+            InsufficientPrivilegesException;
 
     // TODO 2008-06-06, Christian Ribeaud: tryFindUserByUserCode and tryFindUserByEmail should be
     // extended to accept an array of parameters (more than one parameter). They will return an
     // User array.
     /**
-     * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user
-     * exists.
+     * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists.
      * 
      * @throws InvalidSessionException
      */
@@ -82,33 +85,36 @@ public interface ICIFEXService extends RemoteService
     /**
      * Returns a list with all users, which have the given email address.
      */
-    public UserInfoDTO[] tryFindUserByEmail(final String email) throws InvalidSessionException;
+    public List<UserInfoDTO> tryFindUserByEmail(final String email) throws InvalidSessionException;
 
     /**
      * Returns a list of users, which where registered by the given user.
      * 
      * @throws InvalidSessionException
      */
-    public UserInfoDTO[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException;
+    public List<UserInfoDTO> listUsersRegisteredBy(final String userCode)
+            throws InvalidSessionException;
 
     /**
      * Returns users the file with given <var>fileId</var> has been shared with.
      * 
      * @throws InvalidSessionException
      */
-    public UserInfoDTO[] listUsersFileSharedWith(final String fileId) throws InvalidSessionException;
+    public List<UserInfoDTO> listUsersFileSharedWith(final String fileId)
+            throws InvalidSessionException;
 
     /**
      * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If
-     * <var>registratorOrNull</var> is not <code>null</code>, it will be interpreted as the user
-     * who creates the new user.
+     * <var>registratorOrNull</var> is not <code>null</code>, it will be interpreted as the user who
+     * creates the new user.
      * <p>
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
      */
-    public void createUser(final UserInfoDTO user, final String password, final UserInfoDTO registratorOrNull,
-            final String comment) throws EnvironmentFailureException, UserFailureException,
-            InvalidSessionException, InsufficientPrivilegesException;
+    public void createUser(final UserInfoDTO user, final String password,
+            final UserInfoDTO registratorOrNull, final String comment)
+            throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
+            InsufficientPrivilegesException;
 
     /**
      * Update the fields of the user in the database.
@@ -151,7 +157,7 @@ public interface ICIFEXService extends RemoteService
      * Never returns <code>null</code> but could return an empty array.
      * </p>
      */
-    public FileInfoDTO[] listDownloadFiles() throws InvalidSessionException;
+    public List<FileInfoDTO> listDownloadFiles() throws InvalidSessionException;
 
     /**
      * List the files uploaded by the currently logged user.
@@ -159,12 +165,13 @@ public interface ICIFEXService extends RemoteService
      * Never returns <code>null</code> but could return an empty array.
      * </p>
      */
-    public FileInfoDTO[] listUploadedFiles() throws InvalidSessionException;
+    public List<FileInfoDTO> listUploadedFiles() throws InvalidSessionException;
 
     /**
      * List all files (only for admins).
      */
-    public FileInfoDTO[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException;
+    public List<AdminFileInfoDTO> listFiles() throws InvalidSessionException,
+            InsufficientPrivilegesException;
 
     /**
      * Deletes file given by its <var>idStr</var>.
@@ -186,19 +193,19 @@ public interface ICIFEXService extends RemoteService
     /**
      * Gets current file upload feedback.
      * <p>
-     * Note that this method never returns <code>null</code> but waits till the first feedback is
-     * in the queue.
+     * Note that this method never returns <code>null</code> but waits till the first feedback is in
+     * the queue.
      * </p>
      */
     public FileUploadFeedback getFileUploadFeedback() throws InvalidSessionException;
 
     /**
-     * Update the Expiration Date of the file with the given <var>idStr</var>. 
+     * Update the Expiration Date of the file with the given <var>idStr</var>.
      * 
      * @throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
      */
-    public void updateFileExpiration(final String idStr)
-            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException;
+    public void updateFileExpiration(final String idStr) throws InvalidSessionException,
+            InsufficientPrivilegesException, FileNotFoundException;
 
     /**
      * Creates a sharing link between file and users. The user identifyer can either be a email
@@ -214,14 +221,14 @@ public interface ICIFEXService extends RemoteService
      * @throws EnvironmentFailureException if user is already externally authenticated or user with
      *             given code does not exist
      */
-    public UserInfoDTO trySwitchToExternalAuthentication(final String userCode, final String plainPassword)
-            throws EnvironmentFailureException, InvalidSessionException,
-            InsufficientPrivilegesException;
+    public UserInfoDTO trySwitchToExternalAuthentication(final String userCode,
+            final String plainPassword) throws EnvironmentFailureException,
+            InvalidSessionException, InsufficientPrivilegesException;
 
     /**
      * Checks if 'switch to external authentication' option should be available for given
      * <code>User<code>.
      */
-    public boolean showSwitchToExternalOption(UserInfoDTO user);
+    public Boolean showSwitchToExternalOption(UserInfoDTO user);
 
 }

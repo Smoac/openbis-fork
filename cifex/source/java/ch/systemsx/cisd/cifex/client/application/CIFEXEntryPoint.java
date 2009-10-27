@@ -20,8 +20,6 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
-import com.gwtext.client.widgets.QuickTips;
-import com.gwtext.client.widgets.form.Field;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
@@ -75,8 +73,6 @@ public final class CIFEXEntryPoint implements EntryPoint
 
     public final void onModuleLoad()
     {
-        Field.setMsgTarget("side");
-        QuickTips.init();
         final ICIFEXServiceAsync cifexService = createCIFEXService();
         final ViewContext viewContext = createViewContext(cifexService);
         final String paramString = GWTUtils.getParamString();
@@ -84,31 +80,31 @@ public final class CIFEXEntryPoint implements EntryPoint
         {
             viewContext.getModel().setUrlParams(GWTUtils.parseParamString(paramString));
         }
-        cifexService.getConfiguration(new AbstractAsyncCallback(viewContext)
+        cifexService.getConfiguration(new AbstractAsyncCallback<Configuration>(viewContext)
             {
 
                 //
                 // AsyncCallbackAdapter
                 //
 
-                public final void onSuccess(final Object result)
+                public final void onSuccess(final Configuration result)
                 {
-                    viewContext.getModel().setConfiguration((Configuration) result);
-                    cifexService.getCurrentUser(new AsyncCallback()
+                    viewContext.getModel().setConfiguration(result);
+                    cifexService.getCurrentUser(new AsyncCallback<UserInfoDTO>()
                         {
 
                             //
                             // AsyncCallback
                             //
 
-                            public final void onSuccess(final Object res)
+                            public final void onSuccess(final UserInfoDTO res)
                             {
                                 final IPageController pageController =
                                         viewContext.getPageController();
                                 if (res != null)
                                 {
                                     final Model model = viewContext.getModel();
-                                    model.setUser((UserInfoDTO) res);
+                                    model.setUser(res);
                                     FileDownloadHelper.startFileDownload(model);
                                     pageController.createMainPage();
                                 } else

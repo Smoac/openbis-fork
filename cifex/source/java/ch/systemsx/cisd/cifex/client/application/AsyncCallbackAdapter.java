@@ -29,7 +29,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * 
  * @author Christian Ribeaud
  */
-public class AsyncCallbackAdapter implements AsyncCallback
+public class AsyncCallbackAdapter implements AsyncCallback<Void>
 {
 
     /** A unique instance of this class that does nothing. */
@@ -47,7 +47,7 @@ public class AsyncCallbackAdapter implements AsyncCallback
     {
     }
 
-    public void onSuccess(Object result)
+    public void onSuccess(Void result)
     {
     }
 }

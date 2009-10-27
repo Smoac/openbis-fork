@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import com.google.gwt.core.client.GWT;
+import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -24,11 +28,8 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.gwtext.client.widgets.MessageBox;
+import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.InlineHyperlink;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
@@ -48,13 +49,11 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 final class FooterPanel extends HorizontalPanel
 {
 
-    private static final String SEPARATOR = " - ";
-
     private final ViewContext viewContext;
 
-    private final Element disclaimerLink;
+    private final Hyperlink disclaimerLink;
 
-    private final Element documentationLink;
+    private final Hyperlink documentationLink;
 
     FooterPanel(final ViewContext context)
     {
@@ -62,77 +61,80 @@ final class FooterPanel extends HorizontalPanel
         assert configuration != null : "Must not be null reached this point.";
         this.viewContext = context;
         final IMessageResources messageResources = context.getMessageResources();
-        final String poweredBy = messageResources.getFooterPoweredBy();
-        final String applicationDescription = messageResources.getFooterApplicationDescription();
-        final String contactAdministrator =
-                createContactAdministrator(configuration, messageResources);
-        final String version = createVersionDiv(configuration);
+        final Html poweredBy = new Html(messageResources.getFooterPoweredBy());
+        final Html applicationDescription =
+                new Html(messageResources.getFooterApplicationDescription());
+        final Html contactAdministrator =
+                new Html(createContactAdministrator(configuration, messageResources));
+        final Html version = new Html(createVersionDiv(configuration));
         disclaimerLink = createDisclaimerLink(messageResources);
         documentationLink = createDocumentationLink(messageResources);
-        final HTML html =
-                new HTML(poweredBy + SEPARATOR + applicationDescription + SEPARATOR + version
-                        + SEPARATOR + contactAdministrator + SEPARATOR
-                        + DOM.toString(disclaimerLink) + SEPARATOR
-                        + DOM.toString(documentationLink))
+        add(poweredBy);
+        add(createSeparator());
+        add(applicationDescription);
+        add(createSeparator());
+        add(version);
+        add(createSeparator());
+        add(contactAdministrator);
+        add(createSeparator());
+        add(disclaimerLink);
+        add(createSeparator());
+        add(documentationLink);
+    }
+
+    Html createSeparator()
+    {
+        return new Html("&nbsp;-&nbsp;");
+    }
+
+    private final Hyperlink createDisclaimerLink(final IMessageResources messageResources)
+    {
+        return getLinkWidget(messageResources.getFooterDisclaimerLinkLabel(), new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    try
                     {
-
-                        //
-                        // HTML
-                        //
-
-                        public final void onBrowserEvent(final Event event)
-                        {
-                            super.onBrowserEvent(event);
-                            if (DOM.eventGetType(event) == Event.ONCLICK)
-                            {
-                                final Element target = DOM.eventGetTarget(event);
-                                // 'Element.equals' or 'DOM.compare' does not work here...
-                                if (target.toString().indexOf(messageResources.getFooterDisclaimerLinkLabel()) > -1)
-                                {
-                                    try
-                                    {
-                                        new RequestBuilder(RequestBuilder.GET, "disclaimer.html")
-                                                .sendRequest(null, new HTMLRequestCallback(
-                                                        messageResources
-                                                                .getFooterDisclaimerDialogTitle()));
-                                    } catch (final RequestException ex)
-                                    {
-                                        showErrorMessage(ex);
-                                    }
-                                } else if (target.toString().indexOf(messageResources.getFooterDocumentationLinkLabel()) > -1)
-                                {
-                                    try
-                                    {
-                                        new RequestBuilder(RequestBuilder.GET, "documentation.html")
-                                                .sendRequest(null, new HTMLRequestCallback(
-                                                        messageResources
-                                                                .getFooterDocumentationDialogTitle()));
-                                    } catch (final RequestException ex)
-                                    {
-                                        showErrorMessage(ex);
-                                    }
-                                }
-
-                            }
-                        }
-                    };
-        setWidth("100%");
-        setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        add(html);
+                        new RequestBuilder(RequestBuilder.GET, "disclaimer.html").sendRequest(null,
+                                new HTMLRequestCallback(messageResources
+                                        .getFooterDisclaimerDialogTitle()));
+                    } catch (final RequestException ex)
+                    {
+                        showErrorMessage(ex);
+                    }
+                }
+            });
     }
 
-    private final static Element createDisclaimerLink(final IMessageResources messageResources)
+    public static Hyperlink getLinkWidget(final String text, final ClickHandler handler)
     {
-        final Element element = DOMUtils.createBasicAnchorElement();
-        DOM.setInnerHTML(element, messageResources.getFooterDisclaimerLinkLabel());
-        return element;
+        Hyperlink link = new InlineHyperlink();
+        link.setText(text);
+        link.setStyleName("cifex-a");
+        if (handler != null)
+        {
+            link.addClickHandler(handler);
+        }
+        return link;
     }
 
-    private final static Element createDocumentationLink(final IMessageResources messageResources)
+    private final Hyperlink createDocumentationLink(final IMessageResources messageResources)
     {
-        final Element element = DOMUtils.createBasicAnchorElement();
-        DOM.setInnerHTML(element, messageResources.getFooterDocumentationLinkLabel());
-        return element;
+        return getLinkWidget(messageResources.getFooterDocumentationLinkLabel(), new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    try
+                    {
+                        new RequestBuilder(RequestBuilder.GET, "documentation.html").sendRequest(
+                                null, new HTMLRequestCallback(messageResources
+                                        .getFooterDocumentationDialogTitle()));
+                    } catch (final RequestException ex)
+                    {
+                        showErrorMessage(ex);
+                    }
+                }
+            });
     }
 
     private final static String createVersionDiv(final Configuration configuration)
@@ -157,33 +159,25 @@ final class FooterPanel extends HorizontalPanel
         final IMessageResources messageResources = viewContext.getMessageResources();
         if (StringUtils.isBlank(message))
         {
-            msg = messageResources.getExceptionWithoutMessage(GWT.getTypeName(ex));
+            msg = messageResources.getExceptionWithoutMessage(ex.getClass().getName());
         } else
         {
             msg = message;
         }
-        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg);
+        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg, null);
     }
-
-    //
-    // Helper classes
-    //
 
     /**
      * A {@link RequestCallback} that shows a legal disclaimer on success.
      */
     private final class HTMLRequestCallback implements RequestCallback
     {
-        private String panelTitle;
+        private final String panelTitle;
 
         public HTMLRequestCallback(String title)
         {
             this.panelTitle = title;
         }
-
-        //
-        // RequestCallback
-        //
 
         public final void onResponseReceived(final Request request, final Response response)
         {
@@ -191,9 +185,8 @@ final class FooterPanel extends HorizontalPanel
                     new DefaultLayoutDialog(viewContext.getMessageResources(), this.panelTitle,
                             DefaultLayoutDialog.DEFAULT_WIDTH, DefaultLayoutDialog.DEFAULT_HEIGHT,
                             true, true);
-            layoutDialog.addContentPanel();
+            layoutDialog.addText(response.getText());
             layoutDialog.show();
-            layoutDialog.getContentPanel().setContent(response.getText(), true);
         }
 
         public void onError(final Request request, final Throwable exception)

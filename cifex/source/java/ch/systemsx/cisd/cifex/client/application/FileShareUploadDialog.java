@@ -28,41 +28,42 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  * @author Basil Neff
  */
 public class FileShareUploadDialog extends AbstractFileShareUserDialog
+
 {
 
     private final UserTextArea userTextArea;
 
-    public FileShareUploadDialog(final ViewContext context, final List existingUsers,
-            final List newUsers, final String name, final UserTextArea userTextArea)
+    public FileShareUploadDialog(final ViewContext context, final List<UserInfoDTO> existingUsers,
+            final List<UserInfoDTO> newUsers, final String name, final UserTextArea userTextArea)
     {
         super(context, existingUsers, newUsers, name);
         this.userTextArea = userTextArea;
     }
 
+    @Override
     protected void checkboxChangeAction()
     {
         // Changes the values in the userTextArea, that only the ones are specified, which are
         // checked.
-        final List userEntries = new ArrayList();
+        final List<String> userEntries = new ArrayList<String>();
         for (int i = 0; i < existingUsers.size(); i++)
         {
-            if (existingUserGrid.getStore().getAt(i)
-                    .getAsBoolean(FileShareUserGridModel.SHARE_FILE))
+            if ((existingUserGrid.getStore().getAt(i)).get(FileShareUserGridModel.SHARE_FILE))
             {
-                userEntries.add(Constants.USER_ID_PREFIX
-                        + ((UserInfoDTO) existingUsers.get(i)).getUserCode());
+                userEntries.add(Constants.USER_ID_PREFIX + (existingUsers.get(i)).getUserCode());
             }
         }
         for (int i = 0; i < newUsers.size(); i++)
         {
-            if (newUserGrid.getStore().getAt(i).getAsBoolean(FileShareUserGridModel.SHARE_FILE))
+            if (newUserGrid.getStore().getAt(i).get(FileShareUserGridModel.SHARE_FILE))
             {
-                userEntries.add(((UserInfoDTO) newUsers.get(i)).getEmail());
+                userEntries.add((newUsers.get(i)).getEmail());
             }
         }
-        userTextArea.setUserEntries((String[]) userEntries.toArray(new String[userEntries.size()]));
+        userTextArea.setUserEntries(userEntries.toArray(new String[userEntries.size()]));
     }
 
+    @Override
     protected void addUserToFileShare(UserInfoDTO user)
     {
         userTextArea.addUser(user);

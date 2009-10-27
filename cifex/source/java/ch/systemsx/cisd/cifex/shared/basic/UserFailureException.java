@@ -16,16 +16,16 @@
 
 package ch.systemsx.cisd.cifex.shared.basic;
 
-import com.google.gwt.user.client.rpc.SerializableException;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * The <code>UserFailureException</code> is the super class of all exceptions that have their
- * cause in an inappropriate usage of the system. This implies that the user himself (without help
- * of an administrator) can fix the problem.
+ * The <code>UserFailureException</code> is the super class of all exceptions that have their cause
+ * in an inappropriate usage of the system. This implies that the user himself (without help of an
+ * administrator) can fix the problem.
  * 
  * @author Christian Ribeaud
  */
-public class UserFailureException extends SerializableException
+public class UserFailureException extends Exception implements IsSerializable
 {
 
     private static final long serialVersionUID = 1L;

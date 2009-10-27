@@ -16,19 +16,16 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.core.Ext;
-import com.gwtext.client.core.Position;
-import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.MessageBox;
-import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-import com.gwtext.client.widgets.event.KeyListener;
-import com.gwtext.client.widgets.form.Form;
-import com.gwtext.client.widgets.form.FormConfig;
-import com.gwtext.client.widgets.form.TextField;
-import com.gwtext.client.widgets.form.TextFieldConfig;
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.VerticalPanel;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 
-import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
@@ -41,97 +38,96 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  * 
  * @author Christian Ribeaud
  */
-public class LoginWidget extends Form
+public class LoginWidget extends VerticalPanel
 {
-    private static final String ID_PREFIX = "LoginWidget-";
-
-    private static final int FIELD_WIDTH = 175;
 
     private final ViewContext context;
 
-    private TextField userField;
+    private final TextField<String> userField;
 
-    private TextField passwordField;
+    private final TextField<String> passwordField;
 
-    private Button button;
+    private final Button button;
+
+    private final FormPanel formPanel;
 
     public LoginWidget(final ViewContext context)
     {
-        super(Ext.generateId(ID_PREFIX), createFormConfig());
         this.context = context;
-        createLoginForm();
-    }
+        // setSpacing(10);
 
-    private final void createLoginForm()
-    {
-        final IMessageResources messageResources = context.getMessageResources();
-        fieldset(messageResources.getLoginLegend());
+        formPanel = createFormPanel();
         userField = createUserField();
-        add(userField);
+        formPanel.add(userField);
         passwordField = createPasswordField();
-        add(passwordField);
+        formPanel.add(passwordField);
+        button = createButton();
+        formPanel.addButton(button);
 
-        // Do NOT use addButton(Button) here.
-        // This does not seem to work correctly (while clearing RootPanel, we get an exception).
-        button = addButton(messageResources.getLoginButtonLabel());
-        button.addButtonListener(new ButtonListenerAdapter()
+        // NOTE: it would be better to invoke it on reset but it somehow doesn't have any effect
+        focusOnFirstField();
+
+        add(formPanel);
+    }
+
+    private final Button createButton()
+    {
+        final Button b = new Button(context.getMessageResources().getLoginButtonLabel());
+        b.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
-
-                //
-                // ButtonListenerAdapter
-                //
-
-                public final void onClick(final Button but, final EventObject e)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
-                    submitForm();
-                }
-
-            });
-        // Add a key listener for return key
-        getEl().addKeyListener(EventObject.ENTER, new KeyListener()
-            {
-                //
-                // KeyListener
-                //
-
-                public final void onKey(final int key, final EventObject e)
-                {
-                    submitForm();
+                    doLogin(context);
                 }
             });
-        end();
-        render();
+        return b;
     }
 
-    private final static FormConfig createFormConfig()
+    private void focusOnFirstField()
     {
-        final FormConfig formConfig = new FormConfig();
-        formConfig.setWidth(300);
-        formConfig.setLabelAlign(Position.LEFT);
-        formConfig.setButtonAlign(Position.RIGHT);
-        formConfig.setLabelWidth(75);
-        return formConfig;
+        formPanel.getItem(0).focus();
     }
 
-    private final TextField createPasswordField()
+    private final TextField<String> createUserField()
     {
-        final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(context.getMessageResources().getLoginPasswordLabel());
-        fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setPassword(true);
-        fieldConfig.setAllowBlank(false);
-        fieldConfig.setValidateOnBlur(false);
-        return new TextField(fieldConfig);
+        final TextField<String> field = new TextField<String>();
+        field.setFieldLabel(context.getMessageResources().getLoginUserLabel());
+        field.setAllowBlank(false);
+        field.setValidateOnBlur(true);
+        addEnterKeyListener(field, context);
+        return field;
     }
 
-    private final TextField createUserField()
+    private final void addEnterKeyListener(final Field<String> field, final ViewContext viewContext)
     {
-        final TextFieldConfig fieldConfig = new TextFieldConfig();
-        fieldConfig.setFieldLabel(context.getMessageResources().getLoginUserLabel());
-        fieldConfig.setWidth(FIELD_WIDTH);
-        fieldConfig.setAllowBlank(false);
-        fieldConfig.setValidateOnBlur(false);
-        return new TextField(fieldConfig);
+        field.addKeyListener(new EnterKeyListener()
+            {
+
+                @Override
+                protected final void onEnterKey()
+                {
+                    doLogin(viewContext);
+                }
+            });
+    }
+
+    public final void resetFields()
+    {
+        userField.reset();
+        passwordField.reset();
+        button.enable();
+    }
+
+    private final TextField<String> createPasswordField()
+    {
+        final TextField<String> field = new TextField<String>();
+        field.setPassword(true);
+        field.setFieldLabel(context.getMessageResources().getLoginPasswordLabel());
+        field.setAllowBlank(false);
+        field.setValidateOnBlur(true);
+        addEnterKeyListener(field, context);
+        return field;
     }
 
     /** Returns the button that will starts the login process. */
@@ -140,16 +136,21 @@ public class LoginWidget extends Form
         return button;
     }
 
-    /** Submits given <var>loginForm</var>. */
-    protected void submitForm()
+    @Override
+    protected final void onLoad()
     {
-        if (isValid())
+        super.onLoad();
+        resetFields();
+    }
+
+    private final void doLogin(final ViewContext viewContext)
+    {
+        if (formPanel.isValid())
         {
             button.disable();
-            final String username = userField.getText();
-            final String password = passwordField.getText();
-            final ICIFEXServiceAsync cifexService = context.getCifexService();
-            cifexService.tryLogin(username, password, new LoginAsyncCallBack());
+            final String user = userField.getValue();
+            final String password = passwordField.getValue();
+            viewContext.getCifexService().tryLogin(user, password, new LoginAsyncCallBack());
         }
     }
 
@@ -167,21 +168,33 @@ public class LoginWidget extends Form
         context.getPageController().createMainPage();
     }
 
-    public final TextField getUserField()
+    public final TextField<String> getUserField()
     {
         return userField;
     }
 
-    public final TextField getPasswordField()
+    public final TextField<String> getPasswordField()
     {
         return passwordField;
+    }
+
+    private final static FormPanel createFormPanel()
+    {
+        final FormPanel formPanel = new FormPanel();
+        formPanel.setStyleName("cifex-login-widget");
+        formPanel.setBodyBorder(false);
+        formPanel.setHeaderVisible(false);
+        formPanel.setFieldWidth(130);
+        formPanel.setWidth(250);
+        formPanel.setButtonAlign(HorizontalAlignment.RIGHT);
+        return formPanel;
     }
 
     //
     // Helper classes
     //
 
-    private final class LoginAsyncCallBack extends AbstractAsyncCallback
+    private final class LoginAsyncCallBack extends AbstractAsyncCallback<UserInfoDTO>
     {
 
         LoginAsyncCallBack()
@@ -189,26 +202,23 @@ public class LoginWidget extends Form
             super(context);
         }
 
-        //
-        // AsyncCallback
-        //
-
+        @Override
         public final void onFailure(final Throwable caught)
         {
             super.onFailure(caught);
             getButton().enable();
         }
 
-        public final void onSuccess(final Object result)
+        public final void onSuccess(final UserInfoDTO result)
         {
             if (result != null)
             {
-                loginSuccessful((UserInfoDTO) result);
+                loginSuccessful(result);
             } else
             {
                 final IMessageResources messageResources = context.getMessageResources();
                 final String title = messageResources.getMessageBoxWarningTitle();
-                MessageBox.alert(title, messageResources.getLoginFailedMessage());
+                MessageBox.alert(title, messageResources.getLoginFailedMessage(), null);
                 getButton().enable();
             }
         }

@@ -46,6 +46,7 @@ final class LoginPage extends VerticalPanel
         this.viewContext = viewContext;
         setSpacing(CELL_SPACING);
         setWidth("100%");
+        this.setHeight("100%");
         setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
         final LoginWidget loginWidget = createLoginWidget();
         // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this
@@ -61,15 +62,14 @@ final class LoginPage extends VerticalPanel
         add(northPanel);
         add(loginPanel);
         add(footerPanel);
-        this.setHeight("100%");
         this.setCellVerticalAlignment(footerPanel, VerticalPanel.ALIGN_BOTTOM);
     }
 
     private final LoginWidget createLoginWidget()
     {
         final LoginWidget loginWidget = new LoginWidget(viewContext);
-        final Map urlParams = viewContext.getModel().getUrlParams();
-        final String userCode = (String) urlParams.get(Constants.USERCODE_PARAMETER);
+        final Map<String, String> urlParams = viewContext.getModel().getUrlParams();
+        final String userCode = urlParams.get(Constants.USERCODE_PARAMETER);
         if (StringUtils.isBlank(userCode) == false)
         {
             loginWidget.getUserField().setValue(userCode);

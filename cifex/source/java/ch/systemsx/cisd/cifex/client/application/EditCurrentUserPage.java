@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.gwtext.client.core.Ext;
-import com.gwtext.client.widgets.layout.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
@@ -30,27 +28,31 @@ import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
  */
 final class EditCurrentUserPage extends AbstractMainPage
 {
-    private VerticalPanel editUserPanel;
 
     EditCurrentUserPage(final ViewContext context)
     {
         super(context);
     }
 
-    private final void createEditUserWidget()
+    @Override
+    protected final LayoutContainer createMainPanel()
+    {
+        final LayoutContainer mainPanel = new LayoutContainer();
+        mainPanel.add(createEditUserWidget(context));
+        return mainPanel;
+    }
+
+    static private final LayoutContainer createEditUserWidget(ViewContext context)
     {
         // Otherwise the user can remove its own admin rights.
         boolean allowPermanentUsers = false;
-        editUserPanel = createVerticalPanelPart();
-        editUserPanel.add(createPartTitle(messageResources.getEditUserLabel()));
+        LayoutContainer editUserPanel = createContainer();
+        addTitlePart(editUserPanel, context.getMessageResources().getEditUserLabel());
         final EditUserWidget editUserWidget =
                 new EditUserWidget(context, allowPermanentUsers, context.getModel().getUser(), true)
                     {
 
-                        //
-                        // EditUserWidget
-                        //
-
+                        @Override
                         protected final void finishEditing()
                         {
                             final IPageController pageController = context.getPageController();
@@ -62,21 +64,7 @@ final class EditCurrentUserPage extends AbstractMainPage
                         }
                     };
         editUserPanel.add(editUserWidget);
-    }
-
-    //
-    // AbstractMainPage
-    //
-
-    protected final ContentPanel createMainPanel()
-    {
-        final ContentPanel mainPanel = new ContentPanel(Ext.generateId());
-
-        createUserPanel = createVerticalPanelPart();
-        createEditUserWidget();
-
-        mainPanel.add(editUserPanel);
-        return mainPanel;
+        return editUserPanel;
     }
 
 }

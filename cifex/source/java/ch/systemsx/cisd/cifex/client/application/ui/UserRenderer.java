@@ -16,11 +16,12 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.gwtext.client.data.Record;
-import com.gwtext.client.data.Store;
-import com.gwtext.client.widgets.grid.CellMetadata;
-import com.gwtext.client.widgets.grid.Renderer;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
+import ch.systemsx.cisd.cifex.client.application.model.AbstractUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -32,11 +33,11 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.BasicUserInfoDTO;
  * 
  * @author Christian Ribeaud
  */
-public final class UserRenderer implements Renderer
+public final class UserRenderer implements GridCellRenderer<AbstractUserGridModel>
 {
 
     /** The unique instance of <code>UserRenderer</code>. */
-    public final static Renderer USER_RENDERER = new UserRenderer();
+    public final static UserRenderer USER_RENDERER = new UserRenderer();
 
     private UserRenderer()
     {
@@ -45,14 +46,14 @@ public final class UserRenderer implements Renderer
     /**
      * Nicely renders given <code>user</code>.
      * <p>
-     * You can not use this method in a {@link Renderer} and you should not make sortable the column
-     * where this method is used.
+     * You can not use this method in a {@link GridCellRenderer} and you should not make sortable
+     * the column where this method is used.
      * </p>
      */
     public final static String createUserAnchor(final BasicUserInfoDTO[] users)
     {
         assert users != null : "Unspecified user.";
-        
+
         if (users.length == 0)
         {
             return Constants.TABLE_NULL_VALUE;
@@ -70,12 +71,12 @@ public final class UserRenderer implements Renderer
         }
         return anchor;
     }
-    
+
     /**
      * Nicely renders given <code>user</code>.
      * <p>
-     * You can not use this method in a {@link Renderer} and you should not make sortable the column
-     * where this method is used.
+     * You can not use this method in a {@link GridCellRenderer} and you should not make sortable
+     * the column where this method is used.
      * </p>
      */
     public final static String createUserAnchor(final BasicUserInfoDTO user)
@@ -99,13 +100,11 @@ public final class UserRenderer implements Renderer
         }
     }
 
-    //
-    // Renderer
-    //
-
-    public final String render(final Object value, final CellMetadata cellMetadata,
-            final Record record, final int rowIndex, final int colNum, final Store store)
+    public Object render(AbstractUserGridModel model, String property, ColumnData config,
+            int rowIndex, int colIndex, ListStore<AbstractUserGridModel> store,
+            Grid<AbstractUserGridModel> grid)
     {
+        String value = String.valueOf(model.get(property));
         if (value == null)
         {
             return Constants.TABLE_NULL_VALUE;

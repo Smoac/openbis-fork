@@ -16,35 +16,24 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.google.gwt.user.client.ui.Widget;
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.core.Ext;
-import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.LayoutDialog;
-import com.gwtext.client.widgets.LayoutDialogConfig;
-import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-import com.gwtext.client.widgets.layout.ContentPanel;
-import com.gwtext.client.widgets.layout.ContentPanelConfig;
-import com.gwtext.client.widgets.layout.LayoutRegionConfig;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 
 /**
- * An default <code>LayoutDialog</code> extension which incorporates a button in the south region.
- * <p>
- * To finalize the construction of this <code>LayoutDialog</code> you must call
- * {@link #addContentPanel()}.
- * </p>
+ * {@link Dialog} adjusted to project settings.
  * 
  * @author Christian Ribeaud
  */
-public class DefaultLayoutDialog extends LayoutDialog
+public class DefaultLayoutDialog extends Dialog
 {
     public static final int DEFAULT_WIDTH = 500;
 
     public static final int DEFAULT_HEIGHT = 300;
-
-    private ContentPanel contentPanel;
 
     protected final IMessageResources messageResources;
 
@@ -62,104 +51,33 @@ public class DefaultLayoutDialog extends LayoutDialog
     public DefaultLayoutDialog(final IMessageResources messageResources, final String title,
             final int width, final int height, final boolean modal, final boolean closable)
     {
-        super(createLayoutDialogConfig(title, width, height, modal, closable),
-                createLayoutRegionConfig());
         this.messageResources = messageResources;
+        setTitle(title);
+        setModal(modal);
+        setWidth(width);
+        setHeight(height);
+        setClosable(closable);
+        setScrollMode(Scroll.AUTO);
+        getButtonBar().remove(getButtonById(Dialog.OK));
         if (closable)
         {
-            createCloseButton();
+            addButton(createCloseButton());
         }
     }
 
-    /** Calls this method in your extension to finalize the construction of this dialog. */
-    public final void addContentPanel()
+    private final Button createCloseButton()
     {
-        contentPanel = new ContentPanel(Ext.generateId(), createContentPanelConfig());
-
-        final Widget contentWidget = createContentWidget();
-        if (contentWidget != null)
-        {
-            assert contentWidget instanceof ContentPanel == false : "Do not add a ContentPanel to the ContentPanel.";
-            contentPanel.add(contentWidget);
-        }
-        getLayout().add(contentPanel);
-    }
-
-    private final static ContentPanelConfig createContentPanelConfig()
-    {
-        final ContentPanelConfig contentPanelConfig = new ContentPanelConfig();
-        contentPanelConfig.setFitToFrame(true);
-        contentPanelConfig.setAutoScroll(true);
-        return contentPanelConfig;
-    }
-
-    /**
-     * Returns the {@link ContentPanel} of the center region.
-     * <p>
-     * Might return <code>null</code> if {@link #addContentPanel()} not already called.
-     * </p>
-     */
-    public final ContentPanel getContentPanel()
-    {
-        return contentPanel;
-    }
-
-    private final static LayoutRegionConfig createLayoutRegionConfig()
-    {
-        final LayoutRegionConfig config = new LayoutRegionConfig();
-        return config;
-    }
-
-    protected final static LayoutDialogConfig createLayoutDialogConfig(final String title,
-            final int width, final int height, final boolean modal, final boolean closable)
-    {
-        final LayoutDialogConfig config = new LayoutDialogConfig();
-        config.setTitle(title);
-        config.setModal(modal);
-        config.setWidth(width);
-        config.setHeight(height);
-        config.setClosable(closable);
-        config.setShadow(true);
-        config.setFixedCenter(true);
-        return config;
-    }
-
-    private final void createCloseButton()
-    {
-        final Button button = addButton(getCloseButtonLabel());
-        button.addButtonListener(new ButtonListenerAdapter()
+        final Button button = new Button(messageResources.getDialogCloseButtonLabel());
+        button.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 
-                //
-                // ButtonListenerAdapter
-                //
-
-                public final void onClick(final Button but, final EventObject e)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
                     hide();
                 }
             });
+        return button;
     }
 
-    /**
-     * Creates the <code>Widget</code> that is going to be added in the center region.
-     * <p>
-     * Default implementation returns <code>null</code>.
-     * </p>
-     */
-    protected Widget createContentWidget()
-    {
-        return null;
-    }
-
-    /**
-     * Returns the label of the close button.
-     * <p>
-     * Default implementation returns {@link IMessageResources#getDialogCloseButtonLabel()}.
-     * </p>
-     */
-    protected String getCloseButtonLabel()
-    {
-        return messageResources.getDialogCloseButtonLabel();
-    }
 }

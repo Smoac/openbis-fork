@@ -37,16 +37,16 @@ public final class Model
      * Is never <code>null</code> but could be empty.
      * </p>
      */
-    private Map urlParams = new HashMap();
+    private Map<String, String> urlParams = new HashMap<String, String>();
 
     private Configuration configuration;
 
-    public final Map getUrlParams()
+    public final Map<String, String> getUrlParams()
     {
         return urlParams;
     }
 
-    public final void setUrlParams(final Map urlParams)
+    public final void setUrlParams(final Map<String, String> urlParams)
     {
         assert urlParams != null : "URL params can not be null.";
         this.urlParams = urlParams;

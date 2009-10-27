@@ -19,9 +19,9 @@ package ch.systemsx.cisd.cifex.client.application;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.event.ButtonListenerAdapter;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
@@ -33,27 +33,28 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
 {
-    private final List usersToAdd = new ArrayList();
+    private final List<String> usersToAdd = new ArrayList<String>();
 
-    private final List initialSharingUsers;
+    private final List<UserInfoDTO> initialSharingUsers;
 
-    private final List usersToRemove = new ArrayList();
+    private final List<String> usersToRemove = new ArrayList<String>();
 
     private final String fileId;
 
-    public FileShareUpdateUserDialog(final ViewContext context, final List existingUsers,
-            final List newUsers, final String name, final String fileId)
+    public FileShareUpdateUserDialog(final ViewContext context,
+            final List<UserInfoDTO> existingUsers, final List<UserInfoDTO> newUsers,
+            final String name, final String fileId)
     {
         super(context, existingUsers, newUsers, name);
-        initialSharingUsers = new ArrayList(existingUsers);
+        initialSharingUsers = new ArrayList<UserInfoDTO>(existingUsers);
         createUpdateButton();
         this.fileId = fileId;
     }
 
-    public FileShareUpdateUserDialog(final ViewContext context, UserInfoDTO[] existingUsers, String name,
-            String fileId)
+    public FileShareUpdateUserDialog(final ViewContext context, List<UserInfoDTO> existingUsers,
+            String name, String fileId)
     {
-        this(context, existingUsers, null, name, fileId);
+        this(context, existingUsers, new ArrayList<UserInfoDTO>(), name, fileId);
     }
 
     public FileShareUpdateUserDialog(final ViewContext context, final UserInfoDTO[] existingUsers,
@@ -66,17 +67,18 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
     }
 
     // Remembers which users should be removed from the share and which one added.
+    @Override
     void checkboxChangeAction()
     {
         for (int i = 0; i < existingUsers.size(); i++)
         {
             // User in the loop
-            UserInfoDTO tmpUser = ((UserInfoDTO) existingUsers.get(i));
+            UserInfoDTO tmpUser = (existingUsers.get(i));
             String userIdentifierWithPrefix = Constants.USER_ID_PREFIX + tmpUser.getUserCode();
-            String userIdentifier = ((UserInfoDTO) existingUsers.get(i)).getUserCode();
+            String userIdentifier = (existingUsers.get(i)).getUserCode();
             // Checkbox is unchecked
-            if (existingUserGrid.getStore().getAt(i)
-                    .getAsBoolean(FileShareUserGridModel.SHARE_FILE) == false)
+            if ((Boolean) existingUserGrid.getStore().getAt(i).get(
+                    FileShareUserGridModel.SHARE_FILE) == false)
             {
                 // If user is marked to add to the fileshare, remove him from the list
                 if (usersToAdd.contains(userIdentifierWithPrefix) == true)
@@ -110,9 +112,9 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
         // Loop for new generated users
         for (int i = 0; i < newUsers.size(); i++)
         {
-            String userIdentifier = ((UserInfoDTO) newUsers.get(i)).getEmail();
+            String userIdentifier = (newUsers.get(i)).getEmail();
             // If checkbox of the user is checked
-            if (newUserGrid.getStore().getAt(i).getAsBoolean(FileShareUserGridModel.SHARE_FILE) == false)
+            if ((Boolean) newUserGrid.getStore().getAt(i).get(FileShareUserGridModel.SHARE_FILE) == false)
             {
                 if (usersToAdd.contains(userIdentifier))
                 {
@@ -128,6 +130,7 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
         }
     }
 
+    @Override
     protected void addUserToFileShare(UserInfoDTO user)
     {
         if (StringUtils.isBlank(user.getUserCode()) == false)
@@ -142,19 +145,20 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
     private final void createUpdateButton()
     {
         final Button button =
-                addButton(viewContext.getMessageResources().getShareSubmitDialogButtonLabel());
-        button.addButtonListener(new ButtonListenerAdapter()
+                new Button(viewContext.getMessageResources().getShareSubmitDialogButtonLabel());
+        addButton(button);
+        button.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
-                public final void onClick(final Button but, final EventObject e)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
                     for (int i = 0; i < usersToRemove.size(); i++)
                     {
                         viewContext.getCifexService().deleteSharingLink(fileId,
-                                (String) usersToRemove.get(i),
-                                new AbstractAsyncCallback(viewContext)
+                                usersToRemove.get(i), new AbstractAsyncCallback<Void>(viewContext)
                                     {
 
-                                        public void onSuccess(Object result)
+                                        public void onSuccess(Void result)
                                         {
                                             // Do nothing, everything went fine.
                                         }
@@ -163,11 +167,11 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
                     }
                     for (int i = 0; i < usersToAdd.size(); i++)
                     {
-                        viewContext.getCifexService().createSharingLink(fileId,
-                                (String) usersToAdd.get(i), new AbstractAsyncCallback(viewContext)
+                        viewContext.getCifexService().createSharingLink(fileId, usersToAdd.get(i),
+                                new AbstractAsyncCallback<Void>(viewContext)
                                     {
 
-                                        public void onSuccess(Object result)
+                                        public void onSuccess(Void result)
                                         {
                                             // Do nothing, everything went fine.
                                         }

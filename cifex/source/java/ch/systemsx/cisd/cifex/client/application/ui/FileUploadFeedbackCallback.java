@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.gwtext.client.widgets.MessageBox;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
@@ -33,24 +33,24 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
  * 
  * @author Christian Ribeaud
  */
-final class FileUploadFeedbackCallback extends AbstractAsyncCallback
+final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadFeedback>
 {
 
     /**
      * Whether the progress bar has already been initialized (using
      * {@link MessageBox#progress(String, String)}).
      */
-    private final boolean initialized;
+    private MessageBox messageBox;
 
     FileUploadFeedbackCallback(final ViewContext context)
     {
-        this(context, false);
+        this(context, null);
     }
 
-    private FileUploadFeedbackCallback(final ViewContext context, final boolean initialized)
+    private FileUploadFeedbackCallback(final ViewContext context, final MessageBox initialized)
     {
         super(context);
-        this.initialized = initialized;
+        this.messageBox = initialized;
     }
 
     private final void refreshMainPage()
@@ -80,19 +80,16 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
         return buffer.toString();
     }
 
-    //
-    // AbstractAsyncCallback
-    //
-
+    @Override
     public final void onFailure(final Throwable caught)
     {
         super.onFailure(caught);
         refreshMainPage();
     }
 
-    public final void onSuccess(final Object result)
+    public final void onSuccess(final FileUploadFeedback result)
     {
-        final FileUploadFeedback feedback = (FileUploadFeedback) result;
+        final FileUploadFeedback feedback = result;
         final IMessageResources messageResources = getViewContext().getMessageResources();
         final Message message = feedback.getMessage();
         if (message != null)
@@ -103,19 +100,20 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback
         }
         if (feedback.isFinished())
         {
-            MessageBox.hide();
+            messageBox.close();
             refreshMainPage();
             return;
         }
-        if (initialized == false)
+        if (messageBox == null)
         {
-            MessageBox.progress(messageResources.getFileUploadFeedbackTitle(), messageResources
-                    .getFileUploadFeedbackMessage());
+            messageBox =
+                    MessageBox.progress(messageResources.getFileUploadFeedbackTitle(),
+                            messageResources.getFileUploadFeedbackMessage(), null);
         } else
         {
-            MessageBox.updateProgress(feedback.getPercentage(), createUpdateMessage(feedback));
+            messageBox.updateProgress(feedback.getPercentage(), createUpdateMessage(feedback));
         }
         getViewContext().getCifexService().getFileUploadFeedback(
-                new FileUploadFeedbackCallback(getViewContext(), true));
+                new FileUploadFeedbackCallback(getViewContext(), messageBox));
     }
 }

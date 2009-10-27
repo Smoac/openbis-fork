@@ -19,13 +19,12 @@ package ch.systemsx.cisd.cifex.client.application;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gwtext.client.data.DateFieldDef;
-import com.gwtext.client.data.IntegerFieldDef;
-import com.gwtext.client.data.StringFieldDef;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
@@ -35,56 +34,45 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
  */
 public class DownloadFileGridModel extends AbstractFileGridModel
 {
+    private static final long serialVersionUID = Constants.VERSION;
 
-    DownloadFileGridModel(IMessageResources messageResources)
+    public DownloadFileGridModel(IMessageResources messageResources, FileInfoDTO file)
     {
         super(messageResources);
+        set(ID, file.getIDStr());// String
+        set(NAME, file.getName());// String
+        set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
+        set(CONTENT_TYPE, file.getContentType());// String
+        set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
+        set(REGISTERER, UserRenderer.createUserAnchor(file.getRegisterer()));// String
+        set(REGISTRATION_DATE, file.getRegistrationDate());// Date
+        set(EXPIRATION_DATE, file.getExpirationDate());// Date
     }
 
-    public final List getColumnConfigs()
+    public final static List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
     {
-        final List configs = new ArrayList();
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(createIdColumnConfig());
-        configs.add(createNameColumnConfig());
-        configs.add(createCommentColumnConfig());
-        configs.add(createContentTypeColumnConfig());
-        configs.add(createSizeColumnConfig());
-        configs.add(createRegistererColumnConfig());
-        configs.add(createRegistrationDateColumnConfig());
-        configs.add(createExpirationDateColumnConfig());
+        configs.add(createNameColumnConfig(messageResources));
+        configs.add(createCommentColumnConfig(messageResources));
+        configs.add(createContentTypeColumnConfig(messageResources));
+        configs.add(createSizeColumnConfig(messageResources));
+        configs.add(createRegistererColumnConfig(messageResources));
+        configs.add(createRegistrationDateColumnConfig(messageResources));
+        configs.add(createExpirationDateColumnConfig(messageResources));
         return configs;
     }
 
-    public final List getData(final Object[] data)
+    public final static List<DownloadFileGridModel> convert(IMessageResources messageResources,
+            final List<FileInfoDTO> filters)
     {
-        final List list = new ArrayList();
-        for (int i = 0; i < data.length; i++)
-        {
-            final FileInfoDTO file = (FileInfoDTO) data[i];
-            final Object[] objects =
-                    new Object[]
-                        { file.getIDStr(), file.getName(),
-                                CommentRenderer.createCommentAnchor(file),
-                                file.getContentType(),
-                                FileUtils.tryToGetFileSize(file),
-                                UserRenderer.createUserAnchor(file.getRegisterer()),
-                                file.getRegistrationDate(), file.getExpirationDate() };
-            list.add(objects);
-        }
-        return list;
-    }
+        final List<DownloadFileGridModel> result = new ArrayList<DownloadFileGridModel>();
 
-    public final List getFieldDefs()
-    {
-        final List fieldDefs = new ArrayList();
-        fieldDefs.add(new StringFieldDef(ID));
-        fieldDefs.add(new StringFieldDef(NAME));
-        fieldDefs.add(new StringFieldDef(COMMENT));
-        fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
-        fieldDefs.add(new IntegerFieldDef(SIZE));
-        fieldDefs.add(new StringFieldDef(REGISTERER));
-        fieldDefs.add(new DateFieldDef(REGISTRATION_DATE));
-        fieldDefs.add(new DateFieldDef(EXPIRATION_DATE));
-        return fieldDefs;
+        for (final FileInfoDTO filter : filters)
+        {
+            result.add(new DownloadFileGridModel(messageResources, filter));
+        }
+
+        return result;
     }
 }

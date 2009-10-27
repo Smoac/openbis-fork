@@ -19,9 +19,7 @@ package ch.systemsx.cisd.cifex.client.application;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gwtext.client.data.DateFieldDef;
-import com.gwtext.client.data.IntegerFieldDef;
-import com.gwtext.client.data.StringFieldDef;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
@@ -37,69 +35,53 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
  */
 public class AdminFileGridModel extends AbstractFileGridModel
 {
+    private static final long serialVersionUID = Constants.VERSION;
 
-    AdminFileGridModel(IMessageResources messageResources)
+    public final static List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
     {
-        super(messageResources);
-    }
-
-    public final List getColumnConfigs()
-    {
-        final List configs = new ArrayList();
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(createIdColumnConfig());
-        configs.add(createNameColumnConfig());
-        configs.add(createCommentColumnConfig());
-        configs.add(createRegistererColumnConfig());
-        configs.add(createSharedWithColumnConfig());
-        configs.add(createContentTypeColumnConfig());
-        configs.add(createSizeColumnConfig());
-        configs.add(createRegistrationDateColumnConfig());
-        configs.add(createExpirationDateColumnConfig());
-        configs.add(createActionColumnConfig());
+        configs.add(createNameColumnConfig(messageResources));
+        configs.add(createCommentColumnConfig(messageResources));
+        configs.add(createRegistererColumnConfig(messageResources));
+        configs.add(createSharedWithColumnConfig(messageResources));
+        configs.add(createContentTypeColumnConfig(messageResources));
+        configs.add(createSizeColumnConfig(messageResources));
+        configs.add(createRegistrationDateColumnConfig(messageResources));
+        configs.add(createExpirationDateColumnConfig(messageResources));
+        configs.add(createActionColumnConfig(messageResources));
         return configs;
     }
 
-    public final List getData(final Object[] data)
+    public AdminFileGridModel(IMessageResources messageResources, AdminFileInfoDTO file)
     {
-        final List list = new ArrayList();
-        for (int i = 0; i < data.length; i++)
-        {
-            final AdminFileInfoDTO file = (AdminFileInfoDTO) data[i];
-            final Object[] objects =
-                    new Object[]
-                        {
-                                file.getIDStr(),
-                                file.getName(),
-                                CommentRenderer.createCommentAnchor(file),
-                                UserRenderer.createUserAnchor(file.getRegisterer()),
-                                UserRenderer.createUserAnchor(file.getSharingUsers()),
-                                file.getContentType(),
-                                FileUtils.tryToGetFileSize(file),
-                                file.getRegistrationDate(),
-                                file.getExpirationDate(),
-                                DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
-                                        Constants.RENEW_ID)
-                                        + " | "
-                                        + DOMUtils.createAnchor(messageResources
-                                                .getActionDeleteLabel(), Constants.DELETE_ID) };
-            list.add(objects);
-        }
-        return list;
+        super(messageResources);
+        set(ID, file.getIDStr());// String
+        set(NAME, file.getName());// String
+        set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
+        set(REGISTERER, UserRenderer.createUserAnchor(file.getRegisterer()));// String
+        set(SHARED_WITH, UserRenderer.createUserAnchor(file.getSharingUsers()));// String
+        set(CONTENT_TYPE, file.getContentType());// String
+        set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
+        set(REGISTRATION_DATE, file.getRegistrationDate());// Date
+        set(EXPIRATION_DATE, file.getExpirationDate());// Date
+        set(ACTION, DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
+                Constants.RENEW_ID)
+                + " | "
+                + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
+                        Constants.DELETE_ID));// String
     }
 
-    public final List getFieldDefs()
+    public final static List<AdminFileGridModel> convert(IMessageResources messageResources,
+            final List<AdminFileInfoDTO> filters)
     {
-        final List fieldDefs = new ArrayList();
-        fieldDefs.add(new StringFieldDef(ID));
-        fieldDefs.add(new StringFieldDef(NAME));
-        fieldDefs.add(new StringFieldDef(COMMENT));
-        fieldDefs.add(new StringFieldDef(REGISTERER));
-        fieldDefs.add(new StringFieldDef(SHARED_WITH));
-        fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
-        fieldDefs.add(new IntegerFieldDef(SIZE));
-        fieldDefs.add(new DateFieldDef(REGISTRATION_DATE));
-        fieldDefs.add(new DateFieldDef(EXPIRATION_DATE));
-        fieldDefs.add(new StringFieldDef(ACTION));
-        return fieldDefs;
+        final List<AdminFileGridModel> result = new ArrayList<AdminFileGridModel>();
+
+        for (final AdminFileInfoDTO filter : filters)
+        {
+            result.add(new AdminFileGridModel(messageResources, filter));
+        }
+
+        return result;
     }
 }

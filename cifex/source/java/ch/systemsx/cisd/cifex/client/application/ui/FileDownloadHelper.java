@@ -49,9 +49,9 @@ public final class FileDownloadHelper
         assert model != null : "Given model can not be null.";
         final UserInfoDTO user = model.getUser();
         assert user != null : "Undefined user.";
-        final Map urlParams = model.getUrlParams();
-        final String fileId = (String) urlParams.get(Constants.FILE_ID_PARAMETER);
-        final String userCode = (String) urlParams.get(Constants.USERCODE_PARAMETER);
+        final Map<String, String> urlParams = model.getUrlParams();
+        final String fileId = urlParams.get(Constants.FILE_ID_PARAMETER);
+        final String userCode = urlParams.get(Constants.USERCODE_PARAMETER);
         if (fileId == null || userCode == null || userCode.equals(user.getUserCode()) == false)
         {
             return;
@@ -69,8 +69,8 @@ public final class FileDownloadHelper
     /** Creates a download link for given <var>fileId</var>. */
     public final static String createDownloadUrl(final long fileId)
     {
-        return ServletPathConstants.FILE_DOWNLOAD_SERVLET_NAME + "?" + Constants.FILE_ID_PARAMETER + "="
-                + fileId;
+        return ServletPathConstants.FILE_DOWNLOAD_SERVLET_NAME + "?" + Constants.FILE_ID_PARAMETER
+                + "=" + fileId;
     }
 
 }

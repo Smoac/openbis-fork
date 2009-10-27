@@ -66,6 +66,7 @@ final class PageController implements IPageController, IHistoryController
 
     public final void createMainPage()
     {
+
         clearRootPanel();
         final MainPage mainPage = new MainPage(viewContext);
         setCurrentPage(Page.MAIN_PAGE);

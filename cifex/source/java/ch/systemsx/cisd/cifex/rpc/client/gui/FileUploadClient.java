@@ -115,7 +115,7 @@ public class FileUploadClient
 
     private final Thread shutdownHook;
 
-    private JFrame frame;
+    private final JFrame frame;
 
     private JButton uploadButton;
 
@@ -357,6 +357,7 @@ public class FileUploadClient
             {
                 private static final long serialVersionUID = 1L;
 
+                @Override
                 public String getToolTipText(MouseEvent evt)
                 {
                     int index = rowAtPoint(evt.getPoint());
@@ -400,11 +401,13 @@ public class FileUploadClient
         menu.add(menuItem);
         table.addMouseListener(new MouseAdapter()
             {
+                @Override
                 public void mousePressed(MouseEvent e)
                 {
                     showPopup(e);
                 }
 
+                @Override
                 public void mouseReleased(MouseEvent e)
                 {
                     showPopup(e);
@@ -449,7 +452,7 @@ public class FileUploadClient
             {
                 JOptionPane.showMessageDialog(frame, "Problem canonicalizing file:\n"
                         + file.getAbsolutePath());
-                
+
                 return;
             }
             if (file.exists() == false)

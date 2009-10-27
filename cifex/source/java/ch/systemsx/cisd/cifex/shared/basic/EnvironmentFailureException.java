@@ -16,16 +16,16 @@
 
 package ch.systemsx.cisd.cifex.shared.basic;
 
-import com.google.gwt.user.client.rpc.SerializableException;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have
- * their cause in a failure condition in the environment of the system. This implies that the user
- * himself cannot fix the problem
+ * The <code>EnvironmentFailureException</code> is the super class of all exceptions that have their
+ * cause in a failure condition in the environment of the system. This implies that the user himself
+ * cannot fix the problem
  * 
  * @author Bernd Rinn
  */
-public class EnvironmentFailureException extends SerializableException
+public class EnvironmentFailureException extends Exception implements IsSerializable
 {
 
     private static final long serialVersionUID = 1L;

@@ -16,21 +16,20 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.core.Ext;
-import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.ButtonConfig;
-import com.gwtext.client.widgets.Toolbar;
-import com.gwtext.client.widgets.ToolbarButton;
-import com.gwtext.client.widgets.ToolbarSeparator;
-import com.gwtext.client.widgets.ToolbarTextItem;
-import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-import com.gwtext.client.widgets.layout.BorderLayout;
-import com.gwtext.client.widgets.layout.ContentPanel;
-import com.gwtext.client.widgets.layout.LayoutRegionConfig;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Viewport;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.layout.FlowData;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
@@ -42,127 +41,92 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 // TODO 2008-02-13, Christian Ribeaud: the toolbar should be share between 'AdminMainPage',
 // 'EditCurrentUserPage' and
 // 'MainPage'. The is no reason to re-create it everytime I switch the page.
-abstract class AbstractMainPage extends BorderLayout
+abstract class AbstractMainPage extends Viewport
 {
-    private static final String TOGGLE_GROUP = "toggleGroup";
-
-    protected IMessageResources messageResources;
-
-    protected VerticalPanel createUserPanel;
-
-    private final ToolbarSeparator externalSeparator;
-
-    private final ToolbarButton eXternalAuthenticationButton;
-
-    private final static LayoutRegionConfig createCenterRegion()
-    {
-        final LayoutRegionConfig center = new LayoutRegionConfig();
-        center.setTitlebar(false);
-        center.setAutoScroll(true);
-        return center;
-    }
-
-    private final static LayoutRegionConfig createNorthRegion()
-    {
-        final LayoutRegionConfig north = new LayoutRegionConfig();
-        north.setSplit(false);
-        north.setInitialSize(30);
-        north.setTitlebar(false);
-        north.setAutoScroll(false);
-        return north;
-    }
-
-    private final static LayoutRegionConfig createSouthRegion()
-    {
-        final LayoutRegionConfig south = new LayoutRegionConfig();
-        south.setTitlebar(false);
-        south.setAutoScroll(false);
-        south.setInitialSize(20);
-        return south;
-    }
-
-    protected static final Widget createPartTitle(final String text)
-    {
-        final HTML html = new HTML(text);
-        html.setStyleName("cifex-heading");
-        return html;
-    }
 
     protected final ViewContext context;
 
-    AbstractMainPage(final ViewContext context)
+    protected static final void addTitlePart(LayoutContainer container, final String text)
     {
-        super("100%", "100%", createNorthRegion(), createSouthRegion(), null, null,
-                createCenterRegion());
-        this.context = context;
-        this.messageResources = context.getMessageResources();
-        eXternalAuthenticationButton = createExternalAuthenticationButton();
-        externalSeparator = new ToolbarSeparator();
-        add(LayoutRegionConfig.NORTH, createToolbarPanel());
-        add(LayoutRegionConfig.CENTER, createMainPanel());
-        final FooterPanel footerPanel = new FooterPanel(context);
-        final ContentPanel contentPanel = new ContentPanel();
-        contentPanel.add(footerPanel);
-        add(LayoutRegionConfig.SOUTH, contentPanel);
-        maybeSetExternalAuthenticationVisible();
+        final Html html = new Html(text);
+        html.setStyleName("cifex-heading");
+        container.add(html, new FlowData(new Margins(3, 0, 0, 0)));
     }
 
-    private void maybeSetExternalAuthenticationVisible()
+    AbstractMainPage(final ViewContext context)
     {
-        setExternalAuthenticationVisible(false);
+        this.context = context;
+        setLayout(new RowLayout());
+        Button externalAuthenticationButton = createExternalAuthenticationButton(context);
+        SeparatorToolItem externalSeparator = new SeparatorToolItem();
+        add(createToolbarPanel(context, externalSeparator, externalAuthenticationButton),
+                new RowData(1, -1, new Margins(5)));
+        LayoutContainer mainPanel = createMainPanel();
+        mainPanel.setScrollMode(Scroll.AUTO);
+        add(mainPanel, new RowData(1, 1, new Margins(5)));
+        final FooterPanel footerPanel = new FooterPanel(context);
+        add(footerPanel, new RowData(1, -1));
+        maybeSetExternalAuthenticationVisible(externalAuthenticationButton, externalSeparator,
+                context);
+    }
+
+    static private void maybeSetExternalAuthenticationVisible(
+            final Button eXternalAuthenticationButton, final SeparatorToolItem externalSeparator,
+            ViewContext context)
+    {
+        setExternalAuthenticationVisible(eXternalAuthenticationButton, externalSeparator, false);
         context.getCifexService().showSwitchToExternalOption(context.getModel().getUser(),
-                new AbstractAsyncCallback(context)
+                new AbstractAsyncCallback<Boolean>(context)
                     {
 
-                        public void onSuccess(final Object result)
+                        public void onSuccess(final Boolean result)
                         {
-                            final Boolean resultAsBoolean = (Boolean) result;
-                            final boolean visible =
-                                    resultAsBoolean != null && resultAsBoolean.booleanValue();
-                            setExternalAuthenticationVisible(visible);
+                            final boolean visible = result != null && result.booleanValue();
+                            setExternalAuthenticationVisible(eXternalAuthenticationButton,
+                                    externalSeparator, visible);
                         }
                     });
     }
 
-    private void setExternalAuthenticationVisible(final boolean visible)
+    private static void setExternalAuthenticationVisible(Button externalAuthenticationButton,
+            SeparatorToolItem externalSeparator, final boolean visible)
     {
-        eXternalAuthenticationButton.setVisible(visible);
+        externalAuthenticationButton.setVisible(visible);
         externalSeparator.setVisible(visible);
     }
 
-    private ContentPanel createToolbarPanel()
+    static private ToolBar createToolbarPanel(ViewContext context,
+            SeparatorToolItem externalSeparator, Button externalAuthenticationButton)
     {
         final UserInfoDTO user = context.getModel().getUser();
-        final ContentPanel contentPanel = new ContentPanel("cifex-toolbar-panel");
-        final Toolbar toolbar = new Toolbar(Ext.generateId());
-        toolbar.addItem(createUserDescription(user));
+        final ToolBar toolbar = new ToolBar();
+        toolbar.add(createUserDescription(user));
         if (user.isPermanent() == true)
         {
-            toolbar.addSeparator();
-            toolbar.addButton(createMainViewButton());
+            toolbar.add(new SeparatorToolItem());
+            toolbar.add(createMainViewButton(context));
         }
 
         if (user.isAdmin() == true)
         {
-            toolbar.addSeparator();
-            toolbar.addButton(createAdminViewButton());
+            toolbar.add(new SeparatorToolItem());
+            toolbar.add(createAdminViewButton(context));
         }
 
         if (user.isExternallyAuthenticated() == false && user.isPermanent() == true)
         {
-            toolbar.addSeparator();
-            toolbar.addButton(createEditProfileButton());
+            toolbar.add(new SeparatorToolItem());
+            toolbar.add(createEditProfileButton(context));
         }
 
-        toolbar.addItem(externalSeparator);
-        toolbar.addButton(eXternalAuthenticationButton);
-        toolbar.addSeparator();
-        toolbar.addButton(createLogoutButton());
-        contentPanel.add(toolbar);
-        return contentPanel;
+        toolbar.add(externalSeparator);
+        toolbar.add(externalAuthenticationButton);
+        toolbar.add(new SeparatorToolItem());
+        toolbar.add(createLogoutButton(context));
+        return toolbar;
     }
 
-    private ToolbarTextItem createUserDescription(final UserInfoDTO user)
+    private static LabelToolItem createUserDescription(final UserInfoDTO user)
     {
         final StringBuffer buffer = new StringBuffer();
         final String fullUserName = user.getUserFullName();
@@ -188,26 +152,17 @@ abstract class AbstractMainPage extends BorderLayout
                     DateTimeUtils.formatDate(user.getExpirationDate()));
         }
         buffer.append("&gt;</i>");
-        return new ToolbarTextItem(buffer.toString());
+        return new LabelToolItem(buffer.toString());
     }
 
-    private final ToolbarButton createLogoutButton()
+    static private final Button createLogoutButton(final ViewContext context)
     {
-        final ToolbarButton logoutButton =
-                new ToolbarButton(messageResources.getLogoutLinkLabel(), new ButtonConfig()
-                    {
-                        {
-                            setTooltip(messageResources.getLogoutLinkTooltip());
-                        }
-                    });
-        logoutButton.addButtonListener(new ButtonListenerAdapter()
+        final Button logoutButton = new Button(context.getMessageResources().getLogoutLinkLabel());
+        logoutButton.setToolTip(context.getMessageResources().getLogoutLinkTooltip());
+        logoutButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
-
-                //
-                // ButtonListenerAdapter
-                //
-
-                public final void onClick(final Button button, final EventObject e)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
                     context.getCifexService().logout(AsyncCallbackAdapter.EMPTY_ASYNC_CALLBACK);
                     context.getModel().getUrlParams().clear();
@@ -217,23 +172,15 @@ abstract class AbstractMainPage extends BorderLayout
         return logoutButton;
     }
 
-    private final ToolbarButton createMainViewButton()
+    static private final Button createMainViewButton(final ViewContext context)
     {
-        final ToolbarButton editProfileButton =
-                new ToolbarButton(messageResources.getMainViewLinkLabel(), new ButtonConfig()
-                    {
-                        {
-                            setTooltip(messageResources.getMainViewTooltipLabel());
-                            setToggleGroup(TOGGLE_GROUP);
-                        }
-                    });
-        editProfileButton.addButtonListener(new ButtonListenerAdapter()
+        final Button editProfileButton =
+                new Button(context.getMessageResources().getMainViewLinkLabel());
+        editProfileButton.setToolTip(context.getMessageResources().getMainViewTooltipLabel());
+        editProfileButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
-                //
-                // ButtonListenerAdapter
-                //
-
-                public final void onClick(final Button button, final EventObject e)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
                     context.getPageController().createMainPage();
                 }
@@ -241,23 +188,15 @@ abstract class AbstractMainPage extends BorderLayout
         return editProfileButton;
     }
 
-    private final ToolbarButton createEditProfileButton()
+    static private final Button createEditProfileButton(final ViewContext context)
     {
-        final ToolbarButton editProfileButton =
-                new ToolbarButton(messageResources.getEditUserLinkLabel(), new ButtonConfig()
-                    {
-                        {
-                            setTooltip(messageResources.getEditUserTooltipLabel());
-                            setToggleGroup(TOGGLE_GROUP);
-                        }
-                    });
-        editProfileButton.addButtonListener(new ButtonListenerAdapter()
+        final Button editProfileButton =
+                new Button(context.getMessageResources().getEditUserLinkLabel());
+        editProfileButton.setToolTip(context.getMessageResources().getEditUserTooltipLabel());
+        editProfileButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
-                //
-                // ButtonListenerAdapter
-                //
-
-                public final void onClick(final Button button, final EventObject e)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
                     context.getPageController().createEditCurrentUserPage();
                 }
@@ -265,43 +204,34 @@ abstract class AbstractMainPage extends BorderLayout
         return editProfileButton;
     }
 
-    private final ToolbarButton createExternalAuthenticationButton()
+    static private final Button createExternalAuthenticationButton(final ViewContext context)
     {
         final String externalAuthenticationTitle =
-                messageResources.getExternalAuthenticationLabel();
-
-        final ToolbarButton editProfileButton =
-                new ToolbarButton(externalAuthenticationTitle, new ButtonConfig()
-                    {
-                        {
-                            setTooltip(messageResources.getExternalAuthenticationButtonTooltip());
-                            setToggleGroup(TOGGLE_GROUP);
-                        }
-                    });
-        editProfileButton.addButtonListener(new ButtonListenerAdapter()
+                context.getMessageResources().getExternalAuthenticationLabel();
+        final Button editProfileButton = new Button(externalAuthenticationTitle);
+        editProfileButton.setToolTip(context.getMessageResources()
+                .getExternalAuthenticationButtonTooltip());
+        editProfileButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
-                public final void onClick(final Button button, final EventObject e)
-                {
 
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
                     context.getPageController().createExternalAuthenticationPage();
                 }
             });
         return editProfileButton;
     }
 
-    private final ToolbarButton createAdminViewButton()
+    static private final Button createAdminViewButton(final ViewContext context)
     {
-        final ToolbarButton adminViewButton =
-                new ToolbarButton(messageResources.getAdminViewLinkLabel(), new ButtonConfig()
-                    {
-                        {
-                            setTooltip(messageResources.getAdminViewTooltipLabel());
-                            setToggleGroup(TOGGLE_GROUP);
-                        }
-                    });
-        adminViewButton.addButtonListener(new ButtonListenerAdapter()
+        final Button adminViewButton =
+                new Button(context.getMessageResources().getAdminViewLinkLabel());
+        adminViewButton.setToolTip(context.getMessageResources().getAdminViewTooltipLabel());
+        adminViewButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
-                public final void onClick(final Button button, final EventObject e)
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
                     context.getPageController().createAdminPage();
                 }
@@ -309,37 +239,30 @@ abstract class AbstractMainPage extends BorderLayout
         return adminViewButton;
     }
 
-    private final CreateUserWidget createCreateUserWidget(final boolean allowPermanentUsers)
+    static LayoutContainer createContainer()
     {
-
-        final CreateUserWidget createUserWidget =
-                new CreateUserWidget(context, allowPermanentUsers);
-        return createUserWidget;
-
-    }
-
-    static VerticalPanel createVerticalPanelPart()
-    {
-        final VerticalPanel verticalPanel = new VerticalPanel();
+        final LayoutContainer verticalPanel = new LayoutContainer();
         verticalPanel.setWidth("100%");
-        verticalPanel.setSpacing(5);
         return verticalPanel;
     }
 
-    protected final void createUserPanel(final boolean allowPermanentUsers)
+    protected static final LayoutContainer createUserPanel(final boolean allowPermanentUsers,
+            ViewContext context)
     {
-        createUserPanel = createVerticalPanelPart();
+        LayoutContainer createUserPanel = createContainer();
         if (allowPermanentUsers)
         {
-            createUserPanel.add(createPartTitle(messageResources.getAdminCreateUserLabel()));
+            addTitlePart(createUserPanel, context.getMessageResources().getAdminCreateUserLabel());
         } else
         {
-            createUserPanel.add(createPartTitle(messageResources.getCreateUserLabel()));
+            addTitlePart(createUserPanel, context.getMessageResources().getCreateUserLabel());
         }
-        final CreateUserWidget createUserWidget = createCreateUserWidget(allowPermanentUsers);
+        final CreateUserWidget createUserWidget =
+                new CreateUserWidget(context, allowPermanentUsers);
         createUserPanel.add(createUserWidget);
+        return createUserPanel;
     }
 
-    protected abstract ContentPanel createMainPanel();
+    protected abstract LayoutContainer createMainPanel();
 
 }

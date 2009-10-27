@@ -7,11 +7,10 @@
 	<property name="original.dist.server" value="${original.dist}/server" />
 	<property name="original.dist.client" value="${original.dist}/client" />
 
-	<property name="gwt.lib" value="${lib}/gwt" />
-	<property name="gwt.dev.lib" value="${gwt.lib}/windows/gwt-dev-windows.jar" />
+	<property name="gwt.lib" value="${lib}/gwt1.7" />
+	<property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
 	<property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
-	<property name="gwt.ext.lib" value="${lib}/gwt-ext/gwtext.jar" />
-	<property name="gwt.tomcat.web-inf" value="../${ant.project.name}/tomcat/webapps/ROOT/WEB-INF" />
+	<property name="gxt.lib" value="${lib}/gxt2.0/gxt.jar" />
 
 	<property name="cifex.server.resource" value="../${ant.project.name}/${server-resource}" />
 
@@ -28,7 +27,9 @@
 	<property name="webapp.file" value="${dist}/${webapp.file.name}" />
 
 	<property name="targets.www" value="${targets}/www/ch.systemsx.cisd.cifex.Cifex" />
-	
+	<property name="gwt.war.web-inf" value="${targets}/www/WEB-INF" />
+	<property name="gwt.war.web-inf.lib" value="${gwt.war.web-inf}/lib" />
+	<property name="gwt.war.web-inf.classes" value="${gwt.war.web-inf}/classes" />
 	<property name="cifex.cli.zip" value="${dist}/cifex_cli.zip" />
 
 	<!-- 
@@ -102,11 +103,11 @@
 		<property name="cifex.gwt.path" value="ch.systemsx.cisd.cifex.Cifex" />
 
 		<delete dir="${webapp.dist}" />
-		<java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${gwt.ext.lib}:${sources}"
-		      classname="com.google.gwt.dev.GWTCompiler"
+		<java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${gxt.lib}:${sources}"
+		      classname="com.google.gwt.dev.Compiler"
 		      fork="true">
 			<jvmarg value="-Xmx512M" />
-			<arg value="-out" />
+			<arg value="-war" />
 			<arg value="${webapp.dist}" />
 			<arg value="${cifex.gwt.path}" />
 		</java>
@@ -167,8 +168,7 @@
 			</fileset>
 		</recursive-jar>
 		<jar update="true" destfile="${jar.file}">
-			<zipfileset src="${lib}/gwt/gwt-user.jar"
-			            includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
+			<zipfileset src="${gwt.lib}/gwt-user.jar" />
 		</jar>
 
 		<delete dir="${targets.www}" />
@@ -242,7 +242,9 @@
 		<zip update="true" destfile="${cifex.cli.zip}">
 			<zipfileset dir="${dist}/cifex" includes="*.sh" filemode="755" prefix="cifex" />
 		</zip>
-
+		<copy todir="${gwt.war.web-inf.lib}" overwrite="true" failonerror="true">
+				<fileset dir="${dist}/cifex/lib" includes="*.jar" />
+		</copy>
 		<delete dir="${dist}/cifex" />
 	</target>
 
@@ -357,10 +359,38 @@
 	<target name="prepare-gwt"
 	        depends="jar"
 	        description="Cleans and prepares the GWT specific directories, forcing a GWT rebuilding.">
-		<copy todir="${gwt.tomcat.web-inf}" overwrite="true" failonerror="true">
+		<copy todir="${gwt.war.web-inf}" overwrite="true" failonerror="true">
 			<fileset dir="${cifex.server.resource}" includes="*.xml" />
 			<fileset dir="../server-common/${server-resource}" includes="*.xml" />
 		</copy>
+		<copy todir="${gwt.war.web-inf.lib}" overwrite="true" failonerror="true">
+			<fileset dir="${cifex.server.resource}" includes="*.xml" />
+		</copy>
+		<copy file="${lib}/mail/mail.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/activation/activation.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${gwt.lib}/gwt-servlet.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/spring/webmvc/spring-webmvc.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/spring/spring.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/postgresql/postgresql.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/h2/h2.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/log4j/log4j.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/commons-pool/commons-pool.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy todir="${gwt.war.web-inf.lib}">
+			<fileset dir="${lib}/commons-logging" includes="*.jar" />
+		</copy>
+		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/commons-io/commons-io.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy todir="${gwt.war.web-inf.lib}">
+					<fileset dir="${lib}/commons-fileupload" includes="*.jar" />
+		</copy>
+		<copy file="${lib}/commons-dbcp/commons-dbcp.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${gwt.war.web-inf.lib}"/>	
+		<copy file="${lib}/gxt2.0/gxt.jar" todir="${gwt.war.web-inf.lib}"/>	
+		<copy file="${lib}/cglib/cglib-nodep.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${lib}/hibernate-search/jms.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${gwt.lib}/mac/gwt-dev-mac.jar" todir="${gwt.war.web-inf.lib}"/>
 		<delete failonerror="true" dir="../${ant.project.name}/.gwt-cache" />
 	</target>
 

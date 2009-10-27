@@ -19,25 +19,25 @@ package ch.systemsx.cisd.cifex.client.application;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.core.Ext;
-import com.gwtext.client.core.Position;
-import com.gwtext.client.widgets.Button;
-import com.gwtext.client.widgets.MessageBox;
-import com.gwtext.client.widgets.event.ButtonListenerAdapter;
-import com.gwtext.client.widgets.form.Form;
-import com.gwtext.client.widgets.form.FormConfig;
-import com.gwtext.client.widgets.form.TextField;
-import com.gwtext.client.widgets.form.TextFieldConfig;
 
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
-import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
-import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
+import ch.systemsx.cisd.cifex.client.application.utils.WidgetUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -51,15 +51,15 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 {
     final static String EMAIL_FIELD_CONFIG = "EMAIL";
 
-    final List existingUsers;
+    final List<UserInfoDTO> existingUsers;
 
-    final List newUsers;
+    final List<UserInfoDTO> newUsers;
 
     final ViewContext viewContext;
 
-    final ModelBasedGrid existingUserGrid;
+    final Grid<FileShareUserGridModel> existingUserGrid;
 
-    final ModelBasedGrid newUserGrid;
+    final Grid<FileShareUserGridModel> newUserGrid;
 
     public AbstractFileShareUserDialog(final ViewContext context,
             final UserInfoDTO[] existingUsers, final UserInfoDTO[] newUsers, final String name)
@@ -67,8 +67,9 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         this(context, getArrayList(existingUsers), getArrayList(newUsers), name);
     }
 
-    public AbstractFileShareUserDialog(final ViewContext context, final List existingUsers,
-            final List newUsers, final String name)
+    public AbstractFileShareUserDialog(final ViewContext context,
+            final List<UserInfoDTO> existingUsers, final List<UserInfoDTO> newUsers,
+            final String name)
     {
         super(context.getMessageResources(), context.getMessageResources()
                 .getFileSharingTitle(name), 800, 600);
@@ -77,8 +78,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         this.viewContext = context;
         this.existingUserGrid = createUserGrid(this.existingUsers);
         this.newUserGrid = createUserGrid(this.newUsers);
-        addContentPanel();
-
+        add(createContentWidget());
     }
 
     public AbstractFileShareUserDialog(final ViewContext context, UserInfoDTO[] existingUsers,
@@ -93,13 +93,15 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
      */
     public void refresh()
     {
-        newUserGrid.reloadStore(newUsers.toArray());
-        existingUserGrid.reloadStore(existingUsers.toArray());
+        WidgetUtils.reloadStore(newUserGrid, FileShareUserGridModel.convert(messageResources,
+                viewContext.getModel().getUser(), newUsers));
+        WidgetUtils.reloadStore(existingUserGrid, FileShareUserGridModel.convert(messageResources,
+                viewContext.getModel().getUser(), existingUsers));
     }
 
-    static ArrayList getArrayList(UserInfoDTO[] users)
+    static ArrayList<UserInfoDTO> getArrayList(UserInfoDTO[] users)
     {
-        ArrayList list = new ArrayList();
+        ArrayList<UserInfoDTO> list = new ArrayList<UserInfoDTO>();
         if (users != null)
         {
 
@@ -125,7 +127,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 
     protected final Widget createContentWidget()
     {
-        final VerticalPanel panel = AbstractMainPage.createVerticalPanelPart();
+        final LayoutContainer panel = AbstractMainPage.createContainer();
         insertExistingUserGrid(panel);
         insertNewUserGrid(panel);
         insertAddUserForm(panel);
@@ -133,7 +135,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 
     }
 
-    private final void insertExistingUserGrid(final VerticalPanel verticalPanel)
+    private final void insertExistingUserGrid(final LayoutContainer verticalPanel)
     {
         final HTML html = new HTML(viewContext.getMessageResources().getExistingUserTableTitle());
         html.setStyleName("cifex-heading");
@@ -141,23 +143,20 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         verticalPanel.add(existingUserGrid);
     }
 
-    private final ModelBasedGrid createUserGrid(final List users)
+    private final Grid<FileShareUserGridModel> createUserGrid(final List<UserInfoDTO> users)
     {
-        final IDataGridModel gridModel =
-                new FileShareUserGridModel(viewContext.getMessageResources(), viewContext
-                        .getModel().getUser());
-        UserInfoDTO[] userArray = null;
-        if (users != null && users.size() != 0)
-        {
-            userArray = (UserInfoDTO[]) users.toArray(new UserInfoDTO[users.size()]);
-        }
-        final ModelBasedGrid userGrid =
-                new ModelBasedGrid(viewContext.getMessageResources(), userArray, gridModel);
-        userGrid.addGridCellListener(new FileShareUserGridCellListener(this));
+        ListStore<FileShareUserGridModel> store = new ListStore<FileShareUserGridModel>();
+        store.add(FileShareUserGridModel.convert(messageResources,
+                viewContext.getModel().getUser(), users));
+        final Grid<FileShareUserGridModel> userGrid =
+                new Grid<FileShareUserGridModel>(store, new ColumnModel(FileShareUserGridModel
+                        .getColumnConfigs(messageResources)));
+        userGrid.setHeight(Constants.GRID_HEIGHT);
+        userGrid.addListener(Events.CellClick, new FileShareUserGridCellListener(this));
         return userGrid;
     }
 
-    private final void insertNewUserGrid(final VerticalPanel verticalPanel)
+    private final void insertNewUserGrid(final LayoutContainer verticalPanel)
     {
         final HTML html = new HTML(viewContext.getMessageResources().getNewUserTableTitle());
         html.setStyleName("cifex-heading");
@@ -165,27 +164,31 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         verticalPanel.add(newUserGrid);
     }
 
-    private final void insertAddUserForm(final VerticalPanel verticalPanel)
+    private final void insertAddUserForm(final LayoutContainer verticalPanel)
     {
-        FormConfig formConfig = new FormConfig();
-        formConfig.setButtonAlign(Position.LEFT);
-        Form form = new Form(Ext.generateId(), formConfig);
+
+        FormPanel form = new FormPanel();
+        form.setHeaderVisible(false);
+        form.setBodyBorder(false);
+        form.setBorders(false);
+        form.setButtonAlign(HorizontalAlignment.LEFT);
 
         final HTML html = new HTML(viewContext.getMessageResources().getAddUserFormTitle());
         html.setStyleName("cifex-heading");
-        TextFieldConfig fileFieldConfig = new TextFieldConfig();
-        fileFieldConfig.setFieldLabel(viewContext.getMessageResources().getEmailFielLabel());
-        fileFieldConfig.setValidateOnBlur(true);
-        fileFieldConfig.setName(EMAIL_FIELD_CONFIG);
-        fileFieldConfig.setValidateOnBlur(true);
-        fileFieldConfig.setValidator(CifexValidator.getUserFieldValidator());
-        TextField addUserField = new TextField(fileFieldConfig);
+        TextField<String> addUserField = new TextField<String>();
+        addUserField.setFieldLabel(viewContext.getMessageResources().getEmailFielLabel());
+        addUserField.setValidateOnBlur(true);
+        addUserField.setName(EMAIL_FIELD_CONFIG);
+        addUserField.setValidateOnBlur(true);
+        addUserField.setValidator(CifexValidator.getUserFieldValidator(viewContext
+                .getMessageResources()));
 
         form.add(addUserField);
         String buttonLabel = viewContext.getMessageResources().getAddUserButtonLabel();
-        Button submitButton = form.addButton(buttonLabel);
-        submitButton.addButtonListener(getSubmitButtonListener(addUserField));
-        form.render();
+        Button submitButton = new Button(buttonLabel);
+        submitButton.addSelectionListener(getSubmitButtonListener(addUserField));
+        form.addButton(submitButton);
+        // form.render();
 
         verticalPanel.add(html);
         verticalPanel.add(form);
@@ -194,28 +197,32 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
     /**
      * Button Listener to submit the email address to the Cifex service and add it to the UserGrid.
      */
-    private ButtonListenerAdapter getSubmitButtonListener(final TextField userTextField)
+    private SelectionListener<ButtonEvent> getSubmitButtonListener(
+            final TextField<String> userTextField)
     {
-        return new ButtonListenerAdapter()
+        return new SelectionListener<ButtonEvent>()
             {
-                public void onClick(Button button, EventObject e)
+
+                @Override
+                public void componentSelected(ButtonEvent ce)
                 {
                     if (userTextField.validate() == false)
                     {
                         return;
                     }
+                    Button button = ce.getButton();
                     button.disable();
-                    final String emailOrCode = userTextField.getText();
+                    final String emailOrCode = userTextField.getValue();
                     if (emailOrCode.startsWith(Constants.USER_ID_PREFIX))
                     {
                         final String userCode =
                                 emailOrCode.substring(Constants.USER_ID_PREFIX.length());
                         viewContext.getCifexService().tryFindUserByUserCode(userCode,
-                                new AbstractAsyncCallback(viewContext)
+                                new AbstractAsyncCallback<UserInfoDTO>(viewContext)
                                     {
-                                        public void onSuccess(Object result)
+                                        public void onSuccess(UserInfoDTO result)
                                         {
-                                            UserInfoDTO user = (UserInfoDTO) result;
+                                            UserInfoDTO user = result;
                                             if (user != null)
                                             {
                                                 if (existingUsers.contains(user) == false)
@@ -223,8 +230,11 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                     existingUsers.add(user);
                                                     addUserToFileShare(user);
                                                 }
-                                                existingUserGrid.reloadStore(existingUsers
-                                                        .toArray());
+                                                WidgetUtils.reloadStore(existingUserGrid,
+                                                        FileShareUserGridModel.convert(
+                                                                messageResources, viewContext
+                                                                        .getModel().getUser(),
+                                                                existingUsers));
                                                 // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you
                                                 // add
                                                 // a user to
@@ -234,10 +244,14 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                 checkboxChangeAction();
                                             } else
                                             {
-                                                MessageBox.alert(viewContext.getMessageResources()
-                                                        .getMessageBoxErrorTitle(), viewContext
-                                                        .getMessageResources()
-                                                        .getShareSubmitUserNotFound(userCode));
+                                                MessageBox
+                                                        .alert(
+                                                                viewContext.getMessageResources()
+                                                                        .getMessageBoxErrorTitle(),
+                                                                viewContext
+                                                                        .getMessageResources()
+                                                                        .getShareSubmitUserNotFound(
+                                                                                userCode), null);
                                             }
                                         }
 
@@ -245,23 +259,27 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                     } else
                     {
                         viewContext.getCifexService().tryFindUserByEmail(emailOrCode,
-                                new AbstractAsyncCallback(viewContext)
+                                new AbstractAsyncCallback<List<UserInfoDTO>>(viewContext)
                                     {
-                                        public void onSuccess(Object result)
+                                        public void onSuccess(List<UserInfoDTO> result)
                                         {
-                                            UserInfoDTO[] users = (UserInfoDTO[]) result;
-                                            if (users.length > 0)
+                                            List<UserInfoDTO> users = result;
+                                            if (users.size() > 0)
                                             {
-                                                for (int i = 0; i < users.length; i++)
+                                                for (int i = 0; i < users.size(); i++)
                                                 {
-                                                    if (existingUsers.contains(users[i]) == false)
+                                                    UserInfoDTO user = users.get(i);
+                                                    if (existingUsers.contains(user) == false)
                                                     {
-                                                        existingUsers.add(users[i]);
-                                                        addUserToFileShare(users[i]);
+                                                        existingUsers.add(user);
+                                                        addUserToFileShare(user);
                                                     }
                                                 }
-                                                existingUserGrid.reloadStore(existingUsers
-                                                        .toArray());
+                                                WidgetUtils.reloadStore(existingUserGrid,
+                                                        FileShareUserGridModel.convert(
+                                                                messageResources, viewContext
+                                                                        .getModel().getUser(),
+                                                                existingUsers));
                                             } else
                                             {
 
@@ -271,7 +289,11 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                         .getUser());
                                                 newUsers.add(user);
                                                 addUserToFileShare(user);
-                                                newUserGrid.reloadStore(newUsers.toArray());
+                                                WidgetUtils.reloadStore(newUserGrid,
+                                                        FileShareUserGridModel.convert(
+                                                                messageResources, viewContext
+                                                                        .getModel().getUser(),
+                                                                newUsers));
                                             }
                                             // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you add
                                             // a user to

@@ -16,8 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import java.util.List;
+
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
-import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
+import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
+import ch.systemsx.cisd.cifex.client.application.utils.WidgetUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -25,12 +30,12 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  * 
  * @author Christian Ribeaud
  */
-final class UserGridRefresherCallback extends AbstractAsyncCallback
+final class UserGridRefresherCallback extends AbstractAsyncCallback<Void>
 {
 
-    private final ModelBasedGrid userGrid;
+    private final Grid<UserGridModel> userGrid;
 
-    UserGridRefresherCallback(final ViewContext context, final ModelBasedGrid userGrid)
+    UserGridRefresherCallback(final ViewContext context, final Grid<UserGridModel> userGrid)
     {
         super(context);
         this.userGrid = userGrid;
@@ -40,7 +45,7 @@ final class UserGridRefresherCallback extends AbstractAsyncCallback
     // AbstractAsyncCallback
     //
 
-    public final void onSuccess(final Object object)
+    public final void onSuccess(final Void object)
     {
         final ViewContext viewContext = getViewContext();
         // Only administrators have access to the admin page, so no need to check the currently
@@ -59,7 +64,7 @@ final class UserGridRefresherCallback extends AbstractAsyncCallback
     // Helper classes
     //
 
-    private final class ListUsersCallback extends AbstractAsyncCallback
+    private final class ListUsersCallback extends AbstractAsyncCallback<List<UserInfoDTO>>
     {
 
         ListUsersCallback()
@@ -71,9 +76,9 @@ final class UserGridRefresherCallback extends AbstractAsyncCallback
         // AbstractAsyncCallback
         //
 
-        public final void onSuccess(final Object res)
+        public final void onSuccess(final List<UserInfoDTO> res)
         {
-            userGrid.reloadStore((UserInfoDTO[]) res);
+            WidgetUtils.reloadStore(userGrid, UserGridModel.convert(getViewContext(), res));
         }
     }
 }

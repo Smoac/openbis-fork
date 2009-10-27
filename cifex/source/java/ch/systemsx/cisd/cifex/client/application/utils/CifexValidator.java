@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.cifex.client.application.utils;
 
-import com.gwtext.client.widgets.form.ValidationException;
-import com.gwtext.client.widgets.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.Validator;
 
+import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
@@ -32,16 +33,17 @@ public class CifexValidator
      * user codes (with the prefix 'id:'). The Validator allows that the field has one or more
      * entries, which are separated by comma or tabs.
      */
-    public static Validator getUserFieldValidator()
+    public static Validator getUserFieldValidator(final IMessageResources messageResources)
     {
         return new Validator()
             {
-                public final boolean validate(final String value) throws ValidationException
+
+                public String validate(Field<?> field, String value)
                 {
                     final String[] result = value.split("[,\\s]+");
                     if (result.length == 0)
                     {
-                        return false;
+                        return messageResources.getValueRequiredText();
                     }
                     for (int i = 0; i < result.length; i++)
                     {
@@ -49,12 +51,13 @@ public class CifexValidator
                         final String item = result[i].trim();
                         if (item.length() > 0
                                 && StringUtils.matches(Constants.EMAIL_REGEX, item) == false
-                                && StringUtils.matches(Constants.USER_CODE_WITH_ID_PREFIX_REGEX, item) == false)
+                                && StringUtils.matches(Constants.USER_CODE_WITH_ID_PREFIX_REGEX,
+                                        item) == false)
                         {
-                            return false;
+                            return messageResources.getRecipientFieldInvalidText();
                         }
                     }
-                    return true;
+                    return null;
                 }
             };
     }
@@ -63,23 +66,27 @@ public class CifexValidator
      * Returns a validator which only allows email addresses in a user field. There is only one
      * email address allowed per field.
      */
-    public static Validator getEmailFieldValidator()
+    public static Validator getEmailFieldValidator(final IMessageResources messageResources)
     {
         return new Validator()
             {
-                public final boolean validate(final String value) throws ValidationException
+
+                public String validate(Field<?> field, String value)
                 {
-                    assert value != null : "Must not be null";
+                    if (value == null)
+                    {
+                        return messageResources.getValueRequiredText();
+                    }
                     final String item = value.trim();
                     if (item.length() == 0)
                     {
-                        return false;
+                        return messageResources.getValueRequiredText();
                     }
                     if (StringUtils.matches(Constants.EMAIL_REGEX, item) == false)
                     {
-                        return false;
+                        return messageResources.getValueEmailText();
                     }
-                    return true;
+                    return null;
                 }
             };
     }
@@ -88,22 +95,22 @@ public class CifexValidator
      * Returns a validator for a user code field. Available user codes are defined by
      * <code>StringUtils.USER_CODE_REGEX</code>.
      */
-    public static Validator getUserCodeFieldValidator()
+    public static Validator getUserCodeFieldValidator(final IMessageResources messageResources)
     {
         return new Validator()
             {
-                public final boolean validate(final String value) throws ValidationException
+
+                public String validate(Field<?> field, String value)
                 {
-                    assert value != null : "Must not be null";
-                    if (value.length() == 0)
+                    if (value == null || value.length() == 0)
                     {
-                        return false;
+                        return messageResources.getValueRequiredText();
                     }
                     if (StringUtils.matches(Constants.USER_CODE_REGEX, value) == false)
                     {
-                        return false;
+                        return messageResources.getValueUserCode();
                     }
-                    return true;
+                    return null;
                 }
             };
     }

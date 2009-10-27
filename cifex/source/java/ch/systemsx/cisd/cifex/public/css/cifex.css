@@ -29,3 +29,11 @@ body,div,td {
 .cifex-ul{
 	style=list-style-type:disc;
 }
+
+.cifex-login-widget {
+    border: 1px solid #B5B8C8;
+    padding-bottom: 7px;
+    padding-right: 7px;
+}
+
+/** Overwrite gxt styles */

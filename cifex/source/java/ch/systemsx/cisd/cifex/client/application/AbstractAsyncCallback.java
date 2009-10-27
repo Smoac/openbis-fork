@@ -16,11 +16,10 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import com.google.gwt.core.client.GWT;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
-import com.gwtext.client.widgets.LayoutDialog;
-import com.gwtext.client.widgets.MessageBox;
 
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
@@ -35,18 +34,18 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractAsyncCallback implements AsyncCallback
+public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 {
     private final ViewContext context;
 
-    private final LayoutDialog associatedDialogOrNull;
+    private final Dialog associatedDialogOrNull;
 
     public AbstractAsyncCallback(final ViewContext context)
     {
         this(context, null);
     }
 
-    public AbstractAsyncCallback(final ViewContext context, LayoutDialog dialog)
+    public AbstractAsyncCallback(final ViewContext context, Dialog dialog)
     {
         this.context = context;
         this.associatedDialogOrNull = dialog;
@@ -80,13 +79,13 @@ public abstract class AbstractAsyncCallback implements AsyncCallback
             final String message = caught.getMessage();
             if (StringUtils.isBlank(message))
             {
-                msg = messageResources.getExceptionWithoutMessage(GWT.getTypeName(caught));
+                msg = messageResources.getExceptionWithoutMessage(caught.getClass().getName());
             } else
             {
                 msg = message;
             }
         }
-        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg);
+        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg, null);
         if (caught instanceof InvalidSessionException)
         {
             if (associatedDialogOrNull != null)

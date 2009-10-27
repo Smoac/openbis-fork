@@ -19,9 +19,7 @@ package ch.systemsx.cisd.cifex.client.application;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gwtext.client.data.DateFieldDef;
-import com.gwtext.client.data.IntegerFieldDef;
-import com.gwtext.client.data.StringFieldDef;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
@@ -36,66 +34,53 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
  */
 public class UploadedFileGridModel extends AbstractFileGridModel
 {
+    private static final long serialVersionUID = Constants.VERSION;
 
-    UploadedFileGridModel(IMessageResources messageResources)
+    public UploadedFileGridModel(IMessageResources messageResources, FileInfoDTO file)
     {
+
         super(messageResources);
+        set(ID, file.getIDStr());// String
+        set(NAME, file.getName());// String
+        set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
+        set(CONTENT_TYPE, file.getContentType());// String
+        set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
+        set(REGISTRATION_DATE, file.getRegistrationDate());// Date
+        set(EXPIRATION_DATE, file.getExpirationDate());// Date
+        set(ACTION, DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
+                Constants.RENEW_ID)
+                + " | "
+                + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
+                        Constants.DELETE_ID)
+                + " | "
+                + DOMUtils.createAnchor(messageResources.getActionSharedLabel(),
+                        Constants.SHARED_ID));// String
     }
 
-    public final List getColumnConfigs()
+    public final static List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
     {
-        final List configs = new ArrayList();
+        final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
         configs.add(createIdColumnConfig());
-        configs.add(createNameColumnConfig());
-        configs.add(createCommentColumnConfig());
-        configs.add(createContentTypeColumnConfig());
-        configs.add(createSizeColumnConfig());
-        configs.add(createRegistrationDateColumnConfig());
-        configs.add(createExpirationDateColumnConfig());
-        configs.add(createActionColumnConfig());
+        configs.add(createNameColumnConfig(messageResources));
+        configs.add(createCommentColumnConfig(messageResources));
+        configs.add(createContentTypeColumnConfig(messageResources));
+        configs.add(createSizeColumnConfig(messageResources));
+        configs.add(createRegistrationDateColumnConfig(messageResources));
+        configs.add(createExpirationDateColumnConfig(messageResources));
+        configs.add(createActionColumnConfig(messageResources));
         return configs;
     }
 
-    public final List getData(final Object[] data)
+    public final static List<UploadedFileGridModel> convert(IMessageResources messageResources,
+            final List<FileInfoDTO> filters)
     {
-        final List list = new ArrayList();
-        for (int i = 0; i < data.length; i++)
+        final List<UploadedFileGridModel> result = new ArrayList<UploadedFileGridModel>();
+
+        for (final FileInfoDTO filter : filters)
         {
-            final FileInfoDTO file = (FileInfoDTO) data[i];
-            final Object[] objects =
-                    new Object[]
-                        {
-                                file.getIDStr(),
-                                file.getName(),
-                                CommentRenderer.createCommentAnchor(file),
-                                file.getContentType(),
-                                FileUtils.tryToGetFileSize(file),
-                                file.getRegistrationDate(),
-                                file.getExpirationDate(),
-                                DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
-                                        Constants.RENEW_ID)
-                                        + " | "
-                                        + DOMUtils.createAnchor(messageResources
-                                                .getActionDeleteLabel(), Constants.DELETE_ID)
-                                        + " | "
-                                        + DOMUtils.createAnchor(messageResources
-                                                .getActionSharedLabel(), Constants.SHARED_ID) };
-            list.add(objects);
+            result.add(new UploadedFileGridModel(messageResources, filter));
         }
-        return list;
+        return result;
     }
 
-    public final List getFieldDefs()
-    {
-        final List fieldDefs = new ArrayList();
-        fieldDefs.add(new StringFieldDef(ID));
-        fieldDefs.add(new StringFieldDef(NAME));
-        fieldDefs.add(new StringFieldDef(COMMENT));
-        fieldDefs.add(new StringFieldDef(CONTENT_TYPE));
-        fieldDefs.add(new IntegerFieldDef(SIZE));
-        fieldDefs.add(new DateFieldDef(REGISTRATION_DATE));
-        fieldDefs.add(new DateFieldDef(EXPIRATION_DATE));
-        fieldDefs.add(new StringFieldDef(ACTION));
-        return fieldDefs;
-    }
 }

@@ -22,7 +22,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
  * Basic information about a user.
- *
+ * 
  * @author Bernd Rinn
  */
 public class BasicUserInfoDTO implements IsSerializable, Serializable
@@ -33,8 +33,8 @@ public class BasicUserInfoDTO implements IsSerializable, Serializable
     /**
      * Unique identifier of the user.
      * <p>
-     * We are sure that this key is unique and never <code>null</code>. If no
-     * <code>userCode</code> is specified, the email address is used as userCode.
+     * We are sure that this key is unique and never <code>null</code>. If no <code>userCode</code>
+     * is specified, the email address is used as userCode.
      * </p>
      */
     private String userCode;
@@ -89,6 +89,7 @@ public class BasicUserInfoDTO implements IsSerializable, Serializable
     // Object
     //
 
+    @Override
     public final boolean equals(final Object obj)
     {
         if (obj == this)
@@ -103,11 +104,13 @@ public class BasicUserInfoDTO implements IsSerializable, Serializable
         return that.userCode.equals(userCode);
     }
 
+    @Override
     public final int hashCode()
     {
         return userCode.hashCode();
     }
 
+    @Override
     public final String toString()
     {
         return userCode;

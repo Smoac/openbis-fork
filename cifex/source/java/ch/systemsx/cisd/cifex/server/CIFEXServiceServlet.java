@@ -1,3 +1,5 @@
+package ch.systemsx.cisd.cifex.server;
+
 /*
  * Copyright 2008 ETH Zuerich, CISD
  *
@@ -14,7 +16,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.server;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -32,6 +34,7 @@ import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
+import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -95,29 +98,32 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.logout();
     }
 
-    public FileInfoDTO[] listDownloadFiles() throws InvalidSessionException
+    public List<FileInfoDTO> listDownloadFiles() throws InvalidSessionException
     {
         return cifexServiceDelegate.listDownloadFiles();
     }
 
-    public FileInfoDTO[] listUploadedFiles() throws InvalidSessionException
+    public List<FileInfoDTO> listUploadedFiles() throws InvalidSessionException
     {
         return cifexServiceDelegate.listUploadedFiles();
     }
 
-    public FileInfoDTO[] listFiles() throws InvalidSessionException, InsufficientPrivilegesException
+    public List<AdminFileInfoDTO> listFiles() throws InvalidSessionException,
+            InsufficientPrivilegesException
     {
         return cifexServiceDelegate.listFiles();
     }
 
-    public UserInfoDTO[] listUsers() throws InvalidSessionException, InsufficientPrivilegesException
+    public List<UserInfoDTO> listUsers() throws InvalidSessionException,
+            InsufficientPrivilegesException
     {
         return cifexServiceDelegate.listUsers();
     }
 
-    public void createUser(final UserInfoDTO user, final String password, final UserInfoDTO registratorOrNull,
-            final String comment) throws EnvironmentFailureException, UserFailureException,
-            InvalidSessionException, InsufficientPrivilegesException
+    public void createUser(final UserInfoDTO user, final String password,
+            final UserInfoDTO registratorOrNull, final String comment)
+            throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
+            InsufficientPrivilegesException
     {
         cifexServiceDelegate.createUser(user, password, registratorOrNull, comment);
 
@@ -182,12 +188,13 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.tryFindUserByUserCode(userCode);
     }
 
-    public UserInfoDTO[] tryFindUserByEmail(final String email) throws InvalidSessionException
+    public List<UserInfoDTO> tryFindUserByEmail(final String email) throws InvalidSessionException
     {
         return cifexServiceDelegate.tryFindUserByEmail(email);
     }
 
-    public UserInfoDTO[] listUsersRegisteredBy(final String userCode) throws InvalidSessionException
+    public List<UserInfoDTO> listUsersRegisteredBy(final String userCode)
+            throws InvalidSessionException
     {
         return cifexServiceDelegate.listUsersRegisteredBy(userCode);
     }
@@ -198,7 +205,8 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         cifexServiceDelegate.updateFileExpiration(idStr);
     }
 
-    public UserInfoDTO[] listUsersFileSharedWith(final String fileId) throws InvalidSessionException
+    public List<UserInfoDTO> listUsersFileSharedWith(final String fileId)
+            throws InvalidSessionException
     {
         return cifexServiceDelegate.listUsersFileSharedWith(fileId);
     }
@@ -226,14 +234,14 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
 
     }
 
-    public UserInfoDTO trySwitchToExternalAuthentication(final String userCode, final String plainPassword)
-            throws EnvironmentFailureException, InvalidSessionException,
-            InsufficientPrivilegesException
+    public UserInfoDTO trySwitchToExternalAuthentication(final String userCode,
+            final String plainPassword) throws EnvironmentFailureException,
+            InvalidSessionException, InsufficientPrivilegesException
     {
         return cifexServiceDelegate.trySwitchToExternalAuthentication(userCode, plainPassword);
     }
 
-    public boolean showSwitchToExternalOption(final UserInfoDTO user)
+    public Boolean showSwitchToExternalOption(final UserInfoDTO user)
     {
         return cifexServiceDelegate.showSwitchToExternalOption(user);
     }

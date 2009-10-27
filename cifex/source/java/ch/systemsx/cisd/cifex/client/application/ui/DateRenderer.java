@@ -18,36 +18,34 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 
 import java.util.Date;
 
-import com.gwtext.client.data.Record;
-import com.gwtext.client.data.Store;
-import com.gwtext.client.widgets.grid.CellMetadata;
-import com.gwtext.client.widgets.grid.Renderer;
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
- * A <code>Renderer</code> implementation suitable for date.
+ * A <code>GridCellRenderer</code> implementation suitable for date.
  * 
  * @author Christian Ribeaud
  */
-public final class DateRenderer implements Renderer
+public final class DateRenderer implements GridCellRenderer<BaseModelData>
 {
 
     /** The unique instance of this class. */
-    public final static Renderer DATE_RENDERER = new DateRenderer();
+    public final static DateRenderer DATE_RENDERER = new DateRenderer();
 
     private DateRenderer()
     {
     }
 
-    //
-    // Renderer
-    //
-
-    public final String render(final Object value, final CellMetadata cellMetadata,
-            final Record record, final int rowIndex, final int colNum, final Store store)
+    public Object render(BaseModelData model, String property, ColumnData config, int rowIndex,
+            int colIndex, ListStore<BaseModelData> store, Grid<BaseModelData> grid)
     {
+        Object value = model.get(property);
         if (value == null)
         {
             return Constants.TABLE_NULL_VALUE;

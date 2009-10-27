@@ -16,12 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.util.Format;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.gwtext.client.core.EventObject;
-import com.gwtext.client.util.Format;
-import com.gwtext.client.widgets.grid.Grid;
-import com.gwtext.client.widgets.grid.event.GridCellListenerAdapter;
 
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -35,46 +36,43 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
  * 
  * @author Basil Neff
  */
-public class FileCommentGridCellListener extends GridCellListenerAdapter
+public class FileCommentGridCellListener implements Listener<GridEvent<AbstractFileGridModel>>
 {
-    private ViewContext viewContext;
+    private final ViewContext viewContext;
 
     public FileCommentGridCellListener(ViewContext viewContext)
     {
         this.viewContext = viewContext;
     }
 
-    //
-    // GridCellListenerAdapter
-    //
-
-    public final void onCellClick(final Grid grid, final int rowIndex, final int colindex,
-            final EventObject e)
+    public void handleEvent(GridEvent<AbstractFileGridModel> be)
     {
+        Grid<AbstractFileGridModel> grid = be.getGrid();
+        int colindex = be.getColIndex();
         final String dataIndex = grid.getColumnModel().getDataIndex(colindex);
         if (dataIndex.equals(AbstractFileGridModel.COMMENT))
         {
             final IMessageResources messageResources = viewContext.getMessageResources();
-            final Element element = e.getTarget();
+            final Element element = be.getTarget();
             if (element == null)
             {
                 return;
             }
-            final String targetId = DOM.getElementAttribute(e.getTarget(), "id");
+            final String targetId = DOM.getElementAttribute(be.getTarget(), "id");
             // Show Comment
             if (Constants.SHOW_COMMENT_ID.equals(targetId))
             {
                 final String comment =
-                        DOM.getElementAttribute(e.getTarget(), "title").replaceAll("\n", "<br/>");
+                        DOM.getElementAttribute(be.getTarget(), "title").replaceAll("\n", "<br/>");
                 final DefaultLayoutDialog layoutDialog =
                         new DefaultLayoutDialog(viewContext.getMessageResources(), messageResources
                                 .getFileCommentTitle(), DefaultLayoutDialog.DEFAULT_WIDTH,
                                 DefaultLayoutDialog.DEFAULT_HEIGHT, true, true);
-                layoutDialog.addContentPanel();
+                layoutDialog.add(new Html(Format.htmlEncode(comment)));
                 layoutDialog.show();
-                layoutDialog.getContentPanel().setContent(Format.htmlEncode(comment));
             }
         }
+
     }
 
 }

@@ -1,19 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.7.1//EN" "http://google-web-toolkit.googlecode.com/svn/tags/1.7.1/distro-source/core/src/gwt-module.dtd">
 <module>
 
-    <!--
-        // Inherit the core Web Toolkit stuff. We use <a href="http://code.google.com/p/gwt-ext/">gwt-ext</a>
-        // as it already implements nice widgets.
-    -->
-    <inherits name="com.google.gwt.i18n.I18N" />
-    <inherits name='com.gwtext.GwtExt' />
-
-    <!--
-        // Specify the app entry point class.
-    -->
-    <entry-point class='ch.systemsx.cisd.cifex.client.application.CIFEXEntryPoint' />
+  <!-- Inherit the core Web Toolkit stuff.                        -->
+  <inherits name='com.google.gwt.user.User' />
+  <inherits name="com.google.gwt.i18n.I18N" />
+  
+  <!-- Inherit the core EXT GWT stuff.                            -->
+  <inherits name='com.extjs.gxt.ui.GXT' />
+  
+  <!-- Define sources                .                            -->
+  <source path="client"/>
+  <source path="shared/basic"/>
     
-    <source path="client"/>
-    <source path="shared/basic"/>
+  <!-- Specify the app entry point class.                         -->
+  <entry-point class='ch.systemsx.cisd.cifex.client.application.CIFEXEntryPoint' />  
     
-    <!-- Do not define servlets here, use web.xml -->
+  <!-- Do not define servlets here, use web.xml -->
 </module>

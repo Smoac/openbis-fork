@@ -16,17 +16,19 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import java.util.List;
+
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.gwtext.client.widgets.grid.Grid;
-import com.gwtext.client.widgets.layout.ContentPanel;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
-import ch.systemsx.cisd.cifex.client.application.model.IDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
-import ch.systemsx.cisd.cifex.client.application.ui.ModelBasedGrid;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
@@ -43,14 +45,12 @@ final class MainPage extends AbstractMainPage
 
     private final static boolean UPLOAD = false;
 
-    protected VerticalPanel listCreatedUserPanel;
-
     MainPage(final ViewContext context)
     {
         super(context);
     }
 
-    private final String getMaxRequestUploadSizeText(final int maxRequestUploadSizeInMB)
+    static private final String getMaxRequestUploadSizeText(final int maxRequestUploadSizeInMB)
     {
         if (maxRequestUploadSizeInMB < 0)
         {
@@ -61,8 +61,9 @@ final class MainPage extends AbstractMainPage
         }
     }
 
-    private final Widget createExplanationPanel()
+    private static final Widget createExplanationPanel(ViewContext context)
     {
+        IMessageResources messageResources = context.getMessageResources();
         Model model = context.getModel();
         final boolean isPermanent = model.getUser().isPermanent();
         Configuration configuration = model.getConfiguration();
@@ -72,8 +73,7 @@ final class MainPage extends AbstractMainPage
         {
             maxUploadRequestSizeInMB = usersMaxUploadSize.intValue();
         }
-        final String maxRequestUploadSize =
-                getMaxRequestUploadSizeText(maxUploadRequestSizeInMB);
+        final String maxRequestUploadSize = getMaxRequestUploadSizeText(maxUploadRequestSizeInMB);
         StringBuffer notesText = new StringBuffer();
         notesText.append(messageResources.getUploadFilesHelpUpload(maxRequestUploadSize));
         if (isPermanent)
@@ -87,58 +87,59 @@ final class MainPage extends AbstractMainPage
         return new HTML(notesText.toString());
     }
 
-    //
-    // AbstractMainPage
-    //
-
-    protected final ContentPanel createMainPanel()
+    @Override
+    protected final LayoutContainer createMainPanel()
     {
-        final ContentPanel contentPanel = new ContentPanel("Main-Page");
+        final LayoutContainer contentPanel = new LayoutContainer();
         Model model = context.getModel();
         final UserInfoDTO user = model.getUser();
-        createUserPanel(user.isAdmin());
-        createListCreatedUserPanel();
-        contentPanel.add(createUploadPart());
-        createListFilesGrid(contentPanel, DOWNLOAD);
+        LayoutContainer createUserPanel = createUserPanel(user.isAdmin(), context);
+        LayoutContainer listCreatedUserPanel = createContainer();
+        createListCreatedUserPanel(listCreatedUserPanel, context);
+        contentPanel.add(createUploadPart(context));
+        createListFilesGrid(contentPanel, DOWNLOAD, context);
         if (user.isPermanent() && user.isAdmin() == false)
         {
             contentPanel.add(createUserPanel);
         }
-        createListFilesGrid(contentPanel, UPLOAD);
+        createListFilesGrid(contentPanel, UPLOAD, context);
         contentPanel.add(listCreatedUserPanel);
         return contentPanel;
     }
 
-    private VerticalPanel createUploadPart()
+    static private LayoutContainer createUploadPart(ViewContext context)
     {
-        final VerticalPanel verticalPanel = createVerticalPanelPart();
-        verticalPanel.add(createPartTitle(context.getMessageResources().getUploadFilesPartTitle()));
-        verticalPanel.add(createExplanationPanel());
-        verticalPanel.add(createPartTitle(messageResources.getUploadFilesPartTitleLess2GB()));
+        IMessageResources messageResources = context.getMessageResources();
+        final LayoutContainer verticalPanel = createContainer();
+        addTitlePart(verticalPanel, context.getMessageResources().getUploadFilesPartTitle());
+        verticalPanel.add(createExplanationPanel(context));
+        addTitlePart(verticalPanel, messageResources.getUploadFilesPartTitleLess2GB());
         verticalPanel.add(new FileUploadWidget(context));
-        verticalPanel.add(createPartTitle(messageResources.getUploadFilesPartTitleGreater2GB()));
+        addTitlePart(verticalPanel, messageResources.getUploadFilesPartTitleGreater2GB());
         String webStartLink = messageResources.getUploadFilesHelpJavaUploaderLink();
         String webStartTitle = messageResources.getUploadFilesHelpJavaUploaderTitle();
         String anchorWebstart =
-            DOMUtils.createAnchor(webStartTitle, webStartLink, ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME, null,
-                    null, false);
+                DOMUtils.createAnchor(webStartTitle, webStartLink,
+                        ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME, null, null, false);
         String cliLink = messageResources.getUploadFilesHelpCLILink();
         String cliTitle = messageResources.getUploadFilesHelpCLITitle();
         String anchorCLI =
-            DOMUtils.createAnchor(cliTitle, cliLink, ServletPathConstants.COMMAND_LINE_CLIENT_DISTRIBUTION, null,
-                    null, false);
-        verticalPanel.add(new HTML(messageResources.getUploadFilesHelpJavaUpload(anchorWebstart, anchorCLI)));
+                DOMUtils.createAnchor(cliTitle, cliLink,
+                        ServletPathConstants.COMMAND_LINE_CLIENT_DISTRIBUTION, null, null, false);
+        verticalPanel.add(new HTML(messageResources.getUploadFilesHelpJavaUpload(anchorWebstart,
+                anchorCLI)));
         return verticalPanel;
     }
 
-    private void createListCreatedUserPanel()
+    static private void createListCreatedUserPanel(LayoutContainer listCreatedUserPanel,
+            ViewContext context)
     {
-        listCreatedUserPanel = createVerticalPanelPart();
         context.getCifexService().listUsersRegisteredBy(context.getModel().getUser().getUserCode(),
-                new CreatedUserAsyncCallback());
+                new CreatedUserAsyncCallback(listCreatedUserPanel, context));
     }
 
-    private void createListFilesGrid(final ContentPanel contentPanel, final boolean showDownload)
+    static private void createListFilesGrid(final LayoutContainer contentPanel,
+            final boolean showDownload, ViewContext context)
     {
         final FileAsyncCallback callback =
                 new FileAsyncCallback(context, contentPanel, showDownload);
@@ -155,29 +156,20 @@ final class MainPage extends AbstractMainPage
     // Helper classes
     //
 
-    private final class FileAsyncCallback extends AbstractAsyncCallback
+    private static final class FileAsyncCallback extends AbstractAsyncCallback<List<FileInfoDTO>>
     {
 
-        private final ContentPanel contentPanel;
-
-        private Widget titleWidget;
+        private final LayoutContainer contentPanel;
 
         private final boolean showDownloaded;
 
-        FileAsyncCallback(final ViewContext context, final ContentPanel contentPanel,
+        private final ViewContext context;
+
+        FileAsyncCallback(final ViewContext context, final LayoutContainer contentPanel,
                 final boolean showDownload)
         {
             super(context);
-            if (showDownload)
-            {
-                titleWidget =
-                        createPartTitle(context.getMessageResources().getDownloadFilesPartTitle());
-            } else
-            {
-                titleWidget =
-                        createPartTitle(context.getMessageResources().getUploadedFilesPartTitle());
-            }
-
+            this.context = context;
             this.contentPanel = contentPanel;
             this.showDownloaded = showDownload;
         }
@@ -186,27 +178,37 @@ final class MainPage extends AbstractMainPage
         // AbstractAsyncCallback
         //
 
-        public final void onSuccess(final Object result)
+        public final void onSuccess(final List<FileInfoDTO> result)
         {
-            final FileInfoDTO[] files = (FileInfoDTO[]) result;
+            final List<FileInfoDTO> files = result;
             final Widget widget;
-            if (files.length > 0)
+            IMessageResources messageResources = context.getMessageResources();
+            if (files.size() > 0)
             {
-                final IDataGridModel gridModel;
+                final Grid<?> fileGrid;
                 if (showDownloaded)
                 {
-                    gridModel = new DownloadFileGridModel(messageResources);
+                    ListStore<DownloadFileGridModel> store = new ListStore<DownloadFileGridModel>();
+                    store.add(DownloadFileGridModel.convert(messageResources, files));
+                    fileGrid =
+                            new Grid<DownloadFileGridModel>(store, new ColumnModel(
+                                    DownloadFileGridModel.getColumnConfigs(messageResources)));
                 } else
                 {
-                    gridModel = new UploadedFileGridModel(messageResources);
+                    ListStore<UploadedFileGridModel> store = new ListStore<UploadedFileGridModel>();
+                    store.add(UploadedFileGridModel.convert(messageResources, files));
+                    fileGrid =
+                            new Grid<UploadedFileGridModel>(store, new ColumnModel(
+                                    UploadedFileGridModel.getColumnConfigs(messageResources)));
                 }
-                final Grid fileGrid = new ModelBasedGrid(messageResources, files, gridModel);
-                fileGrid.addGridCellListener(new FileDownloadGridCellListener());
-                fileGrid.addGridCellListener(new FileCommentGridCellListener(context));
+                fileGrid.addListener(Events.CellClick, new FileDownloadGridCellListener());
+                fileGrid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
                 if (showDownloaded == false)
                 {
-                    fileGrid.addGridCellListener(new FileActionGridCellListener(false, context));
+                    fileGrid.addListener(Events.CellClick, new UploadedFileActionGridCellListener(
+                            context));
                 }
+                fileGrid.setHeight(Constants.GRID_HEIGHT);
                 widget = fileGrid;
             } else
             {
@@ -215,42 +217,58 @@ final class MainPage extends AbstractMainPage
                         : messageResources.getUploadedFilesEmpty());
                 widget = html;
             }
-            final VerticalPanel verticalPanel = createVerticalPanelPart();
-            verticalPanel.add(titleWidget);
+            final LayoutContainer verticalPanel = createContainer();
+            if (showDownloaded)
+            {
+                addTitlePart(verticalPanel, context.getMessageResources()
+                        .getDownloadFilesPartTitle());
+            } else
+            {
+                addTitlePart(verticalPanel, context.getMessageResources()
+                        .getUploadedFilesPartTitle());
+            }
             verticalPanel.add(widget);
             contentPanel.add(verticalPanel);
+            contentPanel.layout();
         }
     }
 
-    private final class CreatedUserAsyncCallback extends AbstractAsyncCallback
+    private static final class CreatedUserAsyncCallback extends
+            AbstractAsyncCallback<List<UserInfoDTO>>
     {
 
-        CreatedUserAsyncCallback()
+        private final LayoutContainer listCreatedUserPanel;
+
+        private final ViewContext context;
+
+        CreatedUserAsyncCallback(LayoutContainer listCreatedUserPanel, ViewContext context)
         {
             super(context);
+            this.listCreatedUserPanel = listCreatedUserPanel;
+            this.context = context;
         }
 
-        private Widget createUserTable(final UserInfoDTO[] users)
+        private Widget createUserTable(final List<UserInfoDTO> users)
         {
-            final IDataGridModel gridModel = new UserGridModel(context);
-            final Grid userGrid =
-                    new ModelBasedGrid(context.getMessageResources(), users, gridModel);
+            ListStore<UserGridModel> store = new ListStore<UserGridModel>();
+            store.add(UserGridModel.convert(context, users));
+            final Grid<UserGridModel> userGrid =
+                    new Grid<UserGridModel>(store, new ColumnModel(UserGridModel
+                            .getColumnConfigs(context.getMessageResources())));
+            userGrid.setHeight(Constants.GRID_HEIGHT);
             // Delete user function
-            userGrid.addGridCellListener(new UserActionGridCellListener(context, null));
+            userGrid.addListener(Events.CellClick,
+                    new UserActionGridCellListener<AbstractFileGridModel>(context, null));
             return userGrid;
         }
 
-        //
-        // AbstractAsyncCallback
-        //
-
-        public final void onSuccess(final Object result)
+        public final void onSuccess(final List<UserInfoDTO> result)
         {
-            if (((UserInfoDTO[]) result).length > 0)
+            if (result.size() > 0)
             {
-                listCreatedUserPanel.add(createPartTitle(context.getMessageResources()
-                        .getOwnUserTitle()));
-                listCreatedUserPanel.add(createUserTable((UserInfoDTO[]) result));
+                addTitlePart(listCreatedUserPanel, context.getMessageResources().getOwnUserTitle());
+                listCreatedUserPanel.add(createUserTable(result));
+                listCreatedUserPanel.layout();
             }
         }
     }

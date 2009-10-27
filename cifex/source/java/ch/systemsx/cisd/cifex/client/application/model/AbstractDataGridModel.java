@@ -16,17 +16,21 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
-import com.gwtext.client.widgets.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
  * Abstract data grid model with convenient methods.
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractDataGridModel implements IDataGridModel
+public abstract class AbstractDataGridModel extends BaseModelData
 {
+    private static final long serialVersionUID = Constants.VERSION;
+
     protected final IMessageResources messageResources;
 
     public AbstractDataGridModel(final IMessageResources messageResources)
@@ -34,19 +38,20 @@ public abstract class AbstractDataGridModel implements IDataGridModel
         this.messageResources = messageResources;
     }
 
-    protected final ColumnConfig createSortableColumnConfig(final String code, final String title,
-            final int width)
+    protected final static ColumnConfig createSortableColumnConfig(final String code,
+            final String title, final int width)
     {
         final ColumnConfig columnConfig = createColumnConfig(code, title, width);
         columnConfig.setSortable(true);
         return columnConfig;
     }
 
-    protected final ColumnConfig createColumnConfig(final String code, final String title,
+    protected final static ColumnConfig createColumnConfig(final String code, final String title,
             final int width)
     {
         final ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setDataIndex(code);
+        columnConfig.setId(code);
         columnConfig.setHeader(title);
         columnConfig.setWidth(width);
         return columnConfig;

@@ -97,9 +97,17 @@ public final class Constants
         return "File [id=" + fileId + "] not found in CIFEX database.";
     }
 
+    public static final int GRID_HEIGHT = 200;
+
     private Constants()
     {
         // Can not be instantiated.
     }
+
+    public final static String SERVICE = "cifex-service";
+
+    public final static String SERVER = "cifex-server";
+
+    public static final long VERSION = 1L;
 
 }

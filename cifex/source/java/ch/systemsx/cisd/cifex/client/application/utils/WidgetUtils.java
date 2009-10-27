@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.cifex.client.application.utils;
 
-import com.gwtext.client.widgets.MessageBox;
+import java.util.List;
+
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
@@ -48,11 +52,19 @@ public final class WidgetUtils
         {
             title = messageResources.getMessageBoxErrorTitle();
         }
-        MessageBox.alert(title, message.getMessageText());
+        MessageBox.alert(title, message.getMessageText(), null);
     }
 
     private WidgetUtils()
     {
     }
 
+    public static <T extends ModelData, M extends T> void reloadStore(Grid<T> grid, List<M> models)
+    {
+        grid.el().mask();
+        grid.getStore().removeAll();
+        grid.getStore().add(models);
+        grid.reconfigure(grid.getStore(), grid.getColumnModel());
+        grid.el().unmask();
+    }
 }

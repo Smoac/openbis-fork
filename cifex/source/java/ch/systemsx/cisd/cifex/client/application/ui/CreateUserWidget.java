@@ -25,8 +25,8 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 /**
  * A <code>UserWidget</code> extension suitable for user creation.
  * <p>
- * This widget is used when a <i>regular</i> user creates new <i>temporary</i> users or/and when
- * the administrator creates new users (<i>Administrator</i>, <i>Regular</i> or <i>Temporary</i>).
+ * This widget is used when a <i>regular</i> user creates new <i>temporary</i> users or/and when the
+ * administrator creates new users (<i>Administrator</i>, <i>Regular</i> or <i>Temporary</i>).
  * </p>
  * 
  * @author Basil Neff
@@ -43,6 +43,7 @@ public class CreateUserWidget extends UserWidget
     // UserWidget
     //
 
+    @Override
     final void submitForm()
     {
         if (arePasswordsEqual() == false)
@@ -59,14 +60,15 @@ public class CreateUserWidget extends UserWidget
             String comment = null;
             if (commentArea != null)
             {
-                comment = commentArea.getText();
+                comment = commentArea.getValue();
             }
             final ICIFEXServiceAsync cifexService = context.getCifexService();
-            cifexService.createUser(user, StringUtils.nullIfBlank(passwordField.getText()), context
-                    .getModel().getUser(), comment, new CreateUserAsyncCallBack());
+            cifexService.createUser(user, StringUtils.nullIfBlank(passwordField.getValue()),
+                    context.getModel().getUser(), comment, new CreateUserAsyncCallBack());
         }
     }
 
+    @Override
     final String getSubmitButtonLabel()
     {
         if (context.getModel().getUser().isAdmin())
@@ -82,7 +84,7 @@ public class CreateUserWidget extends UserWidget
     // Helper classes
     //
 
-    private final class CreateUserAsyncCallBack extends AbstractAsyncCallback
+    private final class CreateUserAsyncCallBack extends AbstractAsyncCallback<Void>
     {
 
         CreateUserAsyncCallBack()
@@ -90,10 +92,7 @@ public class CreateUserWidget extends UserWidget
             super(context);
         }
 
-        //
-        // AsyncCallback
-        //
-
+        @Override
         public final void onFailure(final Throwable caught)
         {
             super.onFailure(caught);
@@ -103,7 +102,7 @@ public class CreateUserWidget extends UserWidget
             }
         }
 
-        public final void onSuccess(final Object result)
+        public final void onSuccess(final Void result)
         {
             context.getPageController().createAdminPage();
         }
