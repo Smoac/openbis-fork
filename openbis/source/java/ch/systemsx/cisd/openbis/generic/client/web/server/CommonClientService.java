@@ -584,8 +584,6 @@ public final class CommonClientService extends AbstractClientService implements
                 public List<EntityTypePropertyType<?>> getOriginalData()
                         throws UserFailureException
                 {
-                    // TODO 2009-10-26, Piotr Buczek: add information about other assignments of
-                    // this entity type
                     return extractAssignments(listPropertyTypes(true));
                 }
             });
