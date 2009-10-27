@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
 
 import java.util.List;
@@ -375,8 +374,7 @@ public abstract class AbstractExternalDataGrid
                 getGridRelevantModifications(ObjectKind.DATA_SET);
         relevantMods.add(edit(ObjectKind.EXPERIMENT));
         relevantMods.add(edit(ObjectKind.SAMPLE));
-        relevantMods.add(edit(ObjectKind.VOCABULARY_TERM));
-        relevantMods.add(createOrDelete(ObjectKind.VOCABULARY_TERM));
+        DatabaseModificationKind.addAny(relevantMods, ObjectKind.VOCABULARY_TERM);
         return relevantMods;
     }
 

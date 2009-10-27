@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -53,6 +54,13 @@ public class DatabaseModificationKind implements IsSerializable
     @SuppressWarnings("unused")
     private DatabaseModificationKind()
     {
+    }
+
+    public static final void addAny(Collection<DatabaseModificationKind> result,
+            ObjectKind objectType)
+    {
+        result.add(createOrDelete(objectType));
+        result.add(edit(objectType));
     }
 
     public static final DatabaseModificationKind[] any(ObjectKind objectType)

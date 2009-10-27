@@ -146,7 +146,8 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { createOrDelete(ObjectKind.SAMPLE_TYPE), createOrDelete(ObjectKind.GROUP),
+            { createOrDelete(ObjectKind.SAMPLE_TYPE), edit(ObjectKind.SAMPLE_TYPE),
+                    createOrDelete(ObjectKind.GROUP),
                     createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
                     edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
@@ -154,10 +155,9 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
     public void update(Set<DatabaseModificationKind> observedModifications,
             IDataRefreshCallback entityTypeRefreshCallback)
     {
-        if (observedModifications.contains(createOrDelete(ObjectKind.SAMPLE_TYPE))
-                || observedModifications
-                        .contains(createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT))
-                || observedModifications.contains(edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT)))
+        if (containsAnyModificationsOf(observedModifications, ObjectKind.SAMPLE_TYPE)
+                || containsAnyModificationsOf(observedModifications,
+                        ObjectKind.PROPERTY_TYPE_ASSIGNMENT))
         {
             selectSampleTypeCombo.refreshStore(entityTypeRefreshCallback);
         } else
@@ -169,6 +169,13 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
             selectGroupCombo.refreshStore();
         }
 
+    }
+
+    private boolean containsAnyModificationsOf(Set<DatabaseModificationKind> observedModifications,
+            ObjectKind objectKind)
+    {
+        return observedModifications.contains(createOrDelete(objectKind))
+                || observedModifications.contains(edit(objectKind));
     }
 
     public void setEntityTypes(Set<SampleType> availableEntityTypes)
