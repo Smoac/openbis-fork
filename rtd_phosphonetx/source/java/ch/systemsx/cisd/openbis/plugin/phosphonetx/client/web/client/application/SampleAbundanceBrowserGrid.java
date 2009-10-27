@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -169,7 +170,7 @@ public class SampleAbundanceBrowserGrid
     }
 
     // property types used in the previous refresh operation or null if it has not occurred yet
-    private List<PropertyType> previousPropertyTypes;
+    private final List<PropertyType> previousPropertyTypes;
 
     // provides property types which will be used to build property columns in the grid and
     // criteria to filter samples
@@ -334,6 +335,8 @@ public class SampleAbundanceBrowserGrid
                 SampleAbundanceModelFactory.createColumnsSchema(viewContext, propertyTypes);
         schema.setGridCellRendererFor(SampleAbundanceColDefKind.CODE.id(), LinkRenderer
                 .createLinkRenderer());
+        schema.setGridCellRendererFor(SampleAbundanceColDefKind.ABUNDANCE.id(),
+                new RealNumberRenderer());
         return schema;
     }
 

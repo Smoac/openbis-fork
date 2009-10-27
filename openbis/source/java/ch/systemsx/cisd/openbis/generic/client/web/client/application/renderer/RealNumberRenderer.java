@@ -1,0 +1,45 @@
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
+
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.google.gwt.i18n.client.NumberFormat;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+
+/**
+ * Renderer of {@link Double} value.
+ * 
+ * @author Izabela Adamczyk
+ */
+public final class RealNumberRenderer implements GridCellRenderer<BaseEntityModel<?>>
+{
+    private static final int MAX_DIGITAL_FORMAT_LENGTH = 10;
+
+    private static final String SCIENTIFIC_FORMAT = "0.0000E00";
+
+    private static final String DIGITAL_FORMAT = "0.0000";
+
+    public String render(BaseEntityModel<?> model, String property, ColumnData config,
+            int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
+    {
+        String value = String.valueOf(model.get(property));
+        if (value == null)
+        {
+            return "";
+        }
+        return render(value);
+    }
+
+    public static String render(String value)
+    {
+        double doubleValue = Double.parseDouble(value);
+        String formattedValue = NumberFormat.getFormat(DIGITAL_FORMAT).format(doubleValue);
+        if (formattedValue.length() > MAX_DIGITAL_FORMAT_LENGTH)
+        {
+            formattedValue = NumberFormat.getFormat(SCIENTIFIC_FORMAT).format(doubleValue);
+        }
+        return formattedValue;
+    }
+
+}

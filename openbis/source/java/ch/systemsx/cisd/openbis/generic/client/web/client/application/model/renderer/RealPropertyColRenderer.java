@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer;
 
-import com.google.gwt.i18n.client.NumberFormat;
-
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.EntityPropertyColDef;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
@@ -27,13 +26,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder
  * 
  * @author Izabela Adamczyk
  */
-class RealPropertyColRenderer<T extends IEntityPropertiesHolder> extends
+public class RealPropertyColRenderer<T extends IEntityPropertiesHolder> extends
         AbstractPropertyColRenderer<T>
 {
-
-    private static final int MAX_DIGITAL_FORMAT_LENGTH = 10;
-    private static final String SCIENTIFIC_FORMAT = "0.0000E00";
-    private static final String DIGITAL_FORMAT = "0.0000";
 
     public RealPropertyColRenderer(EntityPropertyColDef<T> colDef)
     {
@@ -44,13 +39,7 @@ class RealPropertyColRenderer<T extends IEntityPropertiesHolder> extends
     protected String renderValue(GridRowModel<T> entity)
     {
         String value = colDef.getValue(entity);
-        double doubleValue = Double.parseDouble(value);
-        String formattedValue = NumberFormat.getFormat(DIGITAL_FORMAT).format(doubleValue);
-        if (formattedValue.length() > MAX_DIGITAL_FORMAT_LENGTH)
-        {
-            formattedValue = NumberFormat.getFormat(SCIENTIFIC_FORMAT).format(doubleValue);
-        }
-        return formattedValue;
+        return RealNumberRenderer.render(value);
     }
 
 }
