@@ -1,10 +1,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -23,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -30,10 +29,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisplayTypeIDProvider;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.PagingColumnFilter;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.TextColumnFilterWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
@@ -55,7 +55,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private final IMessageProvider messageProvider;
 
-    private final List<PagingColumnFilter<T>> columnFilters;
+    // stores the state of column filters, even if custom filter is currently used
+    private final List<IColumnFilterWidget<T>> columnFilters;
 
     private final LayoutContainer filterContainer;
 
@@ -71,7 +72,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             IDisplayTypeIDProvider displayTypeIDProvider, IDelegatedAction applyFiltersAction)
     {
         this.messageProvider = viewContext;
-        this.columnFilters = new ArrayList<PagingColumnFilter<T>>();
+        this.columnFilters = new ArrayList<IColumnFilterWidget<T>>();
         this.applyFiltersAction = applyFiltersAction;
         add(new LabelToolItem(messageProvider.getMessage(Dict.FILTER) + ": "));
         filterSelectionWidget =
@@ -135,7 +136,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private boolean isColumnFilterSelected()
     {
-        return getCustomFilterSelectedState(true);
+        return isCustomFilterSelected() == false;
     }
 
     private boolean isCustomFilterSelected()
@@ -181,28 +182,72 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private void updateFilterFields()
     {
-        GridCustomFilter filter = filterSelectionWidget.tryGetSelected();
-        if (filter != null)
+        filterContainer.removeAll();
+        if (isColumnFilterSelected())
         {
-            filterContainer.removeAll();
-            if (isColumnFilterSelected())
+            updateFilterContainer(getColumnFilterWidgets(columnFilters));
+            applyTool.hide();
+        } else
+        {
+            GridCustomFilter filter = filterSelectionWidget.tryGetSelected();
+            if (filter != null)
             {
-                for (PagingColumnFilter<T> filterWidget : columnFilters)
-                {
-                    filterContainer.add(filterWidget);
-                }
-                applyTool.hide();
-            } else
-            {
-                for (String parameter : filter.getParameters())
-                {
-                    filterContainer.add(new CustomFilterParameterWidget(parameter));
-                }
+                updateFilterContainer(createCustomFilterWidgets(filter));
                 applyTool.show();
                 updateApplyToolEnabledState();
             }
-            // don't show reset button if there are no fields to reset
-            resetTool.setVisible(filterContainer.getItemCount() > 0);
+        }
+        // don't show reset button if there are no fields to reset
+        resetTool.setVisible(filterContainer.getItemCount() > 0);
+    }
+
+    private static <T> List<Widget> getColumnFilterWidgets(
+            List<IColumnFilterWidget<T>> columnFilters)
+    {
+        List<Widget> filterWidgets = new ArrayList<Widget>();
+        for (IColumnFilterWidget<T> filterWidget : columnFilters)
+        {
+            filterWidgets.add(filterWidget.getWidget());
+        }
+        return filterWidgets;
+    }
+
+    private List<Widget> createCustomFilterWidgets(GridCustomFilter filter)
+    {
+        List<Widget> filterWidgets = new ArrayList<Widget>();
+        for (String parameter : filter.getParameters())
+        {
+            filterWidgets.add(new CustomFilterParameterWidget(parameter));
+        }
+        return filterWidgets;
+    }
+
+    // Replaces current filter widgets with the new ones, but tries to make the minimal amount of
+    // changes to avoid screen flickering.
+    // Does not work great when a filter is added or removed (especially at the beginning), but
+    // copes well with cases when one filter widget changes into another.
+    private void updateFilterContainer(List<Widget> filterWidgets)
+    {
+
+        for (int i = 0; i < filterWidgets.size(); i++)
+        {
+            Widget filterWidget = filterWidgets.get(i);
+            if (i < filterContainer.getItemCount())
+            {
+                Widget previousItem = filterContainer.getItem(i);
+                if (previousItem.equals(filterWidget) == false)
+                {
+                    filterContainer.remove(previousItem);
+                    filterContainer.insert(filterWidget, i);
+                }
+            } else
+            {
+                filterContainer.add(filterWidget);
+            }
+        }
+        for (int i = filterWidgets.size(); i < filterContainer.getItemCount(); i++)
+        {
+            filterContainer.remove(filterContainer.getItem(i));
         }
     }
 
@@ -213,10 +258,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         {
             if (field instanceof Field)
             {
-                Field f = (Field) field;
-                // Simple 'f.reset()' causes automatic filter application,
-                // but we want to reload data only once after all filters are cleared.
-                f.setRawValue(f.getEmptyText());
+                ((Field) field).reset();
             }
         }
     }
@@ -313,83 +355,135 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     {
         List<GridColumnFilterInfo<T>> filters = new ArrayList<GridColumnFilterInfo<T>>();
 
-        for (PagingColumnFilter<T> filterWidget : columnFilters)
+        for (IColumnFilterWidget<T> filterWidget : columnFilters)
         {
             filters.add(filterWidget.getFilter());
         }
         return filters;
     }
 
-    // true if the toolbar with filters has just disappeared or appeared
-    public void rebuildColumnFilters(List<IColumnDefinition<T>> filteredColumns)
+    public void refreshColumnFiltersDistinctValues(List<ColumnDistinctValues> columnDistinctValues)
     {
-        List<PagingColumnFilter<T>> newFilterWidgets =
-                createColumnFilterWidgets(filteredColumns, applyFiltersAction);
-        rebuildColumnFilterWidgets(newFilterWidgets, this.columnFilters, messageProvider);
+        List<IColumnFilterWidget<T>> newColumnFilters = new ArrayList<IColumnFilterWidget<T>>();
+        boolean refreshNeeded = false;
+        for (IColumnFilterWidget<T> columnFilter : columnFilters)
+        {
+            ColumnDistinctValues distinctValues =
+                    tryFindForColumn(columnFilter.getFilteredColumnId(), columnDistinctValues);
+            List<String> valuesOrNull =
+                    distinctValues == null ? null : distinctValues.getDistinctValues();
+            IColumnFilterWidget<T> newFilter = columnFilter.createOrRefresh(valuesOrNull);
+            refreshNeeded = refreshNeeded || newFilter != columnFilter;
+            newColumnFilters.add(newFilter);
+        }
+        if (refreshNeeded)
+        {
+            updateColumnFilters(newColumnFilters);
+        }
+    }
 
+    private static ColumnDistinctValues tryFindForColumn(String columnId,
+            List<ColumnDistinctValues> columnDistinctValues)
+    {
+        for (ColumnDistinctValues columnValues : columnDistinctValues)
+        {
+            if (columnValues.getColumnIdentifier().equals(columnId))
+            {
+                return columnValues;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return true if the toolbar with filters has just disappeared or appeared
+     */
+    public boolean rebuildColumnFilters(List<IColumnDefinition<T>> filteredColumns)
+    {
+        if (hasFilteredColumnsChanged(filteredColumns, this.columnFilters))
+        {
+            List<IColumnFilterWidget<T>> newColumnFilters =
+                    createColumnFilterWidgets(filteredColumns, this.columnFilters,
+                            applyFiltersAction);
+            updateColumnFilters(newColumnFilters);
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    private void updateColumnFilters(List<IColumnFilterWidget<T>> newColumnFilters)
+    {
         this.columnFilters.clear();
-        this.columnFilters.addAll(newFilterWidgets);
+        this.columnFilters.addAll(newColumnFilters);
         updateFilterFields();
     }
 
-    private static <T> List<PagingColumnFilter<T>> createColumnFilterWidgets(
-            List<IColumnDefinition<T>> availableFilters, IDelegatedAction onFilterAction)
+    private boolean hasFilteredColumnsChanged(List<IColumnDefinition<T>> filters1,
+            List<IColumnFilterWidget<T>> filters2)
     {
-        List<PagingColumnFilter<T>> filterWidgets = new ArrayList<PagingColumnFilter<T>>();
+        if (filters1.size() != filters2.size())
+        {
+            return true;
+        }
+        for (int i = 0; i < filters1.size(); i++)
+        {
+            String colId1 = filters1.get(i).getIdentifier();
+            String colId2 = filters2.get(i).getFilteredColumnId();
+            if (colId1.equals(colId2) == false)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static <T> List<IColumnFilterWidget<T>> createColumnFilterWidgets(
+            List<IColumnDefinition<T>> availableFilters,
+            List<IColumnFilterWidget<T>> previousColumnFilters, IDelegatedAction onFilterAction)
+    {
+        List<IColumnFilterWidget<T>> filterWidgets = new ArrayList<IColumnFilterWidget<T>>();
         for (IColumnDefinition<T> columnDefinition : availableFilters)
         {
-            PagingColumnFilter<T> filterWidget =
-                    new PagingColumnFilter<T>(columnDefinition, onFilterAction);
+            IColumnFilterWidget<T> filterWidget =
+                    tryFindColumnFilter(columnDefinition.getIdentifier(), previousColumnFilters);
+            if (filterWidget == null)
+            {
+                // we do not have distinct values in the columns at this moment, so plain filter
+                // widget is always created
+                filterWidget = new TextColumnFilterWidget<T>(columnDefinition, onFilterAction);
+            }
             filterWidgets.add(filterWidget);
         }
         return filterWidgets;
     }
 
-    // Sets the value of filter widgets using the previous filter widgets
-    private static <T> void rebuildColumnFilterWidgets(List<PagingColumnFilter<T>> filterWidgets,
-            List<PagingColumnFilter<T>> previousFilterWidgetsOrNull,
-            IMessageProvider messageProvider)
+    private static <T> IColumnFilterWidget<T> tryFindColumnFilter(String columnId,
+            List<IColumnFilterWidget<T>> columnFilters)
     {
-        if (filterWidgets.size() == 0)
+        for (IColumnFilterWidget<T> columnFilter : columnFilters)
         {
-            return;
-        }
-
-        Map<String, PagingColumnFilter<T>> previousFiltersByColumnId =
-                new HashMap<String, PagingColumnFilter<T>>();
-        if (previousFilterWidgetsOrNull != null)
-        {
-            for (PagingColumnFilter<T> filter : previousFilterWidgetsOrNull)
+            if (columnFilter.getFilteredColumnId().equals(columnId))
             {
-                previousFiltersByColumnId.put(filter.getFilteredColumnId(), filter);
+                return columnFilter;
             }
         }
-
-        for (PagingColumnFilter<T> filterWidget : filterWidgets)
-        {
-            // restore previous value if set
-            PagingColumnFilter<T> previousFilterWidgetOrNull =
-                    previousFiltersByColumnId.get(filterWidget.getFilteredColumnId());
-            if (previousFilterWidgetOrNull != null)
-            {
-                String previousValue = previousFilterWidgetOrNull.getRawValue();
-                if (previousValue != "")
-                {
-                    // simply setting value with setValue does not work
-                    filterWidget.setRawValue(previousFilterWidgetOrNull.getRawValue());
-                    filterWidget.validate(); // a hack to show previous value as black text
-                }
-            }
-        }
+        return null;
     }
 
     /** @return ids of columns which have filtering switched on at the column filters toolbar */
     public List<String> extractFilteredColumnIds()
     {
+        return extractColumnIds(columnFilters);
+    }
+
+    private static <T> List<String> extractColumnIds(List<IColumnFilterWidget<T>> columns)
+    {
         List<String> filteredColumnsIds = new ArrayList<String>();
-        for (PagingColumnFilter<T> filter : columnFilters)
+        for (IColumnFilterWidget<T> column : columns)
         {
-            filteredColumnsIds.add(filter.getFilteredColumnId());
+            filteredColumnsIds.add(column.getFilteredColumnId());
         }
         return filteredColumnsIds;
     }

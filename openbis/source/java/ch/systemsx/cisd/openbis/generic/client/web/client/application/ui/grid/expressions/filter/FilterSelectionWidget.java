@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -58,6 +59,7 @@ public final class FilterSelectionWidget extends DropDownList<FilterModel, GridC
         this.withStandard = true;
         setAutoSelectFirst(withStandard);
         setCallbackId(createCallbackId());
+        setSelection(Arrays.asList(FilterModel.COLUMN_FILTER_MODEL));
         setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.NAME,
                 ModelDataPropertyNames.TOOLTIP));
     }

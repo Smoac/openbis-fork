@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
  */
 public class FilterModel extends BaseModelData
 {
+    public static FilterModel COLUMN_FILTER_MODEL = createColumnFilter();
 
     private static final long serialVersionUID = 1L;
 
@@ -56,13 +57,13 @@ public class FilterModel extends BaseModelData
         }
         if (withColumnFilter)
         {
-            result.add(0, createColumnFilter(filters));
+            result.add(0, COLUMN_FILTER_MODEL);
         }
 
         return result;
     }
 
-    private static FilterModel createColumnFilter(List<GridCustomFilter> basicTypes)
+    private static FilterModel createColumnFilter()
     {
         final GridCustomFilter allSampleType = new GridCustomFilter();
         allSampleType.setName(GridCustomFilter.COLUMN_FILTER);

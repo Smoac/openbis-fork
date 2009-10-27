@@ -39,7 +39,8 @@ public class GridRowModels<T> extends ArrayList<GridRowModel<T>> implements IsSe
 
     /**
      * Information about distinct values in the columns. Only those columns which user wanted to
-     * filter and which at the same time had values belonging to a small set are included.<br>
+     * filter with column filters and which at the same time had values belonging to a small set are
+     * included.<br>
      * Note that all rows are taken into account to compute distinct values, not only those from
      * this grid row model.<br>
      */

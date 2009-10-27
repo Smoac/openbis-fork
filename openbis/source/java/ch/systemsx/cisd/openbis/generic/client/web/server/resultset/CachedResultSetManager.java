@@ -98,19 +98,26 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         private final IColumnDefinition<T> filteredField;
 
+        // empty array matches values which are empty or null
         private final String[] filterExpressionAlternatives;
 
         private FilterInfo(GridColumnFilterInfo<T> gridFilterInfo)
         {
             this.filteredField = gridFilterInfo.getFilteredField();
 
-            // - each token is used as an alternative
-            // - tokens are separated with whitespace
-            // - quotes (both double and single quote) wrap data into tokens
-            StrTokenizer tokenizer =
-                    new StrTokenizer(gridFilterInfo.tryGetFilterPattern().toLowerCase());
-            tokenizer.setQuoteMatcher(StrMatcher.quoteMatcher());
-            this.filterExpressionAlternatives = tokenizer.getTokenArray();
+            String pattern = gridFilterInfo.tryGetFilterPattern().toLowerCase();
+            if (pattern.length() == 0)
+            {
+                this.filterExpressionAlternatives = new String[] {};
+            } else
+            {
+                // - each token is used as an alternative
+                // - tokens are separated with whitespace
+                // - quotes (both double and single quote) wrap data into tokens
+                StrTokenizer tokenizer = new StrTokenizer(pattern);
+                tokenizer.setQuoteMatcher(StrMatcher.quoteMatcher());
+                this.filterExpressionAlternatives = tokenizer.getTokenArray();
+            }
         }
 
         static <T> FilterInfo<T> tryCreate(GridColumnFilterInfo<T> filterInfo)
@@ -207,6 +214,10 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
 
     private static boolean isMatching(String value, String[] filterPatternAlternatives)
     {
+        if (filterPatternAlternatives.length == 0)
+        {
+            return value.length() == 0;
+        }
         for (String pattern : filterPatternAlternatives)
         {
             if (value.contains(pattern))

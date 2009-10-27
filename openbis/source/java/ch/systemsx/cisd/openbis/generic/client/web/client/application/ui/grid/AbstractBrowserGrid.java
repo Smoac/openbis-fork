@@ -621,17 +621,19 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             // key
             saveCacheKey(result.getResultSetKey());
             totalCount = result.getTotalLength();
-            List<GridCustomColumnInfo> customColumnMetadata =
-                    result.getList().getCustomColumnsMetadata();
+            GridRowModels<T> rowModels = result.getList();
+            List<GridCustomColumnInfo> customColumnMetadata = rowModels.getCustomColumnsMetadata();
             customColumnsMetadataProvider.setCustomColumnsMetadata(customColumnMetadata);
             // convert the result to the model data for the grid control
-            final List<M> models = createModels(result.getList());
+            final List<M> models = createModels(rowModels);
             final PagingLoadResult<M> loadResult =
                     new BasePagingLoadResult<M>(models, resultSetConfig.getOffset(), result
                             .getTotalLength());
             delegate.onSuccess(loadResult);
             pagingToolbar.enableExportButton();
             pagingToolbar.updateDefaultConfigButton(true);
+
+            filterToolbar.refreshColumnFiltersDistinctValues(rowModels.getColumnDistinctValues());
             onComplete(true);
         }
 
@@ -1036,13 +1038,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // returns true if some filters have changed
     private boolean rebuildFiltersFromIds(List<String> filteredColumnIds)
     {
-        if (filteredColumnIds.equals(filterToolbar.extractFilteredColumnIds()))
-        {
-            return false; // nothing to change
-        }
         List<IColumnDefinition<T>> filteredColumns = getColumnDefinitions(filteredColumnIds);
-        filterToolbar.rebuildColumnFilters(filteredColumns);
-        return true;
+        return filterToolbar.rebuildColumnFilters(filteredColumns);
     }
 
     public List<IColumnDefinition<T>> getColumnDefinitions(List<String> columnIds)
@@ -1210,10 +1207,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                                     rebuildFiltersFromIds(getFilteredColumnIds(newColumnDataModels));
                             saveColumnSettings(cm);
 
-                            if (customColumnsChanged)
+                            if (customColumnsChanged || filtersChanged)
                             {
-                                debug("refreshing custom columns");
-                                // if filters refresh filters, so we can ignore filtersChanged state
+                                debug("refreshing the custom columns or filters");
                                 refresh();
                             } else
                             {

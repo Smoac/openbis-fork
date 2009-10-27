@@ -32,6 +32,7 @@ public class GridColumnFilterInfo<T> implements IsSerializable
     private IColumnDefinition<T> filteredField;
 
     // the value has to match to this pattern, If null filter should not be applied.
+    // If string is empty than the filter should be applied and should match all empty and null values.
     private String filterTextOrNull;
 
     // GWT only

@@ -103,10 +103,11 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         setWidth(DEFAULT_WIDTH);
         setDisplayField(displayField);
         setFieldLabel(label);
-        setStore(createEmptyStoreWithContainsFilter());
+        setStore(createEmptyStoreWithContainsFilter(this));
     }
 
-    private ListStore<M> createEmptyStoreWithContainsFilter()
+    public static <M extends ModelData> ListStore<M> createEmptyStoreWithContainsFilter(
+            final ComboBox<M> comboBox)
     {
         StoreFilter<M> filter = new StoreFilter<M>()
             {
@@ -114,15 +115,18 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                 @SuppressWarnings("unchecked")
                 public boolean select(Store s, M parent, M item, String property)
                 {
-                    String v = getRawValue();
+                    String v = comboBox.getRawValue();
                     if (StringUtils.isBlank(v))
                     {
                         return true;
                     }
-                    if (item != null && item.get(getDisplayField()) != null)
+                    if (item != null)
                     {
-                        return ((String) item.get(getDisplayField())).toLowerCase().indexOf(
-                                v.toLowerCase()) >= 0;
+                        String displayFieldValue = (String) item.get(comboBox.getDisplayField());
+                        if (displayFieldValue != null)
+                        {
+                            return displayFieldValue.toLowerCase().indexOf(v.toLowerCase()) >= 0;
+                        }
                     }
                     return false;
                 }

@@ -16,27 +16,33 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.StoreFilterField;
+import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.IColumnFilterWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 
 /**
- * {@link StoreFilterField} extension for filtering columns in cached grid with paging.
+ * Text field which allows to specify the filter for one grid column by typing part of it.
  * 
  * @author Tomasz Pylak
  */
-public class PagingColumnFilter<T/* entity */> extends StoreFilterField<ModelData>
+public class TextColumnFilterWidget<T/* entity */> extends StoreFilterField<ModelData> implements
+        IColumnFilterWidget<T>
 {
     private final IColumnDefinition<T> filteredField;
 
     private final IDelegatedAction onFilterAction;
 
     /** @param onFilterAction callback executed when data are about to be filtered. */
-    public PagingColumnFilter(IColumnDefinition<T> filteredField, IDelegatedAction onFilterAction)
+    public TextColumnFilterWidget(IColumnDefinition<T> filteredField,
+            IDelegatedAction onFilterAction)
     {
         this.filteredField = filteredField;
         this.onFilterAction = onFilterAction;
@@ -74,5 +80,31 @@ public class PagingColumnFilter<T/* entity */> extends StoreFilterField<ModelDat
             String property, String filterText)
     {
         return true; // never called
+    }
+
+    public Widget getWidget()
+    {
+        return this;
+    }
+
+    public IColumnFilterWidget<T> createOrRefresh(List<String> distinctValuesOrNull)
+    {
+        if (distinctValuesOrNull == null)
+        {
+            return this;
+        } else
+        {
+            return new ListColumnFilterWidget<T>(filteredField, onFilterAction,
+                    distinctValuesOrNull);
+        }
+    }
+
+    @Override
+    public void reset()
+    {
+        // Simple 'f.reset()' causes automatic filter application,
+        // but we want to reload data only once after all filters are cleared.
+        setRawValue(getEmptyText());
+        applyEmptyText();
     }
 }
