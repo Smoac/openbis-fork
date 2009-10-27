@@ -55,4 +55,35 @@ public class PropertyTypeRenderer
         }
         return false;
     }
+
+    public static final String renderAsTooltip(final PropertyType propertyType)
+    {
+        return renderAsTooltip(propertyType, null);
+    }
+
+    public static final String renderAsTooltip(final PropertyType propertyType,
+            final String sectionOrNull)
+    {
+        final String code = propertyType.getCode();
+        final String label = propertyType.getLabel();
+        final String description = propertyType.getDescription();
+        String result = "";
+        if (label == null)
+        {
+            result += "<b>" + code + "</b>";
+        } else
+        {
+            result += "<b>" + label + "</b>";
+            result += "<br>code: " + code;
+        }
+        if (sectionOrNull != null)
+        {
+            result += "<br>section: <b>" + sectionOrNull + "</b>";
+        }
+        if (description != null)
+        {
+            result += "<br><hr>description: <i>" + description + "</i>";
+        }
+        return result.replace(".", ". ");
+    }
 }

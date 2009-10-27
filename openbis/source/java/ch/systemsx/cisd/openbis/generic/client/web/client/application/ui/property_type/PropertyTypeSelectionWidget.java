@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -55,6 +56,7 @@ public final class PropertyTypeSelectionWidget extends
         public PropertyTypeComboModel(PropertyType entity, List<PropertyType> types)
         {
             set(ModelDataPropertyNames.CODE, PropertyTypeRenderer.getDisplayName(entity, types));
+            set(ModelDataPropertyNames.TOOLTIP, PropertyTypeRenderer.renderAsTooltip(entity));
             set(ModelDataPropertyNames.OBJECT, entity);
         }
     }
@@ -69,6 +71,8 @@ public final class PropertyTypeSelectionWidget extends
         super(viewContext, SUFFIX + idSuffix, Dict.PROPERTY_TYPE, ModelDataPropertyNames.CODE,
                 CHOOSE_SUFFIX, EMPTY_RESULT_SUFFIX);
         this.viewContext = viewContext;
+        setTemplate(GWTUtils.getTooltipTemplate(ModelDataPropertyNames.CODE,
+                ModelDataPropertyNames.TOOLTIP));
     }
 
     public final String tryGetSelectedPropertyTypeCode()

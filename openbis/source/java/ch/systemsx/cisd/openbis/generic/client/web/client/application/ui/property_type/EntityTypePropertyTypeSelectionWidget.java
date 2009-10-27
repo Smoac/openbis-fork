@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -71,14 +71,14 @@ public final class EntityTypePropertyTypeSelectionWidget
 
         private Object getTooltip(EntityTypePropertyType<?> entity)
         {
-            return TooltipRenderer.renderAsTooltip(entity.getPropertyType().getCode(), "section",
-                    entity.getSection());
+            return PropertyTypeRenderer.renderAsTooltip(entity.getPropertyType(), entity
+                    .getSection());
         }
 
         private String getDisplayName(EntityTypePropertyType<?> entity)
         {
             return (entity.getSection() != null ? entity.getSection() + ": " : "")
-                    + entity.getPropertyType().getCode();
+                    + entity.getPropertyType().getLabel();
         }
 
         public Long getOrdinal()
