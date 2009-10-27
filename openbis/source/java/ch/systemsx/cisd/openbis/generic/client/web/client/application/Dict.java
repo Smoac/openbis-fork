@@ -48,6 +48,8 @@ public abstract class Dict
 
     public static final String CODE = "code";
 
+    public static final String POSITION_AFTER = "position_after";
+
     public static final String ORDINAL = "ordinal";
 
     public static final String SECTION = "section";

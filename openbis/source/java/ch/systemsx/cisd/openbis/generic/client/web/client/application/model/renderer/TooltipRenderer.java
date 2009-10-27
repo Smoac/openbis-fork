@@ -27,12 +27,18 @@ public class TooltipRenderer
 {
     public static final String renderAsTooltip(String code, String descriptionOrNull)
     {
+        return renderAsTooltip(code, "description", descriptionOrNull);
+    }
+
+    public static final String renderAsTooltip(String code, String additionalLabel,
+            String additionalValueOrNull)
+    {
         assert code != null;
         final StringBuilder sb = new StringBuilder();
         sb.append("<b>" + code + "</b>");
-        if (StringUtils.isEmpty(descriptionOrNull) == false)
+        if (StringUtils.isEmpty(additionalValueOrNull) == false)
         {
-            sb.append("<br><hr>description: <i>" + descriptionOrNull + "</i>");
+            sb.append("<br><hr>" + additionalLabel + ": <i>" + additionalValueOrNull + "</i>");
         }
         return sb.toString();
     }
