@@ -55,7 +55,7 @@ public final class FileShareUserGridCellListener implements Listener<GridEvent<M
         {
             record.set(FileShareUserGridModel.SHARE_FILE, false == (Boolean) record
                     .get(FileShareUserGridModel.SHARE_FILE));
-
+            grid.getView().refresh(false);
             parentDialog.checkboxChangeAction();
         }
     }
