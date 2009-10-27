@@ -35,8 +35,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * {@link ComboBox} containing list of property type codes of specified entity type loaded from the
- * server.
+ * {@link ComboBox} containing list of property type codes assigned to specified entity type loaded
+ * from the server.
  * 
  * @author Piotr Buczek
  */
@@ -46,9 +46,9 @@ public final class EntityTypePropertyTypeSelectionWidget
 {
     public static final String TOP_ITEM_CODE = "(top)";
 
-    private static final String EMPTY_RESULT_SUFFIX = "property types";
+    private static final String EMPTY_RESULT_SUFFIX = "assigned property types";
 
-    private static final String CHOOSE_SUFFIX = "property type";
+    private static final String CHOOSE_SUFFIX = "assigned property type";
 
     private static final String SUFFIX = "entity-type-property-type";
 
