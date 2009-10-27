@@ -401,7 +401,7 @@ class UploadingCommand implements IDataSetCommand
     private String createRootPath(ExternalData dataSet)
     {
         Sample sample = dataSet.getSample();
-        Experiment experiment = sample == null ? dataSet.getExperiment() : sample.getExperiment();
+        Experiment experiment = dataSet.getExperiment();
         Project project = experiment.getProject();
         project.getGroup().getCode();
         return project.getGroup().getCode() + "/" + project.getCode() + "/" + experiment.getCode()
