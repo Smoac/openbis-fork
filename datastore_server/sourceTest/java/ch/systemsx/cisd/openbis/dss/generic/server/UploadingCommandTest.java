@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -52,12 +53,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 
 /**
@@ -152,11 +155,14 @@ public class UploadingCommandTest extends AssertJUnit
         createTestData(LOCATION1);
         ds2 = createTestData(LOCATION2);
         ExternalData dataSet1 =
-                ExternalDataTranslator.translate(createDataSet("1", LOCATION1), "?", "?");
+                ExternalDataTranslator.translate(createDataSet("1", LOCATION1), "?", "?",
+                        ExperimentTranslator.LoadableFields.PROPERTIES);
+        System.out.println("ds1:" + dataSet1.getExperiment().getProperties());
         ExternalData dataSet2 =
-                ExternalDataTranslator.translate(createDataSet("2", LOCATION2), "?", "?");
+                ExternalDataTranslator.translate(createDataSet("2", LOCATION2), "?", "?",
+                        ExperimentTranslator.LoadableFields.PROPERTIES);
         List<ExternalData> dataSets = Arrays.<ExternalData> asList(dataSet1, dataSet2);
-        command = new UploadingCommand(factory, mailClientParameters, dataSets, uploadContext);
+       command = new UploadingCommand(factory, mailClientParameters, dataSets, uploadContext);
         command.deleteAfterUploading = false;
     }
 
@@ -208,6 +214,8 @@ public class UploadingCommandTest extends AssertJUnit
         group.setDatabaseInstance(instance);
         project.setGroup(group);
         experiment.setProject(project);
+        LinkedHashSet<EntityPropertyPE> properties = new LinkedHashSet<EntityPropertyPE>();
+        experiment.setProperties(properties);
         return experiment;
     }
 

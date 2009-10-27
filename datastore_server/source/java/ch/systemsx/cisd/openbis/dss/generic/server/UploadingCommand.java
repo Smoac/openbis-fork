@@ -50,6 +50,7 @@ import ch.systemsx.cisd.common.utilities.TokenGenerator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -122,56 +123,83 @@ class UploadingCommand implements IDataSetCommand
 
     private static final class MetaDataBuilder
     {
+        private static final String DATA_SET = "data_set";
+        private static final String SAMPLE = "sample";
+        private static final String EXPERIMENT = "experiment";
+
         private static final char DELIM = '\t';
 
         private static final DateFormat DATE_FORMAT_PATTERN =
                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 
         private final StringBuilder builder = new StringBuilder();
+        
+        void dataSetProperties(List<IEntityProperty> properties)
+        {
+            addProperties(DATA_SET, properties);
+        }
+        
+        void sampleProperties(List<IEntityProperty> properties)
+        {
+            addProperties(SAMPLE, properties);
+        }
+        
+        void experimentProperties(List<IEntityProperty> properties)
+        {
+            addProperties(EXPERIMENT, properties);
+        }
+        
+        void addProperties(String category, List<IEntityProperty> properties)
+        {
+            for (IEntityProperty property : properties)
+            {
+                addRow(category, property.getPropertyType().getCode(), property.getValue());
+            }
+        }
 
         void dataSet(String key, String value)
         {
-            addRow("data_set", key, value);
+            addRow(DATA_SET, key, value);
         }
 
         void dataSet(String key, Date date)
         {
-            addRow("data_set", key, date);
+            addRow(DATA_SET, key, date);
         }
 
         void dataSet(String key, boolean flag)
         {
-            addRow("data_set", key, flag);
+            addRow(DATA_SET, key, flag);
         }
 
         void sample(String key, String value)
         {
-            addRow("sample", key, value);
+            addRow(SAMPLE, key, value);
         }
 
         void sample(String key, Person person)
         {
-            addRow("sample", key, person);
+            addRow(SAMPLE, key, person);
         }
 
         void sample(String key, Date date)
         {
-            addRow("sample", key, date);
+            addRow(SAMPLE, key, date);
         }
 
         void experiment(String key, String value)
         {
-            addRow("experiment", key, value);
+            addRow(EXPERIMENT, key, value);
         }
 
         void experiment(String key, Person person)
         {
-            addRow("experiment", key, person);
+            addRow(EXPERIMENT, key, person);
         }
 
         void experiment(String key, Date date)
         {
-            addRow("experiment", key, date);
+            addRow(EXPERIMENT, key, date);
         }
 
         private void addRow(String category, String key, Person person)
@@ -362,6 +390,7 @@ class UploadingCommand implements IDataSetCommand
         builder.dataSet("data_set_type", dataSet.getDataSetType().getCode());
         builder.dataSet("is_measured", dataSet.isDerived() == false);
         builder.dataSet("is_complete", BooleanOrUnknown.T.equals(dataSet.getComplete()));
+        builder.dataSetProperties(dataSet.getProperties());
 
         StringBuilder stringBuilder = new StringBuilder();
         Collection<ExternalData> parents = dataSet.getParents();
@@ -386,6 +415,7 @@ class UploadingCommand implements IDataSetCommand
             builder.sample("group_code", group == null ? "(shared)" : group.getCode());
             builder.sample("registration_timestamp", sample.getRegistrationDate());
             builder.sample("registrator", sample.getRegistrator());
+            builder.sampleProperties(sample.getProperties());
         }
         Experiment experiment = dataSet.getExperiment();
         Project project = experiment.getProject();
@@ -395,6 +425,7 @@ class UploadingCommand implements IDataSetCommand
         builder.experiment("experiment_type_code", experiment.getExperimentType().getCode());
         builder.experiment("registration_timestamp", experiment.getRegistrationDate());
         builder.experiment("registrator", experiment.getRegistrator());
+        builder.experimentProperties(experiment.getProperties());
         return builder.toString();
     }
 
