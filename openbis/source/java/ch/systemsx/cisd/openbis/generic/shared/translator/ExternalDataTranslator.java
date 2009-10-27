@@ -57,7 +57,9 @@ public class ExternalDataTranslator
         ArrayList<ExternalData> result = new ArrayList<ExternalData>(list.size());
         for (ExternalDataPE externalDataPE : list)
         {
-            ExternalData data = translate(externalDataPE, defaultDataStoreBaseURL, baseIndexURL);
+            ExternalData data =
+                    translate(externalDataPE, defaultDataStoreBaseURL, baseIndexURL, true,
+                            ExperimentTranslator.LoadableFields.PROPERTIES);
             result.add(data);
         }
         return result;

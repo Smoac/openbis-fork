@@ -231,6 +231,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             for (ExternalDataPE dataSet : dataSets)
             {
                 HibernateUtils.initialize(dataSet.getParents());
+                HibernateUtils.initialize(dataSet.getProperties());
                 SamplePE sampleOrNull = dataSet.tryGetSample();
                 ExperimentPE experiment;
                 if (sampleOrNull != null) // needed? dataSet should always have experiment
@@ -241,6 +242,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                     experiment = dataSet.getExperiment();
                 }
                 HibernateUtils.initialize(experiment.getProject().getGroup());
+                HibernateUtils.initialize(experiment.getProperties());
             }
             if (StringUtils.isBlank(dataStore.getRemoteUrl()))
             {
