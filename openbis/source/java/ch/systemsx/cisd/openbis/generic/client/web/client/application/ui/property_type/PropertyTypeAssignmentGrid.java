@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -241,17 +242,14 @@ public class PropertyTypeAssignmentGrid extends
 
                 private final Field<String> sectionField;
 
+                private final EntityTypePropertyTypeSelectionWidget etptSelectionWidget;
+
                 private final CheckBox mandatoryCheckbox;
 
                 private final Field<?> defaultValueField;
 
                 {
                     originalIsMandatory = etpt.isMandatory();
-
-                    // TODO 2009-10-26, Piotr Buczek: use combo box
-                    sectionField = new VarcharField(viewContext.getMessage(Dict.SECTION), false);
-                    sectionField.setValue(etpt.getSection());
-                    addField(sectionField);
 
                     mandatoryCheckbox = new CheckBox();
                     mandatoryCheckbox.setFieldLabel(viewContext.getMessage(Dict.MANDATORY));
@@ -281,11 +279,53 @@ public class PropertyTypeAssignmentGrid extends
                     {
                         defaultValueField = null;
                     }
+
+                    // TODO 2009-10-26, Piotr Buczek: use combo box
+                    sectionField = new VarcharField(viewContext.getMessage(Dict.SECTION), false);
+                    sectionField.setValue(etpt.getSection());
+                    addField(sectionField);
+
+                    etptSelectionWidget = createETPTSelectionWidget();
+                    addField(etptSelectionWidget);
+                }
+
+                private EntityTypePropertyTypeSelectionWidget createETPTSelectionWidget()
+                {
+                    final EntityType entityType = etpt.getEntityType();
+                    final List<EntityTypePropertyType<?>> all = getPropertyTypes(entityType);
+                    String previousPropertyTypeCodeOrNull =
+                            EntityTypePropertyTypeSelectionWidget.TOP_ITEM_CODE;
+                    for (int i = 0; i < all.size(); i++)
+                    {
+                        final String currentPropertyTypeCode =
+                                all.get(i).getPropertyType().getCode();
+                        if (propertyTypeCode.equals(currentPropertyTypeCode))
+                        {
+                            all.remove(i);
+                            break;
+                        }
+                        previousPropertyTypeCodeOrNull = currentPropertyTypeCode;
+                    }
+                    all.add(0, null); // null will be transformed into '(top)'
+                    final EntityTypePropertyTypeSelectionWidget result =
+                            new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), all,
+                                    previousPropertyTypeCodeOrNull);
+                    FieldUtil.setMandatoryFlag(result, true);
+                    return result;
                 }
 
                 private String getSectionValue()
                 {
                     return sectionField.getValue();
+                }
+
+                /**
+                 * extracts ordinal of an entity type property type after which edited property
+                 * should be put
+                 */
+                private Long getPreviousETPTOrdinal()
+                {
+                    return etptSelectionWidget.getSelectedEntityTypePropertyTypeOrdinal();
                 }
 
                 private String getDefaultValue()
@@ -306,8 +346,9 @@ public class PropertyTypeAssignmentGrid extends
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
                     viewContext.getService().updatePropertyTypeAssignment(entityKind,
-                            propertyTypeCode, entityTypeCode, getSectionValue(),
-                            getMandatoryValue(), getDefaultValue(), registrationCallback);
+                            propertyTypeCode, entityTypeCode, getMandatoryValue(),
+                            getDefaultValue(), getSectionValue(), getPreviousETPTOrdinal(),
+                            registrationCallback);
                 }
             };
     }
@@ -349,6 +390,11 @@ public class PropertyTypeAssignmentGrid extends
     }
 
     private Map<EntityType, List<EntityTypePropertyType<?>>> entityTypePropertyTypes;
+
+    private List<EntityTypePropertyType<?>> getPropertyTypes(EntityType entityType)
+    {
+        return entityTypePropertyTypes.get(entityType);
+    }
 
     private void extractETPTs(List<EntityTypePropertyType<?>> etpts)
     {

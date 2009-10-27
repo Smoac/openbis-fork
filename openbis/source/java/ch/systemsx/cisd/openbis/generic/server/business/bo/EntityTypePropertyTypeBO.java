@@ -145,9 +145,16 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         }
     }
 
-    public void updateLoadedAssignment(final String section, final boolean isMandatory,
-            final String defaultValue)
+    public void updateLoadedAssignment(final boolean isMandatory, final String defaultValue,
+            final String section, final Long previousETPTOrdinal)
     {
+        // if ordinal was changed some etpts need to be shifted by 1
+        final Long currentOrdinal = previousETPTOrdinal + 1;
+        if (assignment.getOrdinal().equals(currentOrdinal) == false)
+        {
+            increaseOrdinals(assignment.getEntityType(), currentOrdinal, 1);
+            assignment.setOrdinal(currentOrdinal);
+        }
         assignment.setSection(section);
         assignment.setMandatory(isMandatory);
         // fill missing property values if we change from optional to mandatory
@@ -185,7 +192,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
     {
         checkAssignmentDoesNotExist(entityType, propertyType);
         // need to shift existing etpts to create space for new one
-        Long currentOrdinal = previousETPTOrdinal + 1;
+        final Long currentOrdinal = previousETPTOrdinal + 1;
         increaseOrdinals(entityType, currentOrdinal, 1);
 
         final EntityTypePropertyTypePE etpt =
