@@ -78,7 +78,13 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                                 operationLog.info("Executing " + description);
                             }
                             final StopWatch stopWatch = new StopWatch();
-                            command.execute(store);
+                            try
+                            {
+                                command.execute(store);
+                            } catch (RuntimeException e)
+                            {
+                                notificationLog.error("Error executing command '" + description + "'.", e);
+                            }
                             if (operationLog.isInfoEnabled())
                             {
                                 operationLog.info("Finished executing " + description + " after "
@@ -92,9 +98,6 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                     } catch (InterruptedExceptionUnchecked ex)
                     {
                         // Exit thread.
-                    } catch (RuntimeException ex)
-                    {
-                        notificationLog.error("Error executing command '" + description);
                     }
                 }
             }, "Data Set Command Execution");
