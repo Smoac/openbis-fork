@@ -179,6 +179,9 @@ public class PropertyTypeAssignmentGrid extends
 
     private final IDelegatedAction postRegistrationCallback;
 
+    // < entity type, list of etpts assigned to this entity type >
+    private Map<EntityType, List<EntityTypePropertyType<?>>> entityTypePropertyTypes;
+
     private PropertyTypeAssignmentGrid(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, BROWSER_ID, GRID_ID,
@@ -292,24 +295,29 @@ public class PropertyTypeAssignmentGrid extends
                 private EntityTypePropertyTypeSelectionWidget createETPTSelectionWidget()
                 {
                     final EntityType entityType = etpt.getEntityType();
-                    final List<EntityTypePropertyType<?>> all = getPropertyTypes(entityType);
+                    // create a new list of items from all etpts assigned to entity type
+                    final List<EntityTypePropertyType<?>> all =
+                            new ArrayList<EntityTypePropertyType<?>>();
+                    all.add(null); // null will be transformed into '(top)'
+                    String initialPropertyTypeCodeOrNull = null;
                     String previousPropertyTypeCodeOrNull =
                             EntityTypePropertyTypeSelectionWidget.TOP_ITEM_CODE;
-                    for (int i = 0; i < all.size(); i++)
+                    for (EntityTypePropertyType<?> currentETPT : getPropertyTypes(entityType))
                     {
                         final String currentPropertyTypeCode =
-                                all.get(i).getPropertyType().getCode();
-                        if (propertyTypeCode.equals(currentPropertyTypeCode))
+                                currentETPT.getPropertyType().getCode();
+                        if (propertyTypeCode.equals(currentPropertyTypeCode) == false)
                         {
-                            all.remove(i);
-                            break;
+                            all.add(currentETPT);
+                            previousPropertyTypeCodeOrNull = currentPropertyTypeCode;
+                        } else
+                        {
+                            initialPropertyTypeCodeOrNull = previousPropertyTypeCodeOrNull;
                         }
-                        previousPropertyTypeCodeOrNull = currentPropertyTypeCode;
                     }
-                    all.add(0, null); // null will be transformed into '(top)'
                     final EntityTypePropertyTypeSelectionWidget result =
                             new EntityTypePropertyTypeSelectionWidget(viewContext, getId(), all,
-                                    previousPropertyTypeCodeOrNull);
+                                    initialPropertyTypeCodeOrNull);
                     FieldUtil.setMandatoryFlag(result, true);
                     return result;
                 }
@@ -388,8 +396,6 @@ public class PropertyTypeAssignmentGrid extends
                     PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE,
                     PropertyTypeAssignmentColDefKind.ENTITY_KIND });
     }
-
-    private Map<EntityType, List<EntityTypePropertyType<?>>> entityTypePropertyTypes;
 
     private List<EntityTypePropertyType<?>> getPropertyTypes(EntityType entityType)
     {
