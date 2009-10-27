@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * The unique {@link IEntityPropertyTypeDAO} implementation.
@@ -230,6 +229,7 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
                         .format(
                                 "from %s props join fetch props.entity where props.vocabularyTerm.code = ?",
                                 entityKind.getEntityPropertyClass().getSimpleName());
+        //
         List<EntityPropertyPE> properties =
                 cast(getHibernateTemplate().find(query, toArray(vocabularyTermCode)));
         if (operationLog.isDebugEnabled())
@@ -257,28 +257,26 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
 
     public void increaseOrdinals(EntityTypePE entityType, Long fromOrdinal, int increment)
     {
-        // TODO 2009-10-26, Piotr Buczek: try to rewrite in HQL
-        Long entityTypeId = HibernateUtils.getId(entityType);
-        String entityTypeIdColumnName = "";
-        String entityTypePropertyTypeTableName = entityKind.name() + "_type_property_types";
-        switch (entityKind)
+        assert entityType != null : "Unspecified entity type.";
+        assert fromOrdinal != null : "Unspecified ordinal.";
+
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+
+        String query =
+                String.format("UPDATE %s etpt SET etpt.ordinal = etpt.ordinal + ? "
+                        + "WHERE etpt.entityTypeInternal = ? AND etpt.ordinal >= ?", entityKind
+                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+        final int updatedRows =
+                hibernateTemplate.bulkUpdate(query, toArray(new Long(increment), entityType,
+                        fromOrdinal));
+        hibernateTemplate.flush();
+
+        if (operationLog.isInfoEnabled())
         {
-            case DATA_SET:
-                entityTypeIdColumnName = "dsty_id";
-                break;
-            case EXPERIMENT:
-                entityTypeIdColumnName = "exty_id";
-                break;
-            case SAMPLE:
-                entityTypeIdColumnName = "saty_id";
-                break;
-            case MATERIAL:
-                entityTypeIdColumnName = "maty_id";
-                break;
+            operationLog.debug(String.format(
+                    "%d etpt(s) updated for entity type '%s' with ordinal increased by %d.",
+                    updatedRows, entityType.getCode(), increment));
         }
-        executeUpdate("UPDATE " + entityTypePropertyTypeTableName + " SET ordinal = ordinal + ?"
-                + " WHERE " + entityTypeIdColumnName + " = ? AND ordinal >= ?", increment,
-                entityTypeId, fromOrdinal);
     }
 
     public final void validateAndSaveUpdatedEntity(EntityTypePropertyTypePE entity)

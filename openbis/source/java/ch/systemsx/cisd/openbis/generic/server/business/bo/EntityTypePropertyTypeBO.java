@@ -153,12 +153,11 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
         if (assignment.getOrdinal().equals(currentOrdinal) == false)
         {
             increaseOrdinals(assignment.getEntityType(), currentOrdinal, 1);
-            assignment.setOrdinal(currentOrdinal);
         }
+        assignment.setOrdinal(currentOrdinal);
         assignment.setSection(section);
-        assignment.setMandatory(isMandatory);
         // fill missing property values if we change from optional to mandatory
-        if (isMandatory)
+        if (isMandatory && (assignment.isMandatory() == false))
         {
             final EntityTypePE entityType = assignment.getEntityType();
             final PropertyTypePE propertyType = assignment.getPropertyType();
@@ -173,6 +172,7 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             addPropertyWithDefaultValue(entityType, propertyType, defaultValue, entities,
                     errorMsgTemplate);
         }
+        assignment.setMandatory(isMandatory);
         validateAndSave();
     }
 

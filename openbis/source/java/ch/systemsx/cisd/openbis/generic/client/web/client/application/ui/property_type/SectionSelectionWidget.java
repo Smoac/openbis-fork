@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
 /**
@@ -69,5 +70,11 @@ public final class SectionSelectionWidget extends SimpleComboBox<String>
             setEmptyText(chooseText);
         }
         add(sections);
+    }
+
+    @Override
+    public String getSimpleValue()
+    {
+        return StringUtils.trimToNull(super.getSimpleValue());
     }
 }

@@ -28,8 +28,6 @@ public final class TableNames
 
     public static final String CONTROLLED_VOCABULARY_TERM_TABLE = "controlled_vocabulary_terms";
 
-    public static final Object CONTROLLED_VOCABULARY_TERMS_TABLE = "controlled_vocabulary_terms";
-
     public static final String DATA_SET_RELATIONSHIPS_TABLE = "data_set_relationships";
 
     public static final String DATA_SET_TYPES_TABLE = "data_set_types";

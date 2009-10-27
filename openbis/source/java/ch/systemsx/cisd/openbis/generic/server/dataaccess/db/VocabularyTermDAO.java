@@ -60,6 +60,11 @@ final class VocabularyTermDAO extends AbstractGenericEntityDAO<VocabularyTermPE>
     public void increaseVocabularyTermOrdinals(VocabularyPE vocabulary, Long fromOrdinal,
             int increment)
     {
+        assert vocabulary != null : "Unspecified vocabulary.";
+        assert fromOrdinal != null : "Unspecified ordinal.";
+
+        // We could use HQL like in EntityPropertyTypeDAO.increaseOrdinals() instead of SQL
+        // but the connection between terms and vocabulary would need to be bidirectional.
         Long vocabularyId = HibernateUtils.getId(vocabulary);
         executeUpdate("UPDATE " + TableNames.CONTROLLED_VOCABULARY_TERM_TABLE
                 + " SET ordinal = ordinal + ?" + " WHERE covo_id = ? AND ordinal >= ?", increment,
