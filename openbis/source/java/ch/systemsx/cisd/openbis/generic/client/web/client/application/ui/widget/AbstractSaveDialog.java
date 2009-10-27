@@ -38,6 +38,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
  */
 abstract public class AbstractSaveDialog extends Window
 {
+    private static final int FIELD_WIDTH = 450;
+
+    private static final int SAVE_DIALOG_WIDTH = 600;
+
     protected abstract void save(AsyncCallback<Void> registrationCallback);
 
     public final class SaveDialogCallback extends AbstractAsyncCallback<Void>
@@ -70,11 +74,12 @@ abstract public class AbstractSaveDialog extends Window
         this.viewContext = viewContext;
         setHeading(title);
         setModal(true);
-        setWidth(400);
+        setWidth(SAVE_DIALOG_WIDTH);
         this.form = new FormPanel();
         form.setHeaderVisible(false);
         form.setBorders(false);
         form.setBodyBorder(false);
+        form.setFieldWidth(FIELD_WIDTH);
         add(form);
 
         addButton(createSaveButton());

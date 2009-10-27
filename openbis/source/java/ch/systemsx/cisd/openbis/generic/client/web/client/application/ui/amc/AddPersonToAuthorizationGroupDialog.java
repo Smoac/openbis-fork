@@ -65,9 +65,9 @@ public class AddPersonToAuthorizationGroupDialog extends AbstractRegistrationDia
 
     private final TextArea multiplePersonsField;
 
-    private Radio singlePersonRadio;
+    private final Radio singlePersonRadio;
 
-    private Radio multiplePersonsRadio;
+    private final Radio multiplePersonsRadio;
 
     public AddPersonToAuthorizationGroupDialog(
             final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -96,17 +96,10 @@ public class AddPersonToAuthorizationGroupDialog extends AbstractRegistrationDia
                         ID_SINGLE_PERSON_FIELD));
         FieldUtil.setMandatoryFlag(singlePersonField, true);
         addField(singlePersonField);
-        this.multiplePersonsField = new TextArea();
-        multiplePersonsField.setId(createId(authorizationGroupOrNull, ID_MULTIPLE_PERSON_FIELD));
-        multiplePersonsField.setHeight("10em");
-        multiplePersonsField.setFieldLabel(viewContext.getMessage(Dict.PERSONS_IDS_LABEL));
-        multiplePersonsField.setEmptyText(viewContext.getMessage(Dict.PERSON_IDS_LIST));
-        FieldUtil.setMandatoryFlag(multiplePersonsField, true);
+        this.multiplePersonsField = createMultiplePersonField(authorizationGroupOrNull);
         addField(multiplePersonsField);
-
         GWTUtils.updateVisibleField(singlePersonRadio.getValue(), multiplePersonsRadio.getValue(),
                 singlePersonField, multiplePersonsField);
-
         radioGroup.addListener(Events.Change, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
@@ -115,6 +108,18 @@ public class AddPersonToAuthorizationGroupDialog extends AbstractRegistrationDia
                             .getValue(), singlePersonField, multiplePersonsField);
                 }
             });
+    }
+
+    private TextArea createMultiplePersonField(AuthorizationGroup authorizationGroupOrNull)
+    {
+        TextArea field = new TextArea();
+        field.setId(createId(authorizationGroupOrNull, ID_MULTIPLE_PERSON_FIELD));
+        field.setHeight("20em");
+        field.setWidth(500);
+        field.setFieldLabel(viewContext.getMessage(Dict.PERSONS_IDS_LABEL));
+        field.setEmptyText(viewContext.getMessage(Dict.PERSON_IDS_LIST));
+        FieldUtil.setMandatoryFlag(field, true);
+        return field;
     }
 
     public static final String createId(AuthorizationGroup authorizationGroupOrNull, String suffix)
