@@ -62,6 +62,8 @@ public final class ValidationMessages
 
     public static final String CODE_NOT_NULL_MESSAGE = "Code" + CAN_NOT_BE_NULL;
 
+    public static final String ORDINAL_NOT_NULL_MESSAGE = "Ordinal" + CAN_NOT_BE_NULL;
+
     public static final String NAME_NOT_NULL_MESSAGE = "Name" + CAN_NOT_BE_NULL;
 
     public static final String CODE_PATTERN_MESSAGE =
