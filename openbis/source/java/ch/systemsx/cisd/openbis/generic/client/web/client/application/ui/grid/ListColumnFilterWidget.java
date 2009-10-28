@@ -52,7 +52,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
 
     private final static String MODEL_VALUE_KEY = "value";
 
-    private static final String EMPTY_VALUE = "-- empty --";
+    private static final String EMPTY_VALUE = "(empty)";
 
     private final IColumnDefinition<T> filteredField;
 

@@ -331,6 +331,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     public void refresh()
     {
         filterSelectionWidget.refreshStore();
+        resetFilterFields();
     }
 
     // ------------------------------------

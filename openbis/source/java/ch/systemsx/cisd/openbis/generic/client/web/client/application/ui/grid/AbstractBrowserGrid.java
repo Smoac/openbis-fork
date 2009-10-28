@@ -871,9 +871,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     pagingToolbar.disableExportButton();
                     pagingToolbar.updateDefaultConfigButton(false);
+                    filterToolbar.refresh();
                     // export and config buttons are enabled when ListEntitiesCallback is complete
                     refresh();
-                    filterToolbar.refresh();
                 }
             };
     }
