@@ -48,9 +48,7 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
     public static final FillSearchCriteria searchForDataSetWithCode(final String code)
     {
         FillSearchCriteria result = new FillSearchCriteria();
-        // FIXME 2009-09-18, Piotr Buczek: search for code with '-x' suffix doesn't work
-        final String codeWithoutSuffix = code.substring(0, code.indexOf("-")) + "*";
-        result.addAttributeCriterion(DataSetAttributeSearchFieldKind.CODE, codeWithoutSuffix);
+        result.addAttributeCriterion(DataSetAttributeSearchFieldKind.CODE, code);
         return result;
     }
 
