@@ -48,9 +48,6 @@ public class LuceneQueryBuilder
     public static String adaptQuery(String userQuery)
     {
         String result = disableFieldQuery(userQuery);
-        result =
-                removeSurroundingWordSeparators(result,
-                        SeparatorSplitterTokenFilter.WORD_SEPARATORS);
         result = replaceWordSeparators(result, SeparatorSplitterTokenFilter.WORD_SEPARATORS);
         return result;
     }
@@ -58,6 +55,10 @@ public class LuceneQueryBuilder
     @Private
     static String replaceWordSeparators(String query, char[] wordSeparators)
     {
+        if (looksLikeNumber(query))
+        {
+            return query;
+        }
         String queryTrimmed = removeSurroundingWordSeparators(query, wordSeparators);
         String charsRegexp = createAnyWordSeparatorRegexp(wordSeparators);
         String queryWithoutSeparators = queryTrimmed.replaceAll(charsRegexp, " AND ");
@@ -68,6 +69,12 @@ public class LuceneQueryBuilder
         {
             return "(" + queryWithoutSeparators + ")";
         }
+    }
+
+    private static boolean looksLikeNumber(String query)
+    {
+        return query.length() > 0 && Character.isDigit(query.charAt(0))
+                && Character.isDigit(query.charAt(query.length() - 1));
     }
 
     private static String createAnyWordSeparatorRegexp(char[] wordSeparators)
