@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ClickListener;
@@ -31,7 +32,7 @@ import com.google.gwt.user.client.ui.SourcesClickEvents;
 public final class ClickableFormPanel extends FormPanel implements SourcesClickEvents
 {
 
-    private ClickListenerCollection clickListeners = new ClickListenerCollection();
+    private final ClickListenerCollection clickListeners = new ClickListenerCollection();
 
     //
     // SourcesClickEvents
@@ -63,5 +64,26 @@ public final class ClickableFormPanel extends FormPanel implements SourcesClickE
     {
         super.onClick(ce);
         clickListeners.fireClick(this);
+    }
+
+    /**
+     * Validates and scrolls to the first invalid field.
+     */
+    @Override
+    public boolean isValid()
+    {
+        boolean valid = super.isValid();
+        if (valid == false)
+        {
+            for (Field<?> field : getFields())
+            {
+                if (field.isValid() == false)
+                {
+                    field.getElement().scrollIntoView();
+                    break;
+                }
+            }
+        }
+        return valid;
     }
 }
