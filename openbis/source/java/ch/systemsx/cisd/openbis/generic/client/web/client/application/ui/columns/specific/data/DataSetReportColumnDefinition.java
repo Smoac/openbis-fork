@@ -16,9 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -60,20 +62,24 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
     public String getValue(GridRowModel<TableModelRow> rowModel)
     {
         ISerializableComparable cell = getCellValue(rowModel);
-        if (cell instanceof ImageTableCell == false)
+        if (cell instanceof ImageTableCell)
         {
-            return cell.toString();
+            ImageTableCell imageCell = (ImageTableCell) cell;
+            URLMethodWithParameters methodWithParameters =
+                new URLMethodWithParameters(downloadURL + "/datastore_server/" + imageCell.getPath());
+            methodWithParameters.addParameter("sessionID", sessionID);
+            String linkURL = methodWithParameters.toString();
+            methodWithParameters.addParameter("mode", "thumbnail"
+                    + imageCell.getMaxThumbnailWidth() + "x" + imageCell.getMaxThumbnailHeight());
+            String imageURL = methodWithParameters.toString();
+            return "<div align='center'><a class='link-style' href='" + linkURL + "' target='_blank'><img src='"
+            + imageURL + "' alt='" + cell.toString() + "'/></a></div>";
         }
-        ImageTableCell imageCell = (ImageTableCell) cell;
-        URLMethodWithParameters methodWithParameters =
-            new URLMethodWithParameters(downloadURL + "/datastore_server/" + imageCell.getPath());
-        methodWithParameters.addParameter("sessionID", sessionID);
-        String linkURL = methodWithParameters.toString();
-        methodWithParameters.addParameter("mode", "thumbnail"
-                + imageCell.getMaxThumbnailWidth() + "x" + imageCell.getMaxThumbnailHeight());
-        String imageURL = methodWithParameters.toString();
-        return "<div align='center'><a class='link-style' href='" + linkURL + "' target='_blank'><img src='"
-                + imageURL + "' alt='" + cell.toString() + "'/></a></div>";
+        if (cell instanceof DateTableCell)
+        {
+            return SimpleDateRenderer.renderDate(((DateTableCell) cell).getDateTime());
+        }
+        return cell.toString();
     }
 
     public boolean isNumeric()
