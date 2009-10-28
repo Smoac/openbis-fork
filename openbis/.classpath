@@ -42,7 +42,7 @@
 	<classpathentry kind="lib" path="/libraries/hibernate-search/jms.jar"/>
 	<classpathentry kind="lib" path="/libraries/ehcache/ehcache.jar" sourcepath="/libraries/ehcache/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/javassist/javassist.jar" sourcepath="/libraries/javassist/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/lucene/lucene-core.jar" sourcepath="/libraries/lucene/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/lucene/lucene-core.jar" sourcepath="/libraries/lucene/lucene-2.4.1-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-fileupload/commons-fileupload.jar" sourcepath="/libraries/commons-fileupload/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/lucene-highlighter/lucene-highlighter.jar"/>
 	<classpathentry kind="lib" path="/libraries/beanlib-hibernate/beanlib-hibernate.jar" sourcepath="/libraries/beanlib-hibernate/src.jar"/>
