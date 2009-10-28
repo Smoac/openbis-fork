@@ -187,6 +187,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
     private DropDownList<?, ?> getTypeSelectionWidget()
     {
         DropDownList<?, ?> result = null;
+        boolean created = false;
         switch (entityKind)
         {
             case EXPERIMENT:
@@ -195,9 +196,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                     experimentTypeSelectionWidget =
                             new ExperimentTypeSelectionWidget(viewContext,
                                     EXPERIMENT_TYPE_ID_SUFFIX);
-                    experimentTypeSelectionWidget.addListener(Events.Focus,
-                            new InfoBoxResetListener(infoBox));
-                    FieldUtil.markAsMandatory(experimentTypeSelectionWidget);
+                    created = true;
                 }
                 result = experimentTypeSelectionWidget;
                 break;
@@ -206,9 +205,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 {
                     sampleTypeSelectionWidget =
                             new SampleTypeSelectionWidget(viewContext, SAMPLE_TYPE_ID_SUFFIX, false);
-                    sampleTypeSelectionWidget.addListener(Events.Focus, new InfoBoxResetListener(
-                            infoBox));
-                    FieldUtil.markAsMandatory(sampleTypeSelectionWidget);
+                    created = true;
                 }
                 result = sampleTypeSelectionWidget;
                 break;
@@ -217,9 +214,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 {
                     materialTypeSelectionWidget =
                             new MaterialTypeSelectionWidget(viewContext, MATERIAL_TYPE_ID_SUFFIX);
-                    materialTypeSelectionWidget.addListener(Events.Focus, new InfoBoxResetListener(
-                            infoBox));
-                    FieldUtil.markAsMandatory(materialTypeSelectionWidget);
+                    created = true;
                 }
                 result = materialTypeSelectionWidget;
                 break;
@@ -228,9 +223,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
                 {
                     dataSetTypeSelectionWidget =
                             new DataSetTypeSelectionWidget(viewContext, DATA_SET_TYPE_ID_SUFFIX);
-                    dataSetTypeSelectionWidget.addListener(Events.Focus, new InfoBoxResetListener(
-                            infoBox));
-                    FieldUtil.markAsMandatory(dataSetTypeSelectionWidget);
+                    created = true;
                 }
                 result = dataSetTypeSelectionWidget;
                 break;
@@ -238,17 +231,19 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         if (result == null)
         {
             throw new IllegalArgumentException(UNSUPPORTED_ENTITY_KIND);
-        } else
+        } else if (created)
         {
+            FieldUtil.markAsMandatory(result);
+            result.addListener(Events.Focus, new InfoBoxResetListener(infoBox));
             result.addListener(Events.SelectionChange, new Listener<BaseEvent>()
                 {
                     public void handleEvent(BaseEvent be)
                     {
-                        updatePropertyTypeEntityTypeRelatedFields();
+                        updateEntityTypePropertyTypeRelatedFields();
                     }
                 });
-            return result;
         }
+        return result;
     }
 
     private CheckBox getMandatoryCheckbox()
@@ -410,8 +405,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             defaultValueField.get().show();
             formPanel.add(defaultValueField.get());
         }
-        layout();
-        updatePropertyTypeEntityTypeRelatedFields();
+        updateEntityTypePropertyTypeRelatedFields();
     }
 
     private void hidePropertyTypeRelatedFields()
@@ -423,12 +417,11 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             formPanel.remove(field);
             defaultValueField = null;
         }
-        hideEntityTypePropertyTypeRelatedFields();
     }
 
     //
 
-    private void updatePropertyTypeEntityTypeRelatedFields()
+    private void updateEntityTypePropertyTypeRelatedFields()
     {
         hideEntityTypePropertyTypeRelatedFields();
         final PropertyType propertyType = propertyTypeSelectionWidget.tryGetSelectedPropertyType();
@@ -494,8 +487,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
 
     private void resetForm()
     {
-        formPanel.reset();
-        updatePropertyTypeRelatedFields();
+        formPanel.reset(); // updatePropertyTypeRelatedFields is invoked because selection changes
         // need to refresh list of assigned property types
         getTypeSelectionWidget().refreshStore();
     }
