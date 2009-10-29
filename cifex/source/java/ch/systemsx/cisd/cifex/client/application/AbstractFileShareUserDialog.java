@@ -49,6 +49,10 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 {
+    private static final int DIALOG_HEIGHT = 630;
+
+    private static final int DIALOG_WIDTH = 980;
+
     final static String EMAIL_FIELD_CONFIG = "EMAIL";
 
     final List<UserInfoDTO> existingUsers;
@@ -72,7 +76,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
             final String name)
     {
         super(context.getMessageResources(), context.getMessageResources()
-                .getFileSharingTitle(name), 800, 600);
+                .getFileSharingTitle(name), DIALOG_WIDTH, DIALOG_HEIGHT);
         this.existingUsers = existingUsers;
         this.newUsers = newUsers;
         this.viewContext = context;
