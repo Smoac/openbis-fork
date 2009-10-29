@@ -213,8 +213,8 @@ public class DataSetUploadForm extends AbstractRegistrationForm
     private static String encodeCifexRequest(String cifexUrl, String recipient, String comment)
     {
         URLMethodWithParameters url = new URLMethodWithParameters(cifexUrl);
-        url.addParameter(BasicConstant.CIFEX_URL_PARAMETER_COMMENT, comment);
-        url.addParameter(BasicConstant.CIFEX_URL_PARAMETER_RECIPIENT, recipient);
+        url.addParameterWithoutEncoding(BasicConstant.CIFEX_URL_PARAMETER_COMMENT, comment);
+        url.addParameterWithoutEncoding(BasicConstant.CIFEX_URL_PARAMETER_RECIPIENT, recipient);
         return URL.encode(url.toString());
     }
 

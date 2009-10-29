@@ -47,23 +47,41 @@ public class URLMethodWithParameters implements IsSerializable
             {
                 builder.append(encode(c));
             }
-                
+
         }
     }
 
     /**
-     * Adds a parameter with specified name and value.
+     * Adds a parameter with specified name and value (without encoding).
+     */
+    public void addParameterWithoutEncoding(String parameterName, Object value)
+    {
+        addParameter(parameterName, value, false);
+    }
+
+    /**
+     * Adds a parameter with specified name and value (with encoding).
      */
     public void addParameter(String parameterName, Object value)
     {
-        builder.append(delim).append(encode(parameterName)).append('=');
+        addParameter(parameterName, value, true);
+    }
+
+    /**
+     * Adds a parameter with specified name and value with optional encoding.
+     */
+    private void addParameter(String parameterName, Object value, boolean withEncoding)
+    {
+        String maybeEncodedName = withEncoding ? encode(parameterName) : parameterName;
+        builder.append(delim).append(maybeEncodedName).append('=');
         if (value != null)
         {
-            builder.append(encode(value.toString()));
+            String maybeEncodedValue = withEncoding ? encode(value.toString()) : value.toString();
+            builder.append(maybeEncodedValue);
         }
         delim = '&';
     }
-    
+
     private String encode(String string)
     {
         StringBuilder buffer = new StringBuilder();
@@ -73,10 +91,11 @@ public class URLMethodWithParameters implements IsSerializable
         }
         return buffer.toString();
     }
-    
+
     private String encode(char c)
     {
-        if (".-*_:".indexOf(c) >= 0 || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9'))
+        if (".-*_:".indexOf(c) >= 0 || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
+                || ('0' <= c && c <= '9'))
         {
             return Character.toString(c);
         }
@@ -88,11 +107,11 @@ public class URLMethodWithParameters implements IsSerializable
         int b2 = c & 0xff;
         return (b1 == 0 ? "" : encode(b1)) + encode(b2);
     }
-    
+
     private String encode(int number)
     {
         return "%" + Integer.toHexString((number >> 4) & 0xf) + Integer.toHexString(number & 0xf);
-        
+
     }
 
     @Override
