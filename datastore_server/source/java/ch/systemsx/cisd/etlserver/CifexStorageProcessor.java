@@ -35,7 +35,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 
 /**
  * Removes the artificial structure of data sets.
@@ -49,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
  * 
  * @author Izabela Adamczyk
  */
-public class CifexStorageProcessor extends AbstractStorageProcessor
+public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
 {
     private final static Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, CifexStorageProcessor.class);
@@ -57,8 +56,6 @@ public class CifexStorageProcessor extends AbstractStorageProcessor
     public static final String KEEP_FILE_REGEX_KEY = "keep-file-regex";
 
     private final String keppFileRegex;
-
-    private final IStorageProcessor delegate;
 
     private File dirToRestore;
 
@@ -69,39 +66,29 @@ public class CifexStorageProcessor extends AbstractStorageProcessor
     @Private
     CifexStorageProcessor(Properties properties, IStorageProcessor delegate)
     {
-        super(properties);
-        this.delegate = delegate;
+        super(delegate);
         keppFileRegex = PropertyUtils.getProperty(properties, KEEP_FILE_REGEX_KEY);
     }
 
     public CifexStorageProcessor(Properties properties)
     {
-        this(properties, new DefaultStorageProcessor(properties));
+        super(properties);
+        keppFileRegex = PropertyUtils.getProperty(properties, KEEP_FILE_REGEX_KEY);
     }
 
-    public StorageFormat getStorageFormat()
-    {
-        return StorageFormat.PROPRIETARY;
-    }
-
+    @Override
     public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
             IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
     {
-        File result =
-                delegate.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory,
-                        rootDir);
+        File result =super.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory, rootDir);
         if (StringUtils.isBlank(keppFileRegex) == false)
         {
-            clean(delegate.tryGetProprietaryData(rootDir), keppFileRegex);
+            clean(tryGetProprietaryData(rootDir), keppFileRegex);
         }
         return result;
     }
 
-    public File tryGetProprietaryData(File storedDataDirectory)
-    {
-        return delegate.tryGetProprietaryData(storedDataDirectory);
-    }
-
+    @Override
     public UnstoreDataAction unstoreData(File incomingDataSetDirectory, File storedDataDirectory,
             Throwable exception)
     {
@@ -111,7 +98,7 @@ public class CifexStorageProcessor extends AbstractStorageProcessor
             FileOperations.getMonitoredInstanceForCurrentThread().moveToDirectory(fileToMove,
                     dirToRestore);
         }
-        return delegate.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
+        return super.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
     }
 
     @Private

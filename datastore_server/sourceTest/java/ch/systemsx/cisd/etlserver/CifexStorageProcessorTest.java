@@ -43,6 +43,9 @@ public class CifexStorageProcessorTest extends AbstractFileSystemTestCase
     private final CifexStorageProcessor createStorageProcessorWithRegex(String keepFileRegex)
     {
         Properties properties = new Properties();
+        properties.setProperty(
+                AbstractDelegatingStorageProcessor.DELEGATE_PROCESSOR_CLASS_PROPERTY,
+                DefaultStorageProcessor.class.getName());
         if (keepFileRegex != null)
         {
             properties.setProperty(CifexStorageProcessor.KEEP_FILE_REGEX_KEY, keepFileRegex);
