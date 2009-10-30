@@ -27,6 +27,7 @@ import ch.systemsx.cisd.etlserver.DefaultDataSetInfoExtractor;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.yeastx.etl.ConstantsYeastX;
 import ch.systemsx.cisd.yeastx.quant.dto.MSConcentrationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationsDTO;
@@ -59,8 +60,10 @@ public class QuantMLDataSetInfoExtractor implements IDataSetInfoExtractor
 
     private static List<String> extractParentDatasetCodes(File incomingDataSetPath)
     {
+        File quantML =
+                QuantMLStorageProcessor.findFile(incomingDataSetPath, ConstantsYeastX.QUANTML_EXT);
         MSQuantificationsDTO quantifications =
-                JaxbXmlParser.parse(MSQuantificationsDTO.class, incomingDataSetPath, true);
+                JaxbXmlParser.parse(MSQuantificationsDTO.class, quantML, true);
         List<String> parentDatasets = new ArrayList<String>();
         for (MSQuantificationDTO q : quantifications.getQuantifications())
         {

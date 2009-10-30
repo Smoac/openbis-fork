@@ -182,7 +182,8 @@ function assert_correct_incoming_contents {
 	# check content of the store	
 	local store=$MY_DATA/store
 	local store_files_count=`find $store -type f | wc -l`
-	assert_equals "Wrong number of files in the store $store" $registered_datasets $store_files_count
+	# there will be one additional blob file for the quantML dataset
+	assert_equals "Wrong number of files in the store $store" $(($registered_datasets+1)) $store_files_count
 	
 	assert_correct_datasets_metabol_database
 
