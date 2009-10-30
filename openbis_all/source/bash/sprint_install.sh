@@ -7,15 +7,18 @@
 # the Java option -Djavax.net.ssl.trustStore=openBIS.keystore in the start up scripts will
 # be removed assuming that ~/.keystore does not contains a self-signed certificate.
 
-CONFIG_DIR=~/config
-KEYSTORE=~/.keystore
+BASE=/home/openbis
+CONFIG_DIR=$BASE/config
+KEYSTORE=$BASE/.keystore
 SERVERS_DIR_ALIAS=sprint
 VER=SNAPSHOT
 DATE=`/bin/date +%Y-%m-%d_%H%M`
 DB_NAME=openbis_productive
-DB_SNAPSHOT=~/db_snapshots
-TOMCAT_DIR=~/sprint/openBIS-server/apache-tomcat
+DB_SNAPSHOT=$BASE/db_snapshots
+TOMCAT_DIR=$BASE/sprint/openBIS-server/apache-tomcat
 DAYS_TO_RETAIN=35
+
+cd $BASE
 
 if [ $1 ]; then
     VER=$1
@@ -75,7 +78,7 @@ cd datastore_server
 cp -p $CONFIG_DIR/datastore_server-service.properties etc/service.properties
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE etc/openBIS.keystore
-  cp -Rf ~/old/$SERVERS_PREV_VER/datastore_server/data/store/* data/store
+  cp -Rf $BASE/old/$SERVERS_PREV_VER/datastore_server/data/store/* data/store
   sed 's/-Djavax.net.ssl.trustStore=etc\/openBIS.keystore //g' datastore_server.sh > xxx
   mv -f xxx datastore_server.sh
 fi
@@ -87,14 +90,17 @@ export JAVA_HOME=/usr
 cd
 mv -f *.zip tmp
 rm -rf openbis
-cd ~/sprint/openBIS-server
+cd $BASE/sprint/openBIS-server
 rm apache-tomcat.zip install.sh openbis.conf openBIS.keystore openBIS.war passwd.sh server.xml service.properties tomcat-version.txt
+/usr/bin/find $BASE/tmp -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
+/usr/bin/find $BASE/old -mtime +$DAYS_TO_RETAIN -exec rm -rf {} \;
+
 
 # Reset the rm command alias
 alias 'rm=rm -i'
 alias 'cp=cp -ipR'
 
-echo Running ~/bin/sprint_post_install.sh
-~/bin/sprint_post_install.sh
+echo Running $BASE/bin/sprint_post_install.sh
+$BASE/bin/sprint_post_install.sh
 
 echo Done, run 'has-config-changed.sh' and start the servers!
