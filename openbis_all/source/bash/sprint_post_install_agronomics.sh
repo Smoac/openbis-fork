@@ -11,6 +11,8 @@ MFS_DIR=/local0/localhome/openbis/sprint/datastore_server/data/incoming/METABOLI
 ITRAQ_DIR=/local0/localhome/openbis/sprint/datastore_server/data/incoming/proteomics/itraq
 MPAF_DIR=/local0/data/dss_incoming/transcriptomics/mpaf
 
+OPENBIS_SERVER_HOME=/localhome/openbis/sprint/openBIS-server/apache-tomcat-5.5.26/webapps/openbis
+
 [ -d $PFS_DIR ] || mkdir -p $PFS_DIR
 [ -d $PCE_DIR ] || mkdir -p $PCE_DIR
 [ -d $TSU1_DIR ] || mkdir -p $TSU1_DIR
@@ -19,3 +21,5 @@ MPAF_DIR=/local0/data/dss_incoming/transcriptomics/mpaf
 [ -d $MFS_DIR ] || mkdir -p $MFS_DIR
 [ -d $ITRAQ_DIR ] || mkdir -p $ITRAQ_DIR
 [ -d $MPAF_DIR ] || mkdir -p $MPAF_DIR
+
+cp ~/config/Guide_to_Using_Agron-omics_openBIS.pdf $OPENBIS_SERVER_HOME
