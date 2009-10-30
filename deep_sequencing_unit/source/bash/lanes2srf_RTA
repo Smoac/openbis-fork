@@ -17,5 +17,5 @@ fi
 [ -d $SRF_DIR ] || mkdir $SRF_DIR
 for  (( a=1; a<=$NUMBER_OF_LANES; a++ )); do
   echo Converting Lane $a to SRF
-  $ILLUMINA2SRF -b -o $SRF_DIR/s_${a}_RTA.srf $BUSTARD/s_${a}_*_qseq.txt &;
+  $ILLUMINA2SRF -b -o $SRF_DIR/s_${a}_RTA.srf $BUSTARD/s_${a}_*_qseq.txt &
 done
