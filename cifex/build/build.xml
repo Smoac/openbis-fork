@@ -153,6 +153,7 @@
 				<include name="**/*.xml" />
 			</fileset>
 		</copy>
+		<mkdir dir="${dist}" />
 		<recursive-jar destfile="${jar.file}">
 			<manifest>
 				<attribute name="Main-Class" value="ch.systemsx.cisd.cifex.rpc.client.cli.CIFEXClient" />
