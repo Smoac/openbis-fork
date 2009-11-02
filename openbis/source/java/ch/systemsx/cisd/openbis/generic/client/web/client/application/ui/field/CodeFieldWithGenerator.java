@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -28,26 +29,58 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
  */
 public class CodeFieldWithGenerator extends CodeField
 {
-    private IViewContext<?> viewContext;
+    private final IViewContext<?> viewContext;
 
-    private String codePrefix;
+    private final String codePrefix;
+
+    private final boolean autoGenerateCode;
 
     public CodeFieldWithGenerator(final IViewContext<?> viewContext, final String label,
-            String codePrefix)
+            String codePrefix, boolean autoGenerateCode)
     {
         super(viewContext, label);
         this.viewContext = viewContext;
         this.codePrefix = codePrefix;
+        this.autoGenerateCode = autoGenerateCode;
         setTriggerStyle("x-form-trigger-generate");
         setHideTrigger(false);
         setTitle("Click the button to automatically generate the code");
     }
 
     @Override
+    protected void onRender(Element target, int index)
+    {
+        super.onRender(target, index);
+        if (autoGenerateCode)
+        {
+            generateCode();
+        }
+    }
+
+    @Override
+    public void reset()
+    {
+        if (autoGenerateCode)
+        {
+            generateCode();
+        } else
+        {
+            super.reset();
+        }
+    }
+
+    @Override
     protected void onTriggerClick(ComponentEvent ce)
     {
         super.onTriggerClick(ce);
-        setEnabled(false);
+        generateCode();
+    }
+
+    /**
+     * Automatically generates the code.
+     */
+    public void generateCode()
+    {
         viewContext.getCommonService().generateCode(codePrefix,
                 new GenerateCodeCallback(viewContext));
     }
@@ -64,13 +97,6 @@ public class CodeFieldWithGenerator extends CodeField
         protected final void process(final String result)
         {
             setValue(result);
-            setEnabled(true);
-        }
-
-        @Override
-        public final void finishOnFailure(final Throwable caught)
-        {
-            setEnabled(true);
         }
 
     }

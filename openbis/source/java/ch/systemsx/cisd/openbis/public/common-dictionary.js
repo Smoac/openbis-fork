@@ -47,7 +47,6 @@ var common = {
   invalid_term_code_message: "{0} contains invalid characters. Allowed characters are: letters, numbers, hyphen (\"-\"), underscore (\"_\"), colon (\":\") and dot (\".\").",
   file_template_label: "Download file template",
  
- 
   //
   // MessageBox
   //
