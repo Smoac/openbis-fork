@@ -179,6 +179,7 @@ var common = {
   // Sample Type Browser
   //
   
+  auto_generate_codes_label: "Generate Codes Automatically",
   listable: "Listable",
   is_listable: "Listable?",
   show_container: "Show Container",
