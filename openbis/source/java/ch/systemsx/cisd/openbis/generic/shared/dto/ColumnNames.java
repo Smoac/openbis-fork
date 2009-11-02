@@ -220,6 +220,8 @@ public final class ColumnNames
 
     public static final String AUTHORIZATION_GROUP_ID_GRANTEE_COLUMN = "ag_id_grantee";
 
+    public static final String IS_AUTO_GENERATED_CODE = "is_auto_generated_code";
+
     private ColumnNames()
     {
         // Can not be instantiated.
