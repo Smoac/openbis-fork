@@ -1,4 +1,4 @@
-# Manuel Kohler 2009, CISD, ETH ZÃ¼rich
+# Manuel Kohler 2009, CISD, ETH ZŸrich
 # wrapper for the cifToTxt binary provided by Illumina
 
 #Usage: cifToTxt [options]
@@ -23,6 +23,7 @@ INTENSITY_FOLDER=$1
 CYCLES=$2
 NUMBER_OF_TILES=$3
 NUMBER_OF_LANES=8
+NUMBER_OF_TILES=120
 #INT_NSE_DIR=$1/int_nse
 PRG=`basename $0`
 USAGE="Usage: ${PRG} <Path_to_Intensity_Folder> <Number_of_Cycles> \n\nEXAMPLE: ${PRG} /array0/Runs/090720_42HUDAAXX/Data/Intensities/ 38 120" 
@@ -37,12 +38,14 @@ fi
 # INT_NSE_DIR  there?
 [ -d $INT_NSE_DIR ] || mkdir -p $INT_NSE_DIR
 
-for (( l = 1; l <= $NUMBER_OF_LANES; l++ )); do
- for (( t = 1; t <= $NUMBER_OF_TILES; t++ )); do
+for (( t = 1; t <= $NUMBER_OF_TILES; t++ )); do
+ for (( l = 1; l <= $NUMBER_OF_LANES; l++ )); do
   echo Lane $l Tile $t;
   # Convert Signal cif to int
   /dsf/GAPipeline/bin/cifToTxt -l $l -t $t -n $CYCLES -i $INTENSITY_FOLDER -o $INTENSITY_FOLDER -c none &
   # Convert Noise cnf to nse (additional -N)
   /dsf/GAPipeline/bin/cifToTxt -N -l $l -t $t -n $CYCLES -i $INTENSITY_FOLDER -o $INTENSITY_FOLDER -c none &
  done
+ # wait for the processes to end after calling 8 Lanes
+ wait $!
 done
