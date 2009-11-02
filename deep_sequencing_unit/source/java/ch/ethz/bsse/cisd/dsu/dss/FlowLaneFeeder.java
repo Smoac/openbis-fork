@@ -123,6 +123,11 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
         {
             String flowLane = extractFlowLane(file);
             Sample flowLaneSample = flowLaneSampleMap.get(flowLane);
+            if (flowLaneSample == null)
+            {
+                throw new UserFailureException("No flow lane sample for flow lane " + flowLane
+                        + " found.");
+            }
             File dropBox = createDropBoxFile(flowLane);
             String fileName =
                     flowLaneSample.getGroup().getCode() + entitySepaparator + flowcellID
