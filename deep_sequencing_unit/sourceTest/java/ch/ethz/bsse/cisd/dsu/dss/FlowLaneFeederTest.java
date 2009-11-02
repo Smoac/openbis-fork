@@ -135,13 +135,35 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     }
     
     @Test 
-    void testMissingDropBox()
+    void testUnkownFlowLaneSample()
     {
         File flowCell = new File(workingDirectory, SAMPLE_CODE);
         assertEquals(true, flowCell.mkdir());
         FileUtilities.writeToFile(new File(flowCell, "s_3.srf"), "hello flow lane 3");
         prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
         prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.<Sample>asList());
+        
+        try
+        {
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("No flow lane sample for flow lane 3 found.", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test 
+    void testMissingDropBox()
+    {
+        File flowCell = new File(workingDirectory, SAMPLE_CODE);
+        assertEquals(true, flowCell.mkdir());
+        FileUtilities.writeToFile(new File(flowCell, "s_3.srf"), "hello flow lane 3");
+        prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
+        Sample fl = createFlowLaneSample(3);
+        prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.<Sample>asList(fl));
         
         try
         {
