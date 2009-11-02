@@ -52,7 +52,7 @@ public final class EntityTypePropertyTypeSelectionWidget
 
     private static final String SUFFIX = "entity-type-property-type";
 
-    private static class EntityTypePropertyTypeComboModel extends BaseModelData
+    static class EntityTypePropertyTypeComboModel extends BaseModelData
     {
         private static final long serialVersionUID = 1L;
 
