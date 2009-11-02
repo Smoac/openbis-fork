@@ -113,6 +113,7 @@ final class DataStrategyStore implements IDataStrategyStore
         {
             return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
         }
+        String emailOrNull = dataSetInfo.tryGetUploadingUserEmail();
         ExperimentIdentifier experimentIdentifier;
         final SampleIdentifier sampleIdentifier = dataSetInfo.getSampleIdentifier();
         if (sampleIdentifier == null)
@@ -121,12 +122,12 @@ final class DataStrategyStore implements IDataStrategyStore
             Experiment experiment = limsService.tryToGetExperiment(experimentIdentifier);
             if (experiment == null)
             {
-                notificationLog.error("Unknown experiment identifier '" + experimentIdentifier + "'.");
+                error(emailOrNull, "Unknown experiment identifier '" + experimentIdentifier + "'.");
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
             }
             if (experiment.getInvalidation() != null)
             {
-                notificationLog.error("Experiment '" + experimentIdentifier
+                error(emailOrNull, "Experiment '" + experimentIdentifier
                         + "' has been invalidated.");
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
             }
@@ -137,11 +138,11 @@ final class DataStrategyStore implements IDataStrategyStore
             final Experiment experiment = (sample == null) ? null : sample.getExperiment();
             if (experiment == null)
             {
-                notificationLog.error(createNotificationMessage(dataSetInfo, incomingDataSetPath));
+                error(emailOrNull, createNotificationMessage(dataSetInfo, incomingDataSetPath));
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
             } else if (experiment.getInvalidation() != null)
             {
-                notificationLog.error("Data set for sample '" + sampleIdentifier
+                error(emailOrNull, "Data set for sample '" + sampleIdentifier
                         + "' can not be registered because experiment '" + experiment.getCode()
                         + "' has been invalidated.");
                 return dataStoreStrategies.get(DataStoreStrategyKey.UNIDENTIFIED);
@@ -163,7 +164,7 @@ final class DataStrategyStore implements IDataStrategyStore
                     sendEmail(message, experimentIdentifier, recipientMail);
                 } else
                 {
-                    notificationLog.error("The registrator '" + registrator
+                    error(emailOrNull, "The registrator '" + registrator
                             + "' has a blank email, sending the following email failed:\n" + message);
                 }
                 operationLog.error(String.format("Incoming data set '%s' claims to "
@@ -184,6 +185,18 @@ final class DataStrategyStore implements IDataStrategyStore
                     + (sampleIdentifier == null ? "." : " and sample '" + sampleIdentifier + "'."));
         }
         return dataStoreStrategies.get(DataStoreStrategyKey.IDENTIFIED);
+    }
+    
+    private void error(String emailOrNull, String message)
+    {
+        if (emailOrNull == null)
+        {
+            notificationLog.error(message);
+        } else
+        {
+            mailClient.sendMessage("Error during registration of a data set", message, null, null, emailOrNull);
+            operationLog.error(message);
+        }
     }
 
     private Sample tryGetSample(final SampleIdentifier sampleIdentifier)

@@ -63,13 +63,6 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
 
     private boolean dirDeleted = false;
 
-    @Private
-    CifexStorageProcessor(Properties properties, IStorageProcessor delegate)
-    {
-        super(delegate);
-        keppFileRegex = PropertyUtils.getProperty(properties, KEEP_FILE_REGEX_KEY);
-    }
-
     public CifexStorageProcessor(Properties properties)
     {
         super(properties);
@@ -80,7 +73,7 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
     public File storeData(DataSetInformation dataSetInformation, ITypeExtractor typeExtractor,
             IMailClient mailClient, File incomingDataSetDirectory, File rootDir)
     {
-        File result =super.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory, rootDir);
+        File result = super.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory, rootDir);
         if (StringUtils.isBlank(keppFileRegex) == false)
         {
             clean(tryGetProprietaryData(rootDir), keppFileRegex);
@@ -98,7 +91,8 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
             FileOperations.getMonitoredInstanceForCurrentThread().moveToDirectory(fileToMove,
                     dirToRestore);
         }
-        return super.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
+        super.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
+        return UnstoreDataAction.DELETE;
     }
 
     @Private

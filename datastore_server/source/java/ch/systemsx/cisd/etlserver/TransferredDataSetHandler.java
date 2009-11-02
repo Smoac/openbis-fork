@@ -47,6 +47,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.IPathHandler;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -498,20 +499,26 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             UnstoreDataAction action =
                     storageProcessor.unstoreData(incomingDataSetFile, baseDirectoryHolder
                             .getBaseDirectory(), throwable);
-            if (stopped == false && action == UnstoreDataAction.MOVE_TO_ERROR)
+            if (stopped == false)
             {
-                final File baseDirectory =
-                        createBaseDirectory(ERROR_DATA_STRATEGY, storeRoot, dataSetInformation);
-                baseDirectoryHolder =
-                        new BaseDirectoryHolder(ERROR_DATA_STRATEGY, baseDirectory,
-                                incomingDataSetFile);
-                boolean moveInCaseOfErrorOk =
-                        FileRenamer.renameAndLog(incomingDataSetFile, baseDirectoryHolder
-                                .getTargetFile());
-                writeThrowable(throwable);
-                if (moveInCaseOfErrorOk)
+                if (action == UnstoreDataAction.MOVE_TO_ERROR)
                 {
-                    clean();
+                    final File baseDirectory =
+                            createBaseDirectory(ERROR_DATA_STRATEGY, storeRoot, dataSetInformation);
+                    baseDirectoryHolder =
+                            new BaseDirectoryHolder(ERROR_DATA_STRATEGY, baseDirectory,
+                                    incomingDataSetFile);
+                    boolean moveInCaseOfErrorOk =
+                            FileRenamer.renameAndLog(incomingDataSetFile, baseDirectoryHolder
+                                    .getTargetFile());
+                    writeThrowable(throwable);
+                    if (moveInCaseOfErrorOk)
+                    {
+                        clean();
+                    }
+                } else if (action == UnstoreDataAction.DELETE)
+                {
+                    FileUtilities.deleteRecursively(incomingDataSetFile, new Log4jSimpleLogger(operationLog));
                 }
             }
         }

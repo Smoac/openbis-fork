@@ -21,7 +21,6 @@ import java.util.Properties;
 
 import org.testng.annotations.Test;
 
-import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.DefaultStorageProcessorTest.TestProcedureAndDataTypeExtractor;
@@ -31,7 +30,6 @@ import ch.systemsx.cisd.etlserver.DefaultStorageProcessorTest.TestProcedureAndDa
  * 
  * @author Izabela Adamczyk
  */
-@Friend(toClasses = CifexStorageProcessor.class)
 public class CifexStorageProcessorTest extends AbstractFileSystemTestCase
 {
     // TODO 2009-07-09 Izabela Adamczyk: Add more test cases
