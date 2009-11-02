@@ -245,7 +245,7 @@
 			<zipfileset dir="${dist}/cifex" includes="*.sh" filemode="755" prefix="cifex" />
 		</zip>
 		<copy todir="${gwt.war.web-inf.lib}" overwrite="true" failonerror="true">
-				<fileset dir="${dist}/cifex/lib" includes="*.jar" />
+				<fileset dir="${dist}/cifex/lib" includes="*.jar"/>
 		</copy>
 		<delete dir="${dist}/cifex" />
 	</target>
@@ -394,6 +394,7 @@
 		<copy file="${lib}/hibernate-search/jms.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${gwt.lib}/mac/gwt-dev-mac.jar" todir="${gwt.war.web-inf.lib}"/>
 		<delete failonerror="true" dir="../${ant.project.name}/.gwt-cache" />
+		<delete file="${gwt.war.web-inf.lib}/cifex.jar"/>
 	</target>
 
 </project>
