@@ -222,6 +222,8 @@ public final class ColumnNames
 
     public static final String IS_AUTO_GENERATED_CODE = "is_auto_generated_code";
 
+    public static final String GENERATED_CODE_PREFIX = "generated_code_prefix";
+
     private ColumnNames()
     {
         // Can not be instantiated.

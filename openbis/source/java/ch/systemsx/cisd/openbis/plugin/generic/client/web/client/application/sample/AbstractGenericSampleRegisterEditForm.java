@@ -61,7 +61,7 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
 
     public static final String ID_SUFFIX_EXPERIMENT = "experiment";
 
-    protected SampleType sampleType; // used for container and parent field visibility
+    protected SampleType sampleType; // used for code prefix and container/parent field visibility
 
     protected AttachmentsFileFieldManager attachmentsManager;
 
@@ -164,6 +164,13 @@ abstract public class AbstractGenericSampleRegisterEditForm extends
     {
         super.resetPanel();
         attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
+    }
+
+    @Override
+    protected String getGeneratedCodePrefix()
+    {
+        // for samples prefix is taken from sample type property
+        return sampleType.getGeneratedCodePrefix();
     }
 
     @Override

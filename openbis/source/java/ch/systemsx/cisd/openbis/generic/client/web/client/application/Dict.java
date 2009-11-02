@@ -260,6 +260,8 @@ public abstract class Dict
 
     public static final String AUTO_GENERATE_CODES_LABEL = "auto_generate_codes_label";
 
+    public static final String GENERATED_CODE_PREFIX = "generated_code_prefix";
+
     public static final String LISTABLE = "listable";
 
     public static final String IS_LISTABLE = "is_listable";

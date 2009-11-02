@@ -177,10 +177,18 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
                         .getCommonViewContext());
         codeField =
                 new CodeFieldWithGenerator(viewContext, viewContext.getMessage(Dict.CODE),
-                        entityKind.name().substring(0, 1));
+                        getGeneratedCodePrefix());
         codeField.setId(getId() + ID_SUFFIX_CODE);
         codeField.setEnabled(techIdOrNull == null);
         codeField.setHideTrigger(techIdOrNull != null);
+    }
+
+    /**
+     * Returns prefix that will be used by code generator.
+     */
+    protected String getGeneratedCodePrefix()
+    {
+        return entityKind.name().substring(0, 1);
     }
 
     protected void updatePropertyFieldsOriginalValues()

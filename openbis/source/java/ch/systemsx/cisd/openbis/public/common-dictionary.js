@@ -180,6 +180,7 @@ var common = {
   //
   
   auto_generate_codes_label: "Generate Codes Automatically",
+  generated_code_prefix: "Generated Code Prefix",
   listable: "Listable",
   is_listable: "Listable?",
   show_container: "Show Container",

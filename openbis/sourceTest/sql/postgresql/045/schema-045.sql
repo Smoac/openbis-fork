@@ -874,7 +874,8 @@ CREATE TABLE sample_types (
     generated_from_depth integer DEFAULT 0 NOT NULL,
     part_of_depth integer DEFAULT 0 NOT NULL,
     modification_timestamp time_stamp DEFAULT now(),
-    is_auto_generated_code boolean_char DEFAULT false NOT NULL
+    is_auto_generated_code boolean_char DEFAULT false NOT NULL,
+    generated_code_prefix code DEFAULT 'S'::character varying NOT NULL
 );
 CREATE TABLE samples (
     id tech_id NOT NULL,
