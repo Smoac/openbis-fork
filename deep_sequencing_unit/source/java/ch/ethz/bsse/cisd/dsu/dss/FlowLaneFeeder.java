@@ -55,33 +55,46 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * Post registration data set handler which makes a hard-link copy of all flow-lane files
- * to associated drop boxes.
- *
+ * Post registration data set handler which makes a hard-link copy of all flow-lane files to
+ * associated drop boxes.
+ * 
  * @author Franz-Josef Elmer
  */
 class FlowLaneFeeder implements IPostRegistrationDatasetHandler
 {
     static final String META_DATA_FILE_TYPE = ".tsv";
+
     static final String TRANSFER_PREFIX = "transfer.";
+
     static final String AFFILIATION_KEY = "AFFILIATION";
+
     static final String EXTERNAL_SAMPLE_NAME_KEY = "EXTERNAL_SAMPLE_NAME";
+
     static final String FLOW_LANE_DROP_BOX_TEMPLATE = "flow-lane-drop-box-template";
+
     static final String ENTITY_SEPARATOR_KEY = "entity-separator";
+
     static final String DEFAULT_ENTITY_SEPARATOR = "_";
+
     static final String FILE_TYPE = ".srf";
-    
+
     private final static Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, FlowLaneFeeder.class);
-    
+
     private final IEncapsulatedOpenBISService service;
+
     private final MessageFormat flowLaneDropBoxTemplate;
+
     private final String entitySepaparator;
+
     private final IImmutableCopier copier;
+
     private final IFileOperations fileOperations;
+
     private final List<File> createdFiles = new ArrayList<File>();
+
     private final Map<String, File> transferDropBoxes = new HashMap<String, File>();
-    
+
     FlowLaneFeeder(Properties properties, IEncapsulatedOpenBISService service)
     {
         this.service = service;
@@ -146,15 +159,16 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
                         + flowLaneDataSet.getAbsolutePath() + "'.");
             }
             createHartLink(file, flowLaneDataSet);
-            createMetaDataFileAndHartLinkInTransferDropBox(flowLaneDataSet, flowLaneSample, flowLane);
+            createMetaDataFileAndHartLinkInTransferDropBox(flowLaneDataSet, flowLaneSample,
+                    flowLane);
             File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName);
             createdFiles.add(markerFile);
             FileUtilities.writeToFile(markerFile, "");
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Flow lane file '" + file
-                        + "' successfully dropped into drop box '" + dropBox
-                        + "' as '" + flowLaneDataSet.getName() + "'.");
+                        + "' successfully dropped into drop box '" + dropBox + "' as '"
+                        + flowLaneDataSet.getName() + "'.");
             }
         }
 
@@ -184,7 +198,8 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
     {
         if (flowLaneSample == null)
         {
-            throw new UserFailureException("No flow lane sample for flow lane " + flowLane + " exists");
+            throw new UserFailureException("No flow lane sample for flow lane " + flowLane
+                    + " exists");
         }
         StringBuilder builder = new StringBuilder();
         addLine(builder, "Parent", flowLaneSample.getGeneratedFrom().getIdentifier());
@@ -211,7 +226,9 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
         }
         String metaFileName =
                 flowLaneSample.getCode()
-                        + (externalSampleName == null ? "" : "_" + externalSampleName) + META_DATA_FILE_TYPE;
+                        + (externalSampleName == null ? "" : "_" + externalSampleName)
+                        + META_DATA_FILE_TYPE;
+        metaFileName = metaFileName.replace("/", "_");
         FileUtilities.writeToFile(new File(flowLaneDataSet, metaFileName), builder.toString());
         if (dropBox != null)
         {
@@ -224,7 +241,7 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
             }
         }
     }
-    
+
     private void addLine(StringBuilder builder, String key, String value)
     {
         builder.append(key).append('\t').append(value).append('\n');
@@ -237,21 +254,22 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
         if (success == false)
         {
             throw new EnvironmentFailureException("Couldn't create a hard-link copy of '"
-                    + file.getAbsolutePath() + "' in folder '"
-                    + folder.getAbsolutePath() + "'.");
+                    + file.getAbsolutePath() + "' in folder '" + folder.getAbsolutePath() + "'.");
         }
     }
-    
+
     private File createDropBoxFile(String flowLane)
     {
-        File dropBox = new File(flowLaneDropBoxTemplate.format(new Object[] {flowLane}));
+        File dropBox = new File(flowLaneDropBoxTemplate.format(new Object[]
+            { flowLane }));
         if (dropBox.exists() == false)
         {
             throw new ConfigurationFailureException("Drop box '" + dropBox + "' does not exist.");
         }
         if (dropBox.isDirectory() == false)
         {
-            throw new ConfigurationFailureException("Drop box '" + dropBox + "' is not a directory.");
+            throw new ConfigurationFailureException("Drop box '" + dropBox
+                    + "' is not a directory.");
         }
         return dropBox;
     }
@@ -268,7 +286,7 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
         }
         return flowLane;
     }
-    
+
     private void findFiles(File file, List<File> files)
     {
         if (file.isFile() && file.getName().endsWith(FILE_TYPE))
@@ -290,7 +308,7 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
         {
             operationLog.info("Undo last operation by deleting following files: " + createdFiles);
         }
-            
+
         for (File file : createdFiles)
         {
             if (file.exists())
