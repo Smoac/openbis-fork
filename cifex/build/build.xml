@@ -169,7 +169,8 @@
 			</fileset>
 		</recursive-jar>
 		<jar update="true" destfile="${jar.file}">
-			<zipfileset src="${gwt.lib}/gwt-user.jar" />
+			<zipfileset src="${gwt.lib}/gwt-user.jar" 
+								  includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
 		</jar>
 
 		<delete dir="${targets.www}" />
