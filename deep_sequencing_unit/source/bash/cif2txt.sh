@@ -23,10 +23,9 @@ INTENSITY_FOLDER=$1
 CYCLES=$2
 NUMBER_OF_TILES=$3
 NUMBER_OF_LANES=8
-NUMBER_OF_TILES=120
 #INT_NSE_DIR=$1/int_nse
 PRG=`basename $0`
-USAGE="Usage: ${PRG} <Path_to_Intensity_Folder> <Number_of_Cycles> \n\nEXAMPLE: ${PRG} /array0/Runs/090720_42HUDAAXX/Data/Intensities/ 38 120" 
+USAGE="Usage: ${PRG} <Path_to_Intensity_Folder> <Number_of_Cycles> <Number_of_Tiles>\n\nEXAMPLE: ${PRG} /array0/Runs/090720_42HUDAAXX/Data/Intensities/ 38 120" 
 
 if [ -z "${INTENSITY_FOLDER}" -o -z "${CYCLES}" -o -z "${NUMBER_OF_TILES}" ]
 then
@@ -48,4 +47,5 @@ for (( t = 1; t <= $NUMBER_OF_TILES; t++ )); do
  done
  # wait for the processes to end after calling 8 Lanes
  wait $!
+ sleep 3
 done
