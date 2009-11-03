@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * An basic server.
@@ -52,7 +52,10 @@ public interface IServer extends ISessionProvider
      * @return <code>null</code> if authentication failed.
      */
     @Transactional
-    public Session tryToAuthenticate(final String user, final String password);
+    public SessionContextDTO tryToAuthenticate(final String user, final String password);
+
+    /** @return session for the specified token or null if session has expired */
+    public SessionContextDTO tryGetSession(String sessionToken);
 
     /**
      * Sets the base URL (including "index.html") that the web server is reachable at for this
@@ -78,5 +81,4 @@ public interface IServer extends ISessionProvider
      * Logout the session with the specified session token.
      */
     public void logout(final String sessionToken) throws UserFailureException;
-
 }

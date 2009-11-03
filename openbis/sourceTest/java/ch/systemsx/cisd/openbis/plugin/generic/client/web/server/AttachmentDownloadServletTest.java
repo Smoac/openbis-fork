@@ -27,7 +27,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractFileDownloadServlet.FileContent;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
@@ -35,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
@@ -57,8 +55,6 @@ public final class AttachmentDownloadServletTest
 
     private HttpSession httpSession;
 
-    protected Session session;
-
     private AttachmentDownloadServlet createServlet()
     {
         return new AttachmentDownloadServlet(genericServer);
@@ -71,7 +67,6 @@ public final class AttachmentDownloadServletTest
         genericServer = context.mock(IGenericServer.class);
         servletRequest = context.mock(HttpServletRequest.class);
         httpSession = context.mock(HttpSession.class);
-        session = createSessionMock();
     }
 
     @AfterMethod
@@ -80,12 +75,6 @@ public final class AttachmentDownloadServletTest
         // To following line of code should also be called at the end of each test method.
         // Otherwise one do not known which test failed.
         context.assertIsSatisfied();
-    }
-
-    protected final Session createSessionMock()
-    {
-        return new Session("user", SESSION_TOKEN, new Principal("user", "FirstName", "LastName",
-                "email@users.ch"), "remote-host", System.currentTimeMillis() - 1);
     }
 
     @Test
@@ -110,10 +99,11 @@ public final class AttachmentDownloadServletTest
                     one(servletRequest).getSession(false);
                     will(Expectations.returnValue(httpSession));
 
-                    one(httpSession).getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
-                    will(Expectations.returnValue(session));
+                    one(httpSession).getAttribute(
+                            SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
+                    will(Expectations.returnValue(SESSION_TOKEN));
 
-                    one(genericServer).getExperimentFileAttachment(session.getSessionToken(),
+                    one(genericServer).getExperimentFileAttachment(SESSION_TOKEN,
                             CommonTestUtils.TECH_ID, CommonTestUtils.FILENAME,
                             CommonTestUtils.VERSION_22);
                     will(returnValue(attachment));

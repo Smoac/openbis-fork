@@ -34,8 +34,8 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IUpdater;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.IDelayedUpdater;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
@@ -79,7 +79,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
 
     private Mockery context;
 
-    private IUpdater updater;
+    private IDelayedUpdater updater;
 
     private IDisplaySettingsGetter grid;
 
@@ -93,7 +93,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
     public void setUp()
     {
         context = new Mockery();
-        updater = context.mock(IUpdater.class);
+        updater = context.mock(IDelayedUpdater.class);
         grid = context.mock(IDisplaySettingsGetter.class);
         displaySettings = new DisplaySettings();
         manager = new DisplaySettingsManager(displaySettings, updater);
@@ -254,7 +254,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
                     allowing(grid).getModifier();
                     will(returnValue(grid));
 
-                    one(updater).update();
+                    one(updater).executeDelayed(with(any(Integer.class)));
                 }
             });
 

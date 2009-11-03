@@ -16,16 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.util.DelayedTask;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IUpdater;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.CompositeMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
@@ -95,9 +91,9 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     private DisplaySettingsManager createDisplaySettingsManager()
     {
         final DisplaySettings displaySettings = viewModel.getSessionContext().getDisplaySettings();
-        Listener<BaseEvent> listener = new Listener<BaseEvent>()
+        IDelegatedAction settingsUpdater = new IDelegatedAction()
             {
-                public void handleEvent(BaseEvent event)
+                public void execute()
                 {
                     AbstractAsyncCallback<Void> callback =
                             new AbstractAsyncCallback<Void>(CommonViewContext.this)
@@ -110,15 +106,7 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
                     service.updateDisplaySettings(displaySettings, callback);
                 }
             };
-        final DelayedTask updateDisplaySettingsTask = new DelayedTask(listener);
-
-        return new DisplaySettingsManager(displaySettings, new IUpdater()
-            {
-                public void update()
-                {
-                    updateDisplaySettingsTask.delay(10000);
-                }
-            });
+        return new DisplaySettingsManager(displaySettings, settingsUpdater);
     }
 
     public final IGenericImageBundle getImageBundle()

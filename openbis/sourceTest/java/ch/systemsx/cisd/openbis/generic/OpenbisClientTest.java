@@ -7,7 +7,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 /*
@@ -47,8 +47,8 @@ public class OpenbisClientTest
         HttpInvokerUtils.createServiceStub(ICommonServer.class, serverURL + "/"
 
         + commonServerPath, 5);
-        Session sessionCommon = commonServer.tryToAuthenticate(userId, userPassword);
-        List<Person> persons = commonServer.listPersons(sessionCommon.getSessionToken());
+        SessionContextDTO session = commonServer.tryToAuthenticate(userId, userPassword);
+        List<Person> persons = commonServer.listPersons(session.getSessionToken());
 
         for (Person p : persons)
         {
@@ -63,7 +63,7 @@ public class OpenbisClientTest
         HttpInvokerUtils.createServiceStub(IGenericServer.class, serverURL + "/"
 
         + genericServerPath, 5);
-        Session sessionGeneric = genericServer.tryToAuthenticate(userId, userPassword);
+        SessionContextDTO sessionGeneric = genericServer.tryToAuthenticate(userId, userPassword);
 
         SampleParentWithDerived sampleInfo =
                 genericServer.getSampleInfo(sessionGeneric.getSessionToken(), new TechId(1L));

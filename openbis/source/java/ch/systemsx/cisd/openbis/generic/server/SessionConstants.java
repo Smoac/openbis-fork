@@ -28,7 +28,7 @@ public final class SessionConstants
     {
     }
 
-    public static final String OPENBIS_SESSION_ATTRIBUTE_KEY = "openbis-session";
+    public static final String OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY = "openbis-session-token";
 
     public static final String OPENBIS_SERVER_ATTRIBUTE_KEY = "openbis-server";
 

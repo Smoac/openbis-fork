@@ -36,7 +36,6 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -71,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowRelatedDatasetsDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
@@ -1205,7 +1203,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                             }
                             boolean filtersChanged =
                                     rebuildFiltersFromIds(getFilteredColumnIds(newColumnDataModels));
-                            saveColumnSettings(cm);
+                            saveColumnDisplaySettings();
 
                             if (customColumnsChanged || filtersChanged)
                             {
@@ -1230,9 +1228,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         ColumnSettingsDialog.show(viewContext, provider, getGridDisplayTypeID());
     }
 
-    private static void saveColumnSettings(MoveableColumnModel cm)
+    private void saveColumnDisplaySettings()
     {
-        cm.fireEvent(AppEvents.ColumnSettingsChanged, new ColumnModelEvent(cm));
+        viewContext.getDisplaySettingsManager().storeSettings(getGridDisplayTypeID(),
+                createDisplaySettingsUpdater(), false);
     }
 
     // @Private - for tests

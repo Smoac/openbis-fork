@@ -29,7 +29,6 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * Superclass for servlets supporting file download.
@@ -52,8 +51,7 @@ abstract public class AbstractFileDownloadServlet extends AbstractController
         // 'setRequireSession(true)'.
         final HttpSession session = request.getSession(false);
         assert session != null : "Session must be specified.";
-        return ((Session) session.getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY))
-                .getSessionToken();
+        return ((String) session.getAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY));
     }
 
     protected final void writeResponse(final HttpServletResponse response, final String value)

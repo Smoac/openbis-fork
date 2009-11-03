@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -155,7 +155,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             operationLog.debug("Authenticating to openBIS server as user '" + username + "'.");
         }
-        Session session = service.tryToAuthenticate(username, password);
+        SessionContextDTO session = service.tryToAuthenticate(username, password);
         sessionToken = session == null ? null : session.getSessionToken();
         if (sessionToken == null)
         {
@@ -179,12 +179,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             authenticate();
         }
     }
-    
+
     private Experiment primTryToGetExperiment(ExperimentIdentifier experimentIdentifier)
     {
         return service.tryToGetExperiment(sessionToken, experimentIdentifier);
     }
-    
+
     private List<Sample> primListSamples(ListSampleCriteria criteria)
     {
         return service.listSamples(sessionToken, criteria);
@@ -194,7 +194,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         return service.tryGetSampleWithExperiment(sessionToken, sampleIdentifier);
     }
-    
+
     private void primRegisterSample(NewSample newSample)
     {
         service.registerSample(sessionToken, newSample);
@@ -206,7 +206,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         SampleIdentifier sampleIdentifier = dataSetInformation.getSampleIdentifier();
         if (sampleIdentifier == null)
         {
-            ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
+            ExperimentIdentifier experimentIdentifier =
+                    dataSetInformation.getExperimentIdentifier();
             service.registerDataSet(sessionToken, experimentIdentifier, data);
         } else
         {
@@ -238,7 +239,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     synchronized public Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
     {
         assert experimentIdentifier != null : " Unspecified experiment identifier.";
-        
+
         checkSessionToken();
         try
         {
@@ -249,11 +250,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             return primTryToGetExperiment(experimentIdentifier);
         }
     }
-    
+
     synchronized public List<Sample> listSamples(ListSampleCriteria criteria)
     {
         assert criteria != null : "Unspecifed criteria.";
-        
+
         checkSessionToken();
         try
         {
@@ -284,7 +285,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     synchronized public void registerSample(NewSample newSample) throws UserFailureException
     {
         assert newSample != null : "Unspecified sample.";
-        
+
         checkSessionToken();
         try
         {

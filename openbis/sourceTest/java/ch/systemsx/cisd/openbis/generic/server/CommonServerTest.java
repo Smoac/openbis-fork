@@ -21,8 +21,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.BeforeMethod;
@@ -80,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityDataType;
@@ -207,11 +211,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         final Session session = createSession();
         final PersonPE systemPerson = createSystemUser();
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
-        final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
-        roleAssignment.setDatabaseInstance(homeDatabaseInstance);
-        roleAssignment.setRegistrator(systemPerson);
-        roleAssignment.setRole(RoleCode.ADMIN);
-        person.addRoleAssignment(roleAssignment);
         context.checking(new Expectations()
             {
                 {
@@ -228,15 +227,26 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(null));
 
                     one(personDAO).createPerson(person);
-                    one(personDAO).updatePerson(person);
+                    one(personDAO).updatePerson(with(new BaseMatcher<PersonPE>()
+                        {
+                            public boolean matches(Object item)
+                            {
+                                Set<RoleAssignmentPE> roles = ((PersonPE) item).getAllPersonRoles();
+                                return roles.size() == 1
+                                        && roles.iterator().next().getRole().equals(RoleCode.ADMIN);
+                            }
+
+                            public void describeTo(Description description)
+                            {
+                                description.appendValue(person);
+                            }
+                        }));
                 }
             });
 
-        final Session s = createServer().tryToAuthenticate(user, password);
+        final SessionContextDTO s = createServer().tryToAuthenticate(user, password);
 
-        assertEquals(person, s.tryGetPerson());
-        assertEquals(roleAssignment, s.tryGetPerson().getRoleAssignments().iterator().next());
-
+        assertEquals(person.getUserId(), s.getUserName());
         context.assertIsSatisfied();
     }
 
@@ -267,10 +277,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        final Session s = createServer().tryToAuthenticate(user, password);
+        final SessionContextDTO s = createServer().tryToAuthenticate(user, password);
 
-        assertEquals(person, s.tryGetPerson());
-
+        assertEquals(person.getUserId(), s.getUserName());
         context.assertIsSatisfied();
     }
 
@@ -300,11 +309,9 @@ public final class CommonServerTest extends AbstractServerTestCase
             });
         assertEquals(null, session.tryGetPerson());
 
-        final Session s = createServer().tryToAuthenticate(user, password);
+        final SessionContextDTO s = createServer().tryToAuthenticate(user, password);
 
-        assertEquals(session.toString(), s.toString());
-        assertEquals(person, s.tryGetPerson());
-
+        assertEquals(person.getUserId(), s.getUserName());
         context.assertIsSatisfied();
     }
 

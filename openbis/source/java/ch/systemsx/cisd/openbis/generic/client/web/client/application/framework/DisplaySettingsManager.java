@@ -25,12 +25,15 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.util.DelayedTask;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
@@ -40,10 +43,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
  * singletons. The display setting manager will be created as often as components to be managed are
  * created.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class DisplaySettingsManager
 {
+
+    private static final int QUITE_TIME_BEFORE_SETTINGS_SAVED_MS = 10000;
 
     /**
      * Encapsulates time of modification with the object that caused the modification.
@@ -87,12 +92,47 @@ public class DisplaySettingsManager
 
     private final DisplaySettings displaySettings;
 
-    private final IUpdater updater;
+    private final IDelayedUpdater updater;
+
+    /**
+     * Private, we need this interface to make tests easier. We wrap {@link DelayedTask} which
+     * requires the access to the browser.
+     */
+    public interface IDelayedUpdater
+    {
+        /** Cancels any running timers and starts a new one. */
+        void executeDelayed(int delayMs);
+    }
 
     /**
      * Creates an instance for the specified display settings.
      */
-    public DisplaySettingsManager(DisplaySettings displaySettings, IUpdater updater)
+    public DisplaySettingsManager(DisplaySettings displaySettings,
+            final IDelegatedAction settingsUpdater)
+    {
+        this(displaySettings, createDelayedUpdater(settingsUpdater));
+    }
+
+    private static IDelayedUpdater createDelayedUpdater(final IDelegatedAction settingsUpdater)
+    {
+        final DelayedTask delayedTask = new DelayedTask(new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent event)
+                {
+                    settingsUpdater.execute();
+                }
+            });
+        return new IDelayedUpdater()
+            {
+                public void executeDelayed(int delayMs)
+                {
+                    delayedTask.delay(delayMs);
+                }
+            };
+    }
+
+    /** Private, for tests only */
+    public DisplaySettingsManager(DisplaySettings displaySettings, final IDelayedUpdater updater)
     {
         if (displaySettings == null)
         {
@@ -153,7 +193,7 @@ public class DisplaySettingsManager
                     {
                         return;
                     }
-                    storeSettings(displayTypeID, grid);
+                    storeSettings(displayTypeID, grid, true);
                 }
 
                 /**
@@ -178,7 +218,6 @@ public class DisplaySettingsManager
             };
         ColumnModel columnModel = grid.getColumnModel();
         columnModel.addListener(Events.WidthChange, listener);
-        columnModel.addListener(AppEvents.ColumnSettingsChanged, listener);
     }
 
     /**
@@ -296,24 +335,26 @@ public class DisplaySettingsManager
         }
     }
 
-    private void storeSettings(final String displayTypeID, final IDisplaySettingsGetter grid)
+    public void storeSettings(final String displayTypeID, final IDisplaySettingsGetter grid,
+            boolean delayed)
     {
+        int delayMs = delayed ? QUITE_TIME_BEFORE_SETTINGS_SAVED_MS : 1; // zero not allowed
         storeSettings(displayTypeID, grid.getColumnModel(), grid.getFilteredColumnIds(), grid
-                .getModifier());
+                .getModifier(), delayMs);
     }
 
     public void storeSectionSettings(String displayTypeID, boolean display, Object modifier)
     {
         updateSectionSettings(displayTypeID, display, modifier);
-        updater.update();
+        updater.executeDelayed(QUITE_TIME_BEFORE_SETTINGS_SAVED_MS);
     }
 
     private void storeSettings(String displayTypeID, ColumnModel columnModel,
-            List<String> filteredColumnIds, Object modifier)
+            List<String> filteredColumnIds, Object modifier, int delayMs)
     {
         List<ColumnSetting> columnSettings = createColumnsSettings(columnModel, filteredColumnIds);
         updateColumnSettings(displayTypeID, columnSettings, modifier);
-        updater.update();
+        updater.executeDelayed(delayMs);
     }
 
     private static List<ColumnSetting> createColumnsSettings(ColumnModel columnModel,

@@ -438,17 +438,18 @@ public final class CommonClientServiceTest extends AbstractClientServiceTest
         context.checking(new Expectations()
             {
                 {
-                    one(requestContextProvider).getHttpServletRequest();
+                    allowing(requestContextProvider).getHttpServletRequest();
                     will(returnValue(servletRequest));
 
-                    one(servletRequest).getSession(false);
+                    allowing(servletRequest).getSession(false);
                     will(returnValue(httpSession));
 
-                    one(httpSession).getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
-                    will(returnValue(createSessionMock()));
+                    one(httpSession).getAttribute(
+                            SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
+                    will(returnValue(SESSION_TOKEN));
 
-                    one(httpSession)
-                            .removeAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+                    one(httpSession).removeAttribute(
+                            SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
                     one(httpSession).removeAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
                     one(httpSession).removeAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
                     one(httpSession).removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);

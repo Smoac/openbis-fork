@@ -47,16 +47,17 @@ public final class GenericHttpSessionListener implements HttpSessionListener
     public final void sessionDestroyed(final HttpSessionEvent sessionEvent)
     {
         final HttpSession httpSession = sessionEvent.getSession();
-        final Session session =
-                (Session) httpSession.getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
-        if (session != null)
+        final String sessionToken =
+                (String) httpSession
+                        .getAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
+        if (sessionToken != null)
         {
             final IServer server =
                     (IServer) httpSession
                             .getAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
             if (server != null)
             {
-                server.logout(session.getSessionToken());
+                server.logout(sessionToken);
             }
         }
     }

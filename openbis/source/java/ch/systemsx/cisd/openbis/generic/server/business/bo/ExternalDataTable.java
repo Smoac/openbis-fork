@@ -161,7 +161,6 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
     {
         Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
         assertDataSetsAreKnown(map);
-        PersonPE person = session.tryGetPerson();
         for (Map.Entry<DataStorePE, List<ExternalDataPE>> entry : map.entrySet())
         {
             DataStorePE dataStore = entry.getKey();
@@ -169,14 +168,14 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
             // delete locally from DB
             for (ExternalDataPE dataSet : dataSets)
             {
-                deleteDataSetLocally(dataSet, person, reason);
+                deleteDataSetLocally(dataSet, reason);
             }
             // delete remotely from Data Store
             deleteDataSets(dataStore, getLocations(dataSets));
         }
     }
 
-    private void deleteDataSetLocally(ExternalDataPE dataSet, PersonPE person, String reason)
+    private void deleteDataSetLocally(ExternalDataPE dataSet, String reason)
             throws UserFailureException
     {
         try

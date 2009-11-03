@@ -57,9 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * An <i>abstract</i> {@link IClientService} implementation.
@@ -165,56 +163,37 @@ public abstract class AbstractClientService implements IClientService
         this.cifexRecipient = cifexRecipient;
     }
 
-    private final SessionContext createSessionContext(final Session session)
+    private final SessionContext createSessionContext(final SessionContextDTO session)
     {
         final SessionContext sessionContext = new SessionContext();
         sessionContext.setSessionID(session.getSessionToken());
+
+        DisplaySettings displaySettings = session.getDisplaySettings();
+        sessionContext.setDisplaySettings(displaySettings);
+
         final User user = new User();
         user.setUserName(session.getUserName());
-        final PersonPE person = session.tryGetPerson();
-        if (person != null)
-        {
-            DisplaySettings displaySettings = person.getDisplaySettings();
-            sessionContext.setDisplaySettings(displaySettings);
-            final GroupPE homeGroup = person.getHomeGroup();
-            if (homeGroup != null)
-            {
-                user.setHomeGroupCode(homeGroup.getCode());
-            }
-        }
+        user.setHomeGroupCode(session.tryGetHomeGroupCode());
         sessionContext.setUser(user);
+
         return sessionContext;
     }
 
     protected final String getSessionToken()
     {
         final HttpSession httpSession = getHttpSession();
-        if (httpSession == null)
+        String sessionToken = null;
+        if (httpSession != null)
+        {
+            sessionToken =
+                    (String) httpSession
+                            .getAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
+        }
+        if (sessionToken == null)
         {
             throw new InvalidSessionException("Session expired. Please login again.");
         }
-        return getSession(httpSession).getSessionToken();
-    }
-
-    private final Session getSession(final HttpSession httpSession)
-    {
-        final Session session =
-                (Session) httpSession.getAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
-        if (session == null)
-        {
-            final String remoteHost =
-                    requestContextProvider.getHttpServletRequest().getRemoteHost();
-            final String msg =
-                    "Attempt to get non-existent session from host '" + remoteHost
-                            + "': user is not logged in.";
-            if (operationLog.isInfoEnabled())
-            {
-                operationLog.info(msg);
-            }
-            throw new InvalidSessionException(msg);
-
-        }
-        return session;
+        return sessionToken;
     }
 
     protected final HttpSession getHttpSession()
@@ -287,16 +266,15 @@ public abstract class AbstractClientService implements IClientService
     {
         try
         {
-            final HttpSession httpSession = getHttpSession();
-            if (httpSession == null)
+            final SessionContextDTO session = getServer().tryGetSession(getSessionToken());
+            if (session == null)
             {
                 return null;
             }
-            final Session session = getSession(httpSession);
             return createSessionContext(session);
-        } catch (final UserFailureException e)
+        } catch (final InvalidSessionException e)
         {
-            throw UserFailureExceptionTranslator.translate(e);
+            return null;
         }
     }
 
@@ -304,7 +282,7 @@ public abstract class AbstractClientService implements IClientService
     {
         try
         {
-            final Session session = getServer().tryToAuthenticate(userID, password);
+            final SessionContextDTO session = getServer().tryToAuthenticate(userID, password);
             if (session == null)
             {
                 return null;
@@ -323,7 +301,8 @@ public abstract class AbstractClientService implements IClientService
             {
                 httpSession.setMaxInactiveInterval(sessionExpirationTimeInSeconds - 10);
             }
-            httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY, session);
+            httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, session
+                    .getSessionToken());
             httpSession.setAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY, getServer());
             httpSession.setAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER,
                     createCachedResultSetManager());
@@ -392,13 +371,12 @@ public abstract class AbstractClientService implements IClientService
             final HttpSession httpSession = getHttpSession();
             if (httpSession != null)
             {
-                final Session session = getSession(httpSession);
-                httpSession.removeAttribute(SessionConstants.OPENBIS_SESSION_ATTRIBUTE_KEY);
+                String sessionToken = getSessionToken();
+                httpSession.removeAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
                 httpSession.removeAttribute(SessionConstants.OPENBIS_SERVER_ATTRIBUTE_KEY);
                 httpSession.removeAttribute(SessionConstants.OPENBIS_RESULT_SET_MANAGER);
                 httpSession.removeAttribute(SessionConstants.OPENBIS_EXPORT_MANAGER);
                 httpSession.invalidate();
-                String sessionToken = session.getSessionToken();
                 IServer server = getServer();
                 server.saveDisplaySettings(sessionToken, displaySettings);
                 server.logout(sessionToken);

@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * An <i>abstract</i> server logger.
@@ -144,9 +145,15 @@ public abstract class AbstractServerLogger implements IServer
         return IServer.VERSION;
     }
 
-    public final Session tryToAuthenticate(final String user, final String password)
+    public final SessionContextDTO tryToAuthenticate(final String user, final String password)
     {
         // No logging because already done by the session manager
+        return null;
+    }
+
+    public SessionContextDTO tryGetSession(String sessionToken)
+    {
+        logAccess(sessionToken, "tryGetCurrentSession");
         return null;
     }
 

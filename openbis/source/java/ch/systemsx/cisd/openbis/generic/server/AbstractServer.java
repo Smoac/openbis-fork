@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.server.plugin.DataSetServerPluginRegistr
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.SampleServerPluginRegistry;
-import ch.systemsx.cisd.openbis.generic.server.util.HibernateTransformer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.CustomGridExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IDataStoreBaseURLProvider;
@@ -51,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleSession;
 import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTranslator.GridCustomColumnTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -233,7 +233,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         }
     }
 
-    public final Session tryToAuthenticate(final String user, final String password)
+    public final SessionContextDTO tryToAuthenticate(final String user, final String password)
     {
         final String sessionToken = sessionManager.tryToOpenSession(user, password);
         if (sessionToken == null)
@@ -267,12 +267,33 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
             person.setRoleAssignments(Collections.singleton(roleAssignment));
             daoFactory.getPersonDAO().updatePerson(person);
         }
-        // need to transform session because it contains PersonPE and is transfered to DSS
-        final Session transformedSession =
-                HibernateTransformer.HIBERNATE_BEAN_REPLICATOR.get().copy(session);
-        transformedSession.tryGetPerson().setDisplaySettings(
-                session.tryGetPerson().getDisplaySettings());
-        return transformedSession;
+        return asDTO(session);
+    }
+
+    private static SessionContextDTO asDTO(Session session)
+    {
+        SessionContextDTO result = new SessionContextDTO();
+        PersonPE person = session.tryGetPerson();
+        assert person != null : "cannot obtain the person which is logged in";
+        result.setDisplaySettings(person.getDisplaySettings());
+        GroupPE homeGroup = person.getHomeGroup();
+        result.setHomeGroupCode(homeGroup == null ? null : homeGroup.getCode());
+        result.setSessionExpirationTime(session.getSessionExpirationTime());
+        result.setSessionToken(session.getSessionToken());
+        result.setUserName(session.getUserName());
+        return result;
+    }
+
+    public SessionContextDTO tryGetSession(String sessionToken)
+    {
+        try
+        {
+            final Session session = sessionManager.getSession(sessionToken);
+            return asDTO(session);
+        } catch (InvalidSessionException ex)
+        {
+            return null;
+        }
     }
 
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings)
