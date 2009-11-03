@@ -296,7 +296,7 @@ public class DisplaySettingsManager
         }
     }
 
-    public void storeSettings(final String displayTypeID, final IDisplaySettingsGetter grid)
+    private void storeSettings(final String displayTypeID, final IDisplaySettingsGetter grid)
     {
         storeSettings(displayTypeID, grid.getColumnModel(), grid.getFilteredColumnIds(), grid
                 .getModifier());
@@ -384,7 +384,7 @@ public class DisplaySettingsManager
      * update section settings for given display id (modification date is updated automatically)
      */
     @SuppressWarnings("deprecation")
-    public final void updateSectionSettings(String sectionDisplayTypeID, Boolean newSettings,
+    private final void updateSectionSettings(String sectionDisplayTypeID, Boolean newSettings,
             Object modifier)
     {
         displaySettings.getSectionSettings().put(sectionDisplayTypeID, newSettings);
