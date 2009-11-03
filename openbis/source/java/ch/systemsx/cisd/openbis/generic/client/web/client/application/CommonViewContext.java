@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.google.gwt.user.client.Timer;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.util.DelayedTask;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
@@ -30,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 /**
  * The <i>generic</i> {@link IViewContext} implementation.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class CommonViewContext implements IViewContext<ICommonClientServiceAsync>
 {
@@ -43,8 +45,6 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     private final GenericViewModel viewModel;
 
     private final IPageController pageController;
-
-    private final Timer timer;
 
     private DisplaySettingsManager displaySettingsManager;
 
@@ -61,24 +61,6 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         this.imageBundle = imageBundle;
         this.pageController = pageController;
         viewModel = new GenericViewModel();
-        timer = new Timer()
-            {
-                @Override
-                public void run()
-                {
-                    DisplaySettings displaySettings =
-                            viewModel.getSessionContext().getDisplaySettings();
-                    AbstractAsyncCallback<Void> callback =
-                            new AbstractAsyncCallback<Void>(CommonViewContext.this)
-                                {
-                                    @Override
-                                    public final void process(final Void result)
-                                    {
-                                    }
-                                };
-                    service.updateDisplaySettings(displaySettings, callback);
-                }
-            };
     }
 
     final void setClientPluginFactoryProvider(
@@ -105,16 +87,38 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
     {
         if (displaySettingsManager == null)
         {
-            DisplaySettings displaySettings = viewModel.getSessionContext().getDisplaySettings();
-            displaySettingsManager = new DisplaySettingsManager(displaySettings, new IUpdater()
-                {
-                    public void update()
-                    {
-                        timer.schedule(10000);
-                    }
-                });
+            displaySettingsManager = createDisplaySettingsManager();
         }
         return displaySettingsManager;
+    }
+
+    private DisplaySettingsManager createDisplaySettingsManager()
+    {
+        final DisplaySettings displaySettings = viewModel.getSessionContext().getDisplaySettings();
+        Listener<BaseEvent> listener = new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent event)
+                {
+                    AbstractAsyncCallback<Void> callback =
+                            new AbstractAsyncCallback<Void>(CommonViewContext.this)
+                                {
+                                    @Override
+                                    public final void process(final Void result)
+                                    {
+                                    }
+                                };
+                    service.updateDisplaySettings(displaySettings, callback);
+                }
+            };
+        final DelayedTask updateDisplaySettingsTask = new DelayedTask(listener);
+
+        return new DisplaySettingsManager(displaySettings, new IUpdater()
+            {
+                public void update()
+                {
+                    updateDisplaySettingsTask.delay(10000);
+                }
+            });
     }
 
     public final IGenericImageBundle getImageBundle()
