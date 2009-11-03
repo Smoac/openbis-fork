@@ -17,8 +17,12 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
+import ch.systemsx.cisd.etlserver.utils.FileScanner;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
@@ -28,12 +32,40 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
  */
 class DataSetValidatorForTSV implements IDataSetValidator
 {
+    private static final String PATH_PATTERNS_KEY = "path-patterns";
+    
+    private final List<FileScanner> fileScanners;
+
     DataSetValidatorForTSV(Properties properties)
     {
+        fileScanners = new ArrayList<FileScanner>();
+        String pathPatterns = properties.getProperty(PATH_PATTERNS_KEY);
+        if (pathPatterns != null)
+        {
+            StringTokenizer tokenizer = new StringTokenizer(pathPatterns, ",");
+            while (tokenizer.hasMoreTokens())
+            {
+                String pathPattern = tokenizer.nextToken().trim();
+                fileScanners.add(new FileScanner(pathPattern));
+            }
+        }
     }
     
     public void assertValidDataSet(DataSetType dataSetType, File incomingDataSetFileOrFolder)
     {
+        for (FileScanner fileScanner : fileScanners)
+        {
+            List<File> files = fileScanner.scan(incomingDataSetFileOrFolder);
+            for (File file : files)
+            {
+                assertValidFile(file);
+            }
+        }
+    }
+    
+    private void assertValidFile(File file)
+    {
+        
     }
 
 }
