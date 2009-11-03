@@ -6,7 +6,19 @@
 {root} = ch.systemsx.cisd.openbis
 {phosphonetx} = ${root}.plugin.phosphonetx
 
+######################################################################
+# Check dependencies to openbis
+
+[etlserver] = ${root}.etlserver.phosphonetx
+[private_openbis] = ${openbis}.* excluding [etlserver] ${openbis}.generic.shared.*
+
+check sets [etlserver]
+
+check [etlserver] independentOf [private_openbis]
+
+######################################################################
 # Check that grid column definitions are GUI independent - export on the server side is using it
+#
 [grid-columns] = ${phosphonetx}.client.web.client.application.columns.*
 check sets [grid-columns]
 [gwt] = com.google.gwt.** excluding com.google.gwt.user.client.rpc.IsSerializable
