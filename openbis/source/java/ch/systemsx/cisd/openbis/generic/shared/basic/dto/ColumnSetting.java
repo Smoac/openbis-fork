@@ -105,7 +105,7 @@ public class ColumnSetting implements Serializable, IsSerializable
     @Override
     public String toString()
     {
-        return columnID;
-    }
+         return columnID + "( hidden = " + hidden + ", width = " + width + ", hasFilter = "
+                + hasFilter + " )";   }
 
 }
