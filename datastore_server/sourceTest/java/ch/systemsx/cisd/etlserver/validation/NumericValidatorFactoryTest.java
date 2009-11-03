@@ -47,6 +47,45 @@ public class NumericValidatorFactoryTest extends AssertJUnit
     }
     
     @Test
+    public void testMissingOpeningBracket()
+    {
+        try
+        {
+            createValidator("2,3]");
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Range has to start with either '(' or '[': 2,3]", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testMissingClosingBracket()
+    {
+        try
+        {
+            createValidator("(2,3}");
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Range has to end with either ')' or ']': (2,3}", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testMissingComma()
+    {
+        try
+        {
+            createValidator("(2 3)");
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Missing comma in range definition: (2 3", ex.getMessage());
+        }
+    }
+    
+    @Test
     public void testInvalidNumber()
     {
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(new Properties());

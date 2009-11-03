@@ -18,7 +18,7 @@ package ch.systemsx.cisd.etlserver.validation;
 
 import java.util.regex.Pattern;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * 
