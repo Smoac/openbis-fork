@@ -2,3 +2,15 @@
 
 {root} = ch.ethz.bsse.cisd.dsu
 {dss} = ${root}.dss
+{openbis} = ch.systemsx.cisd.openbis
+
+######################################################################
+# Check dependencies to openbis
+
+[dss] = ${dss}.*
+[private_openbis] = ${openbis}.* excluding [dss] ${openbis}.generic.shared.*
+
+check sets [dss]
+
+check [dss] independentOf [private_openbis]
+
