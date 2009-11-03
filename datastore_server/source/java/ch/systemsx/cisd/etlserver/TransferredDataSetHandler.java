@@ -46,7 +46,6 @@ import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.IPathHandler;
-import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -140,27 +139,29 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
 
     private IDataSetHandler dataSetHandler;
 
+    private final IDataSetValidator dataSetValidator;
+
     /**
+     * @param dataSetValidator 
      * @param useIsFinishedMarkerFile if true, file/directory is processed when a marker file for it
      *            appears. Otherwise processing starts if the file/directory is not modified for a
      *            certain amount of time (so called "quiet period").
      */
     public TransferredDataSetHandler(String dssCode, final IETLServerPlugin plugin,
             final IEncapsulatedOpenBISService limsService, final Properties mailProperties,
-            final HighwaterMarkWatcher highwaterMarkWatcher,
-            final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile,
+            IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile,
             boolean deleteUnidentified)
 
     {
         this(dssCode, plugin.getStorageProcessor(), plugin, limsService, new MailClient(
-                mailProperties), notifySuccessfulRegistration, useIsFinishedMarkerFile,
+                mailProperties), dataSetValidator, notifySuccessfulRegistration, useIsFinishedMarkerFile,
                 deleteUnidentified);
     }
 
     TransferredDataSetHandler(String dssCode,
             final IStoreRootDirectoryHolder storeRootDirectoryHolder,
             final IETLServerPlugin plugin, final IEncapsulatedOpenBISService limsService,
-            final IMailClient mailClient, final boolean notifySuccessfulRegistration,
+            final IMailClient mailClient, IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration,
             boolean useIsFinishedMarkerFile, boolean deleteUnidentified)
 
     {
@@ -176,6 +177,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
         this.typeExtractor = plugin.getTypeExtractor();
         this.storageProcessor = plugin.getStorageProcessor();
         dataSetHandler = plugin.getDataSetHandler(this, limsService);
+        this.dataSetValidator = dataSetValidator;
         this.limsService = limsService;
         this.mailClient = mailClient;
         this.dataStrategyStore = new DataStrategyStore(this.limsService, mailClient);
@@ -426,6 +428,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             String processorID = typeExtractor.getProcessorType(incomingDataSetFile);
             try
             {
+                dataSetValidator.assertValidDataSet(dataSetType, incomingDataSetFile);
                 registerDataSetAndInitiateProcessing(processorID);
                 logAndNotifySuccessfulRegistration(getEmail());
                 if (fileOperations.exists(incomingDataSetFile)

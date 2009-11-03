@@ -211,6 +211,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private DatabaseInstance homeDatabaseInstance;
 
+    private IDataSetValidator dataSetValidator;
+
     @BeforeTest
     public void init()
     {
@@ -261,9 +263,10 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         PluginUtilTest.createPluginTaskProviders());
         authorizedLimsService.setUsername("u");
         authorizedLimsService.setPassword("p");
+        dataSetValidator = context.mock(IDataSetValidator.class);
         handler =
                 new TransferredDataSetHandler("dss", storageProcessor, plugin,
-                        authorizedLimsService, mailClient, true, true, false);
+                        authorizedLimsService, mailClient, dataSetValidator, true, true, false);
 
         dataSetInformation = new DataSetInformation();
         final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
@@ -412,6 +415,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context.checking(new Expectations()
             {
                 {
+                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE, dataSet);
+                    
                     one(typeExtractor).getLocatorType(dataSet);
                     will(returnValue(LOCATOR_TYPE));
 
@@ -668,6 +673,8 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 {
                     one(typeExtractor).getProcessorType(folder);
                     will(returnValue(EXAMPLE_PROCESSOR_ID));
+                    
+                    one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE, folder);
 
                     one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,
                             folder, baseDir);

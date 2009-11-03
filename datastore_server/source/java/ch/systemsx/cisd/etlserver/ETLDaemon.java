@@ -194,10 +194,11 @@ public final class ETLDaemon
         final boolean notifySuccessfulRegistration = getNotifySuccessfulRegistration(properties);
         final HighwaterMarkWatcher highwaterMarkWatcher =
                 new HighwaterMarkWatcher(getHighwaterMark(properties));
+        IDataSetValidator dataSetValidator = new DataSetValidator(properties);
         for (final ThreadParameters threadParameters : threads)
         {
             createProcessingThread(parameters, threadParameters, openBISService,
-                    highwaterMarkWatcher, notifySuccessfulRegistration);
+                    highwaterMarkWatcher, dataSetValidator, notifySuccessfulRegistration);
         }
     }
 
@@ -251,7 +252,7 @@ public final class ETLDaemon
             final ThreadParameters threadParameters,
             final IEncapsulatedOpenBISService authorizedLimsService,
             final HighwaterMarkWatcher highwaterMarkWatcher,
-            final boolean notifySuccessfulRegistration)
+            IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration)
     {
         final File incomingDataDirectory = threadParameters.getIncomingDataDirectory();
         final IETLServerPlugin plugin = threadParameters.getPlugin();
@@ -263,7 +264,7 @@ public final class ETLDaemon
         String dssCode = PropertyParametersUtil.getDataStoreCode(properties);
         final TransferredDataSetHandler pathHandler =
                 new TransferredDataSetHandler(dssCode, plugin, authorizedLimsService,
-                        mailProperties, highwaterMarkWatcher, notifySuccessfulRegistration,
+                        mailProperties, dataSetValidator, notifySuccessfulRegistration,
                         threadParameters.useIsFinishedMarkerFile(), threadParameters
                                 .deleteUnidentified());
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
