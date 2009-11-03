@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver;
+package ch.systemsx.cisd.etlserver.validation;
 
 import java.io.File;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
  *
  * @author Franz-Josef Elmer
  */
-class DataSetValidator implements IDataSetValidator
+public class DataSetValidator implements IDataSetValidator
 {
     static final String DATA_SET_VALIDATORS_KEY = "data-set-validators";
     static final String DATA_SET_TYPE_KEY = "data-set-type";
@@ -40,7 +40,7 @@ class DataSetValidator implements IDataSetValidator
     
     private final Map<String, IDataSetValidator> validators;
 
-    DataSetValidator(Properties properties)
+    public DataSetValidator(Properties properties)
     {
         validators = new HashMap<String, IDataSetValidator>();
         SectionProperties[] props =

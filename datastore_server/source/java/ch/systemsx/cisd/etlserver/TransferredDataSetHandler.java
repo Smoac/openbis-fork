@@ -56,6 +56,7 @@ import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.utilities.ISelfTestable;
 import ch.systemsx.cisd.etlserver.IStorageProcessor.UnstoreDataAction;
+import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;

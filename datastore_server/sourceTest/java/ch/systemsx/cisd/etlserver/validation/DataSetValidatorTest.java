@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver;
+package ch.systemsx.cisd.etlserver.validation;
 
 import java.io.File;
 import java.util.Properties;
@@ -23,6 +23,8 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
+import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**

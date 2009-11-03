@@ -14,28 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver;
-
-import java.io.File;
-
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+package ch.systemsx.cisd.etlserver.validation;
 
 /**
- * Interface for data set validator
+ * 
  *
  * @author Franz-Josef Elmer
  */
-interface IDataSetValidator
+public interface IColumnHeaderValidator
 {
-
-    /**
-     * Validates the specified data set file/folder assuming the specified data set type.
-     * Implementation can ignore data set type.
-     * 
-     * @throws UserFailureException if validation failed.
-     */
-    public abstract void assertValidDataSet(DataSetType dataSetType,
-            File incomingDataSetFileOrFolder);
-
+    public boolean isValidHeader(String header);
 }
