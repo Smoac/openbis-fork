@@ -17,25 +17,23 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.util.Properties;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
- * Interface for data set validator
+ * Validator for data sets containing TAB-separated value (TSV) files.
  *
  * @author Franz-Josef Elmer
  */
-interface IDataSetValidator
+class DataSetValidatorForTSV implements IDataSetValidator
 {
-
-    /**
-     * Validates the specified data set file/folder assuming the specified data set type.
-     * Implementation can ignore data set type.
-     * 
-     * @throws UserFailureException if validation failed.
-     */
-    public abstract void assertValidDataSet(DataSetType dataSetType,
-            File incomingDataSetFileOrFolder);
+    DataSetValidatorForTSV(Properties properties)
+    {
+    }
+    
+    public void assertValidDataSet(DataSetType dataSetType, File incomingDataSetFileOrFolder)
+    {
+    }
 
 }

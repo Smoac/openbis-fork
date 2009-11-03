@@ -17,8 +17,14 @@
 package ch.systemsx.cisd.etlserver;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
@@ -28,14 +34,55 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
  */
 class DataSetValidator implements IDataSetValidator
 {
-    private static final String DATA_SET_VALIDATORS_KEY = "data-set-validators";
+    static final String DATA_SET_VALIDATORS_KEY = "data-set-validators";
+    static final String DATA_SET_TYPE_KEY = "data-set-type";
+    static final String VALIDATOR_KEY = "validator";
+    
+    private final Map<String, IDataSetValidator> validators;
 
     DataSetValidator(Properties properties)
     {
-        properties.getProperty(DATA_SET_VALIDATORS_KEY);
+        validators = new HashMap<String, IDataSetValidator>();
+        SectionProperties[] props =
+                PropertyParametersUtil.extractSectionProperties(properties,
+                        DATA_SET_VALIDATORS_KEY, false);
+        for (SectionProperties sectionProperties : props)
+        {
+            Properties validatorProperties = sectionProperties.getProperties();
+            String dataSetType = validatorProperties.getProperty(DATA_SET_TYPE_KEY);
+            if (dataSetType == null)
+            {
+                throw new ConfigurationFailureException("Missing mandatory property: "
+                        + sectionProperties.getKey() + "." + DATA_SET_TYPE_KEY);
+            }
+            try
+            {
+                validators.put(dataSetType, createValidator(validatorProperties));
+            } catch (Exception ex)
+            {
+                throw new ConfigurationFailureException(
+                        "Error occured while creating data set validator '"
+                                + sectionProperties.getKey() + "': " + ex.getMessage(), ex);
+            }
+        }
+    }
+
+    private IDataSetValidator createValidator(Properties validatorProperties)
+    {
+        String validatorClass = validatorProperties.getProperty(VALIDATOR_KEY);
+        if (validatorClass == null)
+        {
+            return new DataSetValidatorForTSV(validatorProperties);
+        }
+        return ClassUtils.create(IDataSetValidator.class, validatorClass, validatorProperties);
     }
     
     public void assertValidDataSet(DataSetType dataSetType, File incomingDataSetFileOrFolder)
     {
+        IDataSetValidator validator = validators.get(dataSetType.getCode());
+        if (validator != null)
+        {
+            validator.assertValidDataSet(dataSetType, incomingDataSetFileOrFolder);
+        }
     }
 }
