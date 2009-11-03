@@ -81,7 +81,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals("Missing comma in range definition: (2 3", ex.getMessage());
+            assertEquals("Missing comma in range definition: (2 3)", ex.getMessage());
         }
     }
     
