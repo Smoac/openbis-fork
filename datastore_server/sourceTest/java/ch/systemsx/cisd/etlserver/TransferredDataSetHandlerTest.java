@@ -37,7 +37,6 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.Constants;
@@ -70,7 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -767,9 +766,10 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         context.assertIsSatisfied();
     }
 
-    private Session createSession()
+    private static SessionContextDTO createSession()
     {
-        return new Session("u", SESSION_TOKEN, new Principal("u", "FirstName", "LastName",
-                "email@users.ch"), "remote-host", System.currentTimeMillis() - 1);
+        SessionContextDTO session = new SessionContextDTO();
+        session.setSessionToken(SESSION_TOKEN);
+        return session;
     }
 }

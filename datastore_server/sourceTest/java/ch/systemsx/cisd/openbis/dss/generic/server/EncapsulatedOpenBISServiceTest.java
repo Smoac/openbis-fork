@@ -24,14 +24,13 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -75,10 +74,11 @@ public class EncapsulatedOpenBISServiceTest
                 dataSetInformation.getSampleIdentifier());
     }
 
-    private Session createSession()
+    private SessionContextDTO createSession()
     {
-        return new Session("u", "", new Principal("u", "FirstName", "LastName", "email@users.ch"),
-                "remote-host", System.currentTimeMillis() - 1);
+        SessionContextDTO session = new SessionContextDTO();
+        session.setSessionToken("");
+        return session;
     }
 
     @BeforeMethod
