@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.io.Serializable;
+
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 
 /**
@@ -23,8 +26,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
  * 
  * @author Tomasz Pylak
  */
-public class SessionContextDTO
+public class SessionContextDTO implements Serializable
 {
+    private static final long serialVersionUID = IServer.VERSION;
+    
     private String sessionToken;
 
     private String userName;
