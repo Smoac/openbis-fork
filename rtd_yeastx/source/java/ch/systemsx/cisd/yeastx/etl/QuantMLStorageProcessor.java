@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.yeastx.quant;
+package ch.systemsx.cisd.yeastx.etl;
 
 import java.io.File;
 import java.util.List;
@@ -28,8 +28,6 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.etlserver.AbstractDelegatingStorageProcessor;
 import ch.systemsx.cisd.etlserver.ITypeExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.yeastx.etl.ConstantsYeastX;
-import ch.systemsx.cisd.yeastx.etl.ML2DatabaseUploader;
 
 /**
  * Stores directories containing quantML files in the DSS store. Additionally extracts and uploads
@@ -43,11 +41,15 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
 
     private final String mlFileExtension;
 
+    // the script which ensures that we have write access to the datasets
+    private final PreprocessingExecutor writeAccessSetter;
+
     public QuantMLStorageProcessor(Properties properties)
     {
         super(properties);
         this.databaseUploader = new ML2DatabaseUploader(properties);
         this.mlFileExtension = ConstantsYeastX.QUANTML_EXT;
+        this.writeAccessSetter = PreprocessingExecutor.create(properties);
     }
 
     @Override
@@ -56,6 +58,7 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
             final File incomingDataSetDirectory, final File rootDir)
     {
         ensureUploadableFileExists(incomingDataSetDirectory);
+        acquireWriteAccess(incomingDataSetDirectory);
         File storeData =
                 super.storeData(dataSetInformation, typeExtractor, mailClient,
                         incomingDataSetDirectory, rootDir);
@@ -63,6 +66,17 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
         File quantML = findFile(originalData, mlFileExtension);
         databaseUploader.upload(quantML, dataSetInformation);
         return storeData;
+    }
+
+    private void acquireWriteAccess(final File incomingDataSetDirectory)
+    {
+        String incomingName = incomingDataSetDirectory.getName();
+        boolean ok = writeAccessSetter.execute(incomingName);
+        if (ok == false)
+        {
+            throw UserFailureException.fromTemplate("Cannot get the write access to the dataset: "
+                    + incomingName);
+        }
     }
 
     private void ensureUploadableFileExists(File incomingDataSetDirectory)

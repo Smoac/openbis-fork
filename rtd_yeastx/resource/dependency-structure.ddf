@@ -35,15 +35,19 @@ check layeringOf l1 l2
 ######################################################################
 # Check internal dependencies of yeastx
 
+[utils] = ${yeastx}.utils.**
 [db] = ${yeastx}.db.**
 [eicml] = ${yeastx}.eicml.**
 [fiaml] = ${yeastx}.fiaml.**
+[quant] = ${yeastx}.quant.**
+[mzxml] = ${yeastx}.mzxml.**
 [etl] = ${yeastx}.etl.**
 
-check sets [db] [eicml] [fiaml] [etl]
+check sets [db] [eicml] [fiaml] [quant] [mzxml] [etl]
 
-layer ll1 = [db]
-layer ll2 = [eicml] [fiaml] 
-layer ll3 = [etl]
+layer ll1 = [utils]
+layer ll2 = [db]
+layer ll3 = [eicml] [fiaml] [quant] [mzxml]
+layer ll4 = [etl]
 
-check layeringOf ll1 ll2 ll3
+check layeringOf ll1 ll2 ll3 ll4
