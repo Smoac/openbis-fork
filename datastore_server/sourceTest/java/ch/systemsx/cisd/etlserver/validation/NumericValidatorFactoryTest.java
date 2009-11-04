@@ -229,7 +229,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Not a number: abc", ex.getMessage());
+            assertEquals("Not a number: " + string, ex.getMessage());
         }
     }
     
