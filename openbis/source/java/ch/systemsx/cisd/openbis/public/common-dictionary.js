@@ -141,7 +141,7 @@ var common = {
   project: "Project",
   experiment: "Experiment",
   experiment_identifier: "Experiment Identifier",
-  generated_samples: "Children Samples",
+  generated_samples: "Derived Samples",
   generated_from: "Parent {0}",
   part_of: "Container",
   invalidation: "Invalidation",
