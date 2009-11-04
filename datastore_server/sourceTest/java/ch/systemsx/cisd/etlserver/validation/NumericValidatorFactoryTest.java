@@ -23,7 +23,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.test.AssertionUtil;
 
 
 /**
@@ -227,10 +226,10 @@ public class NumericValidatorFactoryTest extends AssertJUnit
         try
         {
             validator.assertValid(string);
-            fail("NumberFormatException expected");
-        } catch (NumberFormatException ex)
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
         {
-            AssertionUtil.assertContains(string.trim(), ex.getMessage());
+            assertEquals("Not a number: abc", ex.getMessage());
         }
     }
     

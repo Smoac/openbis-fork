@@ -19,12 +19,13 @@ package ch.systemsx.cisd.etlserver.validation;
 import java.io.File;
 import java.util.Properties;
 
-import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.etlserver.validation.DataSetValidator;
-import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
@@ -32,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
  *
  * @author Franz-Josef Elmer
  */
-public class DataSetValidatorTest extends AssertJUnit
+public class DataSetValidatorTest extends AbstractFileSystemTestCase
 {
     private static final String EXPECTED_DATA_SET_TYPE_KEY = "expected-data-set-type";
     private static final String EXPECTED_FILE_KEY = "expected-file";
@@ -111,5 +112,76 @@ public class DataSetValidatorTest extends AssertJUnit
         
         validator.assertValidDataSet(dataSetType1, file);
         validator.assertValidDataSet(new DataSetType(), file);
+    }
+    
+    @Test
+    public void testThatShowsWhichValidatorAndWhichColumnDefinitionAreInvalid()
+    {
+        DataSetType dataSetType1 = new DataSetType();
+        dataSetType1.setCode("T1");
+        Properties properties = new Properties();
+        properties.setProperty(DataSetValidator.DATA_SET_VALIDATORS_KEY, "v");
+        properties.setProperty("v." + DataSetValidator.DATA_SET_TYPE_KEY, dataSetType1.getCode());
+        properties.setProperty("v." + DataSetValidatorForTSV.COLUMNS_KEY, "col");
+        properties.setProperty("v.col." + DefaultValueValidatorFactory.VALUE_TYPE_KEY, "??");
+        try
+        {
+            new DataSetValidator(properties);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Error occured while creating data set validator 'v': " +
+            		"Couldn't create column definition 'col': " +
+            		"Invalid value-type: ??", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testAssertValidDataSetWithTSVFile()
+    {
+        DataSetType dataSetType1 = new DataSetType();
+        dataSetType1.setCode("T1");
+        Properties properties = new Properties();
+        properties.setProperty(DataSetValidator.DATA_SET_VALIDATORS_KEY, "v");
+        properties.setProperty("v." + DataSetValidator.DATA_SET_TYPE_KEY, dataSetType1.getCode());
+        properties.setProperty("v." + DataSetValidatorForTSV.PATH_PATTERNS_KEY, "*.txt");
+        properties.setProperty("v." + DataSetValidatorForTSV.COLUMNS_KEY, "c1,c2");
+        properties.setProperty("v.c1." + DefaultValueValidatorFactory.VALUE_TYPE_KEY, "unique");
+        properties.setProperty("v.c2." + DefaultValueValidatorFactory.VALUE_TYPE_KEY, "numeric");
+        properties.setProperty("v.c2." + AbstractValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "true");
+        DataSetValidator validator = new DataSetValidator(properties);
+        FileUtilities.writeToFile(new File(workingDirectory, "table.txt"), "ID\tValue\n" +
+                "s1\n" + "s2\t42\n");
+        
+        validator.assertValidDataSet(dataSetType1, workingDirectory);
+    }
+    
+    @Test
+    public void testAssertValidDataSetWithInvalidTSVFile()
+    {
+        DataSetType dataSetType1 = new DataSetType();
+        dataSetType1.setCode("T1");
+        Properties properties = new Properties();
+        properties.setProperty(DataSetValidator.DATA_SET_VALIDATORS_KEY, "v");
+        properties.setProperty("v." + DataSetValidator.DATA_SET_TYPE_KEY, dataSetType1.getCode());
+        properties.setProperty("v." + DataSetValidatorForTSV.PATH_PATTERNS_KEY, "*.txt");
+        properties.setProperty("v." + DataSetValidatorForTSV.COLUMNS_KEY, "c1,c2");
+        properties.setProperty("v.c1." + DefaultValueValidatorFactory.VALUE_TYPE_KEY, "unique");
+        properties.setProperty("v.c2." + DefaultValueValidatorFactory.VALUE_TYPE_KEY, "numeric");
+        properties.setProperty("v.c2." + AbstractValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "true");
+        DataSetValidator validator = new DataSetValidator(properties);
+        FileUtilities.writeToFile(new File(workingDirectory, "table.txt"), "ID\tValue\n" +
+                "s1\t42\n" + "s2\tabc\n");
+        
+        try
+        {
+            validator.assertValidDataSet(dataSetType1, workingDirectory);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            String msg = ex.getMessage();
+            AssertionUtil.assertContains("Error in file", msg);
+            AssertionUtil.assertContains("table.txt': 2. cell in line 3: Not a number: abc", msg);
+        }
     }
 }

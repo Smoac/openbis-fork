@@ -58,27 +58,34 @@ public class DefaultValueValidatorFactory implements IValidatorFactory
             @Override
             public IValidatorFactory createFactory(Properties properties)
             {
-                // TODO Auto-generated method stub
-                return null;
+                return new NumericValidatorFactory(properties);
             }
         };
 
         abstract IValidatorFactory createFactory(Properties properties);
+        
+        static ValueType getValueType(String name)
+        {
+            ValueType[] values = ValueType.values();
+            for (ValueType valueType : values)
+            {
+                if (valueType.toString().equalsIgnoreCase(name))
+                {
+                    return valueType;
+                }
+            }
+            throw new ConfigurationFailureException("Invalid " + VALUE_TYPE_KEY + ": " + name);
+        }
     }
 
-    private static final String VALUE_TYPE_KEY = "value-type";
+    static final String VALUE_TYPE_KEY = "value-type";
     
     private final IValidatorFactory factory;
 
     public DefaultValueValidatorFactory(Properties properties)
     {
-        String property = properties.getProperty(VALUE_TYPE_KEY, "any");
-        ValueType valueType = ValueType.valueOf(property.toUpperCase());
-        if (valueType == null)
-        {
-            throw new ConfigurationFailureException("Invalid value of property '" + VALUE_TYPE_KEY
-                    + "': " + property);
-        }
+        String property = properties.getProperty(VALUE_TYPE_KEY, ValueType.ANY.toString());
+        ValueType valueType = ValueType.getValueType(property);
         factory = valueType.createFactory(properties);
     }
 

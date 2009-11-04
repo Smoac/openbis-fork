@@ -47,8 +47,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
  */
 class DataSetValidatorForTSV implements IDataSetValidator
 {
-    private static final String PATH_PATTERNS_KEY = "path-patterns";
-    private static final String COLUMNS_KEY = "columns";
+    static final String PATH_PATTERNS_KEY = "path-patterns";
+    static final String COLUMNS_KEY = "columns";
     
     private final List<FileScanner> fileScanners;
     private final List<ColumnDefinition> unorderedDefinitions;
@@ -151,8 +151,8 @@ class DataSetValidatorForTSV implements IDataSetValidator
                         validators[i].assertValid(row[i]);
                     } catch (RuntimeException ex)
                     {
-                        throw new UserFailureException("The row in line " + lineNumber
-                                + " has for the " + (i + 1) + " cell: " + ex.getMessage(), ex);
+                        throw new UserFailureException("Error in file '" + file + "': " + (i + 1)
+                                + ". cell in line " + lineNumber + ": " + ex.getMessage(), ex);
                     }
                 }
             }
@@ -193,7 +193,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
                 new LinkedList<ColumnDefinition>(unorderedDefinitions);
         for (int i = 0; i < definitions.length; i++)
         {
-            if (definitions[i] != null)
+            if (definitions[i] == null)
             {
                 definitions[i] = getDefinition(remainingDefinitions, columnHeaders[i]);
             }

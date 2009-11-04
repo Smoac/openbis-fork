@@ -126,10 +126,16 @@ class NumericValidatorFactory extends AbstractValidatorFactory
         @Override
         protected void assertValidNonEmptyValue(String value)
         {
-            double number = Double.parseDouble(value);
-            if (rangeOrNull != null)
+            try
             {
-                rangeOrNull.assertInRange(number);
+                double number = Double.parseDouble(value);
+                if (rangeOrNull != null)
+                {
+                    rangeOrNull.assertInRange(number);
+                }
+            } catch (NumberFormatException ex)
+            {
+                throw new UserFailureException("Not a number: " + value);
             }
         }
         
