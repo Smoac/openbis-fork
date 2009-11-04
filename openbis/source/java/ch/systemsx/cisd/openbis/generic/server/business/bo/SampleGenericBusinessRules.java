@@ -85,7 +85,7 @@ public class SampleGenericBusinessRules
         if (sample == null)
             return;
         assertValidParentRelation(sample.getContainer(), sample, "contained in");
-        assertValidParentRelation(sample.getGeneratedFrom(), sample, "derived from");
+        assertValidParentRelation(sample.getGeneratedFrom(), sample, "child of");
     }
 
     static public void assertValidChildren(SamplePE sample)
@@ -93,7 +93,7 @@ public class SampleGenericBusinessRules
         if (sample == null)
             return;
         assertValidChildrenRelation(sample.getContained(), sample, "contained");
-        assertValidChildrenRelation(sample.getGenerated(), sample, "derived");
+        assertValidChildrenRelation(sample.getGenerated(), sample, "child");
     }
 
     static private void throwUserFailureException(String messageTemplate, SamplePE sample1,

@@ -109,7 +109,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 ".*<a href=\".*permId=" + CELL_PLATE_EXAMPLE_PERM_ID + ".*>"
                         + CELL_PLATE_EXAMPLE_PERM_ID + "</a>.*");
         checkSample.property("Sample Type").asCode("CELL_PLATE");
-        checkSample.property("Derived Samples").asGeneratedSamples("3VRP1A [REINFECT_PLATE]",
+        checkSample.property("Children Samples").asGeneratedSamples("3VRP1A [REINFECT_PLATE]",
                 "3VRP1B [REINFECT_PLATE]");
         checkSample.property("Invalidation").by(new IValueAssertion<Invalidation>()
             {

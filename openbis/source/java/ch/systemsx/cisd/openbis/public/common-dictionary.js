@@ -141,7 +141,7 @@ var common = {
   project: "Project",
   experiment: "Experiment",
   experiment_identifier: "Experiment Identifier",
-  generated_samples: "Generated Samples",
+  generated_samples: "Children Samples",
   generated_from: "Parent {0}",
   part_of: "Container",
   invalidation: "Invalidation",
@@ -184,7 +184,7 @@ var common = {
   is_listable: "Listable?",
   show_container: "Show Container",
   is_show_container: "Show Container?",
-  generated_from_hierarchy_depth: "Derived Hierarchy Depth",
+  generated_from_hierarchy_depth: "Parent Hierarchy Depth",
    
   //
   // Property Type Browser
