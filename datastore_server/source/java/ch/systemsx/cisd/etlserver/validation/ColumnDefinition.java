@@ -58,8 +58,8 @@ class ColumnDefinition
         IColumnHeaderValidator headerValidator;
         if (headerValidatorName == null)
         {
-            headerValidator =
-                    new RegExBasedValidator(properties.getProperty(HEADER_PATTERN_KEY, ".*"));
+            String headerPattern = properties.getProperty(HEADER_PATTERN_KEY, ".*");
+            headerValidator = new RegExBasedValidator(false, headerPattern);
         } else
         {
             headerValidator =

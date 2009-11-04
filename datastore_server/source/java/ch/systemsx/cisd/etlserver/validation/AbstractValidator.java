@@ -16,38 +16,39 @@
 
 package ch.systemsx.cisd.etlserver.validation;
 
-import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Validator based on a regular expression.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-class RegExBasedValidator extends AbstractValidator implements IColumnHeaderValidator
+abstract class AbstractValidator implements IValidator
 {
-    private final Pattern pattern;
-
-    RegExBasedValidator(boolean allowEmptyValues, String regularExpression)
+    private final boolean allowEmptyValues;
+    
+    AbstractValidator(boolean allowEmptyValues)
     {
-        super(allowEmptyValues);
-        pattern = Pattern.compile(regularExpression);
+        this.allowEmptyValues = allowEmptyValues;
     }
-
-    @Override
-    protected void assertValidNonEmptyValue(String value)
+    
+    public final void assertValid(String value)
     {
-        if (isValidHeader(value) == false)
+        if (allowEmptyValues)
         {
-            throw new UserFailureException("'" + value
-                    + "' doesn't match the following regular expression: " + pattern);
+            if (StringUtils.isBlank(value))
+            {
+                return;
+            }
+        } else if (StringUtils.isBlank(value))
+        {
+            throw new UserFailureException("Empty value is not allowed.");
         }
+        assertValidNonEmptyValue(value);
     }
-
-    public boolean isValidHeader(String header)
-    {
-        return pattern.matcher(header).matches();
-    }
+    
+    protected abstract void assertValidNonEmptyValue(String value);
 
 }

@@ -39,7 +39,7 @@ class UniqueValidatorFactory implements IValidatorFactory
             validator = AnyValidatorFactory.INSTANCE.createValidator();
         } else
         {
-            validator = new RegExBasedValidator(regex);
+            validator = new RegExBasedValidator(false, regex);
         }
     }
 

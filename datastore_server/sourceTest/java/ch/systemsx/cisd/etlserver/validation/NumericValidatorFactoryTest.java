@@ -47,7 +47,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
     }
     
     @Test
-    public void testMissingOpeningBracket()
+    public void testMissingOpeningBracketInRangeDescription()
     {
         try
         {
@@ -60,7 +60,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
     }
     
     @Test
-    public void testMissingClosingBracket()
+    public void testMissingClosingBracketInRangeDescription()
     {
         try
         {
@@ -73,7 +73,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
     }
     
     @Test
-    public void testMissingComma()
+    public void testMissingCommaInRangeDescription()
     {
         try
         {
@@ -86,14 +86,80 @@ public class NumericValidatorFactoryTest extends AssertJUnit
     }
     
     @Test
+    public void testInvalidMinimumInRangeDescription()
+    {
+        try
+        {
+            createValidator("(abc,3)");
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Invalid minimum in range definition: (abc,3)", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testInvalidMaximumInRangeDescription()
+    {
+        try
+        {
+            createValidator("(1,abc)");
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Invalid maximum in range definition: (1,abc)", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testMinLargerThanMaxInRangeDescription()
+    {
+        try
+        {
+            createValidator("(1,0.999)");
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Minimum is larger than maximum in range description: (1,0.999)", ex.getMessage());
+        }
+    }
+    
+    @Test
     public void testInvalidNumber()
     {
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(new Properties());
         IValidator validator = validatorFactory.createValidator();
         
         assertNotANumber(validator, "abc");
-        assertNotANumber(validator, "-0-");
-        assertNotANumber(validator, "");
+        assertNotANumber(validator, " -0-");
+    }
+    
+    @Test
+    public void testEmptyValue()
+    {
+        NumericValidatorFactory validatorFactory = new NumericValidatorFactory(new Properties());
+        IValidator validator = validatorFactory.createValidator();
+
+        assertFailingOnBlankValue(validator, null);
+        assertFailingOnBlankValue(validator, "");
+        assertFailingOnBlankValue(validator, " ");
+    }
+
+    @Test
+    public void testAllowEmptyValues()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(NumericValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "true");
+        properties.setProperty(NumericValidatorFactory.VALUE_RANGE_KEY, "(0,1]");
+        NumericValidatorFactory validatorFactory = new NumericValidatorFactory(properties);
+        IValidator validator = validatorFactory.createValidator();
+
+        validator.assertValid(null);
+        validator.assertValid("");
+        validator.assertValid("  ");
+        validator.assertValid("  0.9999");
+        assertFailingToLarge("> 1.0", validator, "1.25");
+        assertFailingToSmall("<= 0.0", validator, "0.0");
     }
     
     @Test
@@ -144,6 +210,18 @@ public class NumericValidatorFactoryTest extends AssertJUnit
         return validatorFactory.createValidator();
     }
     
+    private void assertFailingOnBlankValue(IValidator validator, String value)
+    {
+        try
+        {
+            validator.assertValid(value);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Empty value is not allowed.", ex.getMessage());
+        }
+    }
+
     private void assertNotANumber(IValidator validator, String string)
     {
         try
@@ -152,7 +230,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
             fail("NumberFormatException expected");
         } catch (NumberFormatException ex)
         {
-            AssertionUtil.assertContains(string, ex.getMessage());
+            AssertionUtil.assertContains(string.trim(), ex.getMessage());
         }
     }
     

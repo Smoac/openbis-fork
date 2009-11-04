@@ -22,11 +22,11 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
+ * Factory for validators of numeric values.
  *
  * @author Franz-Josef Elmer
  */
-class NumericValidatorFactory implements IValidatorFactory
+class NumericValidatorFactory extends AbstractValidatorFactory
 {
     static final String VALUE_RANGE_KEY = "value-range";
 
@@ -91,6 +91,11 @@ class NumericValidatorFactory implements IValidatorFactory
                 throw new ConfigurationFailureException("Invalid maximum in range definition: "
                         + rangeDescription);
             }
+            if (maximum < minimum)
+            {
+                throw new ConfigurationFailureException(
+                        "Minimum is larger than maximum in range description: " + rangeDescription);
+            }
         }
 
         void assertInRange(double number)
@@ -108,16 +113,18 @@ class NumericValidatorFactory implements IValidatorFactory
         }
     }
     
-    private final static class NumericValidator implements IValidator
+    private final static class NumericValidator extends AbstractValidator
     {
         private final Range rangeOrNull;
         
-        NumericValidator(Range rangeOrNull)
+        NumericValidator(boolean allowEmptyValues, Range rangeOrNull)
         {
+            super(allowEmptyValues);
             this.rangeOrNull = rangeOrNull;
         }
         
-        public void assertValid(String value)
+        @Override
+        protected void assertValidNonEmptyValue(String value)
         {
             double number = Double.parseDouble(value);
             if (rangeOrNull != null)
@@ -132,8 +139,10 @@ class NumericValidatorFactory implements IValidatorFactory
     
     NumericValidatorFactory(Properties properties)
     {
+        super(properties);
         String valueRange = properties.getProperty(VALUE_RANGE_KEY);
-        validator = new NumericValidator(valueRange == null ? null : new Range(valueRange));
+        Range rangeOrNull = valueRange == null ? null : new Range(valueRange);
+        validator = new NumericValidator(allowEmptyValues, rangeOrNull);
     }
 
     public IValidator createValidator()

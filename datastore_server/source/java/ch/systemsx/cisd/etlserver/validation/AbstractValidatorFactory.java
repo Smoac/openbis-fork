@@ -25,22 +25,15 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  *
  * @author Franz-Josef Elmer
  */
-class StringValidatorFactory extends AbstractValidatorFactory
+abstract class AbstractValidatorFactory implements IValidatorFactory
 {
-    static final String VALUE_PATTERN_KEY = "value-pattern";
+    static final String ALLOW_EMPTY_VALUES_KEY = "allow-empty-values";
     
-    private RegExBasedValidator validator;
-
-    StringValidatorFactory(Properties properties)
-    {
-        super(properties);
-        String regex = PropertyUtils.getMandatoryProperty(properties, VALUE_PATTERN_KEY);
-        validator = new RegExBasedValidator(allowEmptyValues, regex);
-    }
+    protected final boolean allowEmptyValues;
     
-    public IValidator createValidator()
+    AbstractValidatorFactory(Properties properties)
     {
-        return validator;
+        allowEmptyValues = PropertyUtils.getBoolean(properties, ALLOW_EMPTY_VALUES_KEY, false);
     }
 
 }
