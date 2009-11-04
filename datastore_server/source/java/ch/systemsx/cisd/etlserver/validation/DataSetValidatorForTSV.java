@@ -171,6 +171,44 @@ class DataSetValidatorForTSV implements IDataSetValidator
     
     private ColumnDefinition[] findColumnDefinitions(String[] columnHeaders)
     {
+        ColumnDefinition[] definitions = findOrderedColumnDefinitions(columnHeaders);
+        List<ColumnDefinition> remainingDefinitions =
+                new LinkedList<ColumnDefinition>(unorderedDefinitions);
+        for (int i = 0; i < definitions.length; i++)
+        {
+            if (definitions[i] == null)
+            {
+                definitions[i] = getDefinition(remainingDefinitions, columnHeaders[i]);
+            }
+        }
+        String list = createListOfMissingColumns(remainingDefinitions);
+        if (list.length() > 0)
+        {
+            throw new UserFailureException(
+                    "No column(s) found for the following mandatory column definition(s): " + list);
+        }
+        return definitions;
+    }
+
+    private String createListOfMissingColumns(List<ColumnDefinition> remainingDefinitions)
+    {
+        StringBuilder builder = new StringBuilder();
+        for (ColumnDefinition columnDefinition : remainingDefinitions)
+        {
+            if (columnDefinition.isMandatory())
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append(", ");
+                }
+                builder.append(columnDefinition.getName());
+            }
+        }
+        return builder.toString();
+    }
+
+    private ColumnDefinition[] findOrderedColumnDefinitions(String[] columnHeaders)
+    {
         ColumnDefinition[] definitions = new ColumnDefinition[columnHeaders.length];
         for (ColumnDefinition columnDefinition : orderedDefinitions.values())
         {
@@ -185,35 +223,11 @@ class DataSetValidatorForTSV implements IDataSetValidator
                             + "] is mandatory but missing because there are only "
                             + columnHeaders.length + " column headers.");
                 }
-            }
-            columnDefinition.assertValidHeader(columnHeaders[orderIndex]);
-            definitions[orderIndex] = columnDefinition;
-        }
-        List<ColumnDefinition> remainingDefinitions =
-                new LinkedList<ColumnDefinition>(unorderedDefinitions);
-        for (int i = 0; i < definitions.length; i++)
-        {
-            if (definitions[i] == null)
+            } else
             {
-                definitions[i] = getDefinition(remainingDefinitions, columnHeaders[i]);
+                columnDefinition.assertValidHeader(columnHeaders[orderIndex]);
+                definitions[orderIndex] = columnDefinition;
             }
-        }
-        StringBuilder builder = new StringBuilder();
-        for (ColumnDefinition columnDefinition : remainingDefinitions)
-        {
-            if (columnDefinition.isMandatory())
-            {
-                if (builder.length() > 0)
-                {
-                    builder.append(", ");
-                }
-                builder.append(columnDefinition.getName());
-            }
-        }
-        if (builder.length() > 0)
-        {
-            throw new UserFailureException(
-                    "No columns found for the following mandatory column definitions: " + builder);
         }
         return definitions;
     }
@@ -229,7 +243,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
                 return columnDefinition;
             }
         }
-        throw new UserFailureException("No column definition match the following column header: "
+        throw new UserFailureException("No column definition matches the following column header: "
                 + columnHeader);
     }
 

@@ -30,11 +30,11 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 class ColumnDefinition
 {
-    private static final String MANDATORY_KEY = "mandatory";
-    private static final String ORDER_KEY = "order";
-    private static final String HEADER_VALIDATOR_KEY = "header-validator";
-    private static final String HEADER_PATTERN_KEY = "header-pattern";
-    private static final String VALUE_VALIDATOR_KEY = "value-validator";
+    static final String MANDATORY_KEY = "mandatory";
+    static final String ORDER_KEY = "order";
+    static final String HEADER_VALIDATOR_KEY = "header-validator";
+    static final String HEADER_PATTERN_KEY = "header-pattern";
+    static final String VALUE_VALIDATOR_KEY = "value-validator";
     
     private final String name;
     private final IColumnHeaderValidator headerValidator;
@@ -74,7 +74,7 @@ class ColumnDefinition
         return new ColumnDefinition(name, headerValidator, factory, mandatory, order);
     }
 
-    ColumnDefinition(String name, IColumnHeaderValidator headerValidator,
+    private ColumnDefinition(String name, IColumnHeaderValidator headerValidator,
             IValidatorFactory valueValidatorFactory, boolean mandatory, Integer orderOrNull)
     {
         this.name = name;
