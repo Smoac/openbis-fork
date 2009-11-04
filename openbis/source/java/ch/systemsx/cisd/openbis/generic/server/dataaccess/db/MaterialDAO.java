@@ -114,6 +114,7 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
 
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", code));
+        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.createCriteria("materialType").add(Restrictions.eq("code", typeCode));
         criteria.setFetchMode("materialType.materialTypePropertyTypesInternal", FetchMode.JOIN);
         final MaterialPE material = (MaterialPE) criteria.uniqueResult();
