@@ -33,8 +33,8 @@ public interface ICIFEXRPCService
     /** The version of this service interface tracking changes to methods used by dss. */
     public static final int VERSION = 1;
 
-    /** The version of this service interface tracking all changes (for client). */
-    public static final int VERSION_FOR_CLIENT = 2;
+    /** The version of this service interface tracking all changes (for command line client). */
+    public static final int VERSION_FOR_CLI = 2;
 
     /** Returns the version of the server side interface. */
     public int getVersion();
