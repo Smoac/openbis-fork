@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
@@ -43,6 +44,10 @@ public class GenerationDetection
 
     private static final int FIRST_FRAME_NUM = 0;
 
+    private static final int FIRST_PICTURE_NUM = 0;
+
+    private static final int FRAME_OFFSET = FIRST_PICTURE_NUM - FIRST_FRAME_NUM;
+
     private static final int INITIAL_GENERATION = 1;
 
     private static final String PARENT_ID_COL_NAME = "motherID";
@@ -53,10 +58,9 @@ public class GenerationDetection
 
     // Could be used as a parameter that user needs to specify but on test data
     // using value that is higher produces more results that should rather be ignored.
-    private static final int MAX_NEW_BORN_CELL_PIXELS = 300;
+    private static final int MAX_NEW_BORN_CELL_PIXELS = 400; // reduce with better picture quality
 
-    // max distance from a perfect circle measure - < 1 makes things worse
-    private static final double MAX_NEW_BORN_CELL_FFT_STAT = 1;
+    private static final int MIN_PARENT_PIXELS = 300;
 
     // 0.2 - 24fake, 0miss (safe)
     // 0.3 - 20fake, 1miss
@@ -67,23 +71,33 @@ public class GenerationDetection
 
     // if we have more parent candidates after filtering the new born cell will be ignored
     // 5 - safe; 2 - miss 11
-    private static final int MAX_PARENT_CANDIDATES = 2;
+    private static final int MAX_PARENT_CANDIDATES = 5;
 
-    private static final int MIN_PARENT_PIXELS = MAX_NEW_BORN_CELL_PIXELS;
+    // number of frames that should be ignored at the beginning
+    @SuppressWarnings("unused")
+    private static final int NO_FIRST_FRAMES_TO_IGNORE = 5;
 
-    // if cell eccentricity increases more than this value it is more likely a parent
-    // (it gets closer to circle)
-    private static final double SIGNIFICANT_PARENT_ECCENTRICITY_INC = 0.1;
+    // number of frames that should be ignored in the end
+    private static final int NO_LAST_FRAMES_TO_IGNORE = 5;
 
-    // maximal number of frames from the last frame that is allowed for a new born cell to appear
-    // on and not exist on any subsequent frame
-    private static final int MAX_DISAPPEARING_NEW_BORN_CELL_DIST_FROM_LAST_FRAME = 5;
+    // when cell fluorescence gets above this level it means that cell is dying
+    private static final double MAX_F_MEAN_OF_LIVING_CELL = 2500;
+
+    // window radius used to calculate smooth fluorescence deviation values (ignore noise)
+    private static final int SMOOTH_F_DEVIATION_WINDOW = 2;
+
+    // real cells have a.nucl value almost fixed to this value because of Cell-ID implementation.
+    private static final double NUCLEUS_AREA = 49.0;
+
+    // minimal number of frames that a real the cell should have stable nucleus area = NUCLEUS_AREA
+    private static final int MIN_STABLE_NUCLEUS_AREA_FRAMES = 3;
 
     private static final String SEPARATOR = "\t";
 
     private static final String NEW_LINE = "\n";
 
-    // column positions - will they be fixed? or should we read them from file header?
+    // column positions (values from resource/columns.txt - 1)
+    // will they be fixed? or should we read them from file header?
     private static final int CELL_ID_POSITION = 0;
 
     private static final int T_FRAME_POSITION = 1;
@@ -93,6 +107,8 @@ public class GenerationDetection
     private static final int Y_POS_POSITION = 4;
 
     private static final int F_TOT_POSITION = 5;
+
+    private static final int A_TOT_POSITION = 6;
 
     private static final int NUM_PIX_POSITION = 7;
 
@@ -104,17 +120,11 @@ public class GenerationDetection
 
     private static final int MIN_AXIS_POSITION = 11;
 
-    private static final int ROT_VOL_POSITION = 15;
+    private static final int F_NUCL_POSITION = 12;
 
-    private static final int CON_VOL_POSITION = 16;
+    private static final int A_NUCL_POSITION = 13;
 
-    private static final int A_VACUOLE_POSITION = 17;
-
-    private static final int F_VACUOLE_POSITION = 18;
-
-    private static final int A_SURF_POSITION = 58;
-
-    private static final int SPHERE_VOL_POSITION = 60;
+    private static final int F_BG_POSITION = 19;
 
     private static String headerInputRow;
 
@@ -133,16 +143,20 @@ public class GenerationDetection
         /** cell has wrong shape (very flat - far from circle) */
         WRONG_SHAPE(-3, "cell has wrong shape (very flat - far from circle)"),
 
-        /** cell disappears just after being created */
-        DISAPPEARS(-4, "cell disappears just after being created"),
-
         /** cell has too many cells near that are good candidates for a mother */
-        TOO_MANY_CANDIDATES(-5,
+        TOO_MANY_CANDIDATES(-4,
                 "cell has too many cells near that are good candidates for a mother"),
 
         /** cell has no cells near that are good candidates for a mother (usually isolated cell) */
-        NO_CANDIDATES(-6,
-                "cell has no cells near that are good candidates for a mother (usually isolated cell)");
+        NO_CANDIDATES(-5,
+                "cell has no cells near that are good candidates for a mother (usually isolated cell)"),
+
+        /** cell nucleus isn't found (nucleus data doesn't stabilize) */
+        NO_NUCLEUS(-10, "cell nucleus isn't found (nucleus data doesn't stabilize)"),
+
+        /** there is not enough data about the cell */
+        // (it appeared on one of first/last few frames or is only visible on a few frames)
+        NOT_ENOUGH_DATA(-11, "there is not enough data about the cell");
 
         private final int fakeParentId;
 
@@ -198,7 +212,7 @@ public class GenerationDetection
         private final int y; // ypos
 
         /** number of pixels associated with the cell */
-        private final int numPix; // num.pix
+        private final int numPix; // num.pix == a.tot
 
         /** a measure of circularity - 0 means a perfect circle */
         private final double fftStat;
@@ -212,30 +226,36 @@ public class GenerationDetection
         /** length of the minor axis in pixel units */
         private final double minAxis;
 
+        /** sum of the fluorescence for all the pixels found in the cell */
+        private final double fTotal; // f.tot
+
+        /** area of the cell in pixels */
+        private final double aTotal; // a.tot == num.pix (but double, not int)
+
+        /** sum of nucleus fluorescence */
+        private final double fNucleus; // f.nucl
+
+        /** area of nucleus (max 49; 49 if brightest area in cell is completely inside the cell) */
+        private final double aNucleus; // a.nucl
+
+        /** fluorescence of the background (mean) */
+        private final double fBackground; // f.bg
+
+        // f.nucl/a.nucl - f.tot/a.tot
+        /** fluorescence deviation (mean of nucleus fluorescence - mean of cell fluorescence) */
+        private final double fDeviation;
+
+        // f.tot/a.tot - f.bg
+        /** cell fluorescence (mean of cell fluorescence - background fluorescence) */
+        private final double fMean;
+
         /** minAxis/majAxis (circle == 1) */
         private final double eccentricity;
 
-        /** sum of the fluorescence image for all the pixels found in that cell */
-        private final double fTot; // f.tot
-
-        /** volume of rotation of the cell around its major axis */
-        private final double rotVol; // rot.vol
-
-        /** volume of the cell as determined by the conical volume method */
-        private final double conVol; // con.vol
-
-        private final double aVacuole;
-
-        private final double fVacuole;
-
-        /** surface area as calculated by the union of spheres method */
-        private final double aSurf; // a.surf
-
-        /** volume as measured by the union of spheres method */
-        private final double sphereVol; // sphere.vol
-
         /** whole input data row */
         transient private final String inputRow;
+
+        private boolean dead = false;
 
         // new data to output
 
@@ -259,14 +279,13 @@ public class GenerationDetection
             this.minAxis = Double.parseDouble(StringUtils.trim(tokens[MIN_AXIS_POSITION]));
             this.eccentricity = minAxis / majAxis;
 
-            this.aVacuole = Double.parseDouble(StringUtils.trim(tokens[A_VACUOLE_POSITION]));
-            this.fVacuole = Double.parseDouble(StringUtils.trim(tokens[F_VACUOLE_POSITION]));
-
-            this.fTot = Double.parseDouble(StringUtils.trim(tokens[F_TOT_POSITION]));
-            this.rotVol = Double.parseDouble(StringUtils.trim(tokens[ROT_VOL_POSITION]));
-            this.conVol = Double.parseDouble(StringUtils.trim(tokens[CON_VOL_POSITION]));
-            this.aSurf = Double.parseDouble(StringUtils.trim(tokens[A_SURF_POSITION]));
-            this.sphereVol = Double.parseDouble(StringUtils.trim(tokens[SPHERE_VOL_POSITION]));
+            this.fBackground = Double.parseDouble(StringUtils.trim(tokens[F_BG_POSITION]));
+            this.fTotal = Double.parseDouble(StringUtils.trim(tokens[F_TOT_POSITION]));
+            this.aTotal = Double.parseDouble(StringUtils.trim(tokens[A_TOT_POSITION]));
+            this.fNucleus = Double.parseDouble(StringUtils.trim(tokens[F_NUCL_POSITION]));
+            this.aNucleus = Double.parseDouble(StringUtils.trim(tokens[A_NUCL_POSITION]));
+            this.fDeviation = (fNucleus / aNucleus) - (fTotal / aTotal);
+            this.fMean = (fTotal / aTotal) - fBackground;
         }
 
         private ParentCandidate[] getParentCandidates()
@@ -331,31 +350,6 @@ public class GenerationDetection
             return minAxis;
         }
 
-        public double getFTot()
-        {
-            return fTot;
-        }
-
-        public double getRotVol()
-        {
-            return rotVol;
-        }
-
-        public double getConVol()
-        {
-            return conVol;
-        }
-
-        public double getASurf()
-        {
-            return aSurf;
-        }
-
-        public double getSphereVol()
-        {
-            return sphereVol;
-        }
-
         public double getFftStat()
         {
             return fftStat;
@@ -366,14 +360,39 @@ public class GenerationDetection
             return perim;
         }
 
-        public double getAVacuole()
+        public double getFBackground()
         {
-            return aVacuole;
+            return fBackground;
         }
 
-        public double getFVacuole()
+        public double getFTotal()
         {
-            return fVacuole;
+            return fTotal;
+        }
+
+        public double getATotal()
+        {
+            return aTotal;
+        }
+
+        public double getFNucleus()
+        {
+            return fNucleus;
+        }
+
+        public double getANucleus()
+        {
+            return aNucleus;
+        }
+
+        public double getFDeviation()
+        {
+            return fDeviation;
+        }
+
+        public double getFMean()
+        {
+            return fMean;
         }
 
         public double getEccentricity()
@@ -391,6 +410,16 @@ public class GenerationDetection
             return getParentCandidates().length - 1;
         }
 
+        public boolean isDead()
+        {
+            return dead;
+        }
+
+        public void markAsDead()
+        {
+            this.dead = true;
+        }
+
         @Override
         public String toString()
         {
@@ -405,7 +434,7 @@ public class GenerationDetection
             {
                 sb.append(candidateInformation(candidate) + ",");
             }
-            return String.format("%d \t f:%d \t p:%d \t c(%d):%s", id, frame + 1,
+            return String.format("%d \t f:%d \t p:%d \t c(%d):%s", id, frame + FRAME_OFFSET,
                     getParentCellId(), candidates.length, sb.toString());
         }
 
@@ -432,15 +461,16 @@ public class GenerationDetection
 
                 Cell previousParent = candidate.previousFrameParent;
                 Cell parent = candidate.parent;
-                Cell nextParent = candidate.nextFrameParent;
+                // Cell nextParent = candidate.nextFrameParent;
 
                 StringBuilder sb = new StringBuilder();
                 sb.append("\n" + SEPARATOR + prefix + SEPARATOR + candidate.distanceSq + SEPARATOR
                         + previousParent.longToString());
                 sb.append("\n" + SEPARATOR + prefix + SEPARATOR + candidate.distanceSq + SEPARATOR
                         + parent.longToString());
-                sb.append("\n" + SEPARATOR + prefix + SEPARATOR + candidate.distanceSq + SEPARATOR
-                        + nextParent.longToString());
+                // sb.append("\n" + SEPARATOR + prefix + SEPARATOR + candidate.distanceSq +
+                // SEPARATOR
+                // + nextParent.longToString());
                 return sb.toString();
             }
         }
@@ -448,22 +478,17 @@ public class GenerationDetection
         public String longToString()
         {
             String[] tokens =
-                        { Integer.toString(id), Integer.toString(frame + 1), Integer.toString(x),
-                                Integer.toString(y), Integer.toString(numPix),
+                        { Integer.toString(id), Integer.toString(frame + FRAME_OFFSET),
+                                Integer.toString(x), Integer.toString(y), Integer.toString(numPix),
                                 doubleToString(majAxis), doubleToString(minAxis),
                                 doubleToString(eccentricity), doubleToString(fftStat),
-                                doubleToString(perim), doubleToString(aVacuole),
-                                doubleToString(fVacuole), doubleToString(fTot),
-                                doubleToString(rotVol), doubleToString(conVol),
-                                doubleToString(aSurf), doubleToString(sphereVol),
+                                doubleToString(perim), doubleToString(fBackground),
+                                doubleToString(fTotal), doubleToString(aTotal),
+                                doubleToString(fNucleus), doubleToString(aNucleus),
+                                doubleToString(fMean), doubleToString(fDeviation),
                                 Integer.toString(getParentCellId()),
                                 Integer.toString(getAlternatives()), Integer.toString(generation) };
             return StringUtils.join(tokens, SEPARATOR);
-        }
-
-        private String doubleToString(double value)
-        {
-            return String.format("%1.2f", value);
         }
 
         public String getOutputString()
@@ -509,6 +534,7 @@ public class GenerationDetection
 
         private final Cell previousFrameParent;
 
+        @SuppressWarnings("unused")
         private final Cell nextFrameParent;
 
         /**
@@ -540,6 +566,11 @@ public class GenerationDetection
         private Integer getDistanceSq()
         {
             return distanceSq;
+        }
+
+        public boolean isAlive()
+        {
+            return parent.isDead() == false;
         }
 
         // The tightest condition that we could use as a threshold for valid distance is
@@ -632,19 +663,28 @@ public class GenerationDetection
                 writer.append(headerInputRow);
                 writer.append(SEPARATOR + PARENT_ID_COL_NAME);
                 writer.append(SEPARATOR + ALTERNATIVES_COL_NAME);
-                writer.append(SEPARATOR + GENERATION_COL_NAME + NEW_LINE);
+                writer.append(SEPARATOR + GENERATION_COL_NAME);
+                writer.append(SEPARATOR + "f.mean");
+                writer.append(SEPARATOR + "f.deviation");
+                writer.append(SEPARATOR + "f.deviation.smooth" + NEW_LINE);
                 for (Cell cell : cells)
                 {
-                    writer.append(cell.getOutputString());
+                    writer.append(cell.getInputRow());
+                    writer.append(SEPARATOR + intToString(cell.getParentCellId()));
+                    writer.append(SEPARATOR + intToString(cell.getAlternatives()));
+                    writer.append(SEPARATOR + intToString(cell.getGeneration()));
+                    writer.append(SEPARATOR + doubleToString(cell.getFMean()));
+                    writer.append(SEPARATOR + doubleToString(cell.getFDeviation()));
+                    writer.append(SEPARATOR + doubleToString(getSmoothFDeviation(cell)));
+                    // writer.append(cell.getOutputString());
                     writer.append(NEW_LINE);
                 }
             } else
             {
-
                 String[] tokens =
                             { "cellID", "frame", "x", "y", "numPix", "majAxis", "minAxis",
-                                    "eccentricity", "fftStat", "perim", "aVacuole", "fVacuole",
-                                    "fTot", "aTot", "rotVol", "conVol", "aSurf", "sphereVol",
+                                    "eccentricity", "fftStat", "perim", "background", "fTotal",
+                                    "aTotal", "fNucleus", "aNucleus", "fMean", "fDeviation",
                                     "parent", "alternatives", "generation" };
                 writer.append(StringUtils.join(tokens, SEPARATOR));
                 writer.append(NEW_LINE);
@@ -707,11 +747,11 @@ public class GenerationDetection
 
         // common empty array to avoid null checks
         final ParentCandidate[] initialCandidates = new ParentCandidate[0];
-        cellsByIdAndFrame = new LinkedHashMap<Integer, Map<Integer, Cell>>();
+        cellsByIdAndFrame = new TreeMap<Integer, Map<Integer, Cell>>();
         // cellsByFrameAndId = new LinkedHashMap<Integer, Map<Integer, Cell>>();
-        cellsByFrame = new LinkedHashMap<Integer, Set<Cell>>();
-        parentCandidatesByChildId = new LinkedHashMap<Integer, ParentCandidate[]>();
-        ignoredChildrenFakeParentIds = new LinkedHashMap<Integer, Integer>();
+        cellsByFrame = new TreeMap<Integer, Set<Cell>>();
+        parentCandidatesByChildId = new TreeMap<Integer, ParentCandidate[]>();
+        ignoredChildrenFakeParentIds = new TreeMap<Integer, Integer>();
         maxAxis = 0;
         maxFrame = -1;
         for (Cell cell : cells)
@@ -720,29 +760,13 @@ public class GenerationDetection
             Map<Integer, Cell> byFrame = cellsByIdAndFrame.get(cell.getId());
             if (byFrame == null)
             {
-                // increasing order of frames (not needed)
+                // increasing order of frames
                 byFrame = new LinkedHashMap<Integer, Cell>();
                 cellsByIdAndFrame.put(cell.getId(), byFrame);
             }
             byFrame.put(cell.getFrame(), cell);
-            // // cellsByFrameAndId
-            // Map<Integer, Cell> byId = cellsByFrameAndId.get(cell.getFrame());
-            // if (byId == null)
-            // {
-            // byId = new HashMap<Integer, Cell>();
-            // }
-            // byId.put(cell.getId(), cell);
-            // cellsByFrame
-            Set<Cell> frameCells = cellsByFrame.get(cell.getFrame());
-            if (frameCells == null)
-            {
-                frameCells = new LinkedHashSet<Cell>();
-                cellsByFrame.put(cell.getFrame(), frameCells);
-            }
-            frameCells.add(cell);
             // initialize candidates
             parentCandidatesByChildId.put(cell.getId(), initialCandidates);
-            //
             if (cell.getMajAxis() > maxAxis)
             {
                 maxAxis = cell.getMajAxis();
@@ -752,11 +776,50 @@ public class GenerationDetection
                 maxFrame = cell.getFrame();
             }
         }
+
+        // filter out fake cells
+        final List<Integer> fakeCellIds = new ArrayList<Integer>();
+        for (Map<Integer, Cell> byFrame : cellsByIdAndFrame.values())
+        {
+            Cell firstFrameCell = byFrame.values().iterator().next();
+            if (isFakeCell(firstFrameCell))
+            {
+                fakeCellIds.add(firstFrameCell.getId());
+            } else
+            {
+                for (Cell cell : byFrame.values())
+                {
+                    Set<Cell> frameCells = cellsByFrame.get(cell.getFrame());
+                    if (frameCells == null)
+                    {
+                        frameCells = new LinkedHashSet<Cell>();
+                        cellsByFrame.put(cell.getFrame(), frameCells);
+                    }
+                    frameCells.add(cell);
+                }
+            }
+        }
+        for (Integer id : fakeCellIds)
+        {
+            cellsByIdAndFrame.remove(id);
+        }
+
+        // mark dead cells
+        for (Map<Integer, Cell> byFrame : cellsByIdAndFrame.values())
+        {
+            for (Cell c : byFrame.values())
+            {
+                if (isDying(c))
+                {
+                    markAsDead(c);
+                    break;
+                }
+            }
+        }
     }
 
     private static void analyzeData() throws Exception
     {
-        // Set<Cell> firstFrame = cellsByFrame.get(FIRST_FRAME_NUM);
         Set<Cell> cellsFromOldFrames = new LinkedHashSet<Cell>();
         // cells from older frames - one per id
         // BTW - the first appearance of cell will be held in this set (maybe it could be used).
@@ -788,19 +851,13 @@ public class GenerationDetection
             return; // nothing to analyze in the first frame
         }
         final int previousFrame = frame - 1;
+        final Set<Cell> previousFrameCells = cellsByFrame.get(previousFrame);
         for (Cell cell : newCells)
         {
             if (isValidNewBornCell(cell) == false) // ignore cells that are not new born
             {
                 continue;
             }
-            // could take previousFrameCells from previous step
-            final Set<Cell> previousFrameCells = cellsByFrame.get(previousFrame);
-            assert previousFrameCells != null;
-            // if (previousFrameCells == null)
-            // {
-            // throw new Exception(String.format("no cells found in frame %s", previousFrame));
-            // }
             final List<ParentCandidate> parentCandidates = new ArrayList<ParentCandidate>(4);
 
             for (Cell previousFrameCell : previousFrameCells)
@@ -810,7 +867,7 @@ public class GenerationDetection
                 // reasonable distance to current cell then getting k closest parents to current
                 // cell.
                 // Parent cells have to be bigger than new born cells.
-                if (candidate.isDistanceValid()) // simplify
+                if (candidate.isAlive() && candidate.isDistanceValid())
                 {
                     if (candidate.isNumPixValid()) // could be tested before candidate is created
                     {
@@ -820,7 +877,7 @@ public class GenerationDetection
                         log(String
                                 .format(
                                         "Cell %d is to small (%d) to be a mother of %d that appeared on frame %d.",
-                                        candidate.parent.id, +candidate.parent.numPix, cell.id,
+                                        candidate.parent.id, candidate.parent.numPix, cell.id,
                                         candidate.distanceSq, frame));
                     }
                 }
@@ -835,7 +892,6 @@ public class GenerationDetection
                 // sort parent - best will be first
                 Collections.sort(parentCandidates);
                 filterCandidatesWithDistance(parentCandidates);
-                filterCandidatesWithEccentricity(parentCandidates);
                 // if we have many candidates it is rather difficult to decide
                 if (parentCandidates.size() <= MAX_PARENT_CANDIDATES)
                 {
@@ -852,24 +908,6 @@ public class GenerationDetection
             }
         }
 
-    }
-
-    private static void filterCandidatesWithEccentricity(List<ParentCandidate> parentCandidates)
-    {
-        // If some candidates have significant eccentricity increase (above given threshold)
-        // they are better candidates and other candidates will be filtered out
-        final List<ParentCandidate> betterCandidates = new ArrayList<ParentCandidate>();
-        for (ParentCandidate candidate : parentCandidates)
-        {
-            if (candidate.getEccentricityIncrease() >= SIGNIFICANT_PARENT_ECCENTRICITY_INC)
-            {
-                betterCandidates.add(candidate);
-            }
-        }
-        if (betterCandidates.size() > 0)
-        {
-            parentCandidates.retainAll(betterCandidates);
-        }
     }
 
     private static void filterCandidatesWithDistance(List<ParentCandidate> parentCandidates)
@@ -916,15 +954,12 @@ public class GenerationDetection
     private static void increaseGeneration(int parentID, Cell child)
     {
         final int childFrame = child.getFrame();
-        final Map<Integer, Cell> parentByFrame = cellsByIdAndFrame.get(parentID);
         int count = 0;
-        for (Entry<Integer, Cell> entry : parentByFrame.entrySet())
+        for (Cell c : cellsByIdAndFrame.get(parentID).values())
         {
-            final Integer frame = entry.getKey();
-            final Cell cell = entry.getValue();
-            if (frame >= childFrame)
+            if (c.getFrame() >= childFrame)
             {
-                cell.increaseGeneration();
+                c.increaseGeneration();
                 count++;
             }
         }
@@ -934,6 +969,84 @@ public class GenerationDetection
                     + "just after producing a cell with id '%d' (on previous frame).", parentID,
                     childFrame, child.getId()));
         }
+    }
+
+    /**
+     * Marks specified <var>cell</var> on all frames starting from its frame as dead.
+     */
+    private static void markAsDead(Cell cell)
+    {
+        int frame = cell.getFrame();
+        for (Cell c : cellsByIdAndFrame.get(cell.getId()).values())
+        {
+            if (c.getFrame() >= frame)
+            {
+                c.markAsDead();
+            }
+        }
+        log(String.format("Cell with id '%d' dies on frame '%d'.", cell.getId(), cell.getFrame()));
+    }
+
+    // If cell is fake its parentID will be set to error code.
+    // cellsByIdAndFrame need to be initialized before this check is executed.
+    private static boolean isFakeCell(Cell cell)
+    {
+        // if (isAppearingToLate(cell))
+        // {
+        // ignore(cell, IgnoreNewCellReason.NOT_ENOUGH_DATA);
+        // log(String
+        // .format("Reason: there is not enough data about the cell (it appears on one of last few frames)"));
+        // return true;
+        // }
+        if (isEnoughFramesAvailable(cell) == false)
+        {
+            ignore(cell, IgnoreNewCellReason.NOT_ENOUGH_DATA);
+            log(String
+                    .format("Reason: there is not enough data about the cell (only a few frames)\""));
+            return true;
+        }
+        if (isNucleusFound(cell) == false)
+        {
+            ignore(cell, IgnoreNewCellReason.NO_NUCLEUS);
+            log(String.format("Reason: cell nucleus isn't found (nucleus data doesn't stabilize)."));
+            return true;
+        }
+        return false;
+    }
+
+    @SuppressWarnings("unused")
+    private static boolean isAppearingToLate(Cell cell)
+    {
+        return cell.getFrame() > maxFrame - NO_LAST_FRAMES_TO_IGNORE;
+    }
+
+    private static boolean isEnoughFramesAvailable(Cell cell)
+    {
+        return cellsByIdAndFrame.get(cell.getId()).size() >= MIN_STABLE_NUCLEUS_AREA_FRAMES;
+    }
+
+    private static boolean isNucleusFound(Cell cell)
+    {
+        // MIN_STABLE_NUCLEUS_AREA_FRAMES consecutive cell frames need to have correct nucleus area
+        int counter = 0;
+        int previousFrame = cell.getFrame() - 1;
+        for (Cell c : cellsByIdAndFrame.get(cell.getId()).values())
+        {
+            final int currentFrame = c.getFrame();
+            if (c.getANucleus() == NUCLEUS_AREA && currentFrame == previousFrame + 1)
+            {
+                counter++;
+                if (counter == MIN_STABLE_NUCLEUS_AREA_FRAMES)
+                {
+                    return true;
+                }
+            } else
+            {
+                counter = 0;
+            }
+            previousFrame = currentFrame;
+        }
+        return false;
     }
 
     // if cell is considered not to be a valid new born cell parentID will be set to error code
@@ -947,21 +1060,8 @@ public class GenerationDetection
                             .getNumPix(), MAX_NEW_BORN_CELL_PIXELS));
             return false;
         }
-        // If the cell appears only on one frame it is most likely a segmentation problem, e.g.:
-        // - cell moves a bit and its id is changed,
-        // - big cell is 'split' on two or more cells even though no division occurred.
-        // Sometimes it seems that a cell that is being washed away is caught on a picture.
-        // Ignore these cells because they are likely to mess up genealogy tree.
-        // Don't ignore cells like these that appear in the last few frames.
-        if (maxFrame - cell.getFrame() > MAX_DISAPPEARING_NEW_BORN_CELL_DIST_FROM_LAST_FRAME
-                && cellsByIdAndFrame.get(cell.getId()).size() == 1)
-        {
-            ignore(cell, IgnoreNewCellReason.DISAPPEARS);
-            log(String.format("Reason: disappears on the next frame and never reappears."));
-            return false;
-        }
         // The shape of a new born cell should not be too far from a circle
-        if (cell.getMinAxis() / cell.getMajAxis() < MIN_NEW_BORN_CELL_ECCENTRICITY)
+        if (cell.getEccentricity() < MIN_NEW_BORN_CELL_ECCENTRICITY)
         {
             ignore(cell, IgnoreNewCellReason.WRONG_SHAPE);
             log(String
@@ -970,17 +1070,40 @@ public class GenerationDetection
                             cell.getEccentricity(), MIN_NEW_BORN_CELL_ECCENTRICITY));
             return false;
         }
-        // The shape of a new born cell should not be too far from a circle
-        if (cell.getFftStat() > MAX_NEW_BORN_CELL_FFT_STAT)
-        {
-            ignore(cell, IgnoreNewCellReason.WRONG_SHAPE);
-            log(String
-                    .format(
-                            "Reason: circularity measure=%1.2f exceeds maximal allowed value for a new born cell (%1.2f).",
-                            cell.getFftStat(), MAX_NEW_BORN_CELL_FFT_STAT));
-            return false;
-        }
         return true;
+    }
+
+    // dying cell has very high fluorescence mean (additionally size drops ~30%)
+    private static boolean isDying(Cell cell)
+    {
+        return cell.getFMean() > MAX_F_MEAN_OF_LIVING_CELL;
+    }
+
+    private static double getSmoothFDeviation(Cell cell)
+    {
+        double value = 0;
+        int counter = 0;
+
+        final Map<Integer, Cell> byFrame = cellsByIdAndFrame.get(cell.id);
+        if (byFrame == null)
+        {
+            return 0.0;
+        }
+
+        final int minF = cell.frame - SMOOTH_F_DEVIATION_WINDOW;
+        final int maxF = cell.frame + SMOOTH_F_DEVIATION_WINDOW;
+
+        for (int f = minF; f <= maxF; f++)
+        {
+            final Cell c = byFrame.get(f);
+            if (c != null)
+            {
+                counter++;
+                value += c.getFDeviation();
+            }
+        }
+
+        return value / counter;
     }
 
     private static int distanceSq(Cell c1, Cell c2)
@@ -1010,6 +1133,16 @@ public class GenerationDetection
             result.add(new Cell(line));
         }
         return result;
+    }
+
+    private static String intToString(int value)
+    {
+        return String.format("%d", value);
+    }
+
+    private static String doubleToString(double value)
+    {
+        return String.format("%1.2f", value);
     }
 
     /** log (on stderr) */

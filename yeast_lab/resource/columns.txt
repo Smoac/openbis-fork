@@ -59,3 +59,6 @@
 59	a.surf
 60	con.vol
 61	sphere.vol
+62	motherID
+63	alternatives
+64	generation
