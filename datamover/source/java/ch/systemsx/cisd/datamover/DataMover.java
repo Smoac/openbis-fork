@@ -17,7 +17,11 @@
 package ch.systemsx.cisd.datamover;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.TimerTask;
+
+import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.Constants;
@@ -26,7 +30,11 @@ import ch.systemsx.cisd.common.filesystem.DirectoryScanningTimerTask;
 import ch.systemsx.cisd.common.filesystem.FaultyPathDirectoryScanningHandler;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IStoreHandler;
+import ch.systemsx.cisd.common.filesystem.StoreItem;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkDirectoryScanningHandler;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.utilities.CompoundTriggerable;
 import ch.systemsx.cisd.common.utilities.ITerminable;
 import ch.systemsx.cisd.common.utilities.TriggeringTimerTask;
@@ -46,6 +54,12 @@ import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
  */
 public final class DataMover
 {
+
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, FaultyPathDirectoryScanningHandler.class);
+
+    private static final Logger machineLog =
+            LogFactory.getLogger(LogCategory.MACHINE, FaultyPathDirectoryScanningHandler.class);
 
     private final static String LOCAL_COPY_IN_PROGRESS_DIR = "copy-in-progress";
 
@@ -249,7 +263,7 @@ public final class DataMover
         final IFileStore readyToMoveStore =
                 FileStoreFactory.createLocal(sourceDirectory, "ready-to-move", factory, false);
         final IStoreHandler remoteStoreMover =
-                createRemotePathMover(readyToMoveStore, outgoingStore);
+                createOutgoingPathMover(readyToMoveStore, outgoingStore);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 new HighwaterMarkDirectoryScanningHandler(new FaultyPathDirectoryScanningHandler(
                         sourceDirectory, remoteStoreMover), outgoingStore.getHighwaterMarkWatcher());
@@ -266,10 +280,44 @@ public final class DataMover
 
     }
 
-    private final IStoreHandler createRemotePathMover(final IFileStore source,
+    private final IStoreHandler createOutgoingPathMover(final IFileStore source,
             final IFileStore destination)
     {
-        return RemoteMonitoredMoverFactory.create(source, destination, parameters);
+        final IStoreHandler moveHandler =
+                RemoteMonitoredMoverFactory.create(source, destination, parameters);
+        final String transferFinishedExecutable = parameters.getTransferFinishedExecutable();
+        if (transferFinishedExecutable == null)
+        {
+            return moveHandler;
+        } else
+        {
+            // calls a specified script when the transfer has been finished
+            return new IStoreHandler()
+                {
+
+                    public void handle(StoreItem item)
+                    {
+                        moveHandler.handle(item);
+                        callScript(transferFinishedExecutable, item);
+                    }
+
+                    public boolean isStopped()
+                    {
+                        return moveHandler.isStopped();
+                    }
+                };
+        }
+    }
+
+    private void callScript(String scriptExecutable, StoreItem item)
+    {
+        List<String> cmd = Arrays.asList(scriptExecutable, item.getName());
+        boolean ok = ProcessExecutionHelper.runAndLog(cmd, operationLog, machineLog);
+        if (ok == false)
+        {
+            operationLog.error(String.format("The script '%s' could not be launched or finished"
+                    + " with an error for the item '%s'.", scriptExecutable, item.getName()));
+        }
     }
 
     //

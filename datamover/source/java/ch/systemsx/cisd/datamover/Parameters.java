@@ -120,6 +120,13 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     private String sshExecutable = null;
 
     /**
+     * @see #getTransferFinishedExecutable()
+     */
+    @Option(longName = PropertyNames.TRANSFER_FINISHED_EXECUTABLE, metaVar = "EXEC", usage = "The script "
+            + "which should be called when an item has been successfully transfered.")
+    private String transferFinishedExecutable = null;
+
+    /**
      * The path to the <code>lastchanged</code> executable file on the incoming host.
      */
     @Option(longName = PropertyNames.INCOMING_HOST_LASTCHANGED_EXECUTABLE, metaVar = "EXEC", usage = "The executable to use for checking the last modification time of files on the remote incoming host."
@@ -279,13 +286,15 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     HostAwareFileWithHighwaterMark outgoingTarget = null;
 
     /**
-     * If set to <code>true</code>, the initial test for accessibility will be skipped on the incoming store.
+     * If set to <code>true</code>, the initial test for accessibility will be skipped on the
+     * incoming store.
      */
     @Option(longName = PropertyNames.SKIP_ACCESSIBILITY_TEST_ON_INCOMING, usage = "If true, the initial test on accessability of the incoming directory will be skipped (default: false).")
     private boolean skipAccessibilityTestOnIncoming = false;
 
     /**
-     * If set to <code>true</code>, the initial test for accessibility will be skipped on the outgoing store.
+     * If set to <code>true</code>, the initial test for accessibility will be skipped on the
+     * outgoing store.
      */
     @Option(longName = PropertyNames.SKIP_ACCESSIBILITY_TEST_ON_OUTGOING, usage = "If true, the initial test on accessability of the outgoing directory will be skipped (default: false).")
     private boolean skipAccessibilityTestOnOutgoing = false;
@@ -447,6 +456,9 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         sshExecutable =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.SSH_EXECUTABLE,
                         sshExecutable);
+        transferFinishedExecutable =
+                PropertyUtils.getProperty(serviceProperties,
+                        PropertyNames.TRANSFER_FINISHED_EXECUTABLE, transferFinishedExecutable);
         incomingHostFindExecutableOrNull =
                 PropertyUtils.getProperty(serviceProperties,
                         PropertyNames.INCOMING_HOST_FIND_EXECUTABLE,
@@ -464,9 +476,9 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                         PropertyNames.OUTGOING_HOST_LASTCHANGED_EXECUTABLE,
                         outgoingHostLastchangedExecutableOrNull);
         skipAccessibilityTestOnIncoming =
-            PropertyUtils.getBoolean(serviceProperties,
-                    PropertyNames.SKIP_ACCESSIBILITY_TEST_ON_INCOMING,
-                    skipAccessibilityTestOnIncoming);
+                PropertyUtils.getBoolean(serviceProperties,
+                        PropertyNames.SKIP_ACCESSIBILITY_TEST_ON_INCOMING,
+                        skipAccessibilityTestOnIncoming);
         skipAccessibilityTestOnOutgoing =
                 PropertyUtils.getBoolean(serviceProperties,
                         PropertyNames.SKIP_ACCESSIBILITY_TEST_ON_OUTGOING,
@@ -599,6 +611,15 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     public final String getSshExecutable()
     {
         return sshExecutable;
+    }
+
+    /**
+     * @return The path to the script which should be called when an item has been successfully
+     *         transfered. Can be null.
+     */
+    public final String getTransferFinishedExecutable()
+    {
+        return transferFinishedExecutable;
     }
 
     /**

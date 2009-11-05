@@ -52,11 +52,13 @@ public final class PropertyNames
 
     static final String INCOMING_HOST_FIND_EXECUTABLE = "incoming-host-find-executable";
 
-    static final String INCOMING_HOST_LASTCHANGED_EXECUTABLE = "incoming-host-lastchanged-executable";
-    
+    static final String INCOMING_HOST_LASTCHANGED_EXECUTABLE =
+            "incoming-host-lastchanged-executable";
+
     static final String OUTGOING_HOST_FIND_EXECUTABLE = "outgoing-host-find-executable";
 
-    static final String OUTGOING_HOST_LASTCHANGED_EXECUTABLE = "outgoing-host-lastchanged-executable";
+    static final String OUTGOING_HOST_LASTCHANGED_EXECUTABLE =
+            "outgoing-host-lastchanged-executable";
 
     static final String INACTIVITY_PERIOD = "inactivity-period";
 
@@ -94,12 +96,14 @@ public final class PropertyNames
 
     static final String SSH_EXECUTABLE = "ssh-executable";
 
+    static final String TRANSFER_FINISHED_EXECUTABLE = "transfer-finished-executable";
+
     static final String TREAT_INCOMING_AS_REMOTE = "treat-incoming-as-remote";
 
     static final String SKIP_ACCESSIBILITY_TEST_ON_INCOMING = "skip-accessibility-test-on-incoming";
-    
+
     static final String SKIP_ACCESSIBILITY_TEST_ON_OUTGOING = "skip-accessibility-test-on-outgoing";
-    
+
     private PropertyNames()
     {
         // This class can not be instantiated.
