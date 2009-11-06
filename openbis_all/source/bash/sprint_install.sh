@@ -14,7 +14,7 @@ SERVERS_DIR_ALIAS=sprint
 VER=SNAPSHOT
 DATE=`/bin/date +%Y-%m-%d_%H%M`
 DB_NAME=openbis_productive
-DB_SNAPSHOT=$BASE/db_snapshots
+DB_SNAPSHOT=$BASE/db_backups
 TOMCAT_DIR=$BASE/sprint/openBIS-server/apache-tomcat
 DAYS_TO_RETAIN=35
 
@@ -51,7 +51,8 @@ echo Making a database dump...
 # pg_restore -d dbname filename
 pg_dump -Uopenbis -Fc $DB_NAME > $DB_SNAPSHOT/$SERVERS_PREV_VER-$DB_NAMEi_${DATE}.dmp
 # we actually need to clean that up from time to time
-/usr/bin/find $DB_SNAPSHOT -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
+# this is cleaned by the nightly backup script
+#/usr/bin/find $DB_SNAPSHOT -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
 
 echo Installing openBIS server...
 rm -rf old/$SERVERS_PREV_VER
@@ -88,11 +89,10 @@ export JAVA_HOME=/usr
 
 #echo Doing some cleaning...
 cd
-mv -f *.zip tmp
+mv -f *.zip old
 rm -rf openbis
 cd $BASE/sprint/openBIS-server
 rm apache-tomcat.zip install.sh openbis.conf openBIS.keystore openBIS.war passwd.sh server.xml service.properties tomcat-version.txt
-/usr/bin/find $BASE/tmp -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
 /usr/bin/find $BASE/old -mtime +$DAYS_TO_RETAIN -exec rm -rf {} \;
 
 
