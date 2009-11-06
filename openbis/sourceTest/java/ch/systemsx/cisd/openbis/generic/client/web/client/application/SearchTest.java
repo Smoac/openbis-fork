@@ -41,7 +41,7 @@ public class SearchTest extends AbstractGWTTestCase
         remoteConsole.prepare(new SearchCommand("MP"));
 
         final CheckTableCommand checkDatasetsTableCommand =
-                createCheckMatchingEntitiesTableCommand(2, "CISD:/MP", "CISD:/CISD/EMPTY-MP");
+                createCheckMatchingEntitiesTableCommand(1, "CISD:/MP");
         remoteConsole.prepare(checkDatasetsTableCommand);
 
         launchTest(20000);
