@@ -13,22 +13,31 @@ export BASYSBIO=bs-dsvr10.ethz.ch
 
 # Currently there are three different types of server specific zips we distinguish
 export ZIPS="openBIS-server-S*.zip  datastore_server-S*.zip" 
-export ZIPS_PHOSPHONETX=*phosphonetx*.zip
+export ZIPS_PHOSPHONETX="*phosphonetx*.zip"
 export ZIPS_DSU="openBIS-server-S*.zip datastore_server-dsu*.zip"
 
+# Special plugin
+export DATASTORE_PLUGIN="datastore_server-plugins.jar"
+
 for i in $ZIPS; do
-	 scp $i $DEMO
-	 scp $i $YEASTX
-	 scp $i $LIVERX
-	 scp $i $AGRONOMICS
-	 scp $i $SCU
-	 scp $i $BASYSBIO
+	 echo $DEMO; scp -p $i $DEMO
+	 echo $YEASTX; scp -p $i $YEASTX
+	 echo $LIVERX; scp -p $i $LIVERX
+	 echo $AGRONOMICS; scp -p $i $AGRONOMICS
+	 echo $SCU; scp -p $i $SCU
+	 echo $BASYSBIO; scp -p $i $BASYSBIO
 done     
 
 for j in $ZIPS_PHOSPHONETX; do
-	scp $j $PHOSPHONETX
+	echo $PHOSPHONETX; scp -p $j $PHOSPHONETX
 done
 
 for k in $ZIPS_DSU; do
-	scp $k $DSU
+	echo $DSU; scp -p $k $DSU
+done
+
+for l in $DATASTORE_PLUGIN; do
+	echo $BASYSBIO; scp -p $k $BASYSBIO
+	echo $AGRONOMICS; scp -p $k $AGRONOMICS
+	echo $YEASTX; scp -p $k $YEASTX
 done
