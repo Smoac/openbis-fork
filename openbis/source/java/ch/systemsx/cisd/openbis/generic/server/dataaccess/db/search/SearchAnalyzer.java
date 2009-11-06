@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharTokenizer;
+import org.apache.lucene.analysis.Token;
+import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 
 /**
@@ -36,8 +38,12 @@ public class SearchAnalyzer extends Analyzer
     @Override
     public TokenStream tokenStream(String fieldName, Reader reader)
     {
-        return new WordAndCodeTokenizer(reader);
+        return new TrimSpecialCharsFilter(new WordAndCodeTokenizer(reader));
     }
+
+    //
+    // Helper classes
+    //
 
     /**
      * A tokenizer that divides text at chars different than letters, digits and special chars
@@ -77,6 +83,89 @@ public class SearchAnalyzer extends Analyzer
         protected char normalize(char c)
         {
             return Character.toLowerCase(c);
+        }
+    }
+
+    /**
+     * Normalizes tokens extracted with {@link WordAndCodeTokenizer} trimming special chars.
+     */
+    private static final class TrimSpecialCharsFilter extends TokenFilter
+    {
+        // (don't trim '-' or '_' because they may have special meaning in identifiers)
+        /** those of special chars that should be trimmed */
+        private final static Character[] TRIMMED_SPECIAL_CHARS =
+            { '.', ':', '\'' };
+
+        private final static Set<Character> trimmedCharacters = new HashSet<Character>();
+        {
+            trimmedCharacters.addAll(Arrays.asList(TRIMMED_SPECIAL_CHARS));
+        }
+
+        public TrimSpecialCharsFilter(TokenStream input)
+        {
+            super(input);
+        }
+
+        @Override
+        public final Token next(final Token reusableToken) throws java.io.IOException
+        {
+            assert reusableToken != null;
+            Token nextToken = input.next(reusableToken);
+
+            if (nextToken == null)
+                return null;
+
+            char[] buffer = nextToken.termBuffer();
+            final int bufferLength = nextToken.termLength();
+
+            int startCounter = 0; // counts chars to trim from the beginning
+            for (int i = 0; i < bufferLength; i++)
+            {
+                if (trimmedCharacters.contains(buffer[i]))
+                {
+                    startCounter++;
+                } else
+                {
+                    break;
+                }
+            }
+
+            // if all chars are special leave the token untouched
+            if (startCounter == bufferLength)
+            {
+                return nextToken;
+            }
+
+            int endCounter = 0; // counts chars to trim from the end
+            for (int i = bufferLength - 1; i > 0; i--)
+            {
+                if (trimmedCharacters.contains(buffer[i]))
+                {
+                    endCounter++;
+                } else
+                {
+                    break;
+                }
+            }
+
+            if (startCounter > 0)
+            {
+                // need to shift all characters (setting startPos to >0 breaks search equality)
+                // see: StandardFilter
+                for (int i = startCounter; i < bufferLength; i++)
+                {
+                    buffer[i - startCounter] = buffer[i];
+                }
+            }
+
+            // change length
+            if (startCounter + endCounter > 0)
+            {
+                int trimmedLength = bufferLength - (startCounter + endCounter);
+                nextToken.setTermLength(trimmedLength);
+            }
+
+            return nextToken;
         }
     }
 
