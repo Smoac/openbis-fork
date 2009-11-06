@@ -25,7 +25,6 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.BooleanClause.Occur;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed.DetailedQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -48,71 +47,7 @@ public class LuceneQueryBuilder
     public static String adaptQuery(String userQuery)
     {
         String result = disableFieldQuery(userQuery);
-        result = replaceWordSeparators(result, SeparatorSplitterTokenFilter.WORD_SEPARATORS);
         return result;
-    }
-
-    @Private
-    static String replaceWordSeparators(String query, char[] wordSeparators)
-    {
-        if (looksLikeNumber(query))
-        {
-            return query;
-        }
-        String queryTrimmed = removeSurroundingWordSeparators(query, wordSeparators);
-        String charsRegexp = createAnyWordSeparatorRegexp(wordSeparators);
-        String queryWithoutSeparators = queryTrimmed.replaceAll(charsRegexp, " AND ");
-        if (queryWithoutSeparators.equals(queryTrimmed))
-        {
-            return queryTrimmed;
-        } else
-        {
-            return "(" + queryWithoutSeparators + ")";
-        }
-    }
-
-    private static boolean looksLikeNumber(String query)
-    {
-        return query.length() > 0 && Character.isDigit(query.charAt(0))
-                && Character.isDigit(query.charAt(query.length() - 1));
-    }
-
-    private static String createAnyWordSeparatorRegexp(char[] wordSeparators)
-    {
-        String charsRegexp = "[";
-        for (int i = 0; i < wordSeparators.length; i++)
-        {
-            charsRegexp += "\\" + wordSeparators[i];
-        }
-        charsRegexp += "]";
-        return charsRegexp;
-    }
-
-    private static String removeSurroundingWordSeparators(String query, char[] wordSeparators)
-    {
-        int startIx = 0;
-        while (startIx < query.length() && isSeparator(query.charAt(startIx), wordSeparators))
-        {
-            startIx++;
-        }
-        int endIx = query.length();
-        while (endIx > 0 && isSeparator(query.charAt(endIx - 1), wordSeparators))
-        {
-            endIx--;
-        }
-        return query.substring(startIx, endIx);
-    }
-
-    private static boolean isSeparator(char ch, char[] wordSeparators)
-    {
-        for (int i = 0; i < wordSeparators.length; i++)
-        {
-            if (ch == wordSeparators[i])
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     // disables field query by escaping all field separator characters.
