@@ -28,22 +28,6 @@ import ch.rinn.restrictions.Friend;
 @Friend(toClasses = LuceneQueryBuilder.class)
 public class LuceneQueryBuilderTest extends AssertJUnit
 {
-    @Test
-    public void testReplaceWordSeparators()
-    {
-        char[] wordSeparators = new char[]
-            { '.', ',', '-', '_' };
-        String result = LuceneQueryBuilder.replaceWordSeparators("a.b-c_d,e", wordSeparators);
-        assertEquals("(a AND b AND c AND d AND e)", result);
-
-        result = LuceneQueryBuilder.replaceWordSeparators("..,,a.b,,..", wordSeparators);
-        assertEquals("(a AND b)", result);
-
-        result = LuceneQueryBuilder.replaceWordSeparators(".a", wordSeparators);
-        assertEquals("a", result);
-
-    }
-
     @DataProvider(name = "queryEscaping")
     protected Object[][] getQueriesToTest()
     {
