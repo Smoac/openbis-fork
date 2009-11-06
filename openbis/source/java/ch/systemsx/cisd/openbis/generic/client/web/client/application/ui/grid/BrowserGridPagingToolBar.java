@@ -77,6 +77,12 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         add(exportButton);
     }
 
+    /** Total number of items on all pages */
+    public int getTotalCount()
+    {
+        return totalLength;
+    }
+
     private void add(Widget widget)
     {
         add(new AdapterToolItem(widget));

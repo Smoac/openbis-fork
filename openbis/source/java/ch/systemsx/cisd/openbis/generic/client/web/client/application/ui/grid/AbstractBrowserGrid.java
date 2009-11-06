@@ -198,9 +198,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // result set key of the last refreshed data
     private String resultSetKey;
 
-    /** the number of all objects cached in the browser */
-    private int totalCount;
-
     private IDataRefreshCallback refreshCallback;
 
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -618,7 +615,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             // save the key of the result, later we can refer to the result in the cache using this
             // key
             saveCacheKey(result.getResultSetKey());
-            totalCount = result.getTotalLength();
             GridRowModels<T> rowModels = result.getList();
             List<GridCustomColumnInfo> customColumnMetadata = rowModels.getCustomColumnsMetadata();
             customColumnsMetadataProvider.setCustomColumnsMetadata(customColumnMetadata);
@@ -1265,10 +1261,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /** @return the number of all objects cached in the browser */
     public int getTotalCount()
     {
-        // NOTE: Maybe there is a better way to get this value without keeping it on field variable.
-        // Bottom toolbar displays it so there has to be access to this, but e.g.
-        // grid.getStore().getCount() returns only number of items displayed on the current page.
-        return totalCount;
+        return pagingToolbar.getTotalCount();
     }
 
     private void refreshColumnsSettings()
