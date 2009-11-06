@@ -81,7 +81,7 @@ public class SearchTest extends AbstractGWTTestCase
     public final void testShowDatasetsRelatedToSamples()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new SearchCommand("Sample", "cp-test"));
+        remoteConsole.prepare(new SearchCommand("Sample", "cp-test-*"));
 
         final CheckTableCommand checkDatasetsTableCommand =
                 createCheckMatchingEntitiesTableCommand(SAMPLE_T1, SAMPLE_T2, SAMPLE_T3);
@@ -95,7 +95,7 @@ public class SearchTest extends AbstractGWTTestCase
     public final void testShowDatasetsRelatedToExperiments()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new SearchCommand("Experiment", "exp-test"));
+        remoteConsole.prepare(new SearchCommand("Experiment", "exp-test-*"));
 
         final CheckTableCommand checkDatasetsTableCommand =
                 createCheckMatchingEntitiesTableCommand(EXP_T1, EXP_T2, EXP_T3);
@@ -109,7 +109,7 @@ public class SearchTest extends AbstractGWTTestCase
     public final void testShowDatasetsRelatedToAll()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new SearchCommand("test"));
+        remoteConsole.prepare(new SearchCommand("*test*")); // could also "*-test-*" gives 6 results
 
         final CheckTableCommand checkDatasetsTableCommand =
                 createCheckMatchingEntitiesTableCommand(15, SAMPLE_T1, SAMPLE_T2, SAMPLE_T3,
