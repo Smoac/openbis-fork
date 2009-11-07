@@ -128,10 +128,10 @@ abstract class AbstractCommand implements ICommand
         final ICIFEXRPCService service =
                 RPCServiceFactory.createServiceProxy(serviceURL, initializeTrustStore);
         final int serverVersion = service.getVersion();
-        if (ICIFEXRPCService.VERSION_FOR_CLI != serverVersion)
+        if (ICIFEXRPCService.VERSION != serverVersion)
         {
             System.err.println("This client has the wrong service version for the server (client: "
-                    + ICIFEXRPCService.VERSION_FOR_CLI + ", server: " + serverVersion + ").");
+                    + ICIFEXRPCService.VERSION + ", server: " + serverVersion + ").");
             return null;
         }
         return service;

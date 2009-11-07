@@ -87,7 +87,7 @@ public class CIFEXClient
     {
         System.err.println(MinimalParameters.getCommandPrepender() + " version "
                 + BuildAndEnvironmentInfo.INSTANCE.getFullVersion() + " (Service version "
-                + ICIFEXRPCService.VERSION_FOR_CLI + ")");
+                + ICIFEXRPCService.VERSION + ")");
     }
 
     public static void main(final String[] args) throws Exception
