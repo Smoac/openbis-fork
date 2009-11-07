@@ -72,9 +72,6 @@ public interface ICIFEXService extends RemoteService
     public List<UserInfoDTO> listUsers() throws InvalidSessionException,
             InsufficientPrivilegesException;
 
-    // TODO 2008-06-06, Christian Ribeaud: tryFindUserByUserCode and tryFindUserByEmail should be
-    // extended to accept an array of parameters (more than one parameter). They will return an
-    // User array.
     /**
      * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists.
      * 
