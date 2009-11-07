@@ -44,11 +44,13 @@ public class GenerationDetection
 
     private static final int FIRST_FRAME_NUM = 0;
 
-    private static final int FIRST_PICTURE_NUM = 0;
+    private static final int FIRST_PICTURE_NUM = 1; // 0
 
     private static final int FRAME_OFFSET = FIRST_PICTURE_NUM - FIRST_FRAME_NUM;
 
     private static final int INITIAL_GENERATION = 1;
+
+    private static final String RESULTS_FILE_EXTENSION = "res";
 
     private static final String PARENT_ID_COL_NAME = "motherID";
 
@@ -84,7 +86,7 @@ public class GenerationDetection
     private static final double MAX_F_MEAN_OF_LIVING_CELL = 2500;
 
     // window radius used to calculate smooth fluorescence deviation values (ignore noise)
-    private static final int SMOOTH_F_DEVIATION_WINDOW = 2;
+    private static final int SMOOTH_F_DEVIATION_WINDOW = 5;
 
     // real cells have a.nucl value almost fixed to this value because of Cell-ID implementation.
     private static final double NUCLEUS_AREA = 49.0;
@@ -447,7 +449,7 @@ public class GenerationDetection
             {
                 String prefix = "";
                 Integer rightParentIdOrNull =
-                        GenerationDetectionAccuracyTester.parents.get(candidate.child.id);
+                        GenerationDetectionAccuracyTester.correctParents.get(candidate.child.id);
                 if (rightParentIdOrNull == null)
                 {
                     prefix = "F"; // fake
@@ -639,7 +641,7 @@ public class GenerationDetection
         {
             System.err.println("usage: java -jar yeast_lab.jar <input file> <output file>");
             System.exit(-1);
-        }
+        } 
         final String inputFileName = args[0];
         final String outputFileName = args[1];
         final File input = new File(inputFileName);
@@ -647,6 +649,16 @@ public class GenerationDetection
                 + inputFileName + "' that can be read.";
         final File output = new File(outputFileName);
         // assert output.exists() == false : "File '" + OUTPUT_FILE + "' already exists.";
+        File results = null;
+        if (PRODUCTION == false)
+        {
+            final String resultsFileName = inputFileName + "." + RESULTS_FILE_EXTENSION;
+            results = new File(resultsFileName);
+            if (results.exists() && results.isFile() && results.canRead())
+            {
+                GenerationDetectionAccuracyTester.loadCorrectParents(results);
+            }
+        }
 
         BufferedReader reader = null;
         PrintWriter writer = null;
@@ -705,7 +717,7 @@ public class GenerationDetection
             {
                 log(cell.parentInformation());
             }
-            if (PRODUCTION == false)
+            if (PRODUCTION == false && results != null)
             {
                 GenerationDetectionAccuracyTester.computeResultsAccuracy(newBornCells);
             }
@@ -851,6 +863,7 @@ public class GenerationDetection
             return; // nothing to analyze in the first frame
         }
         final int previousFrame = frame - 1;
+        // TODO 2009-11-06, Piotr Buczek: take 2 or 3 frames
         final Set<Cell> previousFrameCells = cellsByFrame.get(previousFrame);
         for (Cell cell : newCells)
         {
