@@ -162,14 +162,15 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     public final void testSearchEntitiesByTermForExperiment()
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
-        String query = "exp";
+        final String query = "exp-*";
+        final String querySubstring = "exp-"; // no wildcard
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.EXPERIMENT, query,
                         createDataProvider());
         assertEquals(5, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
-            AssertionUtil.assertContainsInsensitive(query, matchingEntity.getCode());
+            AssertionUtil.assertContainsInsensitive(querySubstring, matchingEntity.getCode());
             assertEquals("code", matchingEntity.getFieldDescription());
         }
     }
