@@ -39,7 +39,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  * 
  * @author Franz-Josef Elmer
  */
-public final class Uploader extends AbstractUploadDownload
+public final class Uploader extends AbstractUploadDownload implements ICIFEXUploader
 {
     /**
      * Creates an instance for the specified service and session ID.

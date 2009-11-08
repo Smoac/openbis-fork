@@ -52,8 +52,8 @@ import javax.swing.table.TableColumn;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
-import ch.systemsx.cisd.cifex.rpc.client.Uploader;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -109,7 +109,7 @@ public class FileUploadClient
         }
     }
 
-    private final Uploader uploader;
+    private final ICIFEXUploader uploader;
 
     private final FileDialog fileDialog;
 

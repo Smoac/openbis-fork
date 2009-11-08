@@ -21,8 +21,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.args4j.Option;
-import ch.systemsx.cisd.cifex.rpc.client.Downloader;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -131,7 +131,7 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
     protected int execute(String sessionToken, ICIFEXComponent cifex, String[] args)
             throws UserFailureException, EnvironmentFailureException
     {
-        final Downloader downloader = cifex.createDownloader(sessionToken);
+        final ICIFEXDownloader downloader = cifex.createDownloader(sessionToken);
         addConsoleProgressListener(downloader);
         downloader.download(getParameters().getFileID(), getParameters().getDirectory(),
                 getParameters().getName(), getParameters().isResume());

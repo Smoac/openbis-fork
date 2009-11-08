@@ -60,11 +60,11 @@ public interface ICIFEXComponent
     /**
      * Creates a new file downloader for the given session.
      */
-    public Downloader createDownloader(String sessionID);
+    public ICIFEXDownloader createDownloader(String sessionID);
     
     /**
      * Creates a new file uploader for the given session.
      */
-    public Uploader createUploader(String sessionID);
+    public ICIFEXUploader createUploader(String sessionID);
     
 }

@@ -26,7 +26,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import ch.systemsx.cisd.cifex.rpc.client.FileItem;
 import ch.systemsx.cisd.cifex.rpc.client.FileItemStatus;
-import ch.systemsx.cisd.cifex.rpc.client.Uploader;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 final class UploadTableModel extends AbstractTableModel
@@ -43,7 +43,7 @@ final class UploadTableModel extends AbstractTableModel
 
     private FileItem currentFileToBeUploaded;
 
-    UploadTableModel(Uploader uploader, int maxUploadSizeInMB, ITimeProvider timeProvider)
+    UploadTableModel(ICIFEXUploader uploader, int maxUploadSizeInMB, ITimeProvider timeProvider)
     {
         this.maxUploadSizeInMB = maxUploadSizeInMB;
         this.timeProvider = timeProvider;

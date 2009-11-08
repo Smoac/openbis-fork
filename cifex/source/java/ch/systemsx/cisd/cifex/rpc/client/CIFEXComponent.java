@@ -37,12 +37,12 @@ class CIFEXComponent implements ICIFEXComponent
         this.service = service;
     }
     
-    public Downloader createDownloader(final String sessionID)
+    public ICIFEXDownloader createDownloader(final String sessionID)
     {
         return new Downloader(service, sessionID);
     }
 
-    public Uploader createUploader(final String sessionID)
+    public ICIFEXUploader createUploader(final String sessionID)
     {
         return new Uploader(service, sessionID);
     }

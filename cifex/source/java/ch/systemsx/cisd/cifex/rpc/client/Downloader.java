@@ -35,7 +35,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  * 
  * @author Bernd Rinn
  */
-public final class Downloader extends AbstractUploadDownload
+public final class Downloader extends AbstractUploadDownload implements ICIFEXDownloader
 {
 
     /**
