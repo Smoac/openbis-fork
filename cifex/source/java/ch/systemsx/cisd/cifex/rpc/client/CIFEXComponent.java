@@ -63,4 +63,9 @@ class CIFEXComponent implements ICIFEXComponent
         service.logout(sessionID);
     }
 
+    public void checkSession(String sessionID) throws InvalidSessionException
+    {
+        service.checkSession(sessionID);
+    }
+
 }

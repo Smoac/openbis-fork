@@ -51,7 +51,7 @@ import javax.swing.table.TableColumn;
 
 import org.springframework.remoting.RemoteAccessException;
 
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.cifex.rpc.client.Uploader;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -83,17 +83,17 @@ public class FileUploadClient
             {
                 final String sessionId = args[1];
                 maxUloadSizeInMB = Integer.parseInt(args[2]);
-                new FileUploadClient(RPCServiceFactory.createServiceProxy(serviceURL, true),
+                new FileUploadClient(RPCServiceFactory.createCIFEXComponent(serviceURL, true),
                         sessionId, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER).show();
             } else if (args.length == 4)
             {
                 final String userName = args[1];
                 final String passwd = args[2];
                 maxUloadSizeInMB = Integer.parseInt(args[3]);
-                final ICIFEXRPCService service =
-                        RPCServiceFactory.createServiceProxy(serviceURL, true);
-                final String sessionId = service.login(userName, passwd);
-                new FileUploadClient(service, sessionId, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER)
+                final ICIFEXComponent cifex =
+                        RPCServiceFactory.createCIFEXComponent(serviceURL, true);
+                final String sessionId = cifex.login(userName, passwd);
+                new FileUploadClient(cifex, sessionId, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER)
                         .show();
             } else
             {
@@ -125,7 +125,7 @@ public class FileUploadClient
 
     private JPopupMenu popupMenu;
 
-    FileUploadClient(final ICIFEXRPCService service, final String sessionId,
+    FileUploadClient(final ICIFEXComponent cifex, final String sessionId,
             final int maxUploadSizeInMB, final ITimeProvider timeProvider)
             throws EnvironmentFailureException, InvalidSessionException
     {
@@ -134,12 +134,12 @@ public class FileUploadClient
                 @Override
                 public void run()
                 {
-                    service.logout(sessionId);
+                    cifex.logout(sessionId);
                 }
             };
         Runtime.getRuntime().addShutdownHook(shutdownHook);
-        startSessionKeepAliveTimer(service, sessionId, KEEP_ALIVE_PERIOD_MILLIS);
-        this.uploader = new Uploader(service, sessionId);
+        startSessionKeepAliveTimer(cifex, sessionId, KEEP_ALIVE_PERIOD_MILLIS);
+        this.uploader = cifex.createUploader(sessionId);
         frame = new JFrame(TITLE);
         frame.addWindowListener(new WindowAdapter()
             {
@@ -229,7 +229,7 @@ public class FileUploadClient
             });
     }
 
-    private void startSessionKeepAliveTimer(final ICIFEXRPCService service, final String sessionId,
+    private void startSessionKeepAliveTimer(final ICIFEXComponent cifex, final String sessionId,
             final long checkTimeIntervalMillis)
     {
         final Timer timer = new Timer("Session Keep Alive", true);
@@ -240,7 +240,7 @@ public class FileUploadClient
                 {
                     try
                     {
-                        service.checkSession(sessionId);
+                        cifex.checkSession(sessionId);
                     } catch (RemoteAccessException ex)
                     {
                         System.err.println("Error connecting to the server");

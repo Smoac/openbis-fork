@@ -45,6 +45,13 @@ public interface ICIFEXComponent
     public void logout(String sessionID);
 
     /**
+     * Checks whether the session identified by <var>sessionID</var> is alive.
+     * 
+     * @throws InvalidSessionException If the session is not alive.
+     */
+    public void checkSession(String sessionID) throws InvalidSessionException;
+
+    /**
      * Provides the list of files available for download to the user of this session.
      */
     public FileInfoDTO[] listDownloadFiles(String sessionID) throws InvalidSessionException,
