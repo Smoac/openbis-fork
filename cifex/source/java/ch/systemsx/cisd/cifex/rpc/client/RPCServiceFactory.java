@@ -106,24 +106,6 @@ public final class RPCServiceFactory
     }
 
     /**
-     * Creates the CIFEX RPC service.
-     * 
-     * @deprecated Use {@link #createCIFEXComponent(String, boolean)} instead
-     */
-    @Deprecated
-    public static ICIFEXRPCService createServiceProxy(String serviceURL,
-            boolean getServerCertificateFromServer)
-    {
-        final ClassLoader classLoader = RPCServiceFactory.class.getClassLoader();
-        final ICIFEXRPCService service = createService(serviceURL, getServerCertificateFromServer);
-        final ServiceInvocationHandler invocationHandler = new ServiceInvocationHandler(service);
-        final ICIFEXRPCService proxy =
-                (ICIFEXRPCService) Proxy.newProxyInstance(classLoader, new Class[]
-                    { ICIFEXRPCService.class }, invocationHandler);
-        return proxy;
-    }
-
-    /**
      * Creates the CIFEX component class.
      */
     public static ICIFEXComponent createCIFEXComponent(String serviceURL,
