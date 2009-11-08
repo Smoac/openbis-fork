@@ -76,6 +76,9 @@ import ch.systemsx.cisd.common.utilities.StringUtilities;
  */
 public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCIFEXRPCService
 {
+    /** The minimal version that the client needs to have to be able to talk to this server. */
+    public static final int MIN_CLIENT_VERSION = 1;
+
     private static final long MB = 1024 * 1024;
 
     public static final String PREFIX = "$";
@@ -162,6 +165,11 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     public int getVersion()
     {
         return VERSION;
+    }
+
+    public int getMinClientVersion()
+    {
+        return MIN_CLIENT_VERSION;
     }
 
     //

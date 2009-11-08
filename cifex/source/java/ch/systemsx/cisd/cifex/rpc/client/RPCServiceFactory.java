@@ -107,15 +107,43 @@ public final class RPCServiceFactory
 
     /**
      * Creates the CIFEX RPC service.
+     * 
+     * @deprecated Use {@link #createCIFEXComponent(String, boolean)} instead
      */
+    @Deprecated
     public static ICIFEXRPCService createServiceProxy(String serviceURL,
             boolean getServerCertificateFromServer)
     {
-        ClassLoader classLoader = RPCServiceFactory.class.getClassLoader();
-        ICIFEXRPCService service = createService(serviceURL, getServerCertificateFromServer);
-        ServiceInvocationHandler invocationHandler = new ServiceInvocationHandler(service);
-        return (ICIFEXRPCService) Proxy.newProxyInstance(classLoader, new Class[]
-            { ICIFEXRPCService.class }, invocationHandler);
+        final ClassLoader classLoader = RPCServiceFactory.class.getClassLoader();
+        final ICIFEXRPCService service = createService(serviceURL, getServerCertificateFromServer);
+        final ServiceInvocationHandler invocationHandler = new ServiceInvocationHandler(service);
+        final ICIFEXRPCService proxy =
+                (ICIFEXRPCService) Proxy.newProxyInstance(classLoader, new Class[]
+                    { ICIFEXRPCService.class }, invocationHandler);
+        return proxy;
+    }
+
+    /**
+     * Creates the CIFEX component class.
+     */
+    public static ICIFEXComponent createCIFEXComponent(String serviceURL,
+            boolean getServerCertificateFromServer) throws IncompatibleAPIVersionsException
+    {
+        final ClassLoader classLoader = RPCServiceFactory.class.getClassLoader();
+        final ICIFEXRPCService service = createService(serviceURL, getServerCertificateFromServer);
+        final ServiceInvocationHandler invocationHandler = new ServiceInvocationHandler(service);
+        final ICIFEXRPCService proxy =
+                (ICIFEXRPCService) Proxy.newProxyInstance(classLoader, new Class[]
+                    { ICIFEXRPCService.class }, invocationHandler);
+        final int apiServerVersion = proxy.getVersion();
+        final int apiMinClientVersion = proxy.getMinClientVersion();
+        if (ICIFEXRPCService.VERSION < apiMinClientVersion
+                || ICIFEXRPCService.VERSION > apiServerVersion)
+        {
+            throw new IncompatibleAPIVersionsException(ICIFEXRPCService.VERSION, apiServerVersion,
+                    apiMinClientVersion);
+        }
+        return new CIFEXComponent(proxy);
     }
 
     private static ICIFEXRPCService createService(String serviceURL,
@@ -219,8 +247,7 @@ public final class RPCServiceFactory
     private static void setUpAllAcceptingTrustManager()
     {
         TrustManager[] trustAllCerts = new TrustManager[]
-            { 
-                new X509TrustManager()
+            { new X509TrustManager()
                 {
                     public java.security.cert.X509Certificate[] getAcceptedIssuers()
                     {

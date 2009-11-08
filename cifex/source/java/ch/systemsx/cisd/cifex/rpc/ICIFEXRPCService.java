@@ -37,6 +37,12 @@ public interface ICIFEXRPCService
     public int getVersion();
 
     /**
+     * Returns the minimal version that the client needs to have in order to be able to talk to this
+     * server.
+     */
+    public int getMinClientVersion();
+
+    /**
      * Authenticates given <code>user</code> with given <code>password</code>.
      * <p>
      * If <code>requestAdmin==true</code>, then request an admin login.
