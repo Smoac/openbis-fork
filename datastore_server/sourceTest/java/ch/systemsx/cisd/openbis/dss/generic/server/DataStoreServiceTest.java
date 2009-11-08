@@ -29,7 +29,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -92,7 +92,7 @@ public class DataStoreServiceTest extends AssertJUnit
 
     private MailClientParameters mailClientParameters;
 
-    private ICIFEXRPCService cifexService;
+    private ICIFEXComponent cifex;
 
     private PluginTaskProviders pluginTaskParameters;
 
@@ -105,7 +105,7 @@ public class DataStoreServiceTest extends AssertJUnit
         commandExecutorFactory = context.mock(IDataSetCommandExecutorFactory.class);
         commandExecutor = context.mock(IDataSetCommandExecutor.class);
         cifexServiceFactory = context.mock(ICIFEXRPCServiceFactory.class);
-        cifexService = context.mock(ICIFEXRPCService.class);
+        cifex = context.mock(ICIFEXComponent.class);
         mailClientParameters = new MailClientParameters();
         mailClientParameters.setFrom("a@bc.de");
         mailClientParameters.setSmtpHost("file://targets/email");
@@ -231,10 +231,10 @@ public class DataStoreServiceTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(cifexServiceFactory).createService();
-                    will(returnValue(cifexService));
+                    one(cifexServiceFactory).createCIFEXComponent();
+                    will(returnValue(cifex));
 
-                    one(cifexService).login(uploadContext.getUserID(), uploadContext.getPassword());
+                    one(cifex).login(uploadContext.getUserID(), uploadContext.getPassword());
                     will(returnValue(null));
                 }
             });
@@ -262,10 +262,10 @@ public class DataStoreServiceTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(cifexServiceFactory).createService();
-                    will(returnValue(cifexService));
+                    one(cifexServiceFactory).createCIFEXComponent();
+                    will(returnValue(cifex));
 
-                    one(cifexService).login(uploadContext.getUserID(), uploadContext.getPassword());
+                    one(cifex).login(uploadContext.getUserID(), uploadContext.getPassword());
                     will(returnValue("token"));
 
                     one(commandExecutor).scheduleUploadingDataSetsToCIFEX(cifexServiceFactory,

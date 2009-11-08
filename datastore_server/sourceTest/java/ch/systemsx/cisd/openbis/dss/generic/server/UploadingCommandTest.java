@@ -31,10 +31,10 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -42,9 +42,9 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
-import ch.systemsx.cisd.cifex.rpc.UploadState;
-import ch.systemsx.cisd.cifex.rpc.UploadStatus;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
+import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -77,33 +77,6 @@ public class UploadingCommandTest extends AssertJUnit
 
     private static final String INFO_MAIL_PREFIX = "INFO  OPERATION.MailClient - ";
 
-    private static final class ZipFileMatcher extends BaseMatcher<String[]>
-    {
-        private String msg;
-
-        public void describeTo(Description description)
-        {
-            description.appendText(msg);
-        }
-
-        public boolean matches(Object item)
-        {
-            String[] paths = (String[]) item;
-            if (paths.length != 1)
-            {
-                msg = "not one path but " + paths.length;
-                return false;
-            }
-            String zipFile = paths[0];
-            if (zipFile.endsWith(ZIP_FILENAME + ".zip") == false)
-            {
-                msg = "not expected zip file '" + ZIP_FILENAME + ".zip' but '" + zipFile + "'";
-                return false;
-            }
-            return true;
-        }
-    }
-
     private static final File TEST_FOLDER = new File("targets/upload-test");
 
     private static final File STORE = new File(TEST_FOLDER, "store");
@@ -124,7 +97,9 @@ public class UploadingCommandTest extends AssertJUnit
 
     private ICIFEXRPCServiceFactory factory;
 
-    private ICIFEXRPCService cifexService;
+    private ICIFEXComponent cifex;
+
+    private ICIFEXUploader uploader;
 
     private MailClientParameters mailClientParameters;
 
@@ -140,7 +115,8 @@ public class UploadingCommandTest extends AssertJUnit
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
         context = new Mockery();
         factory = context.mock(ICIFEXRPCServiceFactory.class);
-        cifexService = context.mock(ICIFEXRPCService.class);
+        cifex = context.mock(ICIFEXComponent.class);
+        uploader = context.mock(ICIFEXUploader.class);
         mailClientParameters = new MailClientParameters();
         mailClientParameters.setFrom("a@bc.de");
         mailClientParameters.setSmtpHost("file://" + EMAILS);
@@ -162,7 +138,7 @@ public class UploadingCommandTest extends AssertJUnit
                 ExternalDataTranslator.translate(createDataSet("2", LOCATION2), "?", "?",
                         ExperimentTranslator.LoadableFields.PROPERTIES);
         List<ExternalData> dataSets = Arrays.<ExternalData> asList(dataSet1, dataSet2);
-       command = new UploadingCommand(factory, mailClientParameters, dataSets, uploadContext);
+        command = new UploadingCommand(factory, mailClientParameters, dataSets, uploadContext);
         command.deleteAfterUploading = false;
     }
 
@@ -255,37 +231,42 @@ public class UploadingCommandTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @Test
     public void testExecute() throws Exception
     {
         context.checking(new Expectations()
             {
                 {
-                    one(factory).createService();
-                    will(returnValue(cifexService));
+                    one(factory).createCIFEXComponent();
+                    will(returnValue(cifex));
 
-                    one(cifexService).login(uploadContext.getUserID(), uploadContext.getPassword());
+                    one(cifex).login(uploadContext.getUserID(), uploadContext.getPassword());
                     will(returnValue(SESSION_TOKEN));
 
-                    allowing(cifexService).getVersion();
-                    will(returnValue(ICIFEXRPCService.VERSION));
+                    one(cifex).createUploader(SESSION_TOKEN);
+                    will(returnValue(uploader));
 
-                    one(cifexService).checkSession(SESSION_TOKEN);
+                    final IProgressListener[] listener = new IProgressListener[1];
+                    one(uploader).addProgressListener(with(any(IProgressListener.class)));
+                    will(new CustomAction("store listener")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                listener[0] = (IProgressListener) invocation.getParameter(0);
+                                return null;
+                            }
+                        });
 
-                    one(cifexService).getUploadStatus(SESSION_TOKEN);
-                    UploadStatus uploadStatus = new UploadStatus();
-                    uploadStatus.setUploadState(UploadState.INITIALIZED);
-                    will(returnValue(uploadStatus));
-
-                    one(cifexService).defineUploadParameters(with(equal(SESSION_TOKEN)),
-                            with(new ZipFileMatcher()), with(equal("id:user")),
-                            with(aNull(String.class)));
-
-                    one(cifexService).getUploadStatus(SESSION_TOKEN);
-                    uploadStatus = new UploadStatus();
-                    uploadStatus.setUploadState(UploadState.FINISHED);
-                    will(returnValue(uploadStatus));
-
-                    one(cifexService).finish(SESSION_TOKEN, true);
+                    one(uploader).upload(
+                            Collections.singletonList(new File(TMP, ZIP_FILENAME + ".zip")),
+                            "id:user", null);
+                    will(new CustomAction("report 'finish' to listener") {
+                        public Object invoke(Invocation invocation) throws Throwable
+                        {
+                            listener[0].finished(true);
+                            return null;
+                        }
+                    });
                 }
             });
 
@@ -322,23 +303,36 @@ public class UploadingCommandTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(factory).createService();
-                    will(returnValue(cifexService));
+                    one(factory).createCIFEXComponent();
+                    will(returnValue(cifex));
 
-                    one(cifexService).login(uploadContext.getUserID(), uploadContext.getPassword());
+                    one(cifex).login(uploadContext.getUserID(), uploadContext.getPassword());
                     will(returnValue(SESSION_TOKEN));
 
-                    allowing(cifexService).getVersion();
-                    will(returnValue(ICIFEXRPCService.VERSION));
+                    one(cifex).createUploader(SESSION_TOKEN);
+                    will(returnValue(uploader));
 
-                    one(cifexService).checkSession(SESSION_TOKEN);
+                    final IProgressListener[] listener = new IProgressListener[1];
+                    one(uploader).addProgressListener(with(any(IProgressListener.class)));
+                    will(new CustomAction("store listener")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                listener[0] = (IProgressListener) invocation.getParameter(0);
+                                return null;
+                            }
+                        });
 
-                    one(cifexService).getUploadStatus(SESSION_TOKEN);
-                    UploadStatus uploadStatus = new UploadStatus();
-                    uploadStatus.setUploadState(UploadState.ABORTED);
-                    will(returnValue(uploadStatus));
-
-                    one(cifexService).finish(SESSION_TOKEN, false);
+                    one(uploader).upload(
+                            Collections.singletonList(new File(TMP, ZIP_FILENAME + ".zip")),
+                            "id:user", null);
+                    will(new CustomAction("report 'abort' to listener") {
+                        public Object invoke(Invocation invocation) throws Throwable
+                        {
+                            listener[0].finished(false);
+                            return null;
+                        }
+                    });
                 }
             });
 
@@ -378,15 +372,30 @@ public class UploadingCommandTest extends AssertJUnit
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             IOUtils.copy(zipFile.getInputStream(zipFile.getEntry(prefix + "1/meta-data.tsv")),
                     outputStream);
-            assertEquals("data_set\tcode\t1\n" + "data_set\tproduction_timestamp\t\n"
-                    + "data_set\tproducer_code\t\n" + "data_set\tdata_set_type\tD\n"
-                    + "data_set\tis_measured\tFALSE\n" + "data_set\tis_complete\tFALSE\n"
-                    + "data_set\tparent_codes\tp1,p2\n" + "experiment\tgroup_code\tg1\n"
-                    + "experiment\tproject_code\tp1\n" + "experiment\texperiment_code\texp1\n"
-                    + "experiment\texperiment_type_code\tE\n"
-                    + "experiment\tregistration_timestamp\t1970-01-01 01:00:00 +0100\n"
-                    + "experiment\tregistrator\tCharles Darwin <cd@cd.org>\n", outputStream
-                    .toString());
+            try
+            {
+                assertEquals("data_set\tcode\t1\n" + "data_set\tproduction_timestamp\t\n"
+                        + "data_set\tproducer_code\t\n" + "data_set\tdata_set_type\tD\n"
+                        + "data_set\tis_measured\tFALSE\n" + "data_set\tis_complete\tFALSE\n"
+                        + "data_set\tparent_codes\tparent2,parent1\n" + "experiment\tgroup_code\tg1\n"
+                        + "experiment\tproject_code\tp1\n" + "experiment\texperiment_code\texp1\n"
+                        + "experiment\texperiment_type_code\tE\n"
+                        + "experiment\tregistration_timestamp\t1970-01-01 01:00:00 +0100\n"
+                        + "experiment\tregistrator\tCharles Darwin <cd@cd.org>\n", outputStream
+                        .toString());
+            } catch (AssertionError err)
+            {
+                // We have an ambiguity here: sometimes we get "parent1,parent2", sometimes we get "parent2,parent1"
+                assertEquals("data_set\tcode\t1\n" + "data_set\tproduction_timestamp\t\n"
+                        + "data_set\tproducer_code\t\n" + "data_set\tdata_set_type\tD\n"
+                        + "data_set\tis_measured\tFALSE\n" + "data_set\tis_complete\tFALSE\n"
+                        + "data_set\tparent_codes\tparent1,parent2\n" + "experiment\tgroup_code\tg1\n"
+                        + "experiment\tproject_code\tp1\n" + "experiment\texperiment_code\texp1\n"
+                        + "experiment\texperiment_type_code\tE\n"
+                        + "experiment\tregistration_timestamp\t1970-01-01 01:00:00 +0100\n"
+                        + "experiment\tregistrator\tCharles Darwin <cd@cd.org>\n", outputStream
+                        .toString());
+            }
         } finally
         {
             if (zipFile != null)

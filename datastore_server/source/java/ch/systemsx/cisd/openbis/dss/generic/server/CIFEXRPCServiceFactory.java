@@ -16,36 +16,29 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 final class CIFEXRPCServiceFactory implements ICIFEXRPCServiceFactory
 {
     private static final long serialVersionUID = 1L;
     private final String cifexURL;
     
-    private transient ICIFEXRPCService service;
+    private transient ICIFEXComponent cifexComponent;
     
     CIFEXRPCServiceFactory(String cifexURL)
     {
         this.cifexURL = cifexURL;
     }
 
-    public ICIFEXRPCService createService()
+    public ICIFEXComponent createCIFEXComponent()
     {
-        if (service == null)
+        if (cifexComponent == null)
         {
             final String serviceURL = cifexURL + Constants.CIFEX_RPC_PATH;
-            service = RPCServiceFactory.createServiceProxy(serviceURL, true);
-            final int serverVersion = service.getVersion();
-            if (ICIFEXRPCService.VERSION != serverVersion)
-            {
-                throw new EnvironmentFailureException("The version of the CIFEX server is not "
-                        + ICIFEXRPCService.VERSION + " but " + serverVersion + ".");
-            }
+            cifexComponent = RPCServiceFactory.createCIFEXComponent(serviceURL, true);
         }
-        return service;
+        return cifexComponent;
     }
 }
