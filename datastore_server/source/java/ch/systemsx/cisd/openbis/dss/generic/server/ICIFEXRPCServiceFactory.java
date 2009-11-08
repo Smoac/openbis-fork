@@ -18,14 +18,14 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 import java.io.Serializable;
 
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 
 /**
- * 
+ * Factory for {@link ICIFEXComponent}.
  *
  * @author Franz-Josef Elmer
  */
 public interface ICIFEXRPCServiceFactory extends Serializable
 {
-    public ICIFEXRPCService createService();
+    public ICIFEXComponent createCIFEXComponent();
 }

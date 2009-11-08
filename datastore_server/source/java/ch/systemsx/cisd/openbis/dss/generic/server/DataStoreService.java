@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.spring.AbstractServiceWithLogger;
@@ -176,10 +176,10 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
         ICIFEXRPCServiceFactory serviceFactory =
                 createCIFEXRPCServiceFactory(context.getCifexURL());
-        ICIFEXRPCService service = serviceFactory.createService();
+        ICIFEXComponent cifex = serviceFactory.createCIFEXComponent();
         String userID = context.getUserID();
         String password = context.getPassword();
-        if (service.login(userID, password) == null)
+        if (cifex.login(userID, password) == null)
         {
             throw new InvalidSessionException("User couldn't be authenticated at CIFEX.");
         }

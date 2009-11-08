@@ -37,8 +37,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
-import ch.systemsx.cisd.cifex.rpc.client.Uploader;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -297,9 +297,9 @@ class UploadingCommand implements IDataSetCommand
                 operationLog.info("Zip file " + zipFile + " with " + dataSets.size()
                         + " data sets has been successfully created.");
             }
-            ICIFEXRPCService cifexService = cifexServiceFactory.createService();
-            String sessionToken = cifexService.login(userID, password);
-            Uploader uploader = new Uploader(cifexService, sessionToken);
+            ICIFEXComponent cifex = cifexServiceFactory.createCIFEXComponent();
+            String sessionToken = cifex.login(userID, password);
+            ICIFEXUploader uploader = cifex.createUploader(sessionToken);
             uploader.addProgressListener(new ProgressListener(zipFile));
             uploader.upload(Arrays.asList(zipFile), Constants.USER_ID_PREFIX + userID, comment);
         } else
