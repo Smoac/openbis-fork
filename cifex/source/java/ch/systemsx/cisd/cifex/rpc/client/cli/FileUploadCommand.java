@@ -22,7 +22,7 @@ import java.util.Collections;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.args4j.Option;
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.Uploader;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -107,10 +107,10 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
     }
 
     @Override
-    protected int execute(String sessionToken, ICIFEXRPCService service, String[] args)
+    protected int execute(String sessionToken, ICIFEXComponent cifex, String[] args)
             throws UserFailureException, EnvironmentFailureException
     {
-        final Uploader uploader = new Uploader(service, sessionToken);
+        final Uploader uploader = cifex.createUploader(sessionToken);
         addConsoleProgressListener(uploader);
         uploader.upload(Collections.singletonList(getParameters().getFile()), getParameters()
                 .getRecipients(), getParameters().getComment());

@@ -92,7 +92,7 @@ public class InitializeCommand extends AbstractCommand
             FileUtils.writeStringToFile(getBaseURLFile(), baseURL);
 
             // Initialize Trust Store.
-            if (tryGetService(baseURL, true) == null)
+            if (tryGetComponent(baseURL, true) == null)
             {
                 return 2;
             }

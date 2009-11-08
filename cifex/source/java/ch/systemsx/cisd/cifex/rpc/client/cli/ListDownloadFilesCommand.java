@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -49,11 +49,11 @@ public class ListDownloadFilesCommand extends AbstractCommandWithSessionToken
     }
 
     @Override
-    protected int execute(String sessionToken, ICIFEXRPCService service, String[] args)
+    protected int execute(String sessionToken, ICIFEXComponent cifex, String[] args)
             throws UserFailureException, EnvironmentFailureException
     {
         getParameters().assertArgsEmpty();
-        final FileInfoDTO[] files = service.listDownloadFiles(sessionToken);
+        final FileInfoDTO[] files = cifex.listDownloadFiles(sessionToken);
         if (files.length == 0)
         {
             System.out.println("No files available for you to download.");

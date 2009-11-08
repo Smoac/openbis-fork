@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -54,7 +54,7 @@ public abstract class AbstractCommandWithSessionToken extends AbstractCommand
      * 
      * @param sessionToken never <code>null</code>.
      */
-    protected abstract int execute(final String sessionToken, final ICIFEXRPCService service,
+    protected abstract int execute(final String sessionToken, final ICIFEXComponent cifexComponent,
             final String[] args) throws UserFailureException,
             EnvironmentFailureException;
 
@@ -80,7 +80,7 @@ public abstract class AbstractCommandWithSessionToken extends AbstractCommand
         {
             return 1;
         }
-        final ICIFEXRPCService serviceOrNull = tryGetService();
+        final ICIFEXComponent serviceOrNull = tryGetComponent();
         return execute(sessionToken, serviceOrNull, args);
     }
 

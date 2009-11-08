@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.args4j.Option;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
@@ -81,8 +81,8 @@ public final class LoginCommand extends AbstractCommand
             EnvironmentFailureException
     {
         final Parameters parameters = new Parameters(arguments);
-        final ICIFEXRPCService serviceOrNull = tryGetService();
-        if (serviceOrNull == null)
+        final ICIFEXComponent cifexOrNull = tryGetComponent();
+        if (cifexOrNull == null)
         {
             return 2;
         }
@@ -101,7 +101,7 @@ public final class LoginCommand extends AbstractCommand
             return 1;
         }
         final String sessionToken =
-                serviceOrNull.login(credentials.getUserName(), credentials.getPassword());
+                cifexOrNull.login(credentials.getUserName(), credentials.getPassword());
         return processSessionToken(sessionToken, credentials.getUserName());
     }
 

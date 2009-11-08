@@ -26,8 +26,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.IProgressListenerHolder;
+import ch.systemsx.cisd.cifex.rpc.client.IncompatibleAPIVersionsException;
 import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -106,17 +107,17 @@ abstract class AbstractCommand implements ICommand
     }
 
     /**
-     * Returns the service interface for accessing the server.
+     * Returns the component interface for using CIFEX.
      */
-    protected final ICIFEXRPCService tryGetService()
+    protected final ICIFEXComponent tryGetComponent()
     {
-        return tryGetService(configuredBaseURL, false);
+        return tryGetComponent(configuredBaseURL, false);
     }
 
     /**
-     * Returns the service interface for accessing the server.
+     * Returns the component interface for using CIFEX.
      */
-    protected final ICIFEXRPCService tryGetService(String baseURL, boolean initializeTrustStore)
+    protected final ICIFEXComponent tryGetComponent(String baseURL, boolean initializeTrustStore)
     {
         if (StringUtils.isBlank(baseURL))
         {
@@ -125,16 +126,16 @@ abstract class AbstractCommand implements ICommand
             return null;
         }
         final String serviceURL = baseURL + Constants.CIFEX_RPC_PATH;
-        final ICIFEXRPCService service =
-                RPCServiceFactory.createServiceProxy(serviceURL, initializeTrustStore);
-        final int serverVersion = service.getVersion();
-        if (ICIFEXRPCService.VERSION != serverVersion)
+        try
         {
-            System.err.println("This client has the wrong service version for the server (client: "
-                    + ICIFEXRPCService.VERSION + ", server: " + serverVersion + ").");
+            final ICIFEXComponent cifexComponent =
+                    RPCServiceFactory.createCIFEXComponent(serviceURL, initializeTrustStore);
+            return cifexComponent;
+        } catch (IncompatibleAPIVersionsException ex)
+        {
+            System.err.println(ex.getMessage());
             return null;
         }
-        return service;
     }
 
     protected void addConsoleProgressListener(final IProgressListenerHolder downloader)

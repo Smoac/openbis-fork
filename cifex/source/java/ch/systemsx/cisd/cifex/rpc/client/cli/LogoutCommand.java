@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.rpc.client.cli;
 
-import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -59,13 +59,13 @@ public final class LogoutCommand extends AbstractCommand
                 String sessionToken = FileUtilities.loadToString(SESSION_TOKEN_FILE).trim();
                 final MinimalParameters parameters = new MinimalParameters(arguments, NAME);
                 parameters.assertArgsEmpty();
-                final ICIFEXRPCService serviceOrNull = tryGetService();
-                if (serviceOrNull != null)
+                final ICIFEXComponent cifexOrNull = tryGetComponent();
+                if (cifexOrNull != null)
                 {
-                    serviceOrNull.logout(sessionToken);
+                    cifexOrNull.logout(sessionToken);
                 }
                 SESSION_TOKEN_FILE.delete();
-                if (serviceOrNull == null)
+                if (cifexOrNull == null)
                 {
                     return 2;
                 }
