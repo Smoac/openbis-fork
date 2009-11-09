@@ -50,10 +50,12 @@ class LastModificationStateUpdater extends AbstractAsyncCallback<LastModificatio
         this.commonService = viewContext.getCommonService();
         this.modificationObserver = modificationObserver;
         this.lastSeenModificationStateOrNull = null;
+        this.ignore();
     }
 
     public void update()
     {
+		reuse();
         commonService.getLastModificationState(this);
     }
 

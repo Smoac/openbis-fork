@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrow
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyRegistrationTest;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditorTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewerTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentAttachmentDownloadTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditorTest;
@@ -59,10 +60,7 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(FileFormatTypeGridTest.class);
         testSuite.addTestSuite(DataSetSearchTest.class);
         testSuite.addTestSuite(GenericDataSetViewerTest.class);
-
-        // TODO 2009-11-09, PB : Uncomment after it is fixed and don't cause next test failure
-        // testSuite.addTestSuite(GenericDataSetEditorTest.class);
-
+        testSuite.addTestSuite(GenericDataSetEditorTest.class);
         testSuite.addTestSuite(AuthorizationManagementConsolTest.class);
         testSuite.addTestSuite(SampleBrowserTest.class);
         testSuite.addTestSuite(GenericSampleViewerTest.class);

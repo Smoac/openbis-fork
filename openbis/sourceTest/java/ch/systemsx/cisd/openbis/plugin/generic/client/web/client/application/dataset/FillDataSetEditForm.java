@@ -86,7 +86,6 @@ public final class FillDataSetEditForm extends AbstractDefaultTestCommand
         }
         if (modifiedParentsOrNull != null)
         {
-            System.err.println(modifiedParentsOrNull);
             final TextArea parentsField =
                     (TextArea) GWTTestUtil.getWidgetWithID(DataSetParentsArea.createId(simpleId));
             parentsField.setRawValue(modifiedParentsOrNull);
