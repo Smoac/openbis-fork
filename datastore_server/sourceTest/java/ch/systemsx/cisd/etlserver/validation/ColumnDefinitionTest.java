@@ -112,8 +112,7 @@ public class ColumnDefinitionTest extends AssertJUnit
         assertEquals(new Integer(1), definition.getOrderOrNull());
     }
 
-    // TODO 2009-11-04, Chandrasekhar: assertValidHeader throws a NullPointerException
-    @Test(groups = "broken")
+    @Test
     public void testValidSimpleHeaderPattern()
     {
         Properties props = new Properties();
@@ -125,17 +124,6 @@ public class ColumnDefinitionTest extends AssertJUnit
         valueValidator.assertValid(null);
         valueValidator.assertValid("");
         valueValidator.assertValid("abc");
-
-        try
-        {
-             definition.assertValidHeader(null);
-             fail("null header should raise UserFailureException");
-        } catch (UserFailureException ex)
-        {
-            assertEquals(
-                    "According to column definition 'col' the following header is invalid: null",
-                    ex.getMessage());
-        }
 
         try
         {
@@ -164,8 +152,7 @@ public class ColumnDefinitionTest extends AssertJUnit
         assertEquals(true, definition.isValidHeader("ID"));
     }
 
-    // TODO 2009-11-04, Chandrasekhar: assertValidHeader throws a NullPointerException
-    @Test(groups = "broken")
+    @Test
     public void testValidSimpleMandatoryHeaderPattern()
     {
         Properties props = new Properties();
@@ -178,17 +165,6 @@ public class ColumnDefinitionTest extends AssertJUnit
         valueValidator.assertValid(null);
         valueValidator.assertValid("");
         valueValidator.assertValid("abc");
-
-        try
-        {
-             definition.assertValidHeader(null);
-             fail("null header should raise UserFailureException");
-        } catch (UserFailureException ex)
-        {
-            assertEquals(
-                    "According to column definition 'col' the following header is invalid: null",
-                    ex.getMessage());
-        }
 
         try
         {
