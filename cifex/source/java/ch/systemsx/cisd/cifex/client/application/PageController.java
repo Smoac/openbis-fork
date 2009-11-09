@@ -66,7 +66,6 @@ final class PageController implements IPageController, IHistoryController
 
     public final void createMainPage()
     {
-
         clearRootPanel();
         final MainPage mainPage = new MainPage(viewContext);
         setCurrentPage(Page.MAIN_PAGE);
@@ -146,8 +145,7 @@ final class PageController implements IPageController, IHistoryController
         {
             previousPage = currentPage;
             currentPage = page;
-
-        } else if (previousPage != page)
+        } else if (currentPage != page)
         {
             previousPage = currentPage;
             currentPage = page;
