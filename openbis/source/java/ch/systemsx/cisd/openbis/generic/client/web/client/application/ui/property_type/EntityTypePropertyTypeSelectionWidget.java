@@ -151,6 +151,7 @@ public final class EntityTypePropertyTypeSelectionWidget
     protected void loadData(AbstractAsyncCallback<List<EntityTypePropertyType<?>>> callback)
     {
         // nothing to do - list was injected in constructor
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

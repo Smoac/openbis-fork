@@ -32,7 +32,7 @@ public interface ITestCommand
 {
     /**
      * If the specified callback objects, failureMessage, and throwable should trigger this command
-     * in case if an invocation of {@link AsyncCallback#onFailure(Throwable)} then the result is the
+     * in case of an invocation of {@link AsyncCallback#onFailure(Throwable)} then the result is the
      * list of callbacks which were not expected by the command. Otherwise <code>null</code> is
      * returned.
      * 

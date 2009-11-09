@@ -131,6 +131,8 @@ public class RemoteConsole
 
     private final class RemoteConsoleCallbackListener implements ICallbackListener<Object>
     {
+        private int activeCallbacksCounter = 0;
+
         RemoteConsoleCallbackListener()
         {
         }
@@ -154,15 +156,19 @@ public class RemoteConsole
                 final AbstractAsyncCallback<Object> callback, final String failureMessage,
                 final Throwable throwable)
         {
-            registerCallback(callback);
+            detectCallback(callback);
             if (entryIndex < commands.size())
             {
                 ITestCommand cmd = commands.get(entryIndex);
+                // TODO 2009-11-09, Piotr Buczek: just validate failure message
                 List<AbstractAsyncCallback<Object>> unmatchedCallbacks =
                         cmd.tryValidOnFailure(lastCallbackObjects, failureMessage, throwable);
                 if (unmatchedCallbacks != null)
                 {
                     lastCallbackObjects = unmatchedCallbacks;
+                }
+                if (activeCallbacksCounter == 0)
+                {
                     executeCommand();
                     return;
                 }
@@ -174,30 +180,45 @@ public class RemoteConsole
         public final void finishOnSuccessOf(final AbstractAsyncCallback<Object> callback,
                 final Object result)
         {
-            registerCallback(callback);
+            detectCallback(callback);
             if (entryIndex < commands.size())
             {
                 ITestCommand cmd = commands.get(entryIndex);
+                // TODO 2009-11-09, Piotr Buczek: remove tryValidOnSuccess from command interface
                 List<AbstractAsyncCallback<Object>> unmatchedCallbacks =
                         cmd.tryValidOnSucess(lastCallbackObjects, result);
                 if (unmatchedCallbacks != null)
                 {
-                    // uncomment to debug unmatched callbacks in system tests
-                    // System.err.println("callback: " + entryIndex);
-                    // for (AbstractAsyncCallback<?> c : unmatchedCallbacks)
-                    // {
-                    // System.err.println("\t" + c);
-                    // }
                     lastCallbackObjects = unmatchedCallbacks;
+                }
+                if (activeCallbacksCounter == 0)
+                {
                     executeCommand();
+                    return;
                 }
             }
         }
 
-        private void registerCallback(final AbstractAsyncCallback<Object> callback)
+        public void registerCallback(final AbstractAsyncCallback<?> callback)
         {
-            System.out.println("Detected callback '" + callback.getCallbackId() + "'");
-            lastCallbackObjects.add(callback);
+            activeCallbacksCounter++;
+            System.out.println("Registered callback '" + callback.getCallbackId()
+                    + "' (active count: " + activeCallbacksCounter + ")");
         }
+
+        private void detectCallback(final AbstractAsyncCallback<Object> callback)
+        {
+            activeCallbacksCounter--;
+            System.out.println("Detected callback '" + callback.getCallbackId()
+                    + "' (active count: " + activeCallbacksCounter + ")");
+        }
+
+        public void ignoreCallback(final AbstractAsyncCallback<?> callback)
+        {
+            activeCallbacksCounter--;
+            System.out.println("Ignored callback '" + callback.getCallbackId()
+                    + "' (active count: " + activeCallbacksCounter + ")");
+        }
+
     }
 }

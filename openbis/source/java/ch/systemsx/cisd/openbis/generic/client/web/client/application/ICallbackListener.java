@@ -42,4 +42,8 @@ public interface ICallbackListener<T>
      * object is actually processing the result object.
      */
     public void finishOnSuccessOf(final AbstractAsyncCallback<T> callback, final T result);
+
+    public void registerCallback(AbstractAsyncCallback<?> callback);
+
+    public void ignoreCallback(AbstractAsyncCallback<?> callback);
 }

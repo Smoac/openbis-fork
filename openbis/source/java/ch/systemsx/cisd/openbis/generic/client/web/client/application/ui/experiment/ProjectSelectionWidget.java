@@ -189,6 +189,7 @@ public final class ProjectSelectionWidget extends
     {
         DefaultResultSetConfig<String, Project> config = DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listProjects(config, new ListProjectsCallback(viewContext));
+        callback.ignore();
     }
 
     public void trySelectByIdentifier(String projectIdentifier)

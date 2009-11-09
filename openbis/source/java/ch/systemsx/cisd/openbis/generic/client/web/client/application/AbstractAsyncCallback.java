@@ -95,20 +95,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     private static ICallbackListener<?> staticCallbackListener = DEFAULT_CALLBACK_LISTENER;
 
-    private static final AsyncCallbackCollection asyncCallbacks = new AsyncCallbackCollection();
-
-    /**
-     * Sets all callback objects silent.
-     * <p>
-     * <b>Note</b>: THIS METHOD SHOULD NEVER BE USED. It is only used inside the testing framework.
-     * </p>
-     */
-    public static void setAllCallbackObjectsSilent()
-    {
-        asyncCallbacks.setSilent();
-        asyncCallbacks.clear();
-    }
-
     /**
      * Sets the global callback listener.
      * <p>
@@ -123,8 +109,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     }
 
     private final ICallbackListener<T> callbackListener;
-
-    boolean silent;
 
     // can be null only during tests
     protected final IViewContext<?> viewContext;
@@ -159,7 +143,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         if (staticCallbackListener != DEFAULT_CALLBACK_LISTENER)
         {
             callbackListener = cast(staticCallbackListener);
-            asyncCallbacks.add(this);
         } else if (callbackListenerOrNull == null)
         {
             callbackListener = cast(staticCallbackListener);
@@ -168,6 +151,9 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
             callbackListener = callbackListenerOrNull;
         }
         assert callbackListener != null : "Unspecified ICallbackListener implementation.";
+
+        // could do this only if staticCallbackListener != DEFAULT_CALLBACK_LISTENER
+        this.callbackListener.registerCallback(this);
     }
 
     @SuppressWarnings("unchecked")
@@ -217,10 +203,6 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     public final void onFailure(final Throwable caught)
     {
-        if (silent)
-        {
-            return;
-        }
         final String msg;
         if (caught instanceof InvocationException)
         {
@@ -290,11 +272,27 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
 
     public final void onSuccess(final T result)
     {
-        if (silent)
-        {
-            return;
-        }
         process(result);
         callbackListener.finishOnSuccessOf(this, result);
+    }
+
+    /**
+     * This method should be called if callback will not be processed, to make our system test
+     * framework working properly.
+     */
+    public final void ignore()
+    {
+        // could do this only if staticCallbackListener != DEFAULT_CALLBACK_LISTENER
+        callbackListener.ignoreCallback(this);
+    }
+
+    /**
+     * This method should be called at the beginning of process method if we want to have a reusable
+     * callback that is working properly with our test framework. First ignore should be called in
+     * callback constructor after calling abstract constructor.
+     */
+    protected final void reuse()
+    {
+        callbackListener.registerCallback(this);
     }
 }

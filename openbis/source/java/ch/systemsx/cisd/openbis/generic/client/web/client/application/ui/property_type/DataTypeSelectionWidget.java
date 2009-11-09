@@ -102,6 +102,7 @@ public final class DataTypeSelectionWidget extends DropDownList<DataTypeModel, D
     protected void loadData(AbstractAsyncCallback<List<DataType>> callback)
     {
         viewContext.getService().listDataTypes(new ListDataTypesCallback(viewContext));
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

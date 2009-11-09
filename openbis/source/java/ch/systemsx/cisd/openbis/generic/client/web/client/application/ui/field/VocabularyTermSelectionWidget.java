@@ -120,6 +120,7 @@ public class VocabularyTermSelectionWidget extends
             viewContextOrNull.getCommonService().listVocabularyTerms(vocabularyOrNull,
                     new ListTermsCallback(viewContextOrNull));
         }
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

@@ -25,7 +25,6 @@ import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
@@ -120,7 +119,6 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     protected final void gwtTearDown() throws Exception
     {
         remoteConsole.cancelTimer();
-        AbstractAsyncCallback.setAllCallbackObjectsSilent();
         final IViewContext<ICommonClientServiceAsync> viewContext = client.tryToGetViewContext();
         if (viewContext != null)
         {

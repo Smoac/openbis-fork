@@ -89,11 +89,13 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         public OpenedUrlCallback(IViewContext<?> viewContext)
         {
             super(viewContext);
+            ignore();
         }
 
         @Override
         protected void process(String url)
         {
+            reuse();
             this.openedUrl = url;
         }
 

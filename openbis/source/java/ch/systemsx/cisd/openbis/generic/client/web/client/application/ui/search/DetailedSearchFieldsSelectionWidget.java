@@ -302,6 +302,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
             viewContext.getService().listPropertyTypes(config,
                     new ListPropertyTypesCallback(viewContext));
         }
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

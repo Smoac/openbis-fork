@@ -87,6 +87,7 @@ final class SearchableEntitySelectionWidget extends
     {
         commonContext.getService()
                 .listSearchableEntities(new ListSearchableEntities(commonContext));
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

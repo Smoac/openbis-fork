@@ -136,6 +136,7 @@ public final class PropertyTypeSelectionWidget extends
                 DefaultResultSetConfig.createFetchAll();
         viewContext.getService().listPropertyTypes(config,
                 new ListPropertyTypesCallback(viewContext));
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()

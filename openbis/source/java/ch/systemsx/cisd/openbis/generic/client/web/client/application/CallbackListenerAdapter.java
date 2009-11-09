@@ -46,4 +46,12 @@ public class CallbackListenerAdapter<T> implements ICallbackListener<T>
 
     }
 
+    public void registerCallback(AbstractAsyncCallback<?> callback)
+    {
+    }
+
+    public void ignoreCallback(AbstractAsyncCallback<?> callback)
+    {
+    }
+
 }

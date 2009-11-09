@@ -176,6 +176,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
     {
         DefaultResultSetConfig<String, Group> config = DefaultResultSetConfig.createFetchAll();
         viewContext.getCommonService().listGroups(config, new ListGroupsCallback(viewContext));
+        callback.ignore();
     }
 
     public DatabaseModificationKind[] getRelevantModifications()
