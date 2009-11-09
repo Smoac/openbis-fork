@@ -249,7 +249,8 @@ class DataSetValidatorForTSV implements IDataSetValidator
 
     private String[] getRowCells(String line)
     {
-        return StringUtils.splitByWholeSeparatorPreserveAllTokens(line, "\t");
+        String[] cells = StringUtils.splitByWholeSeparatorPreserveAllTokens(line, "\t");
+        return cells == null ? new String[0] : cells;
     }
 
 }

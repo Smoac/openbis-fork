@@ -21,7 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
@@ -38,6 +42,9 @@ public class DataSetValidator implements IDataSetValidator
     static final String DATA_SET_TYPE_KEY = "data-set-type";
     static final String VALIDATOR_KEY = "validator";
     
+    private static final Logger operationLog =
+        LogFactory.getLogger(LogCategory.OPERATION, DataSetValidator.class);
+
     private final Map<String, IDataSetValidator> validators;
 
     public DataSetValidator(Properties properties)
@@ -57,7 +64,12 @@ public class DataSetValidator implements IDataSetValidator
             }
             try
             {
-                validators.put(dataSetType, createValidator(validatorProperties));
+                IDataSetValidator validator = createValidator(validatorProperties);
+                validators.put(dataSetType, validator);
+                if (operationLog.isInfoEnabled())
+                {
+                    operationLog.info("Validator for data set type '" + dataSetType + "' defined.");
+                }
             } catch (Exception ex)
             {
                 throw new ConfigurationFailureException(
@@ -83,6 +95,11 @@ public class DataSetValidator implements IDataSetValidator
         if (validator != null)
         {
             validator.assertValidDataSet(dataSetType, incomingDataSetFileOrFolder);
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info("Data set [" + incomingDataSetFileOrFolder + "] of type '"
+                        + dataSetType.getCode() + "' successdully validated.");
+            }
         }
     }
 }
