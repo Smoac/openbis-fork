@@ -48,7 +48,7 @@ class ColumnDefinition
     {
         boolean mandatory = PropertyUtils.getBoolean(properties, MANDATORY_KEY, false);
         Integer order = null;
-        boolean canDefineMultipleColumns;
+        boolean canDefineMultipleColumns = false;
         if (properties.getProperty(ORDER_KEY) != null)
         {
             order = PropertyUtils.getInt(properties, ORDER_KEY, 0);
@@ -57,7 +57,7 @@ class ColumnDefinition
                 throw new ConfigurationFailureException("Order value has to be positive: " + order);
             }
             canDefineMultipleColumns = false;
-        } else
+        } else if (mandatory == false)
         {
             canDefineMultipleColumns =
                     PropertyUtils.getBoolean(properties, CAN_DEFINE_MULTIPLE_COLUMNS_KEY, false);

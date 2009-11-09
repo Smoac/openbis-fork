@@ -65,7 +65,12 @@ public class DataSetValidator implements IDataSetValidator
             try
             {
                 IDataSetValidator validator = createValidator(validatorProperties);
-                validators.put(dataSetType, validator);
+                IDataSetValidator previous = validators.put(dataSetType, validator);
+                if (previous == null)
+                {
+                    new ConfigurationFailureException(
+                            "There is already a validator for data set type '" + dataSetType + "'.");
+                }
                 if (operationLog.isInfoEnabled())
                 {
                     operationLog.info("Validator for data set type '" + dataSetType + "' defined.");

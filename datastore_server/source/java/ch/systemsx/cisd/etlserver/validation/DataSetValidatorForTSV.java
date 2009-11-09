@@ -64,7 +64,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
     DataSetValidatorForTSV(Properties properties)
     {
         fileScanners = new ArrayList<FileScanner>();
-        String pathPatterns = properties.getProperty(PATH_PATTERNS_KEY);
+        String pathPatterns = properties.getProperty(PATH_PATTERNS_KEY, "*");
         if (pathPatterns != null)
         {
             StringTokenizer tokenizer = new StringTokenizer(pathPatterns, ",");
