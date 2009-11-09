@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.P
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -114,7 +115,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         Map<String, String> result = new HashMap<String, String>();
         for (IEntityProperty p : properties)
         {
-            result.put(p.getPropertyType().getCode(), p.tryGetAsString());
+            result.put(p.getPropertyType().getCode(), StringEscapeUtils.unescapeHtml(p.tryGetAsString()));
         }
         return result;
     }
