@@ -54,6 +54,7 @@ public class FileScannerTest extends AbstractFileSystemTestCase
             }
             beta = dir(root, "beta");
             {
+                file(beta, "b.txt");
                 File one = dir(beta, "1");
                 {
                     hi = file(one, "hi.txt");
@@ -107,10 +108,10 @@ public class FileScannerTest extends AbstractFileSystemTestCase
     @Test
     public void testFindAll()
     {
-        FileScanner scanner = new FileScanner("*");
+        FileScanner scanner = new FileScanner("**/*");
         
         List<File> files = scanner.scan(beta);
-        assertEquals(3, files.size());
+        assertEquals(4, files.size());
         
         files = scanner.scan(hi);
         assertEquals(hi, files.get(0));
@@ -127,7 +128,20 @@ public class FileScannerTest extends AbstractFileSystemTestCase
         Collections.sort(files);
         assertEquals(hello, files.get(0));
         assertEquals(hi, files.get(1));
-        assertEquals(2, files.size());
+        assertEquals("b.txt", files.get(2).getName());
+        assertEquals(3, files.size());
+    }
+    
+    @Test
+    public void testFindTopLevelTextFiles()
+    {
+        FileScanner scanner = new FileScanner("*.txt");
+        
+        List<File> files = scanner.scan(beta);
+        
+        Collections.sort(files);
+        assertEquals("b.txt", files.get(0).getName());
+        assertEquals(1, files.size());
     }
     
     @Test

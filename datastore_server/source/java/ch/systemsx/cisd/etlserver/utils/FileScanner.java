@@ -36,8 +36,8 @@ public class FileScanner
     {
         String patternAsRegEx = pattern.replace("$", "\\$");
         patternAsRegEx = patternAsRegEx.replace(".", "\\.");
-        patternAsRegEx = patternAsRegEx.replace("*", ".*");
-        patternAsRegEx = patternAsRegEx.replace(".*.*/", "(.+/)*");
+        patternAsRegEx = patternAsRegEx.replace("**/", "(.+/){0,}");
+        patternAsRegEx = patternAsRegEx.replace("*", "[^/]*");
         patternAsRegEx = patternAsRegEx.replace("?", ".");
         pathRegex = Pattern.compile("/" + patternAsRegEx);
     }
