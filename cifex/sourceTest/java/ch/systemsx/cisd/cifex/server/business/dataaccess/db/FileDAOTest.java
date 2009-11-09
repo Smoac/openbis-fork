@@ -167,6 +167,28 @@ public final class FileDAOTest extends AbstractDAOTest
 
     @Transactional
     @Test(groups = "file.create")
+    public final void testCreateIncompleteFile()
+    {
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        // no file in database
+        List<FileDTO> files = fileDAO.listFiles();
+        assertEquals(0, files.size());
+        // create new sample file
+        final FileDTO sampleFile = createSampleFile();
+        sampleFile.setComplete(false);
+        assertNull(sampleFile.getID());
+        // save file in database
+        fileDAO.createFile(sampleFile);
+        assertNotNull(sampleFile.getID());
+        // check if number of files in database increased
+        files = fileDAO.listFiles();
+        assertEquals(1, files.size());
+        final FileDTO file = files.get(0);
+        assertEqual(sampleFile, file);
+    }
+
+    @Transactional
+    @Test(groups = "file.create")
     public final void testAddAndDeleteSharingUsers()
     {
         final IFileDAO fileDAO = daoFactory.getFileDAO();

@@ -57,7 +57,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                     + "f.REGISTRATION_TIMESTAMP as f_registration_timestamp, "
                     + "f.EXPIRATION_TIMESTAMP as f_expiration_timestamp, "
                     + "f.CONTENT_TYPE as f_content_type, f.SIZE as f_size, "
-                    + "f.CRC32_CHECKSUM as f_crc32_checkum";
+                    + "f.CRC32_CHECKSUM as f_crc32_checkum, f.IS_COMPLETE as f_complete";
 
     private static final String FILES_JOIN_USERS =
             SELECT_FILES + ", u.* " + " from files as f "
@@ -112,11 +112,11 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         final long id = createID();
         getSimpleJdbcTemplate().update(
                 "insert into files (ID, NAME, PATH, COMMENT, USER_ID, CONTENT_TYPE, SIZE, "
-                        + "CRC32_CHECKSUM, EXPIRATION_TIMESTAMP) values (?,?,?,?,?,?,?,?,?)", id,
-                file.getName(), file.getPath(),
+                        + "CRC32_CHECKSUM, EXPIRATION_TIMESTAMP, IS_COMPLETE) "
+                        + "values (?,?,?,?,?,?,?,?,?,?)", id, file.getName(), file.getPath(),
                 StringUtils.abbreviate(file.getComment(), MAX_COMMENT_LENGTH),
                 file.getRegistratorId(), file.getContentType(), file.getSize(),
-                file.getCrc32Value(), file.getExpirationDate());
+                file.getCrc32Value(), file.getExpirationDate(), file.isComplete());
         file.setID(id);
     }
 
@@ -129,13 +129,15 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         assert file.getID() != null : "File needs an ID, otherwise it can't be updated";
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
 
-        template.update(
-                "update files set name = ?, path = ?, comment = ?, expiration_timestamp = ?, "
-                        + "user_id = ?, content_type = ?, size = ?, crc32_checksum = ? "
-                        + "where id = ?", file.getName(), file.getPath(), StringUtils.abbreviate(
-                        file.getComment(), MAX_COMMENT_LENGTH), file.getExpirationDate(), file
-                        .getRegistratorId(), file.getContentType(), file.getSize(), file
-                        .getCrc32Value(), file.getID());
+        template
+                .update(
+                        "update files set name = ?, path = ?, comment = ?, expiration_timestamp = ?, "
+                                + "user_id = ?, content_type = ?, size = ?, crc32_checksum = ?, is_complete = ? "
+                                + "where id = ?", file.getName(), file.getPath(), StringUtils
+                                .abbreviate(file.getComment(), MAX_COMMENT_LENGTH), file
+                                .getExpirationDate(), file.getRegistratorId(), file
+                                .getContentType(), file.getSize(), file.getCrc32Value(), file
+                                .isComplete(), file.getID());
     }
 
     public boolean deleteFile(final long id) throws DataAccessException
@@ -198,7 +200,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                         .query(
                                 SELECT_FILES
                                         + ", u.* from files f left join users u "
-                                        + "on f.user_id = u.id left join file_shares s on s.file_id = f.id where s.user_id = ?",
+                                        + "on f.user_id = u.id left join file_shares s on s.file_id = f.id "
+                                        + "where f.is_complete and s.user_id = ?",
                                 FILE_WITH_REGISTERER_ROW_MAPPER, userId);
         return list;
     }
@@ -208,7 +211,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         final List<FileDTO> list =
                 getSimpleJdbcTemplate().query(
                         SELECT_FILES + ", u.* from files f, users u "
-                                + "where f.user_id = u.id and u.id = ?",
+                                + "where f.is_complete and f.user_id = u.id and u.id = ?",
                         FILE_WITH_REGISTERER_ROW_MAPPER, userId);
         return list;
     }
@@ -239,6 +242,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
             file.setPath(rs.getString("f_PATH"));
             file.setComment(rs.getString("f_COMMENT"));
             file.setContentType(rs.getString("f_CONTENT_TYPE"));
+            file.setComplete(rs.getBoolean("f_COMPLETE"));
             final long size = rs.getLong("f_SIZE");
             if (rs.wasNull() == false)
             {

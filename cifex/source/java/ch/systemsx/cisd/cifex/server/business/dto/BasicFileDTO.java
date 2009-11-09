@@ -43,6 +43,9 @@ public final class BasicFileDTO implements Serializable
 
     /** The content type of the file. */
     private String contentType;
+    
+    /** Whether the file is complete in the store. */
+    private boolean complete = true;
 
     public final String getName()
     {
@@ -82,5 +85,15 @@ public final class BasicFileDTO implements Serializable
     public final void setContentType(final String contentType)
     {
         this.contentType = contentType;
+    }
+
+    public final boolean isComplete()
+    {
+        return complete;
+    }
+
+    public final void setComplete(boolean complete)
+    {
+        this.complete = complete;
     }
 }
