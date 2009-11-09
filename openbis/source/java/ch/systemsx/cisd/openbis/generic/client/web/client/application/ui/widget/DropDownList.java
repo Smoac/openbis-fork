@@ -205,6 +205,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                     new ListItemsCallback(viewContextOrNull).process(result);
                     dataRefreshCallback.postRefresh(true);
                 }
+
             };
     }
 
@@ -213,6 +214,9 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         if (viewContextOrNull != null)
         {
             loadData(callback);
+        } else
+        {
+            callback.ignore();
         }
     }
 
