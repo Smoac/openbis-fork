@@ -21,7 +21,7 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 
 /**
- * 
+ * Default factory for {@link IValidator} intances.
  *
  * @author Franz-Josef Elmer
  */

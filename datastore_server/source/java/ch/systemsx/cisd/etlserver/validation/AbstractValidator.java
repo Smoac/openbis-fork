@@ -21,7 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * 
+ * Super class for validators which handles empty cells in the same way.
  *
  * @author Franz-Josef Elmer
  */

@@ -17,11 +17,14 @@
 package ch.systemsx.cisd.etlserver.validation;
 
 /**
- * 
+ * Interface of a validator for the header of a column.
  *
  * @author Franz-Josef Elmer
  */
 public interface IColumnHeaderValidator
 {
+    /**
+     * Returns <code>true</code> if the specified header is valid.
+     */
     public boolean isValidHeader(String header);
 }

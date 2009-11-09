@@ -17,11 +17,15 @@
 package ch.systemsx.cisd.etlserver.validation;
 
 /**
- * 
+ * Factory for table cell validators.
  *
  * @author Franz-Josef Elmer
  */
 public interface IValidatorFactory
 {
+    /**
+     * Creates a validator. The same instance can be returned as in a previous call if the
+     * validator object is immutable.
+     */
     public IValidator createValidator();
 }

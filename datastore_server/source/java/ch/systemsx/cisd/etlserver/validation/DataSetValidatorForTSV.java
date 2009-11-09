@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -41,8 +42,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
- * Validator for data sets containing TAB-separated value (TSV) files.
- *
+ * Validator for data sets containing TAB-separated value (TSV) files. Such a file is valid if
+ * <ul>
+ * <li>All column headers are unique.
+ * <li>For each column a {@link ColumnDefinition} as specified by the properties are found.
+ * <li>All values of a column are valid in accordance to the {@link IValidator} created by the
+ * {@link ColumnDefinition} instance of the column.
+ * </ul>
+ * 
  * @author Franz-Josef Elmer
  */
 class DataSetValidatorForTSV implements IDataSetValidator
@@ -128,6 +135,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
                 throw new IOException("Empty file '" + file);
             }
             String[] headers = getRowCells(lineIterator.nextLine());
+            assertUniqueHeaders(headers);
             ColumnDefinition[] definitions = findColumnDefinitions(headers);
             IValidator[] validators = new IValidator[definitions.length];
             for (int i = 0; i < validators.length; i++)
@@ -166,7 +174,19 @@ class DataSetValidatorForTSV implements IDataSetValidator
         {
             IOUtils.closeQuietly(reader);
         }
-        
+    }
+
+    private void assertUniqueHeaders(String[] headers)
+    {
+        HashSet<String> headerSet = new HashSet<String>();
+        for (String header : headers)
+        {
+            if (headerSet.contains(header))
+            {
+                throw new UserFailureException("Column header '" + header + "' appeared twice.");
+            }
+            headerSet.add(header);
+        }
     }
     
     private ColumnDefinition[] findColumnDefinitions(String[] columnHeaders)
@@ -239,7 +259,10 @@ class DataSetValidatorForTSV implements IDataSetValidator
             ColumnDefinition columnDefinition = iterator.next();
             if (columnDefinition.isValidHeader(columnHeader))
             {
-                iterator.remove();
+                if (columnDefinition.canDefineMultipleColumns() == false)
+                {
+                    iterator.remove();
+                }
                 return columnDefinition;
             }
         }

@@ -24,7 +24,7 @@ import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
- * 
+ * Definition of a column used by {@link DataSetValidatorForTSV}.
  *
  * @author Franz-Josef Elmer
  */
@@ -35,17 +35,20 @@ class ColumnDefinition
     static final String HEADER_VALIDATOR_KEY = "header-validator";
     static final String HEADER_PATTERN_KEY = "header-pattern";
     static final String VALUE_VALIDATOR_KEY = "value-validator";
+    static final String CAN_DEFINE_MULTIPLE_COLUMNS_KEY = "can-define-multiple-columns";
     
     private final String name;
     private final IColumnHeaderValidator headerValidator;
     private final IValidatorFactory valueValidatorFactory;
     private final boolean mandatory;
     private final Integer orderOrNull;
+    private final boolean canDefineMultipleColumns;
     
     static ColumnDefinition create(String name, Properties properties)
     {
         boolean mandatory = PropertyUtils.getBoolean(properties, MANDATORY_KEY, false);
         Integer order = null;
+        boolean canDefineMultipleColumns;
         if (properties.getProperty(ORDER_KEY) != null)
         {
             order = PropertyUtils.getInt(properties, ORDER_KEY, 0);
@@ -53,6 +56,11 @@ class ColumnDefinition
             {
                 throw new ConfigurationFailureException("Order value has to be positive: " + order);
             }
+            canDefineMultipleColumns = false;
+        } else
+        {
+            canDefineMultipleColumns =
+                    PropertyUtils.getBoolean(properties, CAN_DEFINE_MULTIPLE_COLUMNS_KEY, false);
         }
         String headerValidatorName = properties.getProperty(HEADER_VALIDATOR_KEY);
         IColumnHeaderValidator headerValidator;
@@ -71,17 +79,25 @@ class ColumnDefinition
                         .getName());
         IValidatorFactory factory =
                 ClassUtils.create(IValidatorFactory.class, validatorFactoryName, properties);
-        return new ColumnDefinition(name, headerValidator, factory, mandatory, order);
+        return new ColumnDefinition(name, headerValidator, factory, mandatory, order,
+                canDefineMultipleColumns);
     }
 
     private ColumnDefinition(String name, IColumnHeaderValidator headerValidator,
-            IValidatorFactory valueValidatorFactory, boolean mandatory, Integer orderOrNull)
+            IValidatorFactory valueValidatorFactory, boolean mandatory, Integer orderOrNull,
+            boolean canDefineMultipleColumns)
     {
         this.name = name;
         this.headerValidator = headerValidator;
         this.valueValidatorFactory = valueValidatorFactory;
         this.mandatory = mandatory;
         this.orderOrNull = orderOrNull;
+        this.canDefineMultipleColumns = canDefineMultipleColumns;
+    }
+    
+    boolean canDefineMultipleColumns()
+    {
+        return canDefineMultipleColumns;
     }
 
     boolean isMandatory()

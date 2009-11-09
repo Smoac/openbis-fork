@@ -16,12 +16,19 @@
 
 package ch.systemsx.cisd.etlserver.validation;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+
 /**
- * 
+ * Interface for a validator of a table cell value.
  *
  * @author Franz-Josef Elmer
  */
 public interface IValidator
 {
+    /**
+     * Asserts valid table cell value.
+     * 
+     * @throws UserFailureException if the specified value is not valid.
+     */
     public void assertValid(String value);
 }

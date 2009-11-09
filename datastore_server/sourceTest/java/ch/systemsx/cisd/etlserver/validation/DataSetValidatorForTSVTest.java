@@ -308,6 +308,53 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
     }
     
     @Test
+    public void testUniqueColumnHeaders()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(DataSetValidatorForTSV.PATH_PATTERNS_KEY, "*");
+        DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
+        FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "A\tA\n");
+        
+        try
+        {
+            validator.assertValidDataSet(null, workingDirectory);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Column header 'A' appeared twice.", ex.getMessage());
+        }
+        
+        MockValidatorFactory.assertSatisfied();
+    }
+    
+    @Test
+    public void testColumnDefinitionWhichCanBeUsedToDefineMultipleColumnsOrder()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(DataSetValidatorForTSV.PATH_PATTERNS_KEY, "a.txt");
+        properties.setProperty(DataSetValidatorForTSV.COLUMNS_KEY, "c1, c2, c3, c4");
+        properties.setProperty("c1." + ColumnDefinition.HEADER_PATTERN_KEY, "ID");
+        properties.setProperty("c1." + ColumnDefinition.MANDATORY_KEY, "yes");
+        properties.setProperty("c1." + ColumnDefinition.ORDER_KEY, "1");
+        properties.setProperty("c1." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
+        properties.setProperty("c1." + NAME_KEY, "c1");
+        properties.setProperty("c1." + EXPECTED_VALUES_KEY, "1,2");
+        properties.setProperty("c2." + ColumnDefinition.HEADER_PATTERN_KEY, "A[0-9]*");
+        properties.setProperty("c2." + ColumnDefinition.CAN_DEFINE_MULTIPLE_COLUMNS_KEY, "true");
+        properties.setProperty("c2." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
+        properties.setProperty("c2." + NAME_KEY, "c2");
+        properties.setProperty("c2." + EXPECTED_VALUES_KEY, "a,b,c,d");
+        DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
+        
+        FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "ID\tA6\tA42\n"
+                + "1\ta\tb\n" + "2\tc\td\n");
+        
+        validator.assertValidDataSet(null, workingDirectory);
+        
+        MockValidatorFactory.assertSatisfied();
+    }
+    
+    @Test
     public void testMissingColumnWithOrder()
     {
         Properties properties = new Properties();
