@@ -126,7 +126,10 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         @Override
         protected String render(Double modelObject)
         {
-            return Integer.toString((int) (100 * modelObject)) + "%";
+            int percent = (int) (100 * modelObject);
+            int percentFraction = (int) (1000 * modelObject + 0.5) - 10 * percent;
+            return Integer.toString(percent)
+                    + (percentFraction == 0 ? "" : "." + Integer.toString(percentFraction)) + "%";
         }
     }
 
@@ -231,17 +234,15 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         FalseDiscoveryRateModel fdr0 = new FalseDiscoveryRateModel(0.0);
         listStore.add(fdr0);
         listStore.add(new FalseDiscoveryRateModel(0.01));
-        listStore.add(new FalseDiscoveryRateModel(0.02));
-        listStore.add(new FalseDiscoveryRateModel(0.03));
+        listStore.add(new FalseDiscoveryRateModel(0.025));
         listStore.add(new FalseDiscoveryRateModel(0.05));
         listStore.add(new FalseDiscoveryRateModel(0.1));
-        listStore.add(new FalseDiscoveryRateModel(0.2));
         comboBox.setStore(listStore);
         comboBox.setDisplayField(SimpleModel.PROPERTY);
         comboBox.setValue(fdr0);
         comboBox.addSelectionChangedListener(changedListener);
         comboBox.setEnabled(true);
-        comboBox.setWidth(50);
+        comboBox.setWidth(60);
         return comboBox;
     }
 
