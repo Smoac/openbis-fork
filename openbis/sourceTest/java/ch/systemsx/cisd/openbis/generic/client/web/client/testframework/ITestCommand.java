@@ -16,46 +16,33 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 
 /**
  * A command which will be executed after a successful invocation of
  * {@link AsyncCallback#onSuccess(Object)}.
  * 
  * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
 public interface ITestCommand
 {
     /**
-     * If the specified callback objects, failureMessage, and throwable should trigger this command
-     * in case of an invocation of {@link AsyncCallback#onFailure(Throwable)} then the result is the
-     * list of callbacks which were not expected by the command. Otherwise <code>null</code> is
-     * returned.
-     * 
-     * @param callbackObjects List of callback objects since the last successful match of a test
-     *            command. Contains at least one element.
-     */
-    public List<AbstractAsyncCallback<Object>> tryValidOnFailure(
-            List<AbstractAsyncCallback<Object>> callbackObjects, String failureMessage,
-            Throwable throwable);
-
-    /**
-     * If the specified callback objects and result should trigger this command in case of an
-     * invocation of {@link AsyncCallback#onSuccess(Object)} then the result is the list of
-     * callbacks which were not expected by the command. Otherwise <code>null</code> is returned.
-     * 
-     * @param callbackObjects List of callback objects since the last successful match of a test
-     *            command. Contains at least one element.
-     */
-    public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
-            List<AbstractAsyncCallback<Object>> callbackObjects, Object result);
-
-    /**
      * Executes this command.
      */
     public void execute();
+
+    /**
+     * @return <tt>true</tt> if the specified result should trigger this command in case of an
+     *         invocation of {@link AsyncCallback#onSuccess(Object)}, otherwise <tt>false</tt>
+     */
+    public boolean isValidOnSucess(Object result);
+
+    /**
+     * @return <tt>true</tt> if the specified <var>failureMessage</var> and <var>throwable</var>
+     *         should trigger this command in case of an invocation of
+     *         {@link AsyncCallback#onFailure(Throwable)}, otherwise <tt>false</tt>
+     */
+    public boolean isValidOnFailure(String failureMessage, Throwable throwable);
+
 }

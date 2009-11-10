@@ -16,16 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 
 /**
  * Failure expectation.
  * 
  * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
 public class FailureExpectation extends AbstractDefaultTestCommand
 {
@@ -68,36 +65,27 @@ public class FailureExpectation extends AbstractDefaultTestCommand
     }
 
     @Override
-    public List<AbstractAsyncCallback<Object>> tryValidOnFailure(
-            List<AbstractAsyncCallback<Object>> callbackObjects, String failureMessage,
-            Throwable throwable)
+    public boolean isValidOnSucess(Object result)
     {
-        List<AbstractAsyncCallback<Object>> unmatchedCallbacks =
-                tryGetUnmatchedCallbacks(callbackObjects);
-        if (unmatchedCallbacks == null)
-        {
-            return null;
-        }
+        return false; // failure is expected
+    }
+
+    @Override
+    public boolean isValidOnFailure(String failureMessage, Throwable throwable)
+    {
         messageValidator.assertValid(failureMessage);
         if (expectedThrowableClassOrNull == null
                 || expectedThrowableClassOrNull.equals(throwable.getClass()))
         {
-            return unmatchedCallbacks;
+            return true;
         } else
         {
-            return null;
+            return false;
         }
-    }
-
-    @Override
-    public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
-            List<AbstractAsyncCallback<Object>> callbackObjects, Object result)
-    {
-        return null;
     }
 
     public void execute()
     {
+        // nothing to do
     }
-
 }

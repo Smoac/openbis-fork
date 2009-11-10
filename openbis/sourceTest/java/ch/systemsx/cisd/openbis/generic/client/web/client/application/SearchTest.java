@@ -24,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PiggyBackCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
@@ -85,8 +84,8 @@ public class SearchTest extends AbstractGWTTestCase
 
         final CheckTableCommand checkDatasetsTableCommand =
                 createCheckMatchingEntitiesTableCommand(SAMPLE_T1, SAMPLE_T2, SAMPLE_T3);
-        remoteConsole.prepare(new PiggyBackCommand(checkDatasetsTableCommand,
-                showDatasetsRelatedToAllDisplayedEntities()));
+        remoteConsole.prepare(checkDatasetsTableCommand);
+        remoteConsole.prepare(showDatasetsRelatedToAllDisplayedEntities());
         remoteConsole.prepare(createCheckRelatedDatasetsTableCommand(DS_LOC1, DS_LOC2, DS_LOC3));
 
         launchTest(20000);
@@ -99,8 +98,8 @@ public class SearchTest extends AbstractGWTTestCase
 
         final CheckTableCommand checkDatasetsTableCommand =
                 createCheckMatchingEntitiesTableCommand(EXP_T1, EXP_T2, EXP_T3);
-        remoteConsole.prepare(new PiggyBackCommand(checkDatasetsTableCommand,
-                showDatasetsRelatedToAllDisplayedEntities()));
+        remoteConsole.prepare(checkDatasetsTableCommand);
+        remoteConsole.prepare(showDatasetsRelatedToAllDisplayedEntities());
         remoteConsole.prepare(createCheckRelatedDatasetsTableCommand(DS_LOC1, DS_LOC2, DS_LOC3));
 
         launchTest(20000);
@@ -114,8 +113,8 @@ public class SearchTest extends AbstractGWTTestCase
         final CheckTableCommand checkDatasetsTableCommand =
                 createCheckMatchingEntitiesTableCommand(15, SAMPLE_T1, SAMPLE_T2, SAMPLE_T3,
                         EXP_T1, EXP_T2, EXP_T3);
-        remoteConsole.prepare(new PiggyBackCommand(checkDatasetsTableCommand,
-                showDatasetsRelatedToAllDisplayedEntities()));
+        remoteConsole.prepare(checkDatasetsTableCommand);
+        remoteConsole.prepare(showDatasetsRelatedToAllDisplayedEntities());
         // all datasets from EXP-REUSED are also in results
         remoteConsole.prepare(createCheckRelatedDatasetsTableCommand(DS_LOC1, DS_LOC2, DS_LOC3,
                 "xml/result-8", "xml/result-9", "xml/result-10", "xml/result-11", "xml/result-12"));

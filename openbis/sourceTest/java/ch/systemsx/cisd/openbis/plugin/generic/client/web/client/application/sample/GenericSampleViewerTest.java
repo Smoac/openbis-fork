@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import java.util.List;
-
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
@@ -131,19 +128,11 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         final String commentColIdent = GridTestUtils.getPropertyColumnIdentifier("COMMENT", false);
         dataTable.expectedColumnHidden(commentColIdent, true);
 
+        remoteConsole.prepare(checkSample);
         remoteConsole.prepare(new AbstractDefaultTestCommand()
             {
-                @Override
-                public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
-                        List<AbstractAsyncCallback<Object>> callbackObjects, Object result)
-                {
-                    return checkSample.tryValidOnSucess(callbackObjects, result);
-                }
-
                 public void execute()
                 {
-                    checkSample.execute();
-
                     // show DataSet
                     TechId wildcard = TechId.createWildcardTechId();
                     final Widget widget =
@@ -179,19 +168,11 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         dataTable.expectedRow(new DataSetRow(DIRECTLY_CONNECTED_DATA_SET_CODE).invalid()
                 .withFileFormatType("TIFF").withSample(CELL_PLATE_EXAMPLE_ID).withExperiment(
                         CELL_PLATE_EXAMPLE_EXPERIMENT_ID));
+        remoteConsole.prepare(checkSample);
         remoteConsole.prepare(new AbstractDefaultTestCommand()
             {
-                @Override
-                public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
-                        List<AbstractAsyncCallback<Object>> callbackObjects, Object result)
-                {
-                    return checkSample.tryValidOnSucess(callbackObjects, result);
-                }
-
                 public void execute()
                 {
-                    checkSample.execute();
-
                     // show indirectly connected datasets
                     TechId wildcard = TechId.createWildcardTechId();
 

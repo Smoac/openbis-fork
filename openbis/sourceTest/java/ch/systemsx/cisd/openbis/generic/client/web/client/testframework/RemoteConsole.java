@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * independent whether all commands have been executed or not. In the later case the test fails.
  * 
  * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
 public class RemoteConsole
 {
@@ -43,9 +44,6 @@ public class RemoteConsole
     private final AbstractGWTTestCase testCase;
 
     private final List<ITestCommand> commands;
-
-    private List<AbstractAsyncCallback<Object>> lastCallbackObjects =
-            new ArrayList<AbstractAsyncCallback<Object>>();
 
     private int entryIndex;
 
@@ -92,20 +90,6 @@ public class RemoteConsole
                         buffer.append(numberOfUnexcutedCommands == 1 ? "command has"
                                 : numberOfUnexcutedCommands + " commands have");
                         buffer.append(" not been executed. ");
-                        if (lastCallbackObjects.size() == 0)
-                        {
-                            buffer.append("No unmatched callback objects.");
-                        } else
-                        {
-                            buffer.append("Unmatched callback objects:");
-                            for (final AbstractAsyncCallback<?> callback : lastCallbackObjects)
-                            {
-                                buffer.append('\n');
-                                buffer.append(callback.getClass().getName());
-                                buffer.append(" with id ");
-                                buffer.append(callback.getCallbackId());
-                            }
-                        }
                         Assert.fail(buffer.toString());
                     }
                 }
@@ -137,6 +121,11 @@ public class RemoteConsole
         {
         }
 
+        private boolean areAllCallbacksFinished()
+        {
+            return activeCallbacksCounter == 0;
+        }
+
         private final void executeCommand()
         {
             final ITestCommand testCommand = commands.get(entryIndex++);
@@ -152,6 +141,21 @@ public class RemoteConsole
         // ICallbackListener
         //
 
+        public final void finishOnSuccessOf(final AbstractAsyncCallback<Object> callback,
+                final Object result)
+        {
+            detectCallback(callback);
+            if (entryIndex < commands.size())
+            {
+                ITestCommand cmd = commands.get(entryIndex);
+                if (cmd.isValidOnSucess(result) && areAllCallbacksFinished())
+                {
+                    executeCommand();
+                    return;
+                }
+            }
+        }
+
         public final void onFailureOf(final IMessageProvider messageProvider,
                 final AbstractAsyncCallback<Object> callback, final String failureMessage,
                 final Throwable throwable)
@@ -160,14 +164,9 @@ public class RemoteConsole
             if (entryIndex < commands.size())
             {
                 ITestCommand cmd = commands.get(entryIndex);
-                // TODO 2009-11-09, Piotr Buczek: just validate failure message
-                List<AbstractAsyncCallback<Object>> unmatchedCallbacks =
-                        cmd.tryValidOnFailure(lastCallbackObjects, failureMessage, throwable);
-                if (unmatchedCallbacks != null)
-                {
-                    lastCallbackObjects = unmatchedCallbacks;
-                }
-                if (activeCallbacksCounter == 0)
+                // It doesn't need to be the last callbacks that fails,
+                // and it should rather be the last command.
+                if (cmd.isValidOnFailure(failureMessage, throwable))
                 {
                     executeCommand();
                     return;
@@ -175,28 +174,6 @@ public class RemoteConsole
             }
             Assert.fail("Failed callback " + callback + ": " + failureMessage + "["
                     + throwable.getClass() + "]");
-        }
-
-        public final void finishOnSuccessOf(final AbstractAsyncCallback<Object> callback,
-                final Object result)
-        {
-            detectCallback(callback);
-            if (entryIndex < commands.size())
-            {
-                ITestCommand cmd = commands.get(entryIndex);
-                // TODO 2009-11-09, Piotr Buczek: remove tryValidOnSuccess from command interface
-                List<AbstractAsyncCallback<Object>> unmatchedCallbacks =
-                        cmd.tryValidOnSucess(lastCallbackObjects, result);
-                if (unmatchedCallbacks != null)
-                {
-                    lastCallbackObjects = unmatchedCallbacks;
-                }
-                if (activeCallbacksCounter == 0)
-                {
-                    executeCommand();
-                    return;
-                }
-            }
         }
 
         public void registerCallback(final AbstractAsyncCallback<?> callback)

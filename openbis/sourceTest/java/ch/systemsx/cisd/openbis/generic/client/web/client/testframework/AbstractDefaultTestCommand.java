@@ -23,16 +23,18 @@ import junit.framework.Assert;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-
 /**
- * Abstract super class of all test commands which are executed if the set of classes of recent
- * callback objects includes all classes specified in the constructor.
+ * Abstract super class of all test commands which are executed if there are no active callbacks
+ * (all callbacks were detected by {@link RemoteConsole}).
+ * <p>
+ * NOTE: Expected callbacks are now completely ignored.
  * 
  * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
 public abstract class AbstractDefaultTestCommand extends Assert implements ITestCommand
 {
+    // TODO 2009-11-10, Piotr Buczek: expected callbacks are now completely ignored - cleanup
     protected final List<String> expectedCallbackIds = new ArrayList<String>();
 
     /**
@@ -74,60 +76,14 @@ public abstract class AbstractDefaultTestCommand extends Assert implements ITest
         return string.replace("$", "\\$");
     }
 
-    public List<AbstractAsyncCallback<Object>> tryValidOnFailure(
-            final List<AbstractAsyncCallback<Object>> callbackObjects, final String failureMessage,
-            final Throwable throwable)
+    public boolean isValidOnSucess(Object result)
     {
-        return null;
+        return true; // if previous command succeeded this command should be executed
     }
 
-    public List<AbstractAsyncCallback<Object>> tryValidOnSucess(
-            final List<AbstractAsyncCallback<Object>> callbackObjects, final Object result)
+    public boolean isValidOnFailure(final String failureMessage, final Throwable throwable)
     {
-        return tryGetUnmatchedCallbacks(callbackObjects);
+        return false; // if previous command failed this command shouldn't be executed
     }
 
-    /**
-     * If all expected callbacks can be found among specified callbacks, returns the list of
-     * callbacks which were not expected. Otherwise returns null;
-     */
-    protected List<AbstractAsyncCallback<Object>> tryGetUnmatchedCallbacks(
-            final List<AbstractAsyncCallback<Object>> callbackObjects)
-    {
-        List<String> expectedIds = new ArrayList<String>(expectedCallbackIds);
-        List<AbstractAsyncCallback<Object>> unmatched =
-                new ArrayList<AbstractAsyncCallback<Object>>();
-        for (final AbstractAsyncCallback<Object> asyncCallback : callbackObjects)
-        {
-            String id = asyncCallback.getCallbackId();
-            String matched = getMatchedRegexp(expectedIds, id);
-            if (matched != null)
-            {
-                expectedIds.remove(matched);
-            } else
-            {
-                unmatched.add(asyncCallback);
-            }
-        }
-        if (expectedIds.size() == 0)
-        {
-            return unmatched; // all expected callbacks are present
-        } else
-        {
-            return null;
-        }
-    }
-
-    /** @return regular expression from <var>regexps</var> list that given <var>id</var> matches */
-    private String getMatchedRegexp(List<String> regexps, String id)
-    {
-        for (String regexp : regexps)
-        {
-            if (id.matches(regexp))
-            {
-                return regexp;
-            }
-        }
-        return null;
-    }
 }

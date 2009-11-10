@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PiggyBackCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 
 /**
@@ -52,7 +51,8 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_FILE_FORMATS);
         CheckTableCommand table = new CheckTableCommand(FileFormatTypeGrid.GRID_ID);
         table.expectedSize(8);
-        remoteConsole.prepare(new PiggyBackCommand(table, addNewTypeCommand()));
+        remoteConsole.prepare(table);
+        remoteConsole.prepare(addNewTypeCommand());
         table = new CheckTableCommand(FileFormatTypeGrid.GRID_ID);
         table.expectedRow(new Row().withCell(TypeColDefKind.CODE.id(), "MY-TYPE").withCell(
                 TypeColDefKind.DESCRIPTION.id(), "hello"));
