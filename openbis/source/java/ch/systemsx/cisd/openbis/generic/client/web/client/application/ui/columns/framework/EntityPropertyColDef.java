@@ -115,7 +115,7 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     public Comparable<?> getComparableValue(GridRowModel<T> rowModel)
     {
         String valueAsString = tryGetValue(rowModel.getOriginalObject());
-        DataTypeCode dataType = propertyType.getDataType().getCode();
+        DataTypeCode dataType = getDataTypeCode();
         switch (dataType)
         {
             case INTEGER:
@@ -124,6 +124,20 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
                 return valueAsString == null ? DOUBLE_MIN_VALUE : new Double(valueAsString);
             default:
                 return super.getComparableValue(rowModel);
+        }
+    }
+
+    @Override
+    public boolean isNumeric()
+    {
+        DataTypeCode dataType = getDataTypeCode();
+        switch (dataType)
+        {
+            case INTEGER:
+            case REAL:
+                return true;
+            default:
+                return false;
         }
     }
 

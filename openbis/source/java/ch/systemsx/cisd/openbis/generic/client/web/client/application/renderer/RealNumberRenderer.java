@@ -16,7 +16,7 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
 {
     private static final int MAX_DIGITAL_FORMAT_LENGTH = 10;
 
-    private static final String SCIENTIFIC_FORMAT = "0.0000E00";
+    private static final String SCIENTIFIC_FORMAT = "0.0000E0000";
 
     private static final String DIGITAL_FORMAT = "0.0000";
 
