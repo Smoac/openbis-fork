@@ -79,10 +79,10 @@ public class DelegatingStorageProcessorWithDropbox extends
     }
 
     @Override
-    public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
+    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
             final File storedDataDirectory, Throwable exception)
     {
         dropboxHandler.undoLastOperation();
-        return super.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
+        return super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
     }
 }

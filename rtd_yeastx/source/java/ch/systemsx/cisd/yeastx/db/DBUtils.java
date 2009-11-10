@@ -86,7 +86,8 @@ public class DBUtils
     /**
      * Creates the data set based on the information given in <var>dataSet</var>. The sample and
      * experiment of the data set may already exist in the database. If they don't, they are created
-     * as well.
+     * as well.<br>
+     * Sets sample, experiment and dataset id fields of the specified dataset.
      * <p>
      * NOTE: Code responsible for trying to get sample and experiment from the DB and creating them
      * if they don't exist is in synchronized block and uses currently opened transaction. Then the

@@ -57,7 +57,7 @@ public class QuantMSDAOTest extends AbstractDBTest
         DMDataSetDTO dataSetDTO =
                 new DMDataSetDTO("data set perm id quant", "sample perm id quant", "sample name",
                         "experiment perm id", "experiment name");
-        uploader.uploadQuantMLFile(new File("resource/examples/allFields.quantML"), dataSetDTO);
+        uploader.upload(new File("resource/examples/allFields.quantML"), dataSetDTO);
     }
 
 }

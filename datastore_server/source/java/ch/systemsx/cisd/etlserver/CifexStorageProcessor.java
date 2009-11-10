@@ -82,7 +82,7 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
     }
 
     @Override
-    public UnstoreDataAction unstoreData(File incomingDataSetDirectory, File storedDataDirectory,
+    public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
             Throwable exception)
     {
         if (dirDeleted)
@@ -91,7 +91,7 @@ public class CifexStorageProcessor extends AbstractDelegatingStorageProcessor
             FileOperations.getMonitoredInstanceForCurrentThread().moveToDirectory(fileToMove,
                     dirToRestore);
         }
-        super.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
+        super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
         return UnstoreDataAction.DELETE;
     }
 

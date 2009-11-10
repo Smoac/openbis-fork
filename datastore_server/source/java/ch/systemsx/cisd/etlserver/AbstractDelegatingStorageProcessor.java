@@ -92,18 +92,23 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
     // delegation
     //
 
-    public File storeData(final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
-            final IMailClient mailClient, final File incomingDataSetDirectory,
-            final File rootDir)
+    public File storeData(final DataSetInformation dataSetInformation,
+            final ITypeExtractor typeExtractor, final IMailClient mailClient,
+            final File incomingDataSetDirectory, final File rootDir)
     {
-        return delegate.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory,
-                rootDir);
+        return delegate.storeData(dataSetInformation, typeExtractor, mailClient,
+                incomingDataSetDirectory, rootDir);
     }
 
-    public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
+    public void commit()
+    {
+        delegate.commit();
+    }
+
+    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
             final File storedDataDirectory, Throwable exception)
     {
-        return delegate.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
+        return delegate.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
     }
 
     public StorageFormat getStorageFormat()

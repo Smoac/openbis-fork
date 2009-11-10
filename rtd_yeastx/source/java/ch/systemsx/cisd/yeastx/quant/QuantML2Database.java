@@ -17,21 +17,16 @@
 package ch.systemsx.cisd.yeastx.quant;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.sql.SQLException;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.TransactionQuery;
 
-import org.springframework.dao.DataAccessException;
-
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
+import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
-import ch.systemsx.cisd.yeastx.etl.ConstantsYeastX;
+import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.quant.dto.ConcentrationCompounds;
 import ch.systemsx.cisd.yeastx.quant.dto.MSConcentrationDTO;
 import ch.systemsx.cisd.yeastx.quant.dto.MSQuantificationDTO;
@@ -43,9 +38,8 @@ import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
  * 
  * @author Tomasz Pylak
  */
-public class QuantML2Database
+public class QuantML2Database extends AbstractDatasetLoader
 {
-
     private final IQuantMSDAO dao;
 
     public QuantML2Database(DataSource datasource)
@@ -56,27 +50,17 @@ public class QuantML2Database
     /**
      * Method for uploading an <var>fiaMLFile</var> to the database.
      */
-    public void uploadQuantMLFile(final File file, final DMDataSetDTO dataSet) throws SQLException
+    public void upload(final File file, final DMDataSetDTO dataSet) throws SQLException
     {
-        TransactionQuery transaction = null;
         try
         {
-            transaction = dao;
-            DBUtils.createDataSet(dao, dataSet);
+            createDataSet(dataSet);
             MSQuantificationsDTO quantifications =
                     JaxbXmlParser.parse(MSQuantificationsDTO.class, file, false);
             uploadQuantifications(quantifications, dataSet);
-            transaction.close(true);
         } catch (Throwable th)
         {
-            try
-            {
-                DBUtils.rollbackAndClose(transaction);
-            } catch (DataAccessException ex)
-            {
-                // Avoid this exception shadowing the original exception.
-            }
-            throw CheckedExceptionTunnel.wrapIfNecessary(th);
+            rollbackAndRethrow(th);
         }
     }
 
@@ -105,32 +89,10 @@ public class QuantML2Database
         dao.addCompoundIds(concentrationId, compounds.getCompoundIds());
     }
 
-    public static void main(String[] args) throws SQLException
+    @Override
+    protected IGenericDAO getDao()
     {
-        final long start = System.currentTimeMillis();
-        final QuantML2Database quantML2Database =
-                new QuantML2Database(DBUtils.createDefaultDBContext().getDataSource());
-        final String dir = args[0];
-        int permId = 0;
-        for (String f : new File(dir).list(createQuantFilter()))
-        {
-            System.out.println(f);
-            quantML2Database.uploadQuantMLFile(new File(dir, f), new DMDataSetDTO(Integer
-                    .toString(++permId), "sample perm id", "sample name", "experiment perm id",
-                    "experiment name"));
-        }
-        System.out.println((System.currentTimeMillis() - start) / 1000.0);
-    }
-
-    private static FilenameFilter createQuantFilter()
-    {
-        return new FilenameFilter()
-            {
-                public boolean accept(File dir, String name)
-                {
-                    return name.endsWith("." + ConstantsYeastX.QUANTML_EXT);
-                }
-            };
+        return dao;
     }
 
 }

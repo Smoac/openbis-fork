@@ -62,4 +62,9 @@ public abstract class AbstractStorageProcessor implements IStorageProcessor
     {
         this.storeRootDir = storeRootDirectory;
     }
+
+    public void commit()
+    {
+        // do nothing
+    }
 }

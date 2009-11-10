@@ -44,20 +44,31 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
      * Do not try/catch exceptions that could occur here. Preferably let the upper layer handle
      * them.
      * </p>
+     * 
      * @param dataSetInformation Information about the data set.
      * @param typeExtractor the {@link ITypeExtractor} implementation.
      * @param mailClient mail client.
      * @param incomingDataSetDirectory folder to store. Do not remove it after the implementation
      *            has finished processing. {@link TransferredDataSetHandler} takes care of this.
      * @param rootDir directory to whom the data will be stored.
-     * 
      * @return folder which contains the stored data. This folder <i>must</i> be below the
      *         <var>rootDir</var>. Never returns <code>null</code> but prefers to throw an exception
      *         in case of unexpected behavior.
      */
-    public File storeData(final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
-            final IMailClient mailClient, final File incomingDataSetDirectory,
-            final File rootDir);
+    public File storeData(final DataSetInformation dataSetInformation,
+            final ITypeExtractor typeExtractor, final IMailClient mailClient,
+            final File incomingDataSetDirectory, final File rootDir);
+
+    /**
+     * Commits the changes done by the recent {@link #storeData} call if the dataset has been also
+     * successfully registered openBIS.
+     * <p>
+     * This operation is useful when the storage processor adds the data to an additional database.
+     * If all the storage processor operations are done on the file system, the implementation of
+     * this method will be usually empty.
+     * </p>
+     */
+    public void commit();
 
     /**
      * Instructs the dataset handler what to do with the data in incoming directory if there was an
@@ -73,13 +84,16 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
          * leave the data in the incoming directory
          */
         LEAVE_UNTOUCHED,
+        /**
+         * delete the data from the incoming directory
+         */
         DELETE
     }
 
     /**
      * Performs a rollback of
-     * {@link #storeData(DataSetInformation, ITypeExtractor, IMailClient, File, File)} The
-     * data created in <code>directory</code> will also be removed.
+     * {@link #storeData(DataSetInformation, ITypeExtractor, IMailClient, File, File)} The data
+     * created in <code>directory</code> will also be removed.
      * <p>
      * Call to this method is safe as implementations should try/catch exceptions that could occur
      * here.
@@ -90,7 +104,7 @@ public interface IStorageProcessor extends IStoreRootDirectoryHolder
      * @param exception an exception which has caused that the unstore operation has to be performed
      * @return an instruction what to do with the data in incoming directory
      */
-    public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
+    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
             final File storedDataDirectory, Throwable exception);
 
     /**

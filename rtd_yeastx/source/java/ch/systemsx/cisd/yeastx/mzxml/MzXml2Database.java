@@ -24,16 +24,13 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.TransactionQuery;
-
-import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
+import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzPrecursorDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzRunDTO;
 import ch.systemsx.cisd.yeastx.mzxml.dto.MzScanDTO;
@@ -45,7 +42,7 @@ import ch.systemsx.cisd.yeastx.utils.JaxbXmlParser;
  * 
  * @author Tomasz Pylak
  */
-public class MzXml2Database
+public class MzXml2Database extends AbstractDatasetLoader
 {
     private final IMzXmlDAO dao;
 
@@ -63,7 +60,7 @@ public class MzXml2Database
     /**
      * Method for uploading an <var>mzXML</var> to the database.
      */
-    public void uploadFile(final File file, final DMDataSetDTO dataSet) throws SQLException
+    public void upload(final File file, final DMDataSetDTO dataSet) throws SQLException
     {
         MzXmlDTO mzXml = JaxbXmlParser.parse(MzXmlDTO.class, file, false);
         uploadFile(mzXml, dataSet);
@@ -71,23 +68,13 @@ public class MzXml2Database
 
     private void uploadFile(final MzXmlDTO mzXml, final DMDataSetDTO dataSet) throws SQLException
     {
-        TransactionQuery transaction = null;
         try
         {
-            transaction = dao;
-            DBUtils.createDataSet(dao, dataSet);
+            createDataSet(dataSet);
             uploadRun(mzXml.getRun(), dataSet);
-            transaction.close(true);
         } catch (Throwable th)
         {
-            try
-            {
-                DBUtils.rollbackAndClose(transaction);
-            } catch (DataAccessException ex)
-            {
-                // Avoid this exception shadowing the original exception.
-            }
-            throw CheckedExceptionTunnel.wrapIfNecessary(th);
+            rollbackAndRethrow(th);
         }
     }
 
@@ -167,5 +154,11 @@ public class MzXml2Database
                         };
                 }
             };
+    }
+
+    @Override
+    protected IGenericDAO getDao()
+    {
+        return dao;
     }
 }

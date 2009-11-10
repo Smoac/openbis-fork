@@ -177,7 +177,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
                     will(returnValue(dataSet));
                 }
             });
-        prepareForCommit();
 
         uploader.upload(createDataSetInfo(), createProteinSummary());
 
@@ -188,7 +187,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     public void testNoProteinsCreateExperimentSampleDatabaseAndDataSet()
     {
         prepareForCreatingExperimentSampleDatabaseAndDataSet();
-        prepareForCommit();
 
         uploader.upload(createDataSetInfo(), createProteinSummary());
 
@@ -199,7 +197,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
     public void testEmptyProteinGroup()
     {
         prepareForCreatingExperimentSampleDatabaseAndDataSet();
-        prepareForCommit();
 
         ProteinSummary summary = createProteinSummary();
         summary.getProteinGroups().add(createProteinGroup());
@@ -218,7 +215,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCreatingIdentifiedProtein(a1, false);
         ProteinAnnotation a2 = createAnnotation(UNIPROT_ID2, PROTEIN_NAME2, SEQUENCE2);
         prepareForCreatingIdentifiedProtein(a2, true);
-        prepareForCommit();
 
         ProteinSummary summary = createProteinSummary();
         Protein p1 = createProtein(probability, a1, a2);
@@ -226,7 +222,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         summary.getProteinGroups().add(createProteinGroup(p1, new Protein()));
 
         uploader.upload(createDataSetInfo(), summary);
-
         context.assertIsSatisfied();
     }
 
@@ -282,7 +277,7 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCommit();
 
         uploader.upload(createDataSetInfo(), summary);
-
+        uploader.commit();
         context.assertIsSatisfied();
     }
 
@@ -301,8 +296,8 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(groupIdentifier, CELL_LYSATE1);
         final ListSamplesByPropertyCriteria criteria =
-                new ListSamplesByPropertyCriteria(AbundanceHandler.MZXML_FILENAME,
-                        CELL_LYSATE1, GROUP_CODE, null);
+                new ListSamplesByPropertyCriteria(AbundanceHandler.MZXML_FILENAME, CELL_LYSATE1,
+                        GROUP_CODE, null);
         context.checking(new Expectations()
             {
                 {
@@ -335,8 +330,8 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         } catch (UserFailureException ex)
         {
             AssertionUtil.assertContains("Protein '" + PROTEIN_NAME1
-                    + "' has an abundance value for an unidentified sample: "
-                    + CELL_LYSATE1, ex.getMessage());
+                    + "' has an abundance value for an unidentified sample: " + CELL_LYSATE1, ex
+                    .getMessage());
         }
 
         context.assertIsSatisfied();
@@ -350,7 +345,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCreatingProtein(probability);
         ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
         prepareForCreatingIdentifiedProtein(a1, false);
-        prepareForCommit();
 
         ProteinSummary summary = createProteinSummary();
         Protein p1 = createProtein(probability, a1);
@@ -380,7 +374,6 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         prepareForCreatingProtein(probability);
         ProteinAnnotation a1 = createAnnotation(UNIPROT_ID1, PROTEIN_NAME1, SEQUENCE1);
         prepareForCreatingIdentifiedProtein(a1, false);
-        prepareForCommit();
 
         ProteinSummary summary = createProteinSummary();
         Protein p1 = createProtein(probability, a1);

@@ -418,7 +418,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
                         incomingDirectoryData, storeRootDir);
         assertEquals(true, dataStore.isDirectory());
         assertEquals(false, incomingDirectoryData.exists());
-        storageAdapter.unstoreData(incomingDirectoryData, storeRootDir, null);
+        storageAdapter.rollback(incomingDirectoryData, storeRootDir, null);
         assertEquals(false, dataStore.exists());
         assertEquals(true, incomingDirectoryData.isDirectory());
 

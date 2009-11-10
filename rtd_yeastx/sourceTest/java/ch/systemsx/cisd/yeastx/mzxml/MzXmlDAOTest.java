@@ -57,11 +57,14 @@ public class MzXmlDAOTest extends AbstractDBTest
         DMDataSetDTO dataSetDTO =
                 new DMDataSetDTO("data set perm id mzXML", "sample perm id", "sample name",
                         "experiment perm id", "experiment name");
-        uploader.uploadFile(new File("resource/examples/example.mzXML"), dataSetDTO);
+        uploader.upload(new File("resource/examples/example.mzXML"), dataSetDTO);
+        uploader.commit();
         dataSetDTO.setPermId("data set perm id mzXML minimal");
-        uploader.uploadFile(new File("resource/examples/example-fake-minimal.mzXML"), dataSetDTO);
+        uploader.upload(new File("resource/examples/example-fake-minimal.mzXML"), dataSetDTO);
+        uploader.commit();
         dataSetDTO.setPermId("data set perm id mzXML full");
-        uploader.uploadFile(new File("resource/examples/example-fake-full.mzXML"), dataSetDTO);
+        uploader.upload(new File("resource/examples/example-fake-full.mzXML"), dataSetDTO);
+        uploader.commit();
     }
 
 }

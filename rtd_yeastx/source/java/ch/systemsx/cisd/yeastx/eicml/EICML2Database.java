@@ -17,23 +17,16 @@
 package ch.systemsx.cisd.yeastx.eicml;
 
 import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
-import javax.xml.parsers.ParserConfigurationException;
 
 import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.TransactionQuery;
 
-import org.springframework.dao.DataAccessException;
-import org.xml.sax.SAXException;
-
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
+import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IChromatogramObserver;
 import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IMSRunObserver;
 
@@ -42,7 +35,7 @@ import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IMSRunObserver;
  * 
  * @author Bernd Rinn
  */
-public class EICML2Database
+public class EICML2Database extends AbstractDatasetLoader
 {
 
     private final static int CHROMATOGRAM_BATCH_SIZE = 100;
@@ -67,16 +60,14 @@ public class EICML2Database
     /**
      * Method for uploading an <var>eicMLFile</var> to the database.
      */
-    public void uploadEicMLFile(final File eicMLFile, final DMDataSetDTO dataSet)
+    public void upload(final File eicMLFile, final DMDataSetDTO dataSet)
     {
         final long[] eicMLId = new long[1];
         final List<ChromatogramDTO> chromatograms =
                 new ArrayList<ChromatogramDTO>(CHROMATOGRAM_BATCH_SIZE);
-        TransactionQuery transaction = null;
         try
         {
-            transaction = dao;
-            DBUtils.createDataSet(dao, dataSet);
+            createDataSet(dataSet);
             new EICMLParser(eicMLFile.getPath(), new IMSRunObserver()
                 {
                     public void observe(EICMSRunDTO run)
@@ -98,35 +89,15 @@ public class EICML2Database
                     }
                 });
             addChromatograms(dao, eicMLId[0], chromatograms, 1);
-            transaction.close(true);
         } catch (Throwable th)
         {
-            try
-            {
-                DBUtils.rollbackAndClose(transaction);
-            } catch (DataAccessException ex)
-            {
-                // Avoid this exception shadowing the original exception.
-            }
-            throw CheckedExceptionTunnel.wrapIfNecessary(th);
+            rollbackAndRethrow(th);
         }
     }
 
-    public static void main(String[] args) throws ParserConfigurationException, SAXException,
-            IOException, SQLException
+    @Override
+    protected IGenericDAO getDao()
     {
-        final long start = System.currentTimeMillis();
-        final EICML2Database eicML2Database =
-                new EICML2Database(DBUtils.createDefaultDBContext().getDataSource());
-        final String dir = args[0];
-        int permId = 0;
-        for (String f : new File(dir).list(new EICMLFilenameFilter()))
-        {
-            eicML2Database.uploadEicMLFile(new File(dir, f), new DMDataSetDTO(Integer
-                    .toString(++permId), "sample1", "the sample name", "experiment1",
-                    "the experiment name"));
-        }
-        System.out.println((System.currentTimeMillis() - start) / 1000.0);
+        return dao;
     }
-
 }

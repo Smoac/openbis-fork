@@ -471,7 +471,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         return dataStructureDir;
     }
 
-    public UnstoreDataAction unstoreData(File incomingDataSetDirectory, File storedDataDirectory,
+    public UnstoreDataAction rollback(File incomingDataSetDirectory, File storedDataDirectory,
             Throwable exception)
     {
         unstoreData(incomingDataSetDirectory, storedDataDirectory);

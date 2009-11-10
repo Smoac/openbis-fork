@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.ProteinSummary;
 public class ProtXMLUploader implements IDataSetUploader
 {
     private static final String VALIDATING_XML = "validating-xml";
-    
+
     private static final String DATABASE_ENGINE = "database.engine";
 
     private static final String DATABASE_URL_HOST_PART = "database.url-host-part";
@@ -76,6 +76,8 @@ public class ProtXMLUploader implements IDataSetUploader
 
     private final DataSource dataSource;
 
+    private ResultDataSetUploader currentResultDataSetUploader;
+
     public ProtXMLUploader(Properties properties, IEncapsulatedOpenBISService openbisService)
     {
         dataSource = createDataSource(properties);
@@ -95,13 +97,30 @@ public class ProtXMLUploader implements IDataSetUploader
                     + (System.currentTimeMillis() - time) + " msec");
         }
         time = System.currentTimeMillis();
-        ResultDataSetUploader upLoader = createUploader();
-        upLoader.upload(dataSetInformation, summary);
+        if (currentResultDataSetUploader != null)
+        {
+            throw new IllegalStateException(
+                    "The previous transaction has been neither commited nor rollbacked.");
+        }
+        currentResultDataSetUploader = createUploader();
+        currentResultDataSetUploader.upload(dataSetInformation, summary);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Feeding result database took " + (System.currentTimeMillis() - time)
                     + " msec.");
         }
+    }
+
+    public void commit()
+    {
+        currentResultDataSetUploader.commit();
+        currentResultDataSetUploader = null;
+    }
+
+    public void rollback()
+    {
+        currentResultDataSetUploader.rollback();
+        currentResultDataSetUploader = null;
     }
 
     protected ResultDataSetUploader createUploader()
@@ -134,5 +153,4 @@ public class ProtXMLUploader implements IDataSetUploader
         }
         throw new UserFailureException("No *prot.xml file found in data set '" + dataSet + "'.");
     }
-
 }

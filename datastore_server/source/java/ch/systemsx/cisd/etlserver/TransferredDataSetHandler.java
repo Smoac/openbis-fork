@@ -143,27 +143,28 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
     private final IDataSetValidator dataSetValidator;
 
     /**
-     * @param dataSetValidator 
+     * @param dataSetValidator
      * @param useIsFinishedMarkerFile if true, file/directory is processed when a marker file for it
      *            appears. Otherwise processing starts if the file/directory is not modified for a
      *            certain amount of time (so called "quiet period").
      */
     public TransferredDataSetHandler(String dssCode, final IETLServerPlugin plugin,
             final IEncapsulatedOpenBISService limsService, final Properties mailProperties,
-            IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile,
-            boolean deleteUnidentified)
+            IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration,
+            boolean useIsFinishedMarkerFile, boolean deleteUnidentified)
 
     {
         this(dssCode, plugin.getStorageProcessor(), plugin, limsService, new MailClient(
-                mailProperties), dataSetValidator, notifySuccessfulRegistration, useIsFinishedMarkerFile,
-                deleteUnidentified);
+                mailProperties), dataSetValidator, notifySuccessfulRegistration,
+                useIsFinishedMarkerFile, deleteUnidentified);
     }
 
     TransferredDataSetHandler(String dssCode,
             final IStoreRootDirectoryHolder storeRootDirectoryHolder,
             final IETLServerPlugin plugin, final IEncapsulatedOpenBISService limsService,
-            final IMailClient mailClient, IDataSetValidator dataSetValidator, final boolean notifySuccessfulRegistration,
-            boolean useIsFinishedMarkerFile, boolean deleteUnidentified)
+            final IMailClient mailClient, IDataSetValidator dataSetValidator,
+            final boolean notifySuccessfulRegistration, boolean useIsFinishedMarkerFile,
+            boolean deleteUnidentified)
 
     {
         assert dssCode != null : "Unspecified data store code";
@@ -438,6 +439,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                     operationLog.error("Cannot delete '" + incomingDataSetFile.getAbsolutePath()
                             + "'.");
                 }
+
                 clean();
                 return Collections.singletonList(dataSetInformation);
             } catch (final HighLevelException ex)
@@ -501,7 +503,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 throw (Error) throwable;
             }
             UnstoreDataAction action =
-                    storageProcessor.unstoreData(incomingDataSetFile, baseDirectoryHolder
+                    storageProcessor.rollback(incomingDataSetFile, baseDirectoryHolder
                             .getBaseDirectory(), throwable);
             if (stopped == false)
             {
@@ -522,7 +524,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                     }
                 } else if (action == UnstoreDataAction.DELETE)
                 {
-                    FileUtilities.deleteRecursively(incomingDataSetFile, new Log4jSimpleLogger(operationLog));
+                    FileUtilities.deleteRecursively(incomingDataSetFile, new Log4jSimpleLogger(
+                            operationLog));
                 }
             }
         }
@@ -569,6 +572,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                 {
                     getRegistrationLock().unlock();
                 }
+                storageProcessor.commit();
             } finally
             {
                 fileOperations.delete(markerFile);

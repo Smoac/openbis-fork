@@ -23,57 +23,71 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * Storage processor which uses an {@link IDataSetUploader} after data set has been stored by
- * a wrapped {@link IStorageProcessor}.
- *
+ * Storage processor which uses an {@link IDataSetUploader} after data set has been stored by a
+ * wrapped {@link IStorageProcessor}.
+ * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractStrorageProcessorWithUploader extends AbstractDelegatingStorageProcessor
+public abstract class AbstractStrorageProcessorWithUploader extends
+        AbstractDelegatingStorageProcessor
 {
     private final IDataSetUploader uploader;
 
-    public AbstractStrorageProcessorWithUploader(IStorageProcessor processor, IDataSetUploader uploader)
+    public AbstractStrorageProcessorWithUploader(IStorageProcessor processor,
+            IDataSetUploader uploader)
     {
         super(processor);
         this.uploader = uploader;
     }
-    
+
     /**
-     * Creates an instance with a wrapped storage processor which will be created from the
-     * specified properties.
+     * Creates an instance with a wrapped storage processor which will be created from the specified
+     * properties.
      */
     public AbstractStrorageProcessorWithUploader(Properties properties, IDataSetUploader uploader)
     {
         super(properties);
         this.uploader = uploader;
     }
-    
+
     @Override
-    public File storeData(final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
-            final IMailClient mailClient, final File incomingDataSetDirectory,
-            final File rootDir)
+    public File storeData(final DataSetInformation dataSetInformation,
+            final ITypeExtractor typeExtractor, final IMailClient mailClient,
+            final File incomingDataSetDirectory, final File rootDir)
     {
         File storeData =
-                super.storeData(dataSetInformation, typeExtractor, mailClient, incomingDataSetDirectory,
-                        rootDir);
+                super.storeData(dataSetInformation, typeExtractor, mailClient,
+                        incomingDataSetDirectory, rootDir);
         File originalData = super.tryGetProprietaryData(storeData);
         uploader.upload(originalData, dataSetInformation);
         return storeData;
     }
 
     @Override
-    public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
+    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
             final File storedDataDirectory, Throwable exception)
     {
-        super.unstoreData(incomingDataSetDirectory, storedDataDirectory, exception);
+        try
+        {
+            super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
+        } finally
+        {
+            uploader.rollback();
+        }
         logDataSetFileError(incomingDataSetDirectory, exception);
         return UnstoreDataAction.LEAVE_UNTOUCHED;
     }
-    
+
+    @Override
+    public void commit()
+    {
+        super.commit();
+        uploader.commit();
+    }
+
     /**
      * Logs an error for the specified data set and exception.
      */
     protected abstract void logDataSetFileError(File incomingDataSetDirectory, Throwable exception);
-    
 
 }

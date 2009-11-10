@@ -59,9 +59,10 @@ public class FIAMLTest extends AbstractDBTest
     public void testUploadFiaML() throws SQLException
     {
         FIAML2Database fiaML2Database = new FIAML2Database(datasource);
-        fiaML2Database.uploadFiaMLFile(new File("resource/examples/example.fiaML"),
-                new DMDataSetDTO("data set perm id fiaml", "sample perm id", "sample name",
-                        "experiment perm id", "experiment name"));
+        fiaML2Database.upload(new File("resource/examples/example.fiaML"), new DMDataSetDTO(
+                "data set perm id fiaml", "sample perm id", "sample name", "experiment perm id",
+                "experiment name"));
+        fiaML2Database.commit();
     }
 
     @Test(dependsOnMethods = "testUploadFiaML")
@@ -99,12 +100,14 @@ public class FIAMLTest extends AbstractDBTest
     public void testUploadFiaMLFileTwiceWithOneDAO() throws SQLException
     {
         FIAML2Database fiaML2Database = new FIAML2Database(datasource);
-        fiaML2Database.uploadFiaMLFile(new File("resource/examples/example.fiaML"),
-                new DMDataSetDTO("data set perm id2", "sample perm id2", "sample name",
-                        "experiment perm id2", "experiment name"));
-        fiaML2Database.uploadFiaMLFile(new File("resource/examples/example.fiaML"),
-                new DMDataSetDTO("data set perm id3", "sample perm id", "sample name",
-                        "experiment perm id", "experiment name"));
+        fiaML2Database.upload(new File("resource/examples/example.fiaML"), new DMDataSetDTO(
+                "data set perm id2", "sample perm id2", "sample name", "experiment perm id2",
+                "experiment name"));
+        fiaML2Database.commit();
+        fiaML2Database.upload(new File("resource/examples/example.fiaML"), new DMDataSetDTO(
+                "data set perm id3", "sample perm id", "sample name", "experiment perm id",
+                "experiment name"));
+        fiaML2Database.commit();
     }
 
     @Test(dependsOnMethods = "testUploadFiaMLFileTwiceWithOneDAO", expectedExceptions = DataIntegrityViolationException.class)

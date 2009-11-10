@@ -47,9 +47,9 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
     // AbstractStorageProcessor
     //
 
-    public final File storeData(final DataSetInformation dataSetInformation, final ITypeExtractor typeExtractor,
-            final IMailClient mailClient, final File incomingDataSetDirectory,
-            final File rootDir)
+    public final File storeData(final DataSetInformation dataSetInformation,
+            final ITypeExtractor typeExtractor, final IMailClient mailClient,
+            final File incomingDataSetDirectory, final File rootDir)
     {
         checkParameters(incomingDataSetDirectory, rootDir);
         File originalDir = getOriginalDirectory(rootDir);
@@ -67,7 +67,7 @@ public class DefaultStorageProcessor extends AbstractStorageProcessor
         return rootDir;
     }
 
-    public UnstoreDataAction unstoreData(final File incomingDataSetDirectory,
+    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
             final File storedDataDirectory, Throwable exception)
     {
         checkParameters(incomingDataSetDirectory, storedDataDirectory);

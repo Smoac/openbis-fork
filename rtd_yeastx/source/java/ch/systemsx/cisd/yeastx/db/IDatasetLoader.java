@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.etlserver;
+package ch.systemsx.cisd.yeastx.db;
 
 import java.io.File;
-
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import java.sql.SQLException;
 
 /**
- * @author Franz-Josef Elmer
+ * @author Tomasz Pylak
  */
-public interface IDataSetUploader
+public interface IDatasetLoader
 {
 
-    /** uploads files with recognized extensions to the additional database */
-    void upload(File dataSet, DataSetInformation dataSetInformation)
-            throws EnvironmentFailureException;
+    /**
+     * Uploads files with recognized extensions to the additional database.<br>
+     * If the exception is thrown than all the operations are rollbacked automatically and the next
+     * upload can take place without calling {@link #rollback()} or {@link #commit()} explicitly.
+     */
+    void upload(final File file, final DMDataSetDTO dataSet) throws SQLException;
 
-    /** commits the results of the last call of {@link #upload} */
+    /** Commits the previous {@link #upload} */
     void commit();
 
-    /** rollbacks the results of the last call of {@link #upload} */
+    /** Rollbacks the previous {@link #upload} */
     void rollback();
 }

@@ -23,13 +23,10 @@ import java.util.Iterator;
 import javax.sql.DataSource;
 
 import net.lemnik.eodsql.QueryTool;
-import net.lemnik.eodsql.TransactionQuery;
 
-import org.springframework.dao.DataAccessException;
-
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.yeastx.db.DBUtils;
+import ch.systemsx.cisd.yeastx.db.AbstractDatasetLoader;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.IGenericDAO;
 import ch.systemsx.cisd.yeastx.fiaml.FIAMLParser.IMSRunObserver;
 
 /**
@@ -37,7 +34,7 @@ import ch.systemsx.cisd.yeastx.fiaml.FIAMLParser.IMSRunObserver;
  * 
  * @author Bernd Rinn
  */
-public class FIAML2Database
+public class FIAML2Database extends AbstractDatasetLoader
 {
 
     private final static int PROFILE_CHUNK_SIZE = 250;
@@ -87,14 +84,11 @@ public class FIAML2Database
     /**
      * Method for uploading an <var>fiaMLFile</var> to the database.
      */
-    public void uploadFiaMLFile(final File fiaMLFile, final DMDataSetDTO dataSet)
-            throws SQLException
+    public void upload(final File fiaMLFile, final DMDataSetDTO dataSet) throws SQLException
     {
-        TransactionQuery transaction = null;
         try
         {
-            transaction = dao;
-            DBUtils.createDataSet(dao, dataSet);
+            createDataSet(dataSet);
             new FIAMLParser(fiaMLFile.getPath(), new IMSRunObserver()
                 {
                     public void observe(FIAMSRunDTO run, FIAMSRunDataDTO runData)
@@ -108,35 +102,15 @@ public class FIAML2Database
                                 .getCentroidIntensities(), runData.getCentroidCorrelations());
                     }
                 });
-            transaction.close(true);
         } catch (Throwable th)
         {
-            try
-            {
-                DBUtils.rollbackAndClose(transaction);
-            } catch (DataAccessException ex)
-            {
-                // Avoid this exception shadowing the original exception.
-            }
-            throw CheckedExceptionTunnel.wrapIfNecessary(th);
+            rollbackAndRethrow(th);
         }
     }
 
-    public static void main(String[] args) throws SQLException
+    @Override
+    protected IGenericDAO getDao()
     {
-        final long start = System.currentTimeMillis();
-        final FIAML2Database fiaML2Database =
-                new FIAML2Database(DBUtils.createDefaultDBContext().getDataSource());
-        final String dir = args[0];
-        int permId = 0;
-        for (String f : new File(dir).list(new FIAMLFilenameFilter()))
-        {
-            System.out.println(f);
-            fiaML2Database.uploadFiaMLFile(new File(dir, f), new DMDataSetDTO(Integer
-                    .toString(++permId), "sample perm id", "sample name", "experiment perm id",
-                    "experiment name"));
-        }
-        System.out.println((System.currentTimeMillis() - start) / 1000.0);
+        return dao;
     }
-
 }

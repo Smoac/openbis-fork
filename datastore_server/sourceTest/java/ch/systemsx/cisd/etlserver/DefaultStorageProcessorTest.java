@@ -97,7 +97,7 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
         final DefaultStorageProcessor storageProcessor = createStorageProcessor();
         try
         {
-            storageProcessor.unstoreData(null, null, null);
+            storageProcessor.rollback(null, null, null);
             fail("Null values not accepted");
         } catch (final AssertionError e)
         {
@@ -112,7 +112,7 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
                         root);
         assertEquals(true, storeData.exists());
         assertEquals(false, incomingDataSetDirectory.exists());
-        storageProcessor.unstoreData(incomingDataSetDirectory, root, null);
+        storageProcessor.rollback(incomingDataSetDirectory, root, null);
         assertEquals(true, incomingDataSetDirectory.exists());
         assertEquals("hi", FileUtilities.loadToString(readMeFile).trim());
     }

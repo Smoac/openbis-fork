@@ -84,6 +84,27 @@ public class QuantMLStorageProcessor extends AbstractDelegatingStorageProcessor
         findFile(incomingDataSetDirectory, mlFileExtension);
     }
 
+    @Override
+    public void commit()
+    {
+        super.commit();
+        databaseUploader.commit();
+    }
+
+    @Override
+    public UnstoreDataAction rollback(final File incomingDataSetDirectory,
+            final File storedDataDirectory, Throwable exception)
+    {
+        try
+        {
+            super.rollback(incomingDataSetDirectory, storedDataDirectory, exception);
+        } finally
+        {
+            databaseUploader.rollback();
+        }
+        return UnstoreDataAction.LEAVE_UNTOUCHED;
+    }
+
     // returns the only file with the specified extension or throws an exceptions if none or more
     // than one is found.
     public static File findFile(File incomingItem, String fileExtension)

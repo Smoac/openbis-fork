@@ -80,7 +80,8 @@ class ResultDataSetUploader extends AbstractHandler
     {
         try
         {
-            Experiment experiment = getOrCreateExperiment(dataSetInfo.tryToGetExperiment().getPermId());
+            Experiment experiment =
+                    getOrCreateExperiment(dataSetInfo.tryToGetExperiment().getPermId());
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample dataSetInfoSample =
                     dataSetInfo.tryToGetSample();
             Sample sample = null;
@@ -89,7 +90,8 @@ class ResultDataSetUploader extends AbstractHandler
             {
                 sample = getOrCreateSample(experiment, dataSetInfoSample.getPermId());
                 Group group = dataSetInfoSample.getGroup();
-                groupIdentifier = new GroupIdentifier(group.getInstance().getCode(), group.getCode());
+                groupIdentifier =
+                        new GroupIdentifier(group.getInstance().getCode(), group.getCode());
             } else
             {
                 ExperimentIdentifier experimentIdentifier = dataSetInfo.getExperimentIdentifier();
@@ -107,26 +109,45 @@ class ResultDataSetUploader extends AbstractHandler
             DataSet ds =
                     getOrCreateDataSet(experiment, sample, database, dataSetInfo.getDataSetCode());
             addToDatabase(ds, experiment, groupIdentifier, summary);
-            if (errorMessages.length() == 0)
-            {
-                connection.commit();
-            } else
-            {
-                throw UserFailureException.fromTemplate(
-                        "Following errors occurred while uploading protein information"
-                                + " to the dataset database from the dataset '%s': %s" + " ",
-                        dataSetInfo.getDataSetCode(), errorMessages.toString());
-            }
         } catch (Throwable throwable)
         {
             try
             {
                 connection.rollback();
-                throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
             } catch (SQLException ex)
             {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
+            throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
+        }
+        if (errorMessages.length() != 0)
+        {
+            rollback();
+            throw UserFailureException.fromTemplate(
+                    "Following errors occurred while uploading protein information"
+                            + " to the dataset database from the dataset '%s': %s" + " ",
+                    dataSetInfo.getDataSetCode(), errorMessages.toString());
+        }
+    }
+
+    public void rollback()
+    {
+        try
+        {
+            connection.rollback();
+        } catch (SQLException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    public void commit()
+    {
+        try
+        {
+            connection.commit();
+        } catch (SQLException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
     }
 
@@ -151,8 +172,8 @@ class ResultDataSetUploader extends AbstractHandler
         return database;
     }
 
-    private DataSet getOrCreateDataSet(Experiment experiment, Sample sampleOrNull, Database database,
-            String dataSetPermID)
+    private DataSet getOrCreateDataSet(Experiment experiment, Sample sampleOrNull,
+            Database database, String dataSetPermID)
     {
         DataSet dataSet = dao.tryToGetDataSetByPermID(dataSetPermID);
         if (dataSet == null)
@@ -186,8 +207,8 @@ class ResultDataSetUploader extends AbstractHandler
         return experiment;
     }
 
-    private void addToDatabase(DataSet dataSet, Experiment experiment, GroupIdentifier groupIdentifier,
-            ProteinSummary summary)
+    private void addToDatabase(DataSet dataSet, Experiment experiment,
+            GroupIdentifier groupIdentifier, ProteinSummary summary)
     {
         long dataSetID = dataSet.getId();
         Long databaseID = dataSet.getDatabaseID();
@@ -357,4 +378,3 @@ class ResultDataSetUploader extends AbstractHandler
         throw new UserFailureException("Missing Protein Prophet details.");
     }
 }
-

@@ -542,6 +542,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                             data1, baseDir);
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
+                    one(storageProcessor).commit();
                 }
             });
         final LogMonitoringAppender appender =
@@ -584,6 +585,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                             data1, baseDir);
                     final File finalDataSetPath = new File(baseDir, DATA1_NAME);
                     will(returnValue(finalDataSetPath));
+                    one(storageProcessor).commit();
                 }
             });
         final LogMonitoringAppender appender =
@@ -682,7 +684,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                             new UserFailureException("Could store data by storage processor");
                     will(throwException(exception));
 
-                    one(storageProcessor).unstoreData(folder, baseDir, exception);
+                    one(storageProcessor).rollback(folder, baseDir, exception);
                     will(returnValue(UnstoreDataAction.MOVE_TO_ERROR));
 
                     allowing(typeExtractor).getLocatorType(folder);
@@ -746,7 +748,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                             new EnvironmentFailureException("Could not register data set folder");
                     will(throwException(exception));
 
-                    one(storageProcessor).unstoreData(folder, baseDir, exception);
+                    one(storageProcessor).rollback(folder, baseDir, exception);
                     one(storageProcessor).getStorageFormat();
                 }
             });

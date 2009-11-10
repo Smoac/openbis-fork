@@ -21,6 +21,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.io.FilenameUtils;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -34,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
+import ch.systemsx.cisd.yeastx.db.IDatasetLoader;
 import ch.systemsx.cisd.yeastx.eicml.EICML2Database;
 import ch.systemsx.cisd.yeastx.fiaml.FIAML2Database;
 import ch.systemsx.cisd.yeastx.mzxml.MzXml2Database;
@@ -51,17 +54,21 @@ public class ML2DatabaseUploader implements IDataSetUploader
 
     private static final String DATABASE_PROPERTIES_PREFIX = "database.";
 
-    private final EICML2Database eicML2Database;
+    private final IDatasetLoader eicML2Database;
 
-    private final FIAML2Database fiaML2Database;
+    private final IDatasetLoader fiaML2Database;
 
-    private final QuantML2Database quantML2Database;
+    private final IDatasetLoader quantML2Database;
 
-    private final MzXml2Database mzXml2Database;
+    private final IDatasetLoader mzXml2Database;
 
     private final String uniqueSampleNamePropertyCode;
 
     private final String uniqueExperimentNamePropertyCode;
+
+    // ------------
+
+    private IDatasetLoader currentTransaction;
 
     public ML2DatabaseUploader(Properties properties)
     {
@@ -71,10 +78,12 @@ public class ML2DatabaseUploader implements IDataSetUploader
                 (dbProps.isEmpty() ? DBUtils.createDefaultDBContext() : BeanUtils.createBean(
                         DatabaseConfigurationContext.class, dbProps));
         DBUtils.init(dbContext);
-        this.eicML2Database = new EICML2Database(dbContext.getDataSource());
-        this.fiaML2Database = new FIAML2Database(dbContext.getDataSource());
-        this.quantML2Database = new QuantML2Database(dbContext.getDataSource());
-        this.mzXml2Database = new MzXml2Database(dbContext.getDataSource());
+        DataSource dataSource = dbContext.getDataSource();
+        this.eicML2Database = new EICML2Database(dataSource);
+        this.fiaML2Database = new FIAML2Database(dataSource);
+        this.quantML2Database = new QuantML2Database(dataSource);
+        this.mzXml2Database = new MzXml2Database(dataSource);
+        this.currentTransaction = null;
         this.uniqueExperimentNamePropertyCode =
                 DatasetMappingResolver.getUniqueExperimentNamePropertyCode(properties);
         this.uniqueSampleNamePropertyCode =
@@ -87,7 +96,17 @@ public class ML2DatabaseUploader implements IDataSetUploader
     {
         try
         {
-            uoloadFile(dataSet, dataSetInformation);
+            if (currentTransaction != null)
+            {
+                throw new IllegalStateException(
+                        "Current transaction has been neither commited nor rollbacked.");
+            }
+            this.currentTransaction = tryGetDatasetUploader(dataSet, dataSetInformation);
+            if (currentTransaction != null)
+            {
+                DMDataSetDTO openbisBacklink = createBacklink(dataSetInformation);
+                currentTransaction.upload(dataSet, openbisBacklink);
+            }
         } catch (SQLException e)
         {
             throw EnvironmentFailureException
@@ -98,30 +117,55 @@ public class ML2DatabaseUploader implements IDataSetUploader
         }
     }
 
-    private void uoloadFile(File dataSet, DataSetInformation dataSetInformation)
+    private IDatasetLoader tryGetDatasetUploader(File dataSet, DataSetInformation dataSetInformation)
             throws SQLException
     {
-        DMDataSetDTO openbisBacklink = createBacklink(dataSetInformation);
         String extension = getExtension(dataSet);
         if (extension.equalsIgnoreCase(ConstantsYeastX.FIAML_EXT))
         {
-            fiaML2Database.uploadFiaMLFile(dataSet, openbisBacklink);
+            return fiaML2Database;
         } else if (extension.equalsIgnoreCase(ConstantsYeastX.EICML_EXT))
         {
-            eicML2Database.uploadEicMLFile(dataSet, openbisBacklink);
+            return eicML2Database;
         } else if (extension.equalsIgnoreCase(ConstantsYeastX.QUANTML_EXT))
         {
-            quantML2Database.uploadQuantMLFile(dataSet, openbisBacklink);
+            return quantML2Database;
         } else if (extension.equalsIgnoreCase(ConstantsYeastX.MZXML_EXT))
         {
             DataSetInformationYeastX info = (DataSetInformationYeastX) dataSetInformation;
             if (info.getConversion() == MLConversionType.NONE)
             {
-                mzXml2Database.uploadFile(dataSet, openbisBacklink);
+                return mzXml2Database;
             }
-        } else
+        }
+        return null;
+    }
+
+    public void commit()
+    {
+        try
         {
-            // do nothing
+            if (currentTransaction != null)
+            {
+                currentTransaction.commit();
+            }
+        } finally
+        {
+            currentTransaction = null;
+        }
+    }
+
+    public void rollback()
+    {
+        try
+        {
+            if (currentTransaction != null)
+            {
+                currentTransaction.rollback();
+            }
+        } finally
+        {
+            currentTransaction = null;
         }
     }
 
@@ -177,5 +221,4 @@ public class ML2DatabaseUploader implements IDataSetUploader
     {
         return FilenameUtils.getExtension(incomingDataSetPath.getName()).toLowerCase();
     }
-
 }
