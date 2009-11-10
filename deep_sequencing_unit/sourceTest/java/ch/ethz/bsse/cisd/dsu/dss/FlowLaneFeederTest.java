@@ -18,7 +18,6 @@ package ch.ethz.bsse.cisd.dsu.dss;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -31,7 +30,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -86,10 +87,10 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     private File dropBox1;
     private File dropBox2;
     private File transferDropBox;
+    private File srfInfo;
 
-    @Override
     @BeforeMethod
-    public void setUp() throws IOException
+    public void beforeMethod() throws Exception
     {
         super.setUp();
         LogInitializer.init();
@@ -102,12 +103,8 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         assertEquals(true, dropBox2.mkdirs());
         transferDropBox = new File(workingDirectory, TRANSFER_DROP_BOX);
         assertEquals(true, transferDropBox.mkdirs());
-        Properties properties = new Properties();
-        properties.setProperty(FlowLaneFeeder.FLOW_LANE_DROP_BOX_TEMPLATE, new File(
-                workingDirectory, DROP_BOX_PREFIX).getAbsolutePath()
-                + "{0}");
-        properties.setProperty(FlowLaneFeeder.TRANSFER_PREFIX + AFFILIATION, transferDropBox.getAbsolutePath());
-        flowLaneFeeder = new FlowLaneFeeder(properties, service);
+        srfInfo = new File(workingDirectory, "srfInfo");
+        flowLaneFeeder = createFeeder(null);
     }
     
     @AfterMethod
@@ -265,6 +262,80 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
     
+    @Test
+    public void testHappyCaseWithSRFInfo()
+    {
+        flowLaneFeeder = createFeeder("echo option: $1\necho file: $2");
+
+        File flowCell = new File(workingDirectory, SAMPLE_CODE);
+        assertEquals(true, flowCell.mkdir());
+        File logs = new File(flowCell, "logs");
+        assertEquals(true, logs.mkdir());
+        FileUtilities.writeToFile(new File(logs, "basic.log"), "hello log");
+        File srfFolder = new File(flowCell, "SRF");
+        assertEquals(true, srfFolder.mkdir());
+        File originalFlowLane1 = new File(srfFolder, "s_1.srf");
+        FileUtilities.writeToFile(originalFlowLane1, "hello flow lane 1");
+        File originalFlowLane2 = new File(srfFolder, "2.srf");
+        FileUtilities.writeToFile(originalFlowLane2, "hello flow lane 2");
+        prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
+        
+        Sample fl1 = createFlowLaneSample(1);
+        Sample fl2 = createFlowLaneSample(2);
+        prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.asList(fl1, fl2));
+        prepareGetProperties(Arrays.asList(fl1, fl2));
+        
+        flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+        
+        checkFlowLaneDataSet(originalFlowLane1, "1");
+        checkFlowLaneDataSet(originalFlowLane2, "2");
+        
+        File[] transferedFiles = transferDropBox.listFiles();
+        assertEquals(1, transferedFiles.length);
+        String sampleName =
+            SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING + "2";
+        assertEquals("G2_" + sampleName, transferedFiles[0].getName());
+        File metaFile = getFile(transferedFiles[0], FlowLaneFeeder.META_DATA_FILE_TYPE);
+        assertEquals(sampleName + "_" + EXTERNAL_SAMPLE_NAME + FlowLaneFeeder.META_DATA_FILE_TYPE,
+                metaFile.getName());
+        List<String> metaData = FileUtilities.loadToStringList(metaFile);
+        String lastLine = metaData.remove(metaData.size() - 1);
+        assertEquals("[Parent\tnull, Code\tfc:2, Contact Person Email\tab@c.de, "
+                + "AFFILIATION\tfmi, EXTERNAL_SAMPLE_NAME\text23, , "
+                + "==== SRF Info ====, option: -l1]", metaData.toString());
+        AssertionUtil.assertContains("file: ", lastLine);
+        assertEquals(8, metaData.size());
+        assertHardLinkOnSameFile(originalFlowLane2, getFile(transferedFiles[0], "2.srf"));
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testInvalidSRFFile()
+    {
+        flowLaneFeeder = createFeeder("exit 1");
+        File flowCell = new File(workingDirectory, SAMPLE_CODE);
+        assertEquals(true, flowCell.mkdir());
+        File originalFlowLane1 = new File(flowCell, "s_1.srf");
+        FileUtilities.writeToFile(originalFlowLane1, "hello flow lane 1");
+        prepareLoadFlowCellSample(EXAMPLE_FLOW_CELL_SAMPLE);
+        
+        Sample fl1 = createFlowLaneSample(1);
+        prepareListFlowLanes(EXAMPLE_FLOW_CELL_SAMPLE, Arrays.asList(fl1));
+        
+        try
+        {
+            flowLaneFeeder.handle(flowCell, EXAMPLE_DATA_SET_INFO);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            AssertionUtil.assertContains("Invalid SRF file", ex.getMessage());
+            AssertionUtil.assertContains("s_1.srf", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
     private File getFile(File folder, final String fileNameExtension)
     {
         File[] files = folder.listFiles(new FilenameFilter()
@@ -417,6 +488,31 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         sample.setIdentifier(SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING
                 + flowLaneNumber);
         return sample;
+    }
+    
+    private FlowLaneFeeder createFeeder(String srfInfoScriptOrNull)
+    {
+        Properties properties = new Properties();
+        properties.setProperty(FlowLaneFeeder.FLOW_LANE_DROP_BOX_TEMPLATE, new File(
+                workingDirectory, DROP_BOX_PREFIX).getAbsolutePath()
+                + "{0}");
+        properties.setProperty(FlowLaneFeeder.TRANSFER_PREFIX + AFFILIATION, transferDropBox.getAbsolutePath());
+        if (srfInfoScriptOrNull != null)
+        {
+            properties.setProperty(FlowLaneFeeder.SRF_INFO_PATH, srfInfo.getAbsolutePath());
+            FileUtilities.writeToFile(srfInfo, srfInfoScriptOrNull);
+            File chmod = OSUtilities.findExecutable("chmod");
+            assertNotNull(chmod);
+            try
+            {
+                String cmd = chmod.getAbsolutePath() + " +x " + srfInfo.getAbsolutePath();
+                Runtime.getRuntime().exec(cmd).waitFor();
+            } catch (Exception ex)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            }
+        }
+        return new FlowLaneFeeder(properties, service);
     }
     
 }

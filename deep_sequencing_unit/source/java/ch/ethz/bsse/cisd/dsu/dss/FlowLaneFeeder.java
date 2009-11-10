@@ -19,6 +19,8 @@ package ch.ethz.bsse.cisd.dsu.dss;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,6 +33,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.TimingParameters;
+import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -41,6 +44,8 @@ import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
+import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -71,6 +76,8 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
     static final String EXTERNAL_SAMPLE_NAME_KEY = "EXTERNAL_SAMPLE_NAME";
 
     static final String FLOW_LANE_DROP_BOX_TEMPLATE = "flow-lane-drop-box-template";
+    
+    static final String SRF_INFO_PATH = "srf-info-path";
 
     static final String ENTITY_SEPARATOR_KEY = "entity-separator";
 
@@ -95,6 +102,8 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
 
     private final Map<String, File> transferDropBoxes = new HashMap<String, File>();
 
+    private final String srfInfoPathOrNull;
+
     FlowLaneFeeder(Properties properties, IEncapsulatedOpenBISService service)
     {
         this.service = service;
@@ -102,6 +111,16 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
                 new MessageFormat(PropertyUtils.getMandatoryProperty(properties,
                         FLOW_LANE_DROP_BOX_TEMPLATE));
         entitySepaparator = properties.getProperty(ENTITY_SEPARATOR_KEY, DEFAULT_ENTITY_SEPARATOR);
+        srfInfoPathOrNull = properties.getProperty(SRF_INFO_PATH);
+        if (srfInfoPathOrNull != null)
+        {
+            File srfInfo = new File(srfInfoPathOrNull);
+            if (srfInfo.isFile() == false)
+            {
+                throw new ConfigurationFailureException("File '" + srfInfo.getAbsolutePath()
+                        + "' does not exists or is a folder.");
+            }
+        }
         copier = FastRecursiveHardLinkMaker.tryCreate(TimingParameters.getDefaultParameters());
         fileOperations = FileOperations.getInstance();
         Properties transferDropBoxMapping =
@@ -134,6 +153,7 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
         }
         for (File file : files)
         {
+            List<String> srfInfo = getSRFInfo(file);
             String flowLane = extractFlowLane(file);
             Sample flowLaneSample = flowLaneSampleMap.get(flowLane);
             if (flowLaneSample == null)
@@ -160,7 +180,7 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
             }
             createHartLink(file, flowLaneDataSet);
             createMetaDataFileAndHartLinkInTransferDropBox(flowLaneDataSet, flowLaneSample,
-                    flowLane);
+                    flowLane, srfInfo);
             File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName);
             createdFiles.add(markerFile);
             FileUtilities.writeToFile(markerFile, "");
@@ -172,6 +192,28 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
             }
         }
 
+    }
+    
+    private List<String> getSRFInfo(File file)
+    {
+        if (srfInfoPathOrNull == null)
+        {
+            return Collections.emptyList();
+        }
+        List<String> command = Arrays.asList(srfInfoPathOrNull, "-l1", file.getAbsolutePath());
+        ProcessResult result = ProcessExecutionHelper.run(command, operationLog, operationLog, ConcurrencyUtilities.NO_TIMEOUT, ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, true);
+        List<String> output = result.getOutput();
+        if (result.isOK() == false)
+        {
+            StringBuilder builder = new StringBuilder();
+            for (String outputLine : output)
+            {
+                builder.append("\n").append(outputLine);
+            }
+            throw new UserFailureException("Invalid SRF file '" + file.getAbsolutePath() + "':"
+                    + builder);
+        }
+        return output;
     }
 
     private Map<String, Sample> createFlowLaneSampleMap(DataSetInformation dataSetInformation)
@@ -194,7 +236,7 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
     }
 
     private void createMetaDataFileAndHartLinkInTransferDropBox(File flowLaneDataSet,
-            Sample flowLaneSample, String flowLane)
+            Sample flowLaneSample, String flowLane, List<String> srfInfo)
     {
         if (flowLaneSample == null)
         {
@@ -222,6 +264,14 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
             if (code.equals(EXTERNAL_SAMPLE_NAME_KEY))
             {
                 externalSampleName = value;
+            }
+        }
+        if (srfInfo.isEmpty() == false)
+        {
+            builder.append("\n==== SRF Info ====\n");
+            for (String line : srfInfo)
+            {
+                builder.append(line).append('\n');
             }
         }
         String metaFileName =
