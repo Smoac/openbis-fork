@@ -140,6 +140,18 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                                 .getCompleteSize(), file.getID());
     }
 
+    /**
+     * Updates the <var>file</var> in the database with the current upload progress.
+     */
+    public void updateFileUploadProgress(final long id, final long size, final int crc32)
+            throws DataAccessException
+    {
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+
+        template.update("update files set size = ?, crc32_checksum = ? where id = ?", size, crc32,
+                id);
+    }
+
     public boolean deleteFile(final long id) throws DataAccessException
     {
         final int affectedRows =
@@ -209,11 +221,37 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     public final List<FileDTO> listUploadedFiles(final long userId) throws DataAccessException
     {
         final List<FileDTO> list =
-                getSimpleJdbcTemplate().query(
-                        SELECT_FILES + ", u.* from files f, users u "
-                                + "where f.complete_size = f.size and f.user_id = u.id and u.id = ?",
-                        FILE_WITH_REGISTERER_ROW_MAPPER, userId);
+                getSimpleJdbcTemplate()
+                        .query(
+                                SELECT_FILES
+                                        + ", u.* from files f, users u "
+                                        + "where f.complete_size = f.size and f.user_id = u.id and u.id = ?",
+                                FILE_WITH_REGISTERER_ROW_MAPPER, userId);
         return list;
+    }
+
+    /**
+     * Returns a partially uploaded file that is a candidate for resuming upload. Candidates are
+     * defined by being uploaded by the same user, having the same file name and the same complete
+     * size. If there are multiple files which are candidates, a random one is provided. If there is
+     * no candidate, <code>null</code> is returned.
+     */
+    public FileDTO tryGetResumeCandidate(final long userId, final String fileName,
+            final long completeSize)
+    {
+        final List<FileDTO> list =
+                getSimpleJdbcTemplate().query(
+                        SELECT_FILES + " from files f where f.user_id = ? and f.name = ? and "
+                                + "f.complete_size = ? and f.size < f.complete_size "
+                                + "fetch first row only", FILE_ROW_MAPPER, userId, fileName,
+                        completeSize);
+        if (list.isEmpty())
+        {
+            return null;
+        } else
+        {
+            return list.get(0);
+        }
     }
 
     //

@@ -47,11 +47,17 @@ public interface IFileDAO
     public void updateFile(final FileDTO file) throws DataAccessException;
 
     /**
+     * Updates the <var>file</var> in the database with the current upload progress.
+     */
+    public void updateFileUploadProgress(final long id, final long size, final int crc32)
+            throws DataAccessException;
+
+    /**
      * Removes <code>File</code> with given id from database.
      * 
      * @param fileId Id of file which should be removed from database.
-     * @return <code>true</code> if the file was deleted, <code>false</code> if there was no
-     *         file found with that id.
+     * @return <code>true</code> if the file was deleted, <code>false</code> if there was no file
+     *         found with that id.
      */
     public boolean deleteFile(final long fileId) throws DataAccessException;
 
@@ -89,4 +95,13 @@ public interface IFileDAO
      * Returns a list of all files uploaded by user with given <var>userId</var>.
      */
     public List<FileDTO> listUploadedFiles(final long userId) throws DataAccessException;
+
+    /**
+     * Returns a partially uploaded file that is a candidate for resuming upload. Candidates are
+     * defined by being uploaded by the same user, having the same file name and the same complete
+     * size. If there are multiple files which are candidates, a random one is provided. If there is
+     * no candidate, <code>null</code> is returned.
+     */
+    public FileDTO tryGetResumeCandidate(final long userId, final String fileName,
+            final long completeSize);
 }

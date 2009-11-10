@@ -109,8 +109,8 @@ public final class FileDAOTest extends AbstractDAOTest
 
     /**
      * Saves in DB sample file with <code>path = prefix_number_sufix</code> and expiration date
-     * created from <code>expirationTime</code>. If expirationTime is NOT_SET then default time
-     * is used.
+     * created from <code>expirationTime</code>. If expirationTime is NOT_SET then default time is
+     * used.
      */
     private final void createFileWithExpirationTimeAndNumber(final Long expirationTime,
             final IFileDAO fileDAO, final int i)
@@ -185,8 +185,28 @@ public final class FileDAOTest extends AbstractDAOTest
         // check if number of files in database increased
         files = fileDAO.listFiles();
         assertEquals(1, files.size());
-        final FileDTO file = files.get(0);
+        FileDTO file = files.get(0);
         assertEqual(sampleFile, file);
+        List<FileDTO> uploadedFiles = fileDAO.listUploadedFiles(getFirstSampleUserFromDB().getID());
+        // incomplete files are not listed in listUploadedFiles()
+        assertTrue(uploadedFiles.isEmpty());
+
+        // see whether we find the incomplete file as candidate for resume
+        final FileDTO candidate =
+                fileDAO.tryGetResumeCandidate(getFirstSampleUserFromDB().getID(), file.getName(),
+                        file.getCompleteSize());
+        assertNotNull(candidate);
+        // if we provide the "wrong" size, no candidate should be found. 
+        assertNull(fileDAO.tryGetResumeCandidate(getFirstSampleUserFromDB().getID(), file.getName(),
+                        file.getCompleteSize() - 1));
+
+        // now we mark the file as "complete" as size = complete_size
+        fileDAO.updateFileUploadProgress(file.getID(), file.getCompleteSize(), 1234);
+        uploadedFiles = fileDAO.listUploadedFiles(getFirstSampleUserFromDB().getID());
+        assertEquals(1, uploadedFiles.size());
+        file = uploadedFiles.get(0);
+        assertEquals(200L, file.getSize().longValue());
+        assertEquals(1234, file.getCrc32Value().intValue());
     }
 
     @Transactional
