@@ -6,6 +6,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.i18n.client.NumberFormat;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 
 /**
  * Renderer of {@link Double} value.
@@ -15,6 +16,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 public final class RealNumberRenderer implements GridCellRenderer<BaseEntityModel<?>>
 {
     private static final int MAX_DIGITAL_FORMAT_LENGTH = 10;
+
+    private static final double MIN_DIGITAL_FORMAT_VALUE = 0.00005;
 
     private static final String SCIENTIFIC_FORMAT = "0.0000E0000";
 
@@ -39,7 +42,14 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
         {
             formattedValue = NumberFormat.getFormat(SCIENTIFIC_FORMAT).format(doubleValue);
         }
-        return formattedValue;
+        if (doubleValue < MIN_DIGITAL_FORMAT_VALUE)
+        {
+            formattedValue += "..."; // show 0.0000...
+        } else
+        {
+            formattedValue += "&nbsp;&nbsp;&nbsp;"; // add ' ' to always have a correct alignment
+        }
+        return MultilineHTML.wrapUpInDivWithTooltip(formattedValue, Double.toString(doubleValue));
     }
 
 }
