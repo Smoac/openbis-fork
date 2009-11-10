@@ -110,7 +110,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         criteria.setTreatmentTypeCode(treatmentTypeCode);
         criteria.setAggregateOriginal(aggregateOriginal);
         abundanceColumnDefinitions = definitions;
-        refresh(null, true);
+        refresh(true);
     }
 
     @Override

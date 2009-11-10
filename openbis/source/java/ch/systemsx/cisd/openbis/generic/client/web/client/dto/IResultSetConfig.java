@@ -30,9 +30,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
  * 
  * @author Christian Ribeaud
  */
-public interface IResultSetConfig<K, T> extends IResultSetKeyHolder<K>
+public interface IResultSetConfig<K, T>
 {
     public static final int NO_LIMIT = -1;
+
+    /** Instructions how to use the server side cache when computing the results. */
+    public ResultSetFetchConfig<K> getCacheConfig();
 
     /**
      * The offset for the first record to retrieve.

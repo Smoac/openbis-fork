@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -129,7 +130,7 @@ public abstract class AbstractClientService implements IClientService
             IOriginalDataProvider<T> dataProvider, String resultSetKey)
     {
         DefaultResultSetConfig<String, T> criteria = DefaultResultSetConfig.createFetchAll();
-        criteria.setResultSetKey(resultSetKey);
+        criteria.setCacheConfig(ResultSetFetchConfig.createFetchFromCache(resultSetKey));
         final IResultSet<String, T> allData = getResultSet(criteria, dataProvider);
         Set<BasicEntityType> result = new HashSet<BasicEntityType>();
         for (T row : allData.getList().extractOriginalObjects())

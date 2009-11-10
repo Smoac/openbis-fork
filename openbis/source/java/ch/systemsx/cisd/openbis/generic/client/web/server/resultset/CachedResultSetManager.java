@@ -36,11 +36,13 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig.ResultSetFetchMode;
 import ch.systemsx.cisd.openbis.generic.client.web.server.calculator.GridExpressionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -317,34 +319,86 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
     {
         assert resultConfig != null : "Unspecified result configuration";
         assert dataProvider != null : "Unspecified data retriever";
-        GridRowModels<T> data;
-        K dataKey = resultConfig.getResultSetKey();
-        if (dataKey == null)
+        ResultSetFetchConfig<K> cacheConfig = resultConfig.getCacheConfig();
+        ResultSetFetchMode mode = cacheConfig.getMode();
+        debug("getResultSet(cache config = " + cacheConfig + ")");
+
+        if (mode == ResultSetFetchMode.CLEAR_COMPUTE_AND_CACHE)
         {
-            dataKey = resultSetKeyProvider.createKey();
-            debug("Unknown result set key: retrieving the data with a new key " + dataKey);
+            removeResultSet(cacheConfig.tryGetResultSetKey());
+        }
+        if (mode == ResultSetFetchMode.COMPUTE_AND_CACHE
+                || mode == ResultSetFetchMode.CLEAR_COMPUTE_AND_CACHE)
+        {
+            K dataKey = resultSetKeyProvider.createKey();
+            debug("retrieving the data with a new key " + dataKey);
             List<T> rows = dataProvider.getOriginalData();
-            data = calculateRowModels(sessionToken, rows, resultConfig);
-            results.put(dataKey, data);
+            return calculateResult(sessionToken, resultConfig, dataKey, rows);
         } else
         {
-            debug(String.format("Fetching the result from the specifed result set key '%s'.",
-                    dataKey));
-            data = cast(results.get(dataKey));
-            if (data == null)
+            K dataKey = cacheConfig.tryGetResultSetKey();
+            GridRowModels<T> data = fetchCachedData(dataKey);
+
+            if (mode == ResultSetFetchMode.FETCH_FROM_CACHE)
             {
-                debug(String
-                        .format("Invalid result set key '%s'. This should not happen.", dataKey));
+                return filterLimitAndSort(resultConfig, data, dataKey);
+            } else if (mode == ResultSetFetchMode.FETCH_FROM_CACHE_AND_RECOMPUTE)
+            {
+                List<T> rows = extractRows(data);
+                return calculateResult(sessionToken, resultConfig, dataKey, rows);
+            } else
+            {
+                throw new IllegalStateException("unexpected mode " + mode);
             }
         }
-        assert data != null : "Unspecified data";
-        data = filterData(data, resultConfig.getAvailableColumns(), resultConfig.getFilters());
-        final int size = data.size();
+    }
+
+    private <T> IResultSet<K, T> calculateResult(final String sessionToken,
+            final IResultSetConfig<K, T> resultConfig, K dataKey, List<T> rows)
+    {
+        GridRowModels<T> data =
+                calculateRowModelsAndSave(rows, sessionToken, resultConfig, dataKey);
+        return filterLimitAndSort(resultConfig, data, dataKey);
+    }
+
+    private <T> GridRowModels<T> fetchCachedData(K dataKey)
+    {
+        debug(String.format("Fetching the result from the specifed result set key '%s'.", dataKey));
+        GridRowModels<T> data = cast(results.get(dataKey));
+        assert data != null : String.format("Invalid result set key '%s'. This should not happen.",
+                dataKey);
+        return data;
+    }
+
+    private <T> GridRowModels<T> calculateRowModelsAndSave(List<T> rows, final String sessionToken,
+            final IResultSetConfig<K, T> resultConfig, K dataKey)
+    {
+        GridRowModels<T> data = calculateRowModels(sessionToken, rows, resultConfig);
+        results.put(dataKey, data);
+        return data;
+    }
+
+    private static <T> List<T> extractRows(ArrayList<GridRowModel<T>> rowModels)
+    {
+        List<T> result = new ArrayList<T>();
+        for (GridRowModel<T> rowModel : rowModels)
+        {
+            result.add(rowModel.getOriginalObject());
+        }
+        return result;
+    }
+
+    private <T> IResultSet<K, T> filterLimitAndSort(final IResultSetConfig<K, T> resultConfig,
+            GridRowModels<T> data, K dataKey)
+    {
+        GridRowModels<T> filteredData =
+                filterData(data, resultConfig.getAvailableColumns(), resultConfig.getFilters());
+        final int size = filteredData.size();
         final int offset = getOffset(size, resultConfig.getOffset());
         final int limit = getLimit(size, resultConfig.getLimit(), offset);
         final SortInfo<T> sortInfo = resultConfig.getSortInfo();
-        sortData(data, sortInfo);
-        final GridRowModels<T> list = subList(data, offset, limit);
+        sortData(filteredData, sortInfo);
+        final GridRowModels<T> list = subList(filteredData, offset, limit);
         return new DefaultResultSet<K, T>(dataKey, list, size);
     }
 

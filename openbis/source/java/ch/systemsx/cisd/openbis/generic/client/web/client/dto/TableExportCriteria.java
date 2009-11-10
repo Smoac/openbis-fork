@@ -30,8 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
  * 
  * @author Tomasz Pylak
  */
-public class TableExportCriteria<T/* exported entity */> implements IResultSetKeyHolder<String>,
-        IsSerializable
+public class TableExportCriteria<T/* exported entity */> implements IsSerializable
 {
     // a key at which data are stored in the server cache
     private String resultSetKey;
@@ -70,6 +69,9 @@ public class TableExportCriteria<T/* exported entity */> implements IResultSetKe
         this.gridDisplayId = gridDisplayId;
     }
 
+    /**
+     * Uniquely identifies a result set on the server side.
+     */
     public String getResultSetKey()
     {
         return resultSetKey;

@@ -76,8 +76,6 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
 
     abstract protected ICriteriaProvider<K> getCriteriaProvider();
 
-    private IDataRefreshCallback externalRefreshCallbackOrNull;
-
     // criteria used in the previous refresh operation or null if it has not occurred yet
     protected K criteria;
 
@@ -147,7 +145,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
             return;
         }
         String newHeader = createHeader();
-        super.refresh(externalRefreshCallbackOrNull, newHeader, refreshColumnsNeeded);
+        super.refresh(null, newHeader, refreshColumnsNeeded);
     }
 
     protected final void refreshColumnsSettingsIfNecessary()
@@ -173,11 +171,6 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
         boolean refreshColumnsDefinition = hasColumnsDefinitionChanged(newCriteria);
         this.criteria = newCriteria;
         return refreshColumnsDefinition;
-    }
-
-    protected final void setExternalRefreshCallback(IDataRefreshCallback externalRefreshCallback)
-    {
-        this.externalRefreshCallbackOrNull = externalRefreshCallback;
     }
 
     @Override

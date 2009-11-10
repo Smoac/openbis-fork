@@ -56,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListPersonsCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.RelatedDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -214,7 +215,8 @@ public final class CommonClientService extends AbstractClientService implements
         final DefaultResultSetConfig<String, T> criteria = DefaultResultSetConfig.createFetchAll();
         criteria.setSortInfo(exportCriteria.getSortInfo());
         criteria.setFilters(exportCriteria.getFilters());
-        criteria.setResultSetKey(exportCriteria.getResultSetKey());
+        criteria.setCacheConfig(ResultSetFetchConfig.createFetchFromCache(exportCriteria
+                .getResultSetKey()));
         criteria.setAvailableColumns(exportCriteria.getAvailableColumns());
         criteria.setGridDisplayId(exportCriteria.getGridDisplayId());
         return criteria;

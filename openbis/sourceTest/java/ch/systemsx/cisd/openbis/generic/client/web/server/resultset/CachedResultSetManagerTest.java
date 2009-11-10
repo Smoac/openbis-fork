@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterIn
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridFilters;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CacheManager.TokenBasedResultSetKeyGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.CachedResultSetManager.ICustomColumnsProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRendererTest;
@@ -192,8 +193,8 @@ public final class CachedResultSetManagerTest
         context.checking(new Expectations()
             {
                 {
-                    one(resultSetConfig).getResultSetKey();
-                    will(returnValue(null));
+                    one(resultSetConfig).getCacheConfig();
+                    will(returnValue(ResultSetFetchConfig.createComputeAndCache()));
 
                     allowing(resultSetConfig).getAvailableColumns();
                     will(returnValue(null));
@@ -221,8 +222,8 @@ public final class CachedResultSetManagerTest
         context.checking(new Expectations()
             {
                 {
-                    one(resultSetConfig).getResultSetKey();
-                    will(returnValue("1"));
+                    one(resultSetConfig).getCacheConfig();
+                    will(returnValue(ResultSetFetchConfig.createFetchFromCache("1")));
 
                     allowing(resultSetConfig).getAvailableColumns();
                     will(returnValue(null));
@@ -245,8 +246,8 @@ public final class CachedResultSetManagerTest
         context.checking(new Expectations()
             {
                 {
-                    one(resultSetConfig).getResultSetKey();
-                    will(returnValue(null));
+                    one(resultSetConfig).getCacheConfig();
+                    will(returnValue(ResultSetFetchConfig.createComputeAndCache()));
 
                     allowing(resultSetConfig).getAvailableColumns();
                     will(returnValue(null));
@@ -308,8 +309,8 @@ public final class CachedResultSetManagerTest
         assertEquals("1", values.get(1));
     }
 
-    private static List<GridColumnFilterInfo<String>> createFilterList(IColumnDefinition<String> c1,
-            IColumnDefinition<String> c2)
+    private static List<GridColumnFilterInfo<String>> createFilterList(
+            IColumnDefinition<String> c1, IColumnDefinition<String> c2)
     {
         List<GridColumnFilterInfo<String>> result = new ArrayList<GridColumnFilterInfo<String>>();
         result.add(new GridColumnFilterInfo<String>(c1, null));

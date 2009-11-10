@@ -66,7 +66,7 @@ abstract public class AbstractSimpleBrowserGrid<T/* Entity */> extends
     @Override
     protected void refresh()
     {
-        super.refresh(null, false);
+        super.refresh(false);
     }
 
     @Override

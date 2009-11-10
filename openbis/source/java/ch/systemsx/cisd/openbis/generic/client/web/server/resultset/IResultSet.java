@@ -18,15 +18,19 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetKeyHolder;
 
 /**
  * A result set that is returned to the client.
  * 
  * @author Christian Ribeaud
  */
-public interface IResultSet<K, T> extends IResultSetKeyHolder<K>
+public interface IResultSet<K, T>
 {
+    /**
+     * Uniquely identifies a result set on the server side.
+     */
+    public K getResultSetKey();
+
     /**
      * Returns the list produced by a given {@link IResultSetConfig}.
      */

@@ -136,7 +136,7 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     @Override
     protected final void refresh()
     {
-        super.refresh(null, null, false);
+        super.refresh(false);
     }
 
     /** used to make a first data refresh, but can be also called many times */

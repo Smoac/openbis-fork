@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetFetchConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -146,8 +147,10 @@ public class DataSetReporterGrid extends
     protected void listEntities(DefaultResultSetConfig<String, TableModelRow> resultSetConfig,
             AbstractAsyncCallback<ResultSet<TableModelRow>> callback)
     {
-        // in all cases the data should be taken from the cache, and we know the key already
-        resultSetConfig.setResultSetKey(resultSetKey);
+        // In all cases the data should be taken from the cache, and we know the key already.
+        // The custom columns should be recomputed.
+        resultSetConfig.setCacheConfig(ResultSetFetchConfig
+                .createFetchFromCacheAndRecompute(resultSetKey));
         viewContext.getService().listDatasetReport(resultSetConfig, callback);
     }
 
@@ -187,7 +190,7 @@ public class DataSetReporterGrid extends
     @Override
     protected void refresh()
     {
-        refresh(null, false);
+        refresh(false);
     }
 
     @Override

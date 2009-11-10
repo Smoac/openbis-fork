@@ -36,13 +36,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
 
     private SortInfo<T> sortInfo = new SortInfo<T>();
 
-    /**
-     * The result set key.
-     * <p>
-     * Can be <code>null</code> if unknown.
-     * </p>
-     */
-    private K resultSetKeyOrNull;
+    private ResultSetFetchConfig<K> cacheConfig = ResultSetFetchConfig.createComputeAndCache();
 
     private Set<IColumnDefinition<T>> availableColumns;
 
@@ -71,9 +65,9 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         this.sortInfo = sortInfo;
     }
 
-    public final void setResultSetKey(final K resultSetKey)
+    public final void setCacheConfig(final ResultSetFetchConfig<K> cacheConfig)
     {
-        this.resultSetKeyOrNull = resultSetKey;
+        this.cacheConfig = cacheConfig;
     }
 
     public GridFilters<T> getFilters()
@@ -93,7 +87,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         setAvailableColumns(resultSetConfig.getAvailableColumns());
         setSortInfo(resultSetConfig.getSortInfo());
         setFilters(resultSetConfig.getFilters());
-        setResultSetKey(resultSetConfig.getResultSetKey());
+        setCacheConfig(resultSetConfig.getCacheConfig());
         setGridDisplayId(resultSetConfig.tryGetGridDisplayId());
     }
 
@@ -121,10 +115,9 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         return sortInfo;
     }
 
-    /** Can be <code>null</code> if unknown. */
-    public final K getResultSetKey()
+    public final ResultSetFetchConfig<K> getCacheConfig()
     {
-        return resultSetKeyOrNull;
+        return cacheConfig;
     }
 
     public void setFilters(GridFilters<T> filters)
