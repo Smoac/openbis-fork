@@ -32,7 +32,7 @@ public final class BasicFileDTO implements Serializable
     private String name;
 
     /**
-     * Size of the file (in bytes).
+     * Size of the file in the store (in bytes).
      * <p>
      * If <code>null</code>, then it has not been set.
      * </p>
@@ -44,9 +44,11 @@ public final class BasicFileDTO implements Serializable
     /** The content type of the file. */
     private String contentType;
     
-    /** Whether the file is complete in the store. */
-    private boolean complete = true;
-
+    /**
+     * Size of the complete file (in bytes, as reported by the client).
+     */
+    private long completeSize;
+    
     public final String getName()
     {
         return name;
@@ -87,13 +89,13 @@ public final class BasicFileDTO implements Serializable
         this.contentType = contentType;
     }
 
-    public final boolean isComplete()
+    public final long getCompleteSize()
     {
-        return complete;
+        return completeSize;
     }
 
-    public final void setComplete(boolean complete)
+    public final void setCompleteSize(long completeSize)
     {
-        this.complete = complete;
+        this.completeSize = completeSize;
     }
 }

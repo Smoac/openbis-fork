@@ -158,14 +158,14 @@ public final class FileDTO extends ID
         basicFileDTO.setCrc32Value(crc32Value);
     }
 
-    public final boolean isComplete()
+    public final long getCompleteSize()
     {
-        return basicFileDTO.isComplete();
+        return basicFileDTO.getCompleteSize();
     }
 
-    public final void setComplete(boolean complete)
+    public final void setCompleteSize(final long size)
     {
-        basicFileDTO.setComplete(complete);
+        this.basicFileDTO.setCompleteSize(size);
     }
 
     public String getComment()

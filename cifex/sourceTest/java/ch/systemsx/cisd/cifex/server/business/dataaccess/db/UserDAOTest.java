@@ -354,8 +354,10 @@ public final class UserDAOTest extends AbstractDAOTest
         fileDTO.setName(MY_FILE_001_TXT);
         fileDTO.setPath("/me/" + userDTO.getUserFullName() + "/" + MY_FILE_001_TXT);
         fileDTO.setExpirationDate(new Date(new Long("1222249782000").longValue()));
+        fileDTO.setSize(1L);
+        fileDTO.setCompleteSize(1L);
         fileDAO.createFile(fileDTO);
-        assertEquals(fileDAO.listUploadedFiles(userDTO.getID()).size(), 1);
+        assertEquals(1, fileDAO.listUploadedFiles(userDTO.getID()).size());
         List<UserDTO> shared = userDAO.listUsersFileSharedWith(fileDTO.getID());
         assertTrue(shared != null);
         assertEquals(shared.size(), 0);

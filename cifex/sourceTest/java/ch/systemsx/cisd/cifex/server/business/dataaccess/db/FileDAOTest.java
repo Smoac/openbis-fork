@@ -75,6 +75,8 @@ public final class FileDAOTest extends AbstractDAOTest
         file.setPath(path);
         file.setComment(comment);
         file.setRegisterer(registerer);
+        file.setSize(100L);
+        file.setCompleteSize(100L);
         file.setSharingUsers(fileViewers);
         return file;
     }
@@ -175,7 +177,7 @@ public final class FileDAOTest extends AbstractDAOTest
         assertEquals(0, files.size());
         // create new sample file
         final FileDTO sampleFile = createSampleFile();
-        sampleFile.setComplete(false);
+        sampleFile.setCompleteSize(200L);
         assertNull(sampleFile.getID());
         // save file in database
         fileDAO.createFile(sampleFile);
