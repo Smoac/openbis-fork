@@ -62,10 +62,8 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
      *            if the file should be downloaded to the current working directory.
      * @param fileNameOrNull The file name to save the file to, or <code>null</code>, if the name
      *            stored in CIFEX should be used.
-     * @param resume If <code>true</code>, the file download will be resumed.
      */
-    public void download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull,
-            boolean resume)
+    public void download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull)
     {
         try
         {
@@ -79,10 +77,6 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             final RandomAccessFileProvider fileProvider = new RandomAccessFileProvider(file, "rw");
             try
             {
-                if (resume == false)
-                {
-                    fileProvider.getRandomAccessFile().setLength(0L);
-                }
                 long filePointer = fileProvider.getRandomAccessFile().length();
                 while (filePointer < fileSize)
                 {
