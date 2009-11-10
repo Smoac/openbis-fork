@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  */
 public class DataSetInformationParserTest extends AbstractFileSystemTestCase
 {
-    private static final String MANDATORY_HEADER = "file_name sample group\n";
+    private static final String MANDATORY_HEADER_SAMPLE = "file_name sample group\n";
 
     private static final String HEADER =
     // "# user@gmail.com\n+"+
@@ -54,7 +54,7 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
         AssertJUnit.assertEquals(1, list.size());
         DataSetMappingInformation elem = list.get(0);
         AssertJUnit.assertEquals("group1", elem.getGroupCode());
-        AssertJUnit.assertEquals("parentCode", elem.getParentDataSetCode());
+        AssertJUnit.assertEquals("parentCode", elem.getParentDataSetCodes());
         AssertJUnit.assertEquals("sample1", elem.getSampleCodeOrLabel());
         AssertJUnit.assertEquals("data.txt", elem.getFileName());
         AssertJUnit.assertEquals("experiment1", elem.getExperimentName());
@@ -68,9 +68,7 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
     @Test
     public void testLoadIndexFileMandatoryColumnsOnly()
     {
-        File indexFile =
-                writeMappingFile(MANDATORY_HEADER
-                        + "data2.txt sample2 group2");
+        File indexFile = writeMappingFile(MANDATORY_HEADER_SAMPLE + "data2.txt sample2 group2");
         List<DataSetMappingInformation> list = tryParse(indexFile);
         AssertJUnit.assertEquals(1, list.size());
         DataSetMappingInformation elem = list.get(0);
@@ -101,8 +99,8 @@ public class DataSetInformationParserTest extends AbstractFileSystemTestCase
         AssertJUnit.assertNull("error during parsing expected", result);
         List<String> logLines = readLogFile();
         AssertJUnit.assertEquals(2, logLines.size());
-        AssertionUtil.assertContains(
-                "Mandatory column(s) 'group', 'sample', 'file_name' are missing", logLines.get(1));
+        AssertionUtil.assertContains("Mandatory column(s) 'group', 'file_name' are missing",
+                logLines.get(1));
     }
 
     private List<DataSetMappingInformation> tryParse(File indexFile)

@@ -31,6 +31,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  */
 public class DataSetMappingInformation
 {
+    public static final String PARENT_DATASETS_SEPARATOR = ",";
+
     private String fileName;
 
     private String sampleCodeOrLabel;
@@ -42,8 +44,8 @@ public class DataSetMappingInformation
     private String groupCode;
 
     private String conversion;
-    
-    private String parentDataSetCode;
+
+    private String parentDataSetCodes;
 
     private List<NewProperty> properties;
 
@@ -63,24 +65,24 @@ public class DataSetMappingInformation
         return sampleCodeOrLabel;
     }
 
-    @BeanProperty(label = "sample")
+    @BeanProperty(label = "sample", optional = true)
     public void setSampleCodeOrLabel(String sampleCodeOrLabel)
     {
         this.sampleCodeOrLabel = StringUtils.trimToNull(sampleCodeOrLabel);
     }
 
     /**
-     * Returns the code of the parent data set, if any.
+     * Returns the codes of the parent data sets, separated by {@link #PARENT_DATASETS_SEPARATOR}.
      */
-    public final String getParentDataSetCode()
+    public final String getParentDataSetCodes()
     {
-        return parentDataSetCode;
+        return parentDataSetCodes;
     }
 
-    @BeanProperty(label="parent", optional = true)
-    public final void setParentDataSetCode(String parentCode)
+    @BeanProperty(label = "parent", optional = true)
+    public final void setParentDataSetCode(String parentCodes)
     {
-        this.parentDataSetCode = parentCode;
+        this.parentDataSetCodes = parentCodes;
     }
 
     public String getExperimentName()

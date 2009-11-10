@@ -25,8 +25,10 @@ import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.LocalExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -106,6 +108,10 @@ class DatasetMappingResolver
     public String tryFigureSampleCode(DataSetMappingInformation mapping, LogUtils log)
     {
         String sampleCodeOrLabel = mapping.getSampleCodeOrLabel();
+        if (sampleCodeOrLabel == null)
+        {
+            return null;
+        }
         if (samplePropertyCodeOrNull == null)
         {
             return sampleCodeOrLabel;
@@ -204,13 +210,70 @@ class DatasetMappingResolver
         {
             return false;
         }
-        String sampleCode = tryFigureSampleCode(mapping, log);
-        if (sampleCode == null)
+        if (isConversionColumnValid(mapping, log) == false)
         {
             return false;
         }
-        return isConversionColumnValid(mapping, log)
-                && existsAndBelongsToExperiment(mapping, log, sampleCode);
+        String sampleCode = tryFigureSampleCode(mapping, log);
+        ExperimentIdentifier experimentIdentifier = tryFigureExperimentIdentifier(mapping);
+        if (sampleCode == null)
+        {
+            // sample can be skipped only if experiment identifier is supplied
+            if (experimentIdentifier == null)
+            {
+                log.datasetMappingError(mapping,
+                        "neither sample nor experiment has been specified.");
+                return false;
+            } else
+            {
+                return experimentExists(mapping, log, experimentIdentifier);
+            }
+        } else
+        {
+            return sampleExistsAndBelongsToExperiment(mapping, log, sampleCode);
+        }
+    }
+
+    private boolean experimentExists(DataSetMappingInformation mapping, LogUtils log,
+            ExperimentIdentifier experimentIdentifier)
+    {
+        try
+        {
+            Experiment experiment = openbisService.tryToGetExperiment(experimentIdentifier);
+            if (experiment == null)
+            {
+                log.datasetMappingError(mapping, "experiment '%s' does not exist",
+                        experimentIdentifier);
+                return false;
+            } else
+            {
+                return true;
+            }
+        } catch (UserFailureException ex)
+        {
+            // if project or group is unknown then an exception is thrown
+            log.datasetMappingError(mapping, "experiment '%s' does not exist: %s",
+                    experimentIdentifier, ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * NOTE: we do not support experiment names if the dataset has to be connected to the experiment
+     * directly.
+     */
+    public static ExperimentIdentifier tryFigureExperimentIdentifier(
+            DataSetMappingInformation mapping)
+    {
+        String project = mapping.getProjectCode();
+        String experimentCode = mapping.getExperimentName();
+        if (project != null && experimentCode != null)
+        {
+            return new ExperimentIdentifier(null, mapping.getGroupCode(), project, experimentCode);
+        } else
+        {
+            return null;
+        }
     }
 
     private static boolean isConversionColumnValid(final DataSetMappingInformation mapping,
@@ -235,7 +298,7 @@ class DatasetMappingResolver
             log.datasetMappingError(mapping, "conversion column must be empty "
                     + "for this type of file.");
             return false;
-            
+
         }
         return true;
     }
@@ -247,8 +310,8 @@ class DatasetMappingResolver
         return conversionRequired;
     }
 
-    private boolean existsAndBelongsToExperiment(DataSetMappingInformation mapping, LogUtils log,
-            String sampleCode)
+    private boolean sampleExistsAndBelongsToExperiment(DataSetMappingInformation mapping,
+            LogUtils log, String sampleCode)
     {
         if (isConnectedToExperiment(sampleCode, mapping, log) == false)
         {

@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.yeastx.etl;
 
 import java.io.File;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * @author Tomasz Pylak
@@ -56,14 +57,17 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             DataSetInformationYeastX info = new DataSetInformationYeastX();
             info.setComplete(true);
             info.setDataSetProperties(plainInfo.getProperties());
-            String sampleCode = getSampleCode(plainInfo, openbisService, log);
-            info.setSampleCode(sampleCode);
+            setSampleOrExperiment(openbisService, log, plainInfo, info);
             info.setGroupCode(plainInfo.getGroupCode());
             MLConversionType conversion = getConversion(plainInfo.getConversion());
             info.setConversion(conversion);
-            if (StringUtils.isNotBlank(plainInfo.getParentDataSetCode()))
+            String parentDataSetCodes = plainInfo.getParentDataSetCodes();
+            if (StringUtils.isNotBlank(parentDataSetCodes))
             {
-                info.setParentDataSetCodes(Collections.singletonList(plainInfo.getParentDataSetCode()));
+                String[] parentCodes =
+                        parentDataSetCodes
+                                .split(DataSetMappingInformation.PARENT_DATASETS_SEPARATOR);
+                info.setParentDataSetCodes(Arrays.asList(parentCodes));
             }
             fileNameDecorator.enrich(info, incomingDataSetPath);
             return info;
@@ -72,6 +76,29 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             // this should not happen if dataset handler passes here only files with the mapping
             throw new UserFailureException("No mapping found for the dataset file "
                     + incomingDataSetPath.getPath());
+        }
+    }
+
+    private void setSampleOrExperiment(IEncapsulatedOpenBISService openbisService, LogUtils log,
+            DataSetMappingInformation mapping, DataSetInformationYeastX info)
+    {
+        DatasetMappingResolver mappingResolver =
+                new DatasetMappingResolver(properties, openbisService);
+        String sampleCode = mappingResolver.tryFigureSampleCode(mapping, log);
+        if (sampleCode != null)
+        {
+            info.setSampleCode(sampleCode);
+        } else
+        {
+            ExperimentIdentifier experimentIdentifier =
+                    DatasetMappingResolver.tryFigureExperimentIdentifier(mapping);
+            if (experimentIdentifier == null)
+            {
+                throw new UserFailureException(
+                        "Both sample and experiment are not provided for the file "
+                                + mapping.getFileName());
+            }
+            info.setExperimentIdentifier(experimentIdentifier);
         }
     }
 
@@ -84,20 +111,5 @@ public class BatchDataSetInfoExtractor implements IDataSetInfoExtractor
             throw new UserFailureException("Unknown value in conversion column " + conversion);
         }
         return conversionType;
-    }
-
-    private String getSampleCode(DataSetMappingInformation mapping,
-            IEncapsulatedOpenBISService openbisService, LogUtils log)
-    {
-        String sampleCode =
-                new DatasetMappingResolver(properties, openbisService).tryFigureSampleCode(mapping,
-                        log);
-        if (sampleCode == null)
-        {
-            // should not happen, the dataset handler should skip datasets with incorrect mapping
-            throw UserFailureException.fromTemplate("Cannot find a sample for the file '%s'.",
-                    mapping.getFileName());
-        }
-        return sampleCode;
     }
 }
