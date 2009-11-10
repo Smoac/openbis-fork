@@ -51,9 +51,6 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         @Option(name = "n", longName = "name", metaVar = "FILE", usage = "File name to use for the downloaded file (instead of the one stored in CIFEX).")
         private String name;
 
-        @Option(name = "r", longName = "resume", usage = "If true, resume the download at the point where it has been interrupted.")
-        private boolean resume;
-
         private long fileID;
 
         public Parameters(String[] args)
@@ -95,11 +92,6 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
             return fileID;
         }
 
-        public boolean isResume()
-        {
-            return resume;
-        }
-
     }
 
     private FileDownloadCommand()
@@ -134,7 +126,7 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         final ICIFEXDownloader downloader = cifex.createDownloader(sessionToken);
         addConsoleProgressListener(downloader);
         downloader.download(getParameters().getFileID(), getParameters().getDirectory(),
-                getParameters().getName(), getParameters().isResume());
+                getParameters().getName());
         return 0;
     }
 

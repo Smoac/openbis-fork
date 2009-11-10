@@ -20,23 +20,23 @@ import java.io.File;
 
 /**
  * Interface for downloads in CIFEX.
- *
+ * 
  * @author Bernd Rinn
  */
 public interface ICIFEXDownloader extends IProgressListenerHolder
 {
 
     /**
-     * Downloads the file identified by <var>fileID</var> to the local <var>file</var>.
+     * Downloads the file identified by <var>fileID</var> to the local <var>file</var>. If a file
+     * with the given destination name already exists, CIFEX will assume that this is the same file
+     * and will resume the download.
      * 
      * @param fileID The id of the file in CIFEX.
      * @param directoryToDownloadOrNull The directory to download the file to, or <code>null</code>,
      *            if the file should be downloaded to the current working directory.
      * @param fileNameOrNull The file name to save the file to, or <code>null</code>, if the name
      *            stored in CIFEX should be used.
-     * @param resume If <code>true</code>, the file download will be resumed.
      */
-    public void download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull,
-            boolean resume);
+    public void download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull);
 
 }
