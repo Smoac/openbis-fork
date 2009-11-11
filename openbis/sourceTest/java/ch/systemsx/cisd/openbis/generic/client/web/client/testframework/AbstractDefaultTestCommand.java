@@ -23,6 +23,8 @@ import junit.framework.Assert;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+
 /**
  * Abstract super class of all test commands which are executed if there are no active callbacks
  * (all callbacks were detected by {@link RemoteConsole}).
@@ -81,7 +83,8 @@ public abstract class AbstractDefaultTestCommand extends Assert implements ITest
         return true; // if previous command succeeded this command should be executed
     }
 
-    public boolean isValidOnFailure(final String failureMessage, final Throwable throwable)
+    public boolean isValidOnFailure(AbstractAsyncCallback<?> callback, String failureMessage,
+            Throwable throwable)
     {
         return false; // if previous command failed this command shouldn't be executed
     }

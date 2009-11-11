@@ -18,13 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.widget.form.TextField;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * Command for login after {@link SessionContextCallback} has finished.
+ * Command for login.
  * 
  * @author Franz-Josef Elmer
  */
@@ -36,7 +35,6 @@ public class Login extends AbstractDefaultTestCommand
 
     public Login(final String user, final String password)
     {
-        super(SessionContextCallback.class);
         this.user = user;
         this.password = password;
     }

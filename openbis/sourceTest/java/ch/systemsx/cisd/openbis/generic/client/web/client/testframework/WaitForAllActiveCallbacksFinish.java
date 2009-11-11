@@ -16,29 +16,21 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 /**
+ * {@link AbstractDefaultTestCommand} extension that does nothing. It should be used if we want to
+ * make sure that all callbacks will finish without failure.
  * 
- *
- * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
-public class WaitFor extends AbstractDefaultTestCommand
+public class WaitForAllActiveCallbacksFinish extends AbstractDefaultTestCommand
 {
-    public WaitFor(Class<? extends AsyncCallback<?>> callbackClass)
+    public WaitForAllActiveCallbacksFinish()
     {
-        super(callbackClass);
+        super();
     }
 
     public void execute()
     {
     }
 
-    @Override
-    public String toString()
-    {
-        return "Wait for " + expectedCallbackIds;
-    }
-
-    
 }

@@ -166,7 +166,7 @@ public class RemoteConsole
                 ITestCommand cmd = commands.get(entryIndex);
                 // It doesn't need to be the last callbacks that fails,
                 // and it should rather be the last command.
-                if (cmd.isValidOnFailure(failureMessage, throwable))
+                if (cmd.isValidOnFailure(callback, failureMessage, throwable))
                 {
                     executeCommand();
                     return;

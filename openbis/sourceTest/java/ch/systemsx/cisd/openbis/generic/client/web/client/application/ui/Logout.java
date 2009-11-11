@@ -16,13 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * Command for logout after {@link SessionContextCallback} has finished.
+ * Command for logout.
  * 
  * @author Franz-Josef Elmer
  * @author Piotr Buczek
@@ -32,12 +31,10 @@ public class Logout extends AbstractDefaultTestCommand
     public Logout(String callbackClassId)
     {
         super();
-        addCallbackClass(callbackClassId);
     }
 
     public Logout()
     {
-        super(SessionContextCallback.class);
     }
 
     public void execute()

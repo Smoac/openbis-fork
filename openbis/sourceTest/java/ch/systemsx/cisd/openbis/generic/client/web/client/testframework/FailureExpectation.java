@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+
 /**
  * Failure expectation.
  * 
@@ -34,11 +36,19 @@ public class FailureExpectation extends AbstractDefaultTestCommand
             }
         };
 
+    private Class<? extends AsyncCallback<?>> expectedCallbackClassOrNull;
+
     private Class<? extends Throwable> expectedThrowableClassOrNull;
 
+    /** command will expect any callback failure */
+    public FailureExpectation()
+    {
+    }
+
+    /** command will expect failure of a callback of specified <var>callbackClass</var> */
     public FailureExpectation(Class<? extends AsyncCallback<?>> callbackClass)
     {
-        super(callbackClass);
+        this.expectedCallbackClassOrNull = callbackClass;
     }
 
     public FailureExpectation with(final String failureMessage)
@@ -71,8 +81,13 @@ public class FailureExpectation extends AbstractDefaultTestCommand
     }
 
     @Override
-    public boolean isValidOnFailure(String failureMessage, Throwable throwable)
+    public boolean isValidOnFailure(AbstractAsyncCallback<?> callback, String failureMessage,
+            Throwable throwable)
     {
+        if (expectedCallbackClassOrNull != null)
+        {
+            assertEquals(expectedCallbackClassOrNull, callback.getClass());
+        }
         messageValidator.assertValid(failureMessage);
         if (expectedThrowableClassOrNull == null
                 || expectedThrowableClassOrNull.equals(throwable.getClass()))

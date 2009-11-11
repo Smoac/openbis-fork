@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWi
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Logout;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.FailureExpectation;
-import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.WaitFor;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.WaitForAllActiveCallbacksFinish;
 
 /**
  * A {@link AbstractGWTTestCase} extension to test login.
@@ -33,7 +33,7 @@ public class AuthenticationTest extends AbstractGWTTestCase
     public void testLogin() throws Exception
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new WaitFor(LoginWidget.LoginCallback.class));
+        remoteConsole.prepare(new WaitForAllActiveCallbacksFinish());
 
         launchTest(30000);
     }

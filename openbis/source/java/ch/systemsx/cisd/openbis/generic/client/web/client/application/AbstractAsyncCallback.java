@@ -277,21 +277,20 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     }
 
     /**
-     * This method should be called if callback will not be processed, to make our system test
-     * framework working properly.
+     * This method should be called if callback will not be processed immediately after creation. It
+     * is needed for our system test framework to work properly.
      */
     public final void ignore()
     {
-        // could do this only if staticCallbackListener != DEFAULT_CALLBACK_LISTENER
         callbackListener.ignoreCallback(this);
     }
 
     /**
-     * This method should be called at the beginning of process method if we want to have a reusable
-     * callback that is working properly with our test framework. First ignore should be called in
-     * callback constructor after calling abstract constructor.
+     * This method should be called for callbacks that are reusable. Call it just before calling
+     * service method but make sure {@link #ignore()} was called first in callback constructor after
+     * calling abstract constructor. It is needed for our system test framework to work properly.
      */
-    protected final void reuse()
+    public final void reuse()
     {
         callbackListener.registerCallback(this);
     }

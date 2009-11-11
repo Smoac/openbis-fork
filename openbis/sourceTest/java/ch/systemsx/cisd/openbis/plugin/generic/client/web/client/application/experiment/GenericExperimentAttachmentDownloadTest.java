@@ -95,7 +95,6 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         @Override
         protected void process(String url)
         {
-            reuse();
             this.openedUrl = url;
         }
 
@@ -190,6 +189,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
             {
                 case AppEvents.OPEN_URL_EVENT:
                     String openedUrl = (String) event.data;
+                    openedUrlCallback.reuse();
                     openedUrlCallback.onSuccess(openedUrl);
                     break;
                 default:

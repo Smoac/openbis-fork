@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+
 /**
  * A command which will be executed after a successful invocation of
  * {@link AsyncCallback#onSuccess(Object)}.
@@ -41,8 +43,10 @@ public interface ITestCommand
     /**
      * @return <tt>true</tt> if the specified <var>failureMessage</var> and <var>throwable</var>
      *         should trigger this command in case of an invocation of
-     *         {@link AsyncCallback#onFailure(Throwable)}, otherwise <tt>false</tt>
+     *         {@link AsyncCallback#onFailure(Throwable)} of specified <var>callback</var>,
+     *         otherwise <tt>false</tt>
      */
-    public boolean isValidOnFailure(String failureMessage, Throwable throwable);
+    public boolean isValidOnFailure(AbstractAsyncCallback<?> callback, String failureMessage,
+            Throwable throwable);
 
 }
