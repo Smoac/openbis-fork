@@ -56,10 +56,10 @@ public final class DataMover
 {
 
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FaultyPathDirectoryScanningHandler.class);
+            LogFactory.getLogger(LogCategory.OPERATION, DataMover.class);
 
     private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, FaultyPathDirectoryScanningHandler.class);
+            LogFactory.getLogger(LogCategory.MACHINE, DataMover.class);
 
     private final static String LOCAL_COPY_IN_PROGRESS_DIR = "copy-in-progress";
 
