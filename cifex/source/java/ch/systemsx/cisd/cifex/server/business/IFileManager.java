@@ -140,6 +140,11 @@ public interface IFileManager
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public void deleteFile(final FileDTO fileDTO);
 
+    /**
+     * Creates a file in the file store for <code>user</code> with basic name <var>fileName</var>.
+     * This method will always return a new (not yet existing) file, if necessary, appending a
+     * suffix.
+     */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public File createFile(final UserDTO user, final String fileName);
 
