@@ -42,7 +42,7 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
         {
             formattedValue = NumberFormat.getFormat(SCIENTIFIC_FORMAT).format(doubleValue);
         }
-        if (doubleValue < MIN_DIGITAL_FORMAT_VALUE)
+        if (Math.abs(doubleValue) < MIN_DIGITAL_FORMAT_VALUE)
         {
             formattedValue += "..."; // show 0.0000...
         } else
