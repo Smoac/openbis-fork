@@ -406,6 +406,7 @@ final class FileManager extends AbstractManager implements IFileManager
         fileDTO.setComment(comment);
         fileDTO.setExpirationDate(caluclateExpirationDate(user));
         fileDTO.setSize(byteCount);
+        fileDTO.setCompleteSize(byteCount);
         fileDTO.setCrc32Value(crc32Value);
         daoFactory.getFileDAO().createFile(fileDTO);
         return fileDTO;
