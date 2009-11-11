@@ -305,8 +305,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             ExperimentIdentifier experimentIdentifier)
     {
         final IExperimentBO experimentBO = boFactory.createExperimentBO(session);
-        experimentBO.loadByExperimentIdentifier(experimentIdentifier);
-        return experimentBO.getExperiment();
+        return experimentBO.tryFindByExperimentIdentifier(experimentIdentifier);
     }
 
     private SamplePE tryLoadSample(final Session session, SampleIdentifier sampleIdentifier)

@@ -35,6 +35,12 @@ public interface IExperimentBO extends IEntityBusinessObject
     /** Loads a experiment given by its identifier. */
     void loadByExperimentIdentifier(final ExperimentIdentifier identifier);
 
+    /**
+     * Returns an experiment found at the given identifier or null if it does not exist. Does not
+     * change the state of this object, especially the result of {@link #getExperiment()}.
+     */
+    ExperimentPE tryFindByExperimentIdentifier(final ExperimentIdentifier identifier);
+
     /** Returns the sample which has been loaded. */
     ExperimentPE getExperiment();
 

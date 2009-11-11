@@ -154,20 +154,39 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         dataChanged = false;
     }
 
+    public final ExperimentPE tryFindByExperimentIdentifier(final ExperimentIdentifier identifier)
+    {
+        final ProjectPE project = tryGetProject(identifier);
+        if (project == null)
+        {
+            return null;
+        }
+        return tryGetExperiment(identifier, project);
+    }
+
     private ExperimentPE getExperimentByIdentifier(final ExperimentIdentifier identifier)
     {
         assert identifier != null : "Experiment identifier unspecified.";
-        final ProjectPE project =
-                getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
-                        identifier.getGroupCode(), identifier.getProjectCode());
+        final ProjectPE project = tryGetProject(identifier);
         if (project == null)
         {
             throw new UserFailureException("Unkown experiment because of unkown project: "
                     + identifier);
         }
-        final ExperimentPE exp =
-                getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
+        final ExperimentPE exp = tryGetExperiment(identifier, project);
         return exp;
+    }
+
+    private ExperimentPE tryGetExperiment(final ExperimentIdentifier identifier,
+            final ProjectPE project)
+    {
+        return getExperimentDAO().tryFindByCodeAndProject(project, identifier.getExperimentCode());
+    }
+
+    private ProjectPE tryGetProject(final ExperimentIdentifier identifier)
+    {
+        return getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
+                identifier.getGroupCode(), identifier.getProjectCode());
     }
 
     public final void enrichWithProperties()
@@ -297,9 +316,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     private void defineExperimentProject(NewExperiment newExperiment,
             final ExperimentIdentifier experimentIdentifier)
     {
-        ProjectPE project =
-                getProjectDAO().tryFindProject(experimentIdentifier.getDatabaseInstanceCode(),
-                        experimentIdentifier.getGroupCode(), experimentIdentifier.getProjectCode());
+        ProjectPE project = tryGetProject(experimentIdentifier);
         if (project == null)
         {
             throw UserFailureException.fromTemplate(ERR_PROJECT_NOT_FOUND, newExperiment);
