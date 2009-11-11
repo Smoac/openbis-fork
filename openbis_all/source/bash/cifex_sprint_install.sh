@@ -26,6 +26,8 @@ cp $OLD_INSTALL/etc/service.properties .
 cp $OLD_INSTALL/etc/keystore .
 cp $OLD_INSTALL/etc/jetty.xml .
 ./install.sh ..
+cp $OLD_INSTALL/etc/jetty.properties ../jetty/etc/
+
 
 cd ..
 rm -fr cifex
