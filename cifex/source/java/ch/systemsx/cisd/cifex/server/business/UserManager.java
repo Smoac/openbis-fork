@@ -87,8 +87,11 @@ class UserManager extends AbstractManager implements IUserManager
         assert code != null : "User Code is null!";
 
         final UserDTO user = daoFactory.getUserDAO().tryFindUserByCode(code);
-        final UserDTO registrator = daoFactory.getUserDAO().tryFindUserById(user.getRegistrator().getID());
-        user.setRegistrator(registrator);
+        if (user != null)
+        {
+            final UserDTO registrator = daoFactory.getUserDAO().tryFindUserById(user.getRegistrator().getID());
+            user.setRegistrator(registrator);
+        }
         return user;
     }
 
