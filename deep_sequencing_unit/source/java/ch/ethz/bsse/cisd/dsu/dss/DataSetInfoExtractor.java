@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
  */
 public class DataSetInfoExtractor implements IDataSetInfoExtractor
 {
-    static final String VERSION_KEY = "ILLUMINA_GA_OUTPUT";
+    static final String VERSION_KEY = "ILLUMINA_PIPELINE_VERSION";
     static final String PATH_TO_CONFIG_FILE_KEY = "path-to-config-file";
     static final String DEFAULT_PATH_TO_CONFIG_FILE = "Data/Intensities/config.xml";
     
