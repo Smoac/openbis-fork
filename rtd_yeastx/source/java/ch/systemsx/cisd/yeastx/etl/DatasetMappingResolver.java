@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 
+import ch.systemsx.cisd.bds.StringUtils;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -214,22 +215,29 @@ class DatasetMappingResolver
         {
             return false;
         }
-        String sampleCode = tryFigureSampleCode(mapping, log);
         ExperimentIdentifier experimentIdentifier = tryFigureExperimentIdentifier(mapping);
+        if (mapping.getSampleCodeOrLabel() == null && experimentIdentifier == null)
+        {
+            log.datasetMappingError(mapping, "neither sample nor experiment has been specified.");
+            return false;
+        }
+        String sampleCode = tryFigureSampleCode(mapping, log);
         if (sampleCode == null)
         {
-            // sample can be skipped only if experiment identifier is supplied
-            if (experimentIdentifier == null)
+            if (mapping.getSampleCodeOrLabel() != null)
             {
-                log.datasetMappingError(mapping,
-                        "neither sample nor experiment has been specified.");
-                return false;
-            } else
-            {
-                return experimentExists(mapping, log, experimentIdentifier);
+                return false; // error has been already reported
             }
+            assert experimentIdentifier != null : "experimentIdentifier should be not null here";
+            return experimentExists(mapping, log, experimentIdentifier);
         } else
         {
+            if (StringUtils.isBlank(mapping.getParentDataSetCodes()) == false)
+            {
+                log.datasetMappingError(mapping,
+                        "when dataset is connected to a sample it cannot have parent datasets.");
+                return false;
+            }
             return sampleExistsAndBelongsToExperiment(mapping, log, sampleCode);
         }
     }
