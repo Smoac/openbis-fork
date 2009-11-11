@@ -347,7 +347,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void execute()
                 {
-                    if (resultSetKeyOrNull != null)
+                    if (resultSetKeyOrNull != null && pendingFetchConfigOrNull == null)
                     {
                         // TODO 2009-09-16, Piotr Buczek: reload of data is not needed in some cases
                         // - when filters with no text are removed,
@@ -1038,7 +1038,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         if (pendingFetchConfigOrNull != null)
         {
-            System.err.println("Cannot reload the data with the mode '" + resultSetFetchConfig
+            debug("Cannot reload the data with the mode '" + resultSetFetchConfig
                     + "', there is an unfinished request already: " + pendingFetchConfigOrNull);
             return;
         }
