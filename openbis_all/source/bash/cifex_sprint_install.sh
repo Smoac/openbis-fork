@@ -1,9 +1,9 @@
 # This is a very simple version of the script which installs the cifex
 # You have to change the INSTALL_URL, PREV and NEW variables by yourself!
 
-PREV=cifex-S67
+PREV=cifex-SNAPSHOT-S68
 NEW=cifex-S68
-INSTALL_URL=http://cisd-ci.ethz.ch:8090/cruisecontrol/artifacts/cifex/20091111035157/cifex-SNAPSHOT-r13295.zip
+INSTALL_URL=http://cisd-ci.ethz.ch:8090/cruisecontrol/artifacts/cifex/20091111140651/cifex-SNAPSHOT-r13316.zip
 
 test -d $PREV || echo Directory $PREV does not exist!
 test -d $PREV || exit 1
