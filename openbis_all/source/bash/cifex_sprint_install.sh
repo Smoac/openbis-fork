@@ -5,6 +5,9 @@ PREV=cifex-S67
 NEW=cifex-S68
 INSTALL_URL=http://cisd-ci.ethz.ch:8090/cruisecontrol/artifacts/cifex/20091111035157/cifex-SNAPSHOT-r13295.zip
 
+test -d $PREV || echo Directory $PREV does not exist!
+test -d $PREV || exit 1
+
 unalias cp
 unalias rm
 
@@ -23,3 +26,7 @@ cp $OLD_INSTALL/etc/service.properties .
 cp $OLD_INSTALL/etc/keystore .
 cp $OLD_INSTALL/etc/jetty.xml .
 ./install.sh ..
+
+cd ..
+rm -fr cifex
+jetty/bin/startup.sh
