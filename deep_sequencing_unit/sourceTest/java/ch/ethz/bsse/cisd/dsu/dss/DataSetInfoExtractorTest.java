@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 
@@ -38,10 +39,10 @@ public class DataSetInfoExtractorTest extends AbstractFileSystemTestCase
 {
     private BufferedAppender appender;
 
-    @Override
     @BeforeMethod
-    public final void setUp()
+    public final void beforeMethod()
     {
+        LogInitializer.init();
         appender = new BufferedAppender();
         appender.resetLogContent();
     }
@@ -106,6 +107,8 @@ public class DataSetInfoExtractorTest extends AbstractFileSystemTestCase
         List<NewProperty> properties = info.getDataSetProperties();
         assertEquals(0, properties.size());
         String logContent = appender.getLogContent();
-        assertEquals("No version found in config file 'Data/Intensities/config.xml'.", logContent);
+        assertEquals(
+                "Config file 'Data/Intensities/config.xml' does not exists or is a directory.",
+                logContent);
     }
 }
