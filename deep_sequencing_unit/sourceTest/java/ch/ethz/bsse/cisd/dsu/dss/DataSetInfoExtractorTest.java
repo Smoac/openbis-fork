@@ -60,6 +60,8 @@ public class DataSetInfoExtractorTest extends AbstractFileSystemTestCase
         assertEquals(1, properties.size());
         assertEquals(DataSetInfoExtractor.VERSION_KEY, properties.get(0).getPropertyCode());
         assertEquals("1.4.15.0", properties.get(0).getValue());
+        // checks delegation to DefaultDataSetInfoExtractor
+        assertEquals("DataSetInfoExtractorTest", info.getSampleCode()); 
     }
     
     @Test
