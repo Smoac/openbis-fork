@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import junit.framework.Assert;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -36,9 +33,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
  */
 public abstract class AbstractDefaultTestCommand extends Assert implements ITestCommand
 {
-    // TODO 2009-11-10, Piotr Buczek: expected callbacks are now completely ignored - cleanup
-    protected final List<String> expectedCallbackIds = new ArrayList<String>();
-
     /**
      * Creates an instance with initially no expected callback class.
      */
@@ -65,17 +59,10 @@ public abstract class AbstractDefaultTestCommand extends Assert implements ITest
     /**
      * Adds the callback with the specified id.
      */
+    // TODO 2009-11-11, Franz-Josef Elmer: Remove this method because expected callbacks are now completely ignored.
     public void addCallbackClass(final String callbackId)
     {
-        System.out.println("The command " + getClass().getName() + " is waiting for callback "
-                + callbackId);
-        // escaping is needed because we use callbackId as a regular expression
-        expectedCallbackIds.add(escape(callbackId));
-    }
-
-    private String escape(String string)
-    {
-        return string.replace("$", "\\$");
+        // ignored
     }
 
     public boolean isValidOnSucess(Object result)
