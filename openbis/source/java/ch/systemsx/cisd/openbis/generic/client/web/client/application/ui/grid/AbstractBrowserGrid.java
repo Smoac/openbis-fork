@@ -196,7 +196,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private CustomColumnsMetadataProvider customColumnsMetadataProvider;
 
-	// result set key of the last refreshed data
+    // result set key of the last refreshed data
     private String resultSetKeyOrNull;
 
     // not null only if there is a pending request. No new request can be issued until this one is
@@ -482,6 +482,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private void loadData(final PagingLoadConfig loadConfig,
             final AsyncCallback<PagingLoadResult<M>> callback)
     {
+        if (pendingFetchConfigOrNull == null)
+        {
+            // this can happen when we user wants to sort data - the refresh method is not called
+            if (resultSetKeyOrNull == null)
+            {
+                // data are not yet cached, so we ignore this call - should not really happen
+                return;
+            }
+            pendingFetchConfigOrNull =
+                    ResultSetFetchConfig.createFetchFromCache(resultSetKeyOrNull);
+        }
         DefaultResultSetConfig<String, T> resultSetConfig =
                 createPagingConfig(loadConfig, columnDefinitions, filterToolbar.getFilters(),
                         pendingFetchConfigOrNull, getGridDisplayTypeID());
