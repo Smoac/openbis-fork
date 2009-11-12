@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.cifex.shared.basic.dto;
 
-
 /**
  * A client <i>DTO</i> which describes a file with additional admin information.
  *
@@ -26,9 +25,21 @@ public final class AdminFileInfoDTO extends FileInfoDTO
 {
 
     private static final long serialVersionUID = 1L;
-    private BasicUserInfoDTO[] sharingUsers;
-
     
+    private long completeSize; 
+    
+    private BasicUserInfoDTO[] sharingUsers;
+    
+    public final long getCompleteSize()
+    {
+        return completeSize;
+    }
+
+    public final void setCompleteSize(long completeSize)
+    {
+        this.completeSize = completeSize;
+    }
+
     public BasicUserInfoDTO[] getSharingUsers()
     {
         return sharingUsers;
@@ -37,6 +48,11 @@ public final class AdminFileInfoDTO extends FileInfoDTO
     public void setSharingUsers(final BasicUserInfoDTO[] sharingUsers)
     {
         this.sharingUsers = sharingUsers;
+    }
+    
+    public boolean isComplete()
+    {
+        return getSize() != null && getSize().longValue() == getCompleteSize();
     }
 
 }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.server.business.dataaccess;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -49,7 +50,8 @@ public interface IFileDAO
     /**
      * Updates the <var>file</var> in the database with the current upload progress.
      */
-    public void updateFileUploadProgress(final long id, final long size, final int crc32)
+    public void updateFileUploadProgress(final long id, final long size, final int crc32,
+            final Date expirationDate)
             throws DataAccessException;
 
     /**

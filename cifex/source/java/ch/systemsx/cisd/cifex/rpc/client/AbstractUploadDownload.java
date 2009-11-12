@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.rpc.client;
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.zip.CRC32;
 
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
@@ -44,6 +45,8 @@ public abstract class AbstractUploadDownload implements IProgressListenerHolder
     protected final String sessionID;
 
     protected final Set<IProgressListener> listeners = new LinkedHashSet<IProgressListener>();
+
+    protected final CRC32 crc32 = new CRC32();
 
     /**
      * Creates an instance for the specified service and session ID.

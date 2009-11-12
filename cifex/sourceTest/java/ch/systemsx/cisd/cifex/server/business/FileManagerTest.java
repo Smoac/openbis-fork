@@ -796,7 +796,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     UserDTO userDTO = new UserDTO();
                     userDTO.setID(file.getRegistratorId());
                     userDTO.setFileRetention(fileRetention);
-                    file.setRegisterer(userDTO);
+                    file.setRegistrator(userDTO);
                     will(returnValue(file));
 
                     one(timeProvider).getTimeInMilliseconds();
@@ -929,7 +929,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final String path = owner.getEmail() + "/" + fileName;
         fileDTO.setPath(path);
         fileDTO.setContentType(contentType);
-        fileDTO.setRegisterer(owner);
+        fileDTO.setRegistrator(owner);
         return fileDTO;
     }
 

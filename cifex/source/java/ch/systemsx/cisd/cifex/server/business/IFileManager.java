@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
+import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileContent;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -119,6 +120,13 @@ public interface IFileManager
             int crc32Value, String[] recipients, String url);
 
     /**
+     * Updates the file in the database specified by <var>fileDTO.getID()</var> regarding 
+     * size (<var>fileDTO.getSize()</var>) and CRC32 checksum (<var>fileDTO.getCrc32Value()</var>).
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public void updateUploadProgress(FileDTO fileDTO);
+
+    /**
      * Creates sharing links between the users specified by their e-mail addresses or user id (with
      * the prefix 'id:') and the specified files. For users specified with an Email address not
      * known a temporary account is created. Each user will be informed by an e-mail.
@@ -147,6 +155,15 @@ public interface IFileManager
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public File createFile(final UserDTO user, final String fileName);
+
+    /**
+     * Creates a file in the file store for <code>user</code> with basic name <var>fileName</var>
+     * and a link to it in the database. This method will always return a new (not yet existing)
+     * file, if necessary, appending a suffix.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public PreCreatedFileDTO createFile(final UserDTO user, final FilePreregistrationDTO fileDTO,
+            final String comment);
 
     /**
      * @throws UserFailureException indicating that <var>filename</var> does not exist and thus has

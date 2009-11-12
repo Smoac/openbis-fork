@@ -154,14 +154,7 @@ class TriggerManager implements ITriggerManager
         public void upload(File fileToUpload, String mimeType, String[] recipients, String comment)
         {
             final File uploadedFile = copy(fileManager, triggerUser, fileToUpload);
-            final int crc32Value;
-            try
-            {
-                crc32Value = (int) FileUtils.checksumCRC32(uploadedFile);
-            } catch (IOException ex)
-            {
-                throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-            }
+            final int crc32Value = checksumCRC32(uploadedFile);
             fileManager.registerFileLinkAndInformRecipients(triggerUser, uploadedFile.getName(),
                     comment, mimeType, uploadedFile, crc32Value, recipients, url);
         }
@@ -228,17 +221,17 @@ class TriggerManager implements ITriggerManager
 
         public String getUploadingUserEmail()
         {
-            return fileDTO.getRegisterer().getEmail();
+            return fileDTO.getRegistrator().getEmail();
         }
 
         public String getUploadingUserId()
         {
-            return fileDTO.getRegisterer().getUserCode();
+            return fileDTO.getRegistrator().getUserCode();
         }
 
         public String getUploadingUserFullName()
         {
-            return fileDTO.getRegisterer().getUserFullName();
+            return fileDTO.getRegistrator().getUserFullName();
         }
 
         public long getFileID()
@@ -523,7 +516,7 @@ class TriggerManager implements ITriggerManager
         final TriggerDescription triggerDesc = triggerMap.get(triggerUser.getUserCode());
         final ITrigger trigger = triggerDesc.getTrigger();
         final TriggerConsole console =
-                new TriggerConsole(trigger, fileManager, request, fileDTO.getRegisterer(),
+                new TriggerConsole(trigger, fileManager, request, fileDTO.getRegistrator(),
                         triggerUser);
         if (triggerDesc.isAsync())
         {
@@ -605,6 +598,19 @@ class TriggerManager implements ITriggerManager
             FileUtilities.copyFileTo(fileToUpload, uploadedFile, true);
         }
         return uploadedFile;
+    }
+
+    private int checksumCRC32(final File uploadedFile)
+    {
+        final int crc32Value;
+        try
+        {
+            crc32Value = (int) FileUtils.checksumCRC32(uploadedFile);
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+        return crc32Value;
     }
 
 }

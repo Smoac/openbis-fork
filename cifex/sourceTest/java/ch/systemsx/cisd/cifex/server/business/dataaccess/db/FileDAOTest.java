@@ -74,7 +74,7 @@ public final class FileDAOTest extends AbstractDAOTest
         file.setName(name);
         file.setPath(path);
         file.setComment(comment);
-        file.setRegisterer(registerer);
+        file.setRegistrator(registerer);
         file.setSize(100L);
         file.setCompleteSize(100L);
         file.setSharingUsers(fileViewers);
@@ -196,12 +196,13 @@ public final class FileDAOTest extends AbstractDAOTest
                 fileDAO.tryGetResumeCandidate(getFirstSampleUserFromDB().getID(), file.getName(),
                         file.getCompleteSize());
         assertNotNull(candidate);
-        // if we provide the "wrong" size, no candidate should be found. 
-        assertNull(fileDAO.tryGetResumeCandidate(getFirstSampleUserFromDB().getID(), file.getName(),
-                        file.getCompleteSize() - 1));
+        // if we provide the "wrong" size, no candidate should be found.
+        assertNull(fileDAO.tryGetResumeCandidate(getFirstSampleUserFromDB().getID(),
+                file.getName(), file.getCompleteSize() - 1));
 
         // now we mark the file as "complete" as size = complete_size
-        fileDAO.updateFileUploadProgress(file.getID(), file.getCompleteSize(), 1234);
+        fileDAO.updateFileUploadProgress(file.getID(), file.getCompleteSize(), 1234, file
+                .getExpirationDate());
         uploadedFiles = fileDAO.listUploadedFiles(getFirstSampleUserFromDB().getID());
         assertEquals(1, uploadedFiles.size());
         file = uploadedFiles.get(0);

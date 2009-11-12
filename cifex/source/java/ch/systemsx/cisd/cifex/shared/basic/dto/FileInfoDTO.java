@@ -55,7 +55,7 @@ public class FileInfoDTO implements IsSerializable, Serializable
     /**
      * Person who registered the file.
      */
-    private BasicUserInfoDTO registerer;
+    private BasicUserInfoDTO registrator;
 
     /**
      * Date at which file has been registered.
@@ -96,14 +96,14 @@ public class FileInfoDTO implements IsSerializable, Serializable
         this.name = name;
     }
 
-    public final BasicUserInfoDTO getRegisterer()
+    public final BasicUserInfoDTO getRegistrator()
     {
-        return registerer;
+        return registrator;
     }
 
-    public final void setRegisterer(final BasicUserInfoDTO registerer)
+    public final void setRegistrator(final BasicUserInfoDTO registerer)
     {
-        this.registerer = registerer;
+        this.registrator = registerer;
     }
 
     public final Date getRegistrationDate()

@@ -98,4 +98,11 @@ public final class BasicFileDTO implements Serializable
     {
         this.completeSize = completeSize;
     }
+
+    @Override
+    public String toString()
+    {
+        return "BasicFileDTO [completeSize=" + completeSize + ", contentType=" + contentType
+                + ", crc32Value=" + crc32Value + ", name=" + name + ", size=" + size + "]";
+    }
 }

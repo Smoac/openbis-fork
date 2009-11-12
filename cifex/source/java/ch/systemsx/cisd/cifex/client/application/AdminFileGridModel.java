@@ -47,6 +47,8 @@ public class AdminFileGridModel extends AbstractFileGridModel
         configs.add(createSharedWithColumnConfig(messageResources));
         configs.add(createContentTypeColumnConfig(messageResources));
         configs.add(createSizeColumnConfig(messageResources));
+        configs.add(createCompleteSizeColumnConfig(messageResources));
+        configs.add(createIsCompleteColumnConfig(messageResources));
         configs.add(createRegistrationDateColumnConfig(messageResources));
         configs.add(createExpirationDateColumnConfig(messageResources));
         configs.add(createActionColumnConfig(messageResources));
@@ -59,10 +61,12 @@ public class AdminFileGridModel extends AbstractFileGridModel
         set(ID, file.getIDStr());// String
         set(NAME, file.getName());// String
         set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
-        set(REGISTERER, UserRenderer.createUserAnchor(file.getRegisterer()));// String
+        set(REGISTERER, UserRenderer.createUserAnchor(file.getRegistrator()));// String
         set(SHARED_WITH, UserRenderer.createUserAnchor(file.getSharingUsers()));// String
         set(CONTENT_TYPE, file.getContentType());// String
-        set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
+        set(SIZE, FileUtils.tryToGetFileSize(file));// Double
+        set(COMPLETE_SIZE, new Double(file.getCompleteSize()));// Double
+        set(IS_COMPLETE, Boolean.valueOf(file.isComplete()));// Boolean
         set(REGISTRATION_DATE, file.getRegistrationDate());// Date
         set(EXPIRATION_DATE, file.getExpirationDate());// Date
         set(ACTION, DOMUtils.createAnchor(messageResources.getActionRenewLabel(),

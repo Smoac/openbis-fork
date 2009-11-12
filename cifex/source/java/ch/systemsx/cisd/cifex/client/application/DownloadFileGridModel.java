@@ -44,7 +44,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
         set(CONTENT_TYPE, file.getContentType());// String
         set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
-        set(REGISTERER, UserRenderer.createUserAnchor(file.getRegisterer()));// String
+        set(REGISTERER, UserRenderer.createUserAnchor(file.getRegistrator()));// String
         set(REGISTRATION_DATE, file.getRegistrationDate());// Date
         set(EXPIRATION_DATE, file.getExpirationDate());// Date
     }

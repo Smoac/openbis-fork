@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import static ch.systemsx.cisd.cifex.server.AbstractFileUploadServlet.MAX_FILENAME_LENGTH;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -44,6 +47,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
@@ -55,6 +59,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.cifex.server.util.ChecksummingInputStream;
+import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
@@ -400,7 +405,7 @@ final class FileManager extends AbstractManager implements IFileManager
     {
         operationLog.info(String.format("File %s has crc32 checksum %x.", fileName, crc32Value));
         final FileDTO fileDTO = new FileDTO(user.getID());
-        fileDTO.setName(fileName);
+        fileDTO.setName(FilenameUtilities.ensureMaximumSize(fileName, MAX_FILENAME_LENGTH));
         fileDTO.setContentType(contentType);
         fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
         fileDTO.setComment(comment);
@@ -412,18 +417,24 @@ final class FileManager extends AbstractManager implements IFileManager
         return fileDTO;
     }
 
+    @Transactional
+    public PreCreatedFileDTO createFile(final UserDTO user,
+            final FilePreregistrationDTO fileInfoDTO, final String comment)
+    {
+        final String fileName = FilenameUtils.getName(fileInfoDTO.getFilePathOnClient());
+        final String contentType = FilenameUtilities.getMimeType(fileName);
+        final File fileInStore = createFile(user, fileName);
+        final FileDTO fileInDB =
+                preRegisterFileLink(user, fileName, fileInfoDTO, comment, contentType, fileInStore);
+        return new PreCreatedFileDTO(fileInStore, fileInDB);
+    }
+
     public File createFile(final UserDTO user, final String fileName)
     {
         final File folder = createFolderFor(user);
-        return FileUtilities.createNextNumberedFile(new File(folder, fileName), null);
-    }
-
-    public void throwExceptionOnFileDoesNotExist(final String fileName)
-    {
-        final String msg =
-                String.format("File '%s' does not seem to exist. It has not been saved.", fileName);
-        operationLog.warn(msg);
-        throw new UserFailureException(msg);
+        final File fileInStore =
+                FileUtilities.createNextNumberedFile(new File(folder, fileName), null);
+        return fileInStore;
     }
 
     private File createFolderFor(final UserDTO user)
@@ -448,10 +459,44 @@ final class FileManager extends AbstractManager implements IFileManager
         return folder;
     }
 
+    private FileDTO preRegisterFileLink(UserDTO user, String fileName,
+            FilePreregistrationDTO fileInfoDTO, String comment, String contentType, File file)
+    {
+        final FileDTO fileDTO = new FileDTO(user);
+        fileDTO.setName(FilenameUtilities.ensureMaximumSize(fileName, MAX_FILENAME_LENGTH));
+        fileDTO.setContentType(contentType);
+        fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
+        fileDTO.setComment(comment);
+        fileDTO.setExpirationDate(caluclateExpirationDate(user));
+        fileDTO.setSize(0L);
+        fileDTO.setCompleteSize(fileInfoDTO.getFileSize());
+        daoFactory.getFileDAO().createFile(fileDTO);
+        return fileDTO;
+    }
+
+    public void throwExceptionOnFileDoesNotExist(final String fileName)
+    {
+        final String msg =
+                String.format("File '%s' does not seem to exist. It has not been saved.", fileName);
+        operationLog.warn(msg);
+        throw new UserFailureException(msg);
+    }
+
+    @Transactional
+    public void updateUploadProgress(FileDTO fileDTO)
+    {
+        daoFactory.getFileDAO().updateFileUploadProgress(fileDTO.getID(), fileDTO.getSize(),
+                fileDTO.getCrc32Value(), caluclateExpirationDate(fileDTO.getRegistrator()));
+    }
+
     public final List<String> shareFilesWith(final String url, final UserDTO requestUser,
             final Collection<String> userIdentifiers, final Collection<FileDTO> files,
             final String comment) throws UserFailureException
     {
+        if (userIdentifiers.isEmpty())
+        {
+            return Collections.emptyList();
+        }
         final Set<UserDTO> allUsers = new HashSet<UserDTO>();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
         setRegisterer(requestUser, files);
@@ -495,7 +540,7 @@ final class FileManager extends AbstractManager implements IFileManager
     {
         for (FileDTO file : files)
         {
-            file.setRegisterer(requestUser);
+            file.setRegistrator(requestUser);
         }
     }
 
@@ -754,7 +799,7 @@ final class FileManager extends AbstractManager implements IFileManager
         boolean success = false;
         try
         {
-            file.setExpirationDate(caluclateExpirationDate(file.getRegisterer()));
+            file.setExpirationDate(caluclateExpirationDate(file.getRegistrator()));
             daoFactory.getFileDAO().updateFile(file);
             success = true;
         } finally
@@ -804,4 +849,5 @@ final class FileManager extends AbstractManager implements IFileManager
         }
 
     }
+
 }

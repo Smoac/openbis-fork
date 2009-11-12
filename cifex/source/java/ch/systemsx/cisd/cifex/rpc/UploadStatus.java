@@ -37,7 +37,7 @@ public class UploadStatus implements Serializable
 
     private final Set<String> uploadedFiles = new HashSet<String>();
 
-    private String[] files;
+    private FilePreregistrationDTO[] files;
 
     private int indexOfCurrentFile;
 
@@ -54,9 +54,9 @@ public class UploadStatus implements Serializable
     }
 
     /**
-     * Sets the absolute paths of all files to be uploaded.
+     * Sets the absolute paths and sizes of all files to be uploaded.
      */
-    public final void setFiles(String[] filesOrNull)
+    public final void setFiles(FilePreregistrationDTO[] filesOrNull)
     {
         this.files = filesOrNull;
         final boolean isEmpty = (filesOrNull == null || filesOrNull.length == 0);
@@ -80,7 +80,7 @@ public class UploadStatus implements Serializable
     {
         for (int i = startIndex; i < files.length; i++)
         {
-            if (uploadedFiles.contains(files[i]) == false)
+            if (uploadedFiles.contains(files[i].getFilePathOnClient()) == false)
             {
                 return i;
             }
@@ -107,7 +107,7 @@ public class UploadStatus implements Serializable
      */
     public String getCurrentFile()
     {
-        return files[indexOfCurrentFile];
+        return files[indexOfCurrentFile].getFilePathOnClient();
     }
 
     /**
@@ -116,6 +116,14 @@ public class UploadStatus implements Serializable
     public String getNameOfCurrentFile()
     {
         return FilenameUtils.getName(getCurrentFile());
+    }
+
+    /**
+     * Returns the information of the current file to be uploaded.
+     */
+    public FilePreregistrationDTO getCurrentFileInfo()
+    {
+        return files[indexOfCurrentFile];
     }
 
     /**

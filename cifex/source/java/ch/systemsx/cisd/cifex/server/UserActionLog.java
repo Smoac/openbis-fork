@@ -352,7 +352,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     {
         assert file != null;
 
-        final UserDTO registratorOrNull = file.getRegisterer();
+        final UserDTO registratorOrNull = file.getRegistrator();
         if (registratorOrNull != null)
         {
             return registratorOrNull.getUserCode() + "::" + file.getName();

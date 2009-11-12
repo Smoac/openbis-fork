@@ -31,7 +31,7 @@ public interface ICIFEXRPCService
 {
 
     /** The version of this service interface. */
-    public static final int VERSION = 2;
+    public static final int VERSION = 3;
 
     /** Returns the version of the server side interface. */
     public int getVersion();
@@ -83,8 +83,9 @@ public interface ICIFEXRPCService
      * @throws IllegalStateException if upload status state isn't {@link UploadState#INITIALIZED}.
      * @throws InvalidSessionException if there is no session with specified session ID.
      */
-    public void defineUploadParameters(String sessionID, String[] files, String recipients,
-            String comment) throws InvalidSessionException, IllegalStateException;
+    public void defineUploadParameters(String sessionID, FilePreregistrationDTO[] files,
+            String recipients, String comment) throws InvalidSessionException,
+            IllegalStateException;
 
     /**
      * Returns the status of the specified upload session.
@@ -115,10 +116,12 @@ public interface ICIFEXRPCService
      * <li>{@link UploadState#ABORTED} if it was already in this state.
      * </ul>
      * 
-     * @param filePointer the pointer of the block within the file.
+     * @param filePointer The pointer of the block within the file. Can be either the same one as
+     *            the last time or the next one. All other <var>filePointer</var> values are
+     *            considered an error.
+     * @param runningCrc32Value The value of the CRC32 checksum of all data blocks uploaded up to
+     *            now, including the current <var>block</var> ("running CRC32 checksum")
      * @param block Block of data bytes.
-     * @param lastBlock <code>true</code> if <code>block</code> is the last block of a file to be
-     *            uploaded.
      * @throws IllegalStateException if upload status state isn't {@link UploadState#UPLOADING} or
      *             {@link UploadState#ABORTED}.
      * @throws InvalidSessionException if there is no session with specified session ID.
@@ -126,7 +129,7 @@ public interface ICIFEXRPCService
      * @throws FileSizeExceededException if the upload exceed the maximally allowed file size.
      * @throws IllegalStateException if {@link #startUploading(String)} hasn't been called before.
      */
-    public void uploadBlock(String sessionID, long filePointer, byte[] block, boolean lastBlock)
+    public void uploadBlock(String sessionID, long filePointer, int runningCrc32Value, byte[] block)
             throws InvalidSessionException, IOExceptionUnchecked, FileSizeExceededException,
             IllegalStateException;
 

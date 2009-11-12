@@ -21,21 +21,24 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.client.Uploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
 import ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService;
@@ -44,6 +47,8 @@ import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
+import ch.systemsx.cisd.cifex.server.business.PreCreatedFileDTO;
+import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -68,13 +73,19 @@ public class UploadingIntegrationTest extends AssertJUnit
 
     private static final long SMALL_FILE_SIZE = 10;
 
-    private static int smallFileCRC32;
+    private static final FilePreregistrationDTO SMALL_FILE_INFO =
+            new FilePreregistrationDTO(new File(CLIENT_FOLDER, SMALL_FILE).getAbsolutePath(),
+                    SMALL_FILE_SIZE * 1024L);
 
     private static final String LARGE_FILE = "large-file";
 
     private static final long LARGE_FILE_SIZE = 4000;
 
-    private static int largeFileCRC32;
+    private static final FilePreregistrationDTO LARGE_FILE_INFO =
+            new FilePreregistrationDTO(new File(CLIENT_FOLDER, LARGE_FILE).getAbsolutePath(),
+                    LARGE_FILE_SIZE * 1024L);
+
+    private static String COMMENT = "no comment";
 
     private static void createRandomData(File file, long sizeInKB)
     {
@@ -140,10 +151,8 @@ public class UploadingIntegrationTest extends AssertJUnit
         FILE_STORE.mkdirs();
         final File smallFile = new File(CLIENT_FOLDER, SMALL_FILE);
         createRandomData(smallFile, SMALL_FILE_SIZE);
-        smallFileCRC32 = (int) FileUtils.checksumCRC32(smallFile);
         final File largeFile = new File(CLIENT_FOLDER, LARGE_FILE);
         createRandomData(largeFile, LARGE_FILE_SIZE);
-        largeFileCRC32 = (int) FileUtils.checksumCRC32(largeFile);
     }
 
     @AfterMethod
@@ -165,7 +174,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                 }
             });
 
-        uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", "no comment");
+        uploader.upload(Arrays.<File> asList(), "Albert\nGalileo", COMMENT);
 
         context.assertIsSatisfied();
     }
@@ -175,6 +184,7 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         final File fileOnClient = new File(CLIENT_FOLDER, SMALL_FILE);
         final File fileInFileStore = new File(FILE_STORE, SMALL_FILE);
+        final FileDTO fileDTO = createFileDTO(SMALL_FILE_INFO.getFileSize());
         context.checking(new Expectations()
             {
                 {
@@ -186,13 +196,12 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
-                    one(fileManager).createFile(user, SMALL_FILE);
-                    will(returnValue(fileInFileStore));
+                    one(fileManager).createFile(user, SMALL_FILE_INFO, COMMENT);
+                    will(returnValue(new PreCreatedFileDTO(fileInFileStore, fileDTO)));
 
-                    one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore,
-                            smallFileCRC32, new String[]
-                                { "Albert", "Galileo" }, TEST_URL);
+                    one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
+                            with(equal(Arrays.asList("Albert", "Galileo"))),
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
                     will(returnValue(Collections.emptyList()));
 
                     one(listener).reportProgress(0, 0);
@@ -200,8 +209,9 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).reset();
                 }
             });
-
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+        addUpdateUploadProgress(SMALL_FILE_INFO.getFileSize(), SMALL_FILE_INFO.getFileSize());
+        
+        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
 
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
@@ -234,11 +244,52 @@ public class UploadingIntegrationTest extends AssertJUnit
             });
     }
 
+    private void addUpdateUploadProgress(final long completeSize, final long maxSize)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    final long[] size = new long[1];
+                    size[0] = BLOCK_SIZE > maxSize ? maxSize : BLOCK_SIZE;
+                    while (true)
+                    {
+                        one(fileManager).updateUploadProgress(with(new BaseMatcher<FileDTO>()
+                            {
+                                final long currentSize = size[0];
+                                public boolean matches(Object item)
+                                {
+                                    final FileDTO fileDTO = (FileDTO) item;
+                                    return fileDTO.getCompleteSize() == completeSize
+                                            && fileDTO.getSize() == currentSize;
+                                }
+
+                                public void describeTo(Description description)
+                                {
+                                    description.appendText("fileDTO<completeSize=" + completeSize
+                                            + ", size=" + currentSize + ">");
+                                }
+                            }));
+                        if (size[0] == maxSize)
+                        {
+                            break;
+                        }
+                        size[0] += BLOCK_SIZE;
+                        if (size[0] > maxSize)
+                        {
+                            size[0] = maxSize;
+                        }
+                    }
+                }
+            });
+
+    }
+
     @Test
     public void testSingleLargeFile() throws IOException
     {
         final File fileOnClient = new File(CLIENT_FOLDER, LARGE_FILE);
         final File fileInFileStore = new File(FILE_STORE, LARGE_FILE);
+        final FileDTO fileDTO = createFileDTO(LARGE_FILE_INFO.getFileSize());
         context.checking(new Expectations()
             {
                 {
@@ -250,22 +301,30 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
                     one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L);
 
-                    one(fileManager).createFile(user, LARGE_FILE);
-                    will(returnValue(fileInFileStore));
+                    one(fileManager).createFile(user, LARGE_FILE_INFO, COMMENT);
+                    will(returnValue(new PreCreatedFileDTO(fileInFileStore, fileDTO)));
 
-                    one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore,
-                            largeFileCRC32, new String[]
-                                { "Albert", "Galileo" }, TEST_URL);
+                    one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
+                            with(equal(Arrays.asList("Albert", "Galileo"))),
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
                     will(returnValue(Collections.emptyList()));
                 }
             });
         addRegularProgressExpectations();
+        addUpdateUploadProgress(LARGE_FILE_INFO.getFileSize(), LARGE_FILE_INFO.getFileSize());
 
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
 
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
+    }
+
+    private FileDTO createFileDTO(long completeSize)
+    {
+        final FileDTO fileDTO = new FileDTO();
+        fileDTO.setSize(0L);
+        fileDTO.setCompleteSize(completeSize);
+        return fileDTO;
     }
 
     @Test
@@ -273,8 +332,10 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         final File fileOnClient1 = new File(CLIENT_FOLDER, SMALL_FILE);
         final File fileInFileStore1 = new File(FILE_STORE, SMALL_FILE);
+        final FileDTO fileDTO1 = createFileDTO(SMALL_FILE_INFO.getFileSize());
         final File fileOnClient2 = new File(CLIENT_FOLDER, LARGE_FILE);
         final File fileInFileStore2 = new File(FILE_STORE, LARGE_FILE);
+        final FileDTO fileDTO2 = createFileDTO(LARGE_FILE_INFO.getFileSize());
         context.checking(new Expectations()
             {
                 {
@@ -287,34 +348,33 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(userActionLog).logUploadFileStart(LARGE_FILE, true);
                     one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
                     one(listener).start(fileOnClient1, SMALL_FILE_SIZE * 1024L);
-                    one(fileManager).createFile(user, SMALL_FILE);
-                    will(returnValue(fileInFileStore1));
+                    one(fileManager).createFile(user, SMALL_FILE_INFO, COMMENT);
+                    will(returnValue(new PreCreatedFileDTO(fileInFileStore1, fileDTO1)));
 
                     one(listener).reportProgress(0, 0);
                     one(listener).fileUploaded();
 
-                    one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore1,
-                            smallFileCRC32, new String[]
-                                { "Albert", "Galileo" }, TEST_URL);
+                    one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
+                            with(equal(Arrays.asList("Albert", "Galileo"))),
+                            with(singleFileDTO(fileDTO1)), with(equal(COMMENT)));
                     will(returnValue(Collections.emptyList()));
 
                     one(listener).start(fileOnClient2, LARGE_FILE_SIZE * 1024L);
 
-                    one(fileManager).createFile(user, LARGE_FILE);
-                    will(returnValue(fileInFileStore2));
+                    one(fileManager).createFile(user, LARGE_FILE_INFO, COMMENT);
+                    will(returnValue(new PreCreatedFileDTO(fileInFileStore2, fileDTO2)));
 
-                    one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore2,
-                            largeFileCRC32, new String[]
-                                { "Albert", "Galileo" }, TEST_URL);
+                    one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
+                            with(equal(Arrays.asList("Albert", "Galileo"))),
+                            with(singleFileDTO(fileDTO2)), with(equal(COMMENT)));
                     will(returnValue(Collections.emptyList()));
                 }
             });
         addRegularProgressExpectations();
+        addUpdateUploadProgress(SMALL_FILE_INFO.getFileSize(), SMALL_FILE_INFO.getFileSize());
+        addUpdateUploadProgress(LARGE_FILE_INFO.getFileSize(), LARGE_FILE_INFO.getFileSize());
 
-        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo",
-                "no comment");
+        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo", COMMENT);
 
         assertEqualContent(fileOnClient1, fileInFileStore1);
         assertEqualContent(fileOnClient2, fileInFileStore2);
@@ -326,6 +386,7 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         final File fileOnClient = new File(CLIENT_FOLDER, SMALL_FILE);
         final File fileInFileStore = new File(FILE_STORE, SMALL_FILE);
+        final FileDTO fileDTO = createFileDTO(SMALL_FILE_INFO.getFileSize());
         context.checking(new Expectations()
             {
                 {
@@ -337,14 +398,13 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
-                    one(fileManager).createFile(user, SMALL_FILE);
-                    will(returnValue(fileInFileStore));
+                    one(fileManager).createFile(user, SMALL_FILE_INFO, COMMENT);
+                    will(returnValue(new PreCreatedFileDTO(fileInFileStore, fileDTO)));
 
-                    one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore,
-                            smallFileCRC32, new String[]
-                                { "Albert", "Galileo" }, TEST_URL);
-                    will(returnValue(Arrays.asList("id:unknown")));
+                    one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
+                            with(equal(Arrays.asList("Albert", "Galileo"))),
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
+                    will(returnValue(Collections.singletonList("id:unknown")));
 
                     one(listener).exceptionOccured(with(new BaseMatcher<UserFailureException>()
                         {
@@ -367,10 +427,11 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).reset();
                 }
             });
-
+            addUpdateUploadProgress(SMALL_FILE_INFO.getFileSize(), SMALL_FILE_INFO.getFileSize());
+        
         try
         {
-            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
@@ -386,6 +447,7 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         final File fileOnClient = new File(CLIENT_FOLDER, SMALL_FILE);
         final File fileInFileStore = new File(FILE_STORE, SMALL_FILE);
+        final FileDTO fileDTO = createFileDTO(SMALL_FILE_INFO.getFileSize());
         final RuntimeException exception = new RuntimeException("Oops!");
         context.checking(new Expectations()
             {
@@ -398,13 +460,12 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(userActionLog).logUploadFileFinished(SMALL_FILE, false);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
-                    one(fileManager).createFile(user, SMALL_FILE);
-                    will(returnValue(fileInFileStore));
+                    one(fileManager).createFile(user, SMALL_FILE_INFO, COMMENT);
+                    will(returnValue(new PreCreatedFileDTO(fileInFileStore, fileDTO)));
 
-                    one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore,
-                            smallFileCRC32, new String[]
-                                { "Albert", "Galileo" }, TEST_URL);
+                    one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
+                            with(equal(Arrays.asList("Albert", "Galileo"))),
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
                     will(throwException(exception));
 
                     one(listener).exceptionOccured(exception);
@@ -413,10 +474,11 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).reset();
                 }
             });
+        addUpdateUploadProgress(SMALL_FILE_INFO.getFileSize(), SMALL_FILE_INFO.getFileSize());
 
         try
         {
-            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
             fail("RuntimeException expected");
         } catch (RuntimeException e)
         {
@@ -432,7 +494,7 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         final File fileOnClient = new File(CLIENT_FOLDER, LARGE_FILE);
         final File fileInFileStore = new File(FILE_STORE, LARGE_FILE);
-        final File tempFileInStore = new File(FILE_STORE, CIFEXRPCService.PREFIX + LARGE_FILE);
+        final FileDTO fileDTO = createFileDTO(LARGE_FILE_INFO.getFileSize());
         context.checking(new Expectations()
             {
                 {
@@ -443,14 +505,15 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(userActionLog).logUploadFileStart(LARGE_FILE, true);
                     one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L);
 
-                    one(fileManager).createFile(user, LARGE_FILE);
-                    will(returnValue(fileInFileStore));
+                    one(fileManager).createFile(user, LARGE_FILE_INFO, COMMENT);
+                    will(returnValue(new PreCreatedFileDTO(fileInFileStore, fileDTO)));
 
                     one(listener).reportProgress(6, BLOCK_SIZE);
                     one(listener).reportProgress(with(equal(12)), with(new BaseMatcher<Long>()
                         {
                             public void describeTo(Description description)
                             {
+                                description.appendText("two block sizes");
                             }
 
                             public boolean matches(Object item)
@@ -460,8 +523,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                                     long numberOfBytes = (Long) item;
                                     if (numberOfBytes == 2 * BLOCK_SIZE)
                                     {
-                                        assertEquals(true, tempFileInStore.exists());
-                                        assertEquals(numberOfBytes, tempFileInStore.length());
+                                        assertEquals(true, fileInFileStore.exists());
+                                        assertEquals(numberOfBytes, fileInFileStore.length());
                                         uploader.cancel();
                                         return true;
                                     }
@@ -469,15 +532,15 @@ public class UploadingIntegrationTest extends AssertJUnit
                                 return false;
                             }
                         }));
+                    one(fileManager).deleteFile(fileDTO);
                     one(listener).finished(false);
                     one(listener).reset();
                 }
             });
+        addUpdateUploadProgress(LARGE_FILE_INFO.getFileSize(), 2*BLOCK_SIZE);
 
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", "no comment");
+        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
 
-        assertEquals(false, fileInFileStore.exists());
-        assertEquals(false, tempFileInStore.exists());
         context.assertIsSatisfied();
     }
 
@@ -486,8 +549,11 @@ public class UploadingIntegrationTest extends AssertJUnit
     {
         final File fileOnClient1 = new File(CLIENT_FOLDER, SMALL_FILE);
         final File fileInFileStore1 = new File(FILE_STORE, SMALL_FILE);
+        final FileDTO fileDTO1 = createFileDTO(SMALL_FILE_INFO.getFileSize());
         final File fileOnClient2 = new File(CLIENT_FOLDER, LARGE_FILE);
         final File fileInFileStore2 = new File(FILE_STORE, LARGE_FILE);
+        final FileDTO fileDTO2 = createFileDTO(LARGE_FILE_INFO.getFileSize());
+        fileDTO2.setPath(fileInFileStore2.getPath());
         context.checking(new Expectations()
             {
                 {
@@ -500,22 +566,21 @@ public class UploadingIntegrationTest extends AssertJUnit
                     exactly(2).of(userActionLog).logUploadFileStart(LARGE_FILE, true);
                     one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
                     one(listener).start(fileOnClient1, SMALL_FILE_SIZE * 1024L);
-                    one(fileManager).createFile(user, SMALL_FILE);
-                    will(returnValue(fileInFileStore1));
+                    one(fileManager).createFile(user, SMALL_FILE_INFO, COMMENT);
+                    will(returnValue(new PreCreatedFileDTO(fileInFileStore1, fileDTO1)));
 
                     one(listener).reportProgress(0, 0);
                     one(listener).fileUploaded();
 
-                    one(fileManager).registerFileLinkAndInformRecipients(user, SMALL_FILE,
-                            "no comment", "application/octet-stream", fileInFileStore1,
-                            smallFileCRC32, new String[]
-                                { "Albert", "Galileo" }, TEST_URL);
+                    one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
+                            with(equal(Arrays.asList("Albert", "Galileo"))),
+                            with(singleFileDTO(fileDTO1)), with(equal(COMMENT)));
                     will(returnValue(Collections.emptyList()));
 
                     one(listener).start(fileOnClient2, LARGE_FILE_SIZE * 1024L);
 
-                    one(fileManager).createFile(user, LARGE_FILE);
-                    will(returnValue(fileInFileStore2));
+                    one(fileManager).createFile(user, LARGE_FILE_INFO, COMMENT);
+                    will(returnValue(new PreCreatedFileDTO(fileInFileStore2, fileDTO2)));
 
                     one(listener).reportProgress(6, BLOCK_SIZE);
                     one(listener).reportProgress(with(equal(12)), with(new BaseMatcher<Long>()
@@ -538,24 +603,35 @@ public class UploadingIntegrationTest extends AssertJUnit
                                 return false;
                             }
                         }));
+                    one(fileManager).deleteFile(fileDTO2);
+                    will(new CustomAction("delete file from fs")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                new File(((FileDTO) invocation.getParameter(0)).getPath()).delete();
+                                return null;
+                            }
+                        });
                     one(listener).finished(false);
                     one(listener).reset();
 
                     one(listener).start(fileOnClient2, LARGE_FILE_SIZE * 1024L);
 
-                    one(fileManager).createFile(user, LARGE_FILE);
-                    will(returnValue(fileInFileStore2));
+                    one(fileManager).createFile(user, LARGE_FILE_INFO, "2. try");
+                    will(returnValue(new PreCreatedFileDTO(fileInFileStore2, fileDTO2)));
 
-                    one(fileManager).registerFileLinkAndInformRecipients(user, LARGE_FILE,
-                            "2. try", "application/octet-stream", fileInFileStore2, largeFileCRC32,
-                            new String[0], TEST_URL);
+                    one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
+                            with(equal(Collections. <String>emptyList())),
+                            with(singleFileDTO(fileDTO2)), with(equal("2. try")));
                     will(returnValue(Collections.emptyList()));
                 }
             });
         addRegularProgressExpectations();
+        addUpdateUploadProgress(SMALL_FILE_INFO.getFileSize(), SMALL_FILE_INFO.getFileSize());
+        addUpdateUploadProgress(LARGE_FILE_INFO.getFileSize(), 2 * BLOCK_SIZE);
+        addUpdateUploadProgress(LARGE_FILE_INFO.getFileSize(), LARGE_FILE_INFO.getFileSize());
 
-        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo",
-                "no comment");
+        uploader.upload(Arrays.asList(fileOnClient1, fileOnClient2), "Albert\nGalileo", COMMENT);
 
         assertEqualContent(fileOnClient1, fileInFileStore1);
         assertEquals(false, fileInFileStore2.exists());
@@ -593,6 +669,25 @@ public class UploadingIntegrationTest extends AssertJUnit
             IOUtils.closeQuietly(streamWithActualContent);
         }
 
+    }
+
+    private BaseMatcher<Collection<FileDTO>> singleFileDTO(final FileDTO fileDTO)
+    {
+        return new BaseMatcher<Collection<FileDTO>>()
+            {
+                @SuppressWarnings("unchecked")
+                public boolean matches(Object item)
+                {
+                    Collection<FileDTO> col = (Collection<FileDTO>) item;
+                    return col.size() == 1
+                            && col.iterator().next().equals(fileDTO);
+                }
+
+                public void describeTo(Description description)
+                {
+                    description.appendText("single unchanged fileDTO");
+                }
+            };
     }
 
 }

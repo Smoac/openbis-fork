@@ -143,13 +143,13 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     /**
      * Updates the <var>file</var> in the database with the current upload progress.
      */
-    public void updateFileUploadProgress(final long id, final long size, final int crc32)
-            throws DataAccessException
+    public void updateFileUploadProgress(final long id, final long size, final int crc32,
+            final Date expirationDate) throws DataAccessException
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
 
-        template.update("update files set size = ?, crc32_checksum = ? where id = ?", size, crc32,
-                id);
+        template.update("update files set size = ?, crc32_checksum = ?, expiration_timestamp = ?"
+                + " where id = ?", size, crc32, expirationDate, id);
     }
 
     public boolean deleteFile(final long id) throws DataAccessException
@@ -271,7 +271,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                 file = new FileDTO(registererId);
             } else
             {
-                file = new FileDTO(null);
+                file = new FileDTO();
             }
             final Date expDate = new Date(rs.getTimestamp("f_EXPIRATION_TIMESTAMP").getTime());
             file.setExpirationDate(expDate);
@@ -315,7 +315,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         {
             final FileDTO file = FileRowMapper.fillSimpleFileFromResultSet(rs);
             final UserDTO registerer = UserDAO.UserRowMapper.fillUserFromResultSet(rs);
-            file.setRegisterer(registerer);
+            file.setRegistrator(registerer);
             return file;
         }
 

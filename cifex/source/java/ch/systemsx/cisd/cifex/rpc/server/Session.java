@@ -20,15 +20,15 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.CRC32;
 
+import ch.systemsx.cisd.cifex.rpc.CRCCheckumMismatchException;
 import ch.systemsx.cisd.cifex.rpc.UploadStatus;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
 /**
  * A session for rpc based calls.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public final class Session
@@ -37,32 +37,38 @@ public final class Session
     {
         UPLOAD, DOWNLOAD;
     }
-    
+
     private final String sessionID;
-    
+
     private final UserDTO user;
-    
+
     private final UploadStatus uploadStatus;
-    
+
     private String url;
-    
+
     private File file;
-    
-    private FileDTO fileInfo;
-    
+
+    private FileDTO fileDTO;
+
     private List<File> temporaryFiles = new ArrayList<File>();
-    
+
     private RandomAccessFile randomAccessFile;
-    
+
     private String[] recipients;
-    
+
     private String comment;
-    
+
     private Operation operation;
-    
+
     private long lastActiveMillis;
-    
-    private CRC32 crc32;
+
+    private long oldFilePointer;
+
+    private CloneableCRC32 oldCrc32;
+
+    private long currentFilePointer;
+
+    private CloneableCRC32 currentCrc32;
 
     Session(String sessionID, UserDTO user, String url)
     {
@@ -70,17 +76,22 @@ public final class Session
         this.user = user;
         this.url = url;
         this.uploadStatus = new UploadStatus();
-        this.crc32 = new CRC32();
+        this.oldFilePointer = -1L;
+        this.currentFilePointer = 0L;
+        this.currentCrc32 = new CloneableCRC32();
         touchSession();
     }
-    
+
     void reset()
     {
         touchSession();
         temporaryFiles.clear();
         setFile(null);
         setRandomAccessFile(null);
-        crc32.reset();
+        oldFilePointer = -1L;
+        oldCrc32 = null;
+        currentFilePointer = 0L;
+        currentCrc32.reset();
         uploadStatus.reset();
     }
 
@@ -89,7 +100,7 @@ public final class Session
         return sessionID;
     }
 
-    public  UserDTO getUser()
+    public UserDTO getUser()
     {
         return user;
     }
@@ -113,15 +124,15 @@ public final class Session
     {
         this.file = file;
     }
-    
-    public FileDTO getFileInfo()
+
+    public FileDTO getFileDTO()
     {
-        return fileInfo;
+        return fileDTO;
     }
 
-    public void setFileInfo(FileDTO fileInfo)
+    public void setFileDTO(FileDTO fileDTO)
     {
-        this.fileInfo = fileInfo;
+        this.fileDTO = fileDTO;
     }
 
     public Operation getOperation()
@@ -138,7 +149,7 @@ public final class Session
     {
         temporaryFiles.add(tempFile);
     }
-    
+
     final List<File> getTempFiles()
     {
         return temporaryFiles;
@@ -152,12 +163,42 @@ public final class Session
     public final void setRandomAccessFile(RandomAccessFile randomAccessFile)
     {
         this.randomAccessFile = randomAccessFile;
-        crc32.reset();
+        oldFilePointer = -1L;
+        oldCrc32 = null;
+        currentFilePointer = 0L;
+        currentCrc32.reset();
     }
 
-    public CRC32 getCrc32()
+    public final void updateUploadProgress(long filePointer, int runningCrc32Value, byte[] block)
     {
-        return crc32;
+        if (filePointer == currentFilePointer)
+        {
+            oldFilePointer = currentFilePointer;
+            oldCrc32 = currentCrc32.clone();
+            currentFilePointer += block.length;
+        } else if (filePointer == oldFilePointer)
+        {
+            currentCrc32 = oldCrc32.clone();
+        } else
+        {
+            throw new RuntimeException("Illegal value " + filePointer
+                    + " for file pointer [allowed: " + oldFilePointer + "," + currentFilePointer
+                    + "]");
+        }
+        currentCrc32.update(block);
+        fileDTO.setSize(currentFilePointer);
+        fileDTO.setCrc32Value(currentCrc32.getIntValue());
+        // On CRC32 checksum mismatch, immediately bail out.
+        if (fileDTO.getCrc32Value() != runningCrc32Value)
+        {
+            throw new CRCCheckumMismatchException(fileDTO.getName(), fileDTO.getCrc32Value(),
+                    runningCrc32Value);
+        }
+        if (fileDTO.getSize() > fileDTO.getCompleteSize())
+        {
+            throw new RuntimeException("Size of uploaded file exceeds initially set file size ("
+                    + fileDTO.getSize() + " > " + fileDTO.getCompleteSize());
+        }
     }
 
     final UploadStatus getUploadStatus()
@@ -189,7 +230,7 @@ public final class Session
     {
         return lastActiveMillis;
     }
-    
+
     public void touchSession()
     {
         lastActiveMillis = System.currentTimeMillis();

@@ -22,6 +22,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.UploadState;
 import ch.systemsx.cisd.cifex.rpc.UploadStatus;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
@@ -89,8 +90,9 @@ public class UploadServiceTest extends AssertJUnit
     @Test
     public void testDefineUploadParameters()
     {
-        uploadService.defineUploadParameters(sessionID, new String[]
-            { "path/a", "b" }, "", "");
+        uploadService.defineUploadParameters(sessionID, new FilePreregistrationDTO[]
+            { new FilePreregistrationDTO("path/a", 100L), new FilePreregistrationDTO("b", 10L) },
+                "", "");
 
         UploadStatus status = uploadService.getUploadStatus(sessionID);
         assertEquals("path/a", status.getCurrentFile());
@@ -104,12 +106,15 @@ public class UploadServiceTest extends AssertJUnit
     @Test
     public void testDefineUploadParametersInIllegalState()
     {
-        uploadService.defineUploadParameters(sessionID, new String[]
-            { "path/a", "b" }, "", "");
+        uploadService.defineUploadParameters(sessionID, new FilePreregistrationDTO[]
+            { new FilePreregistrationDTO("path/a", 100L), new FilePreregistrationDTO("b", 10L) },
+                "", "");
         try
         {
-            uploadService.defineUploadParameters(sessionID, new String[]
-                { "path/a", "b" }, "", "");
+            uploadService.defineUploadParameters(sessionID,
+                    new FilePreregistrationDTO[]
+                        { new FilePreregistrationDTO("path/a", 100L),
+                                new FilePreregistrationDTO("b", 10L) }, "", "");
             fail("IllegalStateException expected");
         } catch (IllegalStateException e)
         {
@@ -125,7 +130,7 @@ public class UploadServiceTest extends AssertJUnit
     {
         try
         {
-            uploadService.defineUploadParameters("invalid", new String[0], "", "");
+            uploadService.defineUploadParameters("invalid", new FilePreregistrationDTO[0], "", "");
             fail("EnvironmentFailureException expected");
         } catch (InvalidSessionException e)
         {

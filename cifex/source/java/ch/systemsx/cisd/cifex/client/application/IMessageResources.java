@@ -226,7 +226,15 @@ public interface IMessageResources extends Messages
     @Key(value = "file.size.label")
     public String getFileSizeLabel();
 
-    /** Returns the label of the file registerer column. */
+    /** Returns the label of the complete file size column. */
+    @Key(value = "file.complete_size.label")
+    public String getCompleteFileSizeLabel();
+
+    /** Returns the label of the is_complete column. */
+    @Key(value = "file.is_complete.label")
+    public String getIsCompleteLabel();
+    
+    /** Returns the label of the file upload part of the page. */
     @Key(value = "files.part.title")
     public String getFilesPartTitle();
 

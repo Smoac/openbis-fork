@@ -24,6 +24,7 @@ import java.util.List;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.UploadState;
 import ch.systemsx.cisd.cifex.rpc.UploadStatus;
@@ -63,42 +64,42 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     public void addProgressListener(final IProgressListener listener)
     {
         listeners.add(new IUploadProgressListener()
-        {
-
-            public void exceptionOccured(Throwable throwable)
             {
-                listener.exceptionOccured(throwable);
-            }
 
-            public void finished(boolean successful)
-            {
-                listener.finished(successful);
-            }
+                public void exceptionOccured(Throwable throwable)
+                {
+                    listener.exceptionOccured(throwable);
+                }
 
-            public void reportProgress(int percentage, long numberOfBytes)
-            {
-                listener.reportProgress(percentage, numberOfBytes);
-            }
+                public void finished(boolean successful)
+                {
+                    listener.finished(successful);
+                }
 
-            public void start(File file, long fileSize)
-            {
-                listener.start(file, fileSize);
-            }
+                public void reportProgress(int percentage, long numberOfBytes)
+                {
+                    listener.reportProgress(percentage, numberOfBytes);
+                }
 
-            public void warningOccured(String warningMessage)
-            {
-                listener.warningOccured(warningMessage);
-            }
-            
-            public void fileUploaded()
-            {
-            }
+                public void start(File file, long fileSize)
+                {
+                    listener.start(file, fileSize);
+                }
 
-            public void reset()
-            {
-            }
+                public void warningOccured(String warningMessage)
+                {
+                    listener.warningOccured(warningMessage);
+                }
 
-        });
+                public void fileUploaded()
+                {
+                }
+
+                public void reset()
+                {
+                }
+
+            });
     }
 
     /**
@@ -126,12 +127,14 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
      */
     public void upload(List<File> files, String recipients, String comment)
     {
-        String[] paths = new String[files.size()];
+        final FilePreregistrationDTO[] fileInfo = new FilePreregistrationDTO[files.size()];
         try
         {
             for (int i = 0; i < files.size(); i++)
             {
-                paths[i] = files.get(i).getCanonicalPath();
+                fileInfo[i] =
+                        new FilePreregistrationDTO(files.get(i).getCanonicalPath(), files.get(i)
+                                .length());
             }
         } catch (IOException ex)
         {
@@ -150,7 +153,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                 switch (status.getUploadState())
                 {
                     case INITIALIZED:
-                        service.defineUploadParameters(sessionID, paths, recipients, comment);
+                        service.defineUploadParameters(sessionID, fileInfo, recipients, comment);
                         break;
                     case READY_FOR_NEXT_FILE:
                         if (fileProvider != null)
@@ -161,6 +164,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                         File file = new File(status.getCurrentFile());
                         fileSize = file.length();
                         fileProvider = new RandomAccessFileProvider(file, "r");
+                        crc32.reset();
                         fireStartedEvent(file, fileSize);
                         service.startUploading(sessionID);
                         break;
@@ -218,12 +222,14 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         final byte[] bytes = new byte[blockSize];
         randomAccessFile.seek(filePointer);
         randomAccessFile.readFully(bytes, 0, blockSize);
+        crc32.update(bytes);
+        final int runningCrc32Value = (int) crc32.getValue();
         RemoteAccessException lastExceptionOrNull = null;
         for (int i = 0; i < MAX_RETRIES; ++i)
         {
             try
             {
-                service.uploadBlock(sessionID, filePointer, bytes, lastBlock);
+                service.uploadBlock(sessionID, filePointer, runningCrc32Value, bytes);
                 lastExceptionOrNull = null;
                 break;
             } catch (RemoteAccessException ex)

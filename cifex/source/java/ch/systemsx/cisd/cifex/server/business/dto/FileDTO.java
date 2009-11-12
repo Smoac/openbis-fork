@@ -39,7 +39,7 @@ public final class FileDTO extends ID
     /**
      * Represents registrator of the file.
      */
-    private UserDTO registerer;
+    private UserDTO registrator;
 
     /** The date at which this file was registered. */
     private Date registrationDate;
@@ -56,6 +56,17 @@ public final class FileDTO extends ID
     private final Long registratorId;
 
     private final BasicFileDTO basicFileDTO = new BasicFileDTO();
+
+    public FileDTO()
+    {
+        registratorId = null;
+    }
+    
+    public FileDTO(final UserDTO registrator)
+    {
+        this.registrator = registrator;
+        this.registratorId = registrator.getID();
+    }
 
     public FileDTO(final Long registererId)
     {
@@ -82,15 +93,15 @@ public final class FileDTO extends ID
         this.path = path;
     }
 
-    public final UserDTO getRegisterer()
+    public final UserDTO getRegistrator()
     {
-        return registerer;
+        return registrator;
     }
 
-    public final void setRegisterer(final UserDTO registerer)
+    public final void setRegistrator(final UserDTO registerer)
     {
         getAndCheckID(registerer, registratorId);
-        this.registerer = registerer;
+        this.registrator = registerer;
     }
 
     public final Date getRegistrationDate()

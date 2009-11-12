@@ -19,15 +19,14 @@ package ch.systemsx.cisd.cifex.rpc.client;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.cifex.rpc.CRCCheckumMismatchException;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * Class which downloads file via an implementation of {@link ICIFEXRPCService}, handling the
@@ -73,6 +72,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             final String fileName = fileNameOrNull != null ? fileNameOrNull : fileInfo.getName();
             final File file = new File(directory, fileName);
             final long fileSize = fileInfo.getSize();
+            crc32.reset();
             fireStartedEvent(file, fileSize);
             final RandomAccessFileProvider fileProvider = new RandomAccessFileProvider(file, "rw");
             try
@@ -86,14 +86,13 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                     filePointer += blockSize;
                     fireProgressEvent(filePointer, fileSize);
                 }
-                final int crc32Value = (int) FileUtils.checksumCRC32(file);
+                service.finish(sessionID, true);
+                final int crc32Value = (int) crc32.getValue();
                 if (fileInfo.getCrc32Value() != null && crc32Value != fileInfo.getCrc32Value())
                 {
-                    throw new EnvironmentFailureException(String.format(
-                            "Checksum error (expected: %x, found: %x", fileInfo.getCrc32Value(),
-                            crc32Value));
+                    throw new CRCCheckumMismatchException(fileInfo.getName(), crc32Value, fileInfo
+                            .getCrc32Value());
                 }
-                service.finish(sessionID, true);
                 fireFinishedEvent(true);
             } finally
             {
@@ -122,6 +121,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             try
             {
                 byte[] block = service.downloadBlock(sessionID, filePointer, blockSize);
+                crc32.update(block);
                 fileProvider.getRandomAccessFile().seek(filePointer);
                 fileProvider.getRandomAccessFile().write(block);
                 lastExceptionOrNull = null;

@@ -44,6 +44,10 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     protected static final String SIZE = "size";
 
+    protected static final String COMPLETE_SIZE = "completeSize";
+
+    protected static final String IS_COMPLETE = "isComplete";
+
     protected static final String EXPIRATION_DATE = "expirationDate";
 
     protected static final String REGISTRATION_DATE = "registrationDate";
@@ -134,8 +138,26 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     protected final static ColumnConfig createSizeColumnConfig(IMessageResources messageResources)
     {
         final ColumnConfig columnConfig =
-                createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 60);
+                createSortableColumnConfig(SIZE, messageResources.getFileSizeLabel(), 80);
         columnConfig.setRenderer(FileSizeRenderer.FILE_SIZE_RENDERER);
+        return columnConfig;
+    }
+
+    protected final static ColumnConfig createCompleteSizeColumnConfig(
+            IMessageResources messageResources)
+    {
+        final ColumnConfig columnConfig =
+                createSortableColumnConfig(COMPLETE_SIZE, messageResources
+                        .getCompleteFileSizeLabel(), 80);
+        columnConfig.setRenderer(FileSizeRenderer.FILE_SIZE_RENDERER);
+        return columnConfig;
+    }
+
+    protected final static ColumnConfig createIsCompleteColumnConfig(
+            IMessageResources messageResources)
+    {
+        final ColumnConfig columnConfig =
+                createSortableColumnConfig(IS_COMPLETE, messageResources.getIsCompleteLabel(), 80);
         return columnConfig;
     }
 
