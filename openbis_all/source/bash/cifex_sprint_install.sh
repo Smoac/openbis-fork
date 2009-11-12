@@ -20,16 +20,22 @@ ln -s $NEW cifex
 cd cifex
 wget $INSTALL_URL
 
+
 unzip cifex-*.zip
-OLD_INSTALL=../../old/$PREV/jetty
+OLD_INSTALL=~/old/$PREV/jetty
+cd cifex
 cp $OLD_INSTALL/etc/service.properties .
 cp $OLD_INSTALL/etc/keystore .
 cp $OLD_INSTALL/etc/jetty.xml .
 ./install.sh ..
-cp $OLD_INSTALL/etc/jetty.properties ../jetty/etc/
-cp $OLD_INSTALL/etc/triggers.txt ../jetty/etc/
-cp $OLD_INSTALL/dssTrigger.properties ../jetty/
+cd ../jetty
+cp $OLD_INSTALL/etc/jetty.properties etc/
+cp $OLD_INSTALL/etc/triggers.txt etc/
+cp $OLD_INSTALL/dssTrigger.properties .
 
 cd ..
 rm -fr cifex
 jetty/bin/startup.sh
+cd ~/
+
+Echo "Now restart Datastore if needed"
