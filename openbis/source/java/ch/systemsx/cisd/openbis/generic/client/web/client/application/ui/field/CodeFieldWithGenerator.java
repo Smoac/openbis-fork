@@ -58,6 +58,16 @@ public class CodeFieldWithGenerator extends CodeField
     }
 
     @Override
+    public void setHideTrigger(boolean hideTrigger)
+    {
+        super.setHideTrigger(hideTrigger);
+        if (hideTrigger == true)
+        {
+            setTitle("");
+        }
+    }
+
+    @Override
     public void reset()
     {
         if (autoGenerateCode)

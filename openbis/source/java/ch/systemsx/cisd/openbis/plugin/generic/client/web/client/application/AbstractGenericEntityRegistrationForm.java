@@ -182,6 +182,12 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
         boolean codeReadonly = techIdOrNull != null || isAutoGenerateCode();
         codeField.setReadOnly(codeReadonly);
         codeField.setHideTrigger(codeReadonly);
+        if (techIdOrNull != null)
+        {
+            // we don't want to validate code during edition
+            // (contained sample code has ':' inside and it is invalid)
+            codeField.disable();
+        }
     }
 
     /**
