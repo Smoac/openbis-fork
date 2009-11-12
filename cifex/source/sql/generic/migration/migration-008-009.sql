@@ -4,10 +4,10 @@
 --
 ----------------------------------------------------------------------
 
--- New column IS_COMPLETE
+-- New column COMPLETE_SIZE
 
 ALTER TABLE FILES ADD COMPLETE_SIZE SIZE;
-UPDATE TABLE FILES SET COMPLETE_SIZE = SIZE;
+UPDATE FILES SET COMPLETE_SIZE = SIZE;
 ALTER TABLE FILES ALTER COLUMN COMPLETE_SIZE SET NOT NULL;
 
 -- Add index for querying candidates of files that are incomplete and can be resumed 
