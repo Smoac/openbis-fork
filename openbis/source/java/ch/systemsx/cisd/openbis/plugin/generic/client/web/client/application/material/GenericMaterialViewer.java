@@ -85,7 +85,7 @@ public final class GenericMaterialViewer extends
                 new MaterialInfoCallback(viewContext, this));
     }
 
-    public static final class MaterialInfoCallback extends AbstractAsyncCallback<Material>
+    private static final class MaterialInfoCallback extends AbstractAsyncCallback<Material>
     {
         private final GenericMaterialViewer genericMaterialViewer;
 

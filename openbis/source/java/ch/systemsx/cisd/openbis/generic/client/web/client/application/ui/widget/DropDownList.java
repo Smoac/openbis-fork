@@ -220,7 +220,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
         }
     }
 
-    public class ListItemsCallback extends AbstractAsyncCallback<List<E>>
+    protected class ListItemsCallback extends AbstractAsyncCallback<List<E>>
     {
 
         protected ListItemsCallback(final IViewContext<?> viewContext)

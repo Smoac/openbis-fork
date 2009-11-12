@@ -74,7 +74,8 @@ public class PropertyTypeAssignmentGrid extends
 
     public static final String GRID_ID = BROWSER_ID + "_grid";
 
-    static final class UnassignmentPreparationCallback extends AbstractAsyncCallback<Integer>
+    private static final class UnassignmentPreparationCallback extends
+            AbstractAsyncCallback<Integer>
     {
         private final IViewContext<ICommonClientServiceAsync> commonViewContext;
 
@@ -101,7 +102,7 @@ public class PropertyTypeAssignmentGrid extends
         }
     }
 
-    static final class RefreshCallback extends AbstractAsyncCallback<Void>
+    private static final class RefreshCallback extends AbstractAsyncCallback<Void>
     {
         private final IBrowserGridActionInvoker invoker;
 

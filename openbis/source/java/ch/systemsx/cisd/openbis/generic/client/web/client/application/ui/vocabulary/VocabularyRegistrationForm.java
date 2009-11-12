@@ -59,7 +59,7 @@ public final class VocabularyRegistrationForm extends AbstractVocabularyRegistra
     // Helper classes
     //
 
-    public final class VocabularyRegistrationCallback extends
+    private final class VocabularyRegistrationCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<Void>
     {
         private final Vocabulary vocabulary;

@@ -99,7 +99,7 @@ public class GroupSelectionWidget extends DropDownList<GroupModel, Group>
         return group;
     }
 
-    public final class ListGroupsCallback extends AbstractAsyncCallback<ResultSet<Group>>
+    private final class ListGroupsCallback extends AbstractAsyncCallback<ResultSet<Group>>
     {
         ListGroupsCallback(final IViewContext<?> viewContext)
         {

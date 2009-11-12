@@ -87,7 +87,7 @@ public final class ProjectViewer extends
         return new AttachmentVersionsSection<Project>(viewContext.getCommonViewContext(), project);
     }
 
-    public static final class ProjectInfoCallback extends AbstractAsyncCallback<Project>
+    private static final class ProjectInfoCallback extends AbstractAsyncCallback<Project>
     {
         private final ProjectViewer viewer;
 

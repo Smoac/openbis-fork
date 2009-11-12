@@ -135,7 +135,7 @@ public final class GenericExperimentViewer extends
                 experiment);
     }
 
-    public static final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
+    private static final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
     {
         private final GenericExperimentViewer genericExperimentViewer;
 

@@ -61,7 +61,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
                 new ListSamplesCallback(viewContext));
     }
 
-    public class ListSamplesCallback extends
+    private class ListSamplesCallback extends
             AbstractAsyncCallback<ResultSetWithEntityTypes<Sample>>
     {
 
@@ -97,7 +97,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
                 new UpdateExperimentCallback(viewContext));
     }
 
-    public final class UpdateExperimentCallback extends
+    private final class UpdateExperimentCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<ExperimentUpdateResult>
     {
 
@@ -155,7 +155,7 @@ public final class GenericExperimentEditForm extends AbstractGenericExperimentRe
                 new ExperimentInfoCallback(viewContext));
     }
 
-    public final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
+    private final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
     {
 
         private ExperimentInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext)

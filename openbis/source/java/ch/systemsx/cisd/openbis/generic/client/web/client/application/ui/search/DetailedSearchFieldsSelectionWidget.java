@@ -134,7 +134,7 @@ public final class DetailedSearchFieldsSelectionWidget extends
         dataLoaded = true;
     }
 
-    public final class ListPropertyTypesCallback extends
+    private final class ListPropertyTypesCallback extends
             AbstractAsyncCallback<ResultSet<PropertyType>>
     {
         ListPropertyTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)

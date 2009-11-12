@@ -72,7 +72,7 @@ public final class DemoSampleViewer extends AbstractViewer<IDemoClientServiceAsy
     // Helper classes
     //
 
-    public final class SampleInfoCallback extends AbstractAsyncCallback<SampleParentWithDerived>
+    private final class SampleInfoCallback extends AbstractAsyncCallback<SampleParentWithDerived>
     {
         private final DemoSampleViewer sampleViewer;
 

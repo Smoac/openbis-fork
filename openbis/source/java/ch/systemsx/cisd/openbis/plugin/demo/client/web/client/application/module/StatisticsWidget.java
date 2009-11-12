@@ -72,7 +72,7 @@ public class StatisticsWidget extends ContentPanel implements IDatabaseModificat
                 new ExperimentStatisticsCallback(viewContext, numberOfExperiments));
     }
 
-    public static final class ExperimentStatisticsCallback extends AbstractAsyncCallback<Integer>
+    private static final class ExperimentStatisticsCallback extends AbstractAsyncCallback<Integer>
     {
         private final Html target;
 

@@ -160,7 +160,7 @@ public final class GenericDataSetViewer extends
         return PREFIX + suffix;
     }
 
-    public static final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
+    private static final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
     {
         private final GenericDataSetViewer genericDataSetViewer;
 

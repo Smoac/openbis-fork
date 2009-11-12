@@ -66,7 +66,7 @@ public final class DataTypeSelectionWidget extends DropDownList<DataTypeModel, D
         return super.tryGetSelected();
     }
 
-    public final class ListDataTypesCallback extends AbstractAsyncCallback<List<DataType>>
+    private final class ListDataTypesCallback extends AbstractAsyncCallback<List<DataType>>
     {
         ListDataTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
         {

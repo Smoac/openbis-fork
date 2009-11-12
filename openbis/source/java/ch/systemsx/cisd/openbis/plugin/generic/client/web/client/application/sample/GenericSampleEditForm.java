@@ -73,7 +73,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
                 new UpdateSampleCallback(viewContext));
     }
 
-    public final class UpdateSampleCallback extends
+    private final class UpdateSampleCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<Date>
     {
 
@@ -164,7 +164,7 @@ public final class GenericSampleEditForm extends AbstractGenericSampleRegisterEd
         viewContext.getService().getSampleInfo(techIdOrNull, new SampleInfoCallback(viewContext));
     }
 
-    public final class SampleInfoCallback extends AbstractAsyncCallback<Sample>
+    private final class SampleInfoCallback extends AbstractAsyncCallback<Sample>
     {
 
         private SampleInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext)

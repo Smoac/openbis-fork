@@ -91,7 +91,7 @@ public final class PropertyTypeSelectionWidget extends
         return super.tryGetSelected();
     }
 
-    public final class ListPropertyTypesCallback extends
+    private final class ListPropertyTypesCallback extends
             AbstractAsyncCallback<ResultSet<PropertyType>>
     {
         ListPropertyTypesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)

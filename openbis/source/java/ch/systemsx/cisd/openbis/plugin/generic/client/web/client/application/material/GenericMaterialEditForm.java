@@ -40,8 +40,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericMaterialEditForm
-        extends AbstractGenericEntityRegistrationForm<MaterialType, MaterialTypePropertyType>
+public final class GenericMaterialEditForm extends
+        AbstractGenericEntityRegistrationForm<MaterialType, MaterialTypePropertyType>
 {
     private Material originalMaterial;
 
@@ -67,7 +67,7 @@ public final class GenericMaterialEditForm
                 originalMaterial.getModificationDate(), new UpdateMaterialCallback(viewContext));
     }
 
-    public final class UpdateMaterialCallback extends
+    private final class UpdateMaterialCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<Date>
     {
 
@@ -136,7 +136,7 @@ public final class GenericMaterialEditForm
                 new MaterialInfoCallback(viewContext));
     }
 
-    public final class MaterialInfoCallback extends AbstractAsyncCallback<Material>
+    private final class MaterialInfoCallback extends AbstractAsyncCallback<Material>
     {
 
         private MaterialInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext)

@@ -207,7 +207,7 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
             };
     }
 
-    final class RefreshCallback extends AbstractAsyncCallback<Void>
+    private final class RefreshCallback extends AbstractAsyncCallback<Void>
     {
         private RefreshCallback(IViewContext<?> viewContext)
         {

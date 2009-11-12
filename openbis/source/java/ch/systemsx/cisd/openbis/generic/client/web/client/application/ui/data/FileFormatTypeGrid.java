@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
 {
@@ -200,7 +200,7 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
             };
     }
 
-    final class RefreshCallback extends AbstractAsyncCallback<Void>
+    private final class RefreshCallback extends AbstractAsyncCallback<Void>
     {
         private RefreshCallback(IViewContext<?> viewContext)
         {

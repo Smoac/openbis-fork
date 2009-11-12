@@ -158,6 +158,7 @@ public final class GenericDataSetEditForm extends
         return fileFormatTypeSelectionWidget.tryGetSelectedFileFormatType().getCode();
     }
 
+    // public only for tests
     public final class UpdateDataSetCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<DataSetUpdateResult>
     {
@@ -311,7 +312,7 @@ public final class GenericDataSetEditForm extends
 
     }
 
-    public final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
+    private final class DataSetInfoCallback extends AbstractAsyncCallback<ExternalData>
     {
 
         private DataSetInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
@@ -337,7 +338,7 @@ public final class GenericDataSetEditForm extends
                 DataSetRelationshipRole.CHILD, config, new ListParentsCallback(viewContext));
     }
 
-    public class ListParentsCallback extends
+    private class ListParentsCallback extends
             AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>>
     {
 

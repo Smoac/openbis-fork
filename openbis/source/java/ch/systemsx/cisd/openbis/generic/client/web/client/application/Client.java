@@ -29,18 +29,22 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppController;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.LoginController;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.DefaultClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactoryProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DictonaryBasedMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 
 /**
  * The {@link EntryPoint} implementation.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
 public class Client implements EntryPoint
@@ -78,7 +82,8 @@ public class Client implements EntryPoint
                     onModuleLoad();
                 }
             };
-        CommonViewContext commonContext = new CommonViewContext(service, messageProvider, imageBundle, pageController);
+        CommonViewContext commonContext =
+                new CommonViewContext(service, messageProvider, imageBundle, pageController);
         commonContext.setClientPluginFactoryProvider(createPluginFactoryProvider(commonContext));
         return commonContext;
     }
@@ -154,6 +159,48 @@ public class Client implements EntryPoint
                     service.tryToGetCurrentSessionContext(sessionContextCallback);
                 }
             });
+    }
+
+    /**
+     * Callback class which handles return value
+     * {@link ICommonClientService#tryToGetCurrentSessionContext()}.
+     * 
+     * @author Franz-Josef Elmer
+     */
+    private static final class SessionContextCallback extends AbstractAsyncCallback<SessionContext>
+    {
+        private final IDelegatedAction afterInitAction;
+
+        /**
+         * @param afterInitAction action executed after application init (if user is logged in)
+         */
+        SessionContextCallback(final CommonViewContext viewContext,
+                final IDelegatedAction afterInitAction)
+        {
+            super(viewContext);
+            this.afterInitAction = afterInitAction;
+
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        @Override
+        public final void process(final SessionContext sessionContext)
+        {
+            final Dispatcher dispatcher = Dispatcher.get();
+            if (sessionContext == null)
+            {
+                dispatcher.dispatch(AppEvents.LOGIN);
+            } else
+            {
+                viewContext.getModel().setSessionContext(sessionContext);
+                dispatcher.dispatch(AppEvents.INIT);
+                afterInitAction.execute();
+                GWTUtils.setAllowConfirmOnExit(true);
+            }
+        }
     }
 
 }

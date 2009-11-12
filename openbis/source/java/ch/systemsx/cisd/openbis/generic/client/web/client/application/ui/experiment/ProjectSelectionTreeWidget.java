@@ -204,7 +204,7 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
     // 
     // Helper classes
     //
-    public final class ListProjectsCallback extends AbstractAsyncCallback<ResultSet<Project>>
+    private final class ListProjectsCallback extends AbstractAsyncCallback<ResultSet<Project>>
     {
         ListProjectsCallback(final IViewContext<?> viewContext)
         {

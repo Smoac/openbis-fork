@@ -95,7 +95,7 @@ public class CodeFieldWithGenerator extends CodeField
                 new GenerateCodeCallback(viewContext));
     }
 
-    public final class GenerateCodeCallback extends AbstractAsyncCallback<String>
+    private final class GenerateCodeCallback extends AbstractAsyncCallback<String>
     {
 
         GenerateCodeCallback(final IViewContext<?> viewContext)

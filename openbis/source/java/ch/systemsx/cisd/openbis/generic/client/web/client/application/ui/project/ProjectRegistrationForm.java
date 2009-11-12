@@ -65,7 +65,7 @@ public class ProjectRegistrationForm extends AbstractProjectEditRegisterForm
                 new ProjectRegistrationCallback(viewContext, project));
     }
 
-    public final class ProjectRegistrationCallback extends
+    private final class ProjectRegistrationCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<Void>
     {
         private final Project project;

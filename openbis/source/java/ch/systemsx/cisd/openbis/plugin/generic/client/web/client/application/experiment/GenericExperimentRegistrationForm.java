@@ -69,7 +69,7 @@ public final class GenericExperimentRegistrationForm extends
         return result.toUpperCase();
     }
 
-    public final class RegisterExperimentCallback extends
+    private final class RegisterExperimentCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<Void>
     {
 

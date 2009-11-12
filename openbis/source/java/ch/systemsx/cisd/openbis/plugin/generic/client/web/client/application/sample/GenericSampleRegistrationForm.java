@@ -49,6 +49,7 @@ public final class GenericSampleRegistrationForm extends AbstractGenericSampleRe
         attachmentsManager.resetAttachmentFieldSetsInPanel(formPanel);
     }
 
+    // public only for tests
     public final class RegisterSampleCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<Void>
     {

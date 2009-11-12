@@ -364,7 +364,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         addFormFields();
     }
 
-    public final class AssignPropertyTypeCallback extends AbstractAsyncCallback<String>
+    private final class AssignPropertyTypeCallback extends AbstractAsyncCallback<String>
     {
         AssignPropertyTypeCallback(final IViewContext<?> viewContext)
         {

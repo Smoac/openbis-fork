@@ -44,6 +44,7 @@ abstract public class AbstractSaveDialog extends Window
 
     protected abstract void save(AsyncCallback<Void> registrationCallback);
 
+    // public only for tests
     public final class SaveDialogCallback extends AbstractAsyncCallback<Void>
     {
         private SaveDialogCallback(IViewContext<?> viewContext)

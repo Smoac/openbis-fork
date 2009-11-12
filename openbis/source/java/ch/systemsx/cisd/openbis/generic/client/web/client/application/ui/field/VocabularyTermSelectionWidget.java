@@ -147,7 +147,7 @@ public class VocabularyTermSelectionWidget extends
         setOriginalValue(getValue());
     }
 
-    public class ListTermsCallback extends VocabularyTermSelectionWidget.ListItemsCallback
+    private class ListTermsCallback extends VocabularyTermSelectionWidget.ListItemsCallback
     {
 
         protected ListTermsCallback(IViewContext<?> viewContext)

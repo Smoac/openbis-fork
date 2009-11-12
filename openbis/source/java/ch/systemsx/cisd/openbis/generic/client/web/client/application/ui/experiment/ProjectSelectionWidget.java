@@ -116,7 +116,7 @@ public final class ProjectSelectionWidget extends
         return super.tryGetSelected();
     }
 
-    public final class ListProjectsCallback extends AbstractAsyncCallback<ResultSet<Project>>
+    private final class ListProjectsCallback extends AbstractAsyncCallback<ResultSet<Project>>
     {
         ListProjectsCallback(final IViewContext<?> viewContext)
         {

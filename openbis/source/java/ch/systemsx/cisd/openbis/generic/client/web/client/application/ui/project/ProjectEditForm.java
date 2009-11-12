@@ -68,7 +68,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         viewContext.getCommonService().updateProject(updates, new ProjectEditCallback(viewContext));
     }
 
-    public final class ProjectEditCallback extends
+    private final class ProjectEditCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<Date>
     {
 
@@ -121,7 +121,7 @@ public class ProjectEditForm extends AbstractProjectEditRegisterForm
         viewContext.getService().getProjectInfo(projectId, new ProjectInfoCallback(viewContext));
     }
 
-    public final class ProjectInfoCallback extends AbstractAsyncCallback<Project>
+    private final class ProjectInfoCallback extends AbstractAsyncCallback<Project>
     {
 
         private ProjectInfoCallback(final IViewContext<ICommonClientServiceAsync> viewContext)

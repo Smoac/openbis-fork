@@ -193,6 +193,7 @@ public class LoginWidget extends VerticalPanel
     // Helper classes
     //
 
+    // public only for tests
     public final class LoginCallback extends AbstractAsyncCallback<SessionContext>
     {
         private static final int TIMER_PERIOD = 30 * 60 * 1000; // 30min

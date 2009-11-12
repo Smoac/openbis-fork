@@ -57,7 +57,8 @@ final class SearchableEntitySelectionWidget extends
         return selection.get(0).get(ModelDataPropertyNames.OBJECT);
     }
 
-    public final class ListSearchableEntities extends AbstractAsyncCallback<List<SearchableEntity>>
+    private final class ListSearchableEntities extends
+            AbstractAsyncCallback<List<SearchableEntity>>
     {
 
         ListSearchableEntities(final IViewContext<?> viewContext)

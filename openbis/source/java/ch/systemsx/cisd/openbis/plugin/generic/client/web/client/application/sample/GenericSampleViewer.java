@@ -377,7 +377,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         }
     }
 
-    public static final class SampleGenerationInfoCallback extends
+    private static final class SampleGenerationInfoCallback extends
             AbstractAsyncCallback<SampleParentWithDerived>
     {
         private final GenericSampleViewer genericSampleViewer;
@@ -471,7 +471,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
                     GenericSampleViewer.this));
         }
 
-        public final class ReloadPropertyGridCallback extends
+        private final class ReloadPropertyGridCallback extends
                 AbstractAsyncCallback<SampleParentWithDerived>
         {
             private final GenericSampleViewer genericSampleViewer;

@@ -84,7 +84,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     // browser consists of the grid and the paging toolbar
     private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "vocabulary-term-browser";
 
-    final class RefreshCallback extends AbstractAsyncCallback<Void>
+    private final class RefreshCallback extends AbstractAsyncCallback<Void>
     {
         private RefreshCallback(IViewContext<?> viewContext)
         {

@@ -44,7 +44,7 @@ public class LogoutAction implements IDelegatedAction
         viewContext.getService().logout(displaySettings, new LogoutCallback(viewContext));
     }
 
-    public final class LogoutCallback extends AbstractAsyncCallback<Void>
+    private final class LogoutCallback extends AbstractAsyncCallback<Void>
     {
         LogoutCallback(IViewContext<ICommonClientServiceAsync> viewContext)
         {
