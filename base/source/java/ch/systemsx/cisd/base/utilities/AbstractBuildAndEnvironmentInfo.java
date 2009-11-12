@@ -25,21 +25,16 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * Bean with build and environment information.
+ * Abstract of all classes providing build and environment information.
  * <p>
  * Does <em>not</em> depend on any library jar files.
  * </p>
  * 
  * @author Franz-Josef Elmer
  */
-public final class BuildAndEnvironmentInfo
+public abstract class AbstractBuildAndEnvironmentInfo
 {
     private static final String UNKNOWN = "UNKNOWN";
-
-    /**
-     * The one-and-only instance.
-     */
-    public static final BuildAndEnvironmentInfo INSTANCE = new BuildAndEnvironmentInfo();
 
     private final String version;
 
@@ -47,12 +42,17 @@ public final class BuildAndEnvironmentInfo
 
     private final boolean cleanSources;
 
-    private BuildAndEnvironmentInfo()
+    private final String applicationName;
+
+    protected AbstractBuildAndEnvironmentInfo(String applicationName)
     {
+        this.applicationName = applicationName;
         String extractedVersion = UNKNOWN;
         String extractedRevision = UNKNOWN;
         boolean extractedCleanFlag = false;
-        final InputStream stream = BuildAndEnvironmentInfo.class.getResourceAsStream("/BUILD.INFO");
+        final InputStream stream =
+                AbstractBuildAndEnvironmentInfo.class.getResourceAsStream("/BUILD-" + applicationName
+                        + ".INFO");
         if (stream != null)
         {
             BufferedReader reader = null;
@@ -72,11 +72,14 @@ public final class BuildAndEnvironmentInfo
                 // ignored
             } finally
             {
-                try {
-                    if (reader != null) {
+                try
+                {
+                    if (reader != null)
+                    {
                         reader.close();
                     }
-                } catch (IOException ioe) {
+                } catch (IOException ioe)
+                {
                     // ignore
                 }
             }
@@ -141,8 +144,8 @@ public final class BuildAndEnvironmentInfo
     }
 
     /**
-     * @return <code>true</code> if the versioned entities of the working copy have been clean
-     *         when this build has been made, in other words, whether the revision given by
+     * @return <code>true</code> if the versioned entities of the working copy have been clean when
+     *         this build has been made, in other words, whether the revision given by
      *         {@link #getRevision()} does really identify the source that is build has been
      *         produced from.
      */
@@ -186,12 +189,18 @@ public final class BuildAndEnvironmentInfo
         return builder.toString();
     }
 
+    public String getApplicationName()
+    {
+        return applicationName;
+    }
+
     /**
      * Returns version, build number, Java VM, and OS as a {@link List} with four entries.
      */
     public final List<String> getEnvironmentInfo()
     {
         final List<String> environmentInfo = new ArrayList<String>();
+        environmentInfo.add("Application: " + getApplicationName());
         environmentInfo.add("Version: " + getFullVersion());
         environmentInfo.add("Java VM: " + getJavaVM());
         environmentInfo.add("CPU Architecture: " + getCPUArchitecture());
@@ -217,14 +226,6 @@ public final class BuildAndEnvironmentInfo
             }
         }
         return builder.toString();
-    }
-
-    /**
-     * Shows build and environment information on the console.
-     */
-    public static void main(String[] args)
-    {
-        System.out.println(BuildAndEnvironmentInfo.INSTANCE);
     }
 
 }

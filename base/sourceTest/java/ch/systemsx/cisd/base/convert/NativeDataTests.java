@@ -16,8 +16,8 @@
 
 package ch.systemsx.cisd.base.convert;
 
-import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,8 +26,8 @@ import java.util.Arrays;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
-import ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo;
 
 /**
  * Test cases for {@link NativeData}.

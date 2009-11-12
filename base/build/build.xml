@@ -1,4 +1,4 @@
-<project name="base" default="dist" basedir="..">
+<project name="cisd-base" default="dist" basedir="..">
 	<target name="clean">
 		<delete dir="${dist}" />
 	</target>
@@ -6,6 +6,7 @@
 	<import file="../../build_resources/ant/build-common.xml" />
 
 	<project-classpath name="ecp" classes="${classes}" />
+	<property name="application-name" value="cisd-base" />
 	<property name="distfolder" value="cisd-base" />
 	<property name="mainfolder" value="base" />
 	<property name="jar.file" value="${dist}/cisd-base.jar" />
@@ -55,7 +56,7 @@
 			</fileset>
 			<manifest>
 				<attribute name="Main-Class"
-				           value="ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo" />
+				           value="ch.systemsx.cisd.base.BuildAndEnvironmentInfo" />
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"
 				           value="${version.number} (r${revision.number},${clean.flag})" />

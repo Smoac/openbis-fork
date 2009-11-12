@@ -25,11 +25,11 @@ import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.base.unix.Unix.Group;
 import ch.systemsx.cisd.base.unix.Unix.Password;
 import ch.systemsx.cisd.base.unix.Unix.Stat;
-import ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo;
 
 /**
  * Test cases for the {@link Unix} system calls.
