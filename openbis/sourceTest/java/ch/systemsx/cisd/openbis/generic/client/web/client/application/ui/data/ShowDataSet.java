@@ -40,7 +40,6 @@ public class ShowDataSet extends AbstractDefaultTestCommand
     public ShowDataSet(final String code)
     {
         this.code = code;
-        addCallbackClass(DataSetSearchHitGrid.GRID_ID);
     }
 
     @SuppressWarnings("unchecked")

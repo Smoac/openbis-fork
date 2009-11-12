@@ -286,7 +286,10 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     }
 
     /**
-     * This method should be called for callbacks that are reusable. Call it just before calling
+     * NOTE: The basic rule is 'Never reuse a callback object: Instances of AbstractAsyncCallback
+     * are stateful'.
+     * <p>
+     * This method is only for special callbacks that are reusable. Call it just before calling
      * service method but make sure {@link #ignore()} was called first in callback constructor after
      * calling abstract constructor. It is needed for our system test framework to work properly.
      */

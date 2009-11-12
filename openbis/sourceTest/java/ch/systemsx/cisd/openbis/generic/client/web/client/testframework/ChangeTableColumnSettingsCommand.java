@@ -25,11 +25,10 @@ import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * {@link ITestCommand} which allows to modify column settings of a {@link Grid}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
@@ -37,6 +36,7 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
     private static abstract class Event
     {
         private final int eventType;
+
         protected final String columnID;
 
         Event(int eventType, String columnID)
@@ -49,7 +49,7 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
         {
             return eventType;
         }
-        
+
         protected ColumnModelEvent createColumnModelEvent(ColumnModel columnModel)
         {
             int index = columnModel.getIndexById(columnID);
@@ -60,7 +60,7 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
             ColumnModelEvent event = new ColumnModelEvent(columnModel, index);
             return event;
         }
-        
+
         protected ColumnConfig getColumnConfig(ColumnModel columnModel)
         {
             ColumnConfig columnConfig = columnModel.getColumnById(columnID);
@@ -70,10 +70,10 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
             }
             return columnConfig;
         }
-        
+
         public abstract BaseEvent changeModelAndCreateEvent(ColumnModel columnModel);
     }
-        
+
     private static final class HiddenChangeEvent extends Event
     {
         private final boolean hidden;
@@ -93,7 +93,7 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
             return event;
         }
     }
-    
+
     private static final class WidthChangeEvent extends Event
     {
         private final int width;
@@ -103,7 +103,7 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
             super(Events.WidthChange, columnID);
             this.width = width;
         }
-        
+
         @Override
         public BaseEvent changeModelAndCreateEvent(ColumnModel columnModel)
         {
@@ -113,10 +113,11 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
             return event;
         }
     }
-    
+
     private final String tableID;
+
     private final List<Event> events = new ArrayList<Event>();
-    
+
     /**
      * Creates an instance for the specified table or grid ID.
      */
@@ -126,17 +127,6 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
         this.tableID = tableID;
     }
 
-    /**
-     * Creates an instance for the specified table or grid ID and the specified class of the
-     * triggering call-back object.
-     */
-    public ChangeTableColumnSettingsCommand(final String tableID,
-            final Class<? extends AsyncCallback<?>> callbackClass)
-    {
-        super(callbackClass);
-        this.tableID = tableID;
-    }
-    
     /**
      * Adds an event which sets the hiding flag of the specified column.
      */
@@ -154,7 +144,7 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
         events.add(new WidthChangeEvent(columnID, width));
         return this;
     }
-    
+
     /**
      * Executes the column changing events in the order they had been added.
      */
@@ -163,7 +153,8 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
         ColumnModel columnModel = GWTTestUtil.getGridWithID(tableID).getColumnModel();
         for (Event event : events)
         {
-            columnModel.fireEvent(event.getEventType(), event.changeModelAndCreateEvent(columnModel));
+            columnModel.fireEvent(event.getEventType(), event
+                    .changeModelAndCreateEvent(columnModel));
         }
     }
 }

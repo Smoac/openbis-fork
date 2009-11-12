@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.SampleChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
@@ -59,17 +58,11 @@ public final class FillSampleRegistrationForm extends AbstractDefaultTestCommand
 
     private String experimentIdentifier;
 
-    public FillSampleRegistrationForm(final String groupNameOrNull, final String code,
-            boolean withVocabulary)
+    public FillSampleRegistrationForm(final String groupNameOrNull, final String code)
     {
         this.groupNameOrNull = groupNameOrNull;
         this.code = code;
         this.properties = new ArrayList<PropertyField>();
-        addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
-        if (withVocabulary)
-        {
-            addCallbackClass(VocabularyTermSelectionWidget.ListTermsCallback.class);
-        }
     }
 
     public final FillSampleRegistrationForm parent(final String parentFieldValue)

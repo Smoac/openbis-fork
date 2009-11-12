@@ -68,8 +68,7 @@ public class GenericExperimentEditorTest extends AbstractGWTTestCase
         String description = "description from " + new Date();
         remoteConsole.prepare(new FillExperimentEditForm().addProperty(new PropertyField(
                 "description", description)));
-        remoteConsole.prepare(new ListExperiments(withGroup(CISD, NEMO), SIRNA_HCS,
-                GenericExperimentEditForm.UpdateExperimentCallback.class));
+        remoteConsole.prepare(new ListExperiments(withGroup(CISD, NEMO), SIRNA_HCS));
         CheckExperimentTable table = new CheckExperimentTable();
         table.expectedRow(new ExperimentRow(EXP1).withUserPropertyCell("description", description));
         remoteConsole.prepare(table);
@@ -84,8 +83,7 @@ public class GenericExperimentEditorTest extends AbstractGWTTestCase
         prepareShowExperimentEditor(CISD, oldProject, SIRNA_HCS, experiment);
         remoteConsole.prepare(new FillExperimentEditForm().changeProject(identifier(CISD,
                 newProject)));
-        remoteConsole.prepare(new ListExperiments(withGroup(CISD, newProject), SIRNA_HCS,
-                GenericExperimentEditForm.UpdateExperimentCallback.class));
+        remoteConsole.prepare(new ListExperiments(withGroup(CISD, newProject), SIRNA_HCS));
         CheckExperimentTable table = new CheckExperimentTable();
         table.expectedRow(new ExperimentRow(experiment));
         remoteConsole.prepare(table);

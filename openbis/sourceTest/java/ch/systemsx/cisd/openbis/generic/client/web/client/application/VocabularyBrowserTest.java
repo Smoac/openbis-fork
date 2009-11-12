@@ -87,7 +87,6 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
 
         public ShowVocabularyTerms(final String vocabularyCode)
         {
-            addCallbackClass(VocabularyGrid.GRID_ID);
             this.vocabularyCode = vocabularyCode;
         }
 

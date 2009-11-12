@@ -55,7 +55,7 @@ public class FillAddPersonForm extends AbstractDefaultTestCommand
     private FillAddPersonForm(final boolean singleUser, final List<String> codes,
             AuthorizationGroup authGroup)
     {
-        super(PersonSelectionWidget.ListItemsCallback.class);
+        super();
         assert codes.size() == 1 || singleUser == false;
         authorizationGroup = authGroup;
         this.singleUser = singleUser;

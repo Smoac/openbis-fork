@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.e
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnSettingsDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -39,7 +38,6 @@ public class OpenFilterSettingsCommand extends CheckTableCommand
     public OpenFilterSettingsCommand(String gridId, String gridDisplayId)
     {
         super(gridId);
-        addCallbackClass(FilterSelectionWidget.createCallbackId());
         this.gridId = gridId;
         this.gridDisplayId = gridDisplayId;
     }

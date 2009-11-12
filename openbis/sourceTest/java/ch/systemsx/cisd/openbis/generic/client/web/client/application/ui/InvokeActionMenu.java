@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
@@ -35,22 +32,9 @@ public final class InvokeActionMenu extends AbstractDefaultTestCommand
 {
     private final ActionMenuKind action;
 
-    public InvokeActionMenu(final ActionMenuKind action,
-            final Class<? extends AsyncCallback<?>> callbackClass)
-    {
-        if (callbackClass == null)
-        {
-            addCallbackClass(SessionContextCallback.class);
-        } else
-        {
-            addCallbackClass(callbackClass);
-        }
-        this.action = action;
-    }
-
     public InvokeActionMenu(final ActionMenuKind action)
     {
-        this(action, null);
+        this.action = action;
     }
 
     //

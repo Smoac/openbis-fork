@@ -47,7 +47,6 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
     {
         this.client = client;
         this.receivedExportedFileContent = null;
-        addCallbackClass(SampleBrowserGrid.GRID_ID);
     }
 
     public void execute()
@@ -124,8 +123,6 @@ public class ExportSamplesTestCommand extends AbstractDefaultTestCommand
             this.expectedHeader = expectedHeader;
             this.expectedFirstLineOrNull = expectedFirstLineOrNull;
             this.expectedTotalLines = expectedTotalLines;
-            addCallbackClass(PrepareExportSamplesCallbackTest.class);
-            addCallbackClass(SaveExportedContentCallbackTest.class);
         }
 
         public void execute()

@@ -51,8 +51,6 @@ public final class BrowseDataSet extends AbstractDefaultTestCommand
         this.code = code;
         this.id = TechId.createWildcardTechId();
         this.cancelDispatch = cancelDispatch;
-
-        addCallbackClass(GenericDataSetViewer.DataSetInfoCallback.class);
     }
 
     public void execute()

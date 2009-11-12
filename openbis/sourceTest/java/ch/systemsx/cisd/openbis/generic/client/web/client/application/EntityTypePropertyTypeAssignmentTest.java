@@ -22,7 +22,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.FillPropertyTypeAssignmentForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.CheckSampleTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.ListSamples;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.columns.SampleRow;
@@ -64,8 +63,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
             String entityTypeCode, EntityKind entityKind, int expectedEntries, boolean isMandatory)
     {
         remoteConsole.prepare(new InvokeActionMenu(
-                ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS,
-                PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
+                ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_ASSIGNMENTS));
         CheckPropertyTypeAssignmentTable table = new CheckPropertyTypeAssignmentTable();
         table.expectedRow(new Row().withCell(PropertyTypeAssignmentColDefKind.LABEL.id(),
                 propertyTypeLabel).withCell(PropertyTypeAssignmentColDefKind.ENTITY_TYPE_CODE.id(),
@@ -101,8 +99,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.PROPERTY_TYPES_MENU_ASSIGN_TO_SAMPLE_TYPE);
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(false, COMMENT, CONTROL_LAYOUT,
                 NO_COMMENT, SAMPLE));
-        remoteConsole.prepare(new InvokeActionMenu(ActionMenuKind.SAMPLE_MENU_BROWSE,
-                PropertyTypeAssignmentForm.AssignPropertyTypeCallback.class));
+        remoteConsole.prepare(new InvokeActionMenu(ActionMenuKind.SAMPLE_MENU_BROWSE));
         remoteConsole.prepare(new ListSamples(CISD, CONTROL_LAYOUT));
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow(CONTROL_LAYOUT_C1).identifier(CISD, CISD).valid()

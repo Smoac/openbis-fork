@@ -36,7 +36,6 @@ public final class ChooseTypeOfNewExperiment extends AbstractDefaultTestCommand
     public ChooseTypeOfNewExperiment(final String experimentTypeNameOrNull)
     {
         this.experimentTypeNameOrNull = experimentTypeNameOrNull;
-        addCallbackClass(ExperimentTypeSelectionWidget.ListItemsCallback.class);
     }
 
     //

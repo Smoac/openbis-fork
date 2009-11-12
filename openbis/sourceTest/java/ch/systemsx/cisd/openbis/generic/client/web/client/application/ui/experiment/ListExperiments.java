@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -39,22 +38,8 @@ public class ListExperiments extends AbstractDefaultTestCommand
 
     public ListExperiments(final String projectNameOrNull, final String experimentTypeNameOrNull)
     {
-        this(projectNameOrNull, experimentTypeNameOrNull, null);
-    }
-
-    public ListExperiments(final String projectNameOrNull, final String experimentTypeNameOrNull,
-            Class<? extends AsyncCallback<?>> callback)
-    {
         this.projectCodeOrNull = projectNameOrNull;
         this.experimentTypeNameOrNull = experimentTypeNameOrNull;
-        if (callback != null)
-        {
-            addCallbackClass(callback);
-        } else
-        {
-            addCallbackClass(ProjectSelectionTreeWidget.ListProjectsCallback.class);
-            addCallbackClass(ExperimentTypeSelectionWidget.ListItemsCallback.class);
-        }
     }
 
     //

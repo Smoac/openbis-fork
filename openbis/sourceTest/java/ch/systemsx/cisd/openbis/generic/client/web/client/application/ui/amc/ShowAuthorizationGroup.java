@@ -40,7 +40,6 @@ public class ShowAuthorizationGroup extends AbstractDefaultTestCommand
     public ShowAuthorizationGroup(final String authGroupCode)
     {
         this.code = authGroupCode;
-        addCallbackClass(AuthorizationGroupGrid.GRID_ID);
     }
 
     @SuppressWarnings("unchecked")

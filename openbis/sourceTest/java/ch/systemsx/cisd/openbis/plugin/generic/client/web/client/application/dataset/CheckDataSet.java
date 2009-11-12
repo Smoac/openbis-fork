@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider.ListPropertyTypesCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
@@ -24,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PropertyCheckingManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer.DataSetInfoCallback;
 
 /**
  * * {@link AbstractDefaultTestCommand} extension checking e.g. properties displayed in data set
@@ -61,10 +59,6 @@ public class CheckDataSet extends AbstractDefaultTestCommand implements
                 DataSetRelationshipBrowser.createGridId(datasetId, DataSetRelationshipRole.PARENT);
         this.parentsGridId =
                 DataSetRelationshipBrowser.createGridId(datasetId, DataSetRelationshipRole.CHILD);
-        addCallbackClass(DataSetInfoCallback.class);
-        addCallbackClass(ListPropertyTypesCallback.class);
-        addCallbackClass(childrenGridId);
-        addCallbackClass(parentsGridId);
     }
 
     public Property property(final String name)

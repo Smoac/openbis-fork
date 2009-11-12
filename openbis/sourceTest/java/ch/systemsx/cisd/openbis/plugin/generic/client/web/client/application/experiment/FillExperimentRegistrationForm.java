@@ -62,7 +62,6 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
         this.code = code;
         this.samples = samples;
         this.properties = new ArrayList<PropertyField>();
-        addCallbackClass(ProjectSelectionWidget.ListProjectsCallback.class);
     }
 
     public final FillExperimentRegistrationForm addProperty(final PropertyField property)

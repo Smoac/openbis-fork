@@ -104,11 +104,6 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
 
     private class ShowUpdatedDataSet extends AbstractDefaultTestCommand
     {
-        public ShowUpdatedDataSet()
-        {
-            addCallbackClass(GenericDataSetEditForm.UpdateDataSetCallback.class);
-        }
-
         public void execute()
         {
             String tabItemId =

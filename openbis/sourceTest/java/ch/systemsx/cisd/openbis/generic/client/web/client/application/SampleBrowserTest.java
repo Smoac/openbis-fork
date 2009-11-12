@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.LogoutAction.LogoutCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
@@ -56,7 +55,6 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         remoteConsole.prepare(settingsCommand);
         remoteConsole.prepare(new Logout(SampleBrowserGrid.GRID_ID));
         Login login = new Login("test", "a");
-        login.addCallbackClass(LogoutCallback.class);
         remoteConsole.prepare(login);
         remoteConsole.prepare(new InvokeActionMenu(ActionMenuKind.SAMPLE_MENU_BROWSE));
         remoteConsole.prepare(new ListSamples("CISD", "MASTER_PLATE"));

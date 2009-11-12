@@ -24,7 +24,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Abstract
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
 /**
- * A {@link AbstractDefaultTestCommand} extension for filling {@link AbstractProjectEditRegisterForm}.
+ * A {@link AbstractDefaultTestCommand} extension for filling
+ * {@link AbstractProjectEditRegisterForm}.
  * 
  * @author Izabela Adamczyk
  */
@@ -45,7 +46,6 @@ public final class FillProjectRegistrationForm extends AbstractDefaultTestComman
         this.code = projectCode;
         this.groupName = groupName;
         this.description = description;
-        addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
     }
 
     //
@@ -55,11 +55,11 @@ public final class FillProjectRegistrationForm extends AbstractDefaultTestComman
     public final void execute()
     {
         GWTTestUtil.setTextField(ProjectRegistrationForm.createId() + "_code", code);
-        GWTTestUtil.setTextField(ProjectRegistrationForm.createId() + "_description",
-                description);
+        GWTTestUtil.setTextField(ProjectRegistrationForm.createId() + "_description", description);
         final GroupSelectionWidget groupSelector =
                 (GroupSelectionWidget) GWTTestUtil.getWidgetWithID(GroupSelectionWidget.ID
-                        + GroupSelectionWidget.SUFFIX + AbstractProjectEditRegisterForm.createId(null));
+                        + GroupSelectionWidget.SUFFIX
+                        + AbstractProjectEditRegisterForm.createId(null));
         GWTUtils.setSelectedItem(groupSelector, ModelDataPropertyNames.CODE, groupName);
 
         GWTTestUtil.clickButtonWithID(ProjectRegistrationForm.createId()

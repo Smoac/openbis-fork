@@ -42,7 +42,6 @@ public class RemovePerson extends AbstractDefaultTestCommand
 
     public RemovePerson(AuthorizationGroup authGroup, final String personId)
     {
-        addCallbackClass(PersonGrid.createGridId(authGroup));
         this.authGroup = authGroup;
         this.person = personId;
     }

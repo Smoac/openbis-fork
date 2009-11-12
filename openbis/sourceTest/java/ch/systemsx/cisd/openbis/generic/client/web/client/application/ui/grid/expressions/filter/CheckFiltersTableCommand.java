@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnSettingsDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.GridCustomFilterGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 
@@ -35,7 +33,6 @@ public class CheckFiltersTableCommand extends CheckTableCommand
     public CheckFiltersTableCommand(String gridDisplayId)
     {
         super(GridCustomFilterGrid.createGridId(gridDisplayId));
-        addCallbackClass(AbstractSaveDialog.SaveDialogCallback.class);
         this.gridDisplayId = gridDisplayId;
     }
 

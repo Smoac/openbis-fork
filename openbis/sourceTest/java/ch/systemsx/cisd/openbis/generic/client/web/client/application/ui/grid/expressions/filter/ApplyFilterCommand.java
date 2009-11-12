@@ -19,9 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.e
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.FilterToolbar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
@@ -40,9 +37,6 @@ public class ApplyFilterCommand extends AbstractDefaultTestCommand
 
     public ApplyFilterCommand(String gridId, String filterName)
     {
-        addCallbackClass(FilterSelectionWidget.createCallbackId());
-        // See DropDownList#refreshStore()
-        addCallbackClass(FilterSelectionWidget.createCallbackId());
         this.gridId = gridId;
         this.filterName = filterName;
     }

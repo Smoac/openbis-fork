@@ -36,7 +36,6 @@ public class ListMaterials extends AbstractDefaultTestCommand
     public ListMaterials(final String materialTypeNameOrNull)
     {
         this.materialTypeName = materialTypeNameOrNull;
-        addCallbackClass(MaterialTypeSelectionWidget.ListItemsCallback.class);
     }
 
     //

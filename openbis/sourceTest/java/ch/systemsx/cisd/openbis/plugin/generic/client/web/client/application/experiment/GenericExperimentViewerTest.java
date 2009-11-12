@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SessionContextCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.AttachmentColDefKind;
@@ -105,7 +104,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
     public final void testDirectInvocationOfGetExperimentInfoByAnUnauthorizedUser()
     {
         remoteConsole.prepare(new Login("observer", "observer"));
-        remoteConsole.prepare(new AbstractDefaultTestCommand(SessionContextCallback.class)
+        remoteConsole.prepare(new AbstractDefaultTestCommand()
             {
                 public void execute()
                 {

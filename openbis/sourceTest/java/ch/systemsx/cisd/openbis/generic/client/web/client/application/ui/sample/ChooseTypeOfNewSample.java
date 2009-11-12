@@ -36,7 +36,6 @@ public final class ChooseTypeOfNewSample extends AbstractDefaultTestCommand
     public ChooseTypeOfNewSample(final String sampleTypeNameOrNull)
     {
         this.sampleTypeNameOrNull = sampleTypeNameOrNull;
-        addCallbackClass(SampleTypeSelectionWidget.ListItemsCallback.class);
     }
 
     //

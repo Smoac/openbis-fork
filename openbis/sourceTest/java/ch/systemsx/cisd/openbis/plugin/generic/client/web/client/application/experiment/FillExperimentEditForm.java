@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
@@ -58,10 +57,6 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
     {
         this.formId = GenericExperimentEditForm.createId(experimentId, EntityKind.EXPERIMENT);
         this.properties = new ArrayList<PropertyField>();
-        addCallbackClass(GenericExperimentEditForm.ExperimentInfoCallback.class);
-        addCallbackClass(GenericExperimentEditForm.ListSamplesCallback.class);
-        addCallbackClass(ProjectSelectionWidget.ListProjectsCallback.class);
-        addCallbackClass(ExperimentTypeSelectionWidget.ListItemsCallback.class);
     }
 
     public final FillExperimentEditForm addProperty(final PropertyField property)

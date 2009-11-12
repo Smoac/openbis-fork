@@ -58,8 +58,6 @@ public final class FillDataSetEditForm extends AbstractDefaultTestCommand
     {
         this.formId = GenericDataSetEditForm.createId(dataSetId, EntityKind.DATA_SET);
         this.properties = new ArrayList<PropertyField>();
-        addCallbackClass(GenericDataSetEditForm.DataSetInfoCallback.class);
-        addCallbackClass(GenericDataSetEditForm.ListParentsCallback.class);
     }
 
     public final FillDataSetEditForm addProperty(final PropertyField property)

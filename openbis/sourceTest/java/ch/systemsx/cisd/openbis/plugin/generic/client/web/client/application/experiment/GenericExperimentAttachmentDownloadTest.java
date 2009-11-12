@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experim
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ShowExperiment;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.WaitForAllActiveCallbacksFinish;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
@@ -68,14 +69,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         remoteConsole.prepare(new CheckUrlContentCmdTest(openedUrlCallback, "3VCP1\n3VCP2\n3VCP3"));
 
         // wait for the command which fetches URL content to finish
-        AbstractDefaultTestCommand waitForPrevCmd = new AbstractDefaultTestCommand()
-            {
-                public void execute()
-                {
-                }
-            };
-        waitForPrevCmd.addCallbackClass(CheckStringsEqualCallback.class);
-        remoteConsole.prepare(waitForPrevCmd);
+        remoteConsole.prepare(new WaitForAllActiveCallbacksFinish());
 
         remoteConsole.finish(20000);
         client.onModuleLoad(controller);
@@ -117,7 +111,6 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         {
             this.expectedContent = expectedContent;
             this.openedUrlCallback = openedUrlCallback;
-            addCallbackClass(OpenedUrlCallback.class);
         }
 
         public void execute()

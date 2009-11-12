@@ -21,7 +21,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeA
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.CheckPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.FillPropertyTypeRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -49,8 +48,7 @@ public class PropertyTypeRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(createFillPropertyTypeRegistrationForm());
 
         remoteConsole.prepare(new InvokeActionMenu(
-                ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES,
-                PropertyTypeRegistrationForm.PropertyTypeRegistrationCallback.class));
+                ActionMenuKind.PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES));
         final CheckPropertyTypeTable table = new CheckPropertyTypeTable();
         table.expectedRow(new Row().withCell(PropertyTypeColDefKind.CODE.id(), PROPERTY_TYPE_CODE));
         remoteConsole.prepare(table.expectedSize(17));

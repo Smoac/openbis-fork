@@ -63,26 +63,6 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
         this.defaultValue = defaultValue;
         this.entityKind = entityKind;
         widgetId = PropertyTypeAssignmentForm.ID_PREFIX + entityKind;
-        addCallbackClass(PropertyTypeSelectionWidget.ListPropertyTypesCallback.class);
-        addEntityTypeCallback();
-    }
-
-    private void addEntityTypeCallback()
-    {
-        if (entityKind.equals(EntityKind.EXPERIMENT))
-        {
-            addCallbackClass(ExperimentTypeSelectionWidget.ListItemsCallback.class);
-        } else if (entityKind.equals(EntityKind.SAMPLE))
-        {
-            addCallbackClass(SampleTypeSelectionWidget.ListItemsCallback.class);
-        } else if (entityKind.equals(EntityKind.DATA_SET))
-        {
-            addCallbackClass(DataSetTypeSelectionWidget.ListItemsCallback.class);
-        } else
-        {
-            throw new IllegalArgumentException();
-        }
-
     }
 
     public final void execute()

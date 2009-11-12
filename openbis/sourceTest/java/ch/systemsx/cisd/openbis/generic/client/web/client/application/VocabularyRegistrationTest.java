@@ -20,7 +20,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMe
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.FillVocabularyRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 
 /**
@@ -44,8 +43,7 @@ public class VocabularyRegistrationTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.VOCABULARY_MENU_NEW);
         remoteConsole.prepare(new FillVocabularyRegistrationForm(VOCABULARY_CODE, DESCRIPTION,
                 TERMS));
-        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.VOCABULARY_MENU_BROWSE,
-                VocabularyRegistrationForm.VocabularyRegistrationCallback.class));
+        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.VOCABULARY_MENU_BROWSE));
         VocabularyBrowserTest.showControlledVocabularyTerms(remoteConsole, VOCABULARY_CODE, 3,
                 TERMS);
 

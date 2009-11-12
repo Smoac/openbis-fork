@@ -16,14 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider.ListPropertyTypesCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.DataSetRelationshipBrowser;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer.DataSetInfoCallback;
 
 /**
  * @author Piotr Buczek
@@ -47,14 +43,6 @@ public class ShowDataSetEditor extends AbstractDefaultTestCommand
     private ShowDataSetEditor(final TechId dataSetId)
     {
         this.dataSetId = dataSetId;
-        addCallbackClass(DataSetInfoCallback.class);
-        addCallbackClass(ListPropertyTypesCallback.class);
-        final String childrenGridId =
-                DataSetRelationshipBrowser.createGridId(dataSetId, DataSetRelationshipRole.PARENT);
-        final String parentsGridId =
-                DataSetRelationshipBrowser.createGridId(dataSetId, DataSetRelationshipRole.CHILD);
-        addCallbackClass(childrenGridId);
-        addCallbackClass(parentsGridId);
     }
 
     public void execute()

@@ -18,15 +18,11 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 
 import junit.framework.Assert;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 
 /**
  * Abstract super class of all test commands which are executed if there are no active callbacks
  * (all callbacks were detected by {@link RemoteConsole}).
- * <p>
- * NOTE: Expected callbacks are now completely ignored.
  * 
  * @author Franz-Josef Elmer
  * @author Piotr Buczek
@@ -34,35 +30,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 public abstract class AbstractDefaultTestCommand extends Assert implements ITestCommand
 {
     /**
-     * Creates an instance with initially no expected callback class.
+     * Creates an instance of command.
      */
     public AbstractDefaultTestCommand()
     {
-    }
-
-    /**
-     * Creates an instance for the specified callback class.
-     */
-    public AbstractDefaultTestCommand(final Class<? extends AsyncCallback<?>> callbackClass)
-    {
-        addCallbackClass(callbackClass);
-    }
-
-    /**
-     * Adds the specified callback classes.
-     */
-    public void addCallbackClass(final Class<? extends AsyncCallback<?>> callbackClass)
-    {
-        addCallbackClass(callbackClass.getName());
-    }
-
-    /**
-     * Adds the callback with the specified id.
-     */
-    // TODO 2009-11-11, Franz-Josef Elmer: Remove this method because expected callbacks are now completely ignored.
-    public void addCallbackClass(final String callbackId)
-    {
-        // ignored
     }
 
     public boolean isValidOnSucess(Object result)

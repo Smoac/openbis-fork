@@ -44,8 +44,6 @@ public class DownloadAttachment extends AbstractDefaultTestCommand
     {
         this.fileName = fileName;
         this.experimentId = experimentId;
-        addCallbackClass(AttachmentBrowser.createGridId(experimentId,
-                AttachmentHolderKind.EXPERIMENT));
     }
 
     @SuppressWarnings("unchecked")

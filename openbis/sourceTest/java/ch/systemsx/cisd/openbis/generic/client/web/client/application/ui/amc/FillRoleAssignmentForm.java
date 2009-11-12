@@ -57,12 +57,10 @@ public class FillRoleAssignmentForm extends AbstractDefaultTestCommand
     private FillRoleAssignmentForm(final boolean personRole, final String groupNameOrNull,
             final String grantee, final String roleNameOrNull)
     {
-        super(PersonSelectionWidget.ListItemsCallback.class);
+        super();
         this.personRole = personRole;
         assert groupNameOrNull == null && roleNameOrNull == null || groupNameOrNull != null
                 && roleNameOrNull != null;
-        addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
-        addCallbackClass(AuthorizationGroupSelectionWidget.ListItemsCallback.class);
         this.groupNameOrNull = groupNameOrNull;
         this.grantee = grantee;
         this.roleNameOrNull = roleNameOrNull;

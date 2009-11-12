@@ -57,7 +57,6 @@ public final class FillSearchCriteria extends AbstractDefaultTestCommand
         criteria = new ArrayList<Criterion>();
         criteriaDefined = false;
         matchAll();
-        addCallbackClass(DetailedSearchFieldsSelectionWidget.ListPropertyTypesCallback.class);
     }
 
     public FillSearchCriteria matchAll()

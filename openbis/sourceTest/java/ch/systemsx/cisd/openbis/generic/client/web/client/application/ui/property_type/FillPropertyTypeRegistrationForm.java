@@ -54,7 +54,6 @@ public final class FillPropertyTypeRegistrationForm extends AbstractDefaultTestC
         this.label = label;
         this.description = description;
         this.dataTypeCode = dataTypeCode;
-        addCallbackClass(DataTypeSelectionWidget.ListDataTypesCallback.class);
     }
 
     //
@@ -65,8 +64,7 @@ public final class FillPropertyTypeRegistrationForm extends AbstractDefaultTestC
     {
         GWTTestUtil.setTextField(PropertyTypeRegistrationForm.ID + "_code", code);
         GWTTestUtil.setTextField(PropertyTypeRegistrationForm.ID + "_label", label);
-        GWTTestUtil
-                .setTextField(PropertyTypeRegistrationForm.ID + "_description", description);
+        GWTTestUtil.setTextField(PropertyTypeRegistrationForm.ID + "_description", description);
         final Widget widgetWithID =
                 GWTTestUtil.getWidgetWithID(DataTypeSelectionWidget.ID
                         + DataTypeSelectionWidget.SUFFIX);

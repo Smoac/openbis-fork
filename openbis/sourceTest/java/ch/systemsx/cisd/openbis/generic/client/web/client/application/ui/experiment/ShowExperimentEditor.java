@@ -36,7 +36,6 @@ public class ShowExperimentEditor extends AbstractDefaultTestCommand
     private ShowExperimentEditor(final TechId experimentId)
     {
         this.experimentId = experimentId;
-        addCallbackClass(GenericExperimentViewer.ExperimentInfoCallback.class);
     }
 
     public void execute()

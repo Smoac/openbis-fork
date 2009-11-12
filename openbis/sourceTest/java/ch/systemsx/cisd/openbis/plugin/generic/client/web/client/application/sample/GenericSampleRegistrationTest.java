@@ -87,11 +87,10 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
     {
         final String sampleTypeCode = CONTROL_LAYOUT;
         loginAndPreprareRegistration(sampleTypeCode);
-        remoteConsole.prepare(new FillSampleRegistrationForm("CISD", GROUP_CL, true)
+        remoteConsole.prepare(new FillSampleRegistrationForm("CISD", GROUP_CL)
                 .addProperty(new PropertyField(getFormID()
                         + GWTUtils.escapeToFormId(PLATE_GEOMETRY), "1536_WELLS_32X48")));
-        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
-                GenericSampleRegistrationForm.RegisterSampleCallback.class));
+        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE));
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(GROUP_CL)
                 .identifier("CISD", "CISD")));
@@ -106,7 +105,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
     {
         loginAndInvokeAction("observer", "observer", ActionMenuKind.SAMPLE_MENU_NEW);
         remoteConsole.prepare(new ChooseTypeOfNewSample(CONTROL_LAYOUT));
-        remoteConsole.prepare(new FillSampleRegistrationForm("TESTGROUP", GROUP_CL + "1", true)
+        remoteConsole.prepare(new FillSampleRegistrationForm("TESTGROUP", GROUP_CL + "1")
                 .addProperty(new PropertyField(getFormID()
                         + GWTUtils.escapeToFormId(PLATE_GEOMETRY), "1536_WELLS_32X48")));
         FailureExpectation failureExpectation =
@@ -123,10 +122,9 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String sampleCode = "dp4";
         final String sampleTypeCode = DILUTION_PLATE;
         loginAndPreprareRegistration(sampleTypeCode);
-        remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode, false)
+        remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode)
                 .parent("MP1-MIXED"));
-        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
-                GenericSampleRegistrationForm.RegisterSampleCallback.class));
+        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE));
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode
                 .toUpperCase()).identifier("CISD", "CISD")));
@@ -138,10 +136,9 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String sampleCode = "cp-with-exp";
         final String sampleTypeCode = CELL_PLATE;
         loginAndPreprareRegistration(sampleTypeCode);
-        remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode, false)
+        remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode)
                 .experiment("/CISD/NEMO/EXP1"));
-        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
-                GenericSampleRegistrationForm.RegisterSampleCallback.class));
+        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE));
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode
                 .toUpperCase()).identifier("CISD", "CISD").experiment("CISD", "NEMO", "EXP1")));
@@ -155,10 +152,9 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         final String containerCode = "3VCP5";
         final String containerId = "CISD:/CISD/" + containerCode;
         loginAndPreprareRegistration(sampleTypeCode);
-        remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode, false)
+        remoteConsole.prepare(new FillSampleRegistrationForm("CISD", sampleCode)
                 .container(containerCode));
-        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
-                GenericSampleRegistrationForm.RegisterSampleCallback.class));
+        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE));
         remoteConsole.prepare(new ListSamples("CISD", CELL_PLATE));
         remoteConsole.prepare(new ShowSample(containerCode));
         final CheckSample checkSample = new CheckSample();
@@ -179,12 +175,11 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ChooseTypeOfNewSample(sampleTypeCode));
         final String description = "A very nice control layout.";
         remoteConsole.prepare(new FillSampleRegistrationForm(
-                GroupSelectionWidget.SHARED_GROUP_CODE, SHARED_CL, true).addProperty(
+                GroupSelectionWidget.SHARED_GROUP_CODE, SHARED_CL).addProperty(
                 new PropertyField(getFormID() + "description", description)).addProperty(
                 new PropertyField(getFormID() + GWTUtils.escapeToFormId(PLATE_GEOMETRY),
                         "1536_WELLS_32X48")));
-        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE,
-                GenericSampleRegistrationForm.RegisterSampleCallback.class));
+        remoteConsole.prepare(new InvokeActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE));
         remoteConsole.prepare(new ListSamples(GroupSelectionWidget.SHARED_GROUP_CODE,
                 sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)

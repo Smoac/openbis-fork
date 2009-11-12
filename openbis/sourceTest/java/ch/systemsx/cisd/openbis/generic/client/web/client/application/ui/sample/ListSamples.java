@@ -40,10 +40,6 @@ public class ListSamples extends AbstractDefaultTestCommand
     {
         this.groupNameOrNull = groupNameOrNull;
         this.sampleTypeNameOrNull = sampleTypeNameOrNull;
-        addCallbackClass(GroupSelectionWidget.ListGroupsCallback.class);
-        addCallbackClass(SampleTypeSelectionWidget.ListItemsCallback.class);
-        // grid is displayed automatically as home group and 'all' sample type are selected
-        addCallbackClass(SampleBrowserGrid.GRID_ID);
     }
 
     //

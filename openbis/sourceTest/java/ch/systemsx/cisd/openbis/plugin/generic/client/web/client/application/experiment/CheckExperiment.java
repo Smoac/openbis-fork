@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.attachment.AttachmentBrowser;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider.ListPropertyTypesCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
@@ -25,7 +24,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PropertyCheckingManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer.ExperimentInfoCallback;
 
 /**
  * @author Izabela Adamczyk
@@ -51,10 +49,6 @@ public class CheckExperiment extends AbstractDefaultTestCommand implements
     {
         this.experimentId = experimentId;
         propertyCheckingManager = new PropertyCheckingManager();
-        addCallbackClass(ExperimentInfoCallback.class);
-        addCallbackClass(ExperimentSamplesSection.createGridId(experimentId));
-        addCallbackClass(ExperimentDataSetBrowser.createGridId(experimentId));
-        addCallbackClass(ListPropertyTypesCallback.class);
     }
 
     public Property property(final String name)

@@ -109,30 +109,10 @@ public class CheckTableCommand extends AbstractDefaultTestCommand
     private final List<Row> unexpectedRows = new ArrayList<Row>();
 
     /**
-     * Creates an instance for the specified table or grid ID which does not wait for any callbacks.
-     */
-    public static CheckTableCommand createWithoutCallback(final String gridId)
-    {
-        return new CheckTableCommand(gridId, false);
-    }
-
-    /**
-     * Creates an instance for the specified table or grid ID and using the appropriate call-back
-     * object responsible for grid refresh.
+     * Creates an instance for the specified table or grid ID.
      */
     public CheckTableCommand(final String gridId)
     {
-        this(gridId, true);
-    }
-
-    private CheckTableCommand(final String gridId, boolean withCallback)
-    {
-        if (withCallback)
-        {
-            // NOTE: here we use the knowledge that AbstractBrowserGrid.ListEntitiesCallback uses
-            // grid id as a callback identifier.
-            addCallbackClass(gridId);
-        }
         this.gridID = gridId;
     }
 

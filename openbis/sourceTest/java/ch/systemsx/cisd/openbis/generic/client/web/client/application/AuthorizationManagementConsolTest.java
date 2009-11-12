@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddGroupDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.AddPersonDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckGroupTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc.CheckPersonTable;
@@ -55,7 +54,6 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         CreateGroup createGroupCommand = new CreateGroup(groupCode);
         remoteConsole.prepare(createGroupCommand);
         final CheckGroupTable table = new CheckGroupTable();
-        table.addCallbackClass(AddGroupDialog.SaveDialogCallback.class);
         table.expectedRow(new Row().withCell(GroupColDefKind.CODE.id(), groupCode.toUpperCase()));
         remoteConsole.prepare(table);
 
@@ -71,7 +69,6 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         CreatePerson command = new CreatePerson(userId);
         remoteConsole.prepare(command);
         final CheckPersonTable table = new CheckPersonTable();
-        table.addCallbackClass(AddPersonDialog.SaveDialogCallback.class);
         table.expectedRow(new Row().withCell(PersonColDefKind.USER_ID.id(), userId));
         remoteConsole.prepare(table);
 
