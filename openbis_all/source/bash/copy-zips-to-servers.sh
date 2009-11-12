@@ -19,25 +19,29 @@ export ZIPS_DSU="openBIS-server-S*.zip datastore_server-dsu*.zip"
 # Special plugin
 export DATASTORE_PLUGIN="datastore_server-plugins.jar"
 
+echo -e "\nCopying default openBIS/DSS to servers...\n"
 for i in $ZIPS; do
-	 echo $DEMO; scp -p $i $DEMO
-	 echo $YEASTX; scp -p $i $YEASTX
-	 echo $LIVERX; scp -p $i $LIVERX
-	 echo $AGRONOMICS; scp -p $i $AGRONOMICS
-	 echo $SCU; scp -p $i $SCU
-	 echo $BASYSBIO; scp -p $i $BASYSBIO
+         echo $DEMO; scp -p $i $DEMO:~openbis
+         echo $YEASTX; scp -p $i $YEASTX:~openbis
+         echo $LIVERX; scp -p $i $LIVERX:~openbis
+         echo $AGRONOMICS; scp -p $i $AGRONOMICS:~openbis
+         echo $SCU; scp -p $i $SCU:~openbis
+         echo $BASYSBIO; scp -p $i $BASYSBIO:~openbis
 done     
 
+echo -e "\nCopying to $PHOSPHONETX...\n"  
 for j in $ZIPS_PHOSPHONETX; do
-	echo $PHOSPHONETX; scp -p $j $PHOSPHONETX
+        echo $PHOSPHONETX; scp -p $j $PHOSPHONETX:~openbis
 done
 
+echo -e "\nCopying to $DSU...\n"  
 for k in $ZIPS_DSU; do
-	echo $DSU; scp -p $k $DSU
+        echo $DSU; scp -p $k sbsuser@$DSU:~openbis
 done
 
+echo -e "\nCopying to $DSU...\n"  
 for l in $DATASTORE_PLUGIN; do
-	echo $BASYSBIO; scp -p $k $BASYSBIO
-	echo $AGRONOMICS; scp -p $k $AGRONOMICS
-	echo $YEASTX; scp -p $k $YEASTX
+        echo $BASYSBIO; scp -p $l $BASYSBIO:~openbis
+        echo $AGRONOMICS; scp -p $l $AGRONOMICS:~openbis
+        echo $YEASTX; scp -p $l $YEASTX:~openbis
 done
