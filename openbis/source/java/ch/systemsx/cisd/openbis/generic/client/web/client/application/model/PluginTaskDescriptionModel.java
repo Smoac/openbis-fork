@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -27,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
  * 
  * @author Piotr Buczek
  */
-public class PluginTaskDescriptionModel extends BaseModelData
+public class PluginTaskDescriptionModel extends CISDBaseModelData
 {
 
     private static final long serialVersionUID = 1L;

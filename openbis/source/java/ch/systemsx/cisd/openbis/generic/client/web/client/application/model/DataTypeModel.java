@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
  * 
  * @author Christian Ribeaud
  */
-public final class DataTypeModel extends BaseModelData
+public final class DataTypeModel extends CISDBaseModelData
 {
     private static final long serialVersionUID = 1L;
 

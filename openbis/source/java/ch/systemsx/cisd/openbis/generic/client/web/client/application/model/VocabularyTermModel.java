@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.VocabularyPropertyColRenderer;
@@ -31,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
  * 
  * @author Izabela Adamczyk
  */
-public class VocabularyTermModel extends BaseModel implements Comparable<VocabularyTermModel>
+public class VocabularyTermModel extends CISDBaseModel implements Comparable<VocabularyTermModel>
 {
     private static final String ORDINAL = "ordinal";
 

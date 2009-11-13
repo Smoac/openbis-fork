@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
@@ -30,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * 
  * @author Izabela Adamczyk
  */
-public class SampleTypeModel extends BaseModelData
+public class SampleTypeModel extends CISDBaseModelData
 {
 
     private static final long serialVersionUID = 1L;

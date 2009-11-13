@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
@@ -29,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
  * 
  * @author Christian Ribeaud
  */
-public final class SearchableEntityModel extends BaseModelData
+public final class SearchableEntityModel extends CISDBaseModelData
 {
     public final static SearchableEntityModel NULL_SEARCHABLE_ENTITY_MODEL =
             createNullSearchableEntityModel();

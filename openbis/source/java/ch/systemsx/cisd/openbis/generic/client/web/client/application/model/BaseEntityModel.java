@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InvalidableWithCodeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
@@ -46,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * @author Franz-Josef Elmer
  * @author Tomasz Pylak
  */
-public class BaseEntityModel<T> extends BaseModelData
+public class BaseEntityModel<T> extends CISDBaseModelData
 {
     private static final long serialVersionUID = 1L;
 

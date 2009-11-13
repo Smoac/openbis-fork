@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
@@ -34,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyT
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentTypeModel extends BaseModelData
+public class ExperimentTypeModel extends CISDBaseModelData
 {
 
     private static final long serialVersionUID = 1L;

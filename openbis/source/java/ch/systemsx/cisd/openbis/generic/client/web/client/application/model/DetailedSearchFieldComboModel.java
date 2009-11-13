@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
-
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 
 /** Model of combo box used in detailed entity search. */
-public class DetailedSearchFieldComboModel extends BaseModelData
+public class DetailedSearchFieldComboModel extends CISDBaseModelData
 {
     private static final long serialVersionUID = 1L;
 

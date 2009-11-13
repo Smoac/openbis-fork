@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
@@ -29,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
  * 
  * @author Izabela Adamczyk
  */
-public class AuthorizationGroupModel extends BaseModel
+public class AuthorizationGroupModel extends CISDBaseModel
 {
 
     private static final long serialVersionUID = 1L;
