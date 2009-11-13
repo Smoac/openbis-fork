@@ -7,18 +7,15 @@
 # the Java option -Djavax.net.ssl.trustStore=openBIS.keystore in the start up scripts will
 # be removed assuming that ~/.keystore does not contains a self-signed certificate.
 
-BASE=/home/openbis
-CONFIG_DIR=$BASE/config
-KEYSTORE=$BASE/.keystore
+CONFIG_DIR=~openbis/config
+KEYSTORE=~openbis/.keystore
 SERVERS_DIR_ALIAS=sprint
 VER=SNAPSHOT
 DATE=`/bin/date +%Y-%m-%d_%H%M`
 DB_NAME=openbis_productive
-DB_SNAPSHOT=$BASE/db_backups
-TOMCAT_DIR=$BASE/sprint/openBIS-server/apache-tomcat
+DB_SNAPSHOT=~openbis/db_snapshots
+TOMCAT_DIR=~openbis/sprint/openBIS-server/apache-tomcat
 DAYS_TO_RETAIN=35
-
-cd $BASE
 
 if [ $1 ]; then
     VER=$1
@@ -26,13 +23,13 @@ fi
 SERVERS_VER=$SERVERS_DIR_ALIAS-$VER
 
 if [ -d $SERVERS_DIR_ALIAS-* ]; then
-	cd $SERVERS_DIR_ALIAS-*
-	PREV_VER=${PWD#*-}
-	SERVERS_PREV_VER=$SERVERS_DIR_ALIAS-$PREV_VER
-	cd ..
+        cd $SERVERS_DIR_ALIAS-*
+        PREV_VER=${PWD#*-}
+        SERVERS_PREV_VER=$SERVERS_DIR_ALIAS-$PREV_VER
+        cd ..
 else
-	echo Warning: no previous servers installation found. Initial installation?
-	SERVERS_PREV_VER=unknown
+        echo Warning: no previous servers installation found. Initial installation?
+        SERVERS_PREV_VER=unknown
 fi
 
 # Unalias rm and cp commands
@@ -40,9 +37,9 @@ unalias rm
 unalias cp
 
 if [ -e $SERVERS_PREV_VER ]; then
-	echo Stopping the components...
-	./$SERVERS_PREV_VER/openBIS-server/apache-tomcat/bin/shutdown.sh
-	./$SERVERS_PREV_VER/datastore_server/datastore_server.sh stop
+        echo Stopping the components...
+        ./$SERVERS_PREV_VER/openBIS-server/apache-tomcat/bin/shutdown.sh
+        ./$SERVERS_PREV_VER/datastore_server/datastore_server.sh stop
 fi
 
 echo Making a database dump...
@@ -51,8 +48,7 @@ echo Making a database dump...
 # pg_restore -d dbname filename
 pg_dump -Uopenbis -Fc $DB_NAME > $DB_SNAPSHOT/$SERVERS_PREV_VER-$DB_NAMEi_${DATE}.dmp
 # we actually need to clean that up from time to time
-# this is cleaned by the nightly backup script
-#/usr/bin/find $DB_SNAPSHOT -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
+/usr/bin/find $DB_SNAPSHOT -type f -mtime +$DAYS_TO_RETAIN -exec rm {} \;
 
 echo Installing openBIS server...
 rm -rf old/$SERVERS_PREV_VER
@@ -79,7 +75,7 @@ cd datastore_server
 cp -p $CONFIG_DIR/datastore_server-service.properties etc/service.properties
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE etc/openBIS.keystore
-  cp -Rf $BASE/old/$SERVERS_PREV_VER/datastore_server/data/store/* data/store
+  cp -Rf ~openbis/old/$SERVERS_PREV_VER/datastore_server/data/store/* data/store
   sed 's/-Djavax.net.ssl.trustStore=etc\/openBIS.keystore //g' datastore_server.sh > xxx
   mv -f xxx datastore_server.sh
 fi
@@ -89,18 +85,16 @@ export JAVA_HOME=/usr
 
 #echo Doing some cleaning...
 cd
-mv -f *.zip old
+mv -f *.zip tmp
 rm -rf openbis
-cd $BASE/sprint/openBIS-server
+cd ~openbis/sprint/openBIS-server
 rm apache-tomcat.zip install.sh openbis.conf openBIS.keystore openBIS.war passwd.sh server.xml service.properties tomcat-version.txt
-/usr/bin/find $BASE/old -mtime +$DAYS_TO_RETAIN -exec rm -rf {} \;
-
 
 # Reset the rm command alias
 alias 'rm=rm -i'
 alias 'cp=cp -ipR'
 
-echo Running $BASE/bin/sprint_post_install.sh
-$BASE/bin/sprint_post_install.sh
+echo Running ~openbis/bin/sprint_post_install.sh
+~openbis/bin/sprint_post_install.sh
 
 echo Done, run 'has-config-changed.sh' and start the servers!
