@@ -20,11 +20,11 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.application.fra
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -99,7 +99,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
             {
                 public void handleEvent(FieldEvent be)
                 {
-                    boolean selected = (Boolean) be.value;
+                    boolean selected = (Boolean) be.getValue();
                     FieldUtil.setVisibility(selected, groupSelector);
                 }
             });
@@ -251,7 +251,7 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
                 new LabelField(LinkRenderer.renderAsLink(viewContext
                         .getMessage(Dict.FILE_TEMPLATE_LABEL)));
         result.sinkEvents(Event.ONCLICK);
-        result.addListener(Event.ONCLICK, new Listener<BaseEvent>()
+        result.addListener(Events.OnClick, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -115,14 +116,13 @@ public class AttachmentsFileFieldManager extends FileFieldManager<AttachmentFile
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     private LabelField createAddAttachmentLink(final String label, final FormPanel panel)
     {
         final String link = LinkRenderer.renderAsLink(label);
         final LabelField result = new LabelField(link);
         result.setOriginalValue(link);
         result.sinkEvents(Event.ONCLICK);
-        result.addListener(Event.ONCLICK, new Listener<BaseEvent>()
+        result.addListener(Events.OnClick, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {

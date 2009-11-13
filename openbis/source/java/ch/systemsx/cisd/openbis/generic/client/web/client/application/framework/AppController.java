@@ -50,16 +50,14 @@ public final class AppController extends Controller
     }
 
     @Override
-    public final void handleEvent(final AppEvent<?> event)
+    public final void handleEvent(final AppEvent event)
     {
-        switch (event.type)
+        if (event.getType() == AppEvents.INIT || event.getType() == AppEvents.NAVI_EVENT)
         {
-            case AppEvents.INIT:
-            case AppEvents.NAVI_EVENT:
-                forwardToView(appView, event);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknow event '" + event + "'.");
+            forwardToView(appView, event);
+        } else
+        {
+            throw new IllegalArgumentException("Unknow event '" + event + "'.");
         }
     }
 

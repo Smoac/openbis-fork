@@ -16,7 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
@@ -24,11 +29,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
- * A basic {@link AbstractVocabularyRegistrationForm} implementation.
+ * Form allowing to register new vocabularies.
  * 
  * @author Piotr Buczek
  */
-public final class VocabularyRegistrationForm extends AbstractVocabularyRegistrationForm
+public final class VocabularyRegistrationForm extends AbstractRegistrationForm
 {
     private static final String PREFIX = "vocabulary-registration_";
 
@@ -36,16 +41,23 @@ public final class VocabularyRegistrationForm extends AbstractVocabularyRegistra
 
     public static final String ID = ID_PREFIX + "form";
 
+    protected final IViewContext<ICommonClientServiceAsync> viewContext;
+
+    protected final String termsSessionKey;
+
+    protected final VocabularyRegistrationFieldSet vocabularyRegistrationFieldSet;
+
     public VocabularyRegistrationForm(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(viewContext, ID);
-
+        this.viewContext = viewContext;
+        termsSessionKey = ID + "_terms";
+        this.vocabularyRegistrationFieldSet =
+                new VocabularyRegistrationFieldSet(viewContext, getId(), labelWidth,
+                        fieldWidth - 40, termsSessionKey);
+        addUploadFeatures();
         formPanel.add(vocabularyRegistrationFieldSet);
     }
-
-    //
-    // AbstractRegistrationForm
-    //
 
     @Override
     protected final void submitValidForm()
@@ -54,10 +66,6 @@ public final class VocabularyRegistrationForm extends AbstractVocabularyRegistra
         viewContext.getService().registerVocabulary(termsSessionKey, vocabulary,
                 new VocabularyRegistrationCallback(viewContext, vocabulary));
     }
-
-    //
-    // Helper classes
-    //
 
     private final class VocabularyRegistrationCallback extends
             AbstractRegistrationForm.AbstractRegistrationCallback<Void>
@@ -76,5 +84,53 @@ public final class VocabularyRegistrationForm extends AbstractVocabularyRegistra
         {
             return "Vocabulary <b>" + vocabulary.getCode() + "</b> successfully registered.";
         }
+    }
+
+    private void addUploadFeatures()
+    {
+        addFormSubmitListener();
+        redefineSaveListeners();
+        addUploadFeatures(termsSessionKey);
+    }
+
+    private void addFormSubmitListener()
+    {
+        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
+            {
+                @Override
+                protected void onSuccessfullUpload()
+                {
+                    submitValidForm();
+                }
+
+                @Override
+                protected void setUploadEnabled()
+                {
+                    VocabularyRegistrationForm.this.setUploadEnabled(true);
+                }
+            });
+    }
+
+    private void redefineSaveListeners()
+    {
+        saveButton.removeAllListeners();
+        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public final void componentSelected(final ButtonEvent ce)
+                {
+                    if (formPanel.isValid())
+                    {
+                        if (vocabularyRegistrationFieldSet.isUploadFileDefined())
+                        {
+                            setUploadEnabled(false);
+                            formPanel.submit();
+                        } else
+                        {
+                            submitValidForm();
+                        }
+                    }
+                }
+            });
     }
 }

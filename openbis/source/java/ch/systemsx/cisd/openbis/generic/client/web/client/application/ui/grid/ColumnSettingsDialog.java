@@ -1,8 +1,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
-
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
@@ -10,7 +9,6 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
@@ -51,6 +49,7 @@ public class ColumnSettingsDialog extends Dialog
         setHeight(450);
         setWidth(700);
         setLayout(new FitLayout());
+        setButtons(OK);
         setHeading(viewContext.getMessage(Dict.GRID_SETTINGS_TITLE));
     }
 
@@ -90,12 +89,12 @@ public class ColumnSettingsDialog extends Dialog
 
         add(panel);
         super.show();
-        Button okButton = getButtonBar().getButtonById("ok");
+        Component okButton = getButtonById(OK);
         okButton.setId(OK + gridDisplayId);
-        okButton.addSelectionListener(new SelectionListener<ComponentEvent>()
+        okButton.addListener(Events.Select, new SelectionListener<ButtonEvent>()
             {
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public void componentSelected(ButtonEvent ce)
                 {
                     columnDataModelProvider.onClose(columnChooser.getModels());
                     filters.dispose();
@@ -113,4 +112,5 @@ public class ColumnSettingsDialog extends Dialog
         customColumnsTab.add(component);
         return customColumnsTab;
     }
+
 }

@@ -66,7 +66,7 @@ class EntityChooserDialog<T> extends SimpleDialog
     @Override
     public void onComponentEvent(ComponentEvent ce)
     {
-        if (ce.type == Event.ONDBLCLICK)
+        if (ce.getType().getEventCode() == Event.ONDBLCLICK)
         {
             if (entityBrowser.tryGetSingleSelected() != null)
             {

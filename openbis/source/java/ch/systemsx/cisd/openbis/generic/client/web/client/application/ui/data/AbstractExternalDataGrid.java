@@ -21,10 +21,10 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -227,7 +227,7 @@ public abstract class AbstractExternalDataGrid
 
     }
 
-    private final ToolItem createComputeMenu()
+    private final Component createComputeMenu()
     {
         return new DataSetComputeMenu(viewContext, getSelectedAndDisplayedItemsAction());
     }

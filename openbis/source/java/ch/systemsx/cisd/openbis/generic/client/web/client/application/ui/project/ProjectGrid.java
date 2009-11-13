@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.projec
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -90,10 +90,10 @@ public class ProjectGrid extends AbstractSimpleBrowserGrid<Project>
 
         final Button addButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Project"),
-                        new SelectionListener<ComponentEvent>()
+                        new SelectionListener<ButtonEvent>()
                             {
                                 @Override
-                                public void componentSelected(ComponentEvent ce)
+                                public void componentSelected(ButtonEvent ce)
                                 {
                                     DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
                                             viewContext).getProjectRegistration());

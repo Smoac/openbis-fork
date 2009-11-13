@@ -46,7 +46,9 @@ public class BorderLayoutDataFactory
     {
         layoutData.setSplit(true);
         layoutData.setMargins(new Margins(2));
-        layoutData.setCollapsible(true);
+        // TODO 2009-11-05, IA: Disabled because tree located in a collapsed panel does not refresh
+        // correctly
+        layoutData.setCollapsible(false);
         layoutData.setFloatable(false);
     }
 

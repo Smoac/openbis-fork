@@ -21,10 +21,10 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.tree.Tree;
-import com.extjs.gxt.ui.client.widget.tree.TreeItem;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.ListBox;
 
@@ -125,33 +125,32 @@ public final class GWTUtils
     /**
      * Selects given <var>value</var> of given <var>tree</var>.
      */
-    public final static void setSelectedItem(final Tree tree, final String property,
-            final String value)
+    public final static void setSelectedItem(final TreePanel<ModelData> tree,
+            final String property, final String value)
     {
-        TreeItem item = tryFindItem(tree, property, value);
-        if (item != null)
+        ModelData model = tryFindModel(tree, property, value);
+        if (model != null)
         {
-            tree.setSelectedItem(item);
+            tree.getSelectionModel().select(model, false);
         }
     }
 
     /** @return specified item from the tree if it's found, null otherwise */
-    public final static TreeItem tryFindItem(final Tree tree, final String property,
-            final String value)
+    public final static ModelData tryFindModel(final TreePanel<ModelData> tree,
+            final String property, final String value)
     {
         assert tree != null : "Unspecified tree.";
         assert property != null : "Unspecified model property.";
         assert value != null : "Unspecified model property value.";
-        final List<TreeItem> items = tree.getAllItems();
-        for (TreeItem item : items)
+        TreeStore<ModelData> items = tree.getStore();
+        for (ModelData model : items.getAllItems())
         {
-            ModelData model = item.getModel();
             if (model != null)
             {
                 Object val = model.get(property);
                 if (val == value || (val != null && val.equals(value)))
                 {
-                    return item;
+                    return model;
                 }
             }
         }

@@ -2,6 +2,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.i18n.client.NumberFormat;
 
@@ -23,17 +24,6 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
 
     private static final String DIGITAL_FORMAT = "0.0000";
 
-    public String render(BaseEntityModel<?> model, String property, ColumnData config,
-            int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
-    {
-        String value = String.valueOf(model.get(property));
-        if (value == null)
-        {
-            return "";
-        }
-        return render(value);
-    }
-
     public static String render(String value)
     {
         double doubleValue = Double.parseDouble(value);
@@ -50,6 +40,18 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
             formattedValue += "&nbsp;&nbsp;&nbsp;"; // add ' ' to always have a correct alignment
         }
         return MultilineHTML.wrapUpInDivWithTooltip(formattedValue, Double.toString(doubleValue));
+    }
+
+    public Object render(BaseEntityModel<?> model, String property, ColumnData config,
+            int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
+            Grid<BaseEntityModel<?>> grid)
+    {
+        String value = String.valueOf(model.get(property));
+        if (value == null)
+        {
+            return "";
+        }
+        return render(value);
     }
 
 }

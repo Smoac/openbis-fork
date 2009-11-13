@@ -23,14 +23,16 @@ import java.util.List;
 
 import junit.framework.Assert;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Container;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Header;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -41,12 +43,8 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.menu.Item;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.ComplexPanel;
 import com.google.gwt.user.client.ui.ListBox;
@@ -56,8 +54,9 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarAdapter;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 
 /**
  * Useful static methods for testing.
@@ -79,7 +78,7 @@ public final class GWTTestUtil
         final String id = action.getMenuId();
         final Widget item = tryToFindByID(id);
         assertWidgetFound("Menu element", id, item);
-        ((MenuItem) item).fireEvent(Events.Select);
+        ((MenuItem) item).fireEvent(Events.Select, new MenuEvent(null));
     }
 
     /**
@@ -429,9 +428,9 @@ public final class GWTTestUtil
             } else if (widget instanceof MultiField)
             {
                 return new MultiFieldHandler(this).handle((MultiField<Field<?>>) widget);
-            } else if (widget instanceof PagingToolBarAdapter)
+            } else if (widget instanceof BrowserGridPagingToolBar)
             {
-                return new PagingToolBarHandler(this).handle((PagingToolBarAdapter) widget);
+                return new PagingToolBarHandler(this).handle((BrowserGridPagingToolBar) widget);
             } else
             {
                 return false;
@@ -444,9 +443,9 @@ public final class GWTTestUtil
             {
                 return null;
             }
-            if (widgetOrNull instanceof AdapterToolItem)
+            if (widgetOrNull instanceof WidgetComponent)
             {
-                return ((AdapterToolItem) widgetOrNull).getWidget();
+                return ((WidgetComponent) widgetOrNull).getWidget();
             }
             if (widgetOrNull instanceof AdapterField)
             {
@@ -456,7 +455,8 @@ public final class GWTTestUtil
         }
     }
 
-    private static final class PagingToolBarHandler implements IWidgetHandler<PagingToolBarAdapter>
+    private static final class PagingToolBarHandler implements
+            IWidgetHandler<BrowserGridPagingToolBar>
     {
         private final IWidgetHandler<Widget> handler;
 
@@ -469,9 +469,9 @@ public final class GWTTestUtil
         // IWidgetHandler
         //
 
-        public final boolean handle(final PagingToolBarAdapter pagingToolBar)
+        public final boolean handle(final BrowserGridPagingToolBar pagingToolBar)
         {
-            for (final ToolItem item : pagingToolBar.getItems())
+            for (final Component item : pagingToolBar.getItems())
             {
                 if (handler.handle(item))
                 {
@@ -551,7 +551,7 @@ public final class GWTTestUtil
         {
             if (menu != null)
             {
-                for (final Item i : menu.getItems())
+                for (final Component i : menu.getItems())
                 {
                     if (handler.handle(i))
                     {
@@ -616,7 +616,7 @@ public final class GWTTestUtil
             if (container instanceof ContentPanel)
             {
                 final ContentPanel contentPanel = (ContentPanel) container;
-                for (Button b : contentPanel.getButtonBar().getItems())
+                for (Component b : contentPanel.getButtonBar().getItems())
                 {
                     if (handler.handle(b))
                     {

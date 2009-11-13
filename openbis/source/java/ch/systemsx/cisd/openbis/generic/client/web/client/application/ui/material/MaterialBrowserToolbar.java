@@ -21,8 +21,8 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
@@ -31,8 +31,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid.ICriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -61,9 +63,18 @@ class MaterialBrowserToolbar extends ToolBar implements ICriteriaProvider<ListMa
         display();
     }
 
-    public void setCriteriaChangedListener(SelectionChangedListener<?> criteriaChangedListener)
+    public void setCriteriaChangedListeners(final IDelegatedAction action)
     {
-        selectMaterialTypeCombo.addSelectionChangedListener(criteriaChangedListener);
+        selectMaterialTypeCombo
+                .addSelectionChangedListener(new SelectionChangedListener<MaterialTypeModel>()
+                    {
+
+                        @Override
+                        public void selectionChanged(SelectionChangedEvent<MaterialTypeModel> se)
+                        {
+                            action.execute();
+                        }
+                    });
     }
 
     private void display()
@@ -71,7 +82,7 @@ class MaterialBrowserToolbar extends ToolBar implements ICriteriaProvider<ListMa
         setBorders(true);
         add(new LabelToolItem(viewContext.getMessage(Dict.MATERIAL_TYPE)
                 + GenericConstants.LABEL_SEPARATOR));
-        add(new AdapterToolItem(selectMaterialTypeCombo));
+        add(selectMaterialTypeCombo);
     }
 
     public final ListMaterialCriteria tryGetCriteria()

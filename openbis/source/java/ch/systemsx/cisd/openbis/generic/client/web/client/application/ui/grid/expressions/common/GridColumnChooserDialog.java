@@ -2,6 +2,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.e
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -26,9 +27,11 @@ class GridColumnChooserDialog extends Dialog
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     public static void show(IViewContext<ICommonClientServiceAsync> viewContext,
-            AbstractColumnSettingsDataModelProvider columnDataModelProvider, String gridId, IExpressionHolder expressionField)
+            AbstractColumnSettingsDataModelProvider columnDataModelProvider, String gridId,
+            IExpressionHolder expressionField)
     {
-        new GridColumnChooserDialog(viewContext, gridId).show(columnDataModelProvider, expressionField);
+        new GridColumnChooserDialog(viewContext, gridId).show(columnDataModelProvider,
+                expressionField);
     }
 
     private GridColumnChooserDialog(IViewContext<ICommonClientServiceAsync> viewContext,
@@ -50,12 +53,13 @@ class GridColumnChooserDialog extends Dialog
     {
         assert columnDataModelProvider != null : "columnModels not specified";
         removeAll();
-        final GridColumnChooser columnChooser = new GridColumnChooser(columnDataModelProvider, viewContext);
+        final GridColumnChooser columnChooser =
+                new GridColumnChooser(columnDataModelProvider, viewContext);
         final Component columnChooserComponent = columnChooser.getComponent();
         add(columnChooserComponent);
 
         columnChooserComponent.sinkEvents(Event.ONDBLCLICK);
-        columnChooserComponent.addListener(Event.ONDBLCLICK, new Listener<BaseEvent>()
+        columnChooserComponent.addListener(Events.OnDoubleClick, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {
@@ -64,15 +68,14 @@ class GridColumnChooserDialog extends Dialog
 
             });
         super.show();
-        getButtonBar().getButtonById("ok").addSelectionListener(
-                new SelectionListener<ComponentEvent>()
-                    {
-                        @Override
-                        public void componentSelected(ComponentEvent ce)
-                        {
-                            insertColumnsIntoExpression(expressionField, columnChooser);
-                        }
-                    });
+        getButtonById(OK).addListener(Events.Select, new SelectionListener<ComponentEvent>()
+            {
+                @Override
+                public void componentSelected(ComponentEvent ce)
+                {
+                    insertColumnsIntoExpression(expressionField, columnChooser);
+                }
+            });
 
     }
 

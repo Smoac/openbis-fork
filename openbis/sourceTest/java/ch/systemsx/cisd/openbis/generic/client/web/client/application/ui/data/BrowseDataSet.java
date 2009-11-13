@@ -72,13 +72,13 @@ public final class BrowseDataSet extends AbstractDefaultTestCommand
                 @Override
                 public void beforeDispatch(MvcEvent mvce)
                 {
-                    String url = String.valueOf(mvce.appEvent.data);
+                    String url = String.valueOf(mvce.getAppEvent().getData());
                     assertTrue("Invalid URL: " + url, url.startsWith("https://localhost:8889/"
                             + DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/" + code
                             + "?sessionID=test-"));
                     if (cancelDispatch)
                     {
-                        mvce.doit = false;
+                        mvce.setCancelled(true);
                     }
                 }
             };

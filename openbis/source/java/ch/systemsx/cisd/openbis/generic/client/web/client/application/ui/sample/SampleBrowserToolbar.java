@@ -22,8 +22,8 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -32,10 +32,13 @@ import com.google.gwt.user.client.Element;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.GroupModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid.ISampleCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
@@ -116,10 +119,27 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         return PropertyTypesFilterUtil.extractPropertyTypes(selectedType);
     }
 
-    public void setCriteriaChangedListener(SelectionChangedListener<?> criteriaChangedListener)
+    public void setCriteriaChangedListeners(final IDelegatedAction action)
     {
-        selectGroupCombo.addSelectionChangedListener(criteriaChangedListener);
-        selectSampleTypeCombo.addSelectionChangedListener(criteriaChangedListener);
+        selectGroupCombo.addSelectionChangedListener(new SelectionChangedListener<GroupModel>()
+            {
+
+                @Override
+                public void selectionChanged(SelectionChangedEvent<GroupModel> se)
+                {
+                    action.execute();
+                }
+            });
+        selectSampleTypeCombo
+                .addSelectionChangedListener(new SelectionChangedListener<SampleTypeModel>()
+                    {
+
+                        @Override
+                        public void selectionChanged(SelectionChangedEvent<SampleTypeModel> se)
+                        {
+                            action.execute();
+                        }
+                    });
     }
 
     private void display()
@@ -127,10 +147,10 @@ final class SampleBrowserToolbar extends ToolBar implements ISampleCriteriaProvi
         setBorders(true);
         add(new LabelToolItem(viewContext.getMessage(Dict.SAMPLE_TYPE)
                 + GenericConstants.LABEL_SEPARATOR));
-        add(new AdapterToolItem(selectSampleTypeCombo));
+        add(selectSampleTypeCombo);
         add(new SeparatorToolItem());
         add(new LabelToolItem(viewContext.getMessage(Dict.GROUP) + GenericConstants.LABEL_SEPARATOR));
-        add(new AdapterToolItem(selectGroupCombo));
+        add(selectGroupCombo);
     }
 
     //

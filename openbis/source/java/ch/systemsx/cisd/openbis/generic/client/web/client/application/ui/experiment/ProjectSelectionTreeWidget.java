@@ -16,16 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.util.TreeBuilder;
-import com.extjs.gxt.ui.client.widget.tree.Tree;
-import com.extjs.gxt.ui.client.widget.tree.TreeItem;
+import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -33,9 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.CISDBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.TreeItemWithModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -44,12 +42,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
- * {@link Tree} containing projects loaded from the server. Main items of the tree are project
+ * {@link TreePanel} containing projects loaded from the server. Main items of the tree are project
  * groups and projects are their children.
  * 
  * @author Piotr Buczek
  */
-public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseModificationObserver
+public final class ProjectSelectionTreeWidget extends TreePanel<ModelData> implements
+        IDatabaseModificationObserver
 {
 
     public static final String ID = GenericConstants.ID_PREFIX + "select-project";
@@ -62,9 +61,27 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
 
     public ProjectSelectionTreeWidget(final IViewContext<?> viewContext)
     {
+        super(new TreeStore<ModelData>());
         this.viewContext = viewContext;
         setId(ID);
+        setDisplayProperty(ModelDataPropertyNames.CODE);
+        getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         refreshTree();
+        getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ModelData>()
+            {
+                @Override
+                public void selectionChanged(SelectionChangedEvent<ModelData> se)
+                {
+                    ModelData selected = se.getSelectedItem();
+                    if (selected != null && isLeaf(selected))
+                    {
+                        selectedProjectOrNull =
+                                (Project) selected.get(ModelDataPropertyNames.OBJECT);
+                        getSelectionChangedListener().handleEvent(null);
+                    }
+
+                }
+            });
     }
 
     /**
@@ -87,39 +104,18 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
         selectionChangedListener = listener;
     }
 
-    // Tree building
-
-    private Map<Group, TreeItem> groupItems = new HashMap<Group, TreeItem>();
-
-    /** @return a new {@link TreeItem} for given group */
-    private TreeItem createGroupTreeItem(Group group)
-    {
-        TreeItem result =
-                new TreeItemWithModel(new GroupItemModel(group), createSelectItemAction(null));
-        groupItems.put(group, result);
-        root.add(result);
-        return result;
-    }
-
-    /** @return a {@link TreeItem} for given group */
-    private TreeItem getGroupTreeItem(Group group)
-    {
-        return groupItems.get(group);
-    }
-
     private void clearTree()
     {
-        root.removeAll();
+        getStore().removeAll();
     }
 
     /**
-     * Rebuilds the tree from a list of projects. {@link TreeBuilder} instead.
+     * Rebuilds the tree from a list of projects.
      */
     private void rebuildTree(List<Project> projects)
     {
         clearTree();
-        addGroupItems(projects);
-        addProjectItems(projects);
+        addToStore(projects);
         expandAll();
     }
 
@@ -134,40 +130,24 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
         return groups;
     }
 
-    /** adds group items for given <var>projects</var> to the tree */
-    private void addGroupItems(List<Project> projects)
+    /** adds items for given <var>projects</var> to the tree */
+    private void addToStore(List<Project> projects)
     {
         for (Group group : getSortedGroups(projects))
         {
-            createGroupTreeItem(group);
-        }
-    }
-
-    /** adds project items for given <var>projects</var> to the tree */
-    private void addProjectItems(List<Project> projects)
-    {
-        for (final Project project : projects)
-        {
-            TreeItem item =
-                    new TreeItemWithModel(new ProjectItemModel(project),
-                            createSelectItemAction(project));
-            getGroupTreeItem(project.getGroup()).add(item);
-        }
-    }
-
-    /**
-     * @return an {@link IDelegatedAction} that will be executed when given project is selected.
-     */
-    private IDelegatedAction createSelectItemAction(final Project projectOrNull)
-    {
-        return new IDelegatedAction()
+            GroupItemModel groupModel = new GroupItemModel(group);
+            getStore().add(groupModel, true);
+            setLeaf(groupModel, false);
+            for (Project project : projects)
             {
-                public void execute()
+                if (project.getGroup().equals(group))
                 {
-                    selectedProjectOrNull = projectOrNull;
-                    getSelectionChangedListener().handleEvent(null);
+                    ProjectItemModel projectModel = new ProjectItemModel(project);
+                    getStore().add(groupModel, projectModel, false);
+                    setLeaf(projectModel, true);
                 }
-            };
+            }
+        }
     }
 
     /**
@@ -242,19 +222,21 @@ public final class ProjectSelectionTreeWidget extends Tree implements IDatabaseM
 
     public static final String PROJECT_WITH_GROUP_CODE = "projectWithGroupCode";
 
-    private static String getProjectWithGroupCode(Project project)
-    {
-        return project.getCode() + " (" + project.getGroup().getCode() + ")";
-    }
-
     private static class ProjectItemModel extends BaseModelDataWithCode
     {
+
         private static final long serialVersionUID = 1L;
+
+        private static String getProjectWithGroupCode(Project project)
+        {
+            return project.getCode() + " (" + project.getGroup().getCode() + ")";
+        }
 
         public ProjectItemModel(Project project)
         {
             super(project.getCode());
             set(ModelDataPropertyNames.PROJECT_IDENTIFIER, project.getIdentifier());
+            set(ModelDataPropertyNames.OBJECT, project);
             set(PROJECT_WITH_GROUP_CODE, getProjectWithGroupCode(project));
         }
     }

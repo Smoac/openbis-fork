@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.util;
 
 import junit.framework.Assert;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -58,7 +58,7 @@ public class GridTestUtils
     public static <T extends ModelData> void fireDoubleClick(final Grid<T> table, String columnId,
             String columnValue)
     {
-        GridEvent event = createGridEvent(table, columnId, columnValue);
+        GridEvent<T> event = createGridEvent(table, columnId, columnValue);
         table.fireEvent(Events.CellDoubleClick, event);
     }
 
@@ -69,7 +69,7 @@ public class GridTestUtils
     public static <T extends ModelData> void fireSingleClick(final Grid<T> table, String columnId,
             String columnValue)
     {
-        GridEvent event = createGridEvent(table, columnId, columnValue);
+        GridEvent<T> event = createGridEvent(table, columnId, columnValue);
         table.fireEvent(Events.CellClick, event);
     }
 
@@ -81,17 +81,17 @@ public class GridTestUtils
             String columnValue)
     {
         T row = getFirstRowWithColumnValue(table, columnId, columnValue);
-        table.getSelectionModel().select(row);
+        table.getSelectionModel().select(row, false);
     }
 
-    private static <T extends ModelData> GridEvent createGridEvent(final Grid<T> table,
+    private static <T extends ModelData> GridEvent<T> createGridEvent(final Grid<T> table,
             String columnId, String columnValue)
     {
         int rowIndex = getFirstRowIndexWithColumnValue(table, columnId, columnValue);
 
-        final GridEvent gridEvent = new GridEvent(table);
-        gridEvent.rowIndex = rowIndex;
-        gridEvent.colIndex = table.getColumnModel().findColumnIndex(columnId);
+        final GridEvent<T> gridEvent = new GridEvent<T>(table);
+        gridEvent.setRowIndex(rowIndex);
+        gridEvent.setColIndex(table.getColumnModel().findColumnIndex(columnId));
         return gridEvent;
     }
 

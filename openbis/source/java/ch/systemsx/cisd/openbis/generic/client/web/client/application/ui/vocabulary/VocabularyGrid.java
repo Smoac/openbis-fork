@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -74,7 +74,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
 
     public static final String SHOW_DETAILS_BUTTON_ID = BROWSER_ID + "_show-details-button";
 
-    private IDelegatedAction postEditionCallback;
+    private final IDelegatedAction postEditionCallback;
 
     public static IDisposableComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
@@ -90,10 +90,10 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
 
         final Button addButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Vocabulary"),
-                        new SelectionListener<ComponentEvent>()
+                        new SelectionListener<ButtonEvent>()
                             {
                                 @Override
-                                public void componentSelected(ComponentEvent ce)
+                                public void componentSelected(ButtonEvent ce)
                                 {
                                     DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
                                             viewContext).getVocabularyRegistration());

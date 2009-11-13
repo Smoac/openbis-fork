@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.XDOM;
+import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 

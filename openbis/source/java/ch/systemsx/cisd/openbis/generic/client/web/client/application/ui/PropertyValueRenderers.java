@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.InlineHTML;
@@ -142,7 +142,8 @@ public final class PropertyValueRenderers
     }
 
     /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link IEntityProperty}.
+     * Creates a {@link IPropertyValueRenderer} implementation for rendering {@link IEntityProperty}
+     * .
      */
     public final static IPropertyValueRenderer<IEntityProperty> createEntityPropertyPropertyValueRenderer(
             final IViewContext<?> viewContext)
@@ -288,7 +289,7 @@ public final class PropertyValueRenderers
             Material material = object.getMaterial();
             if (material != null)
             {
-                final ClickListener listener =
+                final ClickHandler listener =
                         new OpenEntityDetailsTabClickListener(material, viewContext);
 
                 final Hyperlink link = LinkRenderer.getLinkWidget(material.getCode(), listener);
@@ -402,7 +403,7 @@ public final class PropertyValueRenderers
         {
             final String code = entity.getCode();
             final boolean invalidate = getInvalidate(entity);
-            final ClickListener listener =
+            final ClickHandler listener =
                     new OpenEntityDetailsTabClickListener(entity, viewContext);
             final Hyperlink link = LinkRenderer.getLinkWidget(code, listener, invalidate);
 

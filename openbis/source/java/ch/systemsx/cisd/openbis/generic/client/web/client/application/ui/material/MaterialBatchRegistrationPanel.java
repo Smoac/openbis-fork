@@ -17,11 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
@@ -30,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MaterialTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
@@ -67,29 +66,32 @@ public final class MaterialBatchRegistrationPanel extends LayoutContainer
         materialTypeSelection = new MaterialTypeSelectionWidget(viewContext, ID_SUFFIX);
         final ToolBar toolBar = createToolBar();
         add(toolBar);
-        materialTypeSelection.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
-            {
-
-                @Override
-                public final void selectionChanged(final SelectionChangedEvent<ModelData> se)
-                {
-                    final MaterialType materialType =
-                            materialTypeSelection.tryGetSelectedMaterialType();
-                    if (materialType != null)
+        materialTypeSelection
+                .addSelectionChangedListener(new SelectionChangedListener<MaterialTypeModel>()
                     {
-                        removeAll();
-                        final EntityKind entityKind = EntityKind.MATERIAL;
-                        add(toolBar);
-                        final IClientPluginFactory clientPluginFactory =
-                                viewContext.getClientPluginFactoryProvider()
-                                        .getClientPluginFactory(entityKind, materialType);
-                        final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
-                                clientPluginFactory.createClientPlugin(entityKind);
-                        add(createClientPlugin.createBatchRegistrationForEntityType(materialType));
-                        layout();
-                    }
-                }
-            });
+
+                        @Override
+                        public final void selectionChanged(
+                                final SelectionChangedEvent<MaterialTypeModel> se)
+                        {
+                            final MaterialType materialType =
+                                    materialTypeSelection.tryGetSelectedMaterialType();
+                            if (materialType != null)
+                            {
+                                removeAll();
+                                final EntityKind entityKind = EntityKind.MATERIAL;
+                                add(toolBar);
+                                final IClientPluginFactory clientPluginFactory =
+                                        viewContext.getClientPluginFactoryProvider()
+                                                .getClientPluginFactory(entityKind, materialType);
+                                final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
+                                        clientPluginFactory.createClientPlugin(entityKind);
+                                add(createClientPlugin
+                                        .createBatchRegistrationForEntityType(materialType));
+                                layout();
+                            }
+                        }
+                    });
     }
 
     private final ToolBar createToolBar()
@@ -97,7 +99,7 @@ public final class MaterialBatchRegistrationPanel extends LayoutContainer
         final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem(viewContext.getMessage(Dict.MATERIAL_TYPE)
                 + GenericConstants.LABEL_SEPARATOR));
-        toolBar.add(new AdapterToolItem(materialTypeSelection));
+        toolBar.add(materialTypeSelection);
         return toolBar;
     }
 }

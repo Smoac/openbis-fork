@@ -44,12 +44,12 @@ public final class LoggedUserMenu extends TopMenuItem
         super(null); // menu title is set later
         this.viewContext = viewContext;
 
-        Menu menu = new Menu();
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_CHANGE_HOME_GROUP, viewContext,
+        Menu submenu = new Menu();
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_CHANGE_HOME_GROUP, viewContext,
                 new ChangeHomeGroupAction(viewContext, this)));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_LOGOUT, viewContext,
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_LOGOUT, viewContext,
                 new LogoutAction(viewContext)));
-        setMenu(menu);
+        setMenu(submenu);
         refreshTitle();
     }
 

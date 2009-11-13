@@ -18,17 +18,14 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.PagingToolBar;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
-import com.google.gwt.user.client.ui.Widget;
+import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.PagingToolBarAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -37,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * 
  * @author Tomasz Pylak
  */
-public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
+public final class BrowserGridPagingToolBar extends PagingToolBar
 {
     // @Private
     public static final String REFRESH_BUTTON_ID =
@@ -54,27 +51,31 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
 
     private final Button configButton;
 
+    private int nextTableButtonIndex;
+
     public BrowserGridPagingToolBar(IBrowserGridActionInvoker invoker,
             IMessageProvider messageProvider, int pageSize, String gridId)
     {
         super(pageSize);
+        nextTableButtonIndex = indexOf(refresh);
+        remove(refresh);
+
         this.messageProvider = messageProvider;
 
-        add(createTableOperationsLabel());
+        insertTableButton(createTableOperationsLabel());
 
         this.configButton = createConfigButton(messageProvider, invoker, gridId);
-        add(configButton);
+        insertTableButton(configButton);
         updateDefaultConfigButton(false);
 
-        // NOTE: the original superclass refresh button is removed during rendering
         this.refreshButton = createRefreshButton(invoker);
-        add(refreshButton);
+        insertTableButton(refreshButton);
         updateDefaultRefreshButton(false);
         this.refreshButton.setId(REFRESH_BUTTON_ID);
 
         this.exportButton = createExportButton(messageProvider, invoker);
         disableExportButton();
-        add(exportButton);
+        insertTableButton(exportButton);
     }
 
     /** Total number of items on all pages */
@@ -83,9 +84,13 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         return totalLength;
     }
 
-    private void add(Widget widget)
+    /**
+     * Adding table specific buttons right after 'original refresh' button.
+     */
+    private void insertTableButton(Component item)
     {
-        add(new AdapterToolItem(widget));
+        insert(item, nextTableButtonIndex);
+        nextTableButtonIndex++;
     }
 
     public final void addEntityOperationsLabel()
@@ -168,7 +173,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    if (ce.button.isEnabled())
+                    if (ce.getButton().isEnabled())
                     {
                         invoker.refresh();
                     }
@@ -216,19 +221,9 @@ public final class BrowserGridPagingToolBar extends PagingToolBarAdapter
         return button;
     }
 
-    private ToolItem createTableOperationsLabel()
+    private Component createTableOperationsLabel()
     {
         return new LabelToolItem(messageProvider.getMessage(Dict.TABLE_OPERATIONS));
     }
 
-    //
-    // PagingToolBar
-    //
-
-    @Override
-    protected final void afterRender()
-    {
-        removeOriginalRefreshButton();
-        super.afterRender();
-    }
 }

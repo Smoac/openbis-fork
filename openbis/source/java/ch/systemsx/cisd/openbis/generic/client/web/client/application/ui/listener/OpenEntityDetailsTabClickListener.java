@@ -16,19 +16,19 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener;
 
-import com.google.gwt.user.client.ui.ClickListener;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 
 /**
- * A {@link ClickListener} that opens entity details tab on click.
+ * A {@link ClickHandler} that opens entity details tab on click.
  * 
  * @author Piotr Buczek
  */
-public final class OpenEntityDetailsTabClickListener implements ClickListener
+public final class OpenEntityDetailsTabClickListener implements ClickHandler
 {
     private final IDelegatedAction action;
 
@@ -39,7 +39,7 @@ public final class OpenEntityDetailsTabClickListener implements ClickListener
         this.action = new OpenEntityDetailsTabAction(entity, viewContext);
     }
 
-    public void onClick(Widget sender)
+    public void onClick(ClickEvent event)
     {
         action.execute();
     }

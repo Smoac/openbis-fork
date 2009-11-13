@@ -39,11 +39,11 @@ public class DataSetMenu extends TopMenuItem
     {
         super(viewContext.getMessage(Dict.MENU_DATA_SET));
 
-        Menu menu = new Menu();
+        Menu submenu = new Menu();
         IMessageProvider messageProvider = viewContext;
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_SEARCH, messageProvider,
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_SEARCH, messageProvider,
                 componentProvider.getDataSetSearch()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_TYPES, messageProvider,
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_TYPES, messageProvider,
                 componentProvider.getDataSetTypeBrowser()));
         boolean cifexConfigured =
                 StringUtils
@@ -52,9 +52,9 @@ public class DataSetMenu extends TopMenuItem
                                 .getCIFEXURL()) == false;
         if (cifexConfigured)
         {
-            menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD, messageProvider,
+            submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_UPLOAD, messageProvider,
                     componentProvider.getDataSetUploadTab()));
         }
-        setMenu(menu);
+        setMenu(submenu);
     }
 }

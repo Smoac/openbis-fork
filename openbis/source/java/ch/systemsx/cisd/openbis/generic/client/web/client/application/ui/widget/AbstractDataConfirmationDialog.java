@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -81,7 +82,11 @@ public abstract class AbstractDataConfirmationDialog<T> extends Dialog
     /** Sets OK button state to disabled if validation fails. */
     protected final void updateOkButtonState()
     {
-        okBtn.setEnabled(validate());
+        Component okButtonOrNull = getItemByItemId(OK);
+        if (okButtonOrNull != null)
+        {
+            okButtonOrNull.setEnabled(validate());
+        }
     }
 
     /**

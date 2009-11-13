@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu;
 
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 
 /**
  * Item for {@link TopMenu}
@@ -33,7 +33,7 @@ public class TopMenuItem extends TextToolItem
     {
         super(name);
         setIconStyle(ICON_STYLE);
-        button.addStyleName(BUTTON_STYLE);
+        addStyleName(BUTTON_STYLE);
     }
 
 }

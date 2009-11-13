@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 
@@ -53,13 +54,13 @@ public class HyperlinkField extends VarcharField
     }
 
     /** {@link Validator} for external hyperlink value. */
-    protected class HyperlinkValidator implements Validator<String, HyperlinkField>
+    protected class HyperlinkValidator implements Validator
     {
         private final static String PROTOCOL_PART = "://";
 
         private final static String DEFAULT_PROTOCOL = "http://";
 
-        public String validate(HyperlinkField field, final String fieldValue)
+        public String validate(Field<?> field, final String fieldValue)
         {
             // add default protocol if none is provided
             String validatedValue = fieldValue;

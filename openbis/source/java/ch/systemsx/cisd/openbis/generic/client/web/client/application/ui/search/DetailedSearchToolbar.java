@@ -2,15 +2,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.event.ToolBarEvent;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
@@ -35,18 +35,18 @@ public class DetailedSearchToolbar extends ToolBar
         this.searchWindow = searchWindow;
         add(description = new LabelToolItem());
         add(new FillToolItem());
-        add(new TextToolItem(buttonName, new SelectionListener<ToolBarEvent>()
+        add(new TextToolItem(buttonName, new SelectionListener<ButtonEvent>()
             {
                 @Override
-                public void componentSelected(ToolBarEvent ce)
+                public void componentSelected(ButtonEvent ce)
                 {
                     searchWindow.show();
                 }
             }));
     }
 
-    public void updateSearchResults(DetailedSearchCriteria searchCriteria, String searchDescription,
-            List<PropertyType> availablePropertyTypes)
+    public void updateSearchResults(DetailedSearchCriteria searchCriteria,
+            String searchDescription, List<PropertyType> availablePropertyTypes)
     {
         grid.refresh(searchCriteria, availablePropertyTypes);
         description.setLabel(StringUtils.abbreviate(searchDescription, 100));

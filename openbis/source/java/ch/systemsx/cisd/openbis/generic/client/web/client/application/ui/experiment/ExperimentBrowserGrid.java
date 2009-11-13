@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -138,10 +138,10 @@ public class ExperimentBrowserGrid extends
 
         final Button addButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Experiment"),
-                        new SelectionListener<ComponentEvent>()
+                        new SelectionListener<ButtonEvent>()
                             {
                                 @Override
-                                public void componentSelected(ComponentEvent ce)
+                                public void componentSelected(ButtonEvent ce)
                                 {
                                     DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
                                             viewContext).getExperimentRegistration());
@@ -182,7 +182,7 @@ public class ExperimentBrowserGrid extends
 
     private void addGridRefreshListener(ExperimentBrowserToolbar topToolbar)
     {
-        topToolbar.setCriteriaChangedListener(createGridRefreshListener());
+        topToolbar.setCriteriaChangedListeners(createGridRefreshDelegatedAction());
     }
 
     @Override
@@ -301,9 +301,9 @@ public class ExperimentBrowserGrid extends
     public final class DisplayedAndSelectedExperiments implements IsSerializable
     {
 
-        private TableExportCriteria<Experiment> displayedItemsConfig;
+        private final TableExportCriteria<Experiment> displayedItemsConfig;
 
-        private List<Experiment> selectedItems;
+        private final List<Experiment> selectedItems;
 
         private final int displayedItemsCount;
 

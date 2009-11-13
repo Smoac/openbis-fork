@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.amc;
 
-import com.google.gwt.user.client.ui.ChangeListener;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
@@ -40,18 +40,19 @@ public class RoleListBox extends ListBox
         }
         setVisibleItemCount(1);
 
-        addChangeListener(new ChangeListener()
+        addChangeHandler(new ChangeHandler()
             {
                 //
                 // ChangeListener
                 //
 
-                public final void onChange(final Widget sender)
+                public final void onChange(final ChangeEvent sender)
                 {
                     boolean groupLevel = RoleSetCode.values()[getSelectedIndex()].isGroupLevel();
                     FieldUtil.setMandatoryFlag(group, groupLevel);
                     group.setVisible(groupLevel);
                 }
+
             });
 
     }

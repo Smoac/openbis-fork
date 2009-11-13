@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.widget.StoreFilterField;
+import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.IColumnFilterWidget;

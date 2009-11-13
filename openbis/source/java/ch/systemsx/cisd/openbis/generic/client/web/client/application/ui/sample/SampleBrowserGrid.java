@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -341,10 +341,10 @@ public class SampleBrowserGrid extends
     {
         final Button addButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Sample"),
-                        new SelectionListener<ComponentEvent>()
+                        new SelectionListener<ButtonEvent>()
                             {
                                 @Override
-                                public void componentSelected(ComponentEvent ce)
+                                public void componentSelected(ButtonEvent ce)
                                 {
                                     DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
                                             viewContext).getSampleRegistration());
@@ -383,7 +383,7 @@ public class SampleBrowserGrid extends
 
     private void addGridRefreshListener(SampleBrowserToolbar topToolbar)
     {
-        topToolbar.setCriteriaChangedListener(createGridRefreshListener());
+        topToolbar.setCriteriaChangedListeners(createGridRefreshDelegatedAction());
     }
 
     @Override
@@ -605,9 +605,9 @@ public class SampleBrowserGrid extends
     public final class DisplayedAndSelectedSamples implements IsSerializable
     {
 
-        private TableExportCriteria<Sample> displayedItemsConfig;
+        private final TableExportCriteria<Sample> displayedItemsConfig;
 
-        private List<Sample> selectedItems;
+        private final List<Sample> selectedItems;
 
         private final int displayedItemsCount;
 

@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
@@ -40,14 +40,15 @@ public class ActionMenu extends MenuItem
         setId(id);
     }
 
-    private ActionMenu(final String id, final String name, final IDelegatedAction action)
+    private <E extends MenuEvent> ActionMenu(final String id, final String name,
+            final IDelegatedAction action)
     {
         this(id, name);
-        addSelectionListener(new SelectionListener<ComponentEvent>()
+        addSelectionListener(new SelectionListener<E>()
             {
 
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public void componentSelected(E ce)
                 {
                     action.execute();
                 }

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.e
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -93,10 +93,10 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
         addEntityOperationsLabel();
         final Button addButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD, viewContext
-                        .getMessage(Dict.FILTER)), new SelectionListener<ComponentEvent>()
+                        .getMessage(Dict.FILTER)), new SelectionListener<ButtonEvent>()
                     {
                         @Override
-                        public void componentSelected(ComponentEvent ce)
+                        public void componentSelected(ButtonEvent ce)
                         {
                             createAddDialog().show();
                         }
@@ -174,7 +174,8 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
 
         public EditDialog(final IViewContext<ICommonClientServiceAsync> viewContext,
                 final IDelegatedAction postRegistrationCallback, String gridId,
-                AbstractColumnSettingsDataModelProvider columnDataModelProvider, AbstractGridExpression itemToUpdate)
+                AbstractColumnSettingsDataModelProvider columnDataModelProvider,
+                AbstractGridExpression itemToUpdate)
         {
             super(viewContext, viewContext.getMessage(Dict.EDIT_TITLE, viewContext
                     .getMessage(Dict.FILTER), itemToUpdate.getName()), postRegistrationCallback,

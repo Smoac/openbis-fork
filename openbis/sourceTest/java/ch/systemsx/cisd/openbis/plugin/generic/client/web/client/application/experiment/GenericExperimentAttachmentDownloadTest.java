@@ -176,17 +176,16 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         }
 
         @Override
-        public void handleEvent(AppEvent<?> event)
+        public void handleEvent(AppEvent event)
         {
-            switch (event.type)
+            if (event.getType() == AppEvents.OPEN_URL_EVENT)
             {
-                case AppEvents.OPEN_URL_EVENT:
-                    String openedUrl = (String) event.data;
-                    openedUrlCallback.reuse();
-                    openedUrlCallback.onSuccess(openedUrl);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknow event '" + event + "'.");
+                String openedUrl = (String) event.getData();
+                openedUrlCallback.reuse();
+                openedUrlCallback.onSuccess(openedUrl);
+            } else
+            {
+                throw new IllegalArgumentException("Unknow event '" + event + "'.");
             }
         }
     }

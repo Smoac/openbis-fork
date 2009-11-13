@@ -18,17 +18,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Hyperlink;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InlineHyperlink;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  * @author Piotr Buczek
  */
 public class LinkRenderer
@@ -36,21 +37,25 @@ public class LinkRenderer
     public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
-        {
-            public String render(BaseEntityModel<?> model, String property, ColumnData config,
-                    int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
             {
-                return LinkRenderer.renderAsLinkWithAnchor(model.get(property).toString());
-            }
-        };
+
+                public Object render(BaseEntityModel<?> model, String property, ColumnData config,
+                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
+                        Grid<BaseEntityModel<?>> grid)
+                {
+                    return LinkRenderer.renderAsLinkWithAnchor(model.get(property).toString());
+                }
+            };
     }
-    
+
     public static GridCellRenderer<BaseEntityModel<?>> createExternalLinkRenderer()
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
             {
-                public String render(BaseEntityModel<?> model, String property, ColumnData config,
-                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store)
+
+                public Object render(BaseEntityModel<?> model, String property, ColumnData config,
+                        int rowIndex, int colIndex, ListStore<BaseEntityModel<?>> store,
+                        Grid<BaseEntityModel<?>> grid)
                 {
                     return LinkRenderer.renderAsLinkWithAnchor(model.get(property).toString(),
                             model.get(property).toString(), true);
@@ -93,7 +98,7 @@ public class LinkRenderer
      *         and a <var>listener</var> registered on the click event. The link display style is
      *         default (not invalidated).
      */
-    public static Hyperlink getLinkWidget(final String text, final ClickListener listener)
+    public static Hyperlink getLinkWidget(final String text, final ClickHandler listener)
     {
         return getLinkWidget(text, listener, false);
     }
@@ -103,13 +108,13 @@ public class LinkRenderer
      *         and a <var>listener</var> registered on the click event. The link display style is
      *         based on <var>invalidate</var> (default style is for false).
      */
-    public static Hyperlink getLinkWidget(final String text, final ClickListener listener,
+    public static Hyperlink getLinkWidget(final String text, final ClickHandler listener,
             boolean invalidate)
     {
         Hyperlink link = new InlineHyperlink(text);
         if (listener != null)
         {
-            link.addClickListener(listener);
+            link.addClickHandler(listener);
         }
         if (invalidate)
         {

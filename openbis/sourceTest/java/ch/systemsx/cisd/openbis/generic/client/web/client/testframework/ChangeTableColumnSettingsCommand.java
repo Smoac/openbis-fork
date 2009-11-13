@@ -19,9 +19,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.testframework;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ColumnModelEvent;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -35,17 +36,17 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
 {
     private static abstract class Event
     {
-        private final int eventType;
+        private final EventType eventType;
 
         protected final String columnID;
 
-        Event(int eventType, String columnID)
+        Event(EventType eventType, String columnID)
         {
             this.eventType = eventType;
             this.columnID = columnID;
         }
 
-        public final int getEventType()
+        public final EventType getEventType()
         {
             return eventType;
         }
@@ -89,7 +90,7 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
         {
             getColumnConfig(columnModel).setHidden(hidden);
             ColumnModelEvent event = createColumnModelEvent(columnModel);
-            event.hidden = hidden;
+            event.setHidden(hidden);
             return event;
         }
     }
@@ -109,7 +110,7 @@ public class ChangeTableColumnSettingsCommand extends AbstractDefaultTestCommand
         {
             getColumnConfig(columnModel).setWidth(width);
             ColumnModelEvent event = createColumnModelEvent(columnModel);
-            event.width = width;
+            event.setWidth(width);
             return event;
         }
     }

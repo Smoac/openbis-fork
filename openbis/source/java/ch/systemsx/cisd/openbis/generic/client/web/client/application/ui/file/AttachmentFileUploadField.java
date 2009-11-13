@@ -51,7 +51,7 @@ public class AttachmentFileUploadField extends FileUploadField
 
     public NewAttachment tryExtractAttachment()
     {
-        if (StringUtils.isBlank(getFileName()))
+        if (StringUtils.isBlank(getFilePathValue()))
         {
             return null;
         } else
@@ -72,8 +72,8 @@ public class AttachmentFileUploadField extends FileUploadField
     }
 
     private String getFilePathValue()
-    {
-        return getFileName(); // its not only file name, but full file path
+    {// FIXME: correct?
+        return getFileInput().getValue(); // its not only file name, but full file path
     }
 
     private String getDescriptionValue()

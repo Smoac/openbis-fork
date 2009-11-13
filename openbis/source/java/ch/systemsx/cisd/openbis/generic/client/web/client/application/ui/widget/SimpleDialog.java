@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.event.WindowListener;
@@ -85,10 +85,10 @@ public class SimpleDialog extends Dialog
     {
         final Button button =
                 new Button(messageProvider.getMessage(Dict.BUTTON_CANCEL),
-                        new SelectionListener<ComponentEvent>()
+                        new SelectionListener<ButtonEvent>()
                             {
                                 @Override
-                                public final void componentSelected(ComponentEvent ce)
+                                public final void componentSelected(ButtonEvent ce)
                                 {
                                     fireCancel();
                                 }
@@ -98,10 +98,10 @@ public class SimpleDialog extends Dialog
 
     private Button createAcceptButton(String label)
     {
-        final Button button = new Button(label, new SelectionListener<ComponentEvent>()
+        final Button button = new Button(label, new SelectionListener<ButtonEvent>()
             {
                 @Override
-                public final void componentSelected(final ComponentEvent ce)
+                public final void componentSelected(final ButtonEvent ce)
                 {
                     fireAccept();
                 }
@@ -135,7 +135,7 @@ public class SimpleDialog extends Dialog
             cancelActionOrNull.execute();
         } else
         {
-            close();
+            hide();
         }
     }
 }

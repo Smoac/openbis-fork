@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.widget.StoreFilterField;
+import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 
 /**
  * {@link StoreFilterField} extension for filtering columns.

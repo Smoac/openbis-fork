@@ -21,10 +21,10 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.application.fra
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -181,7 +181,6 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected List<DatabaseModificationAwareField<?>> getEntitySpecificFormFields()
     {
@@ -219,7 +218,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
     {
         LabelField result = new LabelField(LinkRenderer.renderAsLink(label));
         result.sinkEvents(Event.ONCLICK);
-        result.addListener(Event.ONCLICK, new Listener<BaseEvent>()
+        result.addListener(Events.OnClick, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {

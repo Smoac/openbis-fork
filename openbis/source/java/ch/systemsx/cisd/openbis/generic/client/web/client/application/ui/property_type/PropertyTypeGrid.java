@@ -21,7 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -91,10 +91,10 @@ public class PropertyTypeGrid extends AbstractSimpleBrowserGrid<PropertyType>
 
         final Button addButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ADD, "Property Type"),
-                        new SelectionListener<ComponentEvent>()
+                        new SelectionListener<ButtonEvent>()
                             {
                                 @Override
-                                public void componentSelected(ComponentEvent ce)
+                                public void componentSelected(ButtonEvent ce)
                                 {
                                     DispatcherHelper.dispatchNaviEvent(new ComponentProvider(
                                             viewContext).getPropertyTypeRegistration());

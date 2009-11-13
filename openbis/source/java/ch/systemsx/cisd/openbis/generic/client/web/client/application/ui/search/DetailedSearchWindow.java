@@ -49,7 +49,8 @@ public class DetailedSearchWindow extends Dialog
         setResizable(false);
         add(criteriaWidget = new DetailedSearchCriteriaWidget(viewContext, entityKind),
                 new FitData(MARGIN));
-        final ButtonBar bar = new ButtonBar();
+        final ButtonBar bar = getButtonBar();
+        bar.removeAll();
         bar.add(new Button(viewContext.getMessage(Dict.BUTTON_CANCEL),
                 new SelectionListener<ButtonEvent>()
                     {
@@ -89,8 +90,6 @@ public class DetailedSearchWindow extends Dialog
 
         searchButton.setId(SEARCH_BUTTON_ID);
         bar.add(searchButton);
-        setButtonBar(bar);
-        setButtons("");
     }
 
     public void setUpdateListener(DetailedSearchToolbar toolbar)

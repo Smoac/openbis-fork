@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 /**
  * Implements functionality of the top menu.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  * @author Izabela Adamczyk
  */
 public class TopMenu extends LayoutContainer
@@ -116,11 +116,11 @@ public class TopMenu extends LayoutContainer
 
         for (IModule m : viewContext.getClientPluginFactoryProvider().getModules())
         {
-            toolBar.add(new AdapterToolItem(m.getMenu()));
+            toolBar.add(new WidgetComponent(m.getMenu()));
         }
 
         toolBar.add(new FillToolItem());
-        toolBar.add(new AdapterToolItem(new SearchWidget(viewContext)));
+        toolBar.add(new SearchWidget(viewContext));
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new LoggedUserMenu(viewContext));
     }

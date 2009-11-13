@@ -3,15 +3,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.ToggleToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -29,7 +29,7 @@ public class SectionsPanel extends ContentPanel
 {
     List<SectionElement> elements = new ArrayList<SectionElement>();
 
-    private ToolBar toolbar;
+    private final ToolBar toolbar;
 
     private final boolean withShowHide;
 
@@ -134,10 +134,10 @@ public class SectionsPanel extends ContentPanel
     {
         final SectionElement element =
                 new SectionElement(panel, withShowHide, viewContext, pressByDeafult);
-        element.getButton().addSelectionListener(new SelectionListener<ComponentEvent>()
+        element.getButton().addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public void componentSelected(ButtonEvent ce)
                 {
                     refreshLayout();
                 }
@@ -162,7 +162,7 @@ public class SectionsPanel extends ContentPanel
         layout();
     }
 
-    private void addToToolbar(ToggleToolItem bb)
+    private void addToToolbar(ToggleButton bb)
     {
         toolbar.add(bb);
     }
@@ -211,7 +211,7 @@ public class SectionsPanel extends ContentPanel
     private class SectionElement
     {
 
-        private ToggleToolItem button;
+        private final ToggleButton button;
 
         private SingleSectionPanel panel;
 
@@ -228,7 +228,7 @@ public class SectionsPanel extends ContentPanel
             button = createButton(heading, pressed, panel.getDisplayID());
         }
 
-        public ToggleToolItem getButton()
+        public ToggleButton getButton()
         {
             return button;
         }
@@ -250,17 +250,17 @@ public class SectionsPanel extends ContentPanel
             return pressed ? hideHeading : showHeading;
         }
 
-        private ToggleToolItem createButton(final String heading, boolean pressed,
+        private ToggleButton createButton(final String heading, boolean pressed,
                 final String displayId)
         {
-            final ToggleToolItem result = new ToggleToolItem(getHeading(heading, pressed));
+            final ToggleButton result = new ToggleButton(getHeading(heading, pressed));
             initializePressedState(result, pressed);
 
             // when user clicks toggle button we store changed settings
-            result.addSelectionListener(new SelectionListener<ComponentEvent>()
+            result.addSelectionListener(new SelectionListener<ButtonEvent>()
                 {
                     @Override
-                    public void componentSelected(ComponentEvent ce)
+                    public void componentSelected(ButtonEvent ce)
                     {
                         viewContext.getDisplaySettingsManager().storeSectionSettings(displayId,
                                 result.isPressed(), SectionsPanel.this);
@@ -278,11 +278,12 @@ public class SectionsPanel extends ContentPanel
             return result;
         }
 
-        private void initializePressedState(ToggleToolItem result, boolean pressed)
+        private void initializePressedState(ToggleButton result, boolean pressed)
         {
             // because of strange ToggleToolItem implementation need to initialize both:
             // - 'pressed' value
-            result.pressed = pressed;
+            result.toggle(pressed);// FIXME: get rid of those hacks, as we no longer need
+            // ToggleToolItem
             // - internal button pressed state using 'toggle(boolean)'
             result.toggle(pressed);
         }

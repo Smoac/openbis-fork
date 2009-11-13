@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
@@ -79,10 +79,10 @@ public class RoleAssignmentGrid extends AbstractSimpleBrowserGrid<RoleAssignment
 
         final Button addGroupButton =
                 new Button(viewContext.getMessage(Dict.BUTTON_ASSIGN_ROLE),
-                        new SelectionListener<ComponentEvent>()
+                        new SelectionListener<ButtonEvent>()
                             {
                                 @Override
-                                public void componentSelected(ComponentEvent ce)
+                                public void componentSelected(ButtonEvent ce)
                                 {
                                     AddRoleAssignmentDialog dialog =
                                             new AddRoleAssignmentDialog(viewContext,

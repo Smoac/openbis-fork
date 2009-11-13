@@ -22,7 +22,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModifica
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.XDOM;
+import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;

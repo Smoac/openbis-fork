@@ -54,14 +54,12 @@ public class WindowUtils
         }
 
         @Override
-        public void handleEvent(AppEvent<?> event)
+        public void handleEvent(AppEvent event)
         {
-            switch (event.type)
+            if (event.getType() == AppEvents.OPEN_URL_EVENT)
             {
-                case AppEvents.OPEN_URL_EVENT:
-                    String openedUrl = (String) event.data;
-                    doOpenWindow(openedUrl);
-                    break;
+                String openedUrl = (String) event.getData();
+                doOpenWindow(openedUrl);
             }
         }
     }

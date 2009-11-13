@@ -17,11 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
@@ -30,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SampleTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -67,31 +66,35 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
                 new SampleTypeSelectionWidget(viewContext, ID_SUFFIX, false, false, true);
         final ToolBar toolBar = createToolBar();
         add(toolBar);
-        sampleTypeSelection.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
-            {
-
-                //
-                // SelectionChangedListener
-                //
-
-                @Override
-                public final void selectionChanged(final SelectionChangedEvent<ModelData> se)
-                {
-                    final SampleType sampleType = sampleTypeSelection.tryGetSelectedSampleType();
-                    if (sampleType != null)
+        sampleTypeSelection
+                .addSelectionChangedListener(new SelectionChangedListener<SampleTypeModel>()
                     {
-                        removeAll();
-                        final EntityKind entityKind = EntityKind.SAMPLE;
-                        add(toolBar);
-                        final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
-                                viewContext.getClientPluginFactoryProvider()
-                                        .getClientPluginFactory(entityKind, sampleType)
-                                        .createClientPlugin(entityKind);
-                        add(createClientPlugin.createBatchRegistrationForEntityType(sampleType));
-                        layout();
-                    }
-                }
-            });
+
+                        //
+                        // SelectionChangedListener
+                        //
+
+                        @Override
+                        public final void selectionChanged(
+                                final SelectionChangedEvent<SampleTypeModel> se)
+                        {
+                            final SampleType sampleType =
+                                    sampleTypeSelection.tryGetSelectedSampleType();
+                            if (sampleType != null)
+                            {
+                                removeAll();
+                                final EntityKind entityKind = EntityKind.SAMPLE;
+                                add(toolBar);
+                                final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
+                                        viewContext.getClientPluginFactoryProvider()
+                                                .getClientPluginFactory(entityKind, sampleType)
+                                                .createClientPlugin(entityKind);
+                                add(createClientPlugin
+                                        .createBatchRegistrationForEntityType(sampleType));
+                                layout();
+                            }
+                        }
+                    });
     }
 
     private final ToolBar createToolBar()
@@ -99,7 +102,7 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
         final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem(viewContext.getMessage(Dict.SAMPLE_TYPE)
                 + GenericConstants.LABEL_SEPARATOR));
-        toolBar.add(new AdapterToolItem(sampleTypeSelection));
+        toolBar.add(sampleTypeSelection);
         return toolBar;
     }
 }

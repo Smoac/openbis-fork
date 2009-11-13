@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
@@ -38,7 +38,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -58,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -85,10 +85,10 @@ public class DataSetComputeMenu extends TextToolItem
         this.viewContext = viewContext;
         this.selectedDataSetsGetter = selectedDataSetsGetter;
 
-        Menu menu = new Menu();
-        addMenuItem(menu, PluginTaskActionMenuKind.COMPUTE_MENU_QUERIES);
-        addMenuItem(menu, PluginTaskActionMenuKind.COMPUTE_MENU_PROCESSING);
-        setMenu(menu);
+        Menu submenu = new Menu();
+        addMenuItem(submenu, PluginTaskActionMenuKind.COMPUTE_MENU_QUERIES);
+        addMenuItem(submenu, PluginTaskActionMenuKind.COMPUTE_MENU_PROCESSING);
+        setMenu(submenu);
     }
 
     //
@@ -122,11 +122,11 @@ public class DataSetComputeMenu extends TextToolItem
         }
     }
 
-    private final void addMenuItem(Menu menu, PluginTaskActionMenuKind menuItemKind)
+    private final void addMenuItem(Menu submenu, PluginTaskActionMenuKind menuItemKind)
     {
         final IDelegatedAction menuItemAction =
                 createComputeMenuAction(menuItemKind.getPluginTaskKind());
-        menu.add(new ActionMenu(menuItemKind, viewContext, menuItemAction));
+        submenu.add(new ActionMenu(menuItemKind, viewContext, menuItemAction));
     }
 
     private IDelegatedAction createComputeMenuAction(final DataStoreServiceKind pluginTaskKind)
@@ -239,7 +239,7 @@ public class DataSetComputeMenu extends TextToolItem
         @Override
         protected void process(final TableModelReference tableModelReference)
         {
-            progressBar.close();
+            progressBar.hide();
             final ITabItemFactory tabFactory = new ITabItemFactory()
                 {
                     public ITabItem create()
@@ -262,7 +262,7 @@ public class DataSetComputeMenu extends TextToolItem
         @Override
         public void finishOnFailure(Throwable caught)
         {
-            progressBar.close();
+            progressBar.hide();
             super.finishOnFailure(caught);
         }
     }

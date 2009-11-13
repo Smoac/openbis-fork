@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.e
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils.unescapeHtml;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -116,7 +117,7 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
     {
         LabelField result = new LabelField(LinkRenderer.renderAsLink(label));
         result.sinkEvents(Event.ONCLICK);
-        result.addListener(Event.ONCLICK, new Listener<BaseEvent>()
+        result.addListener(Events.OnClick, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent be)
                 {

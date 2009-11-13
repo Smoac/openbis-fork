@@ -53,10 +53,9 @@ final class AppView extends View
         this.viewContext = viewContext;
     }
 
-    @SuppressWarnings("unchecked")
-    private final ITabItemFactory getData(final AppEvent<?> event)
+    private final ITabItemFactory getData(final AppEvent event)
     {
-        return ((AppEvent<ITabItemFactory>) event).data;
+        return event.getData();
     }
 
     private final void activateTab(final ITabItemFactory tabItemFactory)
@@ -109,17 +108,15 @@ final class AppView extends View
     }
 
     @Override
-    protected final void handleEvent(final AppEvent<?> event)
+    protected final void handleEvent(final AppEvent event)
     {
-        switch (event.type)
+        if (event.getType() == AppEvents.INIT)
         {
-            case AppEvents.INIT:
-                initUI();
-                break;
+            initUI();
+        } else if (event.getType() == AppEvents.NAVI_EVENT)
+        {
+            activateTab(getData(event));
 
-            case AppEvents.NAVI_EVENT:
-                activateTab(getData(event));
-                break;
         }
     }
 }

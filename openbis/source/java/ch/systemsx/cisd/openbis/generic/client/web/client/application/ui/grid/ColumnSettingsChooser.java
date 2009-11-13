@@ -3,29 +3,30 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.CheckColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -83,11 +84,11 @@ class ColumnSettingsChooser
         button.setTitle(disabledTitle);
 
         grid.getSelectionModel().addListener(Events.SelectionChange,
-                new Listener<SelectionEvent<ModelData>>()
+                new Listener<SelectionChangedEvent<ModelData>>()
                     {
-                        public void handleEvent(SelectionEvent<ModelData> se)
+                        public void handleEvent(SelectionChangedEvent<ModelData> se)
                         {
-                            if (se.selection.size() == 1)
+                            if (grid.getSelectionModel().getSelectedItems().size() == 1)
                             {
                                 button.enable();
                                 button.setTitle(enabledTitle);
@@ -170,24 +171,24 @@ class ColumnSettingsChooser
         public BottomToolbar()
         {
             add(new LabelToolItem("Select:"));
-            add(new AdapterToolItem(createLink(Selectable.VISIBLE, true)));
+            add(new WidgetComponent(createLink(Selectable.VISIBLE, true)));
             add(new SeparatorToolItem());
-            add(new AdapterToolItem(createLink(Selectable.VISIBLE, false)));
+            add(new WidgetComponent(createLink(Selectable.VISIBLE, false)));
             add(new SeparatorToolItem());
-            add(new AdapterToolItem(createLink(Selectable.FILTER, true)));
+            add(new WidgetComponent(createLink(Selectable.FILTER, true)));
             add(new SeparatorToolItem());
-            add(new AdapterToolItem(createLink(Selectable.FILTER, false)));
+            add(new WidgetComponent(createLink(Selectable.FILTER, false)));
             add(new FillToolItem());
             Button up = new Button("Move Up");
             up.addSelectionListener(moveSelectedItem(-1));
             enableButtonOnGridSelectedItem(up,
                     "Move selected column to the left in modified table.");
-            add(new AdapterToolItem(up));
+            add(up);
             Button down = new Button("Move Down");
             down.addSelectionListener(moveSelectedItem(+1));
             enableButtonOnGridSelectedItem(down,
                     "Move selected column to the right in modified table.");
-            add(new AdapterToolItem(down));
+            add(down);
         }
 
         private Widget createLink(final Selectable selectable, final boolean select)
@@ -195,9 +196,10 @@ class ColumnSettingsChooser
             String prefix = select ? "All" : "No";
             String suffix = selectable.title + "s";
             String title = prefix + " " + suffix;
-            return LinkRenderer.getLinkWidget(title, new ClickListener()
+            return LinkRenderer.getLinkWidget(title, new ClickHandler()
                 {
-                    public void onClick(Widget sender)
+
+                    public void onClick(ClickEvent event)
                     {
                         for (ColumnDataModel m : grid.getStore().getModels())
                         {
@@ -225,12 +227,12 @@ class ColumnSettingsChooser
         }
     }
 
-    private SelectionListener<ComponentEvent> moveSelectedItem(final int delta)
+    private SelectionListener<ButtonEvent> moveSelectedItem(final int delta)
     {
-        return new SelectionListener<ComponentEvent>()
+        return new SelectionListener<ButtonEvent>()
             {
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public void componentSelected(ButtonEvent ce)
                 {
                     ColumnDataModel m = grid.getSelectionModel().getSelectedItem();
                     if (m == null)
@@ -243,7 +245,7 @@ class ColumnSettingsChooser
                     {
                         grid.getStore().remove(m);
                         grid.getStore().insert(m, newIndex);
-                        grid.getSelectionModel().select(m);
+                        grid.getSelectionModel().select(m, false);
                     }
                 }
             };

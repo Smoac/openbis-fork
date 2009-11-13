@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
@@ -60,7 +59,7 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
 
     private DatabaseModificationAwareWidget registrationWidget;
 
-    private PreviousSelection previousSelection = new PreviousSelection();
+    private final PreviousSelection previousSelection = new PreviousSelection();
 
     protected static String createId(EntityKind entityKind)
     {
@@ -80,7 +79,7 @@ abstract public class EntityRegistrationPanel<T extends ModelData, S extends Dro
         final ToolBar toolBar = new ToolBar();
         toolBar.add(new LabelToolItem(entityTypeSelection.getFieldLabel()
                 + GenericConstants.LABEL_SEPARATOR));
-        toolBar.add(new AdapterToolItem(entityTypeSelection));
+        toolBar.add(entityTypeSelection);
         setTopComponent(toolBar);
         entityTypeSelection.addSelectionChangedListener(createSelectionChangedListener());
     }

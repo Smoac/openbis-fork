@@ -21,7 +21,6 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -168,11 +167,11 @@ public class MaterialBrowserGrid extends
             String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
             Button showDetailsButton =
                     createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-            pagingToolbar.add(new AdapterToolItem(showDetailsButton));
+            pagingToolbar.add(showDetailsButton);
 
             String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
             Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
-            pagingToolbar.add(new AdapterToolItem(editButton));
+            pagingToolbar.add(editButton);
 
             addEntityOperationsSeparator();
         }
@@ -180,7 +179,7 @@ public class MaterialBrowserGrid extends
 
     private void addGridRefreshListener(MaterialBrowserToolbar toolbar)
     {
-        toolbar.setCriteriaChangedListener(createGridRefreshListener());
+        toolbar.setCriteriaChangedListeners(createGridRefreshDelegatedAction());
     }
 
     @Override

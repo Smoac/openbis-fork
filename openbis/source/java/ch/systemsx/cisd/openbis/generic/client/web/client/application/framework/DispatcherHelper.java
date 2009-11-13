@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.mvc.AppEvent;
 import com.extjs.gxt.ui.client.mvc.Dispatcher;
 
@@ -36,7 +37,7 @@ public final class DispatcherHelper
      */
     public final static void dispatchOpenUrlEvent(String url)
     {
-        AppEvent<String> event = createEvent(AppEvents.OPEN_URL_EVENT, url);
+        AppEvent event = createEvent(AppEvents.OPEN_URL_EVENT, url);
         Dispatcher.get().dispatch(event);
     }
 
@@ -46,14 +47,14 @@ public final class DispatcherHelper
      */
     public final static void dispatchNaviEvent(final ITabItemFactory tabItemFactory)
     {
-        AppEvent<ITabItemFactory> event = createEvent(AppEvents.NAVI_EVENT, tabItemFactory);
+        AppEvent event = createEvent(AppEvents.NAVI_EVENT, tabItemFactory);
         Dispatcher.get().dispatch(event);
     }
 
-    private final static <T> AppEvent<T> createEvent(int eventType, T data)
+    private final static AppEvent createEvent(EventType eventType, Object data)
     {
-        final AppEvent<T> event = new AppEvent<T>(eventType);
-        event.data = data;
+        final AppEvent event = new AppEvent(eventType);
+        event.setData(data);
         return event;
     }
 }

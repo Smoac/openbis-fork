@@ -44,9 +44,9 @@ public class MoveableColumnModel extends ColumnModel
     {
         if (fromIndex != toIndex)
         {
-            ColumnConfig c = config.get(fromIndex);
-            config.remove(fromIndex);
-            config.add(toIndex, c);
+            ColumnConfig c = configs.get(fromIndex);
+            configs.remove(fromIndex);
+            configs.add(toIndex, c);
             // one event is triggered when all columns are set
         }
     }
@@ -56,7 +56,7 @@ public class MoveableColumnModel extends ColumnModel
      */
     public void remove(int fromIndex)
     {
-        config.remove(fromIndex);
+        configs.remove(fromIndex);
     }
 
     /**
@@ -64,7 +64,7 @@ public class MoveableColumnModel extends ColumnModel
      */
     public void addAt(int index, ColumnConfig columnConfig)
     {
-        config.add(index, columnConfig);
+        configs.add(index, columnConfig);
     }
 
 }

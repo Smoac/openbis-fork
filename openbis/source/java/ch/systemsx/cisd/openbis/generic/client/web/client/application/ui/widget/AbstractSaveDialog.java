@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -96,10 +96,10 @@ abstract public class AbstractSaveDialog extends Window
     {
         final Button button =
                 new Button(viewContext.getMessage(Dict.BUTTON_CANCEL),
-                        new SelectionListener<ComponentEvent>()
+                        new SelectionListener<ButtonEvent>()
                             {
                                 @Override
-                                public final void componentSelected(ComponentEvent ce)
+                                public final void componentSelected(ButtonEvent ce)
                                 {
                                     hide();
                                 }
@@ -111,10 +111,10 @@ abstract public class AbstractSaveDialog extends Window
     {
         final Button button =
                 new Button(viewContext.getMessage(Dict.BUTTON_SAVE),
-                        new SelectionListener<ComponentEvent>()
+                        new SelectionListener<ButtonEvent>()
                             {
                                 @Override
-                                public final void componentSelected(final ComponentEvent ce)
+                                public final void componentSelected(final ButtonEvent ce)
                                 {
                                     if (form.isValid())
                                     {

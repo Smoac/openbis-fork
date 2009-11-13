@@ -36,15 +36,15 @@ public class AdministrationMenu extends TopMenuItem
     {
         super(messageProvider.getMessage(Dict.MENU_ADMINISTRATION));
 
-        Menu menu = new Menu();
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.ADMINISTRATION_MENU_MANAGE_GROUPS,
+        Menu submenu = new Menu();
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.ADMINISTRATION_MENU_MANAGE_GROUPS,
                 messageProvider, componentProvider.getGroupBrowser()));
-        menu.add(new ProjectMenu(messageProvider, componentProvider));
-        menu.add(new VocabularyMenu(messageProvider, componentProvider));
-        menu.add(new PropertyTypesMenu(messageProvider, componentProvider));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_FILE_FORMATS, messageProvider,
+        submenu.add(new ProjectMenu(messageProvider, componentProvider));
+        submenu.add(new VocabularyMenu(messageProvider, componentProvider));
+        submenu.add(new PropertyTypesMenu(messageProvider, componentProvider));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.DATA_SET_MENU_FILE_FORMATS, messageProvider,
                 componentProvider.getFileFormatTypeBrowser()));
-        menu.add(new AuthorizationMenu(messageProvider, componentProvider));
-        setMenu(menu);
+        submenu.add(new AuthorizationMenu(messageProvider, componentProvider));
+        setMenu(submenu);
     }
 }

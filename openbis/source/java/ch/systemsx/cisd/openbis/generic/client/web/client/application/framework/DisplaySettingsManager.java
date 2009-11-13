@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ColumnModelEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.DelayedTask;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -85,10 +85,12 @@ public class DisplaySettingsManager
     }
 
     /** last display settings {@link Modification} for columns */
-    private Map<String, Modification> columnModifications = new HashMap<String, Modification>();
+    private final Map<String, Modification> columnModifications =
+            new HashMap<String, Modification>();
 
     /** last display settings {@link Modification} for sections */
-    private Map<String, Modification> sectionModifications = new HashMap<String, Modification>();
+    private final Map<String, Modification> sectionModifications =
+            new HashMap<String, Modification>();
 
     private final DisplaySettings displaySettings;
 
@@ -202,13 +204,13 @@ public class DisplaySettingsManager
                  */
                 private boolean isFakeWidthChangeEvent(ColumnModelEvent event)
                 {
-                    if (event.type == Events.WidthChange)
+                    if (event.getType() == Events.WidthChange)
                     {
                         List<ColumnSetting> colSettings = getColumnSettings(displayTypeID);
-                        if (colSettings != null && colSettings.get(event.colIndex) != null)
+                        if (colSettings != null && colSettings.get(event.getColIndex()) != null)
                         {
-                            int oldWidth = colSettings.get(event.colIndex).getWidth();
-                            int newWidth = event.width;
+                            int oldWidth = colSettings.get(event.getColIndex()).getWidth();
+                            int newWidth = event.getWidth();
                             return oldWidth == newWidth;
                         }
                     }

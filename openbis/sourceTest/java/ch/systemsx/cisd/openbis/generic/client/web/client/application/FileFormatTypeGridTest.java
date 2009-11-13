@@ -16,15 +16,15 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.extjs.gxt.ui.client.Events;
-import com.extjs.gxt.ui.client.event.ToolBarEvent;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolItem;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.TypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.FileFormatTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AddTypeDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractGWTTestCase;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
@@ -70,10 +70,10 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
                 {
                     GWTTestUtil.selectTabItemWithId(MainTabPanel.ID, FileFormatTypeGrid.BROWSER_ID
                             + MainTabPanel.TAB_SUFFIX);
-                    ToolItem toolItem =
-                            (ToolItem) GWTTestUtil
+                    TextToolItem toolItem =
+                            (TextToolItem) GWTTestUtil
                                     .getWidgetWithID(FileFormatTypeGrid.ADD_NEW_TYPE_BUTTON_ID);
-                    toolItem.fireEvent(Events.Select, new ToolBarEvent(toolItem.getToolBar()));
+                    toolItem.fireEvent(Events.Select, new ButtonEvent(toolItem));
                     GWTTestUtil.getTextFieldWithID(AddTypeDialog.CODE_FIELD_ID).setValue("my-type");
                     GWTTestUtil.getTextFieldWithID(AddTypeDialog.DESCRIPTION_FIELD_ID).setValue(
                             "hello");

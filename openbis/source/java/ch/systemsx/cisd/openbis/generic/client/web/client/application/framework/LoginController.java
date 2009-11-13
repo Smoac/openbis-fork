@@ -42,16 +42,14 @@ public final class LoginController extends Controller
     //
 
     @Override
-    public final void handleEvent(final AppEvent<?> event)
+    public final void handleEvent(final AppEvent event)
     {
-        final int type = event.type;
-        switch (type)
+        if (event.getType() == AppEvents.LOGIN)
         {
-            case AppEvents.LOGIN:
-                forwardToView(loginView, event);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknow event '" + event + "'.");
+            forwardToView(loginView, event);
+        } else
+        {
+            throw new IllegalArgumentException("Unknow event '" + event + "'.");
         }
     }
 }

@@ -56,7 +56,7 @@ abstract public class FormPanelListener implements Listener<FormEvent>
 
     public final void handleEvent(final FormEvent be)
     {
-        final String msg = be.resultHtml;
+        final String msg = be.getResultHtml();
         // Was not successful
         if (StringUtils.isBlank(msg) == false)
         {

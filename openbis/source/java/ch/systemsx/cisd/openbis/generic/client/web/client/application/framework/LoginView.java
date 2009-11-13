@@ -59,13 +59,11 @@ public class LoginView extends View
     }
 
     @Override
-    protected final void handleEvent(final AppEvent<?> event)
+    protected final void handleEvent(final AppEvent event)
     {
-        switch (event.type)
+        if (AppEvents.LOGIN == event.getType())
         {
-            case AppEvents.LOGIN:
-                initUI();
-                break;
+            initUI();
         }
     }
 

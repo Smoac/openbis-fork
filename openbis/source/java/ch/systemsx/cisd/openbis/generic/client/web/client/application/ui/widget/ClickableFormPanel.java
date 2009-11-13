@@ -16,54 +16,29 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget;
 
-import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.ClickListener;
-import com.google.gwt.user.client.ui.ClickListenerCollection;
-import com.google.gwt.user.client.ui.SourcesClickEvents;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 
 /**
  * A clickable {@link FormPanel}.
  * 
  * @author Christian Ribeaud
  */
-public final class ClickableFormPanel extends FormPanel implements SourcesClickEvents
+public final class ClickableFormPanel extends FormPanel
 {
+    // FIXME: check clicking on panels
 
-    private final ClickListenerCollection clickListeners = new ClickListenerCollection();
-
-    //
-    // SourcesClickEvents
-    //
-
-    public final void addClickListener(final ClickListener listener)
+    public final void addClickListener(final ClickHandler handler)
     {
-        clickListeners.add(listener);
+        addDomHandler(handler, ClickEvent.getType());
     }
-
-    public final void removeClickListener(final ClickListener listener)
-    {
-        clickListeners.remove(listener);
-    }
-
-    //
-    // FormPanel
-    //
 
     @Override
     protected final void afterRender()
     {
         super.afterRender();
-        sinkEvents(Event.ONCLICK);
-    }
-
-    @Override
-    protected final void onClick(final ComponentEvent ce)
-    {
-        super.onClick(ce);
-        clickListeners.fireClick(this);
     }
 
     /**

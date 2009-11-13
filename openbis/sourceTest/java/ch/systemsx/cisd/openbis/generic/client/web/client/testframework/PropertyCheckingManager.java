@@ -21,20 +21,19 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
-import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 
 /**
  * Manager for checking properties based on {@link IValueAssertion} objects.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class PropertyCheckingManager extends Assert
 {
     @SuppressWarnings("unchecked")
-    private Map<String, IValueAssertion> expectedProperties =
+    private final Map<String, IValueAssertion> expectedProperties =
             new HashMap<String, IValueAssertion>();
 
     /**
@@ -44,19 +43,16 @@ public class PropertyCheckingManager extends Assert
     {
         expectedProperties.put(name, valueAssertion);
     }
-    
+
     /**
      * Checks the assertion for the properties of a {@link PropertyGrid} with specified widget ID.
      */
     public void assertPropertiesOf(final String widgetID)
     {
         final Widget widget = GWTTestUtil.getWidgetWithID(widgetID);
-        assertTrue("Expected WidgetComponent instead of " + widget.getClass(),
-                widget instanceof WidgetComponent);
-        final Widget wrappedWidget = ((WidgetComponent) widget).getWidget();
-        assertTrue("Expected PropertyGrid instead of " + wrappedWidget.getClass(),
-                wrappedWidget instanceof PropertyGrid);
-        assertProperties(((PropertyGrid) wrappedWidget).getProperties());
+        assertTrue("Expected PropertyGrid instead of " + widget.getClass(),
+                widget instanceof PropertyGrid);
+        assertProperties(((PropertyGrid) widget).getProperties());
     }
 
     @SuppressWarnings("unchecked")
@@ -65,7 +61,8 @@ public class PropertyCheckingManager extends Assert
      */
     public void assertProperties(final Map<String, ?> actualProperties)
     {
-        for (final Map.Entry<String, IValueAssertion> expectedProperty : expectedProperties.entrySet())
+        for (final Map.Entry<String, IValueAssertion> expectedProperty : expectedProperties
+                .entrySet())
         {
             final String key = expectedProperty.getKey();
             assertTrue("Expected property not found: " + key, actualProperties.containsKey(key));

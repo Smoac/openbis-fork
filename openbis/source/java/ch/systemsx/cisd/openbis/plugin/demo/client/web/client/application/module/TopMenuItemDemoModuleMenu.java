@@ -80,9 +80,9 @@ public class TopMenuItemDemoModuleMenu extends TopMenuItem
     {
         super(viewContext.getMessage(Dict.MODULE_MENU_TITLE));
 
-        Menu menu = new Menu();
-        menu.add(new ActionMenu(ActionMenuKind.STATISTICS, viewContext,
+        Menu submenu = new Menu();
+        submenu.add(new ActionMenu(ActionMenuKind.STATISTICS, viewContext,
                 new ExperimentStatisticsTabItemFactory(viewContext)));
-        setMenu(menu);
+        setMenu(submenu);
     }
 }

@@ -31,6 +31,7 @@ public class ProjectSelectionSection extends SingleSectionPanel
     {
         super("Project Selection");
         setScrollMode(Scroll.AUTOY);
+        setCollapsible(false);
         add(tree);
     }
 }

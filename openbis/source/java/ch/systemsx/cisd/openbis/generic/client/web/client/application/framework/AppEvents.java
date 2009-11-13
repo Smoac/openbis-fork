@@ -16,7 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
-import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
 import com.google.gwt.user.client.Event;
 
 /**
@@ -37,19 +38,19 @@ public class AppEvents
      * >GWT event constants</a>, <a href="http://extjs.com/deploy/gxtdocs/constant-values.html">GXT
      * event constants</a>
      */
-    private final static int STARTING_VALUE = Events.GXT_MAX_EVENT * 10;
+    private final static int STARTING_VALUE = 10;
 
     // opens the main application window
-    public final static int INIT = STARTING_VALUE + 20;
+    public final static EventType INIT = new EventType(STARTING_VALUE + 20);
 
     // opens the starting page with login window
-    public final static int LOGIN = STARTING_VALUE + 30;
+    public final static EventType LOGIN = new EventType(STARTING_VALUE + 30);
 
     // opens a new tab
-    public static final int NAVI_EVENT = STARTING_VALUE + 40;
+    public static final EventType NAVI_EVENT = new EventType(STARTING_VALUE + 40);
 
     // opens a new browser window with a specified URL
-    public static final int OPEN_URL_EVENT = STARTING_VALUE + 50;
+    public static final EventType OPEN_URL_EVENT = new EventType(STARTING_VALUE + 50);
 
-    public static final int CloseViewer = STARTING_VALUE + 70;
+    public static final EventType CloseViewer = new EventType(STARTING_VALUE + 70);
 }

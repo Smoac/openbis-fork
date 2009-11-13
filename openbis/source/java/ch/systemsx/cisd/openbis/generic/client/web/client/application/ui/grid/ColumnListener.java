@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -31,9 +31,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
  * Listener for a Grid which delegates click on a cell or link in a cell to a registered
  * {@link ICellListener}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
-public final class ColumnListener<T, M extends BaseEntityModel<T>> implements Listener<GridEvent>
+public final class ColumnListener<T, M extends BaseEntityModel<T>> implements
+        Listener<GridEvent<?>>
 {
     private final Map<String, ICellListener<T>> linkListeners =
             new HashMap<String, ICellListener<T>>();
@@ -68,15 +69,16 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements Li
         ICellListener<T> listener = getCellListener(be);
         if (listener != null)
         {
-            ListStore store = be.grid.getStore();
-            listener.handle(((BaseEntityModel<T>) store.getAt(be.rowIndex)).getBaseObject());
+            ListStore store = be.getGrid().getStore();
+            listener.handle(((BaseEntityModel<T>) store.getAt(be.getRowIndex())).getBaseObject());
         }
     }
 
     /** @return appropriate cell or link listener for given <var>event</var> */
-    private ICellListener<T> getCellListener(GridEvent event)
+    private ICellListener<T> getCellListener(GridEvent<?> event)
     {
-        String columnID = grid.getColumnModel().getColumn(event.colIndex).getId().toLowerCase();
+        String columnID =
+                grid.getColumnModel().getColumn(event.getColIndex()).getId().toLowerCase();
 
         return isLinkTarget(event) ? linkListeners.get(columnID) : null;
     }
@@ -84,7 +86,7 @@ public final class ColumnListener<T, M extends BaseEntityModel<T>> implements Li
     private static String LINK_TAG_NAME = "A";
 
     /** @return <code>true</code> if the target element for given <var>event</var> is a link */
-    public static boolean isLinkTarget(GridEvent event)
+    public static boolean isLinkTarget(GridEvent<?> event)
     {
         // check for null needed because of fake events in system tests
         return event.getTarget() != null && event.getTarget().getTagName().equals(LINK_TAG_NAME);

@@ -22,11 +22,8 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.event.ToolBarEvent;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -47,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -73,7 +71,7 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
         return grid.asDisposableWithoutToolbar();
     }
 
-    private IDelegatedAction postRegistrationCallback;
+    private final IDelegatedAction postRegistrationCallback;
 
     private FileFormatTypeGrid(IViewContext<ICommonClientServiceAsync> viewContext)
     {
@@ -90,10 +88,10 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
 
         TextToolItem createItem =
                 new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
-                        new SelectionListener<ToolBarEvent>()
+                        new SelectionListener<ButtonEvent>()
                             {
                                 @Override
-                                public void componentSelected(ToolBarEvent ce)
+                                public void componentSelected(ButtonEvent ce)
                                 {
                                     createRegisterFileTypeDialog().show();
                                 }
@@ -112,11 +110,11 @@ public class FileFormatTypeGrid extends AbstractSimpleBrowserGrid<AbstractType>
                                 }
 
                             });
-        pagingToolbar.add(new AdapterToolItem(editButton));
+        pagingToolbar.add(editButton);
 
         Button deleteButton = createDeleteButton(viewContext);
         enableButtonOnSelectedItems(deleteButton);
-        pagingToolbar.add(new AdapterToolItem(deleteButton));
+        pagingToolbar.add(deleteButton);
 
         addEntityOperationsSeparator();
     }

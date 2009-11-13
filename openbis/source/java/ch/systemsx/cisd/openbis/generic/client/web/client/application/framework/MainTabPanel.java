@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import java.util.HashMap;
 import java.util.Map;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -52,16 +52,17 @@ public class MainTabPanel extends TabPanel
 
     public static final String ID = PREFIX.substring(0, PREFIX.length() - 1);
 
-    private Map<String/* tab id */, MainTabItem> openTabs = new HashMap<String, MainTabItem>();
+    private final Map<String/* tab id */, MainTabItem> openTabs =
+            new HashMap<String, MainTabItem>();
 
     MainTabPanel(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
-        setLayout(new FitLayout());
+        // setLayout(new FitLayout()); - for some reason this results in JavaScriptException:
+        // "com.google.gwt.core.client.JavaScriptException: (TypeError): Result of expression 'c' [null] is not an object."
         setTabScroll(true);
-        add(createWelcomePanel());
         setId(ID);
-
+        add(createWelcomePanel());
     }
 
     private final MainTabItem createWelcomePanel()
@@ -164,7 +165,7 @@ public class MainTabPanel extends TabPanel
                 {
                     public final void handleEvent(final ComponentEvent be)
                     {
-                        if (be.type == AppEvents.CloseViewer)
+                        if (be.getType() == AppEvents.CloseViewer)
                         {
                             MainTabItem.this.close();
                         }
@@ -178,7 +179,7 @@ public class MainTabPanel extends TabPanel
                 {
                     public final void handleEvent(final TabPanelEvent be)
                     {
-                        if (be.type == Events.Close)
+                        if (be.getType().equals(Events.Close))
                         {
                             cleanup();
                         }
@@ -192,7 +193,7 @@ public class MainTabPanel extends TabPanel
                 {
                     public final void handleEvent(final TabPanelEvent be)
                     {
-                        if (be.type == Events.Select)
+                        if (be.getType().equals(Events.Select))
                         {
                             tabItem.onActivate();
                         }
@@ -206,7 +207,7 @@ public class MainTabPanel extends TabPanel
                 {
                     public void handleEvent(final TabPanelEvent be)
                     {
-                        be.doit = false;
+                        be.setCancelled(true);
                         new ConfirmationDialog(viewContext.getMessage(Dict.CONFIRM_TITLE),
                                 viewContext.getMessage(Dict.CONFIRM_CLOSE_MSG))
                             {

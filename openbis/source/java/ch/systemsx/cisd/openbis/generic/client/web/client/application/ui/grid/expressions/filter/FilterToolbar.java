@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -17,9 +18,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TriggerField;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -33,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Te
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ColumnDistinctValues;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.CustomFilterInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridColumnFilterInfo;
@@ -79,9 +79,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 new FilterSelectionWidget(viewContext, gridId, displayTypeIDProvider);
         filterContainer = new LayoutContainer(new FillLayout(Orientation.HORIZONTAL));
         filterContainer.setLayoutOnChange(true); // fixes jumping filter fields in firefox
-        AdapterToolItem filterTool = new AdapterToolItem(filterSelectionWidget);
-        add(filterTool);
-        add(new AdapterToolItem(filterContainer));
+        add(filterSelectionWidget);
+        add(filterContainer);
         applyTool = new TextToolItem(messageProvider.getMessage(Dict.APPLY_FILTER));
         applyTool.setId(createId(APPLY_ID, gridId));
         applyTool.setEnabled(false);
@@ -91,16 +90,17 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         resetTool.setId(createId(RESET_ID, gridId));
         add(resetTool);
 
-        filterSelectionWidget.addSelectionChangedListener(new SelectionChangedListener<ModelData>()
-            {
-                @Override
-                public void selectionChanged(SelectionChangedEvent<ModelData> se)
-                {
-                    updateFilterFields();
-                    apply();
-                }
+        filterSelectionWidget
+                .addSelectionChangedListener(new SelectionChangedListener<FilterModel>()
+                    {
+                        @Override
+                        public void selectionChanged(SelectionChangedEvent<FilterModel> se)
+                        {
+                            updateFilterFields();
+                            apply();
+                        }
 
-            });
+                    });
         filterSelectionWidget.addPostRefreshCallback(new IDataRefreshCallback()
             {
                 public void postRefresh(boolean wasSuccessful)
@@ -109,18 +109,18 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                     apply();
                 }
             });
-        applyTool.addSelectionListener(new SelectionListener<ComponentEvent>()
+        applyTool.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public void componentSelected(ButtonEvent ce)
                 {
                     apply();
                 }
             });
-        resetTool.addSelectionListener(new SelectionListener<ComponentEvent>()
+        resetTool.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
-                public void componentSelected(ComponentEvent ce)
+                public void componentSelected(ButtonEvent ce)
                 {
                     resetFilterFields();
                     apply();

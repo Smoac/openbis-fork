@@ -21,12 +21,9 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.event.ToolBarEvent;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.TextToolItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -44,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -85,10 +83,10 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
 
         final EntityKind entityKind = getEntityKind();
         pagingToolbar.add(new TextToolItem(viewContext.getMessage(Dict.ADD_NEW_TYPE_BUTTON),
-                new SelectionListener<ToolBarEvent>()
+                new SelectionListener<ButtonEvent>()
                     {
                         @Override
-                        public void componentSelected(ToolBarEvent ce)
+                        public void componentSelected(ButtonEvent ce)
                         {
                             createRegisterEntityTypeDialog(entityKind).show();
                         }
@@ -108,10 +106,10 @@ abstract public class AbstractEntityTypeGrid<T extends EntityType> extends
                                 }
 
                             });
-        pagingToolbar.add(new AdapterToolItem(editButton));
+        pagingToolbar.add(editButton);
         Button deleteButton = createDeleteButton(viewContext);
         enableButtonOnSelectedItems(deleteButton);
-        pagingToolbar.add(new AdapterToolItem(deleteButton));
+        pagingToolbar.add(deleteButton);
 
         addEntityOperationsSeparator();
     }

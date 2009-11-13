@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.D
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.AbstractVocabularyRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularySelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -47,9 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
- * A {@link LayoutContainer} extension for registering a new property type. It also extends
- * {@link AbstractVocabularyRegistrationForm} because vocabulary registration is possible through
- * this form too.
+ * A {@link LayoutContainer} extension for registering a new property type.
  * 
  * @author Christian Ribeaud
  * @author Piotr Buczek

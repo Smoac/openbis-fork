@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.form.TextArea;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -20,11 +20,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
  * 
  * @author Christian Ribeaud
  */
-final class VocabularyTermValidator implements Validator<String, TextArea>
+final class VocabularyTermValidator implements Validator
 {
     private final IMessageProvider messageProvider;
 
-    private Set<String> existingTerms;
+    private final Set<String> existingTerms;
 
     VocabularyTermValidator(final IMessageProvider messageProvider)
     {
@@ -59,11 +59,7 @@ final class VocabularyTermValidator implements Validator<String, TextArea>
         return terms;
     }
 
-    //
-    // Validator
-    //
-
-    public final String validate(final TextArea field, final String value)
+    final public String validate(Field<?> field, String value)
     {
         final List<String> terms = VocabularyTermValidator.getTerms(value);
         if (terms.size() == 0)

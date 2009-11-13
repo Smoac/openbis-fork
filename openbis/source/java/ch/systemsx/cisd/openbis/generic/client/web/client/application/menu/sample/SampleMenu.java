@@ -38,18 +38,18 @@ public class SampleMenu extends TopMenuItem
         super(messageProvider.getMessage(Dict.MENU_SAMPLE));
 
         setId(TopMenu.ID + "_SAMPLE");
-        Menu menu = new Menu();
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_SEARCH, messageProvider,
+        Menu submenu = new Menu();
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_SEARCH, messageProvider,
                 componentProvider.getSampleSearch()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE, messageProvider,
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_BROWSE, messageProvider,
                 componentProvider.getSampleBrowser()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_NEW, messageProvider,
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_NEW, messageProvider,
                 componentProvider.getSampleRegistration()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_IMPORT, messageProvider,
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_IMPORT, messageProvider,
                 componentProvider.getSampleBatchRegistration()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_TYPES, messageProvider,
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_TYPES, messageProvider,
                 componentProvider.getSampleTypeBrowser()));
-        setMenu(menu);
+        setMenu(submenu);
     }
 
 }

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -36,10 +35,9 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -47,7 +45,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -58,7 +55,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -174,7 +171,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // set to true to see some useful debugging messages
     private static final boolean DEBUG = false;
 
-    private final PagingLoader<PagingLoadConfig> pagingLoader;
+    private final PagingLoader<PagingLoadResult<M>> pagingLoader;
 
     private final ContentPanel contentPanel;
 
@@ -306,12 +303,15 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
      */
     public void setLoadMaskImmediately(boolean loadMask)
     {
-        if (loadMask)
+        if (grid.isRendered())
         {
-            grid.el().mask(GXT.MESSAGES.loadMask_msg());
-        } else
-        {
-            grid.el().unmask();
+            if (loadMask)
+            {
+                grid.el().mask(GXT.MESSAGES.loadMask_msg());
+            } else
+            {
+                grid.el().unmask();
+            }
         }
 
     }
@@ -461,20 +461,19 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
     }
 
-    private PagingLoader<PagingLoadConfig> createPagingLoader()
+    private PagingLoader<PagingLoadResult<M>> createPagingLoader()
     {
-        final RpcProxy<PagingLoadConfig, PagingLoadResult<M>> proxy =
-                new RpcProxy<PagingLoadConfig, PagingLoadResult<M>>()
-                    {
-                        @Override
-                        public final void load(final PagingLoadConfig loadConfig,
-                                final AsyncCallback<PagingLoadResult<M>> callback)
-                        {
-                            loadData(loadConfig, callback);
-                        }
-                    };
-        final BasePagingLoader<PagingLoadConfig, PagingLoadResult<M>> newPagingLoader =
-                new BasePagingLoader<PagingLoadConfig, PagingLoadResult<M>>(proxy);
+        final RpcProxy<PagingLoadResult<M>> proxy = new RpcProxy<PagingLoadResult<M>>()
+            {
+
+                @Override
+                protected void load(Object loadConfig, AsyncCallback<PagingLoadResult<M>> callback)
+                {
+                    loadData((PagingLoadConfig) loadConfig, callback);
+                }
+            };
+        final BasePagingLoader<PagingLoadResult<M>> newPagingLoader =
+                new BasePagingLoader<PagingLoadResult<M>>(proxy);
         newPagingLoader.setRemoteSort(true);
         return newPagingLoader;
     }
@@ -774,11 +773,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 }
             });
         button.setEnabled(false);
-        addGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
+        addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
             {
-                public void handleEvent(SelectionEvent<ModelData> se)
+                public void handleEvent(SelectionChangedEvent<ModelData> se)
                 {
-                    boolean enabled = se.selection.size() == 1;
+                    boolean enabled = getSelectedItems().size() == 1;
                     button.setEnabled(enabled);
                 }
 
@@ -802,7 +801,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     /** adds given <var>button</var> to grid {@link PagingToolBar} */
     protected final void addButton(Button button)
     {
-        pagingToolbar.add(new AdapterToolItem(button));
+        pagingToolbar.add(button);
     }
 
     /**
@@ -811,11 +810,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected final void enableButtonOnSelectedItems(final Button button)
     {
         button.setEnabled(false);
-        addGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
+        addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
             {
-                public void handleEvent(SelectionEvent<ModelData> se)
+                public void handleEvent(SelectionChangedEvent<ModelData> se)
                 {
-                    boolean enabled = se.selection.size() > 0;
+                    boolean enabled = getSelectedItems().size() > 0;
                     button.setEnabled(enabled);
                 }
 
@@ -829,18 +828,18 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected final void changeButtonTitleOnSelectedItems(final Button button,
             final String noSelectedItemsTitle, final String selectedItemsTitle)
     {
-        addGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
+        addGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
             {
-                public void handleEvent(SelectionEvent<ModelData> se)
+                public void handleEvent(SelectionChangedEvent<ModelData> se)
                 {
-                    boolean noSelected = se.selection.size() == 0;
+                    boolean noSelected = getSelectedItems().size() == 0;
                     button.setText(noSelected ? noSelectedItemsTitle : selectedItemsTitle);
                 }
 
             });
     }
 
-    private void addGridSelectionChangeListener(Listener<SelectionEvent<ModelData>> listener)
+    private void addGridSelectionChangeListener(Listener<SelectionChangedEvent<ModelData>> listener)
     {
         grid.getSelectionModel().addListener(Events.SelectionChange, listener);
     }
@@ -878,12 +877,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             };
     }
 
-    protected final <D extends ModelData> SelectionChangedListener<D> createGridRefreshListener()
+    protected final IDelegatedAction createGridRefreshDelegatedAction()
     {
-        return new SelectionChangedListener<D>()
+        return new IDelegatedAction()
             {
-                @Override
-                public void selectionChanged(SelectionChangedEvent<D> se)
+                public void execute()
                 {
                     pagingToolbar.disableExportButton();
                     pagingToolbar.updateDefaultConfigButton(false);
@@ -927,7 +925,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             recreateColumnModelAndRefreshColumnsWithFilters();
         }
         reloadData(createDisposeAndRefreshFetchMode());
-        refreshColumnHeaderWidths();
     }
 
     private ResultSetFetchConfig<String> createDisposeAndRefreshFetchMode()
@@ -938,17 +935,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         } else
         {
             return ResultSetFetchConfig.createComputeAndCache();
-        }
-    }
-
-    private void refreshColumnHeaderWidths()
-    {
-        // Workaround for the problem of incorrect column header widths if column header is very
-        // long
-        ColumnModel columnModel = grid.getColumnModel();
-        if (columnModel.getColumnCount() > 0)
-        {
-            columnModel.setColumnWidth(0, columnModel.getColumnWidth(0));
         }
     }
 
@@ -1002,13 +988,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
         changeColumnModel(newColumnModel);
 
-        refreshColumnHeaderWidths();
         hideLoadingMask();
     }
 
     private void hideLoadingMask()
     {
-        if (grid.el() != null)
+        if (grid.isRendered() && grid.el() != null)
         {
             grid.el().unmask();
         }
@@ -1245,7 +1230,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
                                 // settings will be automatically stored because of event handling
                                 refreshColumnsSettings();
-                                refreshColumnHeaderWidths();
                                 filterToolbar.refresh();
                             }
                         }
@@ -1445,11 +1429,23 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     }
 
     private static <T extends ModelData> Grid<T> createGrid(
-            PagingLoader<PagingLoadConfig> dataLoader, String gridId)
+            PagingLoader<PagingLoadResult<T>> dataLoader, String gridId)
     {
         ListStore<T> listStore = new ListStore<T>(dataLoader);
         ColumnModel columnModel = createColumnModel(new ArrayList<ColumnConfig>());
-        Grid<T> grid = new Grid<T>(listStore, columnModel);
+        final Grid<T> grid = new Grid<T>(listStore, columnModel)
+            {
+                // Fixes the problem with mask appearing during window resize
+                @Override
+                protected void onResize(int w, int h)
+                {
+                    super.onResize(w, h);
+                    if (isLoadMask())
+                    {
+                        unmask();
+                    }
+                }
+            };
         grid.setId(gridId);
         grid.setLoadMask(true);
         grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
@@ -1603,4 +1599,5 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     .getTotalCount()).show();
         }
     }
+
 }

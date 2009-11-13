@@ -27,8 +27,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.event.ColumnModelEvent;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 
@@ -236,7 +237,7 @@ public class DisplaySettingsManagerTest extends AssertJUnit
         testUpdateAfterEvent(Events.WidthChange);
     }
 
-    private void testUpdateAfterEvent(int eventType)
+    private void testUpdateAfterEvent(EventType eventType)
     {
         ColumnConfig column1 = createColumnConfig("c1", false, 42);
         ColumnConfig column2 = createColumnConfig("c2", true, 4711);

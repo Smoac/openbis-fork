@@ -17,10 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
@@ -144,7 +144,7 @@ public class LoginWidget extends VerticalPanel
     {
         final Button b = new Button(viewContext.getMessage(Dict.LOGIN_BUTTON_LABEL));
         b.setId(BUTTON_ID);
-        b.addSelectionListener(new SelectionListener<ComponentEvent>()
+        b.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 
                 //
@@ -152,7 +152,7 @@ public class LoginWidget extends VerticalPanel
                 //
 
                 @Override
-                public final void componentSelected(final ComponentEvent ce)
+                public final void componentSelected(final ButtonEvent ce)
                 {
                     doLogin(viewContext);
                 }
@@ -219,14 +219,14 @@ public class LoginWidget extends VerticalPanel
             if (sessionContext == null)
             {
                 MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING), viewContext
-                        .getMessage(Dict.LOGIN_FAILED), new Listener<WindowEvent>()
+                        .getMessage(Dict.LOGIN_FAILED), new Listener<MessageBoxEvent>()
                     {
 
                         //
                         // Listener
                         //
 
-                        public void handleEvent(final WindowEvent be)
+                        public void handleEvent(final MessageBoxEvent be)
                         {
                             viewContext.getPageController().reload(false);
                         }

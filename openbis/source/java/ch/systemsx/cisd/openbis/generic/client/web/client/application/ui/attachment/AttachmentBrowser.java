@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -403,29 +403,30 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                     new CellSelectionModel<AttachmentVersionModel>();
             attachmentGrid.setSelectionModel(selectionModel);
             selectionModel.bindGrid(attachmentGrid);
-            attachmentGrid.addListener(Events.CellClick, new Listener<GridEvent>()
-                {
-                    public void handleEvent(final GridEvent be)
-                    {
-                        if (ColumnListener.isLinkTarget(be))
+            attachmentGrid.addListener(Events.CellClick,
+                    new Listener<GridEvent<AttachmentVersionModel>>()
                         {
-                            String column =
-                                    attachmentGrid.getColumnModel().getColumn(be.colIndex).getId();
-                            if (AttachmentVersionModel.VERSION_FILE_NAME.equals(column))
+                            public void handleEvent(final GridEvent<AttachmentVersionModel> be)
                             {
-                                final AttachmentVersionModel selectedItem =
-                                        (AttachmentVersionModel) be.grid.getStore().getAt(
-                                                be.rowIndex);
-                                Attachment selectedAttachment =
-                                        (Attachment) selectedItem
-                                                .get(ModelDataPropertyNames.OBJECT);
-                                int version = selectedAttachment.getVersion();
-                                downloadAttachment(fileName, version, attachmentHolder);
+                                if (ColumnListener.isLinkTarget(be))
+                                {
+                                    String column =
+                                            attachmentGrid.getColumnModel().getColumn(
+                                                    be.getColIndex()).getId();
+                                    if (AttachmentVersionModel.VERSION_FILE_NAME.equals(column))
+                                    {
+                                        final AttachmentVersionModel selectedItem =
+                                                be.getGrid().getStore().getAt(be.getRowIndex());
+                                        Attachment selectedAttachment =
+                                                (Attachment) selectedItem
+                                                        .get(ModelDataPropertyNames.OBJECT);
+                                        int version = selectedAttachment.getVersion();
+                                        downloadAttachment(fileName, version, attachmentHolder);
+                                    }
+                                    attachmentGrid.getSelectionModel().deselectAll();
+                                }
                             }
-                            attachmentGrid.getSelectionModel().deselectAll();
-                        }
-                    }
-                });
+                        });
             panel.setId(createTabId());
             panel.add(attachmentGrid);
             return panel;
@@ -463,9 +464,10 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
             column.setRenderer(new GridCellRenderer<AttachmentVersionModel>()
                 {
 
-                    public String render(final AttachmentVersionModel model, final String property,
-                            final ColumnData config, final int rowIndex, final int colIndex,
-                            final ListStore<AttachmentVersionModel> store)
+                    public Object render(AttachmentVersionModel model, String property,
+                            ColumnData config, int rowIndex, int colIndex,
+                            ListStore<AttachmentVersionModel> store,
+                            Grid<AttachmentVersionModel> grid)
                     {
                         Object value = model.get(property);
                         if (value == null)

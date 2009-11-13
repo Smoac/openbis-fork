@@ -19,12 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -125,8 +126,15 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
                 CommonVocabularyRegistrationAndEditionFieldsFactory
                         .createChosenFromListCheckbox(messageProvider);
         checkBox.setId(idPrefix + "_chosen-from-list");
-        checkBox.setValue(true);
+        setValueWithoutEvents(checkBox, true);
         return checkBox;
+    }
+
+    private static <D> void setValueWithoutEvents(Field<D> field, D value)
+    {
+        field.enableEvents(false);
+        field.setValue(value);
+        field.enableEvents(true);
     }
 
     public final NewVocabulary createVocabulary()
@@ -211,7 +219,7 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
                                     protected void onNo()
                                     {
                                         // revert value to false
-                                        result.setValue(false);
+                                        setValueWithoutEvents(result, false);
                                     }
                                 }.show();
                         }
@@ -293,22 +301,21 @@ public final class VocabularyRegistrationFieldSet extends FieldSet
             final RadioGroup result = new RadioGroup();
             result.setSelectionRequired(true);
             result.setOrientation(Orientation.HORIZONTAL);
+            freeText = createRadio("specify the list of terms");
+            fromFile = createRadio("load terms from a file");
+            result.add(freeText);
+            result.add(fromFile);
+            setValueWithoutEvents(result, freeText);
+            result.setLabelSeparator("");
             result.addListener(Events.Change, new Listener<BaseEvent>()
                 {
                     public void handleEvent(BaseEvent be)
                     {
                         Boolean useFreeText = freeText.getValue();
-                        chosenFromListCheckbox.setValue(useFreeText);
+                        setValueWithoutEvents(chosenFromListCheckbox, useFreeText);
                         updateSection();
                     }
                 });
-
-            freeText = createRadio("specify the list of terms");
-            fromFile = createRadio("load terms from a file");
-            result.add(freeText);
-            result.add(fromFile);
-            result.setValue(freeText);
-            result.setLabelSeparator("");
             return result;
         }
 

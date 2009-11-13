@@ -36,14 +36,14 @@ public class ExperimentMenu extends TopMenuItem
     {
         super(messageProvider.getMessage(Dict.MENU_EXPERIMENT));
 
-        Menu menu = new Menu();
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_BROWSE, messageProvider,
+        Menu submenu = new Menu();
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_BROWSE, messageProvider,
                 componentProvider.getExperimentBrowser()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_NEW, messageProvider,
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_NEW, messageProvider,
                 componentProvider.getExperimentRegistration()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_TYPES, messageProvider,
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.EXPERIMENT_MENU_TYPES, messageProvider,
                 componentProvider.getExperimentTypeBrowser()));
-        setMenu(menu);
+        setMenu(submenu);
     }
 
 }

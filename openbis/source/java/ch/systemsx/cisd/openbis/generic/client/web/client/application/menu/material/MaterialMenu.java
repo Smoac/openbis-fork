@@ -37,14 +37,14 @@ public class MaterialMenu extends TopMenuItem
     {
         super(messageProvider.getMessage(Dict.MENU_MATERIAL));
 
-        Menu menu = new Menu();
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_BROWSE, messageProvider,
+        Menu submenu = new Menu();
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_BROWSE, messageProvider,
                 componentProvider.getMaterialBrowser()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_IMPORT, messageProvider,
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_IMPORT, messageProvider,
                 componentProvider.getMaterialBatchRegistration()));
-        menu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_TYPES, messageProvider,
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.MATERIAL_MENU_TYPES, messageProvider,
                 componentProvider.getMaterialTypeBrowser()));
-        setMenu(menu);
+        setMenu(submenu);
     }
 
 }
