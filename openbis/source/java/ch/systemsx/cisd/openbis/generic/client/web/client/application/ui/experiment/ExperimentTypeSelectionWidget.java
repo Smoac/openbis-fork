@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
+
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -88,7 +91,10 @@ public final class ExperimentTypeSelectionWidget extends
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return DatabaseModificationKind.any(ObjectKind.EXPERIMENT_TYPE);
+        return new DatabaseModificationKind[]
+            { createOrDelete(ObjectKind.EXPERIMENT_TYPE), edit(ObjectKind.EXPERIMENT_TYPE),
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
 }

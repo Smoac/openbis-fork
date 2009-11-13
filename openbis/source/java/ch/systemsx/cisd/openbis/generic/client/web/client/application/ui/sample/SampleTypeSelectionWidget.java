@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
+
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -110,6 +113,9 @@ public final class SampleTypeSelectionWidget extends DropDownList<SampleTypeMode
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return DatabaseModificationKind.any(ObjectKind.SAMPLE_TYPE);
+        return new DatabaseModificationKind[]
+            { createOrDelete(ObjectKind.SAMPLE_TYPE), edit(ObjectKind.SAMPLE_TYPE),
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 }

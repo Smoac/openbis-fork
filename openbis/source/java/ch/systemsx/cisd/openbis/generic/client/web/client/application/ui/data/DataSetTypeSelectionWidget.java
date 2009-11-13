@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
+
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -77,6 +80,9 @@ public final class DataSetTypeSelectionWidget extends DropDownList<DataSetTypeMo
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return DatabaseModificationKind.any(ObjectKind.DATASET_TYPE);
+        return new DatabaseModificationKind[]
+            { createOrDelete(ObjectKind.DATASET_TYPE), edit(ObjectKind.DATASET_TYPE),
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 }

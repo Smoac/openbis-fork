@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
+
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -130,6 +133,9 @@ public final class MaterialTypeSelectionWidget extends
 
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        return DatabaseModificationKind.any(ObjectKind.MATERIAL_TYPE);
+        return new DatabaseModificationKind[]
+            { createOrDelete(ObjectKind.MATERIAL_TYPE), edit(ObjectKind.MATERIAL_TYPE),
+                    createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 }
