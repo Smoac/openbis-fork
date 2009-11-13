@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.proper
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.CISDBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
@@ -52,7 +52,7 @@ public final class EntityTypePropertyTypeSelectionWidget
 
     private static final String SUFFIX = "entity-type-property-type";
 
-    static class EntityTypePropertyTypeComboModel extends BaseModelData
+    static class EntityTypePropertyTypeComboModel extends CISDBaseModelData
     {
         private static final long serialVersionUID = 1L;
 

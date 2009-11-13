@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.e
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.CISDBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.TooltipRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
  * 
  * @author Izabela Adamczyk
  */
-public class FilterModel extends BaseModelData
+public class FilterModel extends CISDBaseModelData
 {
     public static FilterModel COLUMN_FILTER_MODEL = createColumnFilter();
 

@@ -1,13 +1,13 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.CISDBaseModelData;
 
 /**
  * Represents a column of the table.
  * 
  * @author Izabela Adamczyk
  */
-public class ColumnDataModel extends BaseModelData
+public class ColumnDataModel extends CISDBaseModelData
 {
 
     private static final long serialVersionUID = 1L;
