@@ -312,7 +312,7 @@ public class ProteinViewer extends
         return observer;
     }
 
-    public static final class ProteinByExperimentCallback extends
+    private static final class ProteinByExperimentCallback extends
             AbstractAsyncCallback<ProteinByExperiment>
     {
         private final ProteinViewer viewer;
