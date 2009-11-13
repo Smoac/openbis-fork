@@ -191,8 +191,8 @@ public final class Session
         // On CRC32 checksum mismatch, immediately bail out.
         if (fileDTO.getCrc32Value() != runningCrc32Value)
         {
-            throw new CRCCheckumMismatchException(fileDTO.getName(), fileDTO.getCrc32Value(),
-                    runningCrc32Value);
+            throw new CRCCheckumMismatchException(fileDTO.getName(), fileDTO.getSize(), fileDTO
+                    .getCrc32Value(), runningCrc32Value);
         }
         if (fileDTO.getSize() > fileDTO.getCompleteSize())
         {

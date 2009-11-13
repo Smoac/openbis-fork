@@ -34,6 +34,13 @@ public class CRCCheckumMismatchException extends EnvironmentFailureException
         super(String.format(
                 "CRC32 checksum mismatch: File '%s' has CRC32 checksum %x (expected: %x).",
                 fileName, crc32Value, crc32ValueExpected));
+    }
 
+    public CRCCheckumMismatchException(final String fileName, final long filePosition,
+            final int crc32Value, final int crc32ValueExpected)
+    {
+        super(String.format(
+                "CRC32 checksum mismatch: Block %d of file '%s' has CRC32 checksum %x (expected: %x).",
+                filePosition, fileName, crc32Value, crc32ValueExpected));
     }
 }
