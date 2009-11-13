@@ -60,7 +60,7 @@
 				<include name="**/*.xml" />
 				<include name="**/*.xsd" />
 			</fileset>
-			<zipfileset src="${lib}/gwt1.5/gwt-user.jar"
+			<zipfileset src="${lib}/gwt1.7/gwt-user.jar"
 			            includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
 		</jar>
 	</target>

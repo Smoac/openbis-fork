@@ -93,11 +93,11 @@ public class QueryMenu extends TopMenuItem
         super(viewContext.getMessage(Dict.QUERY_MENU_TITLE));
         setIconStyle(TopMenuItem.ICON_STYLE);
         
-        Menu menu = new Menu();
+        Menu submenu = new Menu();
         for (ActionMenuKind actionMenuKind : ActionMenuKind.values())
         {
-            menu.add(actionMenuKind.createActionMenu(viewContext));
+            submenu.add(actionMenuKind.createActionMenu(viewContext));
         }
-        setMenu(menu);
+        setMenu(submenu);
     }
 }
