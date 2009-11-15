@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -33,6 +32,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.CISDBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
@@ -92,7 +92,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
     }
 
-    private abstract static class SimpleModel<T> extends BaseModelData
+    private abstract static class SimpleModel<T> extends CISDBaseModelData
     {
         private static final long serialVersionUID = 1L;
 
