@@ -777,7 +777,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void handleEvent(SelectionChangedEvent<ModelData> se)
                 {
-                    boolean enabled = getSelectedItems().size() == 1;
+                    boolean enabled = se.getSelection().size() == 1;
                     button.setEnabled(enabled);
                 }
 
@@ -814,7 +814,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void handleEvent(SelectionChangedEvent<ModelData> se)
                 {
-                    boolean enabled = getSelectedItems().size() > 0;
+                    boolean enabled = se.getSelection().size() > 0;
                     button.setEnabled(enabled);
                 }
 
@@ -832,7 +832,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void handleEvent(SelectionChangedEvent<ModelData> se)
                 {
-                    boolean noSelected = getSelectedItems().size() == 0;
+                    boolean noSelected = se.getSelection().size() == 0;
                     button.setText(noSelected ? noSelectedItemsTitle : selectedItemsTitle);
                 }
 

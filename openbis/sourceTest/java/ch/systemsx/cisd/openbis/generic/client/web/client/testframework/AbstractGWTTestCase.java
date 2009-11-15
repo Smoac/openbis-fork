@@ -84,12 +84,26 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     @Override
     protected final void gwtSetUp() throws Exception
     {
-        System.out.println("TEST: " + getName() + " (started at " + new Date() + ")");
+        outputStartMessage();
         remoteConsole = new RemoteConsole(this);
         clearControllers();
         client = new Client();
         GWTUtils.testing();
         setUpTest();
+    }
+
+    private void outputStartMessage()
+    {
+        String msg = "--< TEST: " + getName() + " (started at " + new Date() + ") >--";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < msg.length(); i++)
+        {
+            sb.append("-");
+        }
+        String lineSeparator = sb.toString();
+        System.out.println(lineSeparator);
+        System.out.println(msg);
+        System.out.println(lineSeparator);
     }
 
     /**

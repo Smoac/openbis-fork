@@ -129,7 +129,7 @@ public class RemoteConsole
         private final void executeCommand()
         {
             final ITestCommand testCommand = commands.get(entryIndex++);
-            System.out.println("EXECUTE: " + testCommand);
+            System.out.println("--> EXECUTE: " + testCommand);
             testCommand.execute();
             if (entryIndex == commands.size())
             {
@@ -148,10 +148,14 @@ public class RemoteConsole
             if (entryIndex < commands.size())
             {
                 ITestCommand cmd = commands.get(entryIndex);
-                if (cmd.isValidOnSucess(result) && areAllCallbacksFinished())
+                // Sometimes there are no callbacks activated between execution of two commands.
+                // We invoke them one after another in a while loop.
+                while (cmd.isValidOnSucess(result) && areAllCallbacksFinished())
                 {
-                    executeCommand();
-                    return;
+                    while (areAllCallbacksFinished())
+                    {
+                        executeCommand();
+                    }
                 }
             }
         }
