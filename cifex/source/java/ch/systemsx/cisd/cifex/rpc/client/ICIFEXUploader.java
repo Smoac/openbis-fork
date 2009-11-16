@@ -23,10 +23,10 @@ import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
 
 /**
  * Interface for uploading operations in CIFEX.
- *
+ * 
  * @author Bernd Rinn
  */
-public interface ICIFEXUploader extends IProgressListenerHolder
+public interface ICIFEXUploader extends ICIFEXOperation
 {
 
     /**
@@ -35,26 +35,13 @@ public interface ICIFEXUploader extends IProgressListenerHolder
     public void addProgressListener(final IUploadProgressListener uploadListener);
 
     /**
-     * Returns <code>true</code> if this uploader is still working.
-     */
-    public boolean isUploading();
-
-    /**
      * Uploads the specified files for the specified recipients.
      * 
-     * @param recipients Comma or space-separated list of e-mail addresses or user ID's in the form
-     *            <code>id:<i>user ID</i></code>. Can be an empty string.
+     * @param recipientsOrNull Comma or space-separated list of e-mail addresses or user ID's in the
+     *            form <code>id:<i>user ID</i></code>. If it is null or an empty string, the files
+     *            will not be shared with any user.
      * @param comment Optional comment added to the outgoing e-mails. Can be an empty string.
      */
-    public void upload(List<File> files, String recipients, String comment);
+    public void upload(List<File> files, String recipientsOrNull, String comment);
 
-    /**
-     * Cancels uploading.
-     */
-    public void cancel();
-
-    /**
-     * Logout from session.
-     */
-    public void logout();
 }

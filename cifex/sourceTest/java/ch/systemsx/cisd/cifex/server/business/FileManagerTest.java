@@ -200,7 +200,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final UserDTO user = new UserDTO();
         user.setID(userId);
         final FileDTO file = new FileDTO(userId);
-        assertTrue(fileManager.isAllowedDeletion(user, file));
+        assertTrue(fileManager.isControlling(user, file));
         assertTrue(fileManager.isAllowedAccess(user, file));
     }
 
@@ -213,7 +213,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         admin.setID(adminId);
         admin.setAdmin(true);
         final FileDTO file = new FileDTO(userId);
-        assertTrue(fileManager.isAllowedDeletion(admin, file));
+        assertTrue(fileManager.isControlling(admin, file));
         assertTrue(fileManager.isAllowedAccess(admin, file));
     }
 
@@ -226,7 +226,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         sharingUser.setID(sharingUserId);
         final FileDTO file = new FileDTO(registratorIdId);
         file.setSharingUsers(Arrays.asList(sharingUser));
-        assertFalse(fileManager.isAllowedDeletion(sharingUser, file));
+        assertFalse(fileManager.isControlling(sharingUser, file));
         assertTrue(fileManager.isAllowedAccess(sharingUser, file));
     }
 
@@ -238,7 +238,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final UserDTO sharingUser = new UserDTO();
         sharingUser.setID(sharingUserId);
         final FileDTO file = new FileDTO(registratorIdId);
-        assertFalse(fileManager.isAllowedDeletion(sharingUser, file));
+        assertFalse(fileManager.isControlling(sharingUser, file));
         assertFalse(fileManager.isAllowedAccess(sharingUser, file));
     }
 

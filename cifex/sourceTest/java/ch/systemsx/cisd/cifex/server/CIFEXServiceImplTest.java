@@ -567,7 +567,7 @@ public class CIFEXServiceImplTest
                     one(fileManager).getFileInformationFilestoreUnimportant(fileID);
                     will(returnValue(fileInformation));
 
-                    one(fileManager).isAllowedDeletion(userDTO, fileDTO);
+                    one(fileManager).isControlling(userDTO, fileDTO);
                     will(returnValue(true));
 
                     one(fileManager).deleteFile(fileDTO);

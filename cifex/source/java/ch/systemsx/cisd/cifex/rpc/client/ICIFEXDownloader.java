@@ -23,7 +23,7 @@ import java.io.File;
  * 
  * @author Bernd Rinn
  */
-public interface ICIFEXDownloader extends IProgressListenerHolder
+public interface ICIFEXDownloader extends ICIFEXOperation
 {
 
     /**

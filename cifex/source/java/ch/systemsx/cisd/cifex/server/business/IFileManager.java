@@ -41,8 +41,8 @@ public interface IFileManager
     /**
      * Returns the file DTO for given <var>fileId</var>.
      * 
-     * @return The file DTO, or <code>null</code>, if no file object exists in the database or in
-     *         the file store for this <var>fileId</var>.
+     * @return The file DTO, or an information object containing an error message if no file object
+     *         exists in the database or in the file store for this <var>fileId</var>.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public FileInformation getFileInformation(final long fileId);
@@ -51,8 +51,8 @@ public interface IFileManager
      * Returns the file DTO for given <var>fileId</var> even if the file does not exist in the file
      * store.
      * 
-     * @return The file DTO, or <code>null</code>, if no file object exists in the database for this
-     *         <var>fileId</var>.
+     * @return The file DTO, or an information object containing an error message if no file object
+     *         exists in the database or in the file store for this <var>fileId</var>.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public FileInformation getFileInformationFilestoreUnimportant(final long fileId);
@@ -65,11 +65,11 @@ public interface IFileManager
     public boolean isAllowedAccess(final UserDTO userDTO, final FileDTO fileDTO);
 
     /**
-     * Returns <code>true</code>, if the user given by <var>userDTO</var> is allowed to delete file
+     * Returns <code>true</code>, if the user given by <var>userDTO</var> is in control of file
      * <var>fileDTO</var>.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
-    public boolean isAllowedDeletion(final UserDTO userDTO, final FileDTO fileDTO);
+    public boolean isControlling(final UserDTO userDTO, final FileDTO fileDTO);
 
     /** Returns all files */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
@@ -120,8 +120,8 @@ public interface IFileManager
             int crc32Value, String[] recipients, String url);
 
     /**
-     * Updates the file in the database specified by <var>fileDTO.getID()</var> regarding 
-     * size (<var>fileDTO.getSize()</var>) and CRC32 checksum (<var>fileDTO.getCrc32Value()</var>).
+     * Updates the file in the database specified by <var>fileDTO.getID()</var> regarding size
+     * (<var>fileDTO.getSize()</var>) and CRC32 checksum (<var>fileDTO.getCrc32Value()</var>).
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public void updateUploadProgress(FileDTO fileDTO);

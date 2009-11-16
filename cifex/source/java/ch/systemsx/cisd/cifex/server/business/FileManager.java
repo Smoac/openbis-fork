@@ -301,7 +301,7 @@ final class FileManager extends AbstractManager implements IFileManager
     @Transactional
     public final boolean isAllowedAccess(final UserDTO userDTO, final FileDTO fileDTO)
     {
-        if (isAllowedDeletion(userDTO, fileDTO))
+        if (isControlling(userDTO, fileDTO))
         {
             return true;
         }
@@ -310,7 +310,7 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public boolean isAllowedDeletion(final UserDTO userDTO, final FileDTO fileDTO)
+    public boolean isControlling(final UserDTO userDTO, final FileDTO fileDTO)
     {
         if (userDTO.isAdmin())
         {
@@ -499,7 +499,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
         final Set<UserDTO> allUsers = new HashSet<UserDTO>();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
-        setRegisterer(requestUser, files);
+        setRegistrator(requestUser, files);
         boolean success = false;
         RuntimeException firstExceptionOrNull = null;
         try
@@ -536,7 +536,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
     }
 
-    private void setRegisterer(final UserDTO requestUser, final Collection<FileDTO> files)
+    private void setRegistrator(final UserDTO requestUser, final Collection<FileDTO> files)
     {
         for (FileDTO file : files)
         {

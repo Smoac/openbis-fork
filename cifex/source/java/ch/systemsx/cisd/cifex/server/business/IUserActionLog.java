@@ -66,6 +66,9 @@ public interface IUserActionLog extends IActionLog
 
     public void logUploadFileFinished(String filename, boolean success);
 
+    public void logShareFilesAuthorizationFailure(Collection<FileDTO> files,
+            Collection<String> recipientsToShareWith);
+
     public void logShareFiles(Collection<FileDTO> files, Collection<UserDTO> usersToShareWith,
             Collection<String> emailsOfUsersToShareWith, Collection<String> invalidEmailAddresses,
             boolean success);

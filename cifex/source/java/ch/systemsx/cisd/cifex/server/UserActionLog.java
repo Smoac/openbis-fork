@@ -318,10 +318,23 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
             } else
             {
                 trackingLog.info(getUserHostSessionDescription()
-                        + String.format("share_files %s with %s: %s", getFileDescriptions(files),
+                        + String.format("share_files %s with %s: %s%s", getFileDescriptions(files),
                                 getStringDescription(emailsOfUsersToShareWith),
                                 getSuccessString(success), invalidEmailDesc));
             }
+        }
+    }
+
+    public void logShareFilesAuthorizationFailure(Collection<FileDTO> files,
+            Collection<String> recipientsToShareWith)
+    {
+        if (trackingLog.isInfoEnabled())
+        {
+            trackingLog.info(getUserHostSessionDescription()
+                    + String
+                            .format("share_files %s with %s: FAILED [insufficient privileges]",
+                                    getFileDescriptions(files),
+                                    getStringDescription(recipientsToShareWith)));
         }
     }
 

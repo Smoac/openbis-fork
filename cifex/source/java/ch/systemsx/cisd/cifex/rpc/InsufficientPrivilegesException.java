@@ -16,18 +16,22 @@
 
 package ch.systemsx.cisd.cifex.rpc;
 
-import java.util.EnumSet;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * State of the upload session life cycle
- *
- * @author Franz-Josef Elmer
+ * This <code>UserFailureException</code> extension signals that an operation is not allowed due
+ * to insufficient privileges.
+ * 
+ * @author Bernd Rinn
  */
-public enum UploadState
+public final class InsufficientPrivilegesException extends UserFailureException
 {
-    INITIALIZED, READY_FOR_NEXT_FILE, UPLOADING, FINISHED, ABORTED;
 
-    public static final EnumSet<UploadState> RUNNING_STATES =
-        EnumSet.of(UploadState.READY_FOR_NEXT_FILE, UploadState.UPLOADING);
+    private static final long serialVersionUID = 1L;
+
+    public InsufficientPrivilegesException(String message)
+    {
+        super(message);
+    }
 
 }

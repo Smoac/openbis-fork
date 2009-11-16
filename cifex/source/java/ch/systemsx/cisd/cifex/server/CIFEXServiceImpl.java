@@ -443,7 +443,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         {
             throw new FileNotFoundException(fileInfo.getErrorMessage());
         }
-        if (fileManager.isAllowedDeletion(requestUser, fileInfo.getFileDTO()) == false)
+        if (fileManager.isControlling(requestUser, fileInfo.getFileDTO()) == false)
         {
             throw new InsufficientPrivilegesException("Insufficient privileges for "
                     + describeUser(requestUser) + ".");
@@ -705,7 +705,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         {
             throw new FileNotFoundException(fileInfo.getErrorMessage());
         }
-        if (fileManager.isAllowedDeletion(requestUser, fileInfo.getFileDTO()) == false)
+        if (fileManager.isControlling(requestUser, fileInfo.getFileDTO()) == false)
         {
             throw new InsufficientPrivilegesException("Insufficient privileges for "
                     + describeUser(requestUser) + ".");
@@ -725,7 +725,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         {
             throw new FileNotFoundException(fileInfo.getErrorMessage());
         }
-        if (fileManager.isAllowedDeletion(requestUser, fileInfo.getFileDTO()) == false)
+        if (fileManager.isControlling(requestUser, fileInfo.getFileDTO()) == false)
         {
             throw new InsufficientPrivilegesException("Insufficient privileges for "
                     + describeUser(requestUser) + ".");

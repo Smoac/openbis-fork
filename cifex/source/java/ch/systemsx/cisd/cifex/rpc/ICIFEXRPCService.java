@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.rpc;
 
+import java.util.List;
+
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
@@ -29,6 +31,9 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
  */
 public interface ICIFEXRPCService
 {
+    //
+    // Protocol versioning
+    //
 
     /** The version of this service interface. */
     public static final int VERSION = 3;
@@ -41,6 +46,10 @@ public interface ICIFEXRPCService
      * server.
      */
     public int getMinClientVersion();
+
+    //
+    // Session
+    //
 
     /**
      * Authenticates given <code>user</code> with given <code>password</code>.
@@ -66,55 +75,41 @@ public interface ICIFEXRPCService
     public void checkSession(String sessionID) throws InvalidSessionException;
 
     /**
+     * Finishes the specified operation (that is the current upload or download). The parameter
+     * <var>successful</var> is used for logging purposes and has no consequences otherwise. The
+     * session itself is still valid after calling this method and can be used to initiate another
+     * operation.
+     * 
+     * @param successful Flag indicating whether the uploading was successful or not.
+     * @throws InvalidSessionException if there is no session with specified session ID.
+     */
+    public void finish(String sessionID, boolean successful) throws InvalidSessionException;
+
+    //
+    // Info
+    //
+
+    /**
      * Provides the list of files available for download to the user of this session.
      */
     public FileInfoDTO[] listDownloadFiles(String sessionID) throws InvalidSessionException,
             EnvironmentFailureException;
 
-    /**
-     * Defines the upload parameters for the specified upload session. The upload status state after
-     * invocation will be {@link UploadState#READY_FOR_NEXT_FILE} or {@link UploadState#FINISHED} if
-     * <code>files</code> is an empty array.
-     * 
-     * @param files Absolute file path of files to be uploaded.
-     * @param recipients Whitespace of comma separated list of recipients (e-mail address or
-     *            <code>id:<em>userID</em></code>).
-     * @param comment Comment to be added in recipient notification.
-     * @throws IllegalStateException if upload status state isn't {@link UploadState#INITIALIZED}.
-     * @throws InvalidSessionException if there is no session with specified session ID.
-     */
-    public void defineUploadParameters(String sessionID, FilePreregistrationDTO[] files,
-            String recipients, String comment) throws InvalidSessionException,
-            IllegalStateException;
+    //
+    // Upload
+    //
 
     /**
-     * Returns the status of the specified upload session.
+     * Starts uploading the given file.
      * 
+     * @return The id of the file in the database.
      * @throws InvalidSessionException if there is no session with specified session ID.
      */
-    public UploadStatus getUploadStatus(String sessionID) throws InvalidSessionException;
+    public long startUploading(String sessionID, FilePreregistrationDTO file, String comment)
+            throws InvalidSessionException;
 
     /**
-     * Starts uploading of the specified upload session. The upload status state after invocation
-     * will be {@link UploadState#UPLOADING}.
-     * 
-     * @throws IllegalStateException if upload status state isn't
-     *             {@link UploadState#READY_FOR_NEXT_FILE}.
-     * @throws InvalidSessionException if there is no session with specified session ID.
-     */
-    public void startUploading(String sessionID) throws InvalidSessionException;
-
-    /**
-     * Uploads a data block for the specified upload session. The upload status state after
-     * invocation will be
-     * <ul>
-     * <li>{@link UploadState#UPLOADING} if <code>lastBlock == false</code>
-     * <li>{@link UploadState#READY_FOR_NEXT_FILE} if <code>lastBlock == true</code> and another
-     * file should be uploaded.
-     * <li>{@link UploadState#FINISHED} if <code>lastBlock == true</code> and there are no more
-     * files to be uploaded.
-     * <li>{@link UploadState#ABORTED} if it was already in this state.
-     * </ul>
+     * Uploads a data block for the specified upload session.
      * 
      * @param filePointer The pointer of the block within the file. Can be either the same one as
      *            the last time or the next one. All other <var>filePointer</var> values are
@@ -122,16 +117,31 @@ public interface ICIFEXRPCService
      * @param runningCrc32Value The value of the CRC32 checksum of all data blocks uploaded up to
      *            now, including the current <var>block</var> ("running CRC32 checksum")
      * @param block Block of data bytes.
-     * @throws IllegalStateException if upload status state isn't {@link UploadState#UPLOADING} or
-     *             {@link UploadState#ABORTED}.
+     * @throws IllegalStateException if no upload is in progress.
      * @throws InvalidSessionException if there is no session with specified session ID.
      * @throws IOExceptionUnchecked if an I/O error occurred during the upload.
      * @throws FileSizeExceededException if the upload exceed the maximally allowed file size.
-     * @throws IllegalStateException if {@link #startUploading(String)} hasn't been called before.
+     * @throws IllegalStateException if
+     *             {@link #startUploading(String, FilePreregistrationDTO, String)} hasn't been
+     *             called before.
      */
     public void uploadBlock(String sessionID, long filePointer, int runningCrc32Value, byte[] block)
             throws InvalidSessionException, IOExceptionUnchecked, FileSizeExceededException,
             IllegalStateException;
+
+    //
+    // File sharing
+    //
+
+    /**
+     * Share the given <var>fileIDs</var> with the <var>recipients</var>. It is an error if one of
+     * the files specified does not exist on the server.
+     */
+    public void shareFiles(String sessionID, List<Long> fileIDs, String recipients);
+
+    //
+    // Download
+    //
 
     /**
      * Start downloading the file with <var>fileID</var>.
@@ -155,22 +165,5 @@ public interface ICIFEXRPCService
      */
     public byte[] downloadBlock(String sessionID, long filePointer, int blockSize)
             throws InvalidSessionException, IOExceptionUnchecked, IllegalStateException;
-
-    /**
-     * Cancels the specified session.
-     * 
-     * @throws EnvironmentFailureException if there is no session with specified session ID.
-     */
-    public void cancel(String sessionID) throws InvalidSessionException,
-            EnvironmentFailureException;
-
-    /**
-     * Finishes the specified session. The status state after invocation will be
-     * {@link UploadState#INITIALIZED} if <code>successful == false</code>.
-     * 
-     * @param successful Flag indicating whether the uploading was successful or not.
-     * @throws InvalidSessionException if there is no session with specified session ID.
-     */
-    public void finish(String sessionID, boolean successful) throws InvalidSessionException;
 
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.rpc.client;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.remoting.RemoteAccessException;
@@ -26,8 +27,6 @@ import org.springframework.remoting.RemoteAccessException;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
-import ch.systemsx.cisd.cifex.rpc.UploadState;
-import ch.systemsx.cisd.cifex.rpc.UploadStatus;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
@@ -103,122 +102,95 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     }
 
     /**
-     * Returns <code>true</code> if this uploader is still working.
-     */
-    public boolean isUploading()
-    {
-        try
-        {
-            UploadStatus status = service.getUploadStatus(sessionID);
-            return UploadState.RUNNING_STATES.contains(status.getUploadState());
-        } catch (RuntimeException ex)
-        {
-            fireExceptionEvent(ex);
-            return false;
-        }
-    }
-
-    /**
      * Uploads the specified files for the specified recipients.
      * 
-     * @param recipients Comma or space-separated list of e-mail addresses or user ID's in the form
+     * @param recipientsOrNull Comma or space-separated list of e-mail addresses or user ID's in the form
      *            <code>id:<i>user ID</i></code>. Can be an empty string.
      * @param comment Optional comment added to the outgoing e-mails. Can be an empty string.
      */
-    public void upload(List<File> files, String recipients, String comment)
+    public void upload(List<File> files, String recipientsOrNull, String comment)
     {
-        final FilePreregistrationDTO[] fileInfo = new FilePreregistrationDTO[files.size()];
-        try
+        cancelled.set(false);
+        if (files.isEmpty())
         {
-            for (int i = 0; i < files.size(); i++)
-            {
-                fileInfo[i] =
-                        new FilePreregistrationDTO(files.get(i).getCanonicalPath(), files.get(i)
-                                .length());
-            }
-        } catch (IOException ex)
-        {
-            fireExceptionEvent(ex);
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            return;
         }
-
         try
         {
-            RandomAccessFileProvider fileProvider = null;
-            long fileSize = 0;
-            boolean running = true;
-            while (running)
+            inProgress.set(true);
+            List<Long> fileIds = new ArrayList<Long>(files.size());
+            for (File file : files)
             {
-                UploadStatus status = service.getUploadStatus(sessionID);
-                switch (status.getUploadState())
+                try
                 {
-                    case INITIALIZED:
-                        service.defineUploadParameters(sessionID, fileInfo, recipients, comment);
-                        break;
-                    case READY_FOR_NEXT_FILE:
-                        if (fileProvider != null)
-                        {
-                            fileProvider.closeFile();
-                            fireUploadedEvent();
-                        }
-                        File file = new File(status.getCurrentFile());
-                        fileSize = file.length();
-                        fileProvider = new RandomAccessFileProvider(file, "r");
-                        crc32.reset();
+                    crc32.reset();
+                    final long fileSize = file.length();
+                    final FilePreregistrationDTO filePreDTO =
+                            new FilePreregistrationDTO(file.getCanonicalPath(), fileSize);
+                    final RandomAccessFileProvider fileProvider =
+                            new RandomAccessFileProvider(file, "r");
+                    try
+                    {
                         fireStartedEvent(file, fileSize);
-                        service.startUploading(sessionID);
-                        break;
-                    case UPLOADING:
-                        uploadNextBlock(fileProvider, status);
-                        fireProgressEvent(status.getFilePointer(), fileSize);
-                        break;
-                    case FINISHED:
-                        service.finish(sessionID, true);
-                        fireFinishedEvent(true);
-                        running = false;
-                        break;
-                    case ABORTED:
+                        final long fileId = service.startUploading(sessionID, filePreDTO, comment);
+                        fileIds.add(fileId);
+                        long filePointer = 0L;
+                        fireProgressEvent(filePointer, fileSize);
+                        while (filePointer < fileSize)
+                        {
+                            final int blockSize =
+                                    (int) Math.min(fileSize - filePointer, BLOCK_SIZE);
+                            uploadNextBlock(fileProvider, filePointer, blockSize);
+                            if (cancelled.get())
+                            {
+                                service.finish(sessionID, false);
+                                fireFinishedEvent(false);
+                                return;
+                            }
+                            filePointer += blockSize;
+                            fireProgressEvent(filePointer, fileSize);
+                        }
+                    } finally
+                    {
+                        fileProvider.closeFile();
+                    }
+                    fireUploadedEvent();
+                    service.finish(sessionID, true);
+                } catch (Throwable th1)
+                {
+                    try
+                    {
                         service.finish(sessionID, false);
-                        fireFinishedEvent(false);
-                        running = false;
-                        break;
+                    } catch (Throwable th2)
+                    {
+                        // Nothing we can do here.
+                    }
+                    throw CheckedExceptionTunnel.wrapIfNecessary(th1);
                 }
             }
-            if (fileProvider != null)
+            if (recipientsOrNull != null && recipientsOrNull.trim().length() > 0)
             {
-                fileProvider.closeFile();
+                service.shareFiles(sessionID, fileIds, recipientsOrNull);
             }
-        } catch (Throwable throwable)
+            fireFinishedEvent(true);
+        } catch (Throwable th2)
         {
-            fireExceptionEvent(throwable);
-            try
-            {
-                service.finish(sessionID, false);
-            } catch (Throwable throwable2)
-            {
-                fireExceptionEvent(throwable2);
-                throwable = throwable2;
-            }
+            fireExceptionEvent(th2 instanceof Exception ? CheckedExceptionTunnel
+                    .unwrapIfNecessary((Exception) th2) : th2);
             fireFinishedEvent(false);
-            throw CheckedExceptionTunnel.wrapIfNecessary(throwable);
+            throw CheckedExceptionTunnel.wrapIfNecessary(th2);
         } finally
         {
             fireResetEvent();
+            inProgress.set(false);
         }
     }
 
-    private void uploadNextBlock(RandomAccessFileProvider fileProvider, UploadStatus status)
-            throws IOException, EnvironmentFailureException
+    private void uploadNextBlock(final RandomAccessFileProvider fileProvider,
+            final long filePointer, final int blockSize) throws IOException,
+            EnvironmentFailureException
     {
         final RandomAccessFile randomAccessFile = fileProvider.getRandomAccessFile();
-        int blockSize = BLOCK_SIZE;
-        final long fileSize = randomAccessFile.length();
-        final long filePointer = status.getFilePointer();
-        final boolean lastBlock = filePointer + blockSize >= fileSize;
-        if (lastBlock)
-        {
-            blockSize = (int) (fileSize - filePointer);
-        }
         final byte[] bytes = new byte[blockSize];
         randomAccessFile.seek(filePointer);
         randomAccessFile.readFully(bytes, 0, blockSize);
@@ -227,6 +199,10 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         RemoteAccessException lastExceptionOrNull = null;
         for (int i = 0; i < MAX_RETRIES; ++i)
         {
+            if (cancelled.get())
+            {
+                return;
+            }
             try
             {
                 service.uploadBlock(sessionID, filePointer, runningCrc32Value, bytes);

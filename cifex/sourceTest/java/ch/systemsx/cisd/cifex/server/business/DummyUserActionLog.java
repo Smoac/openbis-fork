@@ -75,6 +75,11 @@ public class DummyUserActionLog implements IUserActionLog
     {
     }
 
+    public void logShareFilesAuthorizationFailure(Collection<FileDTO> files,
+            Collection<String> recipientsToShareWith)
+    {
+    }
+
     public void logSuccessfulLogin()
     {
     }
@@ -122,4 +127,5 @@ public class DummyUserActionLog implements IUserActionLog
     public void logUploadFileStart(String filename, boolean success)
     {
     }
+
 }

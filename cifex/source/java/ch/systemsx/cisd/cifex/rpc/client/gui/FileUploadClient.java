@@ -109,7 +109,11 @@ public class FileUploadClient
         }
     }
 
+    private final ICIFEXComponent cifex;
+    
     private final ICIFEXUploader uploader;
+    
+    private final String sessionId;
 
     private final FileDialog fileDialog;
 
@@ -129,6 +133,8 @@ public class FileUploadClient
             final int maxUploadSizeInMB, final ITimeProvider timeProvider)
             throws EnvironmentFailureException, InvalidSessionException
     {
+        this.cifex = cifex;
+        this.sessionId = sessionId;
         shutdownHook = new Thread()
             {
                 @Override
@@ -138,7 +144,7 @@ public class FileUploadClient
                 }
             };
         Runtime.getRuntime().addShutdownHook(shutdownHook);
-        startSessionKeepAliveTimer(cifex, sessionId, KEEP_ALIVE_PERIOD_MILLIS);
+        startSessionKeepAliveTimer(KEEP_ALIVE_PERIOD_MILLIS);
         this.uploader = cifex.createUploader(sessionId);
         frame = new JFrame(TITLE);
         frame.addWindowListener(new WindowAdapter()
@@ -229,8 +235,7 @@ public class FileUploadClient
             });
     }
 
-    private void startSessionKeepAliveTimer(final ICIFEXComponent cifex, final String sessionId,
-            final long checkTimeIntervalMillis)
+    private void startSessionKeepAliveTimer(final long checkTimeIntervalMillis)
     {
         final Timer timer = new Timer("Session Keep Alive", true);
         timer.schedule(new TimerTask()
@@ -510,14 +515,14 @@ public class FileUploadClient
     {
         if (cancel())
         {
-            uploader.logout();
+            cifex.logout(sessionId);
             System.exit(0);
         }
     }
 
     private boolean cancel()
     {
-        if (uploader.isUploading() == false)
+        if (uploader.isInProgress() == false)
         {
             return true;
         }

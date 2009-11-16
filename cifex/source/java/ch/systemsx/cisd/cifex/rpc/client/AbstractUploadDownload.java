@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.rpc.client;
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
@@ -31,9 +32,8 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
  * 
  * @author Bernd Rinn
  */
-public abstract class AbstractUploadDownload implements IProgressListenerHolder
+public abstract class AbstractUploadDownload implements ICIFEXOperation
 {
-
     protected static final int BLOCK_SIZE = 256 * 1024;
 
     protected static final int MAX_RETRIES = 30;
@@ -48,6 +48,10 @@ public abstract class AbstractUploadDownload implements IProgressListenerHolder
 
     protected final CRC32 crc32 = new CRC32();
 
+    protected final AtomicBoolean cancelled = new AtomicBoolean(false);
+    
+    protected final AtomicBoolean inProgress = new AtomicBoolean(false);
+    
     /**
      * Creates an instance for the specified service and session ID.
      */
@@ -71,31 +75,19 @@ public abstract class AbstractUploadDownload implements IProgressListenerHolder
     }
 
     /**
-     * Cancels uploading.
+     * Returns <code>true</code> if the operation (upload or download) is still in progress.
      */
-    public void cancel()
+    public boolean isInProgress()
     {
-        try
-        {
-            service.cancel(sessionID);
-        } catch (RuntimeException ex)
-        {
-            fireExceptionEvent(ex);
-        }
+        return inProgress.get();
     }
 
     /**
-     * Logout from session.
+     * Cancels the operation (upload or download).
      */
-    public void logout()
+    public void cancel()
     {
-        try
-        {
-            service.logout(sessionID);
-        } catch (RuntimeException ex)
-        {
-            ex.printStackTrace();
-        }
+        cancelled.set(true);
     }
 
     protected void fireStartedEvent(File file, long fileSize)

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.rpc.CRCCheckumMismatchException;
-import ch.systemsx.cisd.cifex.rpc.UploadStatus;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 
@@ -35,16 +34,14 @@ public final class Session
 {
     public enum Operation
     {
-        UPLOAD, DOWNLOAD;
+        NONE, UPLOAD, DOWNLOAD;
     }
 
     private final String sessionID;
 
     private final UserDTO user;
 
-    private final UploadStatus uploadStatus;
-
-    private String url;
+    private final String url;
 
     private File file;
 
@@ -75,10 +72,10 @@ public final class Session
         this.sessionID = sessionID;
         this.user = user;
         this.url = url;
-        this.uploadStatus = new UploadStatus();
         this.oldFilePointer = -1L;
         this.currentFilePointer = 0L;
         this.currentCrc32 = new CloneableCRC32();
+        operation = Operation.NONE;
         touchSession();
     }
 
@@ -92,7 +89,7 @@ public final class Session
         oldCrc32 = null;
         currentFilePointer = 0L;
         currentCrc32.reset();
-        uploadStatus.reset();
+        operation = Operation.NONE;
     }
 
     public String getSessionID()
@@ -108,11 +105,6 @@ public final class Session
     final String getUrl()
     {
         return url;
-    }
-
-    public final void setUrl(String url)
-    {
-        this.url = url;
     }
 
     final File getFile()
@@ -140,9 +132,34 @@ public final class Session
         return operation;
     }
 
-    public void setOperation(Operation operation)
+    public void startUploadOperation() throws IllegalStateException
     {
-        this.operation = operation;
+        if (operation != Operation.NONE)
+        {
+            throw new IllegalStateException("Trying to start upload operation, but " + operation
+                    + " currently in progress.");
+        }
+        operation = Operation.UPLOAD;
+    }
+
+    public boolean isUploadInProgress()
+    {
+        return operation == Operation.UPLOAD;
+    }
+
+    public void startDownloadOperation() throws IllegalStateException
+    {
+        if (operation != Operation.NONE)
+        {
+            throw new IllegalStateException("Trying to start download operation, but " + operation
+                    + " currently in progress.");
+        }
+        operation = Operation.DOWNLOAD;
+    }
+
+    public boolean isDownloadInProgress()
+    {
+        return operation == Operation.DOWNLOAD;
     }
 
     final void addTempFile(File tempFile)
@@ -199,11 +216,6 @@ public final class Session
             throw new RuntimeException("Size of uploaded file exceeds initially set file size ("
                     + fileDTO.getSize() + " > " + fileDTO.getCompleteSize());
         }
-    }
-
-    final UploadStatus getUploadStatus()
-    {
-        return uploadStatus;
     }
 
     final String[] getRecipients()

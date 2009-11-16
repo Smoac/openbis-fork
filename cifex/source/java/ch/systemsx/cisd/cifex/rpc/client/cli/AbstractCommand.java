@@ -148,7 +148,6 @@ abstract class AbstractCommand implements ICommand
                 public void start(File file, long fileSize)
                 {
                     size = fileSize;
-                    System.out.print("0% (0/" + size + ")");
                 }
 
                 public void reportProgress(int percentage, long numberOfBytes)
@@ -158,7 +157,6 @@ abstract class AbstractCommand implements ICommand
 
                 public void finished(boolean successful)
                 {
-                    System.out.println("\r100% (" + size + "/" + size + ")");
                     size = 0L;
                 }
 

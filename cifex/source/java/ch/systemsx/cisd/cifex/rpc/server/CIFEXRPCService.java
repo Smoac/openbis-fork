@@ -16,25 +16,23 @@
 
 package ch.systemsx.cisd.cifex.rpc.server;
 
-import static ch.systemsx.cisd.cifex.rpc.UploadState.ABORTED;
-import static ch.systemsx.cisd.cifex.rpc.UploadState.INITIALIZED;
-import static ch.systemsx.cisd.cifex.rpc.UploadState.READY_FOR_NEXT_FILE;
-import static ch.systemsx.cisd.cifex.rpc.UploadState.UPLOADING;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.IAuthenticationService;
@@ -43,8 +41,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.FileSizeExceededException;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
-import ch.systemsx.cisd.cifex.rpc.UploadState;
-import ch.systemsx.cisd.cifex.rpc.UploadStatus;
+import ch.systemsx.cisd.cifex.rpc.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.rpc.server.Session.Operation;
 import ch.systemsx.cisd.cifex.server.AbstractCIFEXService;
 import ch.systemsx.cisd.cifex.server.HttpUtils;
@@ -207,7 +204,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
 
     private void logout(Session session, boolean sessionExpired) throws InvalidSessionException
     {
-        if (UploadState.RUNNING_STATES.contains(session.getUploadStatus().getUploadState()))
+        if (session.getOperation() != Operation.NONE)
         {
             logInvocation(session.getSessionID(), "Cancel.");
         }
@@ -226,12 +223,38 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         return sessionManager.createSession(user, url).getSessionID();
     }
 
+    public void finish(String sessionID, boolean successful) throws InvalidSessionException
+    {
+        final Session session = sessionManager.getSession(sessionID);
+        final Operation operationOrNull = session.getOperation();
+        if (operationOrNull != null)
+        {
+            logInvocation(sessionID, operationOrNull
+                    + (successful ? " successfully finished." : " aborted."));
+        } else
+        {
+            operationLog.warn("[" + sessionID
+                    + "]: finish() called when no operation was in progress.");
+        }
+        if (operationOrNull != null && userBehaviorLogOrNull != null)
+        {
+            if (operationOrNull == Operation.UPLOAD)
+            {
+                userBehaviorLogOrNull
+                        .logUploadFileFinished(session.getFile().getName(), successful);
+            } else if (operationOrNull == Operation.DOWNLOAD)
+            {
+                userBehaviorLogOrNull.logDownloadFileFinished(session.getFileDTO(), successful);
+            }
+        }
+        cleanUpSession(session);
+    }
+
     //
     // Info
     //
 
-    public ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO[] listDownloadFiles(String sessionID)
-            throws InvalidSessionException
+    public FileInfoDTO[] listDownloadFiles(String sessionID) throws InvalidSessionException
     {
         final Session session = sessionManager.getSession(sessionID);
         final List<FileDTO> files =
@@ -244,70 +267,25 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
     // Upload
     //
 
-    public UploadStatus getUploadStatus(String sessionID) throws InvalidSessionException
-    {
-        return sessionManager.getSession(sessionID).getUploadStatus();
-    }
-
-    public void defineUploadParameters(String sessionID, FilePreregistrationDTO[] files,
-            String recipients, String comment)
-    {
-        final Session session = sessionManager.getSession(sessionID);
-        final List<String> fileNames = extractFileNames(files);
-        logInvocation(sessionID, "Upload files " + fileNames);
-        UploadStatus status = getStatusAndCheckState(session, INITIALIZED);
-        status.setFiles(files);
-        session.setRecipients(StringUtilities.tokenize(recipients).toArray(new String[0]));
-        session.setComment(comment);
-    }
-
-    public void cancel(String sessionID) throws InvalidSessionException
-    {
-        final Session session = sessionManager.getSession(sessionID);
-        logInvocation(sessionID, "Cancel.");
-        fileManager.deleteFile(session.getFileDTO());
-        cleanUpSession(session);
-        session.getUploadStatus().setUploadState(ABORTED);
-    }
-
-    public void finish(String sessionID, boolean successful) throws InvalidSessionException
-    {
-        final Session session = sessionManager.getSession(sessionID);
-        logInvocation(sessionID, successful ? "Successfully finished." : "Aborted.");
-        final Operation operationOrNull = session.getOperation();
-        if (operationOrNull != null && userBehaviorLogOrNull != null)
-        {
-            if (operationOrNull == Operation.UPLOAD)
-            {
-                // Nothing to do, has already been logged in last call to uploadBlock()
-            } else if (operationOrNull == Operation.DOWNLOAD)
-            {
-                userBehaviorLogOrNull.logDownloadFileFinished(session.getFileDTO(), successful);
-            }
-        }
-        cleanUpSession(session);
-    }
-
-    public void startUploading(String sessionID) throws InvalidSessionException
+    public long startUploading(String sessionID, FilePreregistrationDTO file, String comment)
+            throws InvalidSessionException
     {
         boolean success = false;
         String fileName = "UNKNOWN";
         try
         {
             final Session session = sessionManager.getSession(sessionID);
-            UploadStatus status = getStatusAndCheckState(session, READY_FOR_NEXT_FILE);
-            fileName = status.getNameOfCurrentFile();
+            fileName = FilenameUtils.getName(file.getFilePathOnClient());
             logInvocation(sessionID, "Start uploading " + fileName);
             final PreCreatedFileDTO fileInfo =
-                    fileManager.createFile(session.getUser(), status.getCurrentFileInfo(), session
-                            .getComment());
-            session.setOperation(Operation.UPLOAD);
+                    fileManager.createFile(session.getUser(), file, comment);
+            session.startUploadOperation();
             session.setFile(fileInfo.getFile());
             session.setFileDTO(fileInfo.getFileDTO());
             RandomAccessFile randomAccessFile = createRandomAccessFile(fileInfo.getFile());
             session.setRandomAccessFile(randomAccessFile);
-            status.setUploadState(UPLOADING);
             success = true;
+            return fileInfo.getFileDTO().getID();
         } finally
         {
             if (userBehaviorLogOrNull != null)
@@ -322,22 +300,20 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             IllegalStateException
     {
         final Session session = sessionManager.getSession(sessionID);
+        if (session.isUploadInProgress() == false)
+        {
+            throw new IllegalStateException("uploadBlock() called, but no upload in progress.");
+        }
         final RandomAccessFile randomAccessFileOrNull = session.getRandomAccessFile();
         if (randomAccessFileOrNull == null)
         {
             throw new IllegalStateException(
-                    "uploadBlock() called without previous startUploading()");
+                    "uploadBlock() called but no random access file defined.");
         }
-        if (session.getUploadStatus().getUploadState() == UploadState.ABORTED)
-        {
-            return;
-        }
-        final boolean lastBlock =
-                (filePointer + block.length) >= session.getFileDTO().getCompleteSize();
-        final UploadStatus status = getStatusAndCheckState(session, UPLOADING);
         if (operationLog.isTraceEnabled())
         {
-            operationLog.trace("Upload " + (lastBlock ? "last block" : "block"));
+            operationLog.trace("Upload block of file=" + session.getFile().getPath()
+                    + " at position=" + filePointer);
         }
         session.updateUploadProgress(filePointer, runningCrc32Value, block);
         int maxUploadSize = getMaxUploadSize(session);
@@ -350,41 +326,91 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         {
             randomAccessFileOrNull.seek(filePointer);
             randomAccessFileOrNull.write(block, 0, block.length);
-            if (lastBlock)
-            {
-                boolean success = false;
-                try
-                {
-                    randomAccessFileOrNull.close();
-                    String comment = session.getComment();
-                    final UserDTO user = session.getUser();
-                    final String[] recipients = session.getRecipients();
-                    final String url = session.getUrl();
-                    final List<String> invalidUserIdentifiers =
-                            fileManager.shareFilesWith(url, user, Arrays.asList(recipients),
-                                    Collections.singleton(session.getFileDTO()), comment);
-                    success = true;
-                    if (invalidUserIdentifiers.isEmpty() == false)
-                    {
-                        throw new UserFailureException("Some user identifiers are invalid: "
-                                + CollectionUtils.abbreviate(invalidUserIdentifiers, 10));
-                    }
-                    status.next();
-                } finally
-                {
-                    if (userBehaviorLogOrNull != null)
-                    {
-                        userBehaviorLogOrNull.logUploadFileFinished(session.getFile().getName(),
-                                success);
-                    }
-                }
-            } else
-            {
-                status.setFilePointer(filePointer + block.length);
-            }
         } catch (Throwable th)
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(th);
+        }
+    }
+
+    public void shareFiles(String sessionID, List<Long> fileIDs, String recipients)
+    {
+        logInvocation(sessionID, "Share files=" + CollectionUtils.abbreviate(fileIDs, 3)
+                + " with recipients='" + recipients + "'");
+        final Session session = sessionManager.getSession(sessionID);
+        final List<String> recipientList = StringUtilities.tokenize(recipients);
+        final UserDTO user = session.getUser();
+        final String url = session.getUrl();
+        final Collection<FileDTO> files = new ArrayList<FileDTO>(fileIDs.size());
+        for (long fileId : fileIDs)
+        {
+            try
+            {
+                files.add(fileManager.getFileInformation(fileId).getFileDTO());
+            } catch (IllegalStateException ex)
+            {
+                operationLog.error("[" + sessionID + "]: shareFiles() failed because fileId="
+                        + fileId + " is invalid: " + ex.getMessage());
+                throw ex;
+            }
+        }
+        final String comment = createCommentForSharingEmail(files);
+        checkIfUserIsControllingFiles(sessionID, user, files, recipientList);
+        final List<String> invalidUserIdentifiers =
+                fileManager.shareFilesWith(url, user, recipientList, files, comment);
+        if (invalidUserIdentifiers.isEmpty() == false)
+        {
+            throw new UserFailureException("Some user identifiers are invalid: "
+                    + CollectionUtils.abbreviate(invalidUserIdentifiers, 10));
+        }
+    }
+
+    /**
+     * Checks if <var>user</var> is controlling all <var>files</var> and throws an
+     * {@link InsufficientPrivilegesException} otherwise.
+     */
+    private void checkIfUserIsControllingFiles(String sessionID, final UserDTO user,
+            final Collection<FileDTO> files, final List<String> recipientList)
+            throws InsufficientPrivilegesException
+    {
+        for (FileDTO file : files)
+        {
+            if (fileManager.isControlling(user, file) == false)
+            {
+                operationLog.error("[" + sessionID + "]: shareFiles() failed because user "
+                        + user.getUserCode() + " is not allowed control of fileId="
+                        + file.toString());
+                if (userBehaviorLogOrNull != null)
+                {
+                    userBehaviorLogOrNull.logShareFilesAuthorizationFailure(files, recipientList);
+                }
+                throw new InsufficientPrivilegesException("Insufficient privileges for user "
+                        + user.getUserCode() + ".");
+            }
+        }
+    }
+
+    private String createCommentForSharingEmail(Collection<FileDTO> files)
+    {
+        final Set<String> comments = new HashSet<String>();
+        for (FileDTO file : files)
+        {
+            if (StringUtils.isNotBlank(file.getComment()))
+            {
+                comments.add(file.getComment());
+            }
+        }
+        if (comments.size() == 1)
+        {
+            return comments.iterator().next();
+        } else
+        {
+            final StringBuilder builder = new StringBuilder();
+            for (String comment : comments)
+            {
+                builder.append(comment);
+                builder.append('\n');
+            }
+            return builder.toString();
         }
     }
 
@@ -412,7 +438,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 throw new IOExceptionUnchecked(new IOException(Constants
                         .getErrorMessageForFileNotFound(fileID)));
             }
-            session.setOperation(Operation.DOWNLOAD);
+            session.startDownloadOperation();
             session.setFileDTO(file);
             try
             {
@@ -437,6 +463,10 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             throws InvalidSessionException, IOExceptionUnchecked, IllegalStateException
     {
         final Session session = sessionManager.getSession(sessionID);
+        if (session.isDownloadInProgress() == false)
+        {
+            throw new IllegalStateException("downloadBlock() called, but no download in progress.");
+        }
         final byte[] buf;
         try
         {
@@ -444,11 +474,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             if (randomAccessFileOrNull == null)
             {
                 throw new IllegalStateException(
-                        "downloadBlock() called without previous startDownloading()");
-            }
-            if (session.getUploadStatus().getUploadState() == UploadState.ABORTED)
-            {
-                throw new IllegalStateException("downloadBlock() called when download was aborted");
+                        "downloadBlock() called when no random access file is present in session.");
             }
             final long fileSize = randomAccessFileOrNull.length();
             final long bytesLeft = fileSize - filePointer;
@@ -482,28 +508,6 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             return domainModel.getBusinessContext().getMaxUploadRequestSizeInMB();
         }
         return usersMaxUploadSize.intValue();
-    }
-
-    private List<String> extractFileNames(FilePreregistrationDTO[] files)
-    {
-        List<String> fileNames = new ArrayList<String>();
-        for (FilePreregistrationDTO file : files)
-        {
-            fileNames.add(file.getFilePathOnClient());
-        }
-        return fileNames;
-    }
-
-    private UploadStatus getStatusAndCheckState(Session session, UploadState... expectedStates)
-    {
-        final UploadStatus status = session.getUploadStatus();
-        final UploadState state = status.getUploadState();
-        final List<UploadState> states = Arrays.asList(expectedStates);
-        if (states.contains(state) == false)
-        {
-            throw new IllegalStateException("Expected one of " + states + " but was " + state);
-        }
-        return status;
     }
 
     private void cleanUpSession(Session session)

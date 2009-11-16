@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.rpc.client;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -64,8 +65,10 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
      */
     public void download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull)
     {
+        cancelled.set(false);
         try
         {
+            inProgress.set(true);
             final FileInfoDTO fileInfo = service.startDownloading(sessionID, fileID);
             final File directory =
                     directoryToDownloadOrNull != null ? directoryToDownloadOrNull : new File(".");
@@ -78,21 +81,32 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             try
             {
                 long filePointer = fileProvider.getRandomAccessFile().length();
+                if (filePointer > 0)
+                {
+                    FileUtils.checksum(file, crc32);
+                }
+                fireProgressEvent(filePointer, fileSize);
                 while (filePointer < fileSize)
                 {
                     final int blockSize =
                             (int) Math.min(fileInfo.getSize() - filePointer, BLOCK_SIZE);
                     downloadAndStoreBlock(fileProvider, filePointer, blockSize);
+                    if (cancelled.get())
+                    {
+                        service.finish(sessionID, false);
+                        fireFinishedEvent(false);
+                        return;
+                    }
                     filePointer += blockSize;
                     fireProgressEvent(filePointer, fileSize);
                 }
-                service.finish(sessionID, true);
                 final int crc32Value = (int) crc32.getValue();
                 if (fileInfo.getCrc32Value() != null && crc32Value != fileInfo.getCrc32Value())
                 {
                     throw new CRCCheckumMismatchException(fileInfo.getName(), crc32Value, fileInfo
                             .getCrc32Value());
                 }
+                service.finish(sessionID, true);
                 fireFinishedEvent(true);
             } finally
             {
@@ -109,6 +123,9 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             }
             fireFinishedEvent(false);
             throw CheckedExceptionTunnel.wrapIfNecessary(th);
+        } finally
+        {
+            inProgress.set(false);
         }
     }
 
@@ -118,6 +135,10 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
         RemoteAccessException lastExceptionOrNull = null;
         for (int i = 0; i < MAX_RETRIES; ++i)
         {
+            if (cancelled.get())
+            {
+                return;
+            }
             try
             {
                 byte[] block = service.downloadBlock(sessionID, filePointer, blockSize);
