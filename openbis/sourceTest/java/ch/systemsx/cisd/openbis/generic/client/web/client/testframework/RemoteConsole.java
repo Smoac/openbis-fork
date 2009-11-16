@@ -145,17 +145,18 @@ public class RemoteConsole
                 final Object result)
         {
             detectCallback(callback);
-            if (entryIndex < commands.size())
+            // Sometimes there are no callbacks activated between execution of two commands.
+            // We invoke them one after another in a while loop.
+            while (areAllCallbacksFinished() && entryIndex < commands.size())
             {
                 ITestCommand cmd = commands.get(entryIndex);
-                // Sometimes there are no callbacks activated between execution of two commands.
-                // We invoke them one after another in a while loop.
-                while (cmd.isValidOnSucess(result) && areAllCallbacksFinished())
+                if (cmd.isValidOnSucess(result))
                 {
-                    while (areAllCallbacksFinished())
-                    {
-                        executeCommand();
-                    }
+                    executeCommand();
+                } else
+                {
+                    // expected failure
+                    return;
                 }
             }
         }
@@ -168,8 +169,8 @@ public class RemoteConsole
             if (entryIndex < commands.size())
             {
                 ITestCommand cmd = commands.get(entryIndex);
-                // It doesn't need to be the last callbacks that fails,
-                // and it should rather be the last command.
+                // It doesn't need to be the last callback that fails,
+                // but command that expects failure should be the last one.
                 if (cmd.isValidOnFailure(callback, failureMessage, throwable))
                 {
                     executeCommand();

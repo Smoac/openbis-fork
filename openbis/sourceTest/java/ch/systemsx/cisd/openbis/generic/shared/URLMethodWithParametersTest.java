@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic;
+package ch.systemsx.cisd.openbis.generic.shared;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
 /**
  * 
