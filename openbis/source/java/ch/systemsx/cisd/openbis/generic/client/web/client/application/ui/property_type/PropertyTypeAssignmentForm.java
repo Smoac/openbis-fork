@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm.InfoBoxResetListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentTypeSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
@@ -250,9 +251,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
     {
         if (mandatoryCheckbox == null)
         {
-            mandatoryCheckbox = new CheckBox();
+            mandatoryCheckbox = new CheckBoxField(viewContext.getMessage(Dict.MANDATORY), false);
             mandatoryCheckbox.setId(createChildId(MANDATORY_CHECKBOX_ID_SUFFIX));
-            mandatoryCheckbox.setFieldLabel(viewContext.getMessage(Dict.MANDATORY));
             mandatoryCheckbox.setValue(false);
             mandatoryCheckbox.addListener(Events.Change, new InfoBoxResetListener(infoBox));
         }

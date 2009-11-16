@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.PropertyFieldFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
@@ -254,8 +255,8 @@ public class PropertyTypeAssignmentGrid extends
                 {
                     originalIsMandatory = etpt.isMandatory();
 
-                    mandatoryCheckbox = new CheckBox();
-                    mandatoryCheckbox.setFieldLabel(viewContext.getMessage(Dict.MANDATORY));
+                    mandatoryCheckbox =
+                            new CheckBoxField(viewContext.getMessage(Dict.MANDATORY), false);
                     mandatoryCheckbox.setValue(originalIsMandatory);
                     addField(mandatoryCheckbox);
 
