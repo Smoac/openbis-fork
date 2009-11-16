@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -226,4 +227,43 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         return new LabelToolItem(messageProvider.getMessage(Dict.TABLE_OPERATIONS));
     }
 
+    // HACK
+    //
+    // In GXT 1.2 ToolBar items were subclasses of ToolItems and we added widgets
+    // to BrowserGridPagingToolbar wrapped in AdapterToolItems. Now components are kept directly as
+    // items of ToolBar that extends a Container.
+    //
+    // Implementation of Container enable() and disable() methods enables and disables all items.
+    // Before it didn't change state of widgets - AdapterToolItem didn't invoke enable/disable on
+    // them. With new implementation we lost disabled state set to e.g. buttons when grid data were
+    // loaded and toolbar enabled everything.
+    //
+    // Solution chosen here is to use Component enable and disable implementation that does nothing
+    // with items as we know that we don't want to change their state.
+    //
+    // Other solution would be to wrap every component added to BrowserGridPagingToolbar in sth that
+    // delegates everything except enable and disable method invocation but there are lots of
+    // methods in Component to delegate.
+
+    @Override
+    public void enable()
+    {
+        if (rendered)
+        {
+            onEnable();
+        }
+        disabled = false;
+        fireEvent(Events.Enable);
+    }
+
+    @Override
+    public void disable()
+    {
+        if (rendered)
+        {
+            onDisable();
+        }
+        disabled = true;
+        fireEvent(Events.Disable);
+    }
 }
