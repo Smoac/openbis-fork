@@ -205,6 +205,9 @@
 				<include name="${build.info.filename}" />
 			</fileset>
 		</recursive-jar>
+		<jar update="true" destfile="${jar.file}">
+			<fileset dir="../${ant.project.name}/${classes}" includes="ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class"/>
+		</jar>
 	</target>
 
 	<!--
