@@ -50,11 +50,11 @@
 				<include name="${build.info.filename}" />
 			</fileset>
 			<zipfileset src="${lib}/cisd-base/cisd-base.jar">
-				<include name="ch/systemsx/cisd/base/utilities/BuildAndEnvironmentInfo.class" />
+				<include name="ch/systemsx/cisd/base/utilities/AbstractBuildAndEnvironmentInfo.class" />
 			</zipfileset>
 			<manifest>
 				<attribute name="Main-Class"
-				           value="ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo" />
+				           value="ch.systemsx.cisd.args4j.BuildAndEnvironmentInfo" />
 				<attribute name="Version" value="${version.number}" />
 				<attribute name="Build-Number"
 				           value="${version.number} (r${revision.number},${clean.flag})" />
