@@ -97,7 +97,7 @@
       <echo></echo>
       <delete dir="${webapp.dist}" />
       <java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${sources}"
-            classname="com.google.gwt.dev.GWTCompiler"
+            classname="com.google.gwt.dev.Compiler"
             fork="true">
         <jvmarg value="-Xmx512M" />
         <arg value="-out" />
