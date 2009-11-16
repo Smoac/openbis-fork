@@ -29,7 +29,22 @@ import org.testng.annotations.Test;
 public class OccurrenceUtilTest extends AssertJUnit
 {
     @Test
-    public void test()
+    public void testNoCoverage()
+    {
+        check("[]", "");
+        check("[]", "abc", "xx");
+        check("[]", "xx");
+        check("[]", "abc");
+    }
+    
+    @Test
+    public void testFullCoverage()
+    {
+        check("[[abc@0]]", "abc", "abc");
+    }
+    
+    @Test
+    public void testPartialAndOverlappingCoverage()
     {
         check("[[ab@0], [abcd@4], [ab@13]]", "abc abcde hahab", "ab", "bcd");
         check("[[ab@0], [abcd@4], [ab@13]]", "abc abcde hahab", "ab", "cd");
