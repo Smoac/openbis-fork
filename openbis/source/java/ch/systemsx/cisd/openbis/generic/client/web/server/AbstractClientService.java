@@ -25,6 +25,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.utilities.AbstractBuildAndEnvironmentInfo;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -249,6 +250,15 @@ public abstract class AbstractClientService implements IClientService
 
     /** Returns the {@link IServer} implementation for this client service. */
     protected abstract IServer getServer();
+    
+    /**
+     * Returns the appropriate build and environment info. This method should be overridden in 
+     * subclasses of custom openBIS projects.
+     */
+    protected AbstractBuildAndEnvironmentInfo getBuildAndApplicationInfo()
+    {
+        return BuildAndEnvironmentInfo.INSTANCE;
+    }
 
     //
     // IClientService
@@ -257,7 +267,7 @@ public abstract class AbstractClientService implements IClientService
     public final ApplicationInfo getApplicationInfo()
     {
         final ApplicationInfo applicationInfo = new ApplicationInfo();
-        applicationInfo.setVersion(BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
+        applicationInfo.setVersion(getBuildAndApplicationInfo().getFullVersion());
         applicationInfo.setCIFEXURL(cifexURL);
         applicationInfo.setCifexRecipient(cifexRecipient);
         return applicationInfo;
