@@ -24,7 +24,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
-import ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.cifex.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;

@@ -31,7 +31,7 @@ import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo;
+import ch.systemsx.cisd.cifex.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
