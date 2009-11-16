@@ -3,7 +3,7 @@
   <project-classpath name="ecp" classes="${classes}" />
   <property name="mainfolder" value="datamover_console"/>
 
-  <property name="gwt.lib" value="${lib}/gwt1.5" />
+  <property name="gwt.lib" value="${lib}/gwt1.7" />
   <property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
   <property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
   <property name="gwt.tomcat.web-inf" value="../${ant.project.name}/tomcat/webapps/ROOT/WEB-INF" />
@@ -97,7 +97,7 @@
       <echo></echo>
       <delete dir="${webapp.dist}" />
       <java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:${sources}"
-            classname="com.google.gwt.dev.Compiler"
+            classname="com.google.gwt.dev.GWTCompiler"
             fork="true">
         <jvmarg value="-Xmx512M" />
         <arg value="-out" />
