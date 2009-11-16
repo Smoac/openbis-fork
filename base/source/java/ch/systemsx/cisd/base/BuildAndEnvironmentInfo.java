@@ -26,7 +26,7 @@ import ch.systemsx.cisd.base.utilities.AbstractBuildAndEnvironmentInfo;
  */
 public class BuildAndEnvironmentInfo extends AbstractBuildAndEnvironmentInfo
 {
-    private final static String BASE = "cisd-base";
+    private final static String BASE = "base";
     
     public final static BuildAndEnvironmentInfo INSTANCE = new BuildAndEnvironmentInfo();
     
