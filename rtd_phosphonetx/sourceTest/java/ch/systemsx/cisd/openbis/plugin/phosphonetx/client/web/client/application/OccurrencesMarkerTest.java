@@ -46,8 +46,8 @@ public class OccurrencesMarkerTest extends AssertJUnit
     public void testFindOverlappingOccurrences()
     {
         OccurrencesMarker marker = createMarker();
-        String marked = marker.mark("aaaa", Arrays.asList("aa"));
-        assertEquals("<aaaa>", marked);
+        assertEquals("<aaaa>", marker.mark("aaaa", Arrays.asList("aa")));
+        assertEquals("h<ello> w<orld>, h<ello> universe!", marker.mark("hello world, hello universe!", Arrays.asList("ell", "o", "orld")));
     }
 
     @Test

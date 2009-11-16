@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Occurrence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.OccurrenceUtil;
 
 /**
  * This class is able to find all occurrences of the given set of words in the provided template and
@@ -135,105 +136,7 @@ public class OccurrencesMarker
      */
     public String mark(String template, List<String> words)
     {
-        List<Occurrence> occurrences = calcSortedOccurrences(template, words);
-        if (hasOverlapping(occurrences))
-        {
-            return markOverlapping(template, occurrences);
-        } else
-        {
-            return markNonoverlapping(template, occurrences);
-        }
-    }
-
-    // describes one occurence of the word in a template
-    private static class Occurrence implements Comparable<Occurrence>
-    {
-        private final String word;
-
-        private final int startIndex;
-
-        public Occurrence(String word, int startIndex)
-        {
-            this.word = word;
-            this.startIndex = startIndex;
-        }
-
-        public String getWord()
-        {
-            return word;
-        }
-
-        public int getStartIndex()
-        {
-            return startIndex;
-        }
-
-        public int getEndIndex()
-        {
-            return startIndex + word.length() - 1;
-        }
-
-        public int compareTo(Occurrence o)
-        {
-            return getStartIndex() - o.getStartIndex();
-        }
-
-        @Override
-        public String toString()
-        {
-            return "[" + word + "@" + startIndex + "]";
-        }
-    }
-
-    private String markOverlapping(String template, List<Occurrence> sortedOccurrences)
-    {
-        List<Occurrence> mergedOccurrences = mergeOverlaps(template, sortedOccurrences);
-        return markNonoverlapping(template, mergedOccurrences);
-    }
-
-    private List<Occurrence> mergeOverlaps(String template, List<Occurrence> sortedOccurrences)
-    {
-        List<Occurrence> result = new ArrayList<Occurrence>();
-        if (sortedOccurrences.size() == 0)
-        {
-            return result;
-        }
-        int startIndex = -1;
-        int endIndex = -1;
-        for (Occurrence occurrence : sortedOccurrences)
-        {
-            if (occurrence.getStartIndex() <= endIndex)
-            { // overlap
-                endIndex = Math.max(endIndex, occurrence.getEndIndex());
-            } else
-            { // current word does not overlap with the words browsed before
-                if (startIndex != -1)
-                { // create a new word from the words browsed before
-                    Occurrence newOccurrence = createOccurence(template, startIndex, endIndex);
-                    result.add(newOccurrence);
-                }
-                startIndex = occurrence.getStartIndex();
-                endIndex = occurrence.getEndIndex();
-            }
-        }
-        Occurrence newOccurrence = createOccurence(template, startIndex, endIndex);
-        result.add(newOccurrence);
-        return result;
-    }
-
-    private static Occurrence createOccurence(String template, int startIndex, int endIndex)
-    {
-        assert startIndex != -1 : "start index should be initialized";
-        assert endIndex != -1 : "end index should be initialized";
-        String mergedWord = template.substring(startIndex, endIndex + 1);
-        Occurrence newOccurrence = new Occurrence(mergedWord, startIndex);
-        return newOccurrence;
-    }
-
-    // marks all occurrences in the template, assuming that all occurrences do not
-    // overlap with each other and are sorted by the start position
-    private String markNonoverlapping(String template, List<Occurrence> sortedOccurrences)
-    {
+        List<Occurrence> sortedOccurrences = OccurrenceUtil.getCoverage(template, words);
         StringBuffer sb = new StringBuffer();
         int nextUnprocessedCharIndex = 0;
         for (Occurrence occurrence : sortedOccurrences)
@@ -249,47 +152,4 @@ public class OccurrencesMarker
         return sb.toString();
     }
 
-    // true if two occurrences of the same word in the template overlap (have a common part)
-    private static boolean hasOverlapping(List<Occurrence> occurrences)
-    {
-        int prevEndIndex = -1;
-        for (Occurrence occurrence : occurrences)
-        {
-            if (occurrence.getStartIndex() <= prevEndIndex)
-            {
-                return true;
-            }
-            prevEndIndex = Math.max(prevEndIndex, occurrence.getEndIndex());
-        }
-        return false;
-    }
-
-    // calculates a list of all words occurances, sorts it be starting position
-    private static List<Occurrence> calcSortedOccurrences(String template, List<String> words)
-    {
-        List<Occurrence> result = new ArrayList<Occurrence>();
-        for (String word : words)
-        {
-            result.addAll(calcOccurrences(template, word));
-        }
-        Collections.sort(result);
-        return result;
-    }
-
-    private static List<Occurrence> calcOccurrences(String template, String word)
-    {
-        List<Occurrence> result = new ArrayList<Occurrence>();
-        int startIndex = 0;
-        while (true)
-        {
-            int occurrenceIndex = template.indexOf(word, startIndex);
-            if (occurrenceIndex == -1)
-            {
-                break;
-            }
-            result.add(new Occurrence(word, occurrenceIndex));
-            startIndex = occurrenceIndex + 1; // maybe the word overlaps with itself?
-        }
-        return result;
-    }
 }
