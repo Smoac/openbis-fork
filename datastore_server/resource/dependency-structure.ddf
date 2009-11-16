@@ -23,7 +23,7 @@ check [dss] [etlserver] independentOf [private_openbis]
 # Check dependencies of etlserver to dss
 
 [dss.shared] = ${dss}.generic.shared.*
-[private_dss] = ${dss}.* excluding [dss.shared] ${dss}.generic.DataStoreServer 
+[private_dss] = ${dss}.* excluding [dss.shared] ${dss}.BuildAndEnvironmentInfo ${dss}.generic.DataStoreServer 
 
 check sets [dss.shared] [private_dss]
 
