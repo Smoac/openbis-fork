@@ -25,7 +25,7 @@
     <property name="sources.test" value="sourceTest/java" />
     <property name="classes" value="${targets}/ant/classes" />
     <property name="output.test" value="${targets}/test-output" />
-    <property name="build.info.filename" value="BUILD.INFO" />
+    <property name="build.info.filename" value="BUILD-${ant.project.name}.INFO" />
     <property name="build.info.file" value="${classes}/${build.info.filename}" />
 
     <!--
