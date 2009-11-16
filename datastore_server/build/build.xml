@@ -60,6 +60,7 @@
 				<include name="**/*.xml" />
 				<include name="**/*.xsd" />
 			</fileset>
+			<fileset dir="../${ant.project.name}/${classes}" includes="ch/systemsx/cisd/openbis/dss/BuildAndEnvironmentInfo.class"/>
 			<zipfileset src="${lib}/gwt1.7/gwt-user.jar"
 			            includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
 		</jar>
