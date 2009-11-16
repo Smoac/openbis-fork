@@ -37,7 +37,6 @@ import ch.systemsx.cisd.args4j.spi.FileOptionHandler;
 import ch.systemsx.cisd.args4j.spi.LongOptionHandler;
 import ch.systemsx.cisd.args4j.spi.OptionHandler;
 import ch.systemsx.cisd.args4j.spi.Setter;
-import ch.systemsx.cisd.base.utilities.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
