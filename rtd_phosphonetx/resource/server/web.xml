@@ -16,6 +16,11 @@
         <description>File for Spring beans.</description>
     </context-param>
 
+    <context-param>
+        <param-name>infoClass</param-name>
+        <param-value>ch.systemsx.cisd.openbis.plugin.phosphonetx.BuildAndEnvironmentInfo</param-value>
+    </context-param>
+
     <listener>
         <listener-class>
             ch.systemsx.cisd.openbis.generic.server.GenericHttpSessionListener
