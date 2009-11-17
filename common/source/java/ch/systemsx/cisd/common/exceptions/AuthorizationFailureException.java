@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.common.exceptions;
 
-
-
 /**
  * A {@link UserFailureException} for authorization failure.
  * 
