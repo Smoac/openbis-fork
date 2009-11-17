@@ -1,0 +1,384 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.cifex.rpc.client.gui;
+
+import java.io.File;
+import java.util.ArrayList;
+
+import javax.swing.table.AbstractTableModel;
+
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
+import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo.STATUS;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+
+/**
+ * @author Chandrasekhar Ramakrishnan
+ */
+public class FileDownloadClientModel extends AbstractTableModel
+{
+
+    private static final long serialVersionUID = 1L;
+
+    private final ICIFEXComponent cifex;
+
+    private final String sessionId;
+
+    private final ICIFEXDownloader downloader;
+
+    @SuppressWarnings("unused")
+    private final ITimeProvider timeProvider;
+
+    private final ArrayList<FileDownloadInfo> fileDownloadInfos = new ArrayList<FileDownloadInfo>();
+
+    private FileDownloadInfo currentlyDownloadingFile;
+
+    private ArrayList<FileDownloadOperation> queuedDownloads =
+            new ArrayList<FileDownloadOperation>();
+
+    private File downloadDirectory;
+
+    /**
+     * FileDownloadInfo is a mixture of FileInfoDTO, which encapsulates information about files
+     * available for download from CIFEX, and downloading progress state.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    static class FileDownloadInfo
+    {
+        static enum STATUS
+        {
+            TO_DOWNLOAD, QUEUED, DOWNLOADING, COMPLETED, FAILED
+        }
+
+        private final FileInfoDTO fileInfoDTO;
+
+        private File file;
+
+        private int percentageDownloaded;
+
+        private long numberOfBytesDownloaded;
+
+        private STATUS status;
+
+        FileDownloadInfo(FileInfoDTO fileInfo)
+        {
+            this.fileInfoDTO = fileInfo;
+            percentageDownloaded = 0;
+            numberOfBytesDownloaded = 0;
+            setStatus(STATUS.TO_DOWNLOAD);
+        }
+
+        public FileInfoDTO getFileInfoDTO()
+        {
+            return fileInfoDTO;
+        }
+
+        public void setFile(File file)
+        {
+            this.file = file;
+        }
+
+        public File getFile()
+        {
+            return file;
+        }
+
+        public int getPercentageDownloaded()
+        {
+            return percentageDownloaded;
+        }
+
+        public long getNumberOfBytesDownloaded()
+        {
+            return numberOfBytesDownloaded;
+        }
+
+        void updateProgress(int percent, long numberOfBytes)
+        {
+            percentageDownloaded = percent;
+            numberOfBytesDownloaded = numberOfBytes;
+        }
+
+        public void setStatus(STATUS status)
+        {
+            this.status = status;
+        }
+
+        public STATUS getStatus()
+        {
+            return status;
+        }
+    }
+
+    FileDownloadClientModel(FileDownloadClient downloadClient, ITimeProvider timeProvider)
+    {
+        this.cifex = downloadClient.getCifex();
+        this.sessionId = downloadClient.getSessionId();
+        this.downloader = downloadClient.getDownloader();
+        this.timeProvider = timeProvider;
+        this.downloadDirectory = new File(".");
+
+        addProgessListener();
+
+        updateDownloadableFiles();
+    }
+
+    public File getDownloadDirectory()
+    {
+        return downloadDirectory;
+    }
+
+    public void setDownloadDirectory(File downloadDirectory)
+    {
+        this.downloadDirectory = downloadDirectory;
+    }
+
+    public ICIFEXDownloader getDownloader()
+    {
+        return downloader;
+    }
+
+    private void addProgessListener()
+    {
+        downloader.addProgressListener(new IProgressListener()
+            {
+                public void start(File file, long fileSize)
+                {
+                    System.out
+                            .println("DEBUG DownloadTableModel::addProgessListener start download + "
+                                    + file.getName());
+                    currentlyDownloadingFile = tryToFindDownloadInfoForFile(file);
+                    if (currentlyDownloadingFile != null)
+                    {
+                        currentlyDownloadingFile.updateProgress(0, 0);
+                        fireChanged();
+                    }
+                }
+
+                public void reportProgress(int percentage, long numberOfBytes)
+                {
+                    if (currentlyDownloadingFile != null)
+                    {
+                        System.out
+                                .println("DEBUG DownloadTableModel::reportProgress report progress + "
+                                        + percentage);
+                        currentlyDownloadingFile.setStatus(FileDownloadInfo.STATUS.DOWNLOADING);
+                        currentlyDownloadingFile.updateProgress(percentage, numberOfBytes);
+                        fireChanged();
+                    }
+                }
+
+                public void finished(boolean successful)
+                {
+                    if (currentlyDownloadingFile != null)
+                    {
+                        if (successful)
+                        {
+                            currentlyDownloadingFile.updateProgress(100,
+                                    currentlyDownloadingFile.fileInfoDTO.getSize());
+                            currentlyDownloadingFile.setStatus(FileDownloadInfo.STATUS.COMPLETED);
+                        } else
+                        {
+                            currentlyDownloadingFile.setStatus(FileDownloadInfo.STATUS.FAILED);
+                        }
+                        fireChanged();
+                    }
+                }
+
+                public void exceptionOccured(Throwable throwable)
+                {
+                }
+
+                public void warningOccured(String warningMessage)
+                {
+                }
+
+                private FileDownloadInfo tryToFindDownloadInfoForFile(File file)
+                {
+                    String fileName = file.getName();
+                    if (null == fileName)
+                        return null;
+
+                    for (FileDownloadInfo fileDownloadInfo : fileDownloadInfos)
+                    {
+                        if (fileName.equals(fileDownloadInfo.fileInfoDTO.getName()))
+                            return fileDownloadInfo;
+                    }
+                    return null;
+                }
+
+                private void fireChanged()
+                {
+                    if (currentlyDownloadingFile != null)
+                    {
+                        int index = fileDownloadInfos.indexOf(currentlyDownloadingFile);
+                        fireTableRowsUpdated(index, index);
+                    }
+                }
+
+            });
+    }
+
+    void setSelectedIndices(ArrayList<Integer> selectedIndices)
+    {
+
+    }
+
+    void updateDownloadableFiles()
+    {
+        // get the list of downloadable files from CIFEX
+        FileInfoDTO[] downloadableFileInfos = cifex.listDownloadFiles(sessionId);
+
+        // create FileDownloadInfos for each of the files
+        fileDownloadInfos.clear();
+        for (FileInfoDTO fileInfo : downloadableFileInfos)
+        {
+            fileDownloadInfos.add(new FileDownloadInfo(fileInfo));
+        }
+
+        fireTableDataChanged();
+    }
+
+    public int getColumnCount()
+    {
+        return 5;
+    }
+
+    public int getRowCount()
+    {
+        return fileDownloadInfos.size();
+    }
+
+    @Override
+    public String getColumnName(int column)
+    {
+        switch (column)
+        {
+            case 0:
+                return "File";
+            case 1:
+                return "From";
+            case 2:
+                return "Sent Date";
+            case 3:
+                return "Download Before";
+            case 4:
+                return "";
+        }
+        return null;
+    }
+
+    public Object getValueAt(int rowIndex, int columnIndex)
+    {
+        FileDownloadInfo fileDownloadInfo = fileDownloadInfos.get(rowIndex);
+        switch (columnIndex)
+        {
+            case 0:
+                return fileDownloadInfo.fileInfoDTO;
+            case 1:
+                return fileDownloadInfo.fileInfoDTO.getRegistrator();
+            case 2:
+                return fileDownloadInfo.fileInfoDTO.getRegistrationDate();
+            case 3:
+                return fileDownloadInfo.fileInfoDTO.getExpirationDate();
+            case 4:
+                return fileDownloadInfo;
+        }
+        return null;
+    }
+
+    @Override
+    public Class<?> getColumnClass(int c)
+    {
+        return getValueAt(0, c).getClass();
+    }
+
+    @Override
+    public void setValueAt(Object value, int row, int col)
+    {
+        // This only makes sense for the button column
+        assert (col == 4);
+
+        FileDownloadInfo fileDownloadInfo = (FileDownloadInfo) value;
+        if (null == fileDownloadInfo)
+            return;
+
+        // Only start downloading if the file hasn't been downloaded yet
+        FileDownloadInfo.STATUS status = fileDownloadInfo.getStatus();
+        if ((status != FileDownloadInfo.STATUS.TO_DOWNLOAD)
+                && (status != FileDownloadInfo.STATUS.FAILED))
+            return;
+
+        // update the status of the info and start the download
+        queueDownloadOfFile(fileDownloadInfo);
+
+        fireTableCellUpdated(row, col);
+    }
+
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex)
+    {
+        // only the last column is editable
+        if (columnIndex != 4)
+            return false;
+
+        // and that, only when the file is not currently downloading or finished
+        FileDownloadInfo fileDownloadInfo = fileDownloadInfos.get(rowIndex);
+        if (null == fileDownloadInfo)
+            return false;
+        FileDownloadInfo.STATUS status = fileDownloadInfo.getStatus();
+        return (status == FileDownloadInfo.STATUS.TO_DOWNLOAD)
+                || (status == FileDownloadInfo.STATUS.FAILED);
+    }
+
+    /**
+     * Start a file download in a separate thread.
+     */
+    private synchronized void queueDownloadOfFile(FileDownloadInfo fileDownloadInfo)
+    {
+        fileDownloadInfo.setStatus(STATUS.QUEUED);
+        FileDownloadOperation op =
+                new FileDownloadOperation(this, fileDownloadInfo, downloadDirectory);
+        queuedDownloads.add(op);
+        processQueuedDownloads();
+    }
+
+    /**
+     * The file download operation finished -- cleanup
+     */
+    synchronized void finishedDownloadingFile(FileDownloadOperation op)
+    {
+        queuedDownloads.remove(op);
+        processQueuedDownloads();
+    }
+
+    /**
+     * If the queue is non-empty, start the first waiting download.
+     */
+    private synchronized void processQueuedDownloads()
+    {
+        // Nothing to do
+        if (queuedDownloads.size() < 1)
+            return;
+
+        // Get the first element from the queue and start it
+        FileDownloadOperation op = queuedDownloads.get(0);
+        op.start();
+    }
+}
