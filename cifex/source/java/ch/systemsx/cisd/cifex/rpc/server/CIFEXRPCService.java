@@ -41,7 +41,6 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.FileSizeExceededException;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
-import ch.systemsx.cisd.cifex.rpc.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.rpc.server.Session.Operation;
 import ch.systemsx.cisd.cifex.server.AbstractCIFEXService;
 import ch.systemsx.cisd.cifex.server.HttpUtils;
@@ -311,7 +310,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             {
                 operationLog.error("[" + sessionID + "]: resumeUploading() failed because user "
                         + user.getUserCode() + " is not allowed to control fileId=" + fileId);
-                throw new InsufficientPrivilegesException("Insufficient privileges for user "
+                throw new AuthorizationFailureException("Insufficient privileges for user "
                         + user.getUserCode() + ".");
             }
             session.startUploadOperation();
@@ -421,7 +420,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
      */
     private void checkIfUserIsControllingFiles(String sessionID, final UserDTO user,
             final Collection<FileDTO> files, final List<String> recipientList)
-            throws InsufficientPrivilegesException
+            throws AuthorizationFailureException
     {
         for (FileDTO file : files)
         {
@@ -434,7 +433,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 {
                     userBehaviorLogOrNull.logShareFilesAuthorizationFailure(files, recipientList);
                 }
-                throw new InsufficientPrivilegesException("Insufficient privileges for user "
+                throw new AuthorizationFailureException("Insufficient privileges for user "
                         + user.getUserCode() + ".");
             }
         }

@@ -39,7 +39,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
-import ch.systemsx.cisd.cifex.rpc.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.rpc.client.Uploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
 import ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService;
@@ -52,6 +51,7 @@ import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.PreCreatedFileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
@@ -502,7 +502,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    @Test(expectedExceptions = InsufficientPrivilegesException.class)
+    @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testSharingInsufficientPrivileges() throws IOException
     {
         final File fileOnClient = new File(CLIENT_FOLDER, LARGE_FILE);
