@@ -21,7 +21,8 @@ import java.util.Collection;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
- * Extended {@link ListSampleCriteria} with 4th filter option for detailed sample search.<br>
+ * Extended {@link ListSampleCriteria} with 4th filter option for detailed sample search and 5th
+ * option for tracking samples.<br>
  * <br>
  * NOTE: not serializable
  * 
@@ -33,6 +34,8 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
 
     private ListSampleCriteria listCriteria;
 
+    private TrackingSampleCriteria trackingCriteria;
+
     private Collection<Long> sampleIds;
 
     /** Creates criteria that delegates to given {@link ListSampleCriteria}. */
@@ -40,6 +43,13 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     {
         assert listCriteria != null;
         this.listCriteria = listCriteria;
+    }
+
+    /** Creates criteria that delegates to given {@link TrackingSampleCriteria}. */
+    public ListOrSearchSampleCriteria(TrackingSampleCriteria trackingCriteria)
+    {
+        assert trackingCriteria != null;
+        this.trackingCriteria = trackingCriteria;
     }
 
     /** Creates criteria for detailed search of samples with given ids. */
@@ -56,7 +66,19 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
         return sampleIds;
     }
 
-    // delegation
+    // delegation to TrackingSampleCriteria
+
+    public String getSampleTypeCode()
+    {
+        return trackingCriteria == null ? null : trackingCriteria.getSampleTypeCode();
+    }
+
+    public int getLastSeenSampleId()
+    {
+        return trackingCriteria == null ? null : trackingCriteria.getLastSeenSampleId();
+    }
+
+    // delegation to ListSampleCriteria
 
     @Override
     public TechId getContainerSampleId()

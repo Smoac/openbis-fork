@@ -91,6 +91,16 @@
     </bean>
     
     <!-- 
+        // Tracking
+    -->
+    
+    <bean id="tracking-server" class="ch.systemsx.cisd.openbis.generic.server.TrackingServer">
+        <constructor-arg ref="session-manager" />
+        <constructor-arg ref="dao-factory" />
+        <constructor-arg ref="common-business-object-factory" />
+    </bean>
+    
+    <!-- 
         // ETL Service with interceptors for translating results
     -->
     

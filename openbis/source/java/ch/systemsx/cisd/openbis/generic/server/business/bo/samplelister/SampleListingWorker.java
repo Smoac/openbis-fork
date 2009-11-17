@@ -31,6 +31,7 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
@@ -207,6 +208,7 @@ final class SampleListingWorker
         retrievePrimaryBasicSamples(tryGetIteratorForSharedSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForExperimentSamples());
         retrievePrimaryBasicSamples(tryGetIteratorForContainedSamples());
+        retrievePrimaryBasicSamples(tryGetIteratorForTrackedSamples());
         if (operationLog.isDebugEnabled())
         {
             watch.stop();
@@ -383,6 +385,32 @@ final class SampleListingWorker
         } else
         {
             return query.getSharedSamples(databaseInstanceId);
+        }
+    }
+
+    private Iterable<SampleRecord> tryGetIteratorForTrackedSamples()
+    {
+        final String sampleTypeCode = criteria.getSampleTypeCode();
+        if (sampleTypeCode == null)
+        {
+            return null;
+        }
+        SampleType sampleTypeOrNull = null;
+        for (SampleType sampleType : sampleTypes.values())
+        {
+            if (sampleType.getCode().equals(sampleTypeCode))
+            {
+                sampleTypeOrNull = sampleType;
+            }
+        }
+        if (sampleTypeOrNull != null)
+        {
+            return query.getSamplesForSampleType(sampleTypeOrNull.getId());
+        } else
+        {
+            throw UserFailureException
+                    .fromTemplate("No sample type with code '%s' could be found in the database.",
+                            sampleTypeCode);
         }
     }
 
