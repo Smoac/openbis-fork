@@ -275,6 +275,11 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             final Session session = sessionManager.getSession(sessionID);
             fileName = FilenameUtils.getName(file.getFilePathOnClient());
             logInvocation(sessionID, "Start uploading " + fileName);
+            int maxUploadSize = getMaxUploadSize(session);
+            if (file.getFileSize() > maxUploadSize * MB)
+            {
+                throw new FileSizeExceededException(maxUploadSize);
+            }
             final PreCreatedFileDTO fileInfo =
                     fileManager.createFile(session.getUser(), file, comment);
             session.startUploadOperation();
