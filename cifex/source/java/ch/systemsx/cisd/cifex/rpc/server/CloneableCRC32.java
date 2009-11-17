@@ -16,17 +16,42 @@
 
 package ch.systemsx.cisd.cifex.rpc.server;
 
+import java.lang.reflect.Field;
 import java.util.zip.CRC32;
 
 /**
- * A {@link CRC32} class which can be cloned.
- *
+ * A {@link CRC32} class which can be cloned and initialized with a value.
+ * 
  * @author Bernd Rinn
  */
 public class CloneableCRC32 extends CRC32 implements Cloneable
 {
+    public CloneableCRC32()
+    {
+    }
+
     /**
-     * Returns the CRC32 as an <code>int</code>.
+     * Initialize the object, setting the CRC32 value initially to <var>initialCRC32Value</var>. Use
+     * this for resuming a checksum calculation.
+     */
+    public CloneableCRC32(int initialCRC32Value)
+    {
+        // Note: this is an awful hack, but the Sun engineers just didn't think of this case when
+        // designing the API.
+        final Field crcField;
+        try
+        {
+            crcField = CRC32.class.getDeclaredField("crc");
+            crcField.setAccessible(true);
+            crcField.setInt(this, initialCRC32Value);
+        } catch (Exception ex)
+        {
+            throw new Error("Cannot set crc field: " + ex.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * Returns the CRC32 value as an <code>int</code>.
      */
     public int getIntValue()
     {

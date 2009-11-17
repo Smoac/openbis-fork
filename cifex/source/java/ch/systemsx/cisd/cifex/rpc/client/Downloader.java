@@ -19,7 +19,6 @@ package ch.systemsx.cisd.cifex.rpc.client;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -83,7 +82,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                 long filePointer = fileProvider.getRandomAccessFile().length();
                 if (filePointer > 0)
                 {
-                    FileUtils.checksum(file, crc32);
+                    calculateCRC32(fileProvider.getRandomAccessFile(), crc32, filePointer);
                 }
                 fireProgressEvent(filePointer, fileSize);
                 while (filePointer < fileSize)

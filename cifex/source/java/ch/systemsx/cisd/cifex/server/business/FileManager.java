@@ -489,6 +489,12 @@ final class FileManager extends AbstractManager implements IFileManager
                 fileDTO.getCrc32Value(), caluclateExpirationDate(fileDTO.getRegistrator()));
     }
 
+    @Transactional
+    public FileDTO tryGetUploadResumeCandidate(long userId, String fileName, long completeSize)
+    {
+        return daoFactory.getFileDAO().tryGetResumeCandidate(userId, fileName, completeSize);
+    }
+
     public final List<String> shareFilesWith(final String url, final UserDTO requestUser,
             final Collection<String> userIdentifiers, final Collection<FileDTO> files,
             final String comment) throws UserFailureException

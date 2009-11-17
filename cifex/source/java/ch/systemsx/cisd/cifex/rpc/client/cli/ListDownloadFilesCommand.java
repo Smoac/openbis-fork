@@ -66,7 +66,7 @@ public class ListDownloadFilesCommand extends AbstractCommandWithSessionToken
                 final String crc32 =
                         (file.getCrc32Value() == null) ? "-" : String.format("%x", file
                                 .getCrc32Value());
-                System.out.println(file.getIDStr() + "\t" + file.getName() + "\t" + file.getSize()
+                System.out.println(file.getID() + "\t" + file.getName() + "\t" + file.getSize()
                         + "\t" + crc32 + "\t" + file.getContentType() + "\t" + file.getRegistrator()
                         + "\t" + file.getExpirationDate() + "\t" + file.getComment());
             }

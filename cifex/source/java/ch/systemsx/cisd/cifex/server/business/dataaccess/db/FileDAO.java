@@ -243,8 +243,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                 getSimpleJdbcTemplate().query(
                         SELECT_FILES + " from files f where f.user_id = ? and f.name = ? and "
                                 + "f.complete_size = ? and f.size < f.complete_size "
-                                + "fetch first row only", FILE_ROW_MAPPER, userId, fileName,
-                        completeSize);
+                                + "order by f.size desc fetch first row only", FILE_ROW_MAPPER,
+                        userId, fileName, completeSize);
         if (list.isEmpty())
         {
             return null;

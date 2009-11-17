@@ -186,6 +186,16 @@ public final class Session
         currentCrc32.reset();
     }
 
+    public final void setRandomAccessFile(RandomAccessFile randomAccessFile, long filePointer,
+            int crc32Value)
+    {
+        this.randomAccessFile = randomAccessFile;
+        oldFilePointer = -1L;
+        oldCrc32 = null;
+        currentFilePointer = filePointer;
+        currentCrc32 = new CloneableCRC32(crc32Value);
+    }
+
     public final void updateUploadProgress(long filePointer, int runningCrc32Value, byte[] block)
     {
         if (filePointer == currentFilePointer)

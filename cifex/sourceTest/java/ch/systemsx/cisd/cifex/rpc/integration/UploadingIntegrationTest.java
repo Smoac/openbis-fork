@@ -20,10 +20,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
+import java.util.zip.CRC32;
 
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.BaseMatcher;
@@ -58,7 +60,9 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  */
 public class UploadingIntegrationTest extends AssertJUnit
 {
-    private static final int BLOCK_SIZE = 256 * 1024;
+    private static final int BLOCK_SIZE_KB = 256;
+
+    private static final int BLOCK_SIZE = BLOCK_SIZE_KB * 1024;
 
     private static final String TEST_URL = "test-url";
 
@@ -85,13 +89,15 @@ public class UploadingIntegrationTest extends AssertJUnit
 
     private static final long LARGE_FILE_ID = 18L;
 
+    private static int LARGE_FILE_FIRST_TWO_BLOCKS_CRC32;
+
     private static final FilePreregistrationDTO LARGE_FILE_INFO =
             new FilePreregistrationDTO(new File(CLIENT_FOLDER, LARGE_FILE).getAbsolutePath(),
                     LARGE_FILE_SIZE * 1024L);
 
     private static String COMMENT = "no comment";
 
-    private static void createRandomData(File file, long sizeInKB)
+    private static void createRandomData(File file, long sizeInKB, CRC32 crc32OrNull, int maxKbCRC32)
     {
         Random random = new Random();
         FileOutputStream outputStream = null;
@@ -102,6 +108,10 @@ public class UploadingIntegrationTest extends AssertJUnit
             for (int i = 0; i < sizeInKB; i++)
             {
                 random.nextBytes(bytes);
+                if (crc32OrNull != null && i < maxKbCRC32)
+                {
+                    crc32OrNull.update(bytes);
+                }
                 outputStream.write(bytes);
             }
         } catch (IOException ex)
@@ -148,6 +158,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                 new CIFEXRPCService(fileManager, domainModel, null, userActionLog, null,
                         new SessionManager(null, null, "false"), 60000L, 10, "false");
         user = new UserDTO();
+        user.setID(42L);
         user.setUserCode("Isaac");
         sessionID = uploadService.createSession(user, TEST_URL);
         uploader = new Uploader(uploadService, sessionID);
@@ -158,9 +169,11 @@ public class UploadingIntegrationTest extends AssertJUnit
         CLIENT_FOLDER.mkdirs();
         FILE_STORE.mkdirs();
         final File smallFile = new File(CLIENT_FOLDER, SMALL_FILE);
-        createRandomData(smallFile, SMALL_FILE_SIZE);
+        createRandomData(smallFile, SMALL_FILE_SIZE, null, 0);
         final File largeFile = new File(CLIENT_FOLDER, LARGE_FILE);
-        createRandomData(largeFile, LARGE_FILE_SIZE);
+        final CRC32 crc32FirstBlock = new CRC32();
+        createRandomData(largeFile, LARGE_FILE_SIZE, crc32FirstBlock, 2 * BLOCK_SIZE_KB);
+        LARGE_FILE_FIRST_TWO_BLOCKS_CRC32 = (int) crc32FirstBlock.getValue();
     }
 
     @AfterMethod
@@ -188,6 +201,8 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
+                            SMALL_FILE_SIZE * 1024L);
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
@@ -223,6 +238,126 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testNoResumeWrongChecksum() throws IOException
+    {
+        final File fileOnClient = new File(CLIENT_FOLDER, LARGE_FILE);
+        final File fileInFileStore = new File(FILE_STORE, LARGE_FILE);
+        final FileDTO fileDTO = createFileDTO(true);
+        final FileDTO fileDTOPartial = createFileDTO(true);
+        fileDTOPartial.setSize(BLOCK_SIZE);
+        fileDTOPartial.setCrc32Value(0);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(domainModel).getBusinessContext();
+                    will(returnValue(businessContext));
+                    allowing(businessContext).getMaxUploadRequestSizeInMB();
+                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
+                    one(userActionLog).logUploadFileStart(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
+                            LARGE_FILE_SIZE * 1024L);
+                    will(returnValue(fileDTOPartial));
+                    one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L);
+
+                    one(fileManager).createFile(user, LARGE_FILE_INFO, COMMENT);
+                    will(returnValue(new PreCreatedFileDTO(fileInFileStore, fileDTO)));
+
+                    one(fileManager).getFileInformation(LARGE_FILE_ID);
+                    will(returnValue(new FileInformation(LARGE_FILE_ID, fileDTO, fileInFileStore)));
+                    one(fileManager).isControlling(user, fileDTO);
+                    will(returnValue(true));
+                    one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
+                            with(equal(Arrays.asList("Albert", "Galileo"))),
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+        addRegularProgressExpectations();
+        addUpdateUploadProgress(LARGE_FILE_INFO.getFileSize(), LARGE_FILE_INFO.getFileSize());
+
+        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+
+        assertEqualContent(fileOnClient, fileInFileStore);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testResume() throws IOException
+    {
+        final File fileOnClient = new File(CLIENT_FOLDER, LARGE_FILE);
+        final File fileInFileStore = new File(FILE_STORE, LARGE_FILE);
+        copyBlocks(fileOnClient, fileInFileStore, 2);
+        final FileDTO fileDTO = createFileDTO(true);
+        final FileDTO fileDTOPartial = createFileDTO(true);
+        fileDTOPartial.setSize(2 * BLOCK_SIZE);
+        fileDTOPartial.setCrc32Value(LARGE_FILE_FIRST_TWO_BLOCKS_CRC32);
+        fileDTOPartial.setName(LARGE_FILE);
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(domainModel).getBusinessContext();
+                    will(returnValue(businessContext));
+                    allowing(businessContext).getMaxUploadRequestSizeInMB();
+                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
+                    one(userActionLog).logUploadFileStart(LARGE_FILE, true);
+                    one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
+                            LARGE_FILE_SIZE * 1024L);
+                    will(returnValue(fileDTOPartial));
+                    one(fileManager).getFileInformation(LARGE_FILE_ID);
+                    will(returnValue(new FileInformation(LARGE_FILE_ID, fileDTOPartial,
+                            fileInFileStore)));
+                    one(fileManager).isControlling(user, fileDTOPartial);
+                    will(returnValue(true));
+                    one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L);
+
+                    one(fileManager).getFileInformation(LARGE_FILE_ID);
+                    will(returnValue(new FileInformation(LARGE_FILE_ID, fileDTO, fileInFileStore)));
+                    one(fileManager).isControlling(user, fileDTO);
+                    will(returnValue(true));
+                    one(fileManager).shareFilesWith(with(equal(TEST_URL)), with(equal(user)),
+                            with(equal(Arrays.asList("Albert", "Galileo"))),
+                            with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+        addRegularProgressExpectationsExceptFirstTwoBlocks();
+        addUpdateUploadProgress(LARGE_FILE_INFO.getFileSize(), 3 * BLOCK_SIZE, LARGE_FILE_INFO
+                .getFileSize());
+
+        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+
+        assertEqualContent(fileOnClient, fileInFileStore);
+        context.assertIsSatisfied();
+    }
+
+    private void copyBlocks(File f1, File f2, int numberOfBlocks) throws IOException
+    {
+        RandomAccessFile raf1 = new RandomAccessFile(f1, "r");
+        try
+        {
+            RandomAccessFile raf2 = new RandomAccessFile(f2, "rw");
+            try
+            {
+                final byte[] bytes = new byte[BLOCK_SIZE];
+                for (int i = 0; i < numberOfBlocks; ++i)
+                {
+                    raf1.readFully(bytes);
+                    raf2.write(bytes);
+                }
+            } finally
+            {
+                raf2.close();
+            }
+
+        } finally
+        {
+            raf1.close();
+        }
+    }
+
     private void addRegularProgressExpectations()
     {
         context.checking(new Expectations()
@@ -252,13 +387,46 @@ public class UploadingIntegrationTest extends AssertJUnit
             });
     }
 
+    private void addRegularProgressExpectationsExceptFirstTwoBlocks()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(listener).reportProgress(12, 2 * BLOCK_SIZE);
+                    one(listener).reportProgress(19, 3 * BLOCK_SIZE);
+                    one(listener).reportProgress(25, 4 * BLOCK_SIZE);
+                    one(listener).reportProgress(32, 5 * BLOCK_SIZE);
+                    one(listener).reportProgress(38, 6 * BLOCK_SIZE);
+                    one(listener).reportProgress(44, 7 * BLOCK_SIZE);
+                    one(listener).reportProgress(51, 8 * BLOCK_SIZE);
+                    one(listener).reportProgress(57, 9 * BLOCK_SIZE);
+                    one(listener).reportProgress(64, 10 * BLOCK_SIZE);
+                    one(listener).reportProgress(70, 11 * BLOCK_SIZE);
+                    one(listener).reportProgress(76, 12 * BLOCK_SIZE);
+                    one(listener).reportProgress(83, 13 * BLOCK_SIZE);
+                    one(listener).reportProgress(89, 14 * BLOCK_SIZE);
+                    one(listener).reportProgress(96, 15 * BLOCK_SIZE);
+                    one(listener).reportProgress(100, LARGE_FILE_INFO.getFileSize());
+                    one(listener).fileUploaded();
+                    one(listener).finished(true);
+                    one(listener).reset();
+                }
+            });
+    }
+
     private void addUpdateUploadProgress(final long completeSize, final long maxSize)
+    {
+        addUpdateUploadProgress(completeSize, -1L, maxSize);
+    }
+
+    private void addUpdateUploadProgress(final long completeSize, final long minSize,
+            final long maxSize)
     {
         context.checking(new Expectations()
             {
                 {
                     final long[] size = new long[1];
-                    size[0] = BLOCK_SIZE > maxSize ? maxSize : BLOCK_SIZE;
+                    size[0] = minSize < 0 ? (BLOCK_SIZE > maxSize ? maxSize : BLOCK_SIZE) : minSize;
                     while (true)
                     {
                         one(fileManager).updateUploadProgress(with(new BaseMatcher<FileDTO>()
@@ -302,6 +470,8 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
+                            LARGE_FILE_SIZE * 1024L);
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
@@ -388,6 +558,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
                     one(userActionLog).logUploadFileStart(LARGE_FILE, true);
                     one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
+                            LARGE_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient1, SMALL_FILE_SIZE * 1024L);
                     one(fileManager).createFile(user, SMALL_FILE_INFO, COMMENT);
                     will(returnValue(new PreCreatedFileDTO(fileInFileStore1, fileDTO1)));
@@ -396,6 +568,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).reportProgress(100, SMALL_FILE_SIZE * 1024L);
                     one(listener).fileUploaded();
 
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
+                            SMALL_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient2, LARGE_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, LARGE_FILE_INFO, COMMENT);
@@ -436,6 +610,8 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
+                            SMALL_FILE_SIZE * 1024L);
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
@@ -511,6 +687,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     will(returnValue((int) (SMALL_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(SMALL_FILE, true);
                     one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
+                            SMALL_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, SMALL_FILE_INFO, COMMENT);
@@ -564,6 +742,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(businessContext).getMaxUploadRequestSizeInMB();
                     will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(LARGE_FILE, true);
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
+                            LARGE_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, LARGE_FILE_INFO, COMMENT);
@@ -631,6 +811,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     exactly(2).of(userActionLog).logUploadFileStart(LARGE_FILE, true);
                     one(userActionLog).logUploadFileFinished(LARGE_FILE, false);
                     one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
+                            SMALL_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient1, SMALL_FILE_SIZE * 1024L);
                     one(fileManager).createFile(user, SMALL_FILE_INFO, COMMENT);
                     will(returnValue(new PreCreatedFileDTO(fileInFileStore1, fileDTO1)));
@@ -639,6 +821,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).reportProgress(100, SMALL_FILE_SIZE * 1024L);
                     one(listener).fileUploaded();
 
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
+                            LARGE_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient2, LARGE_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, LARGE_FILE_INFO, COMMENT);
@@ -669,6 +853,8 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).finished(false);
                     one(listener).reset();
 
+                    one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
+                            LARGE_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient2, LARGE_FILE_SIZE * 1024L);
 
                     one(fileManager).createFile(user, LARGE_FILE_INFO, "2. try");

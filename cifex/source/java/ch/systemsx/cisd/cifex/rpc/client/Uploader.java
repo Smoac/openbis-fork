@@ -29,6 +29,7 @@ import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
@@ -104,8 +105,8 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     /**
      * Uploads the specified files for the specified recipients.
      * 
-     * @param recipientsOrNull Comma or space-separated list of e-mail addresses or user ID's in the form
-     *            <code>id:<i>user ID</i></code>. Can be an empty string.
+     * @param recipientsOrNull Comma or space-separated list of e-mail addresses or user ID's in the
+     *            form <code>id:<i>user ID</i></code>. Can be an empty string.
      * @param comment Optional comment added to the outgoing e-mails. Can be an empty string.
      */
     public void upload(List<File> files, String recipientsOrNull, String comment)
@@ -123,18 +124,30 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
             {
                 try
                 {
-                    crc32.reset();
-                    final long fileSize = file.length();
-                    final FilePreregistrationDTO filePreDTO =
-                            new FilePreregistrationDTO(file.getCanonicalPath(), fileSize);
                     final RandomAccessFileProvider fileProvider =
                             new RandomAccessFileProvider(file, "r");
+                    final long fileSize = file.length();
+                    final FilePreregistrationDTO fileSpecs =
+                            new FilePreregistrationDTO(file.getCanonicalPath(), fileSize);
+                    crc32.reset();
+                    final FileInfoDTO fileInfoForResumeOrNull =
+                            tryGetFileInfoForResumeUpload(fileProvider, fileSpecs);
                     try
                     {
                         fireStartedEvent(file, fileSize);
-                        final long fileId = service.startUploading(sessionID, filePreDTO, comment);
+                        long filePointer;
+                        final long fileId;
+                        if (fileInfoForResumeOrNull != null)
+                        {
+                            fileId = fileInfoForResumeOrNull.getID();
+                            filePointer = fileInfoForResumeOrNull.getSize();
+                            service.resumeUploading(sessionID, fileId);
+                        } else
+                        {
+                            fileId = service.startUploading(sessionID, fileSpecs, comment);
+                            filePointer = 0L;
+                        }
                         fileIds.add(fileId);
-                        long filePointer = 0L;
                         fireProgressEvent(filePointer, fileSize);
                         while (filePointer < fileSize)
                         {
@@ -184,6 +197,28 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
             fireResetEvent();
             inProgress.set(false);
         }
+    }
+
+    private FileInfoDTO tryGetFileInfoForResumeUpload(final RandomAccessFileProvider fileProvider,
+            final FilePreregistrationDTO fileSpecs) throws IOException
+    {
+        final FileInfoDTO uploadCandidateOrNull =
+                service.tryGetUploadResumeCandidate(sessionID, fileSpecs);
+        if (uploadCandidateOrNull != null)
+        {
+            // Verify the checksum of the candidate
+            final int runningCrc32Value =
+                    calculateCRC32(fileProvider.getRandomAccessFile(), crc32, uploadCandidateOrNull
+                            .getSize());
+            if (runningCrc32Value == uploadCandidateOrNull.getCrc32Value())
+            {
+                return uploadCandidateOrNull;
+            } else
+            {
+                crc32.reset();
+            }
+        }
+        return null;
     }
 
     private void uploadNextBlock(final RandomAccessFileProvider fileProvider,

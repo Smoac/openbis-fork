@@ -259,8 +259,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         final Session session = sessionManager.getSession(sessionID);
         final List<FileDTO> files =
                 domainModel.getFileManager().listDownloadFiles(session.getUser().getID());
-        return BeanUtils.createBeanArray(ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO.class,
-                files);
+        return BeanUtils.createBeanArray(FileInfoDTO.class, files);
     }
 
     //
@@ -286,6 +285,41 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             session.setRandomAccessFile(randomAccessFile);
             success = true;
             return fileInfo.getFileDTO().getID();
+        } finally
+        {
+            if (userBehaviorLogOrNull != null)
+            {
+                userBehaviorLogOrNull.logUploadFileStart(fileName, success);
+            }
+        }
+    }
+
+    public void resumeUploading(String sessionID, long fileId) throws InvalidSessionException
+    {
+        boolean success = false;
+        String fileName = "UNKNOWN";
+        try
+        {
+            final Session session = sessionManager.getSession(sessionID);
+            final UserDTO user = session.getUser();
+            final FileInformation fileInfo = fileManager.getFileInformation(fileId);
+            final FileDTO file = fileInfo.getFileDTO();
+            fileName = fileInfo.getFileDTO().getName();
+            logInvocation(sessionID, "Resume uploading of file " + fileName + " (id=" + fileId
+                    + ")");
+            if (fileManager.isControlling(user, fileInfo.getFileDTO()) == false)
+            {
+                operationLog.error("[" + sessionID + "]: resumeUploading() failed because user "
+                        + user.getUserCode() + " is not allowed to control fileId=" + fileId);
+                throw new InsufficientPrivilegesException("Insufficient privileges for user "
+                        + user.getUserCode() + ".");
+            }
+            session.startUploadOperation();
+            session.setFile(fileInfo.getFile());
+            session.setFileDTO(file);
+            RandomAccessFile randomAccessFile = createRandomAccessFile(fileInfo.getFile());
+            session.setRandomAccessFile(randomAccessFile, file.getSize(), file.getCrc32Value());
+            success = true;
         } finally
         {
             if (userBehaviorLogOrNull != null)
@@ -330,6 +364,23 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(th);
         }
+    }
+
+    public FileInfoDTO tryGetUploadResumeCandidate(String sessionID,
+            FilePreregistrationDTO fileSpecs)
+    {
+        assert sessionID != null;
+        assert fileSpecs != null;
+        final Session session = sessionManager.getSession(sessionID);
+        final String fileName = FilenameUtils.getName(fileSpecs.getFilePathOnClient());
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug("Try to get upload resume candidate for file=" + fileName
+                    + " with complete size=" + fileSpecs.getFileSize());
+        }
+        final UserDTO user = session.getUser();
+        return BeanUtils.createBean(FileInfoDTO.class, fileManager.tryGetUploadResumeCandidate(user
+                .getID(), fileName, fileSpecs.getFileSize()));
     }
 
     public void shareFiles(String sessionID, List<Long> fileIDs, String recipients)
@@ -377,7 +428,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             if (fileManager.isControlling(user, file) == false)
             {
                 operationLog.error("[" + sessionID + "]: shareFiles() failed because user "
-                        + user.getUserCode() + " is not allowed control of fileId="
+                        + user.getUserCode() + " is not allowed to control fileId="
                         + file.toString());
                 if (userBehaviorLogOrNull != null)
                 {

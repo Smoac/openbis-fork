@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -49,9 +51,9 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     protected final CRC32 crc32 = new CRC32();
 
     protected final AtomicBoolean cancelled = new AtomicBoolean(false);
-    
+
     protected final AtomicBoolean inProgress = new AtomicBoolean(false);
-    
+
     /**
      * Creates an instance for the specified service and session ID.
      */
@@ -88,6 +90,28 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     public void cancel()
     {
         cancelled.set(true);
+    }
+
+    /**
+     * Computes the checksum of <var>file</var>, up to <var>maxSize</var>, which has to be smaller
+     * or equal to the actual file size. As a side effect, the result will be available in
+     * <var>checksum</var>. <br>
+     * <i>Note: this method resets the <var>checksum</var> object!</i>
+     */
+    protected int calculateCRC32(RandomAccessFile fileProvider, CRC32 checksum, long maxSize) throws IOException
+    {
+        checksum.reset();
+        long filePointer = 0L;
+        while (filePointer < maxSize)
+        {
+            final int blockSize = (int) Math.min(maxSize - filePointer, BLOCK_SIZE);
+            final byte[] bytes = new byte[blockSize];
+            fileProvider.seek(filePointer);
+            fileProvider.readFully(bytes, 0, blockSize);
+            checksum.update(bytes);
+            filePointer += blockSize;
+        }
+        return (int) checksum.getValue();
     }
 
     protected void fireStartedEvent(File file, long fileSize)

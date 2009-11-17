@@ -58,7 +58,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
     public AdminFileGridModel(IMessageResources messageResources, AdminFileInfoDTO file)
     {
         super(messageResources);
-        set(ID, file.getIDStr());// String
+        set(ID, file.getID());// long
         set(NAME, file.getName());// String
         set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
         set(REGISTERER, UserRenderer.createUserAnchor(file.getRegistrator()));// String

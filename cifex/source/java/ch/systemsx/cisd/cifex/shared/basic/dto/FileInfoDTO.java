@@ -34,7 +34,7 @@ public class FileInfoDTO implements IsSerializable, Serializable
     /**
      * Unique identifier of the file as a string.
      */
-    private String idStr;
+    private long id;
 
     /** File name. */
     private String name;
@@ -72,18 +72,22 @@ public class FileInfoDTO implements IsSerializable, Serializable
 
     /**
      * Returns ID.
+     * 
+     * @return <code>null</code> when undefined.
      */
-    public final String getIDStr()
+    public final long getID()
     {
-        return idStr;
+        return id;
     }
 
     /**
      * Sets ID.
+     * 
+     * @param id New value. Can be <code>null</code>.
      */
-    public final void setIDStr(final String idStr)
+    public final void setID(final long id)
     {
-        this.idStr = idStr;
+        this.id = id;
     }
 
     public final String getName()

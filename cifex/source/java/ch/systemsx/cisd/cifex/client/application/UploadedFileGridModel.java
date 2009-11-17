@@ -40,7 +40,7 @@ public class UploadedFileGridModel extends AbstractFileGridModel
     {
 
         super(messageResources);
-        set(ID, file.getIDStr());// String
+        set(ID, file.getID());// long
         set(NAME, file.getName());// String
         set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
         set(CONTENT_TYPE, file.getContentType());// String

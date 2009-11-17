@@ -109,6 +109,13 @@ public interface ICIFEXRPCService
             throws InvalidSessionException;
 
     /**
+     * Resume uploading the given filen with id <var>fileId</var>.
+     * 
+     * @throws InvalidSessionException if there is no session with specified session ID.
+     */
+    public void resumeUploading(String sessionID, long fileId) throws InvalidSessionException;
+
+    /**
      * Uploads a data block for the specified upload session.
      * 
      * @param filePointer The pointer of the block within the file. Can be either the same one as
@@ -128,6 +135,13 @@ public interface ICIFEXRPCService
     public void uploadBlock(String sessionID, long filePointer, int runningCrc32Value, byte[] block)
             throws InvalidSessionException, IOExceptionUnchecked, FileSizeExceededException,
             IllegalStateException;
+
+    /**
+     * Returns the candidate for resuming an upload process if any is available on the server, or
+     * <code>null</code> otherwise.
+     */
+    public FileInfoDTO tryGetUploadResumeCandidate(String sessionID,
+            FilePreregistrationDTO fileSpecs);
 
     //
     // File sharing

@@ -127,6 +127,15 @@ public interface IFileManager
     public void updateUploadProgress(FileDTO fileDTO);
 
     /**
+     * Returns the candidate for upload resuming for user <var>userId</var> of given
+     * <var>fileName</var> with <var>completeSize</var>, if one is available, or <code>null</code>,
+     * otherwise. If multiple candidates are available, the one with the largest already uploaded
+     * size is returned.
+     */
+    public FileDTO tryGetUploadResumeCandidate(final long userId, final String fileName,
+            final long completeSize);
+
+    /**
      * Creates sharing links between the users specified by their e-mail addresses or user id (with
      * the prefix 'id:') and the specified files. For users specified with an Email address not
      * known a temporary account is created. Each user will be informed by an e-mail.
