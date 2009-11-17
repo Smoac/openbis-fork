@@ -48,8 +48,7 @@ public class FileDownloadOperation implements Runnable
 
     public void run()
     {
-        tableModel.getDownloader().download(
-                Long.parseLong(fileDownloadInfo.getFileInfoDTO().getIDStr()), downloadDirectory,
+        tableModel.getDownloader().download(fileDownloadInfo.getFileInfoDTO().getID(), downloadDirectory,
                 null);
         tableModel.finishedDownloadingFile(this);
     }
