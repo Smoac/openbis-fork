@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.CRC32;
 
 import org.springframework.remoting.RemoteAccessException;
 
@@ -30,7 +31,6 @@ import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
-import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
@@ -129,9 +129,9 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                     final long fileSize = file.length();
                     final FilePreregistrationDTO fileSpecs =
                             new FilePreregistrationDTO(file.getCanonicalPath(), fileSize);
-                    crc32.reset();
+                    final CRC32 crc32 = new CRC32();
                     final FileInfoDTO fileInfoForResumeOrNull =
-                            tryGetFileInfoForResumeUpload(fileProvider, fileSpecs);
+                            tryGetFileInfoForResumeUpload(fileProvider, fileSpecs, crc32);
                     try
                     {
                         fireStartedEvent(file, fileSize);
@@ -153,7 +153,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                         {
                             final int blockSize =
                                     (int) Math.min(fileSize - filePointer, BLOCK_SIZE);
-                            uploadNextBlock(fileProvider, filePointer, blockSize);
+                            uploadNextBlock(fileProvider, filePointer, blockSize, crc32);
                             if (cancelled.get())
                             {
                                 service.finish(sessionID, false);
@@ -200,7 +200,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     }
 
     private FileInfoDTO tryGetFileInfoForResumeUpload(final RandomAccessFileProvider fileProvider,
-            final FilePreregistrationDTO fileSpecs) throws IOException
+            final FilePreregistrationDTO fileSpecs, final CRC32 crc32) throws IOException
     {
         final FileInfoDTO uploadCandidateOrNull =
                 service.tryGetUploadResumeCandidate(sessionID, fileSpecs);
@@ -222,7 +222,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     }
 
     private void uploadNextBlock(final RandomAccessFileProvider fileProvider,
-            final long filePointer, final int blockSize) throws IOException,
+            final long filePointer, final int blockSize, final CRC32 crc32) throws IOException,
             EnvironmentFailureException
     {
         final RandomAccessFile randomAccessFile = fileProvider.getRandomAccessFile();
@@ -248,7 +248,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                 lastExceptionOrNull = ex;
                 fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName() + ": "
                         + ex.getMessage() + ", will retry upload soon...");
-                ConcurrencyUtilities.sleep(WAIT_AFTER_FAILURE_MILLIS);
+                sleepAfterFailure();
             }
         }
         if (lastExceptionOrNull != null)

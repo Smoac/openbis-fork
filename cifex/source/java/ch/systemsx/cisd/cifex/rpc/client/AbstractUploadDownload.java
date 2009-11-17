@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.CRC32;
 
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -40,15 +41,13 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
 
     protected static final int MAX_RETRIES = 30;
 
-    protected static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L;
+    private static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L;
 
     protected final ICIFEXRPCService service;
 
     protected final String sessionID;
 
     protected final Set<IProgressListener> listeners = new LinkedHashSet<IProgressListener>();
-
-    protected final CRC32 crc32 = new CRC32();
 
     protected final AtomicBoolean cancelled = new AtomicBoolean(false);
 
@@ -152,6 +151,21 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
         for (IProgressListener listener : listeners)
         {
             listener.warningOccured(warningMessage);
+        }
+    }
+
+    /**
+     * The same as {@link Thread#sleep(long)} but throws a {@link InterruptedExceptionUnchecked} on interruption
+     * rather than a {@link InterruptedException}.
+     */
+    protected static void sleepAfterFailure() throws InterruptedExceptionUnchecked
+    {
+        try
+        {
+            Thread.sleep(WAIT_AFTER_FAILURE_MILLIS);
+        } catch (InterruptedException ex)
+        {
+            throw new InterruptedExceptionUnchecked(ex);
         }
     }
 

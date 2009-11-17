@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.zip.CRC32;
 
 import org.springframework.remoting.RemoteAccessException;
 
@@ -26,7 +27,6 @@ import ch.systemsx.cisd.cifex.rpc.CRCCheckumMismatchException;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
-import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 
 /**
  * Class which downloads file via an implementation of {@link ICIFEXRPCService}, handling the
@@ -74,7 +74,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             final String fileName = fileNameOrNull != null ? fileNameOrNull : fileInfo.getName();
             final File file = new File(directory, fileName);
             final long fileSize = fileInfo.getSize();
-            crc32.reset();
+            final CRC32 crc32 = new CRC32();
             fireStartedEvent(file, fileSize);
             final RandomAccessFileProvider fileProvider = new RandomAccessFileProvider(file, "rw");
             try
@@ -89,7 +89,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                 {
                     final int blockSize =
                             (int) Math.min(fileInfo.getSize() - filePointer, BLOCK_SIZE);
-                    downloadAndStoreBlock(fileProvider, filePointer, blockSize);
+                    downloadAndStoreBlock(fileProvider, filePointer, blockSize, crc32);
                     if (cancelled.get())
                     {
                         service.finish(sessionID, false);
@@ -129,7 +129,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
     }
 
     private void downloadAndStoreBlock(final RandomAccessFileProvider fileProvider,
-            long filePointer, final int blockSize) throws IOException
+            long filePointer, final int blockSize, final CRC32 crc32) throws IOException
     {
         RemoteAccessException lastExceptionOrNull = null;
         for (int i = 0; i < MAX_RETRIES; ++i)
@@ -151,7 +151,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                 lastExceptionOrNull = ex;
                 fireWarningEvent("Error during download: " + ex.getClass().getSimpleName() + ": "
                         + ex.getMessage() + ", will retry download soon...");
-                ConcurrencyUtilities.sleep(WAIT_AFTER_FAILURE_MILLIS);
+                sleepAfterFailure();
             }
         }
         if (lastExceptionOrNull != null)
