@@ -574,14 +574,6 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                 operationLog.warn("Cannot close random access file", ex);
             }
         }
-        final List<File> tempFiles = session.getTempFiles();
-        for (File file : tempFiles)
-        {
-            if (file.exists() && file.delete() == false)
-            {
-                operationLog.warn("Cannot delete temporary file " + file);
-            }
-        }
         session.reset();
     }
 

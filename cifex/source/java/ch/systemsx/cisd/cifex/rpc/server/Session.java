@@ -18,8 +18,6 @@ package ch.systemsx.cisd.cifex.rpc.server;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.List;
 
 import ch.systemsx.cisd.cifex.rpc.CRCCheckumMismatchException;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
@@ -47,13 +45,7 @@ public final class Session
 
     private FileDTO fileDTO;
 
-    private List<File> temporaryFiles = new ArrayList<File>();
-
     private RandomAccessFile randomAccessFile;
-
-    private String[] recipients;
-
-    private String comment;
 
     private Operation operation;
 
@@ -82,7 +74,6 @@ public final class Session
     void reset()
     {
         touchSession();
-        temporaryFiles.clear();
         setFile(null);
         setRandomAccessFile(null);
         oldFilePointer = -1L;
@@ -162,16 +153,6 @@ public final class Session
         return operation == Operation.DOWNLOAD;
     }
 
-    final void addTempFile(File tempFile)
-    {
-        temporaryFiles.add(tempFile);
-    }
-
-    final List<File> getTempFiles()
-    {
-        return temporaryFiles;
-    }
-
     public final RandomAccessFile getRandomAccessFile()
     {
         return randomAccessFile;
@@ -226,26 +207,6 @@ public final class Session
             throw new RuntimeException("Size of uploaded file exceeds initially set file size ("
                     + fileDTO.getSize() + " > " + fileDTO.getCompleteSize());
         }
-    }
-
-    final String[] getRecipients()
-    {
-        return recipients;
-    }
-
-    final void setRecipients(String[] recipients)
-    {
-        this.recipients = recipients;
-    }
-
-    final String getComment()
-    {
-        return comment;
-    }
-
-    final void setComment(String comments)
-    {
-        this.comment = comments;
     }
 
     public long getLastActiveMillis()
