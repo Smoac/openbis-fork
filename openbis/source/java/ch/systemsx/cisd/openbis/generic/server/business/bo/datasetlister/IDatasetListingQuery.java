@@ -59,6 +59,15 @@ public interface IDatasetListingQuery extends TransactionQuery, IPropertyListing
     public DataIterator<DatasetRecord> getDatasetsForSample(long sampleId);
 
     /**
+     * Returns datasets that are newer than dataset with given id (<var>lastSeenDatasetId</var>) and
+     * are directly connected with samples of sample type with given <var>sampleTypeId</var>.
+     */
+    @Select(sql = "SELECT * FROM data JOIN external_data ON data.id = external_data.data_id"
+            + "    WHERE data.id > ?{2} AND data.samp_id IN (SELECT id FROM samples s WHERE s.saty_id=?{1})", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getNewDataSetsForSampleType(long sampleTypeId,
+            int lastSeenDatasetId);
+
+    /**
      * Returns the directly connected dataset ids for the given sample id.
      */
     @Select(sql = "select id from data where data.samp_id=?{1}", fetchSize = FETCH_SIZE)

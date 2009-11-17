@@ -29,6 +29,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
@@ -139,6 +140,18 @@ public class SecondaryEntityDAO
         registrator.setFirstName(escapeHtml(registrator.getFirstName()));
         registrator.setLastName(escapeHtml(registrator.getLastName()));
         return registrator;
+    }
+
+    public Long getSampleTypeIdForSampleTypeCode(String sampleTypeCode)
+    {
+        Long id = query.getSampleTypeIdForSampleTypeCode(sampleTypeCode, databaseInstance.getId());
+        if (id == null)
+        {
+            throw UserFailureException
+                    .fromTemplate("No sample type with code '%s' could be found in the database.",
+                            sampleTypeCode);
+        }
+        return id;
     }
 
     public Group[] getAllGroups(long databaseInstanceId)

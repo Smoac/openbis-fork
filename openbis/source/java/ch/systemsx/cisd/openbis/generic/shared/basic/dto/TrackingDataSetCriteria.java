@@ -40,6 +40,7 @@ public class TrackingDataSetCriteria implements IsSerializable, Serializable
 
     public TrackingDataSetCriteria(String connectedSampleTypeCode, int lastSeenDataSetId)
     {
+        assert connectedSampleTypeCode != null;
         this.lastSeenDataSetId = lastSeenDataSetId;
         this.connectedSampleTypeCode = connectedSampleTypeCode;
     }

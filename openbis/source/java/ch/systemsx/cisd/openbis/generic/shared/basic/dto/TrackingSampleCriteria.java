@@ -38,6 +38,7 @@ public class TrackingSampleCriteria implements Serializable
 
     public TrackingSampleCriteria(String sampleTypeCode, int lastSeenSampleId)
     {
+        assert sampleTypeCode != null;
         this.sampleTypeCode = sampleTypeCode;
         this.lastSeenSampleId = lastSeenSampleId;
     }

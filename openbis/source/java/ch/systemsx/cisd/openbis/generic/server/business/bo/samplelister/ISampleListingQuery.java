@@ -159,17 +159,19 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     public DataIterator<SampleRecord> getSamplesForContainer(long sampleContainerId);
 
     //
-    // Samples of type
+    // New samples of type
     //
 
     /**
-     * Returns all samples for the given <var>sampleTypeId</var>.
+     * Returns all samples of sample type with given <var>sampleTypeId</var> that are newer than
+     * sample with given id (<var>lastSeenSampleId</var>).
      */
     @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, s.dbin_id, "
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
-            + "   from samples s where s.saty_id=?{1} order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getSamplesForSampleType(long sampleTypeId);
+            + "   from samples s where s.saty_id=?{1} and s.id > ?{2} order by s.code", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getNewSamplesForSampleType(long sampleTypeId,
+            int lastSeenSampleId);
 
     //
     // Shared samples

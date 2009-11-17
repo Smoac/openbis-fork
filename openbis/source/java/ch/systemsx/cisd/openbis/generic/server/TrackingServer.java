@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
@@ -47,11 +48,6 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
         return businessObjectFactory;
     }
 
-    // private static UserFailureException createUserFailureException(final DataAccessException ex)
-    // {
-    // return new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
-    // }
-
     //
     // IInvocationLoggerFactory
     //
@@ -71,13 +67,17 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
 
     public List<ExternalData> listDataSets(String sessionToken, TrackingDataSetCriteria criteria)
     {
-        // TODO 2009-11-06, Piotr Buczek: implement
-        return null;
+        final Session session = getSession(sessionToken);
+
+        final IDatasetLister datasetLister =
+                businessObjectFactory.createDatasetLister(session, getDataStoreBaseURL());
+        return datasetLister.listByTrackingCriteria(criteria);
     }
 
     public List<Sample> listSamples(String sessionToken, TrackingSampleCriteria criteria)
     {
         final Session session = getSession(sessionToken);
+
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
         return sampleLister.list(new ListOrSearchSampleCriteria(criteria));
     }

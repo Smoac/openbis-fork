@@ -96,4 +96,12 @@ public interface ISecondaryEntityListingQuery extends TransactionQuery
      */
     @Select("select id from groups where code=?{1}")
     public long getGroupIdForCode(String groupCode);
+
+    /**
+     * Returns the technical id of a sample type for given <var>sampleTypeCode</code> or
+     * <code>null</code> if such sample type doesn't exist.
+     */
+    @Select("select id from sample_types where code=?{1} and dbin_id=?{2}")
+    public Long getSampleTypeIdForSampleTypeCode(String sampleTypeCode, long dbInstanceId);
+
 }

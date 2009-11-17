@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Invalidation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
 
 /**
@@ -172,6 +173,15 @@ public class DatasetLister implements IDatasetLister
     public List<ExternalData> listByDatasetIds(Collection<Long> datasetIds)
     {
         return enrichDatasets(query.getDatasets(new LongOpenHashSet(datasetIds)));
+    }
+
+    public List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria)
+    {
+        Long sampleTypeId =
+                referencedEntityDAO.getSampleTypeIdForSampleTypeCode(criteria
+                        .getConnectedSampleTypeCode());
+        return enrichDatasets(query.getNewDataSetsForSampleType(sampleTypeId, criteria
+                .getLastSeenDataSetId()));
     }
 
     private List<ExternalData> enrichDatasets(Iterable<DatasetRecord> datasets)

@@ -100,8 +100,8 @@ public class OpenbisClientTest
         SessionContextDTO session = trackingServer.tryToAuthenticate(USER_ID, USER_PASSWORD);
 
         final String sampleTypeCode = "CELL_PLATE";
-        final int lastSeenSampleId = 0;
-        final int lastSeenDataSetId = 0;
+        final int lastSeenSampleId = 1000; // compare with 0
+        final int lastSeenDataSetId = 3; // compare with 0
 
         final TrackingSampleCriteria sampleCriteria =
                 new TrackingSampleCriteria(sampleTypeCode, lastSeenSampleId);

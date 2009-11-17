@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
 /**
  * A class for fast dataset listing.
@@ -33,6 +34,7 @@ public interface IDatasetLister
     List<ExternalData> listByExperimentTechId(TechId experimentId);
 
     // TODO 2009-09-10, Piotr Buczek: write tests
+
     /**
      * @return datasets connected to the sample with the specified id
      * @param showOnlyDirectlyConnected whether to return only directly connected datasets, or also
@@ -45,8 +47,12 @@ public interface IDatasetLister
 
     /** @return datasets that are parents of a dataset with the specified id */
     List<ExternalData> listByParentTechId(TechId parentDatasetId);
-	//
+
+    //
 
     /** @return datasets with given ids */
     List<ExternalData> listByDatasetIds(Collection<Long> datasetIds);
+
+    /** @return datasets specified by given criteria */
+    List<ExternalData> listByTrackingCriteria(TrackingDataSetCriteria criteria);
 }

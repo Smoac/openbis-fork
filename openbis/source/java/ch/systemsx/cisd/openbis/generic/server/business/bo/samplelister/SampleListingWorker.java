@@ -31,7 +31,6 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityPropertiesEnricher;
@@ -395,23 +394,9 @@ final class SampleListingWorker
         {
             return null;
         }
-        SampleType sampleTypeOrNull = null;
-        for (SampleType sampleType : sampleTypes.values())
-        {
-            if (sampleType.getCode().equals(sampleTypeCode))
-            {
-                sampleTypeOrNull = sampleType;
-            }
-        }
-        if (sampleTypeOrNull != null)
-        {
-            return query.getSamplesForSampleType(sampleTypeOrNull.getId());
-        } else
-        {
-            throw UserFailureException
-                    .fromTemplate("No sample type with code '%s' could be found in the database.",
-                            sampleTypeCode);
-        }
+        Long sampleTypeId =
+                referencedEntityDAO.getSampleTypeIdForSampleTypeCode(criteria.getSampleTypeCode());
+        return query.getNewSamplesForSampleType(sampleTypeId, criteria.getLastSeenSampleId());
     }
 
     private void retrievePrimaryBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull)
