@@ -225,7 +225,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                         .query(
                                 SELECT_FILES
                                         + ", u.* from files f, users u "
-                                        + "where f.complete_size = f.size and f.user_id = u.id and u.id = ?",
+                                        + "where f.user_id = u.id and u.id = ?",
                                 FILE_WITH_REGISTERER_ROW_MAPPER, userId);
         return list;
     }

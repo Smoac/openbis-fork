@@ -45,6 +45,8 @@ public class UploadedFileGridModel extends AbstractFileGridModel
         set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
         set(CONTENT_TYPE, file.getContentType());// String
         set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
+        set(COMPLETE_SIZE, new Double(file.getCompleteSize()));// Double
+        set(IS_COMPLETE, Boolean.valueOf(file.isComplete()));// Boolean
         set(REGISTRATION_DATE, file.getRegistrationDate());// Date
         set(EXPIRATION_DATE, file.getExpirationDate());// Date
         set(ACTION, DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
@@ -65,6 +67,8 @@ public class UploadedFileGridModel extends AbstractFileGridModel
         configs.add(createCommentColumnConfig(messageResources));
         configs.add(createContentTypeColumnConfig(messageResources));
         configs.add(createSizeColumnConfig(messageResources));
+        configs.add(createCompleteSizeColumnConfig(messageResources));
+        configs.add(createIsCompleteColumnConfig(messageResources));
         configs.add(createRegistrationDateColumnConfig(messageResources));
         configs.add(createExpirationDateColumnConfig(messageResources));
         configs.add(createActionColumnConfig(messageResources));

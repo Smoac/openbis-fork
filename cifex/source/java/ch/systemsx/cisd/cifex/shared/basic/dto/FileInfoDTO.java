@@ -50,6 +50,8 @@ public class FileInfoDTO implements IsSerializable, Serializable
      */
     private Long size;
     
+    private long completeSize; 
+    
     private Integer crc32Value;
 
     /**
@@ -138,6 +140,21 @@ public class FileInfoDTO implements IsSerializable, Serializable
     public final void setSize(final Long size)
     {
         this.size = size;
+    }
+
+    public final long getCompleteSize()
+    {
+        return completeSize;
+    }
+
+    public final void setCompleteSize(long completeSize)
+    {
+        this.completeSize = completeSize;
+    }
+
+    public boolean isComplete()
+    {
+        return getSize() != null && getSize().longValue() == getCompleteSize();
     }
 
     public void setCrc32Value(Integer crc32Value)
