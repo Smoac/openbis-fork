@@ -79,6 +79,8 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
         final Session session = getSession(sessionToken);
 
         final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
-        return sampleLister.list(new ListOrSearchSampleCriteria(criteria));
+        final ListOrSearchSampleCriteria listerCriteria = new ListOrSearchSampleCriteria(criteria);
+        listerCriteria.setEnrichDependentSamplesWithProperties(true);
+        return sampleLister.list(listerCriteria);
     }
 }

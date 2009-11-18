@@ -24,10 +24,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * Criteria for listing <i>samples</i>. This class offers 3 kinds of filters, but only one can be
- * used at the same time: <br>
- * filter 1: samples of particular type in a specified group and/or shared <br>
- * filter 2: samples belonging to a container sample<br>
- * filter 3: samples from the experiment<br>
+ * used at the same time:
+ * <ol>
+ * <li>samples of particular type in a specified group and/or shared
+ * <li>samples belonging to a container sample
+ * <li>samples from the experiment
+ * </ol>
  * 
  * @author Izabela Adamczyk
  * @author Tomasz Pylak
@@ -36,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 public class ListSampleCriteria implements IsSerializable, Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     // --------- filter 1 fields
     private SampleType sampleType;
 

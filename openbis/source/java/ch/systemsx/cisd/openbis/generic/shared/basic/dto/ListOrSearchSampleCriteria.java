@@ -21,10 +21,15 @@ import java.util.Collection;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
- * Extended {@link ListSampleCriteria} with 4th filter option for detailed sample search and 5th
- * option for tracking samples.<br>
+ * Extended {@link ListSampleCriteria} with 2 new filter options:
+ * <ul>
+ * <li>detailed sample search
+ * <li>tracking new samples of particular type
+ * </ul>
+ * Additionally one can decide if dependent samples that are loaded (parents and containers) should
+ * be enriched with properties. By default only 'primary' samples are enriched.<br>
  * <br>
- * NOTE: not serializable
+ * NOTE: This bean is not serializable.
  * 
  * @author Piotr Buczek
  */
@@ -37,6 +42,8 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     private TrackingSampleCriteria trackingCriteria;
 
     private Collection<Long> sampleIds;
+
+    private boolean enrichDependentSamplesWithProperties = false;
 
     /** Creates criteria that delegates to given {@link ListSampleCriteria}. */
     public ListOrSearchSampleCriteria(ListSampleCriteria listCriteria)
@@ -120,6 +127,16 @@ public final class ListOrSearchSampleCriteria extends ListSampleCriteria
     public boolean isIncludeInstance()
     {
         return listCriteria == null ? false : listCriteria.isIncludeInstance();
+    }
+
+    public boolean isEnrichDependentSamplesWithProperties()
+    {
+        return enrichDependentSamplesWithProperties;
+    }
+
+    public void setEnrichDependentSamplesWithProperties(boolean enrichDependentSamplesWithProperties)
+    {
+        this.enrichDependentSamplesWithProperties = enrichDependentSamplesWithProperties;
     }
 
 }

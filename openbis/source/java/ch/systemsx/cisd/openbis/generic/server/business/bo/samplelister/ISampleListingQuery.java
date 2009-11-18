@@ -169,7 +169,7 @@ public interface ISampleListingQuery extends TransactionQuery, IPropertyListingQ
     @Select(sql = "select s.id, s.perm_id, s.code, s.expe_id, s.grou_id, s.dbin_id, "
             + "       s.registration_timestamp, s.pers_id_registerer, "
             + "       s.samp_id_generated_from, s.samp_id_part_of, s.saty_id, s.inva_id "
-            + "   from samples s where s.saty_id=?{1} and s.id > ?{2} order by s.code", fetchSize = FETCH_SIZE)
+            + "   from samples s where s.saty_id=?{1} and s.id > ?{2}", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getNewSamplesForSampleType(long sampleTypeId,
             int lastSeenSampleId);
 

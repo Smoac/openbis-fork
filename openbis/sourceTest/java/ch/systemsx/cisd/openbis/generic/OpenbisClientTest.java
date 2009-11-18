@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -12,6 +14,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -107,30 +110,110 @@ public class OpenbisClientTest
                 new TrackingSampleCriteria(sampleTypeCode, lastSeenSampleId);
         final List<Sample> samples =
                 trackingServer.listSamples(session.getSessionToken(), sampleCriteria);
-        outputFoundEntities(samples, EntityKind.SAMPLE);
+        System.out.println(TrackingHelper.trackedEntitiesInformation(samples, EntityKind.SAMPLE));
 
         final TrackingDataSetCriteria dataSetCriteria =
                 new TrackingDataSetCriteria(sampleTypeCode, lastSeenDataSetId);
         final List<ExternalData> dataSets =
                 trackingServer.listDataSets(session.getSessionToken(), dataSetCriteria);
-        outputFoundEntities(dataSets, EntityKind.DATA_SET);
+        System.out
+                .println(TrackingHelper.trackedEntitiesInformation(dataSets, EntityKind.DATA_SET));
     }
 
-    private static void outputFoundEntities(List<? extends IEntityInformationHolder> entities,
-            EntityKind entityKind)
+    /**
+     * Helper class encapsulating methods used for producing readable information about entities
+     * returned by {@link ITrackingServer} methods.
+     * 
+     * @author Piotr Buczek
+     */
+    private static class TrackingHelper
     {
-        if (entities == null || entities.size() == 0)
+
+        private static final String INDENT = "  ";
+
+        private static String trackedEntitiesInformation(
+                List<? extends IEntityInformationHolder> entities, EntityKind entityKind)
         {
-            System.out.println(String.format("No %ss found.", entityKind.getDescription()));
-        } else
-        {
-            List<String> codes = new ArrayList<String>(entities.size());
-            for (IEntityInformationHolder entity : entities)
+            if (entities == null || entities.size() == 0)
             {
-                codes.add(entity.getCode());
+                return String.format("\nNo %ss tracked.", entityKind.getDescription());
+            } else
+            {
+                List<String> entityInfo = new ArrayList<String>(entities.size());
+                for (IEntityInformationHolder entity : entities)
+                {
+                    entityInfo.add(toString(entity));
+                }
+                return String.format("\nTracked %d %s(s): \n%s", entityInfo.size(), entityKind
+                        .getDescription(), StringUtils.join(entityInfo, "\n"));
             }
-            System.out.println(String.format("Found %d %ss: %s", codes.size(), entityKind
-                    .getDescription(), StringUtils.join(codes, ", ")));
+        }
+
+        private static String toString(IEntityInformationHolder entity)
+        {
+            switch (entity.getEntityKind())
+            {
+                case SAMPLE:
+                    return toString((Sample) entity);
+                case DATA_SET:
+                    return toString((ExternalData) entity);
+                default:
+                    throw new IllegalArgumentException(entity.getEntityKind()
+                            + " is not supported ");
+            }
+        }
+
+        private static String toString(Sample sample)
+        {
+            return toString(sample, INDENT);
+        }
+
+        private static String toString(Sample sample, String indent)
+        {
+            final StringBuilder sb = new StringBuilder();
+            ToStringBuilder builder = new ToStringBuilder(sample, ToStringStyle.SHORT_PREFIX_STYLE);
+            builder.append("id", sample.getId());
+            builder.append(" code", sample.getCode());
+            builder.append(" identifier", sample.getIdentifier());
+            builder.append(" type", sample.getSampleType());
+            builder.append(" properties", toString(sample.getProperties()));
+            sb.append(builder.toString());
+            final String newIndent = indent + INDENT;
+            if (sample.getContainer() != null)
+            {
+                sb.append("\n" + indent + "container");
+                sb.append(toString(sample.getContainer(), newIndent));
+            }
+            if (sample.getGeneratedFrom() != null)
+            {
+                sb.append("\n" + indent + "parent");
+                sb.append(toString(sample.getGeneratedFrom(), newIndent));
+            }
+            return sb.toString();
+        }
+
+        private static String toString(ExternalData dataSet)
+        {
+            final StringBuilder sb = new StringBuilder();
+            ToStringBuilder builder =
+                    new ToStringBuilder(dataSet, ToStringStyle.SHORT_PREFIX_STYLE);
+            builder.append("id", dataSet.getId());
+            builder.append(" code", dataSet.getCode());
+            builder.append(" type", dataSet.getDataSetType());
+            builder.append(" properties", toString(dataSet.getProperties()));
+            sb.append(builder.toString());
+            final String indent = INDENT;
+            if (dataSet.getSample() != null)
+            {
+                sb.append("\n" + indent + toString(dataSet.getSample()));
+            }
+            return sb.toString();
+        }
+
+        private static String toString(List<IEntityProperty> properties)
+        {
+            // output just collection size or null if initialized
+            return properties == null ? null : new Integer(properties.size()).toString();
         }
     }
 }

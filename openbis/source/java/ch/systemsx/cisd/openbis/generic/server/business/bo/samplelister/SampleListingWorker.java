@@ -217,8 +217,35 @@ final class SampleListingWorker
             watch.start();
         }
 
-        // Only enrich the "primary" samples (matching the criteria) with properties, not
-        // dependent samples.
+        if (criteria.isEnrichDependentSamplesWithProperties() == false)
+        {
+            // only 'primary' samples were retrieved up to this point
+            enrichRetrievedSamplesWithProperties(watch);
+        }
+        retrieveDependentSamplesRecursively();
+        resolveParents();
+        resolveContainers();
+        if (criteria.isEnrichDependentSamplesWithProperties())
+        {
+            // dependent samples will also be enriched
+            enrichRetrievedSamplesWithProperties(watch);
+        }
+
+        return sampleList;
+    }
+
+    //
+    // Private worker methods
+    //
+
+    private void enrichRetrievedSamplesWithProperties(StopWatch watch)
+    {
+        // Initialize property collections of all samples retrieved up to this point
+        // (without this enricher will not work properly).
+        for (Sample sample : sampleMap.values())
+        {
+            sample.setProperties(new ArrayList<IEntityProperty>());
+        }
         if (samplePropertiesEnricherOrNull != null)
         {
             samplePropertiesEnricherOrNull.enrich(sampleMap.keySet(),
@@ -236,17 +263,7 @@ final class SampleListingWorker
                         .toString()));
             }
         }
-
-        retrieveDependentSamplesRecursively();
-        resolveParents();
-        resolveContainers();
-
-        return sampleList;
     }
-
-    //
-    // Private worker methods
-    //
 
     private void loadGroups()
     {
@@ -394,6 +411,9 @@ final class SampleListingWorker
         {
             return null;
         }
+        // uncomment if we want all dependent samples to be loaded
+        // maxSampleContainerResolutionDepth = Integer.MAX_VALUE;
+        // maxSampleParentResolutionDepth = Integer.MAX_VALUE;
         Long sampleTypeId =
                 referencedEntityDAO.getSampleTypeIdForSampleTypeCode(criteria.getSampleTypeCode());
         return query.getNewSamplesForSampleType(sampleTypeId, criteria.getLastSeenSampleId());
@@ -471,7 +491,6 @@ final class SampleListingWorker
             sample.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURLOrNull,
                     EntityKind.SAMPLE, row.perm_id));
             sample.setRegistrationDate(row.registration_timestamp);
-            sample.setProperties(new ArrayList<IEntityProperty>());
             if (row.inva_id != null)
             {
                 final Invalidation invalidation = new Invalidation();
