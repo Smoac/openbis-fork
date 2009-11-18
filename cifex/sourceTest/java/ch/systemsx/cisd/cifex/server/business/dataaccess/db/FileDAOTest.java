@@ -188,8 +188,8 @@ public final class FileDAOTest extends AbstractDAOTest
         FileDTO file = files.get(0);
         assertEqual(sampleFile, file);
         List<FileDTO> uploadedFiles = fileDAO.listUploadedFiles(getFirstSampleUserFromDB().getID());
-        // incomplete files are not listed in listUploadedFiles()
-        assertTrue(uploadedFiles.isEmpty());
+        // incomplete files are listed in listUploadedFiles()
+        assertEquals(1, uploadedFiles.size());
 
         // see whether we find the incomplete file as candidate for resume
         final FileDTO candidate =
