@@ -104,7 +104,7 @@ public class OpenbisClientTest
 
         final String sampleTypeCode = "CELL_PLATE";
         final int lastSeenSampleId = 1000; // compare with 0
-        final int lastSeenDataSetId = 3; // compare with 0
+        final int lastSeenDataSetId = 0; // compare with 3
 
         final TrackingSampleCriteria sampleCriteria =
                 new TrackingSampleCriteria(sampleTypeCode, lastSeenSampleId);
@@ -202,10 +202,11 @@ public class OpenbisClientTest
             builder.append(" type", dataSet.getDataSetType());
             builder.append(" properties", toString(dataSet.getProperties()));
             sb.append(builder.toString());
-            final String indent = INDENT;
             if (dataSet.getSample() != null)
             {
-                sb.append("\n" + indent + toString(dataSet.getSample()));
+                final String indent = INDENT;
+                final String newIndent = indent + INDENT;
+                sb.append("\n" + indent + toString(dataSet.getSample(), newIndent));
             }
             return sb.toString();
         }

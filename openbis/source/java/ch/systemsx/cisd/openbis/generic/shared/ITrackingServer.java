@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingSampleCriteria;
 
 /**
- * Definition of the client-server interface.
+ * Definition of the client-server interface for tracking creation of samples and datasets.
  * 
  * @author Piotr Buczek
  */

@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
@@ -65,15 +68,6 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
     // ITrackingServer
     //
 
-    public List<ExternalData> listDataSets(String sessionToken, TrackingDataSetCriteria criteria)
-    {
-        final Session session = getSession(sessionToken);
-
-        final IDatasetLister datasetLister =
-                businessObjectFactory.createDatasetLister(session, getDataStoreBaseURL());
-        return datasetLister.listByTrackingCriteria(criteria);
-    }
-
     public List<Sample> listSamples(String sessionToken, TrackingSampleCriteria criteria)
     {
         final Session session = getSession(sessionToken);
@@ -83,4 +77,56 @@ public final class TrackingServer extends AbstractServer<ITrackingServer> implem
         listerCriteria.setEnrichDependentSamplesWithProperties(true);
         return sampleLister.list(listerCriteria);
     }
+
+    public List<ExternalData> listDataSets(String sessionToken, TrackingDataSetCriteria criteria)
+    {
+        final Session session = getSession(sessionToken);
+
+        // retrieve data sets connected to samples of type specified in criteria
+        // (these samples don't have properties loaded but ids are loaded)
+        final IDatasetLister datasetLister =
+                businessObjectFactory.createDatasetLister(session, getDataStoreBaseURL());
+        final List<ExternalData> dataSets = datasetLister.listByTrackingCriteria(criteria);
+        // retrieve samples enriched with their dependent samples and properties
+        // (drawback - samples directly connected to data sets are retrieved twice)
+        final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+        final ListOrSearchSampleCriteria listerCriteria =
+                new ListOrSearchSampleCriteria(extractConnectedSampleIds(dataSets));
+        listerCriteria.setEnrichDependentSamplesWithProperties(true);
+        final List<Sample> enrichedSamples = sampleLister.list(listerCriteria);
+        // replace data set samples with enriched ones
+        replaceConnectedSamples(dataSets, enrichedSamples);
+        return dataSets;
+    }
+
+    private List<Long> extractConnectedSampleIds(List<ExternalData> dataSets)
+    {
+        final List<Long> sampleIds = new ArrayList<Long>();
+        for (ExternalData dataSet : dataSets)
+        {
+            assert dataSet.getSample() != null : "data set is not connected to a sample";
+            sampleIds.add(dataSet.getSample().getId());
+        }
+        return sampleIds;
+    }
+
+    private void replaceConnectedSamples(List<ExternalData> dataSets, List<Sample> enrichedSamples)
+    {
+        // list orders are not the same - map is needed for quick search
+        // <sample id, sample>
+        final Map<Long, Sample> enrichedSamplesMap =
+                new HashMap<Long, Sample>(enrichedSamples.size());
+        for (Sample sample : enrichedSamples)
+        {
+            enrichedSamplesMap.put(sample.getId(), sample);
+        }
+
+        for (ExternalData dataSet : dataSets)
+        {
+            final Sample enrichedSample = enrichedSamplesMap.get(dataSet.getSample().getId());
+            assert enrichedSample != null;
+            dataSet.setSample(enrichedSample);
+        }
+    }
+
 }
