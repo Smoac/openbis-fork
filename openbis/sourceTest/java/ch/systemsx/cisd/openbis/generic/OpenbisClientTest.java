@@ -213,7 +213,7 @@ public class OpenbisClientTest
 
         private static String toString(List<IEntityProperty> properties)
         {
-            // output just collection size or null if initialized
+            // output just collection size or null if not initialized
             return properties == null ? null : new Integer(properties.size()).toString();
         }
     }
