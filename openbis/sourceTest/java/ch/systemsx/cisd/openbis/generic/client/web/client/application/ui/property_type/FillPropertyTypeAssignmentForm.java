@@ -157,13 +157,15 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
 
     private String getSimpleCode(String code)
     {
+        String result;
         if (isInternalNamespace(code))
         {
-            return code.substring(INTERNAL_PROPERTY_PREFIX.length());
+            result = code.substring(INTERNAL_PROPERTY_PREFIX.length());
         } else
         {
-            return code;
+            result = code;
         }
+        return PropertyTypeAssignmentForm.replaceSpecialPropertyFieldIdChars(result);
     }
 
     private boolean isInternalNamespace(String code)

@@ -388,6 +388,16 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         }
     }
 
+    /**
+     * Replaces '.' which has special meaning in GXT (but can occur in our property type codes) with
+     * a '*' which should not occur in our property field codes in other cases as it is not a valid
+     * code char.
+     */
+    public static String replaceSpecialPropertyFieldIdChars(String propertyTypeCode)
+    {
+        return propertyTypeCode.replace('.', '*');
+    }
+
     private void updatePropertyTypeRelatedFields()
     {
         hidePropertyTypeRelatedFields();
@@ -396,7 +406,7 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         {
             String fieldId =
                     createChildId(DEFAULT_VALUE_ID_PART + propertyType.isInternalNamespace()
-                            + propertyType.getSimpleCode());
+                            + replaceSpecialPropertyFieldIdChars(propertyType.getSimpleCode()));
             DatabaseModificationAwareField<?> fieldHolder =
                     PropertyFieldFactory.createField(propertyType, false, viewContext
                             .getMessage(Dict.DEFAULT_VALUE), fieldId, null, viewContext);
