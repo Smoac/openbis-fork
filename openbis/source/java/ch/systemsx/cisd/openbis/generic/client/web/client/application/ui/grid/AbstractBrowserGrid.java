@@ -1214,10 +1214,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                                     rebuildFiltersFromIds(getFilteredColumnIds(newColumnDataModels));
                             saveColumnDisplaySettings();
 
-                            if (customColumnsChanged || filtersChanged)
+                            if (customColumnsChanged)
+                            // || filtersChanged)
+                            // TODO 2009-11-18, Tomasz Pylak: check consequences
                             {
-                                debug("refreshing the custom columns or filters in "
-                                        + pendingFetchConfigOrNull + " mode");
+                                debug("refreshing custom columns in " + pendingFetchConfigOrNull
+                                        + " mode");
                                 reloadData(createRefreshSettingsFetchConfig());
                             } else
                             {
