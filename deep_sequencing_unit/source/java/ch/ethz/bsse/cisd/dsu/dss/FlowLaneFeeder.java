@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.Constants;
@@ -201,11 +202,20 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
             return Collections.emptyList();
         }
         List<String> command = Arrays.asList(srfInfoPathOrNull, "-l1", file.getAbsolutePath());
-        ProcessResult result = ProcessExecutionHelper.run(command, operationLog, operationLog, ConcurrencyUtilities.NO_TIMEOUT, ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, true);
+        ProcessResult result =
+                ProcessExecutionHelper.run(command, operationLog, operationLog,
+                        ConcurrencyUtilities.NO_TIMEOUT,
+                        ProcessExecutionHelper.OutputReadingStrategy.ALWAYS, true);
         List<String> output = result.getOutput();
         if (result.isOK() == false)
         {
             StringBuilder builder = new StringBuilder();
+            String startupFailureMessage = result.getStartupFailureMessage();
+            if (StringUtils.isNotBlank(startupFailureMessage))
+            {
+                builder.append("\nStartup failure message:").append(startupFailureMessage);
+            }
+            builder.append("\nStandard out and error:");
             for (String outputLine : output)
             {
                 builder.append("\n").append(outputLine);
