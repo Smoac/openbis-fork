@@ -31,11 +31,15 @@
                xsldir="webapps/cruisecontrol/xsl/"
                css="webapps/cruisecontrol/css/cruisecontrol.css">
           <map alias="brinn" address="bernd.rinn@bsse.ethz.ch"/>
-          <map alias="charlesr" address="charles.ramin-wright@bsse.ethz.ch"/>
           <map alias="felmer" address="franz-josef.elmer@bsse.ethz.ch"/>
           <map alias="tpylak" address="tomasz.pylak@bsse.ethz.ch"/>
           <map alias="izabel" address="izabela.adamczyk@bsse.ethz.ch" />
           <map alias="buczekp" address="piotr.buczek@bsse.ethz.ch" />
+          <map alias="cramakri" address="chandrasekhar.ramakrishnan@bsse.ethz.ch" />
+          <map alias="kohleman" address="manuel.kohler@bsse.ethz.ch" />
+          <map alias="hclaus" address="claus.hultschig@bsse.ethz.ch" />
+          <map alias="walshs" address="sean.walsh@bsse.ethz.ch" />
+
         </htmlemail>
       </onfailure>
     </publishers>
@@ -67,10 +71,13 @@
                css="webapps/cruisecontrol/css/cruisecontrol.css">
           <map alias="felmer" address="franz-josef.elmer@bsse.ethz.ch"/>
           <map alias="brinn" address="bernd.rinn@bsse.ethz.ch"/>
-          <map alias="charlesr" address="charles.ramin-wright@bsse.ethz.ch"/>
           <map alias="tpylak" address="tomasz.pylak@bsse.ethz.ch"/>
           <map alias="izabel" address="izabela.adamczyk@bsse.ethz.ch" />
           <map alias="buczekp" address="piotr.buczek@bsse.ethz.ch" />
+          <map alias="cramakri" address="chandrasekhar.ramakrishnan@bsse.ethz.ch" />
+          <map alias="kohleman" address="manuel.kohler@bsse.ethz.ch" />
+          <map alias="hclaus" address="claus.hultschig@bsse.ethz.ch" />
+          <map alias="walshs" address="sean.walsh@bsse.ethz.ch" />
         </htmlemail>
       </onfailure>
     </publishers>
@@ -100,10 +107,13 @@
                css="webapps/cruisecontrol/css/cruisecontrol.css">
           <map alias="felmer" address="franz-josef.elmer@bsse.ethz.ch"/>
           <map alias="brinn" address="bernd.rinn@bsse.ethz.ch"/>
-          <map alias="charlesr" address="charles.ramin-wright@bsse.ethz.ch"/>
           <map alias="tpylak" address="tomasz.pylak@bsse.ethz.ch"/>
           <map alias="izabel" address="izabela.adamczyk@bsse.ethz.ch" />
           <map alias="buczekp" address="piotr.buczek@bsse.ethz.ch" />
+          <map alias="cramakri" address="chandrasekhar.ramakrishnan@bsse.ethz.ch" />
+          <map alias="kohleman" address="manuel.kohler@bsse.ethz.ch" />
+          <map alias="hclaus" address="claus.hultschig@bsse.ethz.ch" />
+          <map alias="walshs" address="sean.walsh@bsse.ethz.ch" />          
         </htmlemail>
       </onfailure>
     </publishers>
