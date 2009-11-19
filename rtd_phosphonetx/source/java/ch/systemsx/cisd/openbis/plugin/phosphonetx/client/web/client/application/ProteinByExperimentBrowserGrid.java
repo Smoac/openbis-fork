@@ -139,7 +139,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                 for (Treatment treatment : treatments)
                 {
                     header += delim + treatment;
-                    delim = "\n";
+                    delim = ", ";
                     properties.put(treatment.getTypeCode(), treatment.getValue());
                 }
             }
