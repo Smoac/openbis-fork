@@ -521,10 +521,12 @@ public class DBMigrationEngineTest
                     one(scriptProvider).tryGetMigrationScript(fromVersion, "100");
                     final Script script = new Script("m-099-100", "code 099 100", toVersion);
                     expectSuccessfulScriptExecutionWithMigrationSteps(script, true);
+                    one(scriptProvider).tryGetFunctionMigrationScript(fromVersion, "100");
 
                     one(scriptProvider).tryGetMigrationScript("100", toVersion);
                     expectSuccessfulScriptExecutionWithMigrationSteps(new Script("m-100-101",
                             "code 100 101", toVersion), true);
+                    one(scriptProvider).tryGetFunctionMigrationScript("100", toVersion);
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
 
@@ -582,8 +584,8 @@ public class DBMigrationEngineTest
                     will(returnValue("my 1. database"));
                     one(scriptProvider).tryGetMigrationScript(fromVersion, "100");
                     final Script script = new Script("m-099-100", "code 099 100", toVersion);
-
                     will(returnValue(script));
+                    one(scriptProvider).tryGetFunctionMigrationScript(fromVersion, "100");
 
                     one(migrationStepExecutorAdmin).init(script);
                     one(migrationStepExecutorAdmin).performPreMigration();
@@ -645,6 +647,7 @@ public class DBMigrationEngineTest
                     one(scriptProvider).tryGetMigrationScript(fromVersion, "100");
                     final Script script = new Script("m-099-100", "code 099 100", toVersion);
                     will(returnValue(script));
+                    one(scriptProvider).tryGetFunctionMigrationScript(fromVersion, "100");
 
                     one(migrationStepExecutorAdmin).init(script);
                     one(migrationStepExecutorAdmin).performPreMigration();
@@ -703,6 +706,7 @@ public class DBMigrationEngineTest
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 1. database"));
                     one(scriptProvider).tryGetMigrationScript(fromVersion, "100");
+                    one(scriptProvider).tryGetFunctionMigrationScript(fromVersion, "100");
                     one(adminDAO).getDatabaseName();
                     will(returnValue("my 2. database"));
                 }
@@ -955,6 +959,7 @@ public class DBMigrationEngineTest
                     one(scriptProvider).tryGetMigrationScript(fromVersion, toVersion);
                     final Script script = new Script("m-1-2", "code", toVersion);
                     will(returnValue(script));
+                    one(scriptProvider).tryGetFunctionMigrationScript(fromVersion, toVersion);
 
                     one(migrationStepExecutor).init(script);
                     one(migrationStepExecutor).performPreMigration();

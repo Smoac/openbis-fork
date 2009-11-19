@@ -264,6 +264,8 @@ public final class DBMigrationEngine
         do
         {
             final String nextVersion = increment(version);
+            final Script functionMigrationScriptOrNull =
+                    scriptProvider.tryGetFunctionMigrationScript(version, nextVersion);
             final Script migrationScript =
                     scriptProvider.tryGetMigrationScript(version, nextVersion);
             if (migrationScript == null)
@@ -281,6 +283,10 @@ public final class DBMigrationEngine
             migrationStepExecutorAdmin.performPreMigration();
             migrationStepExecutor.performPreMigration();
             scriptExecutor.execute(migrationScript, true, logDAO);
+            if (functionMigrationScriptOrNull != null)
+            {
+                scriptExecutor.execute(functionMigrationScriptOrNull, false, logDAO);
+            }
             migrationStepExecutor.performPostMigration();
             migrationStepExecutorAdmin.performPostMigration();
             migrationStepExecutor.finish();

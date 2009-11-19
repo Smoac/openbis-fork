@@ -28,9 +28,9 @@ import ch.systemsx.cisd.common.Script;
 public interface ISqlScriptProvider
 {
     /**
-     * Returns <code>true</code> if this script provider is suitable for a dump restore of the
-     * given <var>version</var> of the database, and <code>false</code>, if it is suitable for a
-     * regular setup.
+     * Returns <code>true</code> if this script provider is suitable for a dump restore of the given
+     * <var>version</var> of the database, and <code>false</code>, if it is suitable for a regular
+     * setup.
      */
     public boolean isDumpRestore(String version);
 
@@ -77,7 +77,7 @@ public interface ISqlScriptProvider
      * </pre>
      */
     public Script tryGetGrantsScript(final String version);
-    
+
     /**
      * Returns the script to create initial data.
      * 
@@ -94,5 +94,15 @@ public interface ISqlScriptProvider
      * @return <code>null</code> if there isn't such a migration script.
      */
     public Script tryGetMigrationScript(String fromVersion, String toVersion);
+
+    /**
+     * Returns the function migration script for migrating a database. The function migration will
+     * always be called <i>after</i> the regular migration script.
+     * 
+     * @param fromVersion The version of the current database.
+     * @param toVersion The version of the database after migration.
+     * @return <code>null</code> if there isn't such a migration script.
+     */
+    public Script tryGetFunctionMigrationScript(String fromVersion, String toVersion);
 
 }

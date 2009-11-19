@@ -172,6 +172,23 @@ public class SqlScriptProvider implements ISqlScriptProvider
         return tryLoadScript(scriptName, toVersion, "migration");
     }
 
+    /**
+     * Returns the function migration script for the specified versions. The name of the script is
+     * expected to be
+     * 
+     * <pre>
+     * &lt;schema script folder&gt;/migration/function_migration-&lt;fromVersion&gt;-&lt;toVersion&gt;.sql
+     * </pre>
+     * 
+     * The function migration will always be called <i>after</i> the regular migration script.
+     */
+    public Script tryGetFunctionMigrationScript(final String fromVersion, final String toVersion)
+    {
+        final String scriptName =
+                "function_migration-" + fromVersion + "-" + toVersion + SQL_FILE_TYPE;
+        return tryLoadScript(scriptName, toVersion, "migration");
+    }
+
     private Script tryLoadScript(final String scriptName, final String scriptVersion)
     {
         return tryLoadScript(scriptName, scriptVersion, scriptVersion);
