@@ -2,7 +2,7 @@
 
 export BUSTARD=$1
 export NUMBER_OF_LANES=$2
-export SRF_DIR=Srf_RTA
+export SRF_DIR=Srf
 export ILLUMINA2SRF=/usr/local/dsu/bin/illumina2srf
 
 export PRG=`basename $0`
