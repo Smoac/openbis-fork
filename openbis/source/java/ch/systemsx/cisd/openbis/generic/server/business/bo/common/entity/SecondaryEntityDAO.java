@@ -56,11 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
             ISecondaryEntityListingQuery.class })
 public class SecondaryEntityDAO
 {
-    interface ISecondaryEntitySetListingQuery
-    {
-        Iterable<SampleReferenceRecord> getSamples(LongSet sampleIds);
-    }
-
     /**
      * Creates a new instance based on {@link PersistencyResources} and home
      * {@link DatabaseInstancePE} of specified DAO factory.
