@@ -21,9 +21,9 @@ import java.io.File;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo;
 
 /**
- * The download operation runs in its own thread. This class manages keeps track of the thread and
- * interfaces between the thread the download operation runs in and the GUI thread for updates to
- * the GUI.
+ * FileDownloadOperation represents a request to download a file from the CIFEX server. The download
+ * operation runs in its own thread, which is managed by this class. The client model is notified
+ * when the download completes.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -37,7 +37,8 @@ public class FileDownloadOperation implements Runnable
 
     private final Thread thread;
 
-    FileDownloadOperation(FileDownloadClientModel model, FileDownloadInfo info, File downloadDirectory)
+    FileDownloadOperation(FileDownloadClientModel model, FileDownloadInfo info,
+            File downloadDirectory)
     {
         super();
         this.tableModel = model;
@@ -48,8 +49,8 @@ public class FileDownloadOperation implements Runnable
 
     public void run()
     {
-        tableModel.getDownloader().download(fileDownloadInfo.getFileInfoDTO().getID(), downloadDirectory,
-                null);
+        tableModel.getDownloader().download(fileDownloadInfo.getFileInfoDTO().getID(),
+                downloadDirectory, null);
         tableModel.finishedDownloadingFile(this);
     }
 

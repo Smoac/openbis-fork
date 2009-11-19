@@ -28,7 +28,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 /**
- * Show date and time information in a table cell
+ * Show date and time information in a table cell.
  * 
  * @author Chandrasekhar Ramakrishnan
  */

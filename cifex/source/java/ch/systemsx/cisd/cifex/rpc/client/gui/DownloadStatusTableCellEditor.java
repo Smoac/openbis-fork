@@ -28,6 +28,8 @@ import javax.swing.table.TableCellEditor;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo;
 
 /**
+ * Creates a clickable button which allows the user to "edit" the status.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class DownloadStatusTableCellEditor extends AbstractCellEditor implements TableCellEditor

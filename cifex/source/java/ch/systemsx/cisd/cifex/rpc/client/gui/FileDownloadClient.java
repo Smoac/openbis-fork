@@ -57,7 +57,11 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
- * The GUI for the WebStart file download application.
+ * The GUI for the WebStart file download application. This class assembles the GUI and creates the
+ * necessary contextual objects (like the ICIFEXComponent) for interacting with the server. Although
+ * FileDownloadClientModel handles most of the logic, the contextual information needs to be stored
+ * here so clean-up can be performed, e.g., if the user closes the window while a download is in
+ * progress.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -95,33 +99,29 @@ public class FileDownloadClient
             throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
             EnvironmentFailureException
     {
-        if (args.length != 3 && args.length != 4)
+        if (args.length != 2 && args.length != 3)
             throw new ConfigurationFailureException(
                     "The CIFEX File Download Client was improperly configured -- the arguments it requires were not supplied. Please talk to the CIFEX administrator.");
 
         final String serviceURL = args[0];
-        final int maxUloadSizeInMB;
         final String sessionId;
         final ICIFEXComponent cifex = RPCServiceFactory.createCIFEXComponent(serviceURL, true);
 
         switch (args.length)
         {
-            case 3:
+            case 2:
                 sessionId = args[1];
-                maxUloadSizeInMB = Integer.parseInt(args[2]);
                 break;
-            case 4:
+            case 3:
                 String userName = args[1];
                 String passwd = args[2];
-                maxUloadSizeInMB = Integer.parseInt(args[3]);
                 sessionId = cifex.login(userName, passwd);
                 break;
             default:
                 sessionId = null;
-                maxUloadSizeInMB = 0;
         }
 
-        return new FileDownloadClient(cifex, sessionId, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER);
+        return new FileDownloadClient(cifex, sessionId, SYSTEM_TIME_PROVIDER);
     }
 
     // GUI Implementation State
@@ -142,8 +142,8 @@ public class FileDownloadClient
     private JButton directoryButton;
 
     FileDownloadClient(final ICIFEXComponent cifex, final String sessionId,
-            final int maxUploadSizeInMB, final ITimeProvider timeProvider)
-            throws EnvironmentFailureException, InvalidSessionException
+            final ITimeProvider timeProvider) throws EnvironmentFailureException,
+            InvalidSessionException
     {
         // save and create local state
         this.cifex = cifex;
@@ -195,14 +195,14 @@ public class FileDownloadClient
     private void createGUI()
     {
         JLabel spacer;
-        
+
         // Put everything into a panel which goes into the center of the frame
         final JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.add(createFileListComponent(), BorderLayout.CENTER);
-        panel.add(createDirectoryPanel(), BorderLayout.SOUTH);   
+        panel.add(createDirectoryPanel(), BorderLayout.SOUTH);
         frame.add(panel, BorderLayout.CENTER);
-        
+
         // Add small gaps to the left and right of the frame, to give a bit of space
         spacer = new JLabel("");
         spacer.setPreferredSize(new Dimension(5, 5));
@@ -210,8 +210,8 @@ public class FileDownloadClient
         spacer = new JLabel("");
         spacer.setPreferredSize(new Dimension(5, 5));
         frame.add(spacer, BorderLayout.EAST);
-        
-        // Add a small gap at the bottom of the frame, to the GUI doesn't look too constrained        
+
+        // Add a small gap at the bottom of the frame, to the GUI doesn't look too constrained
         spacer = new JLabel("");
         spacer.setPreferredSize(new Dimension(600, 15));
         frame.add(spacer, BorderLayout.SOUTH);
@@ -287,7 +287,8 @@ public class FileDownloadClient
         directoryButton = new JButton("");
         directoryButton.setPreferredSize(new Dimension(510, 30));
         directoryPanel.add(directoryButton, BorderLayout.CENTER);
-        directoryButton.setToolTipText("Click button to select a directory in which to save the downloaded files.");
+        directoryButton
+                .setToolTipText("Click button to select a directory in which to save the downloaded files.");
         directoryButton.addActionListener(new ActionListener()
             {
 

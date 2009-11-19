@@ -28,6 +28,10 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
+ * The model and central class for the download client. The FileDownloadClientModel knows how to
+ * manages the list of downloadable files, initiates downloads (which run in a separate thread) and
+ * notifies the GUI of updates.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class FileDownloadClientModel extends AbstractTableModel
