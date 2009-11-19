@@ -12,6 +12,7 @@ var phosphonetx = {
   // Protein grid
   accession_number: "Accession Number",
   protein_description: "Protein",
+  coverage: "Coverage",
   false_discovery_rate: "FDR",
   
   // Protein in experiment viewer

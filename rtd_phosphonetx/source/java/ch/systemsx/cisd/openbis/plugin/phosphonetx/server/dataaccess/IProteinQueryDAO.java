@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedPeptide;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithPeptideSequence;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.SampleAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.Sequence;
@@ -49,6 +50,16 @@ public interface IProteinQueryDAO extends BaseQuery
             + "left join samples on a.samp_id = samples.id "
             + "where e.perm_id = ?{1} order by pr.accession_number, samples.perm_id")
     public DataSet<ProteinReferenceWithProbability> listProteinsByExperiment(String experimentPermID);
+    
+    @Select("select distinct s.prre_id, s.amino_acid_sequence, pe.sequence " 
+            + "from identified_proteins as ip "
+            + "left join proteins as p on ip.prot_id = p.id "
+            + "left join data_sets as d on p.dase_id = d.id "
+            + "left join experiments as e on d.expe_id = e.id "
+            + "left join sequences as s on ip.sequ_id = s.id "
+            + "left join peptides as pe on p.id = pe.prot_id "
+            + "where e.perm_id = ?{1} order by s.prre_id, pe.sequence")
+    public DataSet<ProteinReferenceWithPeptideSequence> listProteinsWithPeptidesByExperiment(String experimentPermID);
     
     @Select("select distinct s.perm_id "
             + "from abundances as a left join proteins as p on a.prot_id = p.id "

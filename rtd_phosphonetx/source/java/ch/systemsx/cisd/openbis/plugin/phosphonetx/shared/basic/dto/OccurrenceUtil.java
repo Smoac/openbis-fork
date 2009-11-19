@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class OccurrenceUtil
      * Returns a list of non-overlapping sequences built by the specified peptides covering the
      * specified protein.
      */
-    public static List<Occurrence> getCoverage(String protein, List<String> peptides)
+    public static List<Occurrence> getCoverage(String protein, Collection<String> peptides)
     {
         ArrayList<Occurrence> list = new ArrayList<Occurrence>();
         List<Occurrence> sortedList = calcSortedOccurrences(protein, peptides);
@@ -60,7 +61,7 @@ public class OccurrenceUtil
     }
 
     // calculates a list of all words occurences, sorts it be starting position
-    private static List<Occurrence> calcSortedOccurrences(String protein, List<String> peptides)
+    private static List<Occurrence> calcSortedOccurrences(String protein, Collection<String> peptides)
     {
         List<Occurrence> result = new ArrayList<Occurrence>();
         for (String word : peptides)
