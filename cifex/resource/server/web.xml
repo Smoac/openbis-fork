@@ -56,6 +56,12 @@
         <servlet-class>ch.systemsx.cisd.cifex.rpc.server.File2GBUploadServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    
+    <servlet>
+        <servlet-name>file2GB-download</servlet-name>
+        <servlet-class>ch.systemsx.cisd.cifex.rpc.server.File2GBDownloadServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
 
     &gwt;
 </web-app>

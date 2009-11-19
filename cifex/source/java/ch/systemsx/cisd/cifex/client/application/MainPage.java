@@ -228,6 +228,21 @@ final class MainPage extends AbstractMainPage
                         .getUploadedFilesPartTitle());
             }
             verticalPanel.add(widget);
+
+            if (showDownloaded)
+            {
+                // Add a link to the WebStart download client
+                addTitlePart(verticalPanel, messageResources.getDownloadFilesPartTitleGreater2GB());
+                String webStartLink = messageResources.getDownloadFilesHelpJavaDownloaderLink();
+                String webStartTitle = messageResources.getDownloadFilesHelpJavaDownloaderTitle();
+                String anchorWebstart =
+                        DOMUtils
+                                .createAnchor(webStartTitle, webStartLink,
+                                        ServletPathConstants.FILE2GB_DOWNLOAD_SERVLET_NAME, null,
+                                        null, false);
+                verticalPanel.add(new HTML(messageResources
+                        .getDownloadFilesHelpJavaDownload(anchorWebstart)));
+            }
             contentPanel.add(verticalPanel);
             contentPanel.layout();
         }

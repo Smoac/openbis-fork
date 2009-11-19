@@ -109,6 +109,22 @@ public interface IMessageResources extends Messages
     @Key(value = "downloadfiles.part.title")
     public String getDownloadFilesPartTitle();
 
+    /** Returns the WebStart download client part title. */
+    @Key(value = "downloadfiles.part.title.greater2GB")
+    public String getDownloadFilesPartTitleGreater2GB();
+
+    /** Returns the WebStart download client help text title. */
+    @Key(value = "downloadfiles.help.javaDownloaderTitle")
+    public String getDownloadFilesHelpJavaDownloaderTitle();
+
+    /** Returns the WebStart download client help text link. */
+    @Key(value = "downloadfiles.help.javaDownloaderLink")
+    public String getDownloadFilesHelpJavaDownloaderLink();
+    
+    /** Returns the help text for downlading files section Java download. */
+    @Key(value = "downloadfiles.help.javaDownload")
+    public String getDownloadFilesHelpJavaDownload(Object linkWebstart);
+
     /** Returns label for the button of editing a user. */
     @Key(value = "edituser.button.label")
     public String getEditUserButtonLabel();
@@ -233,7 +249,7 @@ public interface IMessageResources extends Messages
     /** Returns the label of the is_complete column. */
     @Key(value = "file.is_complete.label")
     public String getIsCompleteLabel();
-    
+
     /** Returns the label of the file upload part of the page. */
     @Key(value = "files.part.title")
     public String getFilesPartTitle();

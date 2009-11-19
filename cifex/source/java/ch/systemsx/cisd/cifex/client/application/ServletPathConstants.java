@@ -45,6 +45,9 @@ public class ServletPathConstants
 
     /** Name of the <code>HttpServlet</code> extension to upload files > 2GB. */
     public static final String COMMAND_LINE_CLIENT_DISTRIBUTION = "cifex_cli.zip";
+
+    /** Name of the <code>HttpServlet</code> extension for Java WebStart Download GUI */
+    public static final String FILE2GB_DOWNLOAD_SERVLET_NAME = getPrepend() + "file2GB-download";
     
     private final static String getPrepend()
     {
