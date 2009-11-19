@@ -77,7 +77,7 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
             String userIdentifierWithPrefix = Constants.USER_ID_PREFIX + tmpUser.getUserCode();
             String userIdentifier = (existingUsers.get(i)).getUserCode();
             // Checkbox is unchecked
-            if ((Boolean) existingUserGrid.getStore().getAt(i).get(
+            if ((Boolean) existingUserGrid.getGrid().getStore().getAt(i).get(
                     FileShareUserGridModel.SHARE_FILE) == false)
             {
                 // If user is marked to add to the fileshare, remove him from the list
@@ -114,7 +114,8 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
         {
             String userIdentifier = (newUsers.get(i)).getEmail();
             // If checkbox of the user is checked
-            if ((Boolean) newUserGrid.getStore().getAt(i).get(FileShareUserGridModel.SHARE_FILE) == false)
+            if ((Boolean) newUserGrid.getGrid().getStore().getAt(i).get(
+                    FileShareUserGridModel.SHARE_FILE) == false)
             {
                 if (usersToAdd.contains(userIdentifier))
                 {

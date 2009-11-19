@@ -19,14 +19,15 @@ package ch.systemsx.cisd.cifex.client.application;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
+import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
@@ -182,69 +183,100 @@ final class MainPage extends AbstractMainPage
         {
             final List<FileInfoDTO> files = result;
             final Widget widget;
-            IMessageResources messageResources = context.getMessageResources();
+            IMessageResources messageResources = getMessageResources();
             if (files.size() > 0)
             {
-                final Grid<?> fileGrid;
-                if (showDownloaded)
-                {
-                    ListStore<DownloadFileGridModel> store = new ListStore<DownloadFileGridModel>();
-                    store.add(DownloadFileGridModel.convert(messageResources, files));
-                    fileGrid =
-                            new Grid<DownloadFileGridModel>(store, new ColumnModel(
-                                    DownloadFileGridModel.getColumnConfigs(messageResources)));
-                } else
-                {
-                    ListStore<UploadedFileGridModel> store = new ListStore<UploadedFileGridModel>();
-                    store.add(UploadedFileGridModel.convert(messageResources, files));
-                    fileGrid =
-                            new Grid<UploadedFileGridModel>(store, new ColumnModel(
-                                    UploadedFileGridModel.getColumnConfigs(messageResources)));
-                }
-                fileGrid.addListener(Events.CellClick, new FileDownloadGridCellListener());
-                fileGrid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
-                if (showDownloaded == false)
-                {
-                    fileGrid.addListener(Events.CellClick, new UploadedFileActionGridCellListener(
-                            context));
-                }
-                fileGrid.setHeight(Constants.GRID_HEIGHT);
-                widget = fileGrid;
+                widget = createFileGrid(files, messageResources);
             } else
             {
-                final HTML html = new HTML();
-                html.setText(showDownloaded ? messageResources.getDownloadFilesEmpty()
-                        : messageResources.getUploadedFilesEmpty());
-                widget = html;
+                widget = createNoFilesLabel(messageResources);
             }
             final LayoutContainer verticalPanel = createContainer();
-            if (showDownloaded)
-            {
-                addTitlePart(verticalPanel, context.getMessageResources()
-                        .getDownloadFilesPartTitle());
-            } else
-            {
-                addTitlePart(verticalPanel, context.getMessageResources()
-                        .getUploadedFilesPartTitle());
-            }
+            addTitlePart(verticalPanel, createFileGridTitle());
             verticalPanel.add(widget);
 
             if (showDownloaded)
             {
-                // Add a link to the WebStart download client
-                addTitlePart(verticalPanel, messageResources.getDownloadFilesPartTitleGreater2GB());
-                String webStartLink = messageResources.getDownloadFilesHelpJavaDownloaderLink();
-                String webStartTitle = messageResources.getDownloadFilesHelpJavaDownloaderTitle();
-                String anchorWebstart =
-                        DOMUtils
-                                .createAnchor(webStartTitle, webStartLink,
-                                        ServletPathConstants.FILE2GB_DOWNLOAD_SERVLET_NAME, null,
-                                        null, false);
-                verticalPanel.add(new HTML(messageResources
-                        .getDownloadFilesHelpJavaDownload(anchorWebstart)));
+                addWebStartDownloadClientLink(messageResources, verticalPanel);
             }
+
             contentPanel.add(verticalPanel);
             contentPanel.layout();
+        }
+
+        private void addWebStartDownloadClientLink(IMessageResources messageResources,
+                final LayoutContainer verticalPanel)
+        {
+            addTitlePart(verticalPanel, messageResources.getDownloadFilesPartTitleGreater2GB());
+            String webStartLink = messageResources.getDownloadFilesHelpJavaDownloaderLink();
+            String webStartTitle = messageResources.getDownloadFilesHelpJavaDownloaderTitle();
+            String anchorWebstart =
+                    DOMUtils.createAnchor(webStartTitle, webStartLink,
+                            ServletPathConstants.FILE2GB_DOWNLOAD_SERVLET_NAME, null, null, false);
+            verticalPanel.add(new HTML(messageResources
+                    .getDownloadFilesHelpJavaDownload(anchorWebstart)));
+        }
+
+        private Widget createFileGrid(final List<FileInfoDTO> files,
+                IMessageResources messageResources)
+        {
+            List<ColumnConfig> columnConfigs;
+            List<? extends AbstractFileGridModel> data;
+            if (showDownloaded)
+            {
+                columnConfigs = DownloadFileGridModel.getColumnConfigs(messageResources);
+                data = DownloadFileGridModel.convert(messageResources, files);
+            } else
+            {
+                columnConfigs = UploadedFileGridModel.getColumnConfigs(messageResources);
+                data = UploadedFileGridModel.convert(messageResources, files);
+            }
+
+            return createFileGrid(columnConfigs, data);
+        }
+
+        private <M extends AbstractFileGridModel> Widget createFileGrid(
+                List<ColumnConfig> columnConfigs, List<M> data)
+        {
+            List<StoreFilterField<M>> filterItems =
+                    AbstractFileGridModel.createFilterItems(getMessageResources());
+
+            GridWidget<M> gridWidget =
+                    GridUtils.createGrid(columnConfigs, data, filterItems, getMessageResources());
+            Grid<M> grid = gridWidget.getGrid();
+
+            grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
+            grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
+            if (showDownloaded == false)
+            {
+                grid.addListener(Events.CellClick, new UploadedFileActionGridCellListener(context));
+            }
+            return gridWidget.getWidget();
+        }
+
+        private IMessageResources getMessageResources()
+        {
+            return context.getMessageResources();
+        }
+
+        private String createFileGridTitle()
+        {
+            IMessageResources messageResources = getMessageResources();
+            if (showDownloaded)
+            {
+                return messageResources.getDownloadFilesPartTitle();
+            } else
+            {
+                return messageResources.getUploadedFilesPartTitle();
+            }
+        }
+
+        private HTML createNoFilesLabel(IMessageResources messageResources)
+        {
+            final HTML html = new HTML();
+            html.setText(showDownloaded ? messageResources.getDownloadFilesEmpty()
+                    : messageResources.getUploadedFilesEmpty());
+            return html;
         }
     }
 
@@ -265,23 +297,23 @@ final class MainPage extends AbstractMainPage
 
         private Widget createUserTable(final List<UserInfoDTO> users)
         {
-            ListStore<UserGridModel> store = new ListStore<UserGridModel>();
-            store.add(UserGridModel.convert(context, users));
-            final Grid<UserGridModel> userGrid =
-                    new Grid<UserGridModel>(store, new ColumnModel(UserGridModel
-                            .getColumnConfigs(context.getMessageResources())));
-            userGrid.setHeight(Constants.GRID_HEIGHT);
+            GridWidget<UserGridModel> gridWidget = GridUtils.createUserGrid(users, context);
             // Delete user function
-            userGrid.addListener(Events.CellClick,
+            gridWidget.getGrid().addListener(Events.CellClick,
                     new UserActionGridCellListener<AbstractFileGridModel>(context, null));
-            return userGrid;
+            return gridWidget.getWidget();
+        }
+
+        private IMessageResources getMessageResources()
+        {
+            return context.getMessageResources();
         }
 
         public final void onSuccess(final List<UserInfoDTO> result)
         {
             if (result.size() > 0)
             {
-                addTitlePart(listCreatedUserPanel, context.getMessageResources().getOwnUserTitle());
+                addTitlePart(listCreatedUserPanel, getMessageResources().getOwnUserTitle());
                 listCreatedUserPanel.add(createUserTable(result));
                 listCreatedUserPanel.layout();
             }

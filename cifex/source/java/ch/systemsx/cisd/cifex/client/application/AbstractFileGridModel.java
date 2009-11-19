@@ -16,9 +16,15 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
+import ch.systemsx.cisd.cifex.client.application.ui.ContainFilterField;
 import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.FileSizeRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
@@ -166,6 +172,19 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     {
         return createSortableColumnConfig(CONTENT_TYPE, messageResources.getFileContentTypeLabel(),
                 140);
+    }
+
+    public static <M extends ModelData> List<StoreFilterField<M>> createFilterItems(
+            IMessageResources messageResources)
+    {
+        List<StoreFilterField<M>> filterFields = new ArrayList<StoreFilterField<M>>();
+        filterFields.add(new ContainFilterField<M>(AbstractFileGridModel.NAME, messageResources
+                .getFileNameLabel()));
+        filterFields.add(new ContainFilterField<M>(AbstractFileGridModel.COMMENT, messageResources
+                .getFileCommentLabel()));
+        filterFields.add(new ContainFilterField<M>(AbstractFileGridModel.CONTENT_TYPE,
+                messageResources.getFileContentTypeLabel()));
+        return filterFields;
     }
 
 }

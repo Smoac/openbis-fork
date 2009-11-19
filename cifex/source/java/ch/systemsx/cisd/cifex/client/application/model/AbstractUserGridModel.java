@@ -16,10 +16,16 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
+import ch.systemsx.cisd.cifex.client.application.ui.ContainFilterField;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -51,6 +57,19 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
     public static final String FILE_ID = "fileId";
 
     public static final String FILE_NAME = "fileName";
+
+    public static <M extends ModelData> List<StoreFilterField<M>> createFilterItems(
+            IMessageResources messageResources)
+    {
+        List<StoreFilterField<M>> filterFields = new ArrayList<StoreFilterField<M>>();
+        filterFields.add(new ContainFilterField<M>(AbstractUserGridModel.USER_CODE,
+                messageResources.getUserCodeLabel()));
+        filterFields.add(new ContainFilterField<M>(AbstractUserGridModel.FULL_NAME,
+                messageResources.getUserFullNameLabel()));
+        filterFields.add(new ContainFilterField<M>(AbstractUserGridModel.STATUS, messageResources
+                .getStatusLabel()));
+        return filterFields;
+    }
 
     /**
      * The currently logged-in user.

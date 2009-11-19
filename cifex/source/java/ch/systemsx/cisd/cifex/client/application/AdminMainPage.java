@@ -20,15 +20,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.WidgetUtils;
-import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -52,14 +52,15 @@ final class AdminMainPage extends AbstractMainPage
         LayoutContainer createUserPanel = createUserPanel(true, context);
 
         LayoutContainer listFilesPanel = createContainer();
-        Grid<AdminFileGridModel> filesGrid = createFileTable(new AdminFileInfoDTO[0], context);
+        GridWidget<AdminFileGridModel> filesGrid =
+                createFileTable(new AdminFileInfoDTO[0], context);
         addTitlePart(listFilesPanel, context.getMessageResources().getFilesPartTitle());
-        listFilesPanel.add(filesGrid);
+        listFilesPanel.add(filesGrid.getWidget());
 
         LayoutContainer listUserPanel = createContainer();
-        createListUserGrid(listUserPanel, filesGrid, context);
+        createListUserGrid(listUserPanel, filesGrid.getGrid(), context);
 
-        loadListFileGrid(filesGrid, context);
+        loadListFileGrid(filesGrid.getGrid(), context);
 
         mainPanel.add(createUserPanel);
         mainPanel.add(listUserPanel);
@@ -80,19 +81,25 @@ final class AdminMainPage extends AbstractMainPage
                 new UserAsyncCallback(listUserPanel, context, filesGrid));
     }
 
-    private static final Grid<AdminFileGridModel> createFileTable(final AdminFileInfoDTO[] files,
-            ViewContext context)
+    private static final GridWidget<AdminFileGridModel> createFileTable(
+            final AdminFileInfoDTO[] files, ViewContext context)
     {
-        ListStore<AdminFileGridModel> store = new ListStore<AdminFileGridModel>();
-        store.add(AdminFileGridModel.convert(context.getMessageResources(), Arrays.asList(files)));
-        final Grid<AdminFileGridModel> fileGrid =
-                new Grid<AdminFileGridModel>(store, new ColumnModel(AdminFileGridModel
-                        .getColumnConfigs(context.getMessageResources())));
-        fileGrid.setHeight(Constants.GRID_HEIGHT);
-        fileGrid.addListener(Events.CellClick, new FileDownloadGridCellListener());
-        fileGrid.addListener(Events.CellClick, new AdminFileActionGridCellListener(context));
-        fileGrid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
-        return fileGrid;
+        List<AdminFileGridModel> modelData =
+                AdminFileGridModel.convert(context.getMessageResources(), Arrays.asList(files));
+        List<ColumnConfig> columnConfigs =
+                AdminFileGridModel.getColumnConfigs(context.getMessageResources());
+        List<StoreFilterField<AdminFileGridModel>> filterItems =
+                AbstractFileGridModel.createFilterItems(context.getMessageResources());
+
+        GridWidget<AdminFileGridModel> gridWidget =
+                GridUtils.createGrid(columnConfigs, modelData, filterItems, context
+                        .getMessageResources());
+
+        Grid<AdminFileGridModel> grid = gridWidget.getGrid();
+        grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
+        grid.addListener(Events.CellClick, new AdminFileActionGridCellListener(context));
+        grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
+        return gridWidget;
     }
 
     /**
@@ -119,16 +126,11 @@ final class AdminMainPage extends AbstractMainPage
 
         private Widget createUserTable(final List<UserInfoDTO> users)
         {
-            ListStore<UserGridModel> store = new ListStore<UserGridModel>();
-            store.add(UserGridModel.convert(context, users));
-            final Grid<UserGridModel> userGrid =
-                    new Grid<UserGridModel>(store, new ColumnModel(UserGridModel
-                            .getColumnConfigs(context.getMessageResources())));
-            userGrid.setHeight(Constants.GRID_HEIGHT);
+            GridWidget<UserGridModel> gridWidget = GridUtils.createUserGrid(users, context);
             // Delete user and change code function
-            userGrid.addListener(Events.CellClick,
+            gridWidget.getGrid().addListener(Events.CellClick,
                     new UserActionGridCellListener<AdminFileGridModel>(context, filesGrid));
-            return userGrid;
+            return gridWidget.getWidget();
         }
 
         public final void onSuccess(final List<UserInfoDTO> result)

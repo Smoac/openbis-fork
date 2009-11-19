@@ -23,17 +23,19 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
+import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
@@ -61,9 +63,9 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 
     final ViewContext viewContext;
 
-    final Grid<FileShareUserGridModel> existingUserGrid;
+    final GridWidget<FileShareUserGridModel> existingUserGrid;
 
-    final Grid<FileShareUserGridModel> newUserGrid;
+    final GridWidget<FileShareUserGridModel> newUserGrid;
 
     public AbstractFileShareUserDialog(final ViewContext context,
             final UserInfoDTO[] existingUsers, final UserInfoDTO[] newUsers, final String name)
@@ -97,10 +99,10 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
      */
     public void refresh()
     {
-        WidgetUtils.reloadStore(newUserGrid, FileShareUserGridModel.convert(messageResources,
-                viewContext.getModel().getUser(), newUsers));
-        WidgetUtils.reloadStore(existingUserGrid, FileShareUserGridModel.convert(messageResources,
-                viewContext.getModel().getUser(), existingUsers));
+        WidgetUtils.reloadStore(newUserGrid.getGrid(), FileShareUserGridModel.convert(
+                messageResources, viewContext.getModel().getUser(), newUsers));
+        WidgetUtils.reloadStore(existingUserGrid.getGrid(), FileShareUserGridModel.convert(
+                messageResources, viewContext.getModel().getUser(), existingUsers));
     }
 
     static ArrayList<UserInfoDTO> getArrayList(UserInfoDTO[] users)
@@ -144,20 +146,26 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         final HTML html = new HTML(viewContext.getMessageResources().getExistingUserTableTitle());
         html.setStyleName("cifex-heading");
         verticalPanel.add(html);
-        verticalPanel.add(existingUserGrid);
+        verticalPanel.add(existingUserGrid.getWidget());
     }
 
-    private final Grid<FileShareUserGridModel> createUserGrid(final List<UserInfoDTO> users)
+    private final GridWidget<FileShareUserGridModel> createUserGrid(final List<UserInfoDTO> users)
     {
-        ListStore<FileShareUserGridModel> store = new ListStore<FileShareUserGridModel>();
-        store.add(FileShareUserGridModel.convert(messageResources,
-                viewContext.getModel().getUser(), users));
-        final Grid<FileShareUserGridModel> userGrid =
-                new Grid<FileShareUserGridModel>(store, new ColumnModel(FileShareUserGridModel
-                        .getColumnConfigs(messageResources)));
-        userGrid.setHeight(Constants.GRID_HEIGHT);
-        userGrid.addListener(Events.CellClick, new FileShareUserGridCellListener(this));
-        return userGrid;
+        List<FileShareUserGridModel> data =
+                FileShareUserGridModel.convert(messageResources, viewContext.getModel().getUser(),
+                        users);
+        List<ColumnConfig> columnConfigs =
+                FileShareUserGridModel.getColumnConfigs(messageResources);
+        List<StoreFilterField<FileShareUserGridModel>> filterItems =
+                AbstractUserGridModel.createFilterItems(viewContext.getMessageResources());
+
+        GridWidget<FileShareUserGridModel> gridWidget =
+                GridUtils.createGrid(columnConfigs, data, filterItems, viewContext
+                        .getMessageResources());
+
+        Grid<FileShareUserGridModel> grid = gridWidget.getGrid();
+        grid.addListener(Events.CellClick, new FileShareUserGridCellListener(this));
+        return gridWidget;
     }
 
     private final void insertNewUserGrid(final LayoutContainer verticalPanel)
@@ -165,7 +173,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         final HTML html = new HTML(viewContext.getMessageResources().getNewUserTableTitle());
         html.setStyleName("cifex-heading");
         verticalPanel.add(html);
-        verticalPanel.add(newUserGrid);
+        verticalPanel.add(newUserGrid.getWidget());
     }
 
     private final void insertAddUserForm(final LayoutContainer verticalPanel)
@@ -234,15 +242,13 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                     existingUsers.add(user);
                                                     addUserToFileShare(user);
                                                 }
-                                                WidgetUtils.reloadStore(existingUserGrid,
+                                                WidgetUtils.reloadStore(existingUserGrid.getGrid(),
                                                         FileShareUserGridModel.convert(
                                                                 messageResources, viewContext
                                                                         .getModel().getUser(),
                                                                 existingUsers));
                                                 // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you
-                                                // add
-                                                // a user to
-                                                // the list,
+                                                // add a user to the list,
                                                 // all checkboxes are back to checked.
                                                 // This needs to cleared the removePersonArray
                                                 checkboxChangeAction();
@@ -279,7 +285,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                         addUserToFileShare(user);
                                                     }
                                                 }
-                                                WidgetUtils.reloadStore(existingUserGrid,
+                                                WidgetUtils.reloadStore(existingUserGrid.getGrid(),
                                                         FileShareUserGridModel.convert(
                                                                 messageResources, viewContext
                                                                         .getModel().getUser(),
@@ -293,7 +299,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                         .getUser());
                                                 newUsers.add(user);
                                                 addUserToFileShare(user);
-                                                WidgetUtils.reloadStore(newUserGrid,
+                                                WidgetUtils.reloadStore(newUserGrid.getGrid(),
                                                         FileShareUserGridModel.convert(
                                                                 messageResources, viewContext
                                                                         .getModel().getUser(),

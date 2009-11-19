@@ -572,4 +572,8 @@ public interface IMessageResources extends Messages
     /** Returns the user code validation text */
     @Key(value = "value.user.code.text")
     public String getValueUserCode();
+
+    /** Returns the grid filters label */
+    @Key(value = "grid.filters")
+    public String getGridFiltersLabel();
 }
