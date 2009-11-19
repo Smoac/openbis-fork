@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
  * 
  * @author Izabela Adamczyk
  */
-public class VocabularyTermModel extends CISDBaseModel implements Comparable<VocabularyTermModel>
+public class VocabularyTermModel extends NonHierarchicalBaseModel implements Comparable<VocabularyTermModel>
 {
     private static final String ORDINAL = "ordinal";
 

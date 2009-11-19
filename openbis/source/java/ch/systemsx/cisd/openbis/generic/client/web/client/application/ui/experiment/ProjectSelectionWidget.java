@@ -25,7 +25,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.CISDBaseModelData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -51,7 +51,7 @@ public final class ProjectSelectionWidget extends
     // @Private
     static final String DISPLAY_COLUMN_ID = "id";
 
-    static class ProjectComboModel extends CISDBaseModelData
+    static class ProjectComboModel extends NonHierarchicalBaseModelData
     {
         private static final long serialVersionUID = 1L;
 

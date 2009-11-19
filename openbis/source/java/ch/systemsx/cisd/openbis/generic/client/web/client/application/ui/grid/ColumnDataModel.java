@@ -1,13 +1,13 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.CISDBaseModelData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 
 /**
  * Represents a column of the table.
  * 
  * @author Izabela Adamczyk
  */
-public class ColumnDataModel extends CISDBaseModelData
+public class ColumnDataModel extends NonHierarchicalBaseModelData
 {
 
     private static final long serialVersionUID = 1L;

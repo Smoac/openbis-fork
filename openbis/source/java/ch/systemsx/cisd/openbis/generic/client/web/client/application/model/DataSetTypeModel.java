@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
  * 
  * @author Izabela Adamczyk
  */
-public class DataSetTypeModel extends CISDBaseModelData
+public class DataSetTypeModel extends NonHierarchicalBaseModelData
 {
 
     private static final long serialVersionUID = 1L;

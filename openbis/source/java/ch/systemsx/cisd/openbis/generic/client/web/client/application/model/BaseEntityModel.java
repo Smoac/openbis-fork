@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * @author Franz-Josef Elmer
  * @author Tomasz Pylak
  */
-public class BaseEntityModel<T> extends CISDBaseModelData
+public class BaseEntityModel<T> extends NonHierarchicalBaseModelData
 {
     private static final long serialVersionUID = 1L;
 

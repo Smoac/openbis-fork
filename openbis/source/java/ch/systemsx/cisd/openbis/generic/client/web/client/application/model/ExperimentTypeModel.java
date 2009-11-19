@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyT
  * 
  * @author Izabela Adamczyk
  */
-public class ExperimentTypeModel extends CISDBaseModelData
+public class ExperimentTypeModel extends NonHierarchicalBaseModelData
 {
 
     private static final long serialVersionUID = 1L;

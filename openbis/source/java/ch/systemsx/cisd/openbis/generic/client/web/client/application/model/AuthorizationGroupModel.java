@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
  * 
  * @author Izabela Adamczyk
  */
-public class AuthorizationGroupModel extends CISDBaseModel
+public class AuthorizationGroupModel extends NonHierarchicalBaseModel
 {
 
     private static final long serialVersionUID = 1L;

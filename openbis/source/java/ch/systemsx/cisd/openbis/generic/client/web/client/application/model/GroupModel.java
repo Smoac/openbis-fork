@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
  * 
  * @author Izabela Adamczyk
  */
-public class GroupModel extends CISDBaseModelData
+public class GroupModel extends NonHierarchicalBaseModelData
 {
     private static final long serialVersionUID = 1L;
 

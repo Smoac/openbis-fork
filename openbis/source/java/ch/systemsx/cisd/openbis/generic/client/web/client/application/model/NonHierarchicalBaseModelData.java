@@ -32,7 +32,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public abstract class CISDBaseModelData extends BaseModelData
+public abstract class NonHierarchicalBaseModelData extends BaseModelData
 {
     
     private static final long serialVersionUID = 1L;
@@ -41,7 +41,7 @@ public abstract class CISDBaseModelData extends BaseModelData
      *
      *
      */
-    public CISDBaseModelData()
+    public NonHierarchicalBaseModelData()
     {
         super();
         setAllowNestedValues(false);
@@ -52,7 +52,7 @@ public abstract class CISDBaseModelData extends BaseModelData
      *
      * @param properties
      */
-    public CISDBaseModelData(Map<String, Object> properties)
+    public NonHierarchicalBaseModelData(Map<String, Object> properties)
     {
         super(properties);
         setAllowNestedValues(false);

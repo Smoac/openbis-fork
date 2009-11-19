@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.CISDBaseModelData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.PropertyTypeRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
@@ -49,7 +49,7 @@ public final class PropertyTypeSelectionWidget extends
 
     private static final String CHOOSE_SUFFIX = "property type";
 
-    static class PropertyTypeComboModel extends CISDBaseModelData
+    static class PropertyTypeComboModel extends NonHierarchicalBaseModelData
     {
         private static final long serialVersionUID = 1L;
 

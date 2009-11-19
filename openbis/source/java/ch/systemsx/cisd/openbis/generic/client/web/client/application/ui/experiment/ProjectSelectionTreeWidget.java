@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.CISDBaseModelData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -204,7 +204,7 @@ public final class ProjectSelectionTreeWidget extends TreePanel<ModelData> imple
         }
     }
 
-    private static class BaseModelDataWithCode extends CISDBaseModelData
+    private static class BaseModelDataWithCode extends NonHierarchicalBaseModelData
     {
         private static final long serialVersionUID = 1L;
 
