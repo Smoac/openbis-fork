@@ -49,7 +49,6 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public class GridUtils
 {
-    // FIXME 2009--, Tomasz Pylak: change to 50
     private static final int PAGE_SIZE = 50;
 
     /** creates a grid with specified users */
