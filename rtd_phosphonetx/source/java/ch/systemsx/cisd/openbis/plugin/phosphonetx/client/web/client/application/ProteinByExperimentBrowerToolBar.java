@@ -32,7 +32,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.CISDBaseModelData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
@@ -92,7 +92,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
     }
 
-    private abstract static class SimpleModel<T> extends CISDBaseModelData
+    private abstract static class SimpleModel<T> extends NonHierarchicalBaseModelData
     {
         private static final long serialVersionUID = 1L;
 
