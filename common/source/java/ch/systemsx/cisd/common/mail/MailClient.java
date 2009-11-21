@@ -26,6 +26,7 @@ import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
+import javax.mail.SendFailedException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
@@ -187,8 +188,29 @@ public final class MailClient extends Authenticator implements IMailClient
             send(msg);
         } catch (MessagingException ex)
         {
-            throw new EnvironmentFailureException("Sending e-mail with subject '" + subject
-                    + "' to recipients " + Arrays.asList(recipients) + " failed. Reason: " + ex, ex);
+            final StringBuilder b = new StringBuilder();
+            b.append("Sending e-mail with subject '");
+            b.append(subject);
+            b.append("' to recipients ");
+            b.append(Arrays.asList(recipients));
+            b.append(" failed.");
+            if (ex instanceof SendFailedException)
+            {
+                final Address[] invalidAddressesOrNull =
+                        ((SendFailedException) ex).getInvalidAddresses();
+                if (invalidAddressesOrNull != null && invalidAddressesOrNull.length > 0)
+                {
+                    b.append(" These email addresses are invalid:\n");
+                    for (Address address : invalidAddressesOrNull)
+                    {
+                        b.append(address.toString());
+                        b.append('\n');
+                    }
+                }
+            }
+            b.append("\nDetailed failure description:\n");
+            b.append(ex.toString());
+            throw new EnvironmentFailureException(b.toString(), ex);
         }
     }
 
