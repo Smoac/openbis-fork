@@ -121,11 +121,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     }
 
     public void createUser(final UserInfoDTO user, final String password,
-            final UserInfoDTO registratorOrNull, final String comment)
+            final UserInfoDTO registrator, final String comment)
             throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
             InsufficientPrivilegesException
     {
-        cifexServiceDelegate.createUser(user, password, registratorOrNull, comment);
+        cifexServiceDelegate.createUser(user, password, registrator, comment);
 
     }
 

@@ -101,15 +101,14 @@ public interface ICIFEXService extends RemoteService
             throws InvalidSessionException;
 
     /**
-     * Creates a new <code>User</code> in Cifex with the given <var>password</var>. If
-     * <var>registratorOrNull</var> is not <code>null</code>, it will be interpreted as the user who
-     * creates the new user.
+     * Creates a new <code>User</code> in Cifex with the given <var>password</var>. The user
+     * <var>registrator</var> is the user who creates the new user.
      * <p>
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
      */
     public void createUser(final UserInfoDTO user, final String password,
-            final UserInfoDTO registratorOrNull, final String comment)
+            final UserInfoDTO registrator, final String comment)
             throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
             InsufficientPrivilegesException;
 
