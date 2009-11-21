@@ -87,8 +87,10 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
             logEntry.setRunStatusTimestamp(rs.getDate(RUN_STATUS_TIMESTAMP));
             try
             {
-                logEntry.setModuleCode(new String(lobHandler.getBlobAsBytes(rs, MODULE_CODE),
-                        ENCODING));
+                final byte[] moduleCodeOrNull = lobHandler.getBlobAsBytes(rs, MODULE_CODE);
+                final String moduleCodeString =
+                        (moduleCodeOrNull != null) ? new String(moduleCodeOrNull, ENCODING) : "";
+                logEntry.setModuleCode(moduleCodeString);
             } catch (UnsupportedEncodingException ex)
             {
                 throw new CheckedExceptionTunnel(ex);
@@ -166,8 +168,8 @@ public class DatabaseVersionLogDAO extends SimpleJdbcDaoSupport implements IData
                             ps.setString(2, moduleScript.getName());
                             ps.setString(3, LogEntry.RunStatus.START.toString());
                             ps.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-                            lobCreator
-                                    .setBlobAsBytes(ps, 5, getAsByteArray(moduleScript.getContent()));
+                            lobCreator.setBlobAsBytes(ps, 5, getAsByteArray(moduleScript
+                                    .getContent()));
                         }
                     };
         template.execute("insert into " + DB_VERSION_LOG + " (" + DB_VERSION + "," + MODULE_NAME
