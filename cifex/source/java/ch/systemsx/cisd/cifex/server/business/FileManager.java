@@ -695,14 +695,17 @@ final class FileManager extends AbstractManager implements IFileManager
                 notified = false;
             } catch (final EnvironmentFailureException ex)
             {
-                if (notified == false)
+                if (notified == false && ex.getMessage().indexOf("email addresses are invalid") < 0)
                 {
-                    // As we are sure that we get correct email addresses, this
+                    // As we are sure that we have correct email addresses, this
                     // exception can only be related to the configuration and/or
                     // environment. So inform the administrator about the problem.
                     notificationLog.error("A problem has occurred while sending email.", ex);
                     notified = true;
                 }
+                // Inform request user about failure
+                mailClient.sendMessage("CIFEX was unable to send an email to your recipient", ex
+                        .getMessage(), null, null, requestUser.getEmail());
             }
         }
         return firstExceptionOrNull;
