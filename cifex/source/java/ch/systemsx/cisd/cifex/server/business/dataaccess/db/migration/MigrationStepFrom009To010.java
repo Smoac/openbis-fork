@@ -122,13 +122,7 @@ public class MigrationStepFrom009To010 implements IMigrationStep
         simpleJdbcTemplate.update("create index user_quota_group_fk_i on users (quota_group_id)");
 
         // Compute the current resource usage for all quota groups.
-
-        simpleJdbcTemplate.update("update quota_groups q set file_count ="
-                + " (select count(*) from files f join users u on f.user_id = u.id"
-                + " where u.quota_group_id = q.id)");
-        simpleJdbcTemplate.update("update quota_groups q set file_size ="
-                + " (select coalesce(sum(f.complete_size), 0) from files f join users u "
-                + "on f.user_id = u.id where u.quota_group_id = q.id)");
+        simpleJdbcTemplate.queryForList("select CALC_ACCOUNTING_FOR_ALL_QUOTA_GROUPS()");
     }
 
 }

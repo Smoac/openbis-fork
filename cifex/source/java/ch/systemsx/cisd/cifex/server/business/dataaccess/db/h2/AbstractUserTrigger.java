@@ -24,13 +24,19 @@ import org.h2.api.Trigger;
 
 /**
  * Abstract super class of the triggers on the USERS table for the H2 database.
- *
+ * 
  * @author Bernd Rinn
  */
 abstract class AbstractUserTrigger implements Trigger
 {
+    private final String USER_CODE_COLUMN_NAME = "USER_CODE";
+
+    private final String OLD_USER_CODE_COLUMN_NAME = "USER_ID";
+
     private final String QUOTA_GROUP_ID_COLUMN_NAME = "QUOTA_GROUP_ID";
-    
+
+    protected int userCodeIndex = -1;
+
     protected int quotaGroupIdIndex = -1;
 
     public void init(Connection conn, String schemaName, String triggerName, String tableName,
@@ -44,7 +50,10 @@ abstract class AbstractUserTrigger implements Trigger
             if (QUOTA_GROUP_ID_COLUMN_NAME.equals(columnName))
             {
                 quotaGroupIdIndex = idx;
-                break;
+            } else if (USER_CODE_COLUMN_NAME.equals(columnName)
+                    || OLD_USER_CODE_COLUMN_NAME.equals(columnName))
+            {
+                userCodeIndex = idx;
             }
             ++idx;
         }
