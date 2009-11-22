@@ -43,6 +43,11 @@ public class UserDTO extends ID
     private UserDTO registrator;
 
     /**
+     * The database id of the quota group that this user is in.
+     */
+    private Long quotaGroupId;
+    
+    /**
      * Whether this user is an administrator or not.
      * <p>
      * Note that an administrator is a <i>permanent</i> user as well.
@@ -77,6 +82,7 @@ public class UserDTO extends ID
     /** 
      * The maximum size (in MB) of an upload request for this user. 
      */
+    @Deprecated
     private Long maxUploadRequestSizeInMB;
 
     /**
@@ -194,6 +200,16 @@ public class UserDTO extends ID
         this.registrator = registrator;
     }
 
+    public final Long getQuotaGroupId()
+    {
+        return quotaGroupId;
+    }
+
+    public final void setQuotaGroupId(Long quotaGroupId)
+    {
+        this.quotaGroupId = quotaGroupId;
+    }
+
     public String getUserCode()
     {
         return userCode;
@@ -214,11 +230,13 @@ public class UserDTO extends ID
         this.fileRetention = fileRetention;
     }
 
+    @Deprecated
     public final Long getMaxUploadRequestSizeInMB()
     {
         return maxUploadRequestSizeInMB;
     }
 
+    @Deprecated
     public final void setMaxUploadRequestSizeInMB(Long maxUploadRequestSizeInMB)
     {
         this.maxUploadRequestSizeInMB = maxUploadRequestSizeInMB;

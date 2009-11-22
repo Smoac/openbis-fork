@@ -97,10 +97,10 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
 
     public boolean deleteSharingLink(long fileID, String userCode) throws DataAccessException
     {
-        final String sql =
-                String.format("delete from file_shares where file_id = %s and user_id in "
-                        + "(select id from users where user_id like '%s')", fileID, userCode);
-        final int affectedRows = getSimpleJdbcTemplate().update(sql);
+        final int affectedRows =
+                getSimpleJdbcTemplate().update(
+                        "delete from file_shares where file_id = ? and user_id in "
+                                + "(select id from users where user_code = ?)", fileID, userCode);
         return affectedRows > 0;
 
     }
@@ -221,12 +221,10 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     public final List<FileDTO> listUploadedFiles(final long userId) throws DataAccessException
     {
         final List<FileDTO> list =
-                getSimpleJdbcTemplate()
-                        .query(
-                                SELECT_FILES
-                                        + ", u.* from files f, users u "
-                                        + "where f.user_id = u.id and u.id = ?",
-                                FILE_WITH_REGISTERER_ROW_MAPPER, userId);
+                getSimpleJdbcTemplate().query(
+                        SELECT_FILES + ", u.* from files f, users u "
+                                + "where f.user_id = u.id and u.id = ?",
+                        FILE_WITH_REGISTERER_ROW_MAPPER, userId);
         return list;
     }
 
@@ -243,7 +241,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                 getSimpleJdbcTemplate().query(
                         SELECT_FILES + " from files f where f.user_id = ? and f.name = ? and "
                                 + "f.complete_size = ? and f.size < f.complete_size "
-                                + "order by f.size desc fetch first row only", FILE_ROW_MAPPER,
+                                + "order by f.size desc limit 1", FILE_ROW_MAPPER,
                         userId, fileName, completeSize);
         if (list.isEmpty())
         {

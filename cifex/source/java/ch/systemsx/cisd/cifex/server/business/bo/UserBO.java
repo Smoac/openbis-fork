@@ -49,6 +49,17 @@ class UserBO extends AbstractBusinessObject implements IUserBO
             user.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
                     .getUserRetention()));
         }
+        // Logic of deciding on what quota group to use. If no quota group is set here, a new quota
+        // group will be created for the user automatically.
+        if (user.getRegistrator() != null && user.getRegistrator().getUserCode() != null)
+        {
+            final UserDTO registrator =
+                    daoFactory.getUserDAO().tryFindUserByCode(user.getRegistrator().getUserCode());
+            if (registrator.isAdmin() == false)
+            {
+                user.setQuotaGroupId(registrator.getQuotaGroupId());
+            }
+        }
         this.userDTO = user;
         dataChanged = true;
     }

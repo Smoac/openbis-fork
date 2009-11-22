@@ -50,19 +50,18 @@ public final class UserDAOTest extends AbstractDAOTest
 {
     private static final Integer EXAMPLE_FILE_RETENTION = new Integer(42);
 
-    private static final Long EXAMPLE_MAX_UPLOAD_SIZE = new Long(12);
-
     private static final String MY_FILE_001_TXT = "my-file-001.txt";
 
-    final static UserDTO testAdminUser = createUser(true, true, "admin", "admin@systemsx.ch", null, null, null);
+    final static UserDTO testAdminUser =
+            createUser(true, true, "admin", "admin@systemsx.ch", null, null);
 
     final static UserDTO testPermanentUser =
             createUser(true, false, "user", "someuser@systemsx.ch", testAdminUser,
-                    EXAMPLE_MAX_UPLOAD_SIZE, EXAMPLE_FILE_RETENTION);
+                    EXAMPLE_FILE_RETENTION);
 
     final static UserDTO testTemporaryUser =
             createUser(false, false, "tempuser", "someuser@somewhereelse.edu", testPermanentUser,
-                    EXAMPLE_MAX_UPLOAD_SIZE, EXAMPLE_FILE_RETENTION);
+                    EXAMPLE_FILE_RETENTION);
 
     final static String getTestUserName()
     {
@@ -77,7 +76,6 @@ public final class UserDAOTest extends AbstractDAOTest
         assertEquals(expectedUser.isExternallyAuthenticated(), actualUserFromDB
                 .isExternallyAuthenticated());
         assertEquals(expectedUser.isPermanent(), actualUserFromDB.isPermanent());
-        assertEquals(expectedUser.getMaxUploadRequestSizeInMB(), actualUserFromDB.getMaxUploadRequestSizeInMB());
         assertEquals(expectedUser.getFileRetention(), actualUserFromDB.getFileRetention());
         assertTrue(expectedUser.getPassword().matches(actualUserFromDB.getPasswordHash()));
         assertEquals(expectedUser.getExpirationDate(), actualUserFromDB.getExpirationDate());
@@ -87,8 +85,7 @@ public final class UserDAOTest extends AbstractDAOTest
     }
 
     final static UserDTO createUser(final boolean permanent, final boolean admin,
-            final String code, final String email, final UserDTO registrator, Long maxUpLoadSize,
-            Integer fileRetention)
+            final String code, final String email, final UserDTO registrator, Integer fileRetention)
     {
         final UserDTO user = new UserDTO();
         user.setEmail(email);
@@ -97,7 +94,6 @@ public final class UserDAOTest extends AbstractDAOTest
         user.setPassword(new Password("the admin passw0rd"));
         user.setExternallyAuthenticated(false);
         user.setAdmin(admin);
-        user.setMaxUploadRequestSizeInMB(maxUpLoadSize);
         user.setFileRetention(fileRetention);
         if (registrator == null)
         {
@@ -145,9 +141,9 @@ public final class UserDAOTest extends AbstractDAOTest
         final IUserDAO userDAO = daoFactory.getUserDAO();
         int currentNumberOfUsers = userDAO.listUsers().size();
         assertNull(userDTO.getID());
-        
+
         userDAO.createUser(userDTO);
-        
+
         Long id = userDTO.getID();
         assertNotNull(id);
         List<UserDTO> users = userDAO.listUsers();
@@ -158,11 +154,9 @@ public final class UserDAOTest extends AbstractDAOTest
             {
                 if (user.isAdmin())
                 {
-                    assertEquals(null, user.getMaxUploadRequestSizeInMB());
                     assertEquals(null, user.getFileRetention());
                 } else
                 {
-                    assertEquals(EXAMPLE_MAX_UPLOAD_SIZE, user.getMaxUploadRequestSizeInMB());
                     assertEquals(EXAMPLE_FILE_RETENTION, user.getFileRetention());
                 }
                 return;
@@ -177,7 +171,7 @@ public final class UserDAOTest extends AbstractDAOTest
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
         final UserDTO newUser =
-                createUser(true, false, StringUtils.repeat("A", 51), "u@v.org", testAdminUser, null, null);
+                createUser(true, false, StringUtils.repeat("A", 51), "u@v.org", testAdminUser, null);
         userDAO.createUser(newUser);
     }
 
@@ -294,7 +288,6 @@ public final class UserDAOTest extends AbstractDAOTest
 
         // Try Update Email and max upload size
         testTemporaryUser.setEmail("updated@temporary.cifex");
-        testTemporaryUser.setMaxUploadRequestSizeInMB(new Long(4711));
         userDAO.updateUser(testTemporaryUser);
         final UserDTO testTemporaryUserFromDB =
                 userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());

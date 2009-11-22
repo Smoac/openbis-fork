@@ -66,7 +66,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             final UserDTO user = new UserDTO();
             final UserDTO registrator = new UserDTO();
             user.setID(rs.getLong("id"));
-            user.setUserCode(rs.getString("user_id"));
+            user.setUserCode(rs.getString("user_code"));
             user.setEmail(rs.getString("email"));
             user.setUserFullName(rs.getString("full_name"));
             user.setPasswordHash(rs.getString("password_hash"));
@@ -80,11 +80,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                     .getTimestamp("expiration_timestamp")));
             registrator.setID(rs.getLong("user_id_registrator"));
             user.setRegistrator(registrator);
-            long size = rs.getLong("max_upload_size");
-            if (rs.wasNull() == false)
-            {
-                user.setMaxUploadRequestSizeInMB(size);
-            }
+            user.setQuotaGroupId(rs.getLong("quota_group_id"));
             int retention = rs.getInt("file_retention");
             if (rs.wasNull() == false)
             {
@@ -133,7 +129,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         final List<UserDTO> list =
                 template
                         .query(
-                                "select * from users where user_id_registrator = (select id from users where user_id=?)",
+                                "select * from users where user_id_registrator = (select id from users where user_code=?)",
                                 new UserRowMapper(), userCode);
 
         for (final UserDTO user : list)
@@ -201,25 +197,26 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         if (Password.isEmpty(user.getPassword()))
         {
-            template.update("insert into users (id, user_id, email, full_name, "
-                    + "is_externally_authenticated, is_admin,"
-                    + "is_permanent, is_active, user_id_registrator, expiration_timestamp,"
-                    + "max_upload_size, file_retention) " + "values (?,?,?,?,?,?,?,?,?,?,?,?)", id,
-                    user.getUserCode(), user.getEmail(), user.getUserFullName(), user
-                            .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(),
-                    user.isActive(), registratorIdOrNull, user.getExpirationDate(), user
-                            .getMaxUploadRequestSizeInMB(), user.getFileRetention());
+            template.update(
+                    "insert into users (id, user_code, email, full_name,"
+                            + "is_externally_authenticated, is_admin,"
+                            + "is_permanent, is_active, user_id_registrator, quota_group_id,"
+                            + "expiration_timestamp, file_retention) "
+                            + "values (?,?,?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user
+                            .getEmail(), user.getUserFullName(), user.isExternallyAuthenticated(),
+                    user.isAdmin(), user.isPermanent(), user.isActive(), registratorIdOrNull, user
+                            .getQuotaGroupId(), user.getExpirationDate(), user.getFileRetention());
         } else
         {
-            template.update("insert into users (id, user_id, email, full_name, password_hash, "
+            template.update("insert into users (id, user_code, email, full_name, password_hash,"
                     + "is_externally_authenticated, is_admin,"
-                    + "is_permanent, is_active, user_id_registrator, expiration_timestamp,"
-                    + "max_upload_size, file_retention) " + "values (?,?,?,?,?,?,?,?,?,?,?,?,?)", id,
-                    user.getUserCode(), user.getEmail(), user.getUserFullName(), user.getPassword()
+                    + "is_permanent, is_active, user_id_registrator, quota_group_id,"
+                    + "expiration_timestamp, file_retention) "
+                    + "values (?,?,?,?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(),
+                    user.getEmail(), user.getUserFullName(), user.getPassword()
                             .createPasswordHash(), user.isExternallyAuthenticated(),
                     user.isAdmin(), user.isPermanent(), user.isActive(), registratorIdOrNull, user
-                            .getExpirationDate(), user.getMaxUploadRequestSizeInMB(), user
-                            .getFileRetention());
+                            .getQuotaGroupId(), user.getExpirationDate(), user.getFileRetention());
         }
         user.setID(id);
     }
@@ -258,7 +255,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         try
         {
             final UserDTO user =
-                    template.queryForObject("select * from users where user_id = ?",
+                    template.queryForObject("select * from users where user_code = ?",
                             new UserRowMapper(), userCode);
             fillInRegistrator(user);
             return user;
@@ -290,8 +287,8 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         try
         {
             final String userCode =
-                    template.queryForObject("select user_id from users where id = ?", String.class,
-                            id);
+                    template.queryForObject("select user_code from users where id = ?",
+                            String.class, id);
             return userCode;
         } catch (final EmptyResultDataAccessException e)
         {
@@ -340,26 +337,21 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
         if (Password.isEmpty(user.getPassword()))
         {
-            template
-                    .update(
-                            "update users set email = ?, user_id = ?, full_name = ?, "
-                                    + "is_externally_authenticated = ?, is_admin = ?, "
-                                    + "max_upload_size = ?, file_retention = ?, "
-                                    + "is_permanent = ?, is_active = ?, expiration_timestamp = ? where id = ?",
-                            user.getEmail(), user.getUserCode(), user.getUserFullName(), user
-                                    .isExternallyAuthenticated(), user.isAdmin(), user
-                                    .getMaxUploadRequestSizeInMB(), user.getFileRetention(), user
-                                    .isPermanent(), user.isActive(), user.getExpirationDate(), user
-                                    .getID());
+            template.update("update users set email = ?, user_code = ?, full_name = ?, "
+                    + "is_externally_authenticated = ?, is_admin = ?, "
+                    + "file_retention = ?, is_permanent = ?, is_active = ?, "
+                    + "expiration_timestamp = ? where id = ?", user.getEmail(), user.getUserCode(),
+                    user.getUserFullName(), user.isExternallyAuthenticated(), user.isAdmin(), user
+                            .getFileRetention(), user.isPermanent(), user.isActive(), user
+                            .getExpirationDate(), user.getID());
         } else
         {
-            template.update("update users set email = ?, user_id = ?, full_name = ?, "
+            template.update("update users set email = ?, user_code = ?, full_name = ?, "
                     + "password_hash = ?, is_externally_authenticated = ?, is_admin = ?, "
-                    + "max_upload_size = ?, file_retention = ?, "
-                    + "is_permanent = ?, is_active = ?, expiration_timestamp = ? where id = ?",
-                    user.getEmail(), user.getUserCode(), user.getUserFullName(), user.getPassword()
-                            .createPasswordHash(), user.isExternallyAuthenticated(),
-                    user.isAdmin(), user.getMaxUploadRequestSizeInMB(), user.getFileRetention(),
+                    + "file_retention = ?, is_permanent = ?, is_active = ?, "
+                    + "expiration_timestamp = ? where id = ?", user.getEmail(), user.getUserCode(),
+                    user.getUserFullName(), user.getPassword().createPasswordHash(), user
+                            .isExternallyAuthenticated(), user.isAdmin(), user.getFileRetention(),
                     user.isPermanent(), user.isActive(), user.getExpirationDate(), user.getID());
         }
     }
@@ -382,8 +374,8 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
     public void changeUserCode(final String before, final String after)
     {
-        getSimpleJdbcTemplate().update("update users set user_id = ? where user_id = ? ", after,
-                before);
+        getSimpleJdbcTemplate().update("update users set user_code = ? where user_code = ? ",
+                after, before);
 
     }
 
