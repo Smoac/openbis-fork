@@ -39,7 +39,6 @@ import ch.systemsx.cisd.cifex.client.application.model.AbstractUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
-import ch.systemsx.cisd.cifex.client.application.utils.WidgetUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -99,10 +98,10 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
      */
     public void refresh()
     {
-        WidgetUtils.reloadStore(newUserGrid.getGrid(), FileShareUserGridModel.convert(
-                messageResources, viewContext.getModel().getUser(), newUsers));
-        WidgetUtils.reloadStore(existingUserGrid.getGrid(), FileShareUserGridModel.convert(
-                messageResources, viewContext.getModel().getUser(), existingUsers));
+        GridUtils.reloadStore(newUserGrid, FileShareUserGridModel.convert(messageResources,
+                viewContext.getModel().getUser(), newUsers));
+        GridUtils.reloadStore(existingUserGrid, FileShareUserGridModel.convert(messageResources,
+                viewContext.getModel().getUser(), existingUsers));
     }
 
     static ArrayList<UserInfoDTO> getArrayList(UserInfoDTO[] users)
@@ -242,7 +241,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                     existingUsers.add(user);
                                                     addUserToFileShare(user);
                                                 }
-                                                WidgetUtils.reloadStore(existingUserGrid.getGrid(),
+                                                GridUtils.reloadStore(existingUserGrid,
                                                         FileShareUserGridModel.convert(
                                                                 messageResources, viewContext
                                                                         .getModel().getUser(),
@@ -285,7 +284,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                         addUserToFileShare(user);
                                                     }
                                                 }
-                                                WidgetUtils.reloadStore(existingUserGrid.getGrid(),
+                                                GridUtils.reloadStore(existingUserGrid,
                                                         FileShareUserGridModel.convert(
                                                                 messageResources, viewContext
                                                                         .getModel().getUser(),
@@ -299,7 +298,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                         .getUser());
                                                 newUsers.add(user);
                                                 addUserToFileShare(user);
-                                                WidgetUtils.reloadStore(newUserGrid.getGrid(),
+                                                GridUtils.reloadStore(newUserGrid,
                                                         FileShareUserGridModel.convert(
                                                                 messageResources, viewContext
                                                                         .getModel().getUser(),

@@ -19,8 +19,8 @@ package ch.systemsx.cisd.cifex.client.application;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
 
+import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
@@ -40,7 +40,7 @@ public final class EditUserDialog extends DefaultLayoutDialog
     private final EditUserWidget editUserWidget;
 
     public EditUserDialog(final ViewContext context, final UserInfoDTO user,
-            final Grid<UserGridModel> userGrid)
+            final GridWidget<UserGridModel> userGrid)
     {
         super(context.getMessageResources(), context.getMessageResources().getEditUserDialogTitle(
                 user.getUserCode()), UserWidget.TOTAL_WIDTH + 30, 250);

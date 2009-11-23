@@ -15,24 +15,26 @@
  */
 package ch.systemsx.cisd.cifex.client.application;
 
-import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
 
 /**
  * FileActionGridCellListener for admin grids.
- *
+ * 
  * @author Izabela Adamczyk
  */
-public class AdminFileActionGridCellListener extends FileActionGridCellListener<AdminFileGridModel>
+public class AdminFileActionGridCellListener extends FileActionGridCellListener
 {
 
-    AdminFileActionGridCellListener(ViewContext viewContext)
+    AdminFileActionGridCellListener(ViewContext viewContext,
+            GridWidget<AbstractFileGridModel> gridWidget)
     {
-        super(true, viewContext);
+        super(true, viewContext, gridWidget);
     }
 
     @Override
-    protected AsyncCallback<Void> createUpdateFilesCallback(Grid<AdminFileGridModel> grid,
+    protected AsyncCallback<Void> createUpdateFilesCallback(GridWidget<AbstractFileGridModel> grid,
             ViewContext context)
     {
         return new UpdateAdminFileAsyncCallback(grid, context);

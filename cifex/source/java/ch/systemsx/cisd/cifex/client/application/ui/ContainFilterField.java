@@ -18,7 +18,6 @@ package ch.systemsx.cisd.cifex.client.application.ui;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
@@ -46,25 +45,13 @@ public class ContainFilterField<M extends ModelData> extends StoreFilterField<M>
     protected boolean doSelect(Store<M> store, M parent, M record, String property,
             final String filterText)
     {
-        StoreFilter<M> storeFilter = createStoreFilter(filterText);
-        return storeFilter.select(store, parent, record, property);
+        if (StringUtils.isBlank(filterText))
+        {
+            return true;
+        }
+        String rawValue = record.get(getProperty());
+        boolean showItem =
+                rawValue != null && rawValue.toLowerCase().contains(filterText.toLowerCase());
+        return showItem;
     }
-
-    private static <M extends ModelData> StoreFilter<M> createStoreFilter(final String filterText)
-    {
-        return new StoreFilter<M>()
-            {
-                public boolean select(Store<M> store, M parent, M item, String property)
-                {
-                    if (StringUtils.isBlank(filterText))
-                    {
-                        return true;
-                    }
-                    String rawValue = (String) item.get(property);
-                    return (rawValue != null && rawValue.toLowerCase().contains(
-                            filterText.toLowerCase()));
-                }
-            };
-    }
-
 }

@@ -179,9 +179,8 @@ final class MainPage extends AbstractMainPage
         // AbstractAsyncCallback
         //
 
-        public final void onSuccess(final List<FileInfoDTO> result)
+        public final void onSuccess(final List<FileInfoDTO> files)
         {
-            final List<FileInfoDTO> files = result;
             final Widget widget;
             IMessageResources messageResources = getMessageResources();
             if (files.size() > 0)
@@ -221,7 +220,7 @@ final class MainPage extends AbstractMainPage
                 IMessageResources messageResources)
         {
             List<ColumnConfig> columnConfigs;
-            List<? extends AbstractFileGridModel> data;
+            List<AbstractFileGridModel> data;
             if (showDownloaded)
             {
                 columnConfigs = DownloadFileGridModel.getColumnConfigs(messageResources);
@@ -235,21 +234,22 @@ final class MainPage extends AbstractMainPage
             return createFileGrid(columnConfigs, data);
         }
 
-        private <M extends AbstractFileGridModel> Widget createFileGrid(
-                List<ColumnConfig> columnConfigs, List<M> data)
+        private Widget createFileGrid(List<ColumnConfig> columnConfigs,
+                List<AbstractFileGridModel> data)
         {
-            List<StoreFilterField<M>> filterItems =
+            List<StoreFilterField<AbstractFileGridModel>> filterItems =
                     AbstractFileGridModel.createFilterItems(getMessageResources());
 
-            GridWidget<M> gridWidget =
+            GridWidget<AbstractFileGridModel> gridWidget =
                     GridUtils.createGrid(columnConfigs, data, filterItems, getMessageResources());
-            Grid<M> grid = gridWidget.getGrid();
+            Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
 
             grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
             grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
             if (showDownloaded == false)
             {
-                grid.addListener(Events.CellClick, new UploadedFileActionGridCellListener(context));
+                grid.addListener(Events.CellClick, new UploadedFileActionGridCellListener(context,
+                        gridWidget));
             }
             return gridWidget.getWidget();
         }
@@ -300,7 +300,7 @@ final class MainPage extends AbstractMainPage
             GridWidget<UserGridModel> gridWidget = GridUtils.createUserGrid(users, context);
             // Delete user function
             gridWidget.getGrid().addListener(Events.CellClick,
-                    new UserActionGridCellListener<AbstractFileGridModel>(context, null));
+                    new UserActionGridCellListener(context, null, gridWidget));
             return gridWidget.getWidget();
         }
 

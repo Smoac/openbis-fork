@@ -63,10 +63,10 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         return configs;
     }
 
-    public final static List<DownloadFileGridModel> convert(IMessageResources messageResources,
+    public final static List<AbstractFileGridModel> convert(IMessageResources messageResources,
             final List<FileInfoDTO> filters)
     {
-        final List<DownloadFileGridModel> result = new ArrayList<DownloadFileGridModel>();
+        final List<AbstractFileGridModel> result = new ArrayList<AbstractFileGridModel>();
 
         for (final FileInfoDTO filter : filters)
         {

@@ -57,7 +57,7 @@ public final class FileDownloadGridCellListener implements Listener<GridEvent<Mo
             if (StringUtils.isBlank(targetId) == false)
             {
                 ModelData record = grid.getStore().getAt(rowIndex);
-                final int id = Integer.parseInt((String) record.get(AbstractFileGridModel.ID));
+                final long id = record.get(AbstractFileGridModel.ID);
                 final String url = FileDownloadHelper.createDownloadUrl(id);
                 WindowUtils.openNewDependentWindow(url);
             }

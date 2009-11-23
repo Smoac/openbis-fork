@@ -75,10 +75,10 @@ public class UploadedFileGridModel extends AbstractFileGridModel
         return configs;
     }
 
-    public final static List<UploadedFileGridModel> convert(IMessageResources messageResources,
+    public final static List<AbstractFileGridModel> convert(IMessageResources messageResources,
             final List<FileInfoDTO> filters)
     {
-        final List<UploadedFileGridModel> result = new ArrayList<UploadedFileGridModel>();
+        final List<AbstractFileGridModel> result = new ArrayList<AbstractFileGridModel>();
 
         for (final FileInfoDTO filter : filters)
         {

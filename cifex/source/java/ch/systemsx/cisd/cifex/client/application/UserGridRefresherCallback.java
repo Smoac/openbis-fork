@@ -18,11 +18,9 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-
+import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
-import ch.systemsx.cisd.cifex.client.application.utils.WidgetUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -33,9 +31,9 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 final class UserGridRefresherCallback extends AbstractAsyncCallback<Void>
 {
 
-    private final Grid<UserGridModel> userGrid;
+    private final GridWidget<UserGridModel> userGrid;
 
-    UserGridRefresherCallback(final ViewContext context, final Grid<UserGridModel> userGrid)
+    UserGridRefresherCallback(final ViewContext context, final GridWidget<UserGridModel> userGrid)
     {
         super(context);
         this.userGrid = userGrid;
@@ -78,7 +76,7 @@ final class UserGridRefresherCallback extends AbstractAsyncCallback<Void>
 
         public final void onSuccess(final List<UserInfoDTO> res)
         {
-            WidgetUtils.reloadStore(userGrid, UserGridModel.convert(getViewContext(), res));
+            GridUtils.reloadStore(userGrid, UserGridModel.convert(getViewContext(), res));
         }
     }
 }

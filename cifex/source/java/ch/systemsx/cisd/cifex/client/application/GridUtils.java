@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.PagingModelMemoryProxy;
+import com.extjs.gxt.ui.client.data.SortInfo;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -51,6 +52,24 @@ public class GridUtils
 {
     private static final int PAGE_SIZE = 50;
 
+    public static <M extends ModelData> void reloadStore(GridWidget<M> gridWidget, List<M> models)
+    {
+        Grid<M> grid = gridWidget.getGrid();
+        SortInfo sortState = grid.getStore().getSortState();
+        PagingLoader<PagingLoadResult<M>> loader = createLoader(models);
+        ListStore<M> store = createListStore(loader);
+        setSortState(store, sortState);
+
+        bindFilters(gridWidget.getFilterFields(), store);
+        grid.reconfigure(store, grid.getColumnModel());
+        bindAndLoad(gridWidget.getToolbar(), loader);
+    }
+
+    private static void setSortState(ListStore<?> store, SortInfo sortState)
+    {
+        store.sort(sortState.getSortField(), sortState.getSortDir());
+    }
+
     /** creates a grid with specified users */
     public static GridWidget<UserGridModel> createUserGrid(final List<UserInfoDTO> users,
             ViewContext viewContext)
@@ -70,13 +89,20 @@ public class GridUtils
             List<M> data, List<StoreFilterField<M>> filterFields, IMessageResources messageResources)
     {
         PagingLoader<PagingLoadResult<M>> loader = createLoader(data);
-        Grid<M> grid = createGrid(columnConfigs, loader);
-        List<Component> filterItems =
-                createFilterItems(filterFields, grid.getStore(), messageResources);
-        return addToolbar(grid, loader, filterItems);
+        ListStore<M> store = createListStore(loader);
+        Grid<M> grid = createGrid(columnConfigs, store);
+        return addToolbar(grid, loader, filterFields, messageResources);
     }
 
     private static <M extends ModelData> Grid<M> createGrid(List<ColumnConfig> columnConfigs,
+            ListStore<M> store)
+    {
+        Grid<M> grid = new Grid<M>(store, new ColumnModel(columnConfigs));
+        grid.setHeight(Constants.GRID_HEIGHT);
+        return grid;
+    }
+
+    private static <M extends ModelData> ListStore<M> createListStore(
             PagingLoader<PagingLoadResult<M>> loader)
     {
         ListStore<M> store = new ListStore<M>(loader)
@@ -91,16 +117,14 @@ public class GridUtils
                     super.filter(property);
                 }
             };
-        Grid<M> grid = new Grid<M>(store, new ColumnModel(columnConfigs));
-        grid.setHeight(Constants.GRID_HEIGHT);
-        return grid;
+        return store;
     }
 
     private static <M extends ModelData> PagingLoader<PagingLoadResult<M>> createLoader(List<M> data)
     {
         PagingModelMemoryProxy proxy = new PagingModelMemoryProxy(data);
         PagingLoader<PagingLoadResult<M>> loader = new BasePagingLoader<PagingLoadResult<M>>(proxy);
-        loader.setRemoteSort(true);
+        loader.setRemoteSort(false);
         return loader;
     }
 
@@ -118,9 +142,15 @@ public class GridUtils
             PagingLoader<PagingLoadResult<M>> loader, List<Component> filterItems)
     {
         final PagingToolBar toolBar = new PagingToolBarWithItems(PAGE_SIZE, filterItems);
+        bindAndLoad(toolBar, loader);
+        return toolBar;
+    }
+
+    private static <M extends ModelData> void bindAndLoad(final PagingToolBar toolBar,
+            PagingLoader<PagingLoadResult<M>> loader)
+    {
         toolBar.bind(loader);
         loader.load(0, PAGE_SIZE);
-        return toolBar;
     }
 
     private static class PagingToolBarWithItems extends PagingToolBar
@@ -141,25 +171,35 @@ public class GridUtils
     }
 
     private static <M extends ModelData> GridWidget<M> addToolbar(Grid<M> grid,
-            PagingLoader<PagingLoadResult<M>> loader, List<Component> filterItems)
+            PagingLoader<PagingLoadResult<M>> loader, List<StoreFilterField<M>> filterFields,
+            IMessageResources messageResources)
     {
+        bindFilters(filterFields, grid.getStore());
+        List<Component> filterItems = createFilterItems(filterFields, messageResources);
         final PagingToolBar toolBar = createGridPagingToolbar(loader, filterItems);
         Widget widget = createGridWithToolbar(grid, toolBar);
-        return new GridWidget<M>(widget, grid);
+        return new GridWidget<M>(widget, grid, toolBar, filterFields);
     }
 
     private static <M extends ModelData> List<Component> createFilterItems(
-            List<StoreFilterField<M>> filterFields, ListStore<M> store,
-            IMessageResources messageResources)
+            List<StoreFilterField<M>> filterFields, IMessageResources messageResources)
     {
         List<Component> filterItems = new ArrayList<Component>();
         filterItems.add(new LabelField(messageResources.getGridFiltersLabel()));
         for (StoreFilterField<M> filterField : filterFields)
         {
             filterItems.add(filterField);
-            filterField.bind(store);
         }
         return filterItems;
+    }
+
+    private static <M extends ModelData> void bindFilters(List<StoreFilterField<M>> filterFields,
+            ListStore<M> store)
+    {
+        for (StoreFilterField<M> filterField : filterFields)
+        {
+            filterField.bind(store);
+        }
     }
 
     public static class GridWidget<M extends ModelData>
@@ -168,10 +208,17 @@ public class GridUtils
 
         private final Grid<M> grid;
 
-        public GridWidget(Widget gridWithToolbar, Grid<M> grid)
+        private final PagingToolBar toolBar;
+
+        private final List<StoreFilterField<M>> filterFields;
+
+        public GridWidget(Widget gridWithToolbar, Grid<M> grid, PagingToolBar toolBar,
+                List<StoreFilterField<M>> filterFields)
         {
             this.widget = gridWithToolbar;
             this.grid = grid;
+            this.toolBar = toolBar;
+            this.filterFields = filterFields;
         }
 
         /** widget containing the grid with the paging and filtering toolbar at the bottom */
@@ -184,6 +231,16 @@ public class GridUtils
         public Grid<M> getGrid()
         {
             return grid;
+        }
+
+        public PagingToolBar getToolbar()
+        {
+            return toolBar;
+        }
+
+        public List<StoreFilterField<M>> getFilterFields()
+        {
+            return filterFields;
         }
     }
 }

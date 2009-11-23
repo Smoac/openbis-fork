@@ -29,7 +29,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.cifex.client.application.utils.WidgetUtils;
+import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
@@ -41,18 +41,21 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  * 
  * @author Christian Ribeaud
  */
-abstract class FileActionGridCellListener<T extends AbstractFileGridModel> implements
-        Listener<GridEvent<T>>
+abstract class FileActionGridCellListener implements Listener<GridEvent<AbstractFileGridModel>>
 {
 
     private final ViewContext viewContext;
 
     private final boolean adminView;
 
-    FileActionGridCellListener(final boolean adminView, final ViewContext viewContext)
+    private final GridWidget<AbstractFileGridModel> gridWidget;
+
+    FileActionGridCellListener(final boolean adminView, final ViewContext viewContext,
+            GridWidget<AbstractFileGridModel> gridWidget)
     {
         this.adminView = adminView;
         this.viewContext = viewContext;
+        this.gridWidget = gridWidget;
     }
 
     //
@@ -64,9 +67,9 @@ abstract class FileActionGridCellListener<T extends AbstractFileGridModel> imple
      */
     private final class DeleteUploadedFileAsyncCallback extends AbstractAsyncCallback<Void>
     {
-        private final Grid<AbstractFileGridModel> modelBasedGrid;
+        private final GridWidget<AbstractFileGridModel> modelBasedGrid;
 
-        DeleteUploadedFileAsyncCallback(final Grid<AbstractFileGridModel> modelBasedGrid)
+        DeleteUploadedFileAsyncCallback(final GridWidget<AbstractFileGridModel> modelBasedGrid)
         {
             super(viewContext);
             this.modelBasedGrid = modelBasedGrid;
@@ -84,7 +87,7 @@ abstract class FileActionGridCellListener<T extends AbstractFileGridModel> imple
                         {
                             public final void onSuccess(final List<FileInfoDTO> res)
                             {
-                                WidgetUtils.reloadStore(modelBasedGrid, UploadedFileGridModel
+                                GridUtils.reloadStore(modelBasedGrid, UploadedFileGridModel
                                         .convert(viewContext.getMessageResources(), res));
                             }
                         });
@@ -96,9 +99,9 @@ abstract class FileActionGridCellListener<T extends AbstractFileGridModel> imple
      */
     private final class AdminDeleteFileAsyncCallback extends AbstractAsyncCallback<Void>
     {
-        private final Grid<AbstractFileGridModel> modelBasedGrid;
+        private final GridWidget<AbstractFileGridModel> modelBasedGrid;
 
-        AdminDeleteFileAsyncCallback(final Grid<AbstractFileGridModel> grid)
+        AdminDeleteFileAsyncCallback(final GridWidget<AbstractFileGridModel> grid)
         {
             super(viewContext);
             this.modelBasedGrid = grid;
@@ -116,7 +119,7 @@ abstract class FileActionGridCellListener<T extends AbstractFileGridModel> imple
                         {
                             public final void onSuccess(final List<AdminFileInfoDTO> res)
                             {
-                                WidgetUtils.reloadStore(modelBasedGrid, AdminFileGridModel.convert(
+                                GridUtils.reloadStore(modelBasedGrid, AdminFileGridModel.convert(
                                         viewContext.getMessageResources(), res));
                             }
                         });
@@ -151,13 +154,13 @@ abstract class FileActionGridCellListener<T extends AbstractFileGridModel> imple
         }
     }
 
-    public void handleEvent(GridEvent<T> be)
+    public void handleEvent(GridEvent<AbstractFileGridModel> be)
     {
-        final Grid<T> grid = be.getGrid();
+        Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
         int rowIndex = be.getRowIndex();
         int colindex = be.getColIndex();
         final ModelData record = grid.getStore().getAt(rowIndex);
-        final String idStr = record.get(AbstractFileGridModel.ID);
+        final String idStr = "" + record.get(AbstractFileGridModel.ID);
         final String name = record.get(AbstractFileGridModel.NAME);
         final String dataIndex = grid.getColumnModel().getDataIndex(colindex);
         if (dataIndex.equals(AbstractFileGridModel.ACTION))
@@ -176,23 +179,18 @@ abstract class FileActionGridCellListener<T extends AbstractFileGridModel> imple
                         .getFileDeleteConfirmText(name), new Listener<MessageBoxEvent>()
                     {
 
-                        @SuppressWarnings("unchecked")
                         public void handleEvent(MessageBoxEvent messageEvent)
                         {
                             if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))
                             {
                                 if (adminView)
                                 {
-                                    viewContext.getCifexService().deleteFile(
-                                            idStr,
-                                            new AdminDeleteFileAsyncCallback(
-                                                    (Grid<AbstractFileGridModel>) grid));
+                                    viewContext.getCifexService().deleteFile(idStr,
+                                            new AdminDeleteFileAsyncCallback(gridWidget));
                                 } else
                                 {
-                                    viewContext.getCifexService().deleteFile(
-                                            idStr,
-                                            new DeleteUploadedFileAsyncCallback(
-                                                    (Grid<AbstractFileGridModel>) grid));
+                                    viewContext.getCifexService().deleteFile(idStr,
+                                            new DeleteUploadedFileAsyncCallback(gridWidget));
                                 }
 
                             }
@@ -204,7 +202,7 @@ abstract class FileActionGridCellListener<T extends AbstractFileGridModel> imple
             if (Constants.RENEW_ID.equals(targetId))
             {
                 viewContext.getCifexService().updateFileExpiration(idStr,
-                        createUpdateFilesCallback(grid, viewContext));
+                        createUpdateFilesCallback(gridWidget, viewContext));
             }
             // Shared
             if (Constants.SHARED_ID.equals(targetId))
@@ -215,7 +213,7 @@ abstract class FileActionGridCellListener<T extends AbstractFileGridModel> imple
         }
     }
 
-    protected abstract AsyncCallback<Void> createUpdateFilesCallback(Grid<T> grid,
-            ViewContext context);
+    protected abstract AsyncCallback<Void> createUpdateFilesCallback(
+            GridWidget<AbstractFileGridModel> grid, ViewContext context);
 
 }

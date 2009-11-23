@@ -27,6 +27,7 @@ import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 
+import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
@@ -41,18 +42,22 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  * 
  * @author Christian Ribeaud
  */
-final class UserActionGridCellListener<F extends AbstractFileGridModel> implements
-        Listener<GridEvent<UserGridModel>>
+final class UserActionGridCellListener implements Listener<GridEvent<UserGridModel>>
 {
 
     private final ViewContext viewContext;
 
-    private final Grid<F> fileGridOrNull;
+    private final GridWidget<UserGridModel> userGridWidget;
 
-    UserActionGridCellListener(final ViewContext viewContext, final Grid<F> filesGrid)
+    private final GridWidget<AbstractFileGridModel> fileGridOrNull;
+
+    UserActionGridCellListener(final ViewContext viewContext,
+            final GridWidget<AbstractFileGridModel> filesGrid,
+            GridWidget<UserGridModel> userGridWidget)
     {
         this.viewContext = viewContext;
         this.fileGridOrNull = filesGrid;
+        this.userGridWidget = userGridWidget;
     }
 
     private final static String getUserDescription(final UserGridModel model)
@@ -76,10 +81,10 @@ final class UserActionGridCellListener<F extends AbstractFileGridModel> implemen
 
         private final String userCodeAfterRenaming;
 
-        private final Grid<UserGridModel> userGrid;
+        private final GridWidget<UserGridModel> userGrid;
 
         private RenamingConfirmCallback(final String userCode, final String userCodeAfterRenaming,
-                final Grid<UserGridModel> userGrid)
+                final GridWidget<UserGridModel> userGrid)
         {
             this.userCode = userCode;
             this.userCodeAfterRenaming = userCodeAfterRenaming;
@@ -91,22 +96,22 @@ final class UserActionGridCellListener<F extends AbstractFileGridModel> implemen
             if (be.getButtonClicked().getItemId().equals(Dialog.YES))
             {
                 viewContext.getCifexService().changeUserCode(userCode, userCodeAfterRenaming,
-                        new UsersFilesRefresherCallback<F>(viewContext, userGrid, fileGridOrNull));
+                        new UsersFilesRefresherCallback(viewContext, userGrid, fileGridOrNull));
             }
         }
     }
 
-    private static final class UsersFilesRefresherCallback<F extends AbstractFileGridModel> extends
-            AbstractAsyncCallback<Void>
+    private static final class UsersFilesRefresherCallback extends AbstractAsyncCallback<Void>
     {
-        private final Grid<UserGridModel> userGrid;
+        private final GridWidget<UserGridModel> userGrid;
 
-        private final Grid<F> fileGrid;
+        private final GridWidget<AbstractFileGridModel> fileGrid;
 
         private final ViewContext context;
 
         public UsersFilesRefresherCallback(final ViewContext context,
-                final Grid<UserGridModel> userGrid, final Grid<F> fileGridOrNull)
+                final GridWidget<UserGridModel> userGrid,
+                final GridWidget<AbstractFileGridModel> fileGridOrNull)
         {
             super(context);
             this.userGrid = userGrid;
@@ -115,7 +120,6 @@ final class UserActionGridCellListener<F extends AbstractFileGridModel> implemen
 
         }
 
-        @SuppressWarnings("unchecked")
         public void onSuccess(final Void result)
         {
 
@@ -129,12 +133,10 @@ final class UserActionGridCellListener<F extends AbstractFileGridModel> implemen
             {
                 if (adminView)
                 {
-                    new UpdateAdminFileAsyncCallback((Grid<AdminFileGridModel>) fileGrid, context)
-                            .onSuccess(result);
+                    new UpdateAdminFileAsyncCallback(fileGrid, context).onSuccess(result);
                 } else
                 {
-                    new UpdateUploadedFileAsyncCallback((Grid<UploadedFileGridModel>) fileGrid,
-                            context).onSuccess(result);
+                    new UpdateUploadedFileAsyncCallback(fileGrid, context).onSuccess(result);
                 }
             }
         }
@@ -142,9 +144,9 @@ final class UserActionGridCellListener<F extends AbstractFileGridModel> implemen
 
     private final class FindUserAsyncCallback extends AbstractAsyncCallback<UserInfoDTO>
     {
-        private final Grid<UserGridModel> grid;
+        private final GridWidget<UserGridModel> grid;
 
-        public FindUserAsyncCallback(final ViewContext context, final Grid<UserGridModel> grid)
+        public FindUserAsyncCallback(final ViewContext context, final GridWidget<UserGridModel> grid)
         {
             super(context);
             this.grid = grid;
@@ -162,10 +164,10 @@ final class UserActionGridCellListener<F extends AbstractFileGridModel> implemen
 
     private final class RenewUserAsyncCallback extends AbstractAsyncCallback<UserInfoDTO>
     {
-        final Grid<UserGridModel> modelBasedGrid;
+        final GridWidget<UserGridModel> modelBasedGrid;
 
         public RenewUserAsyncCallback(final ViewContext context,
-                final Grid<UserGridModel> modelBasedGrid)
+                final GridWidget<UserGridModel> modelBasedGrid)
         {
             super(context);
             this.modelBasedGrid = modelBasedGrid;
@@ -187,13 +189,12 @@ final class UserActionGridCellListener<F extends AbstractFileGridModel> implemen
 
     public void handleEvent(GridEvent<UserGridModel> be)
     {
-        final Grid<UserGridModel> grid = be.getGrid();
+        final Grid<UserGridModel> grid = userGridWidget.getGrid();
         final int rowIndex = be.getRowIndex();
         final int colIndex = be.getColIndex();
         final Event e = be.getEvent();
 
         final IMessageResources messageResources = viewContext.getMessageResources();
-        final Grid<UserGridModel> userGrid = grid;
         if (grid.getColumnModel().getDataIndex(colIndex).equals(UserGridModel.ACTION))
         {
             final UserGridModel model = grid.getStore().getAt(rowIndex);
@@ -220,7 +221,7 @@ final class UserActionGridCellListener<F extends AbstractFileGridModel> implemen
                             if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))
                             {
                                 viewContext.getCifexService().deleteUser(userCode,
-                                        new UserGridRefresherCallback(viewContext, userGrid));
+                                        new UserGridRefresherCallback(viewContext, userGridWidget));
                             }
                         }
                     });
@@ -233,12 +234,12 @@ final class UserActionGridCellListener<F extends AbstractFileGridModel> implemen
                 }
                 // Edit User
                 viewContext.getCifexService().tryFindUserByUserCode(userCode,
-                        new FindUserAsyncCallback(viewContext, userGrid));
+                        new FindUserAsyncCallback(viewContext, userGridWidget));
             } else if (Constants.RENEW_ID.equals(targetId))
             {
                 // Renew User
                 viewContext.getCifexService().tryFindUserByUserCode(userCode,
-                        new RenewUserAsyncCallback(viewContext, userGrid));
+                        new RenewUserAsyncCallback(viewContext, userGridWidget));
             } else if (Constants.CHANGE_USER_CODE_ID.equals(targetId))
             {
                 // Change users code
@@ -266,7 +267,7 @@ final class UserActionGridCellListener<F extends AbstractFileGridModel> implemen
                                                     .getRenameConfirmText(userCode,
                                                             userCodeAfterRenaming),
                                                     new RenamingConfirmCallback(userCode,
-                                                            userCodeAfterRenaming, userGrid));
+                                                            userCodeAfterRenaming, userGridWidget));
                                         }
                                     }
 

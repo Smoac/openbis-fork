@@ -76,10 +76,10 @@ public class AdminFileGridModel extends AbstractFileGridModel
                         Constants.DELETE_ID));// String
     }
 
-    public final static List<AdminFileGridModel> convert(IMessageResources messageResources,
+    public final static List<AbstractFileGridModel> convert(IMessageResources messageResources,
             final List<AdminFileInfoDTO> filters)
     {
-        final List<AdminFileGridModel> result = new ArrayList<AdminFileGridModel>();
+        final List<AbstractFileGridModel> result = new ArrayList<AbstractFileGridModel>();
 
         for (final AdminFileInfoDTO filter : filters)
         {
