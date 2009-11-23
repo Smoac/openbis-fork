@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author Piotr Buczek
  */
-interface IFlowLaneTrackingEmailGenerator
+interface IEntityTrackingEmailGenerator
 {
     /**
      * Generates all {@link Email}s to be send containing information about

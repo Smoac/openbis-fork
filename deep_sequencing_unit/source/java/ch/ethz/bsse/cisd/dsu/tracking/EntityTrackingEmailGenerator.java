@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author Piotr Buczek
  */
-public class FlowLaneTrackingEmailGenerator implements IFlowLaneTrackingEmailGenerator
+public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerator
 {
 
     public List<Email> generateEmails(TrackedEntities trackedEntities)
