@@ -28,6 +28,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class CodeField extends TriggerField<String>
 {
+    private static final int CODE_MAX_LENGTH = 40;
+
     private static final String CODE_CHAR_PATTERN = "a-zA-Z0-9_\\-\\.";
 
     public static final String CODE_CHARS = "[" + CODE_CHAR_PATTERN + "]+";
@@ -107,7 +109,7 @@ public class CodeField extends TriggerField<String>
             final String pattern, final String allowedCharacters)
     {
         VarcharField.configureField(this, label, true);
-        setMaxLength(40);
+        setMaxLength(CODE_MAX_LENGTH);
         setRegex(pattern);
         getMessages().setRegexText(
                 messageProvider.getMessage(Dict.INVALID_CODE_MESSAGE, allowedCharacters));
