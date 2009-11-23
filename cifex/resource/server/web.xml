@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE web-app [
     <!ENTITY common SYSTEM "web-common.xml">
-    <!ENTITY gwt SYSTEM "gwt.xml">
 ]>
 <web-app>
 
@@ -62,6 +61,4 @@
         <servlet-class>ch.systemsx.cisd.cifex.rpc.server.File2GBDownloadServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
-
-    &gwt;
 </web-app>
