@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import ch.ethz.bsse.cisd.dsu.tracking.EntityTrackingEmailData.SequencingSampleData;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -32,11 +33,15 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerator
 {
-    private static final String NOTIFICATION_EMAIL_SUBJECT = "notification-email-subject";
-
     private static final String NOTIFICATION_EMAIL_FROM = "notification-email-from";
 
     private static final String NOTIFICATION_EMAIL_REPLY_TO = "notification-email-reply-to";
+
+    private static final String NOTIFICATION_EMAIL_SUBJECT = "notification-email-subject";
+
+    private static final String NOTIFICATION_EMAIL_BEGINNING = "notification-email-beginning";
+
+    private static final String NOTIFICATION_EMAIL_ENDING = "notification-email-ending";
 
     private final String subject;
 
@@ -44,11 +49,17 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
     private final String replyTo;
 
+    private final String beginning;
+
+    private final String ending;
+
     public EntityTrackingEmailGenerator(Properties properties)
     {
         subject = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_SUBJECT);
         from = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_FROM);
         replyTo = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_REPLY_TO);
+        beginning = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_BEGINNING);
+        ending = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_ENDING);
     }
 
     public List<Email> generateEmails(TrackedEntities trackedEntities)
@@ -67,7 +78,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
     private Email createEmail(EntityTrackingEmailData emailData)
     {
-        String content = EmailContentGenerator.generate(emailData);
+        String content = EmailContentGenerator.generate(emailData, beginning, ending);
         String recipient = emailData.getRecipient();
         return new Email(subject, content, replyTo, from, recipient);
     }
@@ -95,38 +106,94 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
         private static final String PERMLINK_LABEL = "Permlink";
 
-        private static String createSeparatorLine(char separatorChar)
-        {
-            char[] line = new char[SEPARATOR_LINE_WIDTH];
-            Arrays.fill(line, separatorChar);
-            return new String(line);
-        }
-
-        // TODO 2009-11-23, Piotr Buczek: implement
-        public static String generate(EntityTrackingEmailData emailData)
+        public static String generate(EntityTrackingEmailData emailData, String beginning,
+                String ending)
         {
             StringBuilder sb = new StringBuilder();
-            appendDataSetsInfo(sb, emailData.getDataSets());
-            return null;
+            appendln(sb, beginning);
+            appendNewline(sb);
+            appendSequencingSamplesData(sb, emailData.getSequencingSamplesData());
+            appendDataSetsData(sb, emailData.getDataSets());
+            appendNewline(sb);
+            appendln(sb, ending);
+            return sb.toString();
         }
 
-        private static void appendDataSetsInfo(StringBuilder sb, List<ExternalData> dataSets)
+        private static void appendSequencingSamplesData(StringBuilder sb,
+                Collection<SequencingSampleData> sequencingSamplesData)
+        {
+            for (SequencingSampleData sequencingSampleData : sequencingSamplesData)
+            {
+                appendln(sb, SECTION_SEPARATOR_LINE);
+                appendln(sb, SUBSECTION_SEPARATOR_LINE);
+                // heading of section depends on whether sequencing sample already existed
+                String sectionHeading;
+                final String sequencingSampleCode =
+                        sequencingSampleData.getSequencingSample().getCode();
+                final int flowLaneSamplesSize = sequencingSampleData.getFlowLaneSamples().size();
+                if (sequencingSampleData.isNewlyTracked())
+                {
+                    String headingSuffix =
+                            flowLaneSamplesSize == 0 ? "" : String.format(
+                                    " and %d connected Flow Lane sample(s).", flowLaneSamplesSize);
+                    sectionHeading =
+                            String.format("Tracked creation of Sequencing sample '%s'%s.",
+                                    sequencingSampleCode, headingSuffix);
+                } else
+                {
+                    sectionHeading =
+                            String.format("Tracked creation of %d Flow Lane sample(s) "
+                                    + "connected with Sequencing sample '%s'.",
+                                    flowLaneSamplesSize, sequencingSampleCode);
+                }
+                appendln(sb, sectionHeading);
+                appendln(sb, SUBSECTION_SEPARATOR_LINE);
+
+                // append Sequencing sample details and then Flow Lane samples in subsections
+                appendSampleDetails(sb, "Sequencing", sequencingSampleData.getSequencingSample());
+                appendln(sb, SUBSECTION_SEPARATOR_LINE);
+                for (Sample flowLaneSample : sequencingSampleData.getFlowLaneSamples())
+                {
+                    appendSampleDetails(sb, "Flow Lane", flowLaneSample);
+                    appendln(sb, SUBSECTION_SEPARATOR_LINE);
+                }
+            }
+        }
+
+        private static void appendSampleDetails(StringBuilder sb, String sampleTypeLabel,
+                Sample sample)
+        {
+            appendln(sb, String.format("%s sample '%s' details", sampleTypeLabel, sample.getCode()));
+
+            // basic sample info
+            appendAttribute(sb, PERMLINK_LABEL, sample.getPermlink());
+            appendAttribute(sb, "Identifier", sample.getIdentifier());
+            appendNewline(sb);
+
+            // sample properties
+            appendln(sb, "Filled sample properties:");
+            appendProperties(sb, sample.getProperties());
+        }
+
+        private static void appendDataSetsData(StringBuilder sb, List<ExternalData> dataSets)
         {
             appendln(sb, SECTION_SEPARATOR_LINE);
             appendln(sb, SUBSECTION_SEPARATOR_LINE);
             appendln(sb, String.format(
-                    "Tracked creation of %s data set(s) connected with Flow Lane samples.",
+                    "Tracked creation of %d data set(s) connected with Flow Lane samples.",
                     dataSets.size()));
             appendln(sb, SUBSECTION_SEPARATOR_LINE);
             for (ExternalData dataSet : dataSets)
             {
-                appendDataSetInfo(sb, dataSet);
+                appendDataSetDetails(sb, dataSet);
                 appendln(sb, SUBSECTION_SEPARATOR_LINE);
             }
         }
 
-        private static void appendDataSetInfo(StringBuilder sb, ExternalData dataSet)
+        private static void appendDataSetDetails(StringBuilder sb, ExternalData dataSet)
         {
+            appendln(sb, String.format("Data set '%s' details", dataSet.getCode()));
+
             // basic data set info
             appendAttribute(sb, PERMLINK_LABEL, dataSet.getPermlink());
             appendNewline(sb);
@@ -142,21 +209,22 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                     .getCode(), sequencingSample.getPermlink()));
 
             // data set properties
-
-            // no information about assigned properties - cannot put information about empty
-            // List<DataSetTypePropertyType> assignedProperties =
-            // dataSet.getDataSetType().getAssignedPropertyTypes();
-            for (IEntityProperty property : dataSet.getProperties())
-            {
-                appendProperty(sb, property);
-            }
+            appendln(sb, "Filled data set properties:");
+            appendProperties(sb, dataSet.getProperties());
         }
 
-        private static void appendProperty(StringBuilder sb, IEntityProperty property)
+        // NOTE: Information about properties assigned to entity type are not loaded.
+        // If it would be available we could append information about all properties assigned
+        // to entity type, not only about properties filled for specific entity. Additionally
+        // we could group entities by in sections.
+        private static void appendProperties(StringBuilder sb, List<IEntityProperty> properties)
         {
-            final String label = property.getPropertyType().getLabel();
-            final String value = property.getValue();
-            appendAttribute(sb, label, value);
+            for (IEntityProperty property : properties)
+            {
+                final String label = property.getPropertyType().getLabel();
+                final String value = property.getValue();
+                appendAttribute(sb, label, value);
+            }
         }
 
         private static void appendAttribute(StringBuilder sb, String name, String value)
@@ -173,6 +241,13 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         private static void appendNewline(StringBuilder sb)
         {
             sb.append(NEW_LINE);
+        }
+
+        private static String createSeparatorLine(char separatorChar)
+        {
+            char[] line = new char[SEPARATOR_LINE_WIDTH];
+            Arrays.fill(line, separatorChar);
+            return new String(line);
         }
 
     }

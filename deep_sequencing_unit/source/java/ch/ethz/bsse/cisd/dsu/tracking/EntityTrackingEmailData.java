@@ -17,6 +17,7 @@
 package ch.ethz.bsse.cisd.dsu.tracking;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,9 +89,9 @@ public class EntityTrackingEmailData
         return recipient;
     }
 
-    public Map<Long, SequencingSampleData> getSequencingSampleData()
+    public Collection<SequencingSampleData> getSequencingSamplesData()
     {
-        return sequencingSampleData;
+        return sequencingSampleData.values();
     }
 
     public List<ExternalData> getDataSets()
