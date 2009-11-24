@@ -59,6 +59,7 @@ public class TrackingClient
         Parameters params = new Parameters(props);
 
         ITrackingServer trackingServer = createOpenBISTrackingServer(params);
+        // TODO 2009--, Tomasz Pylak: load template from file
         IEntityTrackingEmailGenerator emailGenerator =
                 new EntityTrackingEmailGenerator(props, "BEGINNING \n{generated-content}\n END!");
         IMailClient mailClient = params.getMailClient();
