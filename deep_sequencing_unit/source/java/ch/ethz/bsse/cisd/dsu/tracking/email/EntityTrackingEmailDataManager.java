@@ -16,11 +16,9 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.email;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -119,19 +117,21 @@ class EntityTrackingEmailDataManager
     }
 
     /**
-     * Returns an array of emails of recipient that should get a tracking information about given
-     * <var>sequencingSample</var>.
+     * Returns a set of emails of recipients that should get a tracking information about given
+     * <var>sequencingSample</var>.<br>
      */
-    private static String[] getSequencingSampleTrackingRecipients(Sample sequencingSample)
+    // NOTE: Set is needed because one recipient can occur in many roles for one sample
+    private static Set<String> getSequencingSampleTrackingRecipients(Sample sequencingSample)
     {
-        // Recipients are taken from properties of the sequencing sample.
         assert sequencingSample != null;
 
+        final Set<String> recipients = new HashSet<String>();
+
+        // Recipients are taken from properties of the sequencing sample.
         final Set<String> recipientPropertyTypeCodes = new HashSet<String>();
         recipientPropertyTypeCodes.add(CONTACT_PERSON_EMAIL);
         recipientPropertyTypeCodes.add(PRINCIPAL_INVESTIGATOR_EMAIL);
 
-        final List<String> recipients = new ArrayList<String>();
         for (IEntityProperty property : sequencingSample.getProperties())
         {
             final String propertyCode = property.getPropertyType().getCode();
@@ -153,14 +153,14 @@ class EntityTrackingEmailDataManager
             }
         }
 
-        return recipients.toArray(new String[0]);
+        return recipients;
     }
 
     /**
-     * Returns an array of emails of recipient that should get a tracking information about given
+     * Returns a set of emails of recipients that should get a tracking information about given
      * <var>flowLaneSample</var>.
      */
-    private static String[] getFlowLaneSampleTrackingRecipients(Sample flowLaneSample)
+    private static Set<String> getFlowLaneSampleTrackingRecipients(Sample flowLaneSample)
     {
         // Recipients are taken from properties of sequencing sample
         // that is a parent of the flow lane sample.
@@ -169,10 +169,10 @@ class EntityTrackingEmailDataManager
     }
 
     /**
-     * Returns an array of emails of recipient that should get a tracking information about given
+     * Returns a set of emails of recipients that should get a tracking information about given
      * <var>dataSet</var>.
      */
-    private static String[] getDataSetTrackingRecipients(ExternalData dataSet)
+    private static Set<String> getDataSetTrackingRecipients(ExternalData dataSet)
     {
         // Recipients are taken from properties of sequencing sample
         // that is a parent of a flow lane sample connected directly with the data set.
