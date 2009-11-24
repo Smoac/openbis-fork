@@ -19,7 +19,9 @@ package ch.ethz.bsse.cisd.dsu.tracking;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import ch.ethz.bsse.cisd.dsu.tracking.EntityTrackingEmailData.SequencingSampleData;
@@ -43,6 +45,9 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
     private static final String NOTIFICATION_EMAIL_ENDING = "notification-email-ending";
 
+    private static final String AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX =
+            "-affiliation-notification-email-contact";
+
     private final String subject;
 
     private final String from;
@@ -60,6 +65,31 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         replyTo = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_REPLY_TO);
         beginning = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_BEGINNING);
         ending = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_ENDING);
+
+        final Map<String, String> recipientsByAffiliation =
+                retrieveRecipientsByAffiliation(properties);
+        EntityTrackingEmailDataManager.initialize(recipientsByAffiliation);
+    }
+
+    // <affiliation, recipient email>
+    private Map<String, String> retrieveRecipientsByAffiliation(Properties properties)
+    {
+        final Map<String, String> result = new HashMap<String, String>();
+
+        for (Object key : properties.keySet())
+        {
+            final String propertyKey = (String) key;
+            if (propertyKey.endsWith(AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX))
+            {
+                final String affiliation =
+                        propertyKey.substring(0, AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX
+                                .length() - 1);
+                final String affiliationRecipient =
+                        PropertyUtils.getMandatoryProperty(properties, propertyKey);
+                result.put(affiliation, affiliationRecipient);
+            }
+        }
+        return result;
     }
 
     public List<Email> generateEmails(TrackedEntities trackedEntities)

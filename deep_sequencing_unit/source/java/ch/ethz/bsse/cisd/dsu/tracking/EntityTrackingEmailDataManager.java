@@ -35,13 +35,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 class EntityTrackingEmailDataManager
 {
+    private final static String AFFILIATION = "AFFILIATION";
+
     private final static String CONTACT_PERSON_EMAIL = "CONTACT_PERSON_EMAIL";
 
     private final static String PRINCIPAL_INVESTIGATOR_EMAIL = "PRINCIPAL_INVESTIGATOR_EMAIL";
 
+    private static Map<String, String> recipientsByAffiliation;
+
+    public static void initialize(final Map<String, String> recipients)
+    {
+        recipientsByAffiliation = recipients;
+    }
+
     public static Collection<EntityTrackingEmailData> groupByRecipient(
             TrackedEntities trackedEntities)
     {
+        assert recipientsByAffiliation != null : "recipientsByAffiliation not initialized";
         // <recipients email, email data>
         final Map<String, EntityTrackingEmailData> dataByRecipient =
                 new HashMap<String, EntityTrackingEmailData>();
@@ -123,13 +133,24 @@ class EntityTrackingEmailDataManager
         final List<String> recipients = new ArrayList<String>();
         for (IEntityProperty property : sequencingSample.getProperties())
         {
-            if (recipientPropertyTypeCodes.contains(property.getPropertyType().getCode()))
+            final String propertyCode = property.getPropertyType().getCode();
+            final String propertyValue = property.getValue();
+            if (recipientPropertyTypeCodes.contains(propertyCode))
             {
-                recipients.add(property.getValue());
+                recipients.add(propertyValue);
+            } else
+            {
+                // add recipient for affiliation if his email was specified in properties
+                if (propertyCode.equals(AFFILIATION))
+                {
+                    String affiliationRecipientOrNull = recipientsByAffiliation.get(propertyValue);
+                    if (affiliationRecipientOrNull != null)
+                    {
+                        recipients.add(affiliationRecipientOrNull);
+                    }
+                }
             }
         }
-
-        // TODO 2009-11-23, Piotr Buczek: add affiliation email
 
         return recipients.toArray(new String[0]);
     }
