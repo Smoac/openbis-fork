@@ -16,7 +16,13 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.main;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Properties;
+
+import org.apache.commons.io.IOUtils;
 
 import ch.ethz.bsse.cisd.dsu.tracking.email.EntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
@@ -37,6 +43,8 @@ public class TrackingClient
     private static final String SERVICE_PROPERTIES_FILE = "etc/tracking-service.properties";
 
     private static final String LOCAL_STORAGE_FILE = "etc/tracking-local-database";
+
+    private static final String EMAIL_TEMPLATE_FILE = "etc/tracking-email.template";
 
     public static void main(String[] args)
     {
@@ -59,9 +67,8 @@ public class TrackingClient
         Parameters params = new Parameters(props);
 
         ITrackingServer trackingServer = createOpenBISTrackingServer(params);
-        // TODO 2009--, Tomasz Pylak: load template from file
         IEntityTrackingEmailGenerator emailGenerator =
-                new EntityTrackingEmailGenerator(props, "BEGINNING \n{generated-content}\n END!");
+                new EntityTrackingEmailGenerator(props, retrieveEmailTemplate());
         IMailClient mailClient = params.getMailClient();
         TrackingBO trackingBO = new TrackingBO(trackingServer, emailGenerator, mailClient);
 
@@ -94,6 +101,23 @@ public class TrackingClient
         } catch (Exception ex)
         {
             throw createAuthentificationException(params, ex);
+        }
+    }
+
+    private static String retrieveEmailTemplate()
+    {
+        try
+        {
+            return IOUtils.toString(new FileReader(new File(EMAIL_TEMPLATE_FILE)));
+        } catch (FileNotFoundException ex)
+        {
+            throw LogUtils.environmentError("Couldn't find email template file '%s'.",
+                    EMAIL_TEMPLATE_FILE);
+        } catch (IOException ex)
+        {
+            throw LogUtils.environmentError(
+                    "Exception has occured while trying to read template file '%s':%s",
+                    EMAIL_TEMPLATE_FILE, ex.getMessage());
         }
     }
 
