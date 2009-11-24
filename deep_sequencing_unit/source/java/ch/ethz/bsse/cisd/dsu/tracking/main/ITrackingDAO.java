@@ -16,6 +16,8 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.main;
 
+import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackingStateDTO;
+
 /**
  * @author Tomasz Pylak
  */

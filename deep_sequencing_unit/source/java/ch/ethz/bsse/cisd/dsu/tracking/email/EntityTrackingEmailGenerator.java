@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.ethz.bsse.cisd.dsu.tracking.TrackedEntities;
+import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
 import ch.ethz.bsse.cisd.dsu.tracking.email.EntityTrackingEmailData.SequencingSampleData;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;

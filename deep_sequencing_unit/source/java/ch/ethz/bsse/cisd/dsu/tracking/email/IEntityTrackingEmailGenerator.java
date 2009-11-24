@@ -18,7 +18,7 @@ package ch.ethz.bsse.cisd.dsu.tracking.email;
 
 import java.util.List;
 
-import ch.ethz.bsse.cisd.dsu.tracking.TrackedEntities;
+import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
 
 /**
  * @author Piotr Buczek

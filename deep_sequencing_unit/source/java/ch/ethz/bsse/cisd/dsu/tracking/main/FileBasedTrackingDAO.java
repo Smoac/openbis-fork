@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
+import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackingStateDTO;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.parser.AbstractParserObjectFactory;
 import ch.systemsx.cisd.common.parser.IParserObjectFactory;

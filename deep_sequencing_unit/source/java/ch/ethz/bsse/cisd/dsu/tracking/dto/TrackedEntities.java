@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.bsse.cisd.dsu.tracking;
+package ch.ethz.bsse.cisd.dsu.tracking.dto;
 
 import java.util.List;
 

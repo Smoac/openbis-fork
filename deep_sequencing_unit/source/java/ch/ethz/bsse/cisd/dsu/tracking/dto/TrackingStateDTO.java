@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.bsse.cisd.dsu.tracking.main;
+package ch.ethz.bsse.cisd.dsu.tracking.dto;
 
 import ch.systemsx.cisd.common.annotation.BeanProperty;
 
