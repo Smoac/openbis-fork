@@ -107,11 +107,19 @@ class ErrorModel
         ProbabilityToFDRCalculator calculator = getCalculator(protein.getDataSetID());
         return calculator.calculateFDR(protein.getProbability()) <= falseDiscoveryRate;
     }
-
+    
     void setFalseDiscoveryRateFor(IdentifiedProtein protein)
     {
-        ProbabilityToFDRCalculator calculator = getCalculator(protein.getDataSetID());
-        protein.setFalseDiscoveryRate(calculator.calculateFDR(protein.getProbability()));
+        long dataSetID = protein.getDataSetID();
+        double probability = protein.getProbability();
+        protein.setFalseDiscoveryRate(calculateFalsDiscoveryRate(dataSetID, probability));
+    }
+
+    double calculateFalsDiscoveryRate(long dataSetID, double probability)
+    {
+        ProbabilityToFDRCalculator calculator = getCalculator(dataSetID);
+        double fdr = calculator.calculateFDR(probability);
+        return fdr;
     }
 
     private ProbabilityToFDRCalculator getCalculator(long dataSetID)

@@ -22,6 +22,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -34,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -71,15 +80,60 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     private ListProteinByExperimentCriteria criteria;
 
     private List<AbundanceColumnDefinition> abundanceColumnDefinitions;
-
+    
     static IDisposableComponent create(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
-        final ProteinByExperimentBrowserGrid browserGrid =
+        final IDisposableComponent summaryGrid = ProteinSummaryGrid.create(viewContext);
+        ProteinByExperimentBrowserGrid browserGrid =
                 new ProteinByExperimentBrowserGrid(viewContext);
-        return browserGrid.asDisposableWithToolbar(browserGrid.toolbar);
+        final IDisposableComponent disposableBrowerGrid = browserGrid.asDisposableWithoutToolbar();
+        ProteinByExperimentBrowerToolBar toolBar = browserGrid.toolbar;
+        toolBar.setSummaryGrid((ProteinSummaryGrid) summaryGrid.getComponent());
+        final LayoutContainer container = new LayoutContainer();
+        container.setLayout(new RowLayout());
+        container.add(toolBar);
+        TabPanel tabPanel = new TabPanel();
+        tabPanel.add(createTab(disposableBrowerGrid, viewContext, Dict.PROTEIN_BROWSER));
+        tabPanel.add(createTab(summaryGrid, viewContext, Dict.PROTEIN_SUMMARY));
+        container.add(tabPanel, new RowData(1, 1));
+        return new IDisposableComponent()
+            {
+                public void update(Set<DatabaseModificationKind> observedModifications)
+                {
+                    disposableBrowerGrid.update(observedModifications);
+                    summaryGrid.update(observedModifications);
+                }
+
+                public DatabaseModificationKind[] getRelevantModifications()
+                {
+                    return disposableBrowerGrid.getRelevantModifications();
+                }
+
+                public Component getComponent()
+                {
+                    return container;
+                }
+
+                public void dispose()
+                {
+                    disposableBrowerGrid.dispose();
+                    summaryGrid.dispose();
+                }
+            };
     }
 
+    private static TabItem createTab(IDisposableComponent disposableComponent,
+            IMessageProvider messageProvider, String titleKey)
+    {
+        TabItem tabItem = new TabItem(messageProvider.getMessage(titleKey));
+        tabItem.setLayout(new FitLayout());
+        Component component = disposableComponent.getComponent();
+        component.setHeight("100%");
+        tabItem.add(component);
+        return tabItem;
+    }
+    
     private ProteinByExperimentBrowserGrid(
             final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {

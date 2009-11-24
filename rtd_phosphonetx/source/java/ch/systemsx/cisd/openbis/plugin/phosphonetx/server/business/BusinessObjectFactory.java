@@ -47,6 +47,11 @@ public class BusinessObjectFactory implements IBusinessObjectFactory
         return new ProteinInfoTable(daoFactory, specificDAOFactory, session);
     }
 
+    public IProteinSummaryTable createProteinSummaryTable(Session session)
+    {
+        return new ProteinSummaryTable(daoFactory, specificDAOFactory, session);
+    }
+    
     public IProteinSequenceTable createProteinSequenceTable(Session session)
     {
         return new ProteinSequenceTable(daoFactory, specificDAOFactory, session);

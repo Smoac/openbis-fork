@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProte
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
@@ -60,6 +61,13 @@ public interface IPhosphoNetXServer extends IServer
             @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class)
             TechId experimentId, double falseDiscoveryRate, AggregateFunction function,
             String treatmentTypeCode, boolean aggregateOnOriginal) throws UserFailureException;
+    
+    
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<ProteinSummary> listProteinSummariesByExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = ExperimentTechIdPredicate.class) TechId experimentId)
+            throws UserFailureException;
     
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)

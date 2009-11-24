@@ -42,6 +42,11 @@ public class Dict
     public static final String FALSE_DISCOVERY_RATE = "false_discovery_rate";
 
     public static final String DATA_SET = "data_set";
+    
+    public static final String PROTEIN_BROWSER = "protein_browser";
+    
+    public static final String PROTEIN_SUMMARY = "protein_summary";
+    
 
     // Protein Viewer
     public static final String PROTEIN_IN_EXPERIMENT_TAB_LABEL = "protein_in_experiment_tab_label";
@@ -60,6 +65,8 @@ public class Dict
 
     public static final String DATA_SET_PERM_ID = "data_set_perm_id";
 
+    public static final String PROTEIN_COUNT = "protein_count";
+    
     public static final String PEPTIDE_COUNT = "peptide_count";
 
     public static final String PEPTIDES = "peptides";

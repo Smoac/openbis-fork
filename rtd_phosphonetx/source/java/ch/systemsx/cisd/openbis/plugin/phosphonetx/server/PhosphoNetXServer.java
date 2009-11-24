@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IDataSetProte
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinDetailsBO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSequenceTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinInfoTable;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.IProteinSummaryTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business.ISampleTable;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
@@ -56,6 +57,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProte
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReference;
 
@@ -136,6 +138,15 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         IProteinInfoTable table = specificBOFactory.createProteinInfoTable(session);
         table.load(definitions, experimentId, falseDiscoveryRate, function, aggregateOnOriginal);
         return table.getProteinInfos();
+    }
+
+    public List<ProteinSummary> listProteinSummariesByExperiment(String sessionToken,
+            TechId experimentId) throws UserFailureException
+    {
+        final Session session = getSession(sessionToken);
+        IProteinSummaryTable summaryTable = specificBOFactory.createProteinSummaryTable(session);
+        summaryTable.load(experimentId);
+        return summaryTable.getProteinSummaries();
     }
 
     public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentID,

@@ -12,18 +12,21 @@ var phosphonetx = {
   // Protein grid
   accession_number: "Accession Number",
   protein_description: "Protein",
-  coverage: "Coverage",
+  coverage: "Protein Coverage (in %)",
   false_discovery_rate: "FDR",
   
   // Protein in experiment viewer
   protein_in_experiment_tab_label: "{0} in {1}",
   experiment_label: "Experiment",
   sequence_short_name: "",
+  protein_browser: "Proteins",
+  protein_summary: "Protein/Peptide Counts",
   database_name_and_version: "Database",
   sequence: "Amino Acid Sequence",
   sequences: "Amino Acid Sequences",
   data_set_proteins: "Data Sets",
   data_set_perm_id: "Data Set",
+  protein_count: "Proteins",
   peptide_count: "Peptides",
   peptides: "Peptides ({0})",
   sequence_name: "Sequence",

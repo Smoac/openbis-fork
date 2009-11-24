@@ -23,17 +23,20 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
+import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSequenceCriteria;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSummaryByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSampleAbundanceByProteinCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
@@ -60,6 +63,14 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     public void prepareExportProteins(TableExportCriteria<ProteinInfo> exportCriteria,
             AsyncCallback<String> callback);
 
+    /** @see IPhosphoNetXClientService#listProteinSummariesByExperiment(ListProteinSummaryByExperimentCriteria) */
+    public void listProteinSummariesByExperiment(ListProteinSummaryByExperimentCriteria criteria,
+            AsyncCallback<ResultSet<ProteinSummary>> callback);
+    
+    /** @see IPhosphoNetXClientService#prepareExportProteinSummary(TableExportCriteria) */
+    public void prepareExportProteinSummary(TableExportCriteria<ProteinSummary> exportCriteria,
+            AsyncCallback<String> callback);
+    
     /** @see IPhosphoNetXClientService#getProteinByExperiment(TechId, TechId) */
     public void getProteinByExperiment(TechId experimentID, TechId proteinReferenceID,
             AsyncCallback<ProteinByExperiment> callback);

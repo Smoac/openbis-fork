@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.DataSetProte
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinByExperiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSequence;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
 /**
@@ -70,6 +71,14 @@ public class PhosphoNetXServerLogger extends AbstractServerLogger implements IPh
                         .getLabel(), treatmentTypeCode, aggregateOnOriginal);
         return null;
     }
+    
+    public List<ProteinSummary> listProteinSummariesByExperiment(String sessionToken,
+            TechId experimentId) throws UserFailureException
+            {
+        logAccess(sessionToken, "list_protein_summaries_by_experiment", "EXPERIMENT_ID(%s)",
+                experimentId);
+        return null;
+            }
 
     public ProteinByExperiment getProteinByExperiment(String sessionToken, TechId experimentId,
             TechId proteinReferenceID) throws UserFailureException

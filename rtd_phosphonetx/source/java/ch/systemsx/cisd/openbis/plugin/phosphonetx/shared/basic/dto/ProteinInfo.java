@@ -43,22 +43,6 @@ public class ProteinInfo implements Serializable, IsSerializable
     
     private String description;
     
-    /*
-* New column: Protein Coverage. It contains the ratio (in %)
-
-sum of the lengths of all peptide sequences / length of the protein sequence
-
-where overlapping peptide sequences count only once.
-* New table:
-
-|FDR|0|1|2.5|5|10|
-|Number of Proteins|..|..|..|..|..|
-|Number of Peptides|..|..|..|..|..|
-
-These values are the number of proteins/peptides per experiment for FDR value less than or equal the specified one. 
-
-This table could appear in the same tab as 'Protein of an Experiment' table.
-     */
     private double coverage;
     
     private Map<Long, Double> abundances;

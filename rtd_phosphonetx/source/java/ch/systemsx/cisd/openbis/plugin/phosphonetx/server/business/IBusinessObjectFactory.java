@@ -29,6 +29,8 @@ public interface IBusinessObjectFactory
     
     public IProteinInfoTable createProteinInfoTable(Session session);
     
+    public IProteinSummaryTable createProteinSummaryTable(Session session);
+    
     public IProteinSequenceTable createProteinSequenceTable(Session session);
     
     public IDataSetProteinTable createDataSetProteinTable(Session session);

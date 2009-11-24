@@ -23,49 +23,10 @@ import net.lemnik.eodsql.ResultColumn;
  *
  * @author Franz-Josef Elmer
  */
-public class ProteinReferenceWithPeptideSequence
+public class ProteinReferenceWithProbabilityAndPeptide extends ProteinReferenceWithProbability
 {
-    @ResultColumn("prre_id")
-    private long id;
-    
-    @ResultColumn("dase_id")
-    private long dataSetID;
-    
-    @ResultColumn("amino_acid_sequence")
-    private String proteinSequence;
-
     @ResultColumn("sequence")
     private String peptideSequence;
-
-    public long getId()
-    {
-        return id;
-    }
-
-    public void setId(long id)
-    {
-        this.id = id;
-    }
-
-    public long getDataSetID()
-    {
-        return dataSetID;
-    }
-    
-    public void setDataSetID(long dataSetID)
-    {
-        this.dataSetID = dataSetID;
-    }
-    
-    public String getProteinSequence()
-    {
-        return proteinSequence;
-    }
-
-    public void setProteinSequence(String proteinSequence)
-    {
-        this.proteinSequence = proteinSequence;
-    }
 
     public String getPeptideSequence()
     {
@@ -77,5 +38,4 @@ public class ProteinReferenceWithPeptideSequence
         this.peptideSequence = peptideSequence;
     }
 
-    
 }

@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -34,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
@@ -159,11 +159,13 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
     private final VocabularyTermSelectionWidget treatmentTypeComboBox;
 
-    private final CheckBoxField aggregateOriginalCheckBox;
+    private final CheckBox aggregateOriginalCheckBox;
 
     private ProteinByExperimentBrowserGrid browserGrid;
 
     private Experiment experiment;
+
+    private ProteinSummaryGrid summaryGrid;
 
     ProteinByExperimentBrowerToolBar(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
@@ -232,7 +234,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         add(treatmentTypeComboBox);
         add(new LabelToolItem(viewContext.getMessage(Dict.AGGREGATE_ORIGINAL_LABEL)
                 + GenericConstants.LABEL_SEPARATOR));
-        aggregateOriginalCheckBox = new CheckBoxField("aggregateOriginal", false);
+        aggregateOriginalCheckBox = new CheckBox();
         aggregateOriginalCheckBox.addListener(Events.Change, new Listener<BaseEvent>()
             {
 
@@ -297,16 +299,23 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
     {
         this.browserGrid = browserGrid;
     }
+    
+    void setSummaryGrid(ProteinSummaryGrid summaryGrid)
+    {
+        this.summaryGrid = summaryGrid;
+    }
 
     void update()
     {
         if (experiment != null)
         {
+            TechId experimentID = TechId.create(experiment);
+            summaryGrid.setLoadMaskImmediately(true);
+            summaryGrid.update(experimentID);
             browserGrid.setLoadMaskImmediately(true);
             double falseDiscoveryRate = getSelection(fdrComboBox, 0.0);
             AggregateFunction aggregateFunction =
                     getSelection(aggregateFunctionComboBox, DEFAULT_AGGREGATE_FUNCTION);
-            TechId experimentID = TechId.create(experiment);
             VocabularyTermModel value = treatmentTypeComboBox.getValue();
             String treatmentTypeCode = value == null ? null : value.getTerm().getCode();
             AsyncCallback<List<AbundanceColumnDefinition>> callback =
