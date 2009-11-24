@@ -22,6 +22,8 @@ import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackingStateDTO;
 import ch.ethz.bsse.cisd.dsu.tracking.email.Email;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
+import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
+import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
@@ -39,7 +41,7 @@ public class TrackingBO
 {
     private static final String SEQUENCING_SAMPLE_TYPE = "ILLUMINA_SEQUENCING";
 
-    private static final String FLOW_LANE_SAMPLE_TYPE = "FLOW_LANE";
+    private static final String FLOW_LANE_SAMPLE_TYPE = "ILLUMINA_FLOW_LANE";
 
     private final ITrackingServer trackingServer;
 
@@ -70,10 +72,69 @@ public class TrackingBO
     {
         for (Email email : emails)
         {
-            From from = (email.getFromOrNull() == null) ? null : new From(email.getFromOrNull());
-            mailClient.sendMessage(email.getSubject(), email.getContent(),
-                    email.getReplyToOrNull(), from, email.getRecipients());
+            try
+            {
+                From from = tryGetFromField(email);
+                String[] recipients = email.getRecipients();
+                String content = email.getContent();
+                String subject = email.getSubject();
+                String replyToOrNull = email.getReplyToOrNull();
+                sendMessage(mailClient, subject, content, replyToOrNull, from, recipients);
+            } catch (Exception ex)
+            {
+                sendErrorReport(mailClient, ex, email);
+            }
         }
+    }
+
+    private static From tryGetFromField(Email email)
+    {
+        return (email.getFromOrNull() == null) ? null : new From(email.getFromOrNull());
+    }
+
+    // This email could not be sent, most probably the recipient addresses were
+    // incorrect.
+    // We send the email to the administrator "replyTo' address, the admin should
+    // forward it to the right recipient.
+    private static void sendErrorReport(IMailClient mailClient, Exception exception, Email email)
+    {
+        StringBuffer errorReportContent = new StringBuffer();
+        appendLine(errorReportContent, "Dear openBIS Admin,");
+        appendLine(errorReportContent,
+                "This email has been generated automatically from the openBIS Changes Tracking system.");
+        appendLine(errorReportContent, "There was a failure while trying to send the email:");
+        appendLine(errorReportContent, exception.getMessage());
+        appendLine(errorReportContent,
+                "The possible reason is that the recipient address is not valid.");
+        appendLine(errorReportContent,
+                "If you know the address of the recipient please correct it and forward this email to him.");
+        appendLine(errorReportContent,
+                "!!! Note that the Tracking System will not try to send this email again !!!");
+        appendLine(errorReportContent,
+                "Please correct the recipient email address in openBIS to avoid similar problems in future.");
+        appendLine(errorReportContent, "");
+        appendLine(errorReportContent, "Subject:    " + email.getSubject());
+        appendLine(errorReportContent, "Recipients: "
+                + CollectionUtils.abbreviate(email.getRecipients(), -1));
+        appendLine(errorReportContent, "");
+        appendLine(errorReportContent, "Original content:");
+
+        sendMessage(mailClient, "[Tracking] Sending an email failed",
+                errorReportContent.toString(), null, tryGetFromField(email), email
+                        .getReplyToOrNull());
+    }
+
+    private static void sendMessage(IMailClient mailClient, String subject, String content,
+            String replyToOrNull, From fromOrNull, String... recipients)
+    {
+        mailClient.sendMessage(subject, content, replyToOrNull, fromOrNull, recipients);
+        LogUtils.debug("Sending an email [" + subject + "]\n" + content);
+    }
+
+    private static void appendLine(StringBuffer sb, String msg)
+    {
+        sb.append(msg);
+        sb.append("\n");
     }
 
     private static void saveTrackingState(TrackedEntities changedEntities, ITrackingDAO trackingDAO)

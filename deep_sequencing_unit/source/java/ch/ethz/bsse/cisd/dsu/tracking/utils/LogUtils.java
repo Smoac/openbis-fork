@@ -37,20 +37,28 @@ public class LogUtils
     {
         String causeMsg =
                 (ex.getCause() == null) ? "" : "Error cause: " + ex.getCause().getMessage();
-        notificationLog
-                .error("An environment exception occured why trying to send emails with changes.\n"
+        String fullMsg =
+                "An environment exception occured why trying to send emails with changes.\n"
                         + "Check and correct the configuration.\n" + "Error details: "
-                        + ex.getMessage() + "\n" + causeMsg);
+                        + ex.getMessage() + "\n" + causeMsg;
+        notify(ex, fullMsg);
     }
 
     public static void notify(Throwable ex)
     {
-        notificationLog
-                .error("An unexpected exception occured why trying to send emails with changes.\n"
-                        + "Error details: " + ex.getMessage());
+        String fullMsg =
+                "An unexpected exception occured why trying to send emails with changes.\n"
+                        + "Error details: " + ex.getMessage();
+        notify(ex, fullMsg);
     }
 
-    public static EnvironmentFailureException envErr(String message, Throwable exception)
+    private static void notify(Throwable ex, String fullMsg)
+    {
+        ex.printStackTrace();
+        notificationLog.error(fullMsg);
+    }
+
+    public static EnvironmentFailureException environmentError(String message, Throwable exception)
     {
         String fullMsg =
                 message + " The following exception has been thrown: " + exception.getMessage();
@@ -61,5 +69,16 @@ public class LogUtils
     {
         String fullMsg = String.format(msgFormat, params);
         return new EnvironmentFailureException(fullMsg);
+    }
+
+    public static void info(String msg)
+    {
+        operationLog.info(msg);
+    }
+
+    public static void debug(String msg)
+    {
+        // FIXME 2009--, Tomasz Pylak: change to debug
+        operationLog.info(msg);
     }
 }

@@ -46,6 +46,8 @@ public class TrackingClient
 
     private static final String EMAIL_TEMPLATE_FILE = "etc/tracking-email.template";
 
+    private static final String OPENBIS_RMI_TRACKING = "/rmi-tracking";
+
     public static void main(String[] args)
     {
         try
@@ -81,8 +83,8 @@ public class TrackingClient
 
     private static ITrackingServer createOpenBISTrackingServer(Parameters params)
     {
-        return HttpInvokerUtils.createServiceStub(ITrackingServer.class, params
-                .getOpenbisServerURL(), 5);
+        String serviceURL = params.getOpenbisServerURL() + OPENBIS_RMI_TRACKING;
+        return HttpInvokerUtils.createServiceStub(ITrackingServer.class, serviceURL, 5);
     }
 
     private static SessionContextDTO authentificateInOpenBIS(Parameters params,

@@ -48,7 +48,7 @@ public class FileBasedTrackingDAO implements ITrackingDAO
     public void saveTrackingState(TrackingStateDTO state)
     {
         List<String> lines = new ArrayList<String>();
-        lines.add("lastSeenSequencingSampleId\tlastSeenFlowLaneSampleId\tlastSeenDatasetId\n");
+        lines.add("lastSeenSequencingSampleId\tlastSeenFlowLaneSampleId\tlastSeenDatasetId");
         lines.add("" + state.getLastSeenSequencingSampleId() + "\t"
                 + state.getLastSeenFlowLaneSampleId() + "\t" + state.getLastSeenDatasetId());
         writeLines(new File(filePath), lines);
@@ -74,13 +74,13 @@ public class FileBasedTrackingDAO implements ITrackingDAO
             List<TrackingStateDTO> trackingState = tabFileLoader.load(new File(filePath));
             if (trackingState.size() != 1)
             {
-                throw LogUtils.environmentError("File %s has to many rows, it should have exactly 1.",
-                        filePath);
+                throw LogUtils.environmentError(
+                        "File %s has to many rows, it should have exactly 1.", filePath);
             }
             return trackingState.get(0);
         } catch (Exception e)
         {
-            throw LogUtils.envErr("Incorrect file format", e);
+            throw LogUtils.environmentError("Incorrect file format", e);
         }
     }
 
@@ -91,8 +91,8 @@ public class FileBasedTrackingDAO implements ITrackingDAO
             IOUtils.writeLines(lines, "\n", new FileOutputStream(file));
         } catch (IOException ex)
         {
-            throw LogUtils.envErr(String.format("Cannot save the file %s with content: %s",
-                    file.getPath(), lines), ex);
+            throw LogUtils.environmentError(String.format("Cannot save the file %s with content: %s", file
+                    .getPath(), lines), ex);
         }
     }
 }

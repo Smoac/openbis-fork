@@ -128,7 +128,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         private static final String SUBSECTION_SEPARATOR_LINE =
                 createSeparatorLine(SUBSECTION_SEPARATOR_CHAR);
 
-        private static final String PERMLINK_LABEL = "Permlink";
+        private static final String PERMLINK_LABEL = "See details in openBIS";
 
         private static final String GENARATED_CONTENT_TARGET = "{generated-content}";
 
@@ -194,10 +194,8 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             // basic sample info
             appendAttribute(sb, PERMLINK_LABEL, sample.getPermlink());
             appendAttribute(sb, "Identifier", sample.getIdentifier());
-            appendNewline(sb);
 
             // sample properties
-            appendln(sb, "Filled sample properties:");
             appendProperties(sb, sample.getProperties());
         }
 
@@ -235,7 +233,6 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                     .getCode(), sequencingSample.getPermlink()));
 
             // data set properties
-            appendln(sb, "Filled data set properties:");
             appendProperties(sb, dataSet.getProperties());
         }
 
