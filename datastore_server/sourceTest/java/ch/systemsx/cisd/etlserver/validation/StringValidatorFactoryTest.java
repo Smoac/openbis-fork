@@ -98,4 +98,31 @@ public class StringValidatorFactoryTest extends AssertJUnit
             assertEquals("'bc' doesn't match the following regular expression: a.*", ex.getMessage());
         }
     }
+    
+    @Test
+    public void testEmptyValueSynonyms()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(StringValidatorFactory.VALUE_PATTERN_KEY, "a.*");
+        properties.setProperty(StringValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "yes");
+        properties.setProperty(StringValidatorFactory.EMPTY_VALUE_SYNONYMS_KEY, "-");
+        StringValidatorFactory factory = new StringValidatorFactory(properties);
+        IValidator validator = factory.createValidator();
+        
+        validator.assertValid("a");
+        validator.assertValid("a1");
+        validator.assertValid("abc");
+        validator.assertValid(null);
+        validator.assertValid("");
+        validator.assertValid("  ");
+        validator.assertValid("-");
+        try
+        {
+            validator.assertValid("N/A");
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("'N/A' doesn't match the following regular expression: a.*", ex.getMessage());
+        }
+    }
 }

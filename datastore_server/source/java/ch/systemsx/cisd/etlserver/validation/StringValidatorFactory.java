@@ -35,7 +35,7 @@ class StringValidatorFactory extends AbstractValidatorFactory
     {
         super(properties);
         String regex = PropertyUtils.getMandatoryProperty(properties, VALUE_PATTERN_KEY);
-        validator = new RegExBasedValidator(allowEmptyValues, regex);
+        validator = new RegExBasedValidator(allowEmptyValues, emptyValueSynonyms, regex);
     }
     
     public IValidator createValidator()

@@ -162,6 +162,26 @@ public class NumericValidatorFactoryTest extends AssertJUnit
     }
     
     @Test
+    public void testAllowEmptyValueSynonyms()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(NumericValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "true");
+        properties.setProperty(NumericValidatorFactory.EMPTY_VALUE_SYNONYMS_KEY, "-, N/A");
+        properties.setProperty(NumericValidatorFactory.VALUE_RANGE_KEY, "(0,1]");
+        NumericValidatorFactory validatorFactory = new NumericValidatorFactory(properties);
+        IValidator validator = validatorFactory.createValidator();
+        
+        validator.assertValid(null);
+        validator.assertValid("");
+        validator.assertValid("  ");
+        validator.assertValid("-");
+        validator.assertValid("N/A");
+        assertNotANumber(validator, "n/a");
+        assertFailingToLarge("> 1.0", validator, "1.25");
+        assertFailingToSmall("<= 0.0", validator, "0.0");
+    }
+    
+    @Test
     public void testNoRange()
     {
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(new Properties());

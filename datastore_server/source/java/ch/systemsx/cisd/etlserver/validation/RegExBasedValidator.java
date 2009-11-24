@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.validation;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -28,10 +30,16 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 class RegExBasedValidator extends AbstractValidator implements IColumnHeaderValidator
 {
     private final Pattern pattern;
-
-    RegExBasedValidator(boolean allowEmptyValues, String regularExpression)
+    
+    RegExBasedValidator(String regularExpression)
     {
-        super(allowEmptyValues);
+        this(false, Collections.<String>emptySet(), regularExpression);
+    }
+
+    RegExBasedValidator(boolean allowEmptyValues, Set<String> emptyValueSynonyms,
+            String regularExpression)
+    {
+        super(allowEmptyValues, emptyValueSynonyms);
         pattern = Pattern.compile(regularExpression);
     }
 

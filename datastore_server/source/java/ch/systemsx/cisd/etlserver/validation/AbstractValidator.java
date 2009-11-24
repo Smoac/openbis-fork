@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.validation;
 
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -28,17 +30,19 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 abstract class AbstractValidator implements IValidator
 {
     private final boolean allowEmptyValues;
+    private final Set<String> emptyValueSynonyms;
     
-    AbstractValidator(boolean allowEmptyValues)
+    AbstractValidator(boolean allowEmptyValues, Set<String> emptyValueSynonyms)
     {
         this.allowEmptyValues = allowEmptyValues;
+        this.emptyValueSynonyms = emptyValueSynonyms;
     }
     
     public final void assertValid(String value)
     {
         if (allowEmptyValues)
         {
-            if (StringUtils.isBlank(value))
+            if (StringUtils.isBlank(value) || emptyValueSynonyms.contains(value.trim()))
             {
                 return;
             }

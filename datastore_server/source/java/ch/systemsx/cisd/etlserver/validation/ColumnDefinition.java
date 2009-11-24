@@ -67,7 +67,7 @@ class ColumnDefinition
         if (headerValidatorName == null)
         {
             String headerPattern = properties.getProperty(HEADER_PATTERN_KEY, ".*");
-            headerValidator = new RegExBasedValidator(false, headerPattern);
+            headerValidator = new RegExBasedValidator(headerPattern);
         } else
         {
             headerValidator =

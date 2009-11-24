@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.validation;
 
 import java.util.Properties;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -117,9 +118,9 @@ class NumericValidatorFactory extends AbstractValidatorFactory
     {
         private final Range rangeOrNull;
         
-        NumericValidator(boolean allowEmptyValues, Range rangeOrNull)
+        NumericValidator(boolean allowEmptyValues, Set<String> emptyValueSynonyms, Range rangeOrNull)
         {
-            super(allowEmptyValues);
+            super(allowEmptyValues, emptyValueSynonyms);
             this.rangeOrNull = rangeOrNull;
         }
         
@@ -148,7 +149,7 @@ class NumericValidatorFactory extends AbstractValidatorFactory
         super(properties);
         String valueRange = properties.getProperty(VALUE_RANGE_KEY);
         Range rangeOrNull = valueRange == null ? null : new Range(valueRange);
-        validator = new NumericValidator(allowEmptyValues, rangeOrNull);
+        validator = new NumericValidator(allowEmptyValues, emptyValueSynonyms, rangeOrNull);
     }
 
     public IValidator createValidator()
