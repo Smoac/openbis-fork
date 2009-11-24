@@ -72,6 +72,7 @@ public class FieldUtil
     {
         field.setEnabled(visible);
         field.setVisible(visible);
+        field.syncSize();
         if (visible == false)
         {
             // invalidation mark is not removed automatically when we make field invisible
