@@ -184,6 +184,10 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private void updateFilterFields()
     {
+        // Only show the filter selection widget if there are user choices
+        boolean isFilterSelectionWidgetVisible = filterSelectionWidget.getStore().getCount() > 1;
+        filterSelectionWidget.setVisible(isFilterSelectionWidgetVisible);
+
         filterContainer.removeAll();
         if (isColumnFilterSelected())
         {
