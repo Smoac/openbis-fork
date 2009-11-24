@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
@@ -116,6 +117,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     {
         formPanel.setVisible(loading == false);
         loadingInfo.setVisible(loading);
+        adjustFieldsSizes();
     }
 
     protected void resetFieldsAfterSave()
@@ -126,6 +128,14 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     protected void resetPanel()
     {
         formPanel.reset();
+    }
+
+    public void adjustFieldsSizes()
+    {
+        for (Field<?> field : formPanel.getFields())
+        {
+            field.syncSize();
+        }
     }
 
     protected ClickableFormPanel createFormPanel(final IMessageProvider messageProvider)
