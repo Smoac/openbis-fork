@@ -13,5 +13,7 @@
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt1.7/gwt-isserializable.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

@@ -22,7 +22,6 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
  * @author Tomasz Pylak

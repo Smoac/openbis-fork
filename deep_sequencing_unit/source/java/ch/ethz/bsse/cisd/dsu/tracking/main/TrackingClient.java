@@ -18,14 +18,10 @@ package ch.ethz.bsse.cisd.dsu.tracking.main;
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-
 import ch.ethz.bsse.cisd.dsu.tracking.EntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
