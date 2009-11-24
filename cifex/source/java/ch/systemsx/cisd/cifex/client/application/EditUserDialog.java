@@ -20,7 +20,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
-import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;

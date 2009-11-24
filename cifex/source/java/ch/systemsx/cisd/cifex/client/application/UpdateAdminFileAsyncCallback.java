@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
 
 /**
@@ -48,8 +48,8 @@ class UpdateAdminFileAsyncCallback extends AbstractAsyncCallback<Void>
                     {
                         public final void onSuccess(final List<AdminFileInfoDTO> res)
                         {
-                            GridUtils.reloadStore(modelBasedGrid, AdminFileGridModel.convert(
-                            viewContext.getMessageResources(), res));
+                            modelBasedGrid.setDataAndRefresh(AdminFileGridModel.convert(viewContext
+                                    .getMessageResources(), res));
                         }
                     });
     }

@@ -17,7 +17,8 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+
 
 /**
  * FileActionGridCellListener for non-admin grids.

@@ -20,14 +20,15 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
-import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
+import ch.systemsx.cisd.cifex.client.application.grid.GridUtils;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
@@ -237,11 +238,11 @@ final class MainPage extends AbstractMainPage
         private Widget createFileGrid(List<ColumnConfig> columnConfigs,
                 List<AbstractFileGridModel> data)
         {
-            List<StoreFilterField<AbstractFileGridModel>> filterItems =
+            List<AbstractFilterField<AbstractFileGridModel>> filterItems =
                     AbstractFileGridModel.createFilterItems(getMessageResources());
 
             GridWidget<AbstractFileGridModel> gridWidget =
-                    GridUtils.createGrid(columnConfigs, data, filterItems, getMessageResources());
+                    GridWidget.create(columnConfigs, data, filterItems, getMessageResources());
             Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
 
             grid.addListener(Events.CellClick, new FileDownloadGridCellListener());

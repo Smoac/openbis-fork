@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
+import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
+import ch.systemsx.cisd.cifex.client.application.grid.ContainFilterField;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
-import ch.systemsx.cisd.cifex.client.application.ui.ContainFilterField;
 import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.FileSizeRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
@@ -174,10 +174,10 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
                 140);
     }
 
-    public static <M extends ModelData> List<StoreFilterField<M>> createFilterItems(
+    public static <M extends ModelData> List<AbstractFilterField<M>> createFilterItems(
             IMessageResources messageResources)
     {
-        List<StoreFilterField<M>> filterFields = new ArrayList<StoreFilterField<M>>();
+        List<AbstractFilterField<M>> filterFields = new ArrayList<AbstractFilterField<M>>();
         filterFields.add(new ContainFilterField<M>(AbstractFileGridModel.NAME, messageResources
                 .getFileNameLabel()));
         filterFields.add(new ContainFilterField<M>(AbstractFileGridModel.COMMENT, messageResources

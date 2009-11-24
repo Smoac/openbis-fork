@@ -241,9 +241,9 @@ abstract class AbstractMainPage extends Viewport
 
     static LayoutContainer createContainer()
     {
-        final LayoutContainer verticalPanel = new LayoutContainer();
-        verticalPanel.setWidth("100%");
-        return verticalPanel;
+        final LayoutContainer container = new LayoutContainer();
+        container.setWidth("100%");
+        return container;
     }
 
     protected static final LayoutContainer createUserPanel(final boolean allowPermanentUsers,

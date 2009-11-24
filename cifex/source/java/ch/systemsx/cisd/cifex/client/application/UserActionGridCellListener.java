@@ -27,8 +27,8 @@ import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 
-import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;

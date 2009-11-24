@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
@@ -49,8 +49,8 @@ class UpdateUploadedFileAsyncCallback extends AbstractAsyncCallback<Void>
                     {
                         public final void onSuccess(final List<FileInfoDTO> res)
                         {
-                            GridUtils.reloadStore(modelBasedGrid, UploadedFileGridModel.convert(
-                                    viewContext.getMessageResources(), res));
+                            modelBasedGrid.setDataAndRefresh(UploadedFileGridModel.convert(viewContext
+                                    .getMessageResources(), res));
                         }
                     });
     }

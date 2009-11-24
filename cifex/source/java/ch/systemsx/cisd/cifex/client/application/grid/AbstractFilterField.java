@@ -14,29 +14,33 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.application.ui;
+package ch.systemsx.cisd.cifex.client.application.grid;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.IDelegatedAction;
 
 /**
- * A field to filter grid rows by the value of one specified column.
+ * Abstract superclass for grid filters which filter the whole store externally.
  * 
  * @author Tomasz Pylak
  */
-public class ContainFilterField<M extends ModelData> extends StoreFilterField<M>
+abstract public class AbstractFilterField<M extends ModelData> extends StoreFilterField<M>
 {
+    public abstract boolean isMatching(M record);
+
+    private IDelegatedAction onFilterAction;
 
     /**
      * @param filteredPropertyKey id of the grid column
      * @param title title of the filter
      */
-    public ContainFilterField(String filteredPropertyKey, String title)
+    public AbstractFilterField(String filteredPropertyKey, String title)
     {
         super();
+        this.onFilterAction = IDelegatedAction.EMPTY_ACTION;
         setProperty(filteredPropertyKey);
         setEmptyText(title);
     }
@@ -45,13 +49,21 @@ public class ContainFilterField<M extends ModelData> extends StoreFilterField<M>
     protected boolean doSelect(Store<M> store, M parent, M record, String property,
             final String filterText)
     {
-        if (StringUtils.isBlank(filterText))
-        {
-            return true;
-        }
-        String rawValue = record.get(getProperty());
-        boolean showItem =
-                rawValue != null && rawValue.toLowerCase().contains(filterText.toLowerCase());
-        return showItem;
+        // not used, the default filter filters items on each grid page, leaving some pages
+        // potentially empty. We delegate filtering to the specified delegator, see bind method.
+        return true;
+    }
+
+    /** binds to the action which will be executed when filtering will be requested */
+    public void bind(IDelegatedAction onFilterActionParam)
+    {
+        this.onFilterAction = onFilterActionParam;
+    }
+
+    @Override
+    protected void onFilter()
+    {
+        super.onFilter();
+        onFilterAction.execute();
     }
 }

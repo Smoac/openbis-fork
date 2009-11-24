@@ -21,12 +21,13 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
+import ch.systemsx.cisd.cifex.client.application.grid.GridUtils;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -87,11 +88,11 @@ final class AdminMainPage extends AbstractMainPage
                 AdminFileGridModel.convert(context.getMessageResources(), Arrays.asList(files));
         List<ColumnConfig> columnConfigs =
                 AdminFileGridModel.getColumnConfigs(context.getMessageResources());
-        List<StoreFilterField<AbstractFileGridModel>> filterItems =
+        List<AbstractFilterField<AbstractFileGridModel>> filterItems =
                 AbstractFileGridModel.createFilterItems(context.getMessageResources());
 
         GridWidget<AbstractFileGridModel> gridWidget =
-                GridUtils.createGrid(columnConfigs, modelData, filterItems, context
+                GridWidget.create(columnConfigs, modelData, filterItems, context
                         .getMessageResources());
 
         Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
@@ -127,11 +128,11 @@ final class AdminMainPage extends AbstractMainPage
 
         private Widget createUserTable(final List<UserInfoDTO> users)
         {
-            GridWidget<UserGridModel> uesrGridWidget = GridUtils.createUserGrid(users, context);
+            GridWidget<UserGridModel> userGridWidget = GridUtils.createUserGrid(users, context);
             // Delete user and change code function
-            uesrGridWidget.getGrid().addListener(Events.CellClick,
-                    new UserActionGridCellListener(context, filesGrid, uesrGridWidget));
-            return uesrGridWidget.getWidget();
+            userGridWidget.getGrid().addListener(Events.CellClick,
+                    new UserActionGridCellListener(context, filesGrid, userGridWidget));
+            return userGridWidget.getWidget();
         }
 
         public final void onSuccess(final List<UserInfoDTO> result)
@@ -163,8 +164,7 @@ final class AdminMainPage extends AbstractMainPage
 
         public final void onSuccess(final List<AdminFileInfoDTO> result)
         {
-            GridUtils.reloadStore(filesGrid, AdminFileGridModel.convert(context
-                    .getMessageResources(), result));
+            filesGrid.setDataAndRefresh(AdminFileGridModel.convert(context.getMessageResources(), result));
         }
     }
 

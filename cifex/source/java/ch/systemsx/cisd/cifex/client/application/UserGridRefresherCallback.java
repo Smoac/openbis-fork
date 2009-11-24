@@ -18,8 +18,8 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import java.util.List;
 
-import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -76,7 +76,7 @@ final class UserGridRefresherCallback extends AbstractAsyncCallback<Void>
 
         public final void onSuccess(final List<UserInfoDTO> res)
         {
-            GridUtils.reloadStore(userGrid, UserGridModel.convert(getViewContext(), res));
+            userGrid.setDataAndRefresh(UserGridModel.convert(getViewContext(), res));
         }
     }
 }

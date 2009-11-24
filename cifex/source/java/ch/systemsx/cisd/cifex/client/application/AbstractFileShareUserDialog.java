@@ -27,14 +27,14 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.cifex.client.application.GridUtils.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
@@ -98,9 +98,9 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
      */
     public void refresh()
     {
-        GridUtils.reloadStore(newUserGrid, FileShareUserGridModel.convert(messageResources,
-                viewContext.getModel().getUser(), newUsers));
-        GridUtils.reloadStore(existingUserGrid, FileShareUserGridModel.convert(messageResources,
+        newUserGrid.setDataAndRefresh(FileShareUserGridModel.convert(messageResources, viewContext
+                .getModel().getUser(), newUsers));
+        existingUserGrid.setDataAndRefresh(FileShareUserGridModel.convert(messageResources,
                 viewContext.getModel().getUser(), existingUsers));
     }
 
@@ -155,11 +155,11 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                         users);
         List<ColumnConfig> columnConfigs =
                 FileShareUserGridModel.getColumnConfigs(messageResources);
-        List<StoreFilterField<FileShareUserGridModel>> filterItems =
+        List<AbstractFilterField<FileShareUserGridModel>> filterItems =
                 AbstractUserGridModel.createFilterItems(viewContext.getMessageResources());
 
         GridWidget<FileShareUserGridModel> gridWidget =
-                GridUtils.createGrid(columnConfigs, data, filterItems, viewContext
+                GridWidget.create(columnConfigs, data, filterItems, viewContext
                         .getMessageResources());
 
         Grid<FileShareUserGridModel> grid = gridWidget.getGrid();
@@ -241,11 +241,12 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                     existingUsers.add(user);
                                                     addUserToFileShare(user);
                                                 }
-                                                GridUtils.reloadStore(existingUserGrid,
-                                                        FileShareUserGridModel.convert(
-                                                                messageResources, viewContext
-                                                                        .getModel().getUser(),
-                                                                existingUsers));
+                                                existingUserGrid
+                                                        .setDataAndRefresh(FileShareUserGridModel
+                                                                .convert(messageResources,
+                                                                        viewContext.getModel()
+                                                                                .getUser(),
+                                                                        existingUsers));
                                                 // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you
                                                 // add a user to the list,
                                                 // all checkboxes are back to checked.
@@ -284,11 +285,12 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                         addUserToFileShare(user);
                                                     }
                                                 }
-                                                GridUtils.reloadStore(existingUserGrid,
-                                                        FileShareUserGridModel.convert(
-                                                                messageResources, viewContext
-                                                                        .getModel().getUser(),
-                                                                existingUsers));
+                                                existingUserGrid
+                                                        .setDataAndRefresh(FileShareUserGridModel
+                                                                .convert(messageResources,
+                                                                        viewContext.getModel()
+                                                                                .getUser(),
+                                                                        existingUsers));
                                             } else
                                             {
 
@@ -298,11 +300,12 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                         .getUser());
                                                 newUsers.add(user);
                                                 addUserToFileShare(user);
-                                                GridUtils.reloadStore(newUserGrid,
-                                                        FileShareUserGridModel.convert(
-                                                                messageResources, viewContext
-                                                                        .getModel().getUser(),
-                                                                newUsers));
+                                                newUserGrid
+                                                        .setDataAndRefresh(FileShareUserGridModel
+                                                                .convert(messageResources,
+                                                                        viewContext.getModel()
+                                                                                .getUser(),
+                                                                        newUsers));
                                             }
                                             // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you add
                                             // a user to
