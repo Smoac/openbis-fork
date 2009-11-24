@@ -99,7 +99,7 @@ public class FileDownloadClient
             throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
             EnvironmentFailureException
     {
-        if (args.length != 2 && args.length != 3)
+        if (args.length < 2)
             throw new ConfigurationFailureException(
                     "The CIFEX File Download Client was improperly configured -- the arguments it requires were not supplied. Please talk to the CIFEX administrator.");
 
@@ -112,13 +112,10 @@ public class FileDownloadClient
             case 2:
                 sessionId = args[1];
                 break;
-            case 3:
+            default:
                 String userName = args[1];
                 String passwd = args[2];
                 sessionId = cifex.login(userName, passwd);
-                break;
-            default:
-                sessionId = null;
         }
 
         return new FileDownloadClient(cifex, sessionId, SYSTEM_TIME_PROVIDER);
@@ -198,7 +195,7 @@ public class FileDownloadClient
 
         // Put everything into a panel which goes into the center of the frame
         final JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
+        panel.setLayout(new BorderLayout(0, 5));
         panel.add(createFileListComponent(), BorderLayout.CENTER);
         panel.add(createDirectoryPanel(), BorderLayout.SOUTH);
         frame.add(panel, BorderLayout.CENTER);
@@ -215,7 +212,7 @@ public class FileDownloadClient
         spacer = new JLabel("");
         spacer.setPreferredSize(new Dimension(600, 15));
         frame.add(spacer, BorderLayout.SOUTH);
-        frame.setBounds(200, 200, 620, 300);
+        frame.setBounds(200, 200, 770, 300);
         frame.setVisible(true);
     }
 
@@ -253,22 +250,25 @@ public class FileDownloadClient
 
         // Configure the table columns
         TableColumn column;
-        column = fileTable.getColumnModel().getColumn(0);
+        column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.FILE_DETAILS_COLUMN);
         column.setPreferredWidth(150);
         column.setCellRenderer(new FileDetailsTableCellRenderer());
 
-        column = fileTable.getColumnModel().getColumn(1);
+        column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.SENDER_COLUMN);
+        column.setPreferredWidth(150);
+        
+        column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.COMMENT_COLUMN);
         column.setPreferredWidth(150);
 
-        column = fileTable.getColumnModel().getColumn(2);
+        column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.SENT_DATE_COLUMN);
         column.setPreferredWidth(100);
         column.setCellRenderer(new DateTimeTableCellRenderer());
 
-        column = fileTable.getColumnModel().getColumn(3);
+        column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.EXPIRATION_DATE_COLUMN);
         column.setPreferredWidth(100);
         column.setCellRenderer(new DateTimeTableCellRenderer());
 
-        column = fileTable.getColumnModel().getColumn(4);
+        column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.DOWNLOAD_STATUS_COLUMN);
         column.setPreferredWidth(100);
         column.setCellRenderer(new DownloadStatusTableCellRenderer(tableModel));
         column.setCellEditor(new DownloadStatusTableCellEditor(tableModel));

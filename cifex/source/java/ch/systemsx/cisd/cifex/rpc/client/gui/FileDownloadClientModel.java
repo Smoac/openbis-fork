@@ -57,6 +57,19 @@ public class FileDownloadClientModel extends AbstractTableModel
 
     private File downloadDirectory;
 
+    // Constants for column order
+    static final int FILE_DETAILS_COLUMN = 0;
+
+    static final int SENDER_COLUMN = 1;
+    
+    static final int COMMENT_COLUMN = 2;
+
+    static final int SENT_DATE_COLUMN = 3;
+
+    static final int EXPIRATION_DATE_COLUMN = 4;
+
+    static final int DOWNLOAD_STATUS_COLUMN = 5;
+
     /**
      * FileDownloadInfo is a mixture of FileInfoDTO, which encapsulates information about files
      * available for download from CIFEX, and downloading progress state.
@@ -261,7 +274,7 @@ public class FileDownloadClientModel extends AbstractTableModel
 
     public int getColumnCount()
     {
-        return 5;
+        return 6;
     }
 
     public int getRowCount()
@@ -274,15 +287,17 @@ public class FileDownloadClientModel extends AbstractTableModel
     {
         switch (column)
         {
-            case 0:
+            case FILE_DETAILS_COLUMN:
                 return "File";
-            case 1:
-                return "From";
-            case 2:
+            case SENDER_COLUMN:
+                return "From";               
+            case COMMENT_COLUMN:
+                return "Comment";
+            case SENT_DATE_COLUMN:
                 return "Sent Date";
-            case 3:
+            case EXPIRATION_DATE_COLUMN:
                 return "Download Before";
-            case 4:
+            case DOWNLOAD_STATUS_COLUMN:
                 return "";
         }
         return null;
@@ -293,15 +308,17 @@ public class FileDownloadClientModel extends AbstractTableModel
         FileDownloadInfo fileDownloadInfo = fileDownloadInfos.get(rowIndex);
         switch (columnIndex)
         {
-            case 0:
+            case FILE_DETAILS_COLUMN:
                 return fileDownloadInfo.fileInfoDTO;
-            case 1:
-                return fileDownloadInfo.fileInfoDTO.getRegistrator();
-            case 2:
+            case SENDER_COLUMN:
+                return fileDownloadInfo.fileInfoDTO.getRegistrator();                
+            case COMMENT_COLUMN:
+                return fileDownloadInfo.fileInfoDTO.getComment();
+            case SENT_DATE_COLUMN:
                 return fileDownloadInfo.fileInfoDTO.getRegistrationDate();
-            case 3:
+            case EXPIRATION_DATE_COLUMN:
                 return fileDownloadInfo.fileInfoDTO.getExpirationDate();
-            case 4:
+            case DOWNLOAD_STATUS_COLUMN:
                 return fileDownloadInfo;
         }
         return null;
@@ -317,7 +334,7 @@ public class FileDownloadClientModel extends AbstractTableModel
     public void setValueAt(Object value, int row, int col)
     {
         // This only makes sense for the button column
-        assert (col == 4);
+        assert (col == DOWNLOAD_STATUS_COLUMN);
 
         FileDownloadInfo fileDownloadInfo = (FileDownloadInfo) value;
         if (null == fileDownloadInfo)
@@ -339,7 +356,7 @@ public class FileDownloadClientModel extends AbstractTableModel
     public boolean isCellEditable(int rowIndex, int columnIndex)
     {
         // only the last column is editable
-        if (columnIndex != 4)
+        if (columnIndex != DOWNLOAD_STATUS_COLUMN)
             return false;
 
         // and that, only when the file is not currently downloading or finished
