@@ -26,10 +26,15 @@ import org.apache.commons.lang.StringUtils;
 public final class DummyAuthenticationService implements IAuthenticationService
 {
 
+    final String[] firstNames =
+        { "Stéphane", "Günter", "Elfriede", "Ryszard", "Karel", "Claude" };
+
+    final String[] lastNames =
+        { "Mallarmé", "Grass", "Jelinek", "Kapu\u015Bci\u0144ski", "\u010Capek", "Lévi-Strauss" };
+
     //
     // IAuthenticationService
     //
-
     public final String authenticateApplication()
     {
         // Up to the contract, if it returns <code>null</code> here, it assumes that the application
@@ -40,14 +45,22 @@ public final class DummyAuthenticationService implements IAuthenticationService
     /**
      * Always returns <code>true</code>, meaning that the login was successful.
      */
-    public final boolean authenticateUser(final String applicationToken, final String user, final String password)
+    public final boolean authenticateUser(final String applicationToken, final String user,
+            final String password)
     {
         return true;
     }
 
     public final Principal getPrincipal(final String applicationToken, final String user)
     {
-        return new Principal(user, "John", "Doe", "franz-josef.elmer@systemsx.ch");
+        // Generate a random first and last name combination
+        final String firstName;
+        final String lastName;
+        int idx = (int) Math.floor(Math.random() * firstNames.length);
+        firstName = firstNames[idx];
+        idx = (int) Math.floor(Math.random() * lastNames.length);
+        lastName = lastNames[idx];
+        return new Principal(user, firstName, lastName, "franz-josef.elmer@systemsx.ch");
     }
 
     public final void check()
