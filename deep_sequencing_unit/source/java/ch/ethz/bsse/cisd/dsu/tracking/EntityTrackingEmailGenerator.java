@@ -41,30 +41,23 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
     private static final String NOTIFICATION_EMAIL_SUBJECT = "notification-email-subject";
 
-    private static final String NOTIFICATION_EMAIL_BEGINNING = "notification-email-beginning";
-
-    private static final String NOTIFICATION_EMAIL_ENDING = "notification-email-ending";
-
     private static final String AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX =
             "-affiliation-notification-email-contact";
-
-    private final String subject;
 
     private final String from;
 
     private final String replyTo;
 
-    private final String beginning;
+    private final String subject;
 
-    private final String ending;
+    private final String template;
 
-    public EntityTrackingEmailGenerator(Properties properties)
+    public EntityTrackingEmailGenerator(Properties properties, String template)
     {
-        subject = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_SUBJECT);
-        from = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_FROM);
-        replyTo = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_REPLY_TO);
-        beginning = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_BEGINNING);
-        ending = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_ENDING);
+        this.from = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_FROM);
+        this.replyTo = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_REPLY_TO);
+        this.subject = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_SUBJECT);
+        this.template = template;
 
         final Map<String, String> recipientsByAffiliation =
                 retrieveRecipientsByAffiliation(properties);
@@ -108,7 +101,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
     private Email createEmail(EntityTrackingEmailData emailData)
     {
-        String content = EmailContentGenerator.generate(emailData, beginning, ending);
+        String content = EmailContentGenerator.fillTemplateWithData(template, emailData);
         String recipient = emailData.getRecipient();
         return new Email(subject, content, replyTo, from, recipient);
     }
@@ -136,16 +129,18 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
         private static final String PERMLINK_LABEL = "Permlink";
 
-        public static String generate(EntityTrackingEmailData emailData, String beginning,
-                String ending)
+        private static final String GENARATED_CONTENT_TARGET = "{generated-content}";
+
+        public static String fillTemplateWithData(String template, EntityTrackingEmailData emailData)
+        {
+            return template.replace(GENARATED_CONTENT_TARGET, generateContent(emailData));
+        }
+
+        private static String generateContent(EntityTrackingEmailData emailData)
         {
             StringBuilder sb = new StringBuilder();
-            appendln(sb, beginning);
-            appendNewline(sb);
             appendSequencingSamplesData(sb, emailData.getSequencingSamplesData());
             appendDataSetsData(sb, emailData.getDataSets());
-            appendNewline(sb);
-            appendln(sb, ending);
             return sb.toString();
         }
 
