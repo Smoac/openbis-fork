@@ -66,7 +66,7 @@ class EntityTrackingEmailDataManager
     {
         for (Sample sequencingSample : trackedEntities.getSequencingSamples())
         {
-            for (String recipient : getFlowLaneSampleTrackingRecipients(sequencingSample))
+            for (String recipient : getSequencingSampleTrackingRecipients(sequencingSample))
             {
                 final EntityTrackingEmailData emailData =
                         getOrCreateRecipientEmailData(result, recipient);
