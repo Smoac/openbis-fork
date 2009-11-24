@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWi
  */
 class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSummaryTable
 {
-    private static final double[] FDR_LEVELS = new double[] {0, 0.01, 0.025, 0.05, 0.1};
+    static final double[] FDR_LEVELS = new double[] {0, 0.01, 0.025, 0.05, 0.1};
     
     private static final class Counter
     {
@@ -92,7 +92,8 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
         String permID = experimentDAO.getByTechId(experimentID).getPermId();
         IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
         ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
-        DataSet<ProteinReferenceWithProbabilityAndPeptide> resultSet = dao.listProteinsWithProbabilityAndPeptidesByExperiment(permID);
+        DataSet<ProteinReferenceWithProbabilityAndPeptide> resultSet =
+                dao.listProteinsWithProbabilityAndPeptidesByExperiment(permID);
         List<Counter> counters = new ArrayList<Counter>(FDR_LEVELS.length);
         for (double fdrLevel : FDR_LEVELS)
         {
