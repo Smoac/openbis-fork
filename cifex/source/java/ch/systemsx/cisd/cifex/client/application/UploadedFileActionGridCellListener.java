@@ -31,7 +31,7 @@ public class UploadedFileActionGridCellListener extends FileActionGridCellListen
     UploadedFileActionGridCellListener(ViewContext viewContext,
             GridWidget<AbstractFileGridModel> gridWidget)
     {
-        super(true, viewContext, gridWidget);
+        super(false, viewContext, gridWidget);
     }
 
     @Override
