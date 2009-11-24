@@ -112,6 +112,7 @@ class EntityTrackingEmailDataManager
         if (emailDataOrNull == null)
         {
             emailDataOrNull = new EntityTrackingEmailData(recipient);
+            dataByRecipient.put(recipient, emailDataOrNull);
         }
         return emailDataOrNull;
     }
