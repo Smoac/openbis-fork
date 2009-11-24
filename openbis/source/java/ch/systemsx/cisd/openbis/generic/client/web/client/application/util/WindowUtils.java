@@ -70,7 +70,7 @@ public class WindowUtils
      */
     private static void doOpenWindow(String url)
     {
-        boolean opened = openWindow(url, "", null);
+        boolean opened = openWindow(url, "", "scrollbars=yes,resizable=yes");
         if (opened == false)
         {
             MessageBox.alert("", GenericConstants.POPUP_BLOCKER_DETECTED, null);
