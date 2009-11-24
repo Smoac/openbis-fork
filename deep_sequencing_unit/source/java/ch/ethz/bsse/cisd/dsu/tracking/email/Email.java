@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.bsse.cisd.dsu.tracking;
+package ch.ethz.bsse.cisd.dsu.tracking.email;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 

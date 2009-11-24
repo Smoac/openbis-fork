@@ -18,9 +18,9 @@ package ch.ethz.bsse.cisd.dsu.tracking.main;
 
 import java.util.List;
 
-import ch.ethz.bsse.cisd.dsu.tracking.Email;
-import ch.ethz.bsse.cisd.dsu.tracking.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.TrackedEntities;
+import ch.ethz.bsse.cisd.dsu.tracking.email.Email;
+import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;

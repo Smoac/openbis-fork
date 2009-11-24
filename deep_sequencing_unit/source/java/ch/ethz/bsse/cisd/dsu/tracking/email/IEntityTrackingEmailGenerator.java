@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package ch.ethz.bsse.cisd.dsu.tracking;
+package ch.ethz.bsse.cisd.dsu.tracking.email;
 
 import java.util.List;
+
+import ch.ethz.bsse.cisd.dsu.tracking.TrackedEntities;
 
 /**
  * @author Piotr Buczek

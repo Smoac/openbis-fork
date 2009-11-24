@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.bsse.cisd.dsu.tracking;
+package ch.ethz.bsse.cisd.dsu.tracking.email;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.ethz.bsse.cisd.dsu.tracking.EntityTrackingEmailData.SequencingSampleData;
+import ch.ethz.bsse.cisd.dsu.tracking.TrackedEntities;
+import ch.ethz.bsse.cisd.dsu.tracking.email.EntityTrackingEmailData.SequencingSampleData;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;

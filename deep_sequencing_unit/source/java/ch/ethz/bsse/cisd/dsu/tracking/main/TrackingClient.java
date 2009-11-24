@@ -18,8 +18,8 @@ package ch.ethz.bsse.cisd.dsu.tracking.main;
 
 import java.util.Properties;
 
-import ch.ethz.bsse.cisd.dsu.tracking.EntityTrackingEmailGenerator;
-import ch.ethz.bsse.cisd.dsu.tracking.IEntityTrackingEmailGenerator;
+import ch.ethz.bsse.cisd.dsu.tracking.email.EntityTrackingEmailGenerator;
+import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -59,7 +59,8 @@ public class TrackingClient
         Parameters params = new Parameters(props);
 
         ITrackingServer trackingServer = createOpenBISTrackingServer(params);
-        IEntityTrackingEmailGenerator emailGenerator = new EntityTrackingEmailGenerator(props);
+        IEntityTrackingEmailGenerator emailGenerator =
+                new EntityTrackingEmailGenerator(props, "BEGINNING \n{generated-content}\n END!");
         IMailClient mailClient = params.getMailClient();
         TrackingBO trackingBO = new TrackingBO(trackingServer, emailGenerator, mailClient);
 

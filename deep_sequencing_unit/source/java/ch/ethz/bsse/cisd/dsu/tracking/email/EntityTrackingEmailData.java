@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.bsse.cisd.dsu.tracking;
+package ch.ethz.bsse.cisd.dsu.tracking.email;
 
 import java.util.ArrayList;
 import java.util.Collection;
