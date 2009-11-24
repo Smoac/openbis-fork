@@ -86,18 +86,23 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         return result;
     }
 
-    public List<Email> generateEmails(TrackedEntities trackedEntities)
+    public List<EmailWithSummary> generateEmails(TrackedEntities trackedEntities)
     {
         final Collection<EntityTrackingEmailData> emailDataGroupedByRecipient =
                 EntityTrackingEmailDataManager.groupByRecipient(trackedEntities);
 
-        final List<Email> results = new ArrayList<Email>();
+        final List<EmailWithSummary> results = new ArrayList<EmailWithSummary>();
         for (EntityTrackingEmailData emailData : emailDataGroupedByRecipient)
         {
-            results.add(createEmail(emailData));
+            results.add(createEmailWithSummary(emailData));
         }
 
         return results;
+    }
+
+    private EmailWithSummary createEmailWithSummary(EntityTrackingEmailData emailData)
+    {
+        return new EmailWithSummary(createEmail(emailData), emailData.getDescription());
     }
 
     private Email createEmail(EntityTrackingEmailData emailData)

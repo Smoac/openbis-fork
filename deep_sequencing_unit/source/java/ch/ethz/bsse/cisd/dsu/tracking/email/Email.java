@@ -16,11 +16,11 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.email;
 
+import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
- * Simple encapsulation of
- * {@link IMailClient#sendMessage(String, String, String, ch.systemsx.cisd.common.mail.From, String...)}
+ * Simple encapsulation of {@link IMailClient#sendMessage(String, String, String, From, String...)}
  * method parameters.
  * 
  * @author Piotr Buczek
@@ -33,11 +33,11 @@ public class Email
 
     private final String replyToOrNull;
 
-    private final String fromOrNull;
+    private final From fromOrNull;
 
     private final String[] recipients;
 
-    public Email(String subject, String content, String replyToOrNull, String fromOrNull,
+    public Email(String subject, String content, String replyToOrNull, From fromOrNull,
             String... recipients)
     {
         super();
@@ -46,6 +46,12 @@ public class Email
         this.replyToOrNull = replyToOrNull;
         this.fromOrNull = fromOrNull;
         this.recipients = recipients;
+    }
+
+    public Email(String subject, String content, String replyToOrNull, String fromOrNull,
+            String... recipients)
+    {
+        this(subject, content, replyToOrNull, new From(fromOrNull), recipients);
     }
 
     public String getSubject()
@@ -63,7 +69,7 @@ public class Email
         return replyToOrNull;
     }
 
-    public String getFromOrNull()
+    public From getFromOrNull()
     {
         return fromOrNull;
     }

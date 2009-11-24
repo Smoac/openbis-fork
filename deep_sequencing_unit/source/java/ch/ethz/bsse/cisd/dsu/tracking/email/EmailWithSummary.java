@@ -16,20 +16,31 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.email;
 
-import java.util.List;
-
-import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
-
 /**
+ * Encapsulation of {@link Email} with a short summary of its content.
+ * 
  * @author Piotr Buczek
  */
-public interface IEntityTrackingEmailGenerator
+public class EmailWithSummary
 {
-    /**
-     * Generates all {@link EmailWithSummary}s to be send containing information about
-     * <var>trackedEntities</var>.
-     * 
-     * @param trackedEntities recently tracked entities
-     */
-    List<EmailWithSummary> generateEmails(TrackedEntities trackedEntities);
+    private final Email email;
+
+    private final String summary;
+
+    public EmailWithSummary(Email email, String summary)
+    {
+        this.email = email;
+        this.summary = summary;
+    }
+
+    public Email getEmail()
+    {
+        return email;
+    }
+
+    public String getSummary()
+    {
+        return summary;
+    }
+
 }

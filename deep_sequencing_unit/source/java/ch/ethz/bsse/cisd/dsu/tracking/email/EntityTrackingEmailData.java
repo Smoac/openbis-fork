@@ -71,7 +71,7 @@ public class EntityTrackingEmailData
     }
 
     // data grouped by sequencing sample: <sequencing sample id, data>
-    private final Map<Long, SequencingSampleData> sequencingSampleData =
+    private final Map<Long, SequencingSampleData> sequencingSampleDataById =
             new HashMap<Long, SequencingSampleData>(0);
 
     private final List<ExternalData> dataSets = new ArrayList<ExternalData>(0);
@@ -91,7 +91,7 @@ public class EntityTrackingEmailData
 
     public Collection<SequencingSampleData> getSequencingSamplesData()
     {
-        return sequencingSampleData.values();
+        return sequencingSampleDataById.values();
     }
 
     public List<ExternalData> getDataSets()
@@ -112,7 +112,7 @@ public class EntityTrackingEmailData
         final Sample sequencingSample = flowLaneSample.getGeneratedFrom();
         assert sequencingSample != null;
 
-        SequencingSampleData infoOrNull = sequencingSampleData.get(sequencingSample.getId());
+        SequencingSampleData infoOrNull = sequencingSampleDataById.get(sequencingSample.getId());
         if (infoOrNull == null)
         {
             // because sequencing samples are processed before flow lane samples
@@ -127,7 +127,7 @@ public class EntityTrackingEmailData
             boolean newlyTracked)
     {
         final SequencingSampleData data = new SequencingSampleData(sequencingSample, newlyTracked);
-        sequencingSampleData.put(sequencingSample.getId(), data);
+        sequencingSampleDataById.put(sequencingSample.getId(), data);
         return data;
     }
 
@@ -135,6 +135,60 @@ public class EntityTrackingEmailData
     public void addDataSet(ExternalData dataSet)
     {
         dataSets.add(dataSet);
+    }
+
+    /** short description of data kept in the structure */
+    public String getDescription()
+    {
+        final StringBuilder sb = new StringBuilder();
+
+        // append info about tracked samples
+        if (getSequencingSamplesData().isEmpty())
+        {
+            sb.append("no new samples tracked");
+        } else
+        {
+            for (SequencingSampleData seqencingSampleData : getSequencingSamplesData())
+            {
+                final int flowLaneSamplesSize = seqencingSampleData.getFlowLaneSamples().size();
+                final String sequencingSampleIdentifier =
+                        seqencingSampleData.getSequencingSample().getIdentifier();
+                final boolean newlyTracked = seqencingSampleData.isNewlyTracked();
+                sb.append(String.format(
+                        "%sSequencing sample: '%s' with %d new Flow Lane samples tracked",
+                        newlyTracked ? "new " : "", sequencingSampleIdentifier,
+                        flowLaneSamplesSize, flowLaneSamplesSize > 0 ? ": " : ""));
+                for (Sample flowLaneSample : seqencingSampleData.getFlowLaneSamples())
+                {
+                    sb.append(flowLaneSample.getIdentifier() + ", ");
+                }
+            }
+        }
+        sb.append("\n");
+        // append info about tracked data sets
+        if (getDataSets().isEmpty())
+        {
+            sb.append("no new data sets tracked");
+        } else
+        {
+            sb.append(getDataSets().size() + " new data set(s) tracked: ");
+            for (ExternalData dataSet : getDataSets())
+            {
+                sb.append(dataSet.getIdentifier() + ", ");
+            }
+        }
+        sb.append("\n");
+        return sb.toString();
+    }
+
+    //
+    // Object
+    //
+
+    @Override
+    public String toString()
+    {
+        return getDescription();
     }
 
 }

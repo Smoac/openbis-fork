@@ -21,6 +21,7 @@ import java.util.List;
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackingStateDTO;
 import ch.ethz.bsse.cisd.dsu.tracking.email.Email;
+import ch.ethz.bsse.cisd.dsu.tracking.email.EmailWithSummary;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
@@ -63,75 +64,87 @@ public class TrackingBO
 
         TrackedEntities changedEntities =
                 fetchChangedEntities(prevTrackingState, trackingServer, session);
-        List<Email> emails = emailGenerator.generateEmails(changedEntities);
-        sendEmails(emails, mailClient);
+        List<EmailWithSummary> emailsWithSummary = emailGenerator.generateEmails(changedEntities);
+        sendEmails(emailsWithSummary, mailClient);
         saveTrackingState(changedEntities, trackingDAO);
     }
 
-    private static void sendEmails(List<Email> emails, IMailClient mailClient)
+    private static void sendEmails(List<EmailWithSummary> emailsWithSummary, IMailClient mailClient)
     {
-        for (Email email : emails)
+        for (EmailWithSummary emailWithSummary : emailsWithSummary)
         {
             try
             {
-                From from = tryGetFromField(email);
-                String[] recipients = email.getRecipients();
-                String content = email.getContent();
-                String subject = email.getSubject();
-                String replyToOrNull = email.getReplyToOrNull();
-                sendMessage(mailClient, subject, content, replyToOrNull, from, recipients);
+                sendMessage(mailClient, emailWithSummary);
             } catch (Exception ex)
             {
-                sendErrorReport(mailClient, ex, email);
+                sendErrorReport(mailClient, ex, emailWithSummary);
             }
         }
-    }
-
-    private static From tryGetFromField(Email email)
-    {
-        return (email.getFromOrNull() == null) ? null : new From(email.getFromOrNull());
     }
 
     // This email could not be sent, most probably the recipient addresses were
     // incorrect.
     // We send the email to the administrator "replyTo' address, the admin should
     // forward it to the right recipient.
-    private static void sendErrorReport(IMailClient mailClient, Exception exception, Email email)
+    private static void sendErrorReport(IMailClient mailClient, Exception exception,
+            EmailWithSummary emailWithSummary)
     {
-        StringBuffer errorReportContent = new StringBuffer();
-        appendLine(errorReportContent, "Dear openBIS Admin,");
-        appendLine(errorReportContent,
+        Email email = emailWithSummary.getEmail();
+
+        StringBuilder errorReportContentBuilder = new StringBuilder();
+        appendLine(errorReportContentBuilder, "Dear openBIS Admin,");
+        appendLine(errorReportContentBuilder,
                 "This email has been generated automatically from the openBIS Changes Tracking system.");
-        appendLine(errorReportContent, "There was a failure while trying to send the email:");
-        appendLine(errorReportContent, exception.getMessage());
-        appendLine(errorReportContent,
+        appendLine(errorReportContentBuilder, "There was a failure while trying to send the email:");
+        appendLine(errorReportContentBuilder, exception.getMessage());
+        appendLine(errorReportContentBuilder,
                 "The possible reason is that the recipient address is not valid.");
-        appendLine(errorReportContent,
+        appendLine(errorReportContentBuilder,
                 "If you know the address of the recipient please correct it and forward this email to him.");
-        appendLine(errorReportContent,
+        appendLine(errorReportContentBuilder,
                 "!!! Note that the Tracking System will not try to send this email again !!!");
-        appendLine(errorReportContent,
+        appendLine(errorReportContentBuilder,
                 "Please correct the recipient email address in openBIS to avoid similar problems in future.");
-        appendLine(errorReportContent, "");
-        appendLine(errorReportContent, "Subject:    " + email.getSubject());
-        appendLine(errorReportContent, "Recipients: "
+        appendLine(errorReportContentBuilder, "");
+        appendLine(errorReportContentBuilder, "Subject:    " + email.getSubject());
+        appendLine(errorReportContentBuilder, "Recipients: "
                 + CollectionUtils.abbreviate(email.getRecipients(), -1));
-        appendLine(errorReportContent, "");
-        appendLine(errorReportContent, "Original content:");
+        appendLine(errorReportContentBuilder, "");
 
-        sendMessage(mailClient, "[Tracking] Sending an email failed",
-                errorReportContent.toString(), null, tryGetFromField(email), email
-                        .getReplyToOrNull());
+        StringBuilder errorReportSummaryBuilder =
+                new StringBuilder(errorReportContentBuilder.toString());
+
+        appendLine(errorReportContentBuilder, "Original content: ");
+        appendLine(errorReportContentBuilder, email.getContent());
+        String errorReportContent = errorReportContentBuilder.toString();
+
+        appendLine(errorReportSummaryBuilder, "Original content summary: ");
+        appendLine(errorReportSummaryBuilder, emailWithSummary.getSummary());
+        String errorReportSummary = errorReportSummaryBuilder.toString();
+
+        Email errorReportEmail =
+                new Email("[Tracking] Sending an email failed", errorReportContent, null, email
+                        .getFromOrNull(), email.getReplyToOrNull());
+        sendMessage(mailClient, new EmailWithSummary(errorReportEmail, errorReportSummary));
     }
 
-    private static void sendMessage(IMailClient mailClient, String subject, String content,
-            String replyToOrNull, From fromOrNull, String... recipients)
+    private static void sendMessage(IMailClient mailClient, EmailWithSummary emailWithSummary)
     {
+        Email email = emailWithSummary.getEmail();
+        String summary = emailWithSummary.getSummary();
+
+        String subject = email.getSubject();
+        String content = email.getContent();
+        String replyToOrNull = email.getReplyToOrNull();
+        From fromOrNull = email.getFromOrNull();
+        String[] recipients = email.getRecipients();
         mailClient.sendMessage(subject, content, replyToOrNull, fromOrNull, recipients);
-        LogUtils.debug("Sending an email [" + subject + "]\n" + content);
+
+        LogUtils.debug("Sending an email [" + subject + "]\n" + summary);
     }
 
-    private static void appendLine(StringBuffer sb, String msg)
+    private static void appendLine(StringBuilder sb, String msg)
     {
         sb.append(msg);
         sb.append("\n");
