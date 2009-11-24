@@ -75,15 +75,40 @@ public class UserDTO extends ID
     private Date expirationDate;
 
     /** 
-     * How long (in minutes) the file registered by this user is going to stay in the system?
+     * How long (in hours) the file registered by this user is going to stay in the system.
      */
     private Integer fileRetention;
+
+    /** 
+     * How long (in hours) a temporary user registered by this user is going to stay in the system.
+     */
+    private Integer userRetention;
 
     /** 
      * The maximum size (in MB) of an upload request for this user. 
      */
     @Deprecated
     private Long maxUploadRequestSizeInMB;
+    
+    /**
+     * Current total size of files uploaded by the user's quota group (in bytes).
+     */
+    private long currentFileSize;
+    
+    /**
+     * Current total number of files uploaded by the user's quota group.
+     */
+    private int currentFileCount;
+    
+    /**
+     * Maximum size of files allowed to be uploaded by the user's quota group (in MB)  
+     */
+    private Long maxFileSizePerQuotaGroupInMB;
+    
+    /**
+     * Maximum total number of files allowed to be uploaded by the user's quota group.
+     */
+    private Integer maxFileCountPerQuotaGroup;
 
     /**
      * The unique userCode of the <code>UserDTO</code>.
@@ -230,6 +255,16 @@ public class UserDTO extends ID
         this.fileRetention = fileRetention;
     }
 
+    public void setUserRetention(Integer userRetention)
+    {
+        this.userRetention = userRetention;
+    }
+
+    public Integer getUserRetention()
+    {
+        return userRetention;
+    }
+
     @Deprecated
     public final Long getMaxUploadRequestSizeInMB()
     {
@@ -240,6 +275,46 @@ public class UserDTO extends ID
     public final void setMaxUploadRequestSizeInMB(Long maxUploadRequestSizeInMB)
     {
         this.maxUploadRequestSizeInMB = maxUploadRequestSizeInMB;
+    }
+
+    public void setCurrentFileSize(long currentFileSize)
+    {
+        this.currentFileSize = currentFileSize;
+    }
+
+    public long getCurrentFileSize()
+    {
+        return currentFileSize;
+    }
+
+    public void setCurrentFileCount(int currentFileCountInMB)
+    {
+        this.currentFileCount = currentFileCountInMB;
+    }
+
+    public int getCurrentFileCount()
+    {
+        return currentFileCount;
+    }
+
+    public void setMaxFileSizePerQuotaGroupInMB(Long maxFileSizePerQuotaGroupInMB)
+    {
+        this.maxFileSizePerQuotaGroupInMB = maxFileSizePerQuotaGroupInMB;
+    }
+
+    public Long getMaxFileSizePerQuotaGroupInMB()
+    {
+        return maxFileSizePerQuotaGroupInMB;
+    }
+
+    public void setMaxFileCountPerQuotaGroup(Integer maxFileCountPerQuotaGroup)
+    {
+        this.maxFileCountPerQuotaGroup = maxFileCountPerQuotaGroup;
+    }
+
+    public Integer getMaxFileCountPerQuotaGroup()
+    {
+        return maxFileCountPerQuotaGroup;
     }
 
 }

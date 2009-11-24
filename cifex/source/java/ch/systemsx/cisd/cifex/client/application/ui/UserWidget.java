@@ -39,7 +39,6 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
-import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -168,7 +167,7 @@ public abstract class UserWidget extends LayoutContainer
             String text = fileRetentionField.getValue();
             if (StringUtils.isBlank(text) == false)
             {
-                user.setFileRetention(new Integer(DateTimeUtils.parseDurationInMinutes(text)));
+                user.setFileRetention(new Integer(Integer.parseInt(text)));
             } else
             {
                 user.setFileRetention(null);
@@ -467,7 +466,7 @@ public abstract class UserWidget extends LayoutContainer
                     }
                     try
                     {
-                        int duration = DateTimeUtils.parseDurationInMinutes(value);
+                        int duration = Integer.parseInt(value);
                         return duration > 0 ? null : "Incorrect duration";
                     } catch (NumberFormatException ex)
                     {
@@ -478,7 +477,7 @@ public abstract class UserWidget extends LayoutContainer
         if (editUser != null && editUser.getFileRetention() != null)
         {
             int fileRetentionTime = editUser.getFileRetention().intValue();
-            textField.setValue(DateTimeUtils.formatDurationInMinutes(fileRetentionTime));
+            textField.setValue(Integer.toString(fileRetentionTime));
         }
         return textField;
     }

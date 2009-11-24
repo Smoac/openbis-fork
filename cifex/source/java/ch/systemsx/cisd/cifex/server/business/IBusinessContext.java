@@ -44,6 +44,16 @@ public interface IBusinessContext
     public int getUserRetention();
 
     /**
+     * Returns the maximum sum of the size of all files allowed to be uploaded per quota group (in MB).
+     */
+    public Long getMaxFileSizePerQuotaGroupInMB();
+    
+    /**
+     * Returns the maximum number of all files allowed to be uploaded per quota group.
+     */
+    public Integer getMaxFileCountPerQuotaGroup();
+    
+    /**
      * Returns the maximum upload request size in Megabyte.
      */
     public int getMaxUploadRequestSizeInMB();

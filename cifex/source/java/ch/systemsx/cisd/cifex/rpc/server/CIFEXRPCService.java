@@ -41,6 +41,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.FileSizeExceededException;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
+import ch.systemsx.cisd.cifex.rpc.QuotaExceededException;
 import ch.systemsx.cisd.cifex.rpc.server.Session.Operation;
 import ch.systemsx.cisd.cifex.server.AbstractCIFEXService;
 import ch.systemsx.cisd.cifex.server.HttpUtils;
@@ -273,13 +274,10 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         try
         {
             final Session session = sessionManager.getSession(sessionID);
+            final UserDTO requestUser = session.getUser();
             fileName = FilenameUtils.getName(file.getFilePathOnClient());
             logInvocation(sessionID, "Start uploading " + fileName);
-            int maxUploadSize = getMaxUploadSize(session);
-            if (file.getFileSize() > maxUploadSize * MB)
-            {
-                throw new FileSizeExceededException(maxUploadSize);
-            }
+            checkQuota(sessionID, requestUser, file);
             final PreCreatedFileDTO fileInfo =
                     fileManager.createFile(session.getUser(), file, comment);
             session.startUploadOperation();
@@ -295,6 +293,29 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             {
                 userBehaviorLogOrNull.logUploadFileStart(fileName, success);
             }
+        }
+    }
+
+    private void checkQuota(String sessionID, final UserDTO requestUser, FilePreregistrationDTO file)
+    {
+        domainModel.getUserManager().refreshQuotaInformation(requestUser);
+        final boolean countOK =
+                (requestUser.getMaxFileCountPerQuotaGroup() == null)
+                        || (requestUser.getCurrentFileCount() + 1 <= requestUser
+                                .getMaxFileCountPerQuotaGroup());
+        final boolean sizeOK =
+                (requestUser.getMaxFileSizePerQuotaGroupInMB() == null)
+                        || (requestUser.getCurrentFileSize() * MB + file.getFileSize() <= requestUser
+                                .getMaxFileSizePerQuotaGroupInMB()
+                                * MB);
+        if ((countOK && sizeOK) == false)
+        {
+            final QuotaExceededException excetion =
+                    new QuotaExceededException(requestUser.getMaxFileCountPerQuotaGroup(),
+                            requestUser.getMaxFileSizePerQuotaGroupInMB(), requestUser
+                                    .getCurrentFileCount(), requestUser.getCurrentFileSize());
+            operationLog.error("[" + sessionID + "]: " + excetion.getMessage());
+            throw excetion;
         }
     }
 
@@ -354,10 +375,9 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                     + " at position=" + filePointer);
         }
         session.updateUploadProgress(filePointer, runningCrc32Value, block);
-        int maxUploadSize = getMaxUploadSize(session);
-        if (session.getFileDTO().getSize() > maxUploadSize * MB)
+        if (session.getFileDTO().getSize() > session.getFileDTO().getCompleteSize())
         {
-            throw new FileSizeExceededException(maxUploadSize);
+            throw new FileSizeExceededException(session.getFileDTO().getCompleteSize());
         }
         fileManager.updateUploadProgress(session.getFileDTO());
         try
@@ -553,16 +573,6 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         {
             operationLog.info("[" + sessionID + "]: " + message);
         }
-    }
-
-    private int getMaxUploadSize(final Session session)
-    {
-        Long usersMaxUploadSize = session.getUser().getMaxUploadRequestSizeInMB();
-        if (usersMaxUploadSize == null)
-        {
-            return domainModel.getBusinessContext().getMaxUploadRequestSizeInMB();
-        }
-        return usersMaxUploadSize.intValue();
     }
 
     private void cleanUpSession(Session session)

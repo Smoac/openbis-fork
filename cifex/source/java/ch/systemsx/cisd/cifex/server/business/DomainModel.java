@@ -123,7 +123,7 @@ public final class DomainModel implements IDomainModel
         businessContext.setFileRetention(fileRetention);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("File retention set to %d minutes.", fileRetention));
+            operationLog.info(String.format("File retention set to %d hours.", fileRetention));
         }
     }
 
@@ -138,23 +138,40 @@ public final class DomainModel implements IDomainModel
         businessContext.setUserRetention(userRetention);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("User retention set to %d minutes.", userRetention));
+            operationLog.info(String.format("User retention set to %d hours.", userRetention));
         }
     }
 
     /**
-     * Sets the maximum request upload size in MB.
+     * Sets the maximum number of all files allowed to be uploaded per quota group.
      * <p>
-     * This is typically by <i>Spring</i> via injection.
+     * This is done by <i>Spring</i> via injection.
      * </p>
      */
-    public final void setMaxRequestUploadSizeInMB(final int maxRequestUploadSizeInMB)
+    public void setMaxFileCountPerQuotaGroup(Integer maxFileCountPerQuotaGroup)
     {
-        businessContext.setMaxUploadRequestSizeInMB(maxRequestUploadSizeInMB);
+        businessContext.setMaxFileCountPerQuotaGroup(maxFileCountPerQuotaGroup);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Maximum request upload size set to %d MB.",
-                    maxRequestUploadSizeInMB));
+            operationLog.info(String.format("Quota for number of files set to %s.",
+                    maxFileCountPerQuotaGroup == null ? "'no quota'" : maxFileCountPerQuotaGroup));
+        }
+    }
+
+    /**
+     * Sets the maximum sum of the size of all files allowed to be uploaded per quota group.
+     * <p>
+     * This is done by <i>Spring</i> via injection.
+     * </p>
+     */
+    public void setMaxFileSizePerQuotaGroupInMB(Long maxFileSizePerQuotaGroupInMB)
+    {
+        businessContext.setMaxFileSizePerQuotaGroupInMB(maxFileSizePerQuotaGroupInMB);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("Quota for sum of size of files set to %s MB.",
+                    maxFileSizePerQuotaGroupInMB == null ? "'no quota'"
+                            : maxFileSizePerQuotaGroupInMB));
         }
     }
 

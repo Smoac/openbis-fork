@@ -50,11 +50,16 @@ public class MigrationStepFrom009To010 implements IMigrationStep
         }
     }
 
-    private final class IdRowMapper implements ParameterizedRowMapper<Long>
+    private final class IdFileRentionHolder
     {
-        public Long mapRow(ResultSet rs, int rowNum) throws SQLException
+        final long userId;
+
+        final Long fileRetention;
+
+        IdFileRentionHolder(long userId, Long fileRetention)
         {
-            return rs.getLong("id");
+            this.userId = userId;
+            this.fileRetention = fileRetention;
         }
     }
 
@@ -64,6 +69,23 @@ public class MigrationStepFrom009To010 implements IMigrationStep
         public IdQuotaGroupIdHolder mapRow(ResultSet rs, int rowNum) throws SQLException
         {
             return new IdQuotaGroupIdHolder(rs.getLong("id"), rs.getLong("quota_group_id"));
+        }
+    }
+
+    private final class IdFileRententionRowMapper implements
+            ParameterizedRowMapper<IdFileRentionHolder>
+    {
+        public IdFileRentionHolder mapRow(ResultSet rs, int rowNum) throws SQLException
+        {
+            final long fileRetention = rs.getLong("file_retention");
+            if (rs.wasNull())
+            {
+                return new IdFileRentionHolder(rs.getLong("id"), null);
+            } else
+            {
+                return new IdFileRentionHolder(rs.getLong("id"), fileRetention);
+                
+            }
         }
     }
 
@@ -94,19 +116,22 @@ public class MigrationStepFrom009To010 implements IMigrationStep
         }
         simpleJdbcTemplate.update("drop domain user_id");
 
-        final List<Long> independentUsers =
-                simpleJdbcTemplate.query("select id from users u1 where is_permanent or"
-                        + " user_id_registrator is null or"
-                        + " (select is_admin from users u2 where u1.user_id_registrator = u2.id)",
-                        new IdRowMapper());
-        for (long userId : independentUsers)
+        final List<IdFileRentionHolder> independentUsers =
+                simpleJdbcTemplate
+                        .query(
+                                "select id, file_retention from users u1 where is_permanent or"
+                                        + " user_id_registrator is null or"
+                                        + " (select is_admin from users u2 where u1.user_id_registrator = u2.id)",
+                                new IdFileRententionRowMapper());
+        for (IdFileRentionHolder userIdFileRention : independentUsers)
         {
             final long quotaGroupId =
                     simpleJdbcTemplate.queryForLong("select nextval('quota_group_id_seq')");
-            simpleJdbcTemplate
-                    .update("insert into quota_groups (id) values (?)", quotaGroupId);
+            simpleJdbcTemplate.update(
+                    "insert into quota_groups (id, file_retention, user_retention) values (?,?,?)",
+                    quotaGroupId, userIdFileRention.fileRetention, userIdFileRention.fileRetention);
             simpleJdbcTemplate.update("update users set quota_group_id = ? where id = ?",
-                    quotaGroupId, userId);
+                    quotaGroupId, userIdFileRention.userId);
         }
         final List<IdQuotaGroupIdHolder> dependentUsers =
                 simpleJdbcTemplate.query("select u1.id, u2.quota_group_id from users u1 "
@@ -118,11 +143,13 @@ public class MigrationStepFrom009To010 implements IMigrationStep
                     idHolder.quotaGroupId, idHolder.userId);
         }
 
+        // Drop column USERS.FILE_RETENTION
+        simpleJdbcTemplate.update("alter table users drop column file_retention");
+
         // Create index on USERS.QUOTA_GROUP_ID
         simpleJdbcTemplate.update("create index user_quota_group_fk_i on users (quota_group_id)");
 
         // Compute the current resource usage for all quota groups.
         simpleJdbcTemplate.queryForList("select CALC_ACCOUNTING_FOR_ALL_QUOTA_GROUPS()");
     }
-
 }

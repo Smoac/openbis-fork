@@ -79,7 +79,9 @@ class UserManager extends AbstractManager implements IUserManager
     {
         assert code != null : "User Code is null!";
 
-        return daoFactory.getUserDAO().tryFindUserByCode(code);
+        final UserDTO user = daoFactory.getUserDAO().tryFindUserByCode(code);
+        fillInDefaultQuotaInformation(user);
+        return user;
     }
 
     public UserDTO tryFindUserByCodeFillRegistrator(String code)
@@ -91,6 +93,7 @@ class UserManager extends AbstractManager implements IUserManager
         {
             final UserDTO registrator = daoFactory.getUserDAO().tryFindUserById(user.getRegistrator().getID());
             user.setRegistrator(registrator);
+            fillInDefaultQuotaInformation(user);
         }
         return user;
     }
@@ -99,7 +102,12 @@ class UserManager extends AbstractManager implements IUserManager
     {
         assert email != null : "Given Email Adress is null";
 
-        return daoFactory.getUserDAO().tryFindUserByEmail(email);
+        final List<UserDTO> users = daoFactory.getUserDAO().tryFindUserByEmail(email);
+        for (UserDTO user : users)
+        {
+            fillInDefaultQuotaInformation(user);
+        }
+        return users;
     }
 
     @Transactional
@@ -193,7 +201,12 @@ class UserManager extends AbstractManager implements IUserManager
     @Transactional
     public final List<UserDTO> listUsers()
     {
-        return daoFactory.getUserDAO().listUsers();
+        final List<UserDTO> users = daoFactory.getUserDAO().listUsers();
+        for (UserDTO user : users)
+        {
+            fillInDefaultQuotaInformation(user);
+        }
+        return users;
     }
 
     @Transactional
@@ -312,7 +325,7 @@ class UserManager extends AbstractManager implements IUserManager
             // Renew the expiration Date
             if (userToUpdate.isPermanent() == false)
             {
-                userToUpdate.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
+                userToUpdate.setExpirationDate(DateUtils.addHours(new Date(), businessContext
                         .getUserRetention()));
             }
 
@@ -361,7 +374,12 @@ class UserManager extends AbstractManager implements IUserManager
         assert userCode != null : "Unspecified user";
 
         final IUserDAO userDAO = daoFactory.getUserDAO();
-        return userDAO.listUsersRegisteredBy(userCode);
+        final List<UserDTO> usersRegisteredBy = userDAO.listUsersRegisteredBy(userCode);
+        for (UserDTO user : usersRegisteredBy)
+        {
+            fillInDefaultQuotaInformation(user);
+        }
+        return usersRegisteredBy;
     }
 
     @Transactional
@@ -372,6 +390,40 @@ class UserManager extends AbstractManager implements IUserManager
         return userDAO.listUsersFileSharedWith(fileId);
     }
 
+    @Transactional
+    public void refreshQuotaInformation(UserDTO user)
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        userDAO.refreshQuotaInformation(user);
+        fillInDefaultQuotaInformation(user);
+    }
+
+    private void fillInDefaultQuotaInformation(UserDTO user)
+    {
+        if (user.getFileRetention() == null)
+        {
+            user.setFileRetention(businessContext.getFileRetention());
+        }
+        if (user.getUserRetention() == null)
+        {
+            user.setUserRetention(businessContext.getUserRetention());
+        }
+        if (user.getMaxFileCountPerQuotaGroup() == null)
+        {
+            user.setMaxFileCountPerQuotaGroup(businessContext.getMaxFileCountPerQuotaGroup());
+        } else if (user.getMaxFileCountPerQuotaGroup() <= 0)
+        {
+            user.setMaxFileCountPerQuotaGroup(null);
+        }
+        if (user.getMaxFileSizePerQuotaGroupInMB() == null)
+        {
+            user.setMaxFileSizePerQuotaGroupInMB(businessContext.getMaxFileSizePerQuotaGroupInMB());
+        } else if (user.getMaxFileSizePerQuotaGroupInMB() <= 0)
+        {
+            user.setMaxFileSizePerQuotaGroupInMB(null);
+        }
+    }
+    
     @Transactional
     public void changeUserCode(final String before, final String after) throws UserFailureException
     {

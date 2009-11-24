@@ -71,6 +71,12 @@ public interface IUserManager
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public List<UserDTO> listUsersRegisteredBy(final String userCode);
+    
+    /**
+     * Refreshes the quota information for the given <var>user</var>
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
+    public void refreshQuotaInformation(UserDTO user);
 
     /**
      * Creates the specified <var>user</var> in the database. The password and the registrator need

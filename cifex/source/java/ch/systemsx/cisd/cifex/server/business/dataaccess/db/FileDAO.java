@@ -307,12 +307,13 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     private static final class FileWithRegistererRowMapper implements
             ParameterizedRowMapper<FileDTO>
     {
-
+        private final static UserDAO.UserRowMapper userRowMapper = new UserDAO.UserRowMapper();
+        
         private static final FileDTO fillFileWithRegistererFromResultSet(final ResultSet rs)
                 throws SQLException
         {
             final FileDTO file = FileRowMapper.fillSimpleFileFromResultSet(rs);
-            final UserDTO registerer = UserDAO.UserRowMapper.fillUserFromResultSet(rs);
+            final UserDTO registerer = userRowMapper.mapRow(rs, 1);
             file.setRegistrator(registerer);
             return file;
         }

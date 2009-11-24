@@ -46,7 +46,7 @@ class UserBO extends AbstractBusinessObject implements IUserBO
 
         if (user.isPermanent() == false)
         {
-            user.setExpirationDate(DateUtils.addMinutes(new Date(), businessContext
+            user.setExpirationDate(DateUtils.addHours(new Date(), businessContext
                     .getUserRetention()));
         }
         // Logic of deciding on what quota group to use. If no quota group is set here, a new quota

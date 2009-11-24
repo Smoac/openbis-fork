@@ -196,6 +196,14 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(userDAO));
                     one(userDAO).tryFindUserByCode(userCode);
                     will(returnValue(user));
+                    one(businessContext).getFileRetention();
+                    will(returnValue(0));
+                    one(businessContext).getUserRetention();
+                    will(returnValue(0));
+                    one(businessContext).getMaxFileCountPerQuotaGroup();
+                    will(returnValue(0));
+                    one(businessContext).getMaxFileSizePerQuotaGroupInMB();
+                    will(returnValue(0L));
                 }
             });
         assertEquals(user, userManager.tryFindUserByCode(userCode));
@@ -315,6 +323,17 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(userDAO));
                     one(userDAO).listUsers();
                     will(returnValue(usersFromDAO));
+                    if (usersFromDAO.size() > 0)
+                    {
+                        one(businessContext).getFileRetention();
+                        will(returnValue(0));
+                        one(businessContext).getUserRetention();
+                        will(returnValue(0));
+                        one(businessContext).getMaxFileCountPerQuotaGroup();
+                        will(returnValue(0));
+                        one(businessContext).getMaxFileSizePerQuotaGroupInMB();
+                        will(returnValue(0L));
+                    }
                 }
             });
         final List<UserDTO> users = userManager.listUsers();

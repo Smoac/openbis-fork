@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
@@ -35,6 +34,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
+import ch.systemsx.cisd.cifex.rpc.QuotaExceededException;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -104,17 +104,7 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                         "Request of user '%s' has a content length of %s.", requestUser.getEmail(),
                         FileUtils.byteCountToDisplaySize(contentLength)));
             }
-            long maxUploadSizeInBytes = getMaxUploadSize(requestUser);
-            if (contentLength > maxUploadSizeInBytes)
-            {
-                final String msg =
-                        String.format("Request size (%s) exceeds maximum permitted one (%s).",
-                                FileUtils.byteCountToDisplaySize(contentLength), FileUtils
-                                        .byteCountToDisplaySize(maxUploadSizeInBytes));
-                operationLog.error(msg);
-                throw new FileUploadBase.SizeLimitExceededException(msg, contentLength,
-                        maxUploadSizeInBytes);
-            }
+            checkQuota(requestUser, filenamesToUpload.length, contentLength);
             final List<FileDTO> files = new ArrayList<FileDTO>();
             final List<String> userIdentifier = new ArrayList<String>();
             final StringBuffer comment = new StringBuffer();
@@ -141,6 +131,29 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
             operationLog.error("Could not process multipart content.", ex);
             final String msg = getErrorMessage(ex);
             feedbackProvider.setMessage(new Message(Message.ERROR, msg));
+        }
+    }
+
+    private void checkQuota(final UserDTO requestUser, int count, long fileSize)
+    {
+        domainModel.getUserManager().refreshQuotaInformation(requestUser);
+        final boolean countOK =
+                (requestUser.getMaxFileCountPerQuotaGroup() == null)
+                        || (requestUser.getCurrentFileCount() + count <= requestUser
+                                .getMaxFileCountPerQuotaGroup());
+        final boolean sizeOK =
+                (requestUser.getMaxFileSizePerQuotaGroupInMB() == null)
+                        || (requestUser.getCurrentFileSize() * MB + fileSize <= requestUser
+                                .getMaxFileSizePerQuotaGroupInMB()
+                                * MB);
+        if ((countOK && sizeOK) == false)
+        {
+            final QuotaExceededException exception =
+                    new QuotaExceededException(requestUser.getMaxFileCountPerQuotaGroup(),
+                            requestUser.getMaxFileSizePerQuotaGroupInMB(), requestUser
+                                    .getCurrentFileCount(), requestUser.getCurrentFileSize());
+            operationLog.error(exception.getMessage());
+            throw exception;
         }
     }
 

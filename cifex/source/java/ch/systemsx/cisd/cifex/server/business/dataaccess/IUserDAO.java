@@ -86,6 +86,16 @@ public interface IUserDAO
     public List<UserDTO> listUsersRegisteredBy(String userCode);
 
     /**
+     * Returns a list of users the file with given <var>fileId</var> has been shared with.
+     */
+    public List<UserDTO> listUsersFileSharedWith(long fileId) throws DataAccessException;
+
+    /**
+     * Refreshes the quota information (and the file retention time) from the database.
+     */
+    public void refreshQuotaInformation(UserDTO user) throws DataAccessException;
+    
+    /**
      * Deletes the user with the given <code>userId</code> from the database.
      * 
      * @return <code>true</code>, if the user was actually deleted and <code>false</code>, if
@@ -102,8 +112,4 @@ public interface IUserDAO
     /** Change user code. */
     public void changeUserCode(String before, String after);
 
-    /**
-     * Returns a list of users the file with given <var>fileId</var> has been shared with.
-     */
-    public List<UserDTO> listUsersFileSharedWith(long fileId) throws DataAccessException;
 }

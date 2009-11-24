@@ -17,18 +17,19 @@
 package ch.systemsx.cisd.cifex.rpc;
 
 /**
- * An exception to indicate that the maximal file size is exceeded in an upload.
- *
+ * An exception to indicate that the complete file size is exceeded in an upload. This is a failure
+ * condition on the client.
+ * 
  * @author Bernd Rinn
  */
 public class FileSizeExceededException extends RuntimeException
 {
 
     private static final long serialVersionUID = 1L;
-    
-    public FileSizeExceededException(final int maxFileSizeInMB)
+
+    public FileSizeExceededException(final long completeFileSize)
     {
-        super("The upload has exceeded the maximal file size of " + maxFileSizeInMB + "MB.");
+        super("The upload has exceeded the complete file size of " + completeFileSize + " bytes.");
     }
 
 }

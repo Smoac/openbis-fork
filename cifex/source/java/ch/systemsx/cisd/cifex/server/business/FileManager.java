@@ -409,7 +409,7 @@ final class FileManager extends AbstractManager implements IFileManager
         fileDTO.setContentType(contentType);
         fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
         fileDTO.setComment(comment);
-        fileDTO.setExpirationDate(caluclateExpirationDate(user));
+        fileDTO.setExpirationDate(calculateExpirationDate(user));
         fileDTO.setSize(byteCount);
         fileDTO.setCompleteSize(byteCount);
         fileDTO.setCrc32Value(crc32Value);
@@ -467,7 +467,7 @@ final class FileManager extends AbstractManager implements IFileManager
         fileDTO.setContentType(contentType);
         fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
         fileDTO.setComment(comment);
-        fileDTO.setExpirationDate(caluclateExpirationDate(user));
+        fileDTO.setExpirationDate(calculateExpirationDate(user));
         fileDTO.setSize(0L);
         fileDTO.setCompleteSize(fileInfoDTO.getFileSize());
         daoFactory.getFileDAO().createFile(fileDTO);
@@ -486,7 +486,7 @@ final class FileManager extends AbstractManager implements IFileManager
     public void updateUploadProgress(FileDTO fileDTO)
     {
         daoFactory.getFileDAO().updateFileUploadProgress(fileDTO.getID(), fileDTO.getSize(),
-                fileDTO.getCrc32Value(), caluclateExpirationDate(fileDTO.getRegistrator()));
+                fileDTO.getCrc32Value(), calculateExpirationDate(fileDTO.getRegistrator()));
     }
 
     @Transactional
@@ -808,7 +808,7 @@ final class FileManager extends AbstractManager implements IFileManager
         boolean success = false;
         try
         {
-            file.setExpirationDate(caluclateExpirationDate(file.getRegistrator()));
+            file.setExpirationDate(calculateExpirationDate(file.getRegistrator()));
             daoFactory.getFileDAO().updateFile(file);
             success = true;
         } finally
@@ -829,13 +829,13 @@ final class FileManager extends AbstractManager implements IFileManager
         return file;
     }
 
-    private Date caluclateExpirationDate(UserDTO user)
+    private Date calculateExpirationDate(UserDTO user)
     {
         Integer usersFileRetention = user.getFileRetention();
         int fileRetention =
                 usersFileRetention == null ? businessContext.getFileRetention()
                         : usersFileRetention.intValue();
-        return DateUtils.addMinutes(new Date(timeProvider.getTimeInMilliseconds()), fileRetention);
+        return DateUtils.addHours(new Date(timeProvider.getTimeInMilliseconds()), fileRetention);
     }
 
     public void updateFile(final FileDTO file)

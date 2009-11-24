@@ -46,22 +46,16 @@ import ch.systemsx.cisd.common.db.ISequencerHandler;
 final class UserDAO extends AbstractDAO implements IUserDAO
 {
 
-    public static final class UserRowMapper implements ParameterizedRowMapper<UserDTO>
+    public static class UserRowMapper implements ParameterizedRowMapper<UserDTO>
     {
 
-        public final UserDTO mapRow(final ResultSet rs, final int rowNum) throws SQLException
+        public UserDTO mapRow(final ResultSet rs, final int rowNum) throws SQLException
         {
             final UserDTO user = fillUserFromResultSet(rs);
             return user;
         }
 
-        /**
-         * Requires <code>id</code>, <code>email</code>, <code>user_name</code>,
-         * <code>password_hash</code>, <code>is_externally_authenticated</code>,
-         * <code>is_admin</code>, <code>is_permanent</code>, <code>registration_timestamp</code>,
-         * <code>expiration_timestamp</code> to be present in the {@link ResultSet} <var>rs</var>.
-         */
-        final public static UserDTO fillUserFromResultSet(final ResultSet rs) throws SQLException
+        protected UserDTO fillUserFromResultSet(final ResultSet rs) throws SQLException
         {
             final UserDTO user = new UserDTO();
             final UserDTO registrator = new UserDTO();
@@ -81,15 +75,89 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             registrator.setID(rs.getLong("user_id_registrator"));
             user.setRegistrator(registrator);
             user.setQuotaGroupId(rs.getLong("quota_group_id"));
-            int retention = rs.getInt("file_retention");
+
+            return user;
+        }
+
+    }
+
+    public static final class UserRowMapperWithQuotaInfo extends UserRowMapper
+    {
+
+        @Override
+        public UserDTO mapRow(final ResultSet rs, final int rowNum) throws SQLException
+        {
+            final UserDTO user = fillUserFromResultSet(rs);
+            return user;
+        }
+
+        @Override
+        protected UserDTO fillUserFromResultSet(final ResultSet rs) throws SQLException
+        {
+            final UserDTO user = super.fillUserFromResultSet(rs);
+            final int fileRetention = rs.getInt("file_retention");
             if (rs.wasNull() == false)
             {
-                user.setFileRetention(retention);
+                user.setFileRetention(fileRetention);
+            }
+            final int userRetention = rs.getInt("user_retention");
+            if (rs.wasNull() == false)
+            {
+                user.setUserRetention(userRetention);
+            }
+            user.setCurrentFileCount(rs.getInt("file_count"));
+            user.setCurrentFileSize(rs.getLong("file_size"));
+            int maxFileCountPerQuotaGroup = rs.getInt("quota_file_count");
+            if (rs.wasNull() == false)
+            {
+                user.setMaxFileCountPerQuotaGroup(maxFileCountPerQuotaGroup);
+            }
+            long maxFileSizePerQuotaGroupInMB = rs.getLong("quota_file_size");
+            if (rs.wasNull() == false)
+            {
+                user.setMaxFileSizePerQuotaGroupInMB(maxFileSizePerQuotaGroupInMB);
             }
 
             return user;
         }
 
+    }
+
+    private final static class QuotaRowMapper implements ParameterizedRowMapper<UserDTO>
+    {
+        private final UserDTO user;
+
+        QuotaRowMapper(UserDTO user)
+        {
+            this.user = user;
+        }
+
+        public UserDTO mapRow(ResultSet rs, int rowNum) throws SQLException
+        {
+            user.setFileRetention(rs.getInt("file_retention"));
+            if (rs.wasNull())
+            {
+                user.setFileRetention(null);
+            }
+            user.setUserRetention(rs.getInt("user_retention"));
+            if (rs.wasNull())
+            {
+                user.setUserRetention(null);
+            }
+            user.setCurrentFileCount(rs.getInt("file_count"));
+            user.setCurrentFileSize(rs.getLong("file_size"));
+            user.setMaxFileCountPerQuotaGroup(rs.getInt("quota_file_count"));
+            if (rs.wasNull())
+            {
+                user.setMaxFileCountPerQuotaGroup(null);
+            }
+            user.setMaxFileSizePerQuotaGroupInMB(rs.getLong("quota_file_size"));
+            if (rs.wasNull())
+            {
+                user.setMaxFileSizePerQuotaGroupInMB(null);
+            }
+            return user;
+        }
     }
 
     UserDAO(final DataSource dataSource, final ISequencerHandler sequencerHandler)
@@ -111,7 +179,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
     public List<UserDTO> listUsers() throws DataAccessException
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        final List<UserDTO> list = template.query("select * from users", new UserRowMapper());
+        final List<UserDTO> list =
+                template.query(
+                        "select * from users u join quota_groups q on q.id = u.quota_group_id",
+                        new UserRowMapperWithQuotaInfo());
         fillInRegistrators(list);
         return list;
     }
@@ -127,10 +198,11 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         final List<UserDTO> list =
-                template
-                        .query(
-                                "select * from users where user_id_registrator = (select id from users where user_code=?)",
-                                new UserRowMapper(), userCode);
+                template.query(
+                        "select * from users u join quota_groups q on q.id = u.quota_group_id"
+                                + " where user_id_registrator ="
+                                + " (select id from users where user_code=?)",
+                        new UserRowMapperWithQuotaInfo(), userCode);
 
         for (final UserDTO user : list)
         {
@@ -187,66 +259,6 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
-    public void createUser(final UserDTO user) throws DataAccessException
-    {
-        assert user != null : "Given user can not be null.";
-
-        final Long id = createID();
-
-        final Long registratorIdOrNull = tryGetRegistratorId(user);
-        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        if (Password.isEmpty(user.getPassword()))
-        {
-            template.update(
-                    "insert into users (id, user_code, email, full_name,"
-                            + "is_externally_authenticated, is_admin,"
-                            + "is_permanent, is_active, user_id_registrator, quota_group_id,"
-                            + "expiration_timestamp, file_retention) "
-                            + "values (?,?,?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user
-                            .getEmail(), user.getUserFullName(), user.isExternallyAuthenticated(),
-                    user.isAdmin(), user.isPermanent(), user.isActive(), registratorIdOrNull, user
-                            .getQuotaGroupId(), user.getExpirationDate(), user.getFileRetention());
-        } else
-        {
-            template.update("insert into users (id, user_code, email, full_name, password_hash,"
-                    + "is_externally_authenticated, is_admin,"
-                    + "is_permanent, is_active, user_id_registrator, quota_group_id,"
-                    + "expiration_timestamp, file_retention) "
-                    + "values (?,?,?,?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(),
-                    user.getEmail(), user.getUserFullName(), user.getPassword()
-                            .createPasswordHash(), user.isExternallyAuthenticated(),
-                    user.isAdmin(), user.isPermanent(), user.isActive(), registratorIdOrNull, user
-                            .getQuotaGroupId(), user.getExpirationDate(), user.getFileRetention());
-        }
-        user.setID(id);
-    }
-
-    private Long tryGetRegistratorId(final UserDTO user)
-    {
-        assert user != null;
-
-        UserDTO registrator = user.getRegistrator();
-        if (registrator == null)
-        {
-            return null;
-        } else if (registrator.getUserCode() == null)
-        {
-            return null;
-        } else
-        {
-            Long registratorId = registrator.getID();
-            if (registratorId == null)
-            {
-                registrator = tryFindUserByCode(registrator.getUserCode());
-                if (registrator != null)
-                {
-                    registratorId = registrator.getID();
-                }
-            }
-            return registratorId;
-        }
-    }
-
     public UserDTO tryFindUserByCode(final String userCode) throws DataAccessException
     {
         assert StringUtils.isNotBlank(userCode) : "No code specified!";
@@ -255,8 +267,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         try
         {
             final UserDTO user =
-                    template.queryForObject("select * from users where user_code = ?",
-                            new UserRowMapper(), userCode);
+                    template.queryForObject(
+                            "select * from users u join quota_groups q on q.id = u.quota_group_id"
+                                    + " where user_code = ?", new UserRowMapperWithQuotaInfo(),
+                            userCode);
             fillInRegistrator(user);
             return user;
         } catch (final EmptyResultDataAccessException e)
@@ -271,8 +285,9 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         try
         {
             final UserDTO user =
-                    template.queryForObject("select * from users where id = ?",
-                            new UserRowMapper(), id);
+                    template.queryForObject(
+                            "select * from users u join quota_groups q on q.id = u.quota_group_id"
+                                    + " where u.id = ?", new UserRowMapperWithQuotaInfo(), id);
             fillInRegistrator(user);
             return user;
         } catch (final EmptyResultDataAccessException e)
@@ -304,13 +319,112 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         try
         {
             final List<UserDTO> list =
-                    template.query("select * from users where email = ?", new UserRowMapper(),
-                            email);
+                    template.query(
+                            "select * from users u join quota_groups q on q.id = u.quota_group_id"
+                                    + " where email = ?", new UserRowMapperWithQuotaInfo(), email);
             fillInRegistrators(list, this.listUsers());
             return list;
         } catch (final EmptyResultDataAccessException e)
         {
             return null;
+        }
+    }
+
+    /**
+     * Doesn't fill registrator and quota fields in UserDTO.
+     */
+    public List<UserDTO> listExpiredUsers() throws DataAccessException
+    {
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+        final List<UserDTO> list =
+                template.query("select * from users where expiration_timestamp < now() ",
+                        new UserRowMapper());
+        return list;
+    }
+
+    /**
+     * Doesn't fill registrator and quota fields in UserDTO.
+     */
+    public List<UserDTO> listUsersFileSharedWith(final long fileId) throws DataAccessException
+    {
+
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+        final List<UserDTO> list =
+                template
+                        .query("select u.* from file_shares fs, users u "
+                                + "where u.id = fs.user_id and fs.file_id = ?",
+                                new UserRowMapper(), fileId);
+        fillInRegistrators(list, this.listUsers());
+        return list;
+    }
+
+    public void refreshQuotaInformation(UserDTO user) throws DataAccessException
+    {
+        getSimpleJdbcTemplate().query("select * from quota_groups where id = ?",
+                new QuotaRowMapper(user), user.getQuotaGroupId());
+    }
+
+    public void createUser(final UserDTO user) throws DataAccessException
+    {
+        assert user != null : "Given user can not be null.";
+
+        final Long id = createID();
+
+        final Long registratorIdOrNull = tryGetRegistratorId(user);
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+        if (Password.isEmpty(user.getPassword()))
+        {
+            template.update("insert into users (id, user_code, email, full_name,"
+                    + "is_externally_authenticated, is_admin,"
+                    + "is_permanent, is_active, user_id_registrator, quota_group_id,"
+                    + "expiration_timestamp) " + "values (?,?,?,?,?,?,?,?,?,?,?)", id, user
+                    .getUserCode(), user.getEmail(), user.getUserFullName(), user
+                    .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(), user
+                    .isActive(), registratorIdOrNull, user.getQuotaGroupId(), user
+                    .getExpirationDate());
+        } else
+        {
+            template.update("insert into users (id, user_code, email, full_name, password_hash,"
+                    + "is_externally_authenticated, is_admin,"
+                    + "is_permanent, is_active, user_id_registrator, quota_group_id,"
+                    + "expiration_timestamp) " + "values (?,?,?,?,?,?,?,?,?,?,?,?)", id, user
+                    .getUserCode(), user.getEmail(), user.getUserFullName(), user.getPassword()
+                    .createPasswordHash(), user.isExternallyAuthenticated(), user.isAdmin(), user
+                    .isPermanent(), user.isActive(), registratorIdOrNull, user.getQuotaGroupId(),
+                    user.getExpirationDate());
+        }
+        if (user.getFileRetention() != null || user.getUserRetention() != null)
+        {
+            template.update("update quota_groups set file_retention = ?, user_retention = ? "
+                    + "where id = (select quota_group_id from users where id = ?)", user
+                    .getFileRetention(), user.getUserRetention(), id);
+        }
+        user.setID(id);
+    }
+
+    private Long tryGetRegistratorId(final UserDTO user)
+    {
+        assert user != null;
+
+        UserDTO registrator = user.getRegistrator();
+        if (registrator == null)
+        {
+            return null;
+        } else if (registrator.getUserCode() == null)
+        {
+            return null;
+        } else
+        {
+            Long registratorId = registrator.getID();
+            if (registratorId == null)
+            {
+                registrator = tryFindUserByCode(registrator.getUserCode());
+                if (registrator != null)
+                {
+                    registratorId = registrator.getID();
+                }
+            }
+            return registratorId;
         }
     }
 
@@ -321,15 +435,6 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return affectedRows > 0;
     }
 
-    public List<UserDTO> listExpiredUsers() throws DataAccessException
-    {
-        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        final List<UserDTO> list =
-                template.query("select * from users where expiration_timestamp < now() ",
-                        new UserRowMapper());
-        return list;
-    }
-
     public void updateUser(final UserDTO user)
     {
         assert user.getID() != null : "User needs an ID, otherwise it can't be updated";
@@ -337,39 +442,29 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
         if (Password.isEmpty(user.getPassword()))
         {
-            template.update("update users set email = ?, user_code = ?, full_name = ?, "
-                    + "is_externally_authenticated = ?, is_admin = ?, "
-                    + "file_retention = ?, is_permanent = ?, is_active = ?, "
-                    + "expiration_timestamp = ? where id = ?", user.getEmail(), user.getUserCode(),
-                    user.getUserFullName(), user.isExternallyAuthenticated(), user.isAdmin(), user
-                            .getFileRetention(), user.isPermanent(), user.isActive(), user
-                            .getExpirationDate(), user.getID());
+            template.update(
+                    "update users set email = ?, user_code = ?, full_name = ?, "
+                            + "is_externally_authenticated = ?, is_admin = ?, "
+                            + "is_permanent = ?, is_active = ?, "
+                            + "expiration_timestamp = ? where id = ?", user.getEmail(), user
+                            .getUserCode(), user.getUserFullName(), user
+                            .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(), user
+                            .isActive(), user.getExpirationDate(), user.getID());
         } else
         {
-            template.update("update users set email = ?, user_code = ?, full_name = ?, "
-                    + "password_hash = ?, is_externally_authenticated = ?, is_admin = ?, "
-                    + "file_retention = ?, is_permanent = ?, is_active = ?, "
-                    + "expiration_timestamp = ? where id = ?", user.getEmail(), user.getUserCode(),
-                    user.getUserFullName(), user.getPassword().createPasswordHash(), user
-                            .isExternallyAuthenticated(), user.isAdmin(), user.getFileRetention(),
-                    user.isPermanent(), user.isActive(), user.getExpirationDate(), user.getID());
+            template.update(
+                    "update users set email = ?, user_code = ?, full_name = ?, "
+                            + "password_hash = ?, is_externally_authenticated = ?, is_admin = ?, "
+                            + "is_permanent = ?, is_active = ?, "
+                            + "expiration_timestamp = ? where id = ?", user.getEmail(), user
+                            .getUserCode(), user.getUserFullName(), user.getPassword()
+                            .createPasswordHash(), user.isExternallyAuthenticated(),
+                    user.isAdmin(), user.isPermanent(), user.isActive(), user.getExpirationDate(),
+                    user.getID());
         }
-    }
-
-    /**
-     * Doesn't fill registrator field in UserDTO.
-     */
-    public List<UserDTO> listUsersFileSharedWith(final long fileId) throws DataAccessException
-    {
-
-        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        final List<UserDTO> list =
-                template
-                        .query(
-                                "select u.* from file_shares fs, users u where u.id=fs.user_id and fs.file_id= ?",
-                                new UserRowMapper(), fileId);
-        fillInRegistrators(list, this.listUsers());
-        return list;
+        template.update("update quota_groups set file_retention = ?, user_retention = ? "
+                + "where id = (select quota_group_id from users where id = ?)", user
+                .getFileRetention(), user.getUserRetention(), user.getID());
     }
 
     public void changeUserCode(final String before, final String after)

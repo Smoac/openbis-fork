@@ -31,15 +31,27 @@ class BusinessContext implements IBusinessContext
     /** The root location where uploaded files are going to be stored. */
     private File fileStore;
 
-    /** How long (in minutes) the file is going to stay in the system? */
+    /** How long (in hours) an uploaded file is going to stay in the system? */
     private int fileRetention;
 
-    /** How long (in minutes) the user is going to stay in the system? */
+    /** How long (in hours) a temporary user is going to stay in the system? */
     private int userRetention;
 
+    /**
+     * Maximum size of all uploaded files allowed per quota group in MB, <code>null</code> for 'no
+     * limit'.
+     */
+    private Long maxFileSizePerQuotaGroupInMB;
+
+    /**
+     * Maximum number of all uploaded files allowed per quota group. <code>null</code> for 'no
+     * limit'
+     */
+    private Integer maxFileCountPerQuotaGroup;
+
     /** The maximum size of an upload request in Megabyte. */
-    private int maxUploadRequestSizeInMB;
-    
+    private int maxUploadRequestSizeInMB = -1;
+
     /** Whether new externally authenticated users should start active or not. */
     private boolean newExternallyAuthenticatedUserStartActive;
 
@@ -58,9 +70,9 @@ class BusinessContext implements IBusinessContext
      * The URL to use for emails in override mode.
      */
     private String overrideURL;
-    
+
     private String systemVersion;
-    
+
     private int triggerPermits;
 
     public int getTriggerPermits()
@@ -134,9 +146,24 @@ class BusinessContext implements IBusinessContext
         return maxUploadRequestSizeInMB;
     }
 
-    public final void setMaxUploadRequestSizeInMB(final int maxUploadRequestSizeInMB)
+    public void setMaxFileSizePerQuotaGroupInMB(Long maxFileSizePerQuotaGroupInMB)
     {
-        this.maxUploadRequestSizeInMB = maxUploadRequestSizeInMB;
+        this.maxFileSizePerQuotaGroupInMB = maxFileSizePerQuotaGroupInMB;
+    }
+
+    public Long getMaxFileSizePerQuotaGroupInMB()
+    {
+        return maxFileSizePerQuotaGroupInMB;
+    }
+
+    public void setMaxFileCountPerQuotaGroup(Integer maxFileCountPerQuotaGroup)
+    {
+        this.maxFileCountPerQuotaGroup = maxFileCountPerQuotaGroup;
+    }
+
+    public Integer getMaxFileCountPerQuotaGroup()
+    {
+        return maxFileCountPerQuotaGroup;
     }
 
     public boolean isNewExternallyAuthenticatedUserStartActive()

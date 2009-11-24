@@ -224,6 +224,24 @@ public final class UserDAOTest extends AbstractDAOTest
 
     @Test(dependsOnGroups =
         { "user.create" }, groups = "user.read")
+    public final void testRefreshQuotaInfo()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+        final UserDTO user = userDAO.tryFindUserById(testTemporaryUser.getID());
+        checkUser(testTemporaryUser, user);
+        // Fake some changed quota values
+        user.setFileRetention(17);
+        user.setCurrentFileCount(21);
+        user.setCurrentFileSize(103);
+        user.setMaxFileCountPerQuotaGroup(22);
+        user.setMaxFileSizePerQuotaGroupInMB(1L);
+        // No restore those values from the database and check.
+        userDAO.refreshQuotaInformation(user);
+        checkUser(testTemporaryUser, user);
+    }
+    
+    @Test(dependsOnGroups =
+        { "user.create" }, groups = "user.read")
     public final void testListUserRegisteredBy()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
