@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
@@ -47,7 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
 /**
  * {@link IClientPluginFactory} implementation for <i>demo</i> plugin.
  * <p>
- * Currently, this implementation only runs for a sample of type {@link SampleTypeCode#CELL_PLATE}.
+ * Currently, this implementation only runs for a sample of type SampleTypeCode#CELL_PLATE.
  * </p>
  * 
  * @author Christian Ribeaud

@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-
 /**
- * The <i>GWT</i> equivalent to {@link PersonPE}.
+ * The <i>GWT</i> equivalent PersonPE.
  * 
  * @author Franz-Josef Elmer
  */

@@ -18,10 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-
 /**
- * The <i>GWT</i> equivalent to {@link DataSetTypePE}.
+ * The <i>GWT</i> equivalent to DataSetTypePE.
  * 
  * @author Izabela Adamczyk
  */

@@ -18,10 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
-
 /**
- * The <i>GWT</i> equivalent to {@link ExperimentTypePE}.
+ * The <i>GWT</i> equivalent to ExperimentTypePE.
  * 
  * @author Tomasz Pylak
  */

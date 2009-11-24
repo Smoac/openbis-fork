@@ -16,10 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 
 /**
- * The <i>GWT</i> equivalent to {@link FileFormatTypePE}.
+ * The <i>GWT</i> equivalent to FileFormatTypePE.
  * 
  * @author Christian Ribeaud
  */

@@ -21,10 +21,9 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IAttachmentHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
- * The <i>GWT</i> equivalent to {@link ProjectPE}.
+ * The <i>GWT</i> equivalent to ProjectPE.
  * 
  * @author Tomasz Pylak
  */

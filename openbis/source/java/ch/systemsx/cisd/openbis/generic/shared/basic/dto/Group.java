@@ -17,12 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 
 /**
- * The <i>GWT</i> equivalent to {@link GroupPE}.
+ * The <i>GWT</i> equivalent to GroupPE.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public final class Group extends CodeWithRegistration<Group> implements IIdHolder, IGroupUpdates
 {

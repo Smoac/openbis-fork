@@ -138,4 +138,25 @@ public class SimpleDialog extends Dialog
             hide();
         }
     }
+
+    /**
+     * Extends the functionality of auto closing dialog to all the buttons.
+     */
+    @Override
+    public void addButton(Button button)
+    {
+        if (isHideOnButtonClick())
+        {
+            button.addSelectionListener(new SelectionListener<ButtonEvent>()
+                {
+
+                    @Override
+                    public void componentSelected(ButtonEvent ce)
+                    {
+                        hide();
+                    }
+                });
+        }
+        super.addButton(button);
+    }
 }

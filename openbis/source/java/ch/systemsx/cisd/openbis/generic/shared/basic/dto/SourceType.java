@@ -15,12 +15,10 @@
  */
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-
 /**
  * The type of source represented by given <code>Sample</code> id.
  * <p>
- * This is connected with {@link DataPE#isDerived} value.
+ * This is connected with DataPE#isDerived value.
  * </p>
  * 
  * @author Christian Ribeaud

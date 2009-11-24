@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/rtd_phosphonetx"/>
@@ -15,8 +15,8 @@
 <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;runtimeClasspathEntry internalArchive=&quot;/openbis/source/java&quot; path=&quot;3&quot; type=&quot;2&quot;/&gt;&#13;&#10;"/>
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.google.gwt.dev.GWTShell"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-out targets/www ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS/index.html"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.google.gwt.dev.HostedMode"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-startupUrl ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS/index.html ch.systemsx.cisd.openbis.plugin.phosphonetx.OpenBIS -war targets/www"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="rtd_phosphonetx"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XstartOnFirstThread&#13;&#10;-Dlog4j.configuration=../openbis/etc/log.xml&#13;&#10;-Djavax.net.ssl.trustStore=../openbis/dist/server/openBIS.keystore&#13;&#10;-Xmx512M&#13;&#10;-ea"/>
 </launchConfiguration>

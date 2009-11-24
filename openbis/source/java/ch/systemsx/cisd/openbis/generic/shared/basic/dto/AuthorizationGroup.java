@@ -17,10 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 
 /**
- * The <i>GWT</i> equivalent to {@link AuthorizationGroupPE}.
+ * The <i>GWT</i> equivalent to AuthorizationGroupPE.
  * 
  * @author Izabela Adamczyk
  */

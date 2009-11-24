@@ -18,10 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-
 /**
- * The <i>GWT</i> equivalent to {@link MaterialTypePE}.
+ * The <i>GWT</i> equivalent to MaterialTypePE.
  * 
  * @author Izabela Adamczyk
  */

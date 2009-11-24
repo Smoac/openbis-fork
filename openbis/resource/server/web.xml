@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE web-app [
     <!ENTITY common SYSTEM "web-common.xml">
-    <!ENTITY gwt SYSTEM "gwt.xml">
 ]>
 <web-app>
 
@@ -37,5 +36,4 @@
     // Additional servlets
   -->
 
-    &gwt;
 </web-app>

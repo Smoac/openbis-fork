@@ -8,8 +8,6 @@
 	<property name="gwt.lib" value="${lib}/gwt1.7" />
 	<property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
 	<property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
-	<property name="gwt.tomcat.web-inf"
-              value="../${ant.project.name}/tomcat/webapps/ROOT/WEB-INF" />
 
 	<property name="original.server.dist" value="${original.dist}/server" />
 	<property name="original.openbis.server.dist" value="../openbis/dist/server" />
@@ -148,10 +146,10 @@
 	<target name="compile-gwt-module">
 		<delete dir="${webapp.dist}" />
 		<java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:../openbis/${sources}:${sources}"
-		      classname="com.google.gwt.dev.GWTCompiler"
+		      classname="com.google.gwt.dev.Compiler"
 		      fork="true">
 			<jvmarg value="-Xmx512M" />
-			<arg value="-out" />
+			<arg value="-war" />
 			<arg value="${webapp.dist}" />
 			<arg value="${gwt.module.name}" />
 		</java>
@@ -175,8 +173,133 @@
             description="Override 'prepare-gwt' by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating 'ClientPluginProvider.java'.">
 		<antcall target="prepare-web-client" />
 		<antcall target="server-common-common.prepare-gwt" />
+		<copy todir="${targets.www.web-inf}/lib">
+			<fileset dir="${lib}/cisd-base">
+				<include name="cisd-base.jar" />
+			</fileset>
+			<fileset dir="${lib}/commons-lang">
+				<include name="commons-lang.jar" />
+			</fileset>
+			<fileset dir="${lib}/commons-logging">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib}/commons-io">
+				<include name="commons-io.jar" />
+			</fileset>
+			<fileset dir="${lib}/jline">
+				<include name="jline.jar" />
+			</fileset>
+			<fileset dir="${lib}/commons-codec">
+				<include name="commons-codec.jar" />
+			</fileset>
+			<fileset dir="${lib}/commons-httpclient">
+				<include name="commons-httpclient.jar" />
+			</fileset>
+			<fileset dir="${lib}/log4j">
+				<include name="log4j.jar" />
+			</fileset>
+			<fileset dir="${lib}/spring">
+				<include name="spring.jar" />
+			</fileset>
+			<fileset dir="${lib}/spring/webmvc">
+				<include name="spring-webmvc.jar" />
+			</fileset>
+			<fileset dir="${lib}/activation">
+				<include name="activation.jar" />
+			</fileset>
+			<fileset dir="${lib}/mail">
+				<include name="mail.jar" />
+			</fileset>
+			<fileset dir="${gwt.lib}">
+				<include name="gwt-servlet.jar" />
+			</fileset>
+			<fileset dir="${lib}/commons-fileupload">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib}/fastutil">
+				<include name="fastutil.jar" />
+			</fileset>
+			<fileset dir="${lib}/commons-collections-generic">
+				<include name="commons-collections-generic.jar" />
+			</fileset>
+			<fileset dir="${lib}/postgresql">
+				<include name="postgresql.jar" />
+			</fileset>
+			<fileset dir="${lib}/commons-dbcp">
+				<include name="commons-dbcp.jar" />
+			</fileset>
+			<fileset dir="${lib}/commons-pool">
+				<include name="commons-pool.jar" />
+			</fileset>
+			<fileset dir="${lib}/eodsql">
+				<include name="eodsql.jar" />
+			</fileset>
+			<!-- Hibernate -->
+			<fileset dir="${lib}/antlr">
+				<include name="antlr.jar" />
+			</fileset>
+			<fileset dir="${lib}/commons-collections">
+				<include name="commons-collections.jar" />
+			</fileset>
+			<fileset dir="${lib}/dom4j">
+				<include name="dom4j.jar" />
+			</fileset>
+			<fileset dir="${lib}/hibernate">
+				<include name="hibernate3.jar" />
+			</fileset>
+			<fileset dir="${lib}/hibernate/jta">
+				<include name="jta.jar" />
+			</fileset>
+			<fileset dir="${lib}/ehcache">
+				<include name="ehcache.jar" />
+			</fileset>
+			<fileset dir="${lib}/cglib">
+				<include name="asm.jar" />
+				<include name="asm-attrs.jar" />
+				<include name="cglib.jar" />
+			</fileset>
+			<fileset dir="${lib}/hibernate-annotations">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib}/hibernate-validator">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib}/javassist">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib}/slf4j">
+				<include name="*.jar" />
+				<exclude name="src.jar" />
+			</fileset>
+			<fileset dir="${lib}/slf4j/log4j12">
+				<include name="*.jar" />
+				<exclude name="src.jar" />
+			</fileset>
+			<!-- Beanlib -->
+			<fileset dir="${lib}/beanlib">
+				<include name="beanlib.jar" />
+			</fileset>
+			<fileset dir="${lib}/beanlib-hibernate">
+				<include name="beanlib-hibernate.jar" />
+			</fileset>
+			<!-- Hibernate Search -->
+			<fileset dir="${lib}/hibernate-search">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib}/lucene">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${lib}/lucene-highlighter">
+				<include name="lucene-highlighter.jar" />
+			</fileset>
+			<fileset dir="${lib}/cisd-args4j">
+				<include name="cisd-args4j.jar" />
+			</fileset>
+			<fileset dir="${lib}/jython">
+				<include name="jython.jar" />
+			</fileset>
+		</copy>
 	</target>
-
 	<!--
       // Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.
       -->

@@ -31,8 +31,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -65,6 +65,7 @@ public final class ProjectSelectionTreeWidget extends TreePanel<ModelData> imple
         this.viewContext = viewContext;
         setId(ID);
         setDisplayProperty(ModelDataPropertyNames.CODE);
+        switchOffFolderIcons();
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         refreshTree();
         getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ModelData>()
@@ -82,6 +83,12 @@ public final class ProjectSelectionTreeWidget extends TreePanel<ModelData> imple
 
                 }
             });
+    }
+
+    private void switchOffFolderIcons()
+    {
+        getStyle().setNodeCloseIcon(null);
+        getStyle().setNodeOpenIcon(null);
     }
 
     /**

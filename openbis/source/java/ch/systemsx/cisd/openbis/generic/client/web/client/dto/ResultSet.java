@@ -18,12 +18,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IResultSet;
-
 /**
  * A result set that has been returned by the server.
  * <p>
- * This is the <i>GWT</i> pendant to {@link IResultSet}.
+ * This is the <i>GWT</i> pendant to IResultSet.
  * </p>
  * 
  * @author Christian Ribeaud

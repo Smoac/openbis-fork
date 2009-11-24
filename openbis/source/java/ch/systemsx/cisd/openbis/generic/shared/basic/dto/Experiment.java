@@ -24,10 +24,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
- * The <i>GWT</i> equivalent to {@link ExperimentPE}.
+ * The <i>GWT</i> equivalent to ExperimentPE.
  * 
  * @author Tomasz Pylak
  */
