@@ -15,7 +15,7 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.google.gwt.dev.HostedMode"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-startupUrl ch.systemsx.cisd.openbis.OpenBIS/index.html ch.systemsx.cisd.openbis.OpenBIS -war targets/www"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-startupUrl ch.systemsx.cisd.openbis.OpenBIS/index.html ch.systemsx.cisd.openbis.OpenBIS -war targets/www -logLevel WARN"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="openbis"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dlog4j.configuration=etc/log.xml&#13;&#10;-Djavax.net.ssl.trustStore=dist/server/openBIS.keystore&#13;&#10;-Xmx512M&#13;&#10;-ea"/>
 </launchConfiguration>
