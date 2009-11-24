@@ -106,6 +106,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 public void postRefresh(boolean wasSuccessful)
                 {
                     updateFilterFields();
+                    // TODO 2009-11-24, Tomasz Pylak: IMPR this apply is usually unnecessary and
+                    // causes screen flickering
                     apply();
                 }
             });
@@ -328,10 +330,15 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         }
     }
 
+    public void refreshAndReset()
+    {
+        refresh();
+        resetFilterFields();
+    }
+
     public void refresh()
     {
         filterSelectionWidget.refreshStore();
-        resetFilterFields();
     }
 
     // ------------------------------------

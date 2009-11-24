@@ -885,7 +885,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     pagingToolbar.disableExportButton();
                     pagingToolbar.updateDefaultConfigButton(false);
-                    filterToolbar.refresh();
+                    filterToolbar.refreshAndReset();
                     // export and config buttons are enabled when ListEntitiesCallback is complete
                     refresh();
                 }
@@ -1215,8 +1215,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                             saveColumnDisplaySettings();
 
                             if (customColumnsChanged)
-                            // || filtersChanged)
-                            // TODO 2009-11-18, Tomasz Pylak: check consequences
                             {
                                 debug("refreshing custom columns in " + pendingFetchConfigOrNull
                                         + " mode");
@@ -1228,10 +1226,11 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                                     // refresh the data - some filters may have been removed
                                     createApplyFiltersDelagator().execute();
                                 }
-                                debug("refreshing filters and columns settings");
-
                                 // settings will be automatically stored because of event handling
                                 refreshColumnsSettings();
+                            }
+                            if (filtersChanged)
+                            {
                                 filterToolbar.refresh();
                             }
                         }
