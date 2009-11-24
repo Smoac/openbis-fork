@@ -8,4 +8,5 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.ethz.bsse.cisd.dsu.tracking.main.TrackingClient"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="deep_sequencing_unit"/>
+<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:deep_sequencing_unit/tracking}"/>
 </launchConfiguration>

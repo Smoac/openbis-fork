@@ -40,11 +40,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  */
 public class TrackingClient
 {
-    private static final String SERVICE_PROPERTIES_FILE = "etc/tracking-service.properties";
+    private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     private static final String LOCAL_STORAGE_FILE = "etc/tracking-local-database";
 
-    private static final String EMAIL_TEMPLATE_FILE = "etc/tracking-email.template";
+    private static final String EMAIL_TEMPLATE_FILE = "etc/email-template.txt";
 
     private static final String OPENBIS_RMI_TRACKING = "/rmi-tracking";
 
