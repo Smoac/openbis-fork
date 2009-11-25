@@ -38,6 +38,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
+import ch.systemsx.cisd.cifex.client.InsufficientPrivilegesException;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.FileSizeExceededException;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
@@ -305,7 +306,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                                 .getMaxFileCountPerQuotaGroup());
         final boolean sizeOK =
                 (requestUser.getMaxFileSizePerQuotaGroupInMB() == null)
-                        || (requestUser.getCurrentFileSize() * MB + file.getFileSize() <= requestUser
+                        || (requestUser.getCurrentFileSize() + file.getFileSize() <= requestUser
                                 .getMaxFileSizePerQuotaGroupInMB()
                                 * MB);
         if ((countOK && sizeOK) == false)

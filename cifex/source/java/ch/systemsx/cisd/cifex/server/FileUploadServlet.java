@@ -143,7 +143,7 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                                 .getMaxFileCountPerQuotaGroup());
         final boolean sizeOK =
                 (requestUser.getMaxFileSizePerQuotaGroupInMB() == null)
-                        || (requestUser.getCurrentFileSize() * MB + fileSize <= requestUser
+                        || (requestUser.getCurrentFileSize() + fileSize <= requestUser
                                 .getMaxFileSizePerQuotaGroupInMB()
                                 * MB);
         if ((countOK && sizeOK) == false)
