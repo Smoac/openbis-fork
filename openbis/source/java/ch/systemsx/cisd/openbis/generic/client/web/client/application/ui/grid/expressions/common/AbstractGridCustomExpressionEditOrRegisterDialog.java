@@ -130,7 +130,11 @@ abstract public class AbstractGridCustomExpressionEditOrRegisterDialog extends
 
     public static String createId(String gridId, String suffix)
     {
-        return GenericConstants.ID_PREFIX + "grid-expression-edit-register-" + gridId + suffix;
+        String escapedGridId = gridId;
+        escapedGridId = escapedGridId.replace("(", "_");
+        escapedGridId = escapedGridId.replace(")", "_");
+        return GenericConstants.ID_PREFIX + "grid-expression-edit-register-" + escapedGridId
+                + suffix;
     }
 
     private MultilineVarcharField createExpressionField()
