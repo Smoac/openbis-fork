@@ -479,7 +479,7 @@ public class FileUploadClient
             }
             long freeUploadSpace = tableModel.calculateFreeUploadSpace();
             long length = file.length();
-            if (length > freeUploadSpace)
+            if (freeUploadSpace > 0 && length > freeUploadSpace)
             {
                 JOptionPane.showMessageDialog(frame, "File size of "
                         + FileUtilities.byteCountToDisplaySize(length)
