@@ -4,7 +4,12 @@
 
 	<property name="original.dist" value="dist" />
 	<property name="mainfolder" value="deep_sequencing_unit" />
-	<property name="variant" value="-dsu"/>
+	<property name="variant" value="-dsu" />
+
+	<property name="dist.tracking" value="${dist}/tracking" />
+	<property name="dist.tracking.lib" value="${dist.tracking}/lib" />
+	<property name="tracking-jar.file" value="${dist.tracking.lib}/openbis-tracking-dsu-client.jar" />
+	<property name="tracking.original.dist" value="tracking/dist" />
 
 	<target name="compile" depends="build-common.compile, clean" />
 
@@ -14,15 +19,62 @@
 		</antcall>
 	</target>
 
-        <!--
+	<target name="tracking-jar" depends="compile">
+		<mkdir dir="${dist.tracking.lib}" />
+		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
+		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
+		<recursive-jar destfile="${tracking-jar.file}">
+			<fileset dir="${classes}">
+				<include name="**/*.class" />
+				<include name="${build.info.filename}" />
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class" value="ch.ethz.bsse.cisd.dsu.tracking.main.TrackingClient" />
+				<attribute name="Class-Path" value="cisd-base.jar log4j.jar activation.jar mail.jar gwt-isserializable.jar
+																						commons-io.jar commons-lang.jar commons-logging.jar commons-httpclient.jar commons-codec.jar 
+																						spring.jar" />
+				<attribute name="Version" value="${version.number}" />
+				<attribute name="Build-Number" value="${version.number} (r${revision.number},${clean.flag})" />
+			</manifest>
+		</recursive-jar>
+		<jar update="true" destfile="${tracking-jar.file}">
+			<fileset dir="../${ant.project.name}/${classes}"
+			         includes="ch/systemsx/cisd/openbis/dss/BuildAndEnvironmentInfo.class" />
+		</jar>
+	</target>
+
+	<target name="tracking-dist" depends="tracking-jar">
+		<copy file="${tracking-jar.file}" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/activation/activation.jar" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/mail/mail.jar" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/log4j/log4j.jar" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/gwt1.7/gwt-isserializable.jar" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/commons-logging/commons-logging.jar" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/commons-io/commons-io.jar" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/commons-lang/commons-lang.jar" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/commons-httpclient/commons-httpclient.jar" todir="${dist.tracking.lib}" />
+		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${dist.tracking.lib}" />
+		
+		<copy file="${lib}/spring/spring.jar" todir="${dist.tracking.lib}" />
+
+		<property name="dist.file" value="openbis-tracking-client-DSU-${version.number}-r${revision.number}.zip" />
+		<zip basedir="${dist.tracking}" destfile="${dist}/${dist.file}" excludes="*.zip *.jar">
+			<zipfileset dir="${tracking.original.dist}" excludes="**/*.sh"/>
+			<zipfileset file="${tracking.original.dist}/tracking.sh" filemode="755" />
+		</zip>
+	  <delete dir="${dist.tracking}" />
+	</target>
+
+	<!--
         // Task for creating distributions
         -->
-        <target name="dist" depends="datastore_server.make-dist"/>
-	
-        <!--
+	<target name="dist" depends="datastore_server.make-dist" />
+
+	<!--
         // Task for continuous integration server.
         -->
-        <target name="ci" depends="build-common.ci, dist, check-dependencies"/>
-	
+	<target name="ci" depends="build-common.ci, dist, check-dependencies" />
+
 
 </project>
