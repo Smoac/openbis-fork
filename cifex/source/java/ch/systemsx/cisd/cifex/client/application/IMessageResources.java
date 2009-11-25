@@ -120,7 +120,7 @@ public interface IMessageResources extends Messages
     /** Returns the WebStart download client help text link. */
     @Key(value = "downloadfiles.help.javaDownloaderLink")
     public String getDownloadFilesHelpJavaDownloaderLink();
-    
+
     /** Returns the help text for downlading files section Java download. */
     @Key(value = "downloadfiles.help.javaDownload")
     public String getDownloadFilesHelpJavaDownload(Object linkWebstart);
@@ -467,7 +467,8 @@ public interface IMessageResources extends Messages
 
     /** Returns the help text for uploading files section upload. */
     @Key(value = "uploadfiles.help.upload")
-    public String getUploadFilesHelpUpload(String maxRequestUploadSize);
+    public String getUploadFilesHelpUpload(String maxFileSizePerQuotaGroup,
+            long currentFileSize, String maxFileCountPerQuotaGroup, int currentFileCount);
 
     /** Returns the help text for uploading files section Java upload. */
     @Key(value = "uploadfiles.help.javaUpload")
@@ -517,13 +518,21 @@ public interface IMessageResources extends Messages
     @Key(value = "usercreation.usercode.label")
     public String getUserCodeLabel();
 
-    /** Returns the label of the field for the maximum upload file size in MB */
-    @Key(value = "usercreation.max.upload.size.label")
-    public String getMaxUploadSizeLabel();
+    /** Returns the label of the field for the maximum size of all files in MB */
+    @Key(value = "usercreation.max.file.size.label")
+    public String getMaxFileSizeLabel();
+
+    /** Returns the label of the field for the maximum number of all files in MB */
+    @Key(value = "usercreation.max.file.count.label")
+    public String getMaxFileCountLabel();
 
     /** Returns the label of the field for file retention time */
     @Key(value = "usercreation.file.retention")
     public String getFileRetention();
+
+    /** Returns the label of the field for user retention time */
+    @Key(value = "usercreation.user.retention")
+    public String getUserRetention();
 
     /** Returns the label the User Create Button */
     @Key(value = "usercreation.button.label")

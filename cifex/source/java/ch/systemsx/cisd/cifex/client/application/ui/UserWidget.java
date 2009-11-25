@@ -36,10 +36,12 @@ import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 
+import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -83,9 +85,13 @@ public abstract class UserWidget extends LayoutContainer
 
     protected CheckBox userIsActiveField;
 
-    protected TextField<String> maxUploadSizeField;
+    protected TextField<String> maxFileSizeField;
+
+    protected TextField<String> maxFileCountField;
 
     protected TextField<String> fileRetentionField;
+
+    protected TextField<String> userRetentionField;
 
     /**
      * Status of the user.
@@ -133,6 +139,7 @@ public abstract class UserWidget extends LayoutContainer
 
     protected UserInfoDTO createFromFields()
     {
+        final Configuration config = context.getModel().getConfiguration();
         final UserInfoDTO user = new UserInfoDTO();
         if (editUser != null)
         {
@@ -140,7 +147,13 @@ public abstract class UserWidget extends LayoutContainer
             user.setExpirationDate(editUser.getExpirationDate());
             user.setExternallyAuthenticated(editUser.isExternallyAuthenticated());
             user.setFileRetention(editUser.getFileRetention());
-            user.setMaxUploadRequestSizeInMB(editUser.getMaxUploadRequestSizeInMB());
+            user.setCustomFileRetention(editUser.isCustomFileRetention());
+            user.setUserRetention(editUser.getUserRetention());
+            user.setCustomUserRetention(editUser.isCustomUserRetention());
+            user.setMaxFileSizePerQuotaGroupInMB(editUser.getMaxFileSizePerQuotaGroupInMB());
+            user.setCustomMaxFileSizePerQuotaGroup(editUser.isCustomMaxFileSizePerQuotaGroup());
+            user.setMaxFileCountPerQuotaGroup(editUser.getMaxFileCountPerQuotaGroup());
+            user.setCustomMaxFileCountPerQuotaGroup(editUser.isCustomMaxFileCountPerQuotaGroup());
             user.setPermanent(editUser.isPermanent());
             user.setActive(editUser.isActive());
             user.setRegistrator(editUser.getRegistrator());
@@ -153,10 +166,33 @@ public abstract class UserWidget extends LayoutContainer
             user.setAdmin(isAdminStatus());
             user.setPermanent(isAdminStatus() || isPermanentStatus());
         }
-        if (maxUploadSizeField != null)
+        if (maxFileCountField != null)
         {
-            String text = maxUploadSizeField.getValue();
-            user.setMaxUploadRequestSizeInMB(StringUtils.isBlank(text) ? null : new Long(text));
+            String text = maxFileCountField.getValue();
+            if (StringUtils.isBlank(text))
+            {
+                user.setMaxFileCountPerQuotaGroup(config.getMaxFileCountPerQuotaGroup());
+                user.setCustomMaxFileCountPerQuotaGroup(false);
+            } else
+            {
+                user.setMaxFileCountPerQuotaGroup(Constants.UNLIMITED_VALUE.equals(text) ? null
+                        : new Integer(text));
+                user.setCustomMaxFileCountPerQuotaGroup(true);
+            }
+        }
+        if (maxFileSizeField != null)
+        {
+            String text = maxFileSizeField.getValue();
+            if (StringUtils.isBlank(text))
+            {
+                user.setMaxFileSizePerQuotaGroupInMB(config.getMaxFileSizePerQuotaGroupInMB());
+                user.setCustomMaxFileSizePerQuotaGroup(false);
+            } else
+            {
+                user.setMaxFileSizePerQuotaGroupInMB(Constants.UNLIMITED_VALUE.equals(text) ? null
+                        : new Long(text));
+                user.setCustomMaxFileSizePerQuotaGroup(true);
+            }
         }
         if (userIsActiveField != null)
         {
@@ -165,13 +201,30 @@ public abstract class UserWidget extends LayoutContainer
         if (fileRetentionField != null)
         {
             String text = fileRetentionField.getValue();
-            if (StringUtils.isBlank(text) == false)
+            if (StringUtils.isBlank(text))
             {
-                user.setFileRetention(new Integer(Integer.parseInt(text)));
+                user.setFileRetention(config.getFileRetention());
+                user.setCustomFileRetention(false);
             } else
             {
-                user.setFileRetention(null);
+                user.setFileRetention(new Integer(text));
+                user.setCustomFileRetention(true);
             }
+            user.setFileRetention(StringUtils.isBlank(text) ? null : new Integer(text));
+        }
+        if (userRetentionField != null)
+        {
+            String text = userRetentionField.getValue();
+            if (StringUtils.isBlank(text))
+            {
+                 user.setUserRetention(config.getUserRetention());
+                 user.setCustomUserRetention(false);
+            } else
+            {
+                user.setUserRetention(new Integer(text));
+                user.setCustomUserRetention(true);
+            }
+            user.setUserRetention(StringUtils.isBlank(text) ? null : new Integer(text));
         }
         return user;
     }
@@ -182,7 +235,8 @@ public abstract class UserWidget extends LayoutContainer
         right.setStyleAttribute("paddingLeft", "10px");
         if (context.getModel().getUser().isAdmin())
         {
-            right.addField(fileRetentionField = createFileRentention());
+            right.addField(fileRetentionField = createFileRetention());
+            right.addField(userRetentionField = createUserRetention());
         }
         right.addField(emailField = createEmailField());
         right.addField(passwordField = createPasswordField());
@@ -215,7 +269,8 @@ public abstract class UserWidget extends LayoutContainer
         }
         if (context.getModel().getUser().isAdmin())
         {
-            left.addField(maxUploadSizeField = createMaxUploadSizeField());
+            left.addField(maxFileSizeField = createMaxFileSizeField());
+            left.addField(maxFileCountField = createMaxFileCountField());
         }
         // For editing we have more space on the left side.
         if (editUser != null && editingMyself() == false && context.getModel().getUser().isAdmin())
@@ -415,10 +470,10 @@ public abstract class UserWidget extends LayoutContainer
         return textArea;
     }
 
-    private TextField<String> createMaxUploadSizeField()
+    private TextField<String> createMaxFileSizeField()
     {
         final TextField<String> textField =
-                createTextField(getMessageResources().getMaxUploadSizeLabel());
+                createTextField(getMessageResources().getMaxFileSizeLabel());
         textField.setValidator(new Validator()
             {
                 public String validate(Field<?> field, String value)
@@ -428,6 +483,53 @@ public abstract class UserWidget extends LayoutContainer
                         return "Field required";
                     }
                     if (value.length() == 0)
+                    {
+                        return null;
+                    }
+                    if (Constants.UNLIMITED_VALUE.equals(value))
+                    {
+                        return null;
+                    }
+                    try
+                    {
+                        long size = Long.parseLong(value);
+                        return size > 0 ? null : "No files specified";
+                    } catch (NumberFormatException ex)
+                    {
+                        return "Incorrect number";
+                    }
+                }
+            });
+        if (editUser != null && editUser.isCustomMaxFileSizePerQuotaGroup())
+        {
+            if (editUser.getMaxFileSizePerQuotaGroupInMB() != null)
+            {
+                textField.setValue(editUser.getMaxFileSizePerQuotaGroupInMB().toString());
+            } else
+            {
+                textField.setValue(Constants.UNLIMITED_VALUE);
+            }
+        }
+        return textField;
+    }
+
+    private TextField<String> createMaxFileCountField()
+    {
+        final TextField<String> textField =
+                createTextField(getMessageResources().getMaxFileCountLabel());
+        textField.setValidator(new Validator()
+            {
+                public String validate(Field<?> field, String value)
+                {
+                    if (value == null)
+                    {
+                        return "Field required";
+                    }
+                    if (value.length() == 0)
+                    {
+                        return null;
+                    }
+                    if (Constants.UNLIMITED_VALUE.equals(value))
                     {
                         return null;
                     }
@@ -441,14 +543,20 @@ public abstract class UserWidget extends LayoutContainer
                     }
                 }
             });
-        if (editUser != null && editUser.getMaxUploadRequestSizeInMB() != null)
+        if (editUser != null && editUser.isCustomMaxFileCountPerQuotaGroup())
         {
-            textField.setValue(editUser.getMaxUploadRequestSizeInMB().toString());
+            if (editUser.getMaxFileCountPerQuotaGroup() != null)
+            {
+                textField.setValue(editUser.getMaxFileCountPerQuotaGroup().toString());
+            } else
+            {
+                textField.setValue(Constants.UNLIMITED_VALUE);
+            }
         }
         return textField;
     }
 
-    private TextField<String> createFileRentention()
+    private TextField<String> createFileRetention()
     {
         final TextField<String> textField =
                 createTextField(getMessageResources().getFileRetention());
@@ -474,10 +582,44 @@ public abstract class UserWidget extends LayoutContainer
                     }
                 }
             });
-        if (editUser != null && editUser.getFileRetention() != null)
+        if (editUser != null && editUser.isCustomFileRetention())
         {
-            int fileRetentionTime = editUser.getFileRetention().intValue();
-            textField.setValue(Integer.toString(fileRetentionTime));
+            int fileRetentionDuration = editUser.getFileRetention().intValue();
+            textField.setValue(Integer.toString(fileRetentionDuration));
+        }
+        return textField;
+    }
+
+    private TextField<String> createUserRetention()
+    {
+        final TextField<String> textField =
+                createTextField(getMessageResources().getUserRetention());
+        textField.setValidator(new Validator()
+            {
+                public String validate(Field<?> field, String value)
+                {
+                    if (value == null)
+                    {
+                        return "Field required";
+                    }
+                    if (value.length() == 0)
+                    {
+                        return null;
+                    }
+                    try
+                    {
+                        int duration = Integer.parseInt(value);
+                        return duration > 0 ? null : "Incorrect duration";
+                    } catch (NumberFormatException ex)
+                    {
+                        return "Incorrect number";
+                    }
+                }
+            });
+        if (editUser != null && editUser.isCustomUserRetention())
+        {
+            int userRetentionDuration = editUser.getUserRetention().intValue();
+            textField.setValue(Integer.toString(userRetentionDuration));
         }
         return textField;
     }

@@ -91,7 +91,8 @@ class UserManager extends AbstractManager implements IUserManager
         final UserDTO user = daoFactory.getUserDAO().tryFindUserByCode(code);
         if (user != null)
         {
-            final UserDTO registrator = daoFactory.getUserDAO().tryFindUserById(user.getRegistrator().getID());
+            final UserDTO registrator =
+                    daoFactory.getUserDAO().tryFindUserById(user.getRegistrator().getID());
             user.setRegistrator(registrator);
             fillInDefaultQuotaInformation(user);
         }
@@ -404,14 +405,18 @@ class UserManager extends AbstractManager implements IUserManager
         {
             return;
         }
+        userOrNull.setCustomFileRetention(userOrNull.getFileRetention() != null);
         if (userOrNull.getFileRetention() == null)
         {
             userOrNull.setFileRetention(businessContext.getFileRetention());
         }
+        userOrNull.setCustomUserRetention(userOrNull.getUserRetention() != null);
         if (userOrNull.getUserRetention() == null)
         {
             userOrNull.setUserRetention(businessContext.getUserRetention());
         }
+        userOrNull
+                .setCustomMaxFileCountPerQuotaGroup(userOrNull.getMaxFileCountPerQuotaGroup() != null);
         if (userOrNull.getMaxFileCountPerQuotaGroup() == null)
         {
             userOrNull.setMaxFileCountPerQuotaGroup(businessContext.getMaxFileCountPerQuotaGroup());
@@ -419,15 +424,18 @@ class UserManager extends AbstractManager implements IUserManager
         {
             userOrNull.setMaxFileCountPerQuotaGroup(null);
         }
+        userOrNull
+                .setCustomMaxFileSizePerQuotaGroup(userOrNull.getMaxFileSizePerQuotaGroupInMB() != null);
         if (userOrNull.getMaxFileSizePerQuotaGroupInMB() == null)
         {
-            userOrNull.setMaxFileSizePerQuotaGroupInMB(businessContext.getMaxFileSizePerQuotaGroupInMB());
+            userOrNull.setMaxFileSizePerQuotaGroupInMB(businessContext
+                    .getMaxFileSizePerQuotaGroupInMB());
         } else if (userOrNull.getMaxFileSizePerQuotaGroupInMB() <= 0)
         {
             userOrNull.setMaxFileSizePerQuotaGroupInMB(null);
         }
     }
-    
+
     @Transactional
     public void changeUserCode(final String before, final String after) throws UserFailureException
     {

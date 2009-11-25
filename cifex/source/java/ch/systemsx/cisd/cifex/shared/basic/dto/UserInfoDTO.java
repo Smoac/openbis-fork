@@ -18,9 +18,8 @@ package ch.systemsx.cisd.cifex.shared.basic.dto;
 
 import java.util.Date;
 
-
 /**
- * A small class that describes an user.
+ * A class that describes a user in the presentation layer.
  * 
  * @author Christian Ribeaud
  */
@@ -55,10 +54,44 @@ public final class UserInfoDTO extends BasicUserInfoDTO
 
     private boolean externallyAuthenticated;
 
+    /** 
+     * How long (in hours) the file registered by this user is going to stay in the system.
+     */
     private Integer fileRetention;
 
-    private Long maxUploadRequestSizeInMB;
+    private boolean customFileRetention;
+
+    /** 
+     * How long (in hours) a temporary user registered by this user is going to stay in the system.
+     */
+    private Integer userRetention;
+
+    private boolean customUserRetention;
+
+    /**
+     * Current total size of files uploaded by the user's quota group (in bytes).
+     */
+    private long currentFileSize;
     
+    /**
+     * Current total number of files uploaded by the user's quota group.
+     */
+    private int currentFileCount;
+    
+    /**
+     * Maximum size of files allowed to be uploaded by the user's quota group (in MB)  
+     */
+    private Long maxFileSizePerQuotaGroupInMB;
+    
+    private boolean customMaxFileSizePerQuotaGroup;
+
+    /**
+     * Maximum total number of files allowed to be uploaded by the user's quota group.
+     */
+    private Integer maxFileCountPerQuotaGroup;
+
+    private boolean customMaxFileCountPerQuotaGroup;
+
     public final boolean isAdmin()
     {
         return admin;
@@ -130,14 +163,94 @@ public final class UserInfoDTO extends BasicUserInfoDTO
         this.fileRetention = fileRetention;
     }
 
-    public final Long getMaxUploadRequestSizeInMB()
+    public final boolean isCustomFileRetention()
     {
-        return maxUploadRequestSizeInMB;
+        return customFileRetention;
     }
 
-    public final void setMaxUploadRequestSizeInMB(Long maxUploadRequestSizeInMB)
+    public final void setCustomFileRetention(boolean customFileRetention)
     {
-        this.maxUploadRequestSizeInMB = maxUploadRequestSizeInMB;
+        this.customFileRetention = customFileRetention;
+    }
+
+    public final Integer getUserRetention()
+    {
+        return userRetention;
+    }
+
+    public final void setUserRetention(Integer userRetention)
+    {
+        this.userRetention = userRetention;
+    }
+
+    public final boolean isCustomUserRetention()
+    {
+        return customUserRetention;
+    }
+
+    public final void setCustomUserRetention(boolean customUserRetention)
+    {
+        this.customUserRetention = customUserRetention;
+    }
+
+    public final long getCurrentFileSize()
+    {
+        return currentFileSize;
+    }
+
+    public final void setCurrentFileSize(long currentFileSize)
+    {
+        this.currentFileSize = currentFileSize;
+    }
+
+    public final int getCurrentFileCount()
+    {
+        return currentFileCount;
+    }
+
+    public final void setCurrentFileCount(int currentFileCount)
+    {
+        this.currentFileCount = currentFileCount;
+    }
+
+    public final Long getMaxFileSizePerQuotaGroupInMB()
+    {
+        return maxFileSizePerQuotaGroupInMB;
+    }
+
+    public final void setMaxFileSizePerQuotaGroupInMB(Long maxFileSizePerQuotaGroupInMB)
+    {
+        this.maxFileSizePerQuotaGroupInMB = maxFileSizePerQuotaGroupInMB;
+    }
+
+    public final boolean isCustomMaxFileSizePerQuotaGroup()
+    {
+        return customMaxFileSizePerQuotaGroup;
+    }
+
+    public final void setCustomMaxFileSizePerQuotaGroup(boolean customMaxFileSizePerQuotaGroup)
+    {
+        this.customMaxFileSizePerQuotaGroup = customMaxFileSizePerQuotaGroup;
+    }
+
+    public final Integer getMaxFileCountPerQuotaGroup()
+    {
+        return maxFileCountPerQuotaGroup;
+    }
+
+    public final void setMaxFileCountPerQuotaGroup(Integer maxFileCountPerQuotaGroup)
+    {
+        this.maxFileCountPerQuotaGroup = maxFileCountPerQuotaGroup;
+    }
+
+    public final boolean isCustomMaxFileCountPerQuotaGroup()
+    {
+        return customMaxFileCountPerQuotaGroup;
+    }
+
+    public final void setCustomMaxFileCountPerQuotaGroup(boolean customMaxFileCountPerQuotaGroup)
+    {
+        this.customMaxFileCountPerQuotaGroup = customMaxFileCountPerQuotaGroup;
     }
 
 }

@@ -99,11 +99,13 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             if (rs.wasNull() == false)
             {
                 user.setFileRetention(fileRetention);
+                user.setCustomFileRetention(true);
             }
             final int userRetention = rs.getInt("user_retention");
             if (rs.wasNull() == false)
             {
                 user.setUserRetention(userRetention);
+                user.setCustomUserRetention(true);
             }
             user.setCurrentFileCount(rs.getInt("file_count"));
             user.setCurrentFileSize(rs.getLong("file_size"));
@@ -112,11 +114,13 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             {
                 user.setMaxFileCountPerQuotaGroup(maxFileCountPerQuotaGroup);
             }
+            user.setCustomMaxFileCountPerQuotaGroup(true);
             long maxFileSizePerQuotaGroupInMB = rs.getLong("quota_file_size");
             if (rs.wasNull() == false)
             {
                 user.setMaxFileSizePerQuotaGroupInMB(maxFileSizePerQuotaGroupInMB);
             }
+            user.setCustomMaxFileSizePerQuotaGroup(true);
 
             return user;
         }
@@ -462,9 +466,35 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                     user.isAdmin(), user.isPermanent(), user.isActive(), user.getExpirationDate(),
                     user.getID());
         }
-        template.update("update quota_groups set file_retention = ?, user_retention = ? "
-                + "where id = (select quota_group_id from users where id = ?)", user
-                .getFileRetention(), user.getUserRetention(), user.getID());
+        Integer maxFileCountPerQuotaGroup = null;
+        if (user.isCustomMaxFileCountPerQuotaGroup())
+        {
+            maxFileCountPerQuotaGroup =
+                    (user.getMaxFileCountPerQuotaGroup() == null) ? 0 : user
+                            .getMaxFileCountPerQuotaGroup();
+        }
+        Long maxFileSizePerQuotaGroupInMB = null;
+        if (user.isCustomMaxFileSizePerQuotaGroup())
+        {
+            maxFileSizePerQuotaGroupInMB =
+                    (user.getMaxFileSizePerQuotaGroupInMB() == null) ? 0 : user
+                            .getMaxFileSizePerQuotaGroupInMB();
+        }
+        Integer fileRetention = null;
+        if (user.isCustomFileRetention())
+        {
+            fileRetention = (user.getFileRetention() == null) ? 0 : user.getFileRetention();
+        }
+        Integer userRetention = null;
+        if (user.isCustomUserRetention())
+        {
+            userRetention = (user.getUserRetention() == null) ? 0 : user.getUserRetention();
+        }
+        template.update("update quota_groups set quota_file_count = ?, quota_file_size = ?, "
+                + "file_retention = ?, user_retention = ? "
+                + "where id = (select quota_group_id from users where id = ?)",
+                maxFileCountPerQuotaGroup, maxFileSizePerQuotaGroupInMB, fileRetention,
+                userRetention, user.getID());
     }
 
     public void changeUserCode(final String before, final String after)

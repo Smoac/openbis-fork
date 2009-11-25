@@ -49,9 +49,6 @@ class BusinessContext implements IBusinessContext
      */
     private Integer maxFileCountPerQuotaGroup;
 
-    /** The maximum size of an upload request in Megabyte. */
-    private int maxUploadRequestSizeInMB = -1;
-
     /** Whether new externally authenticated users should start active or not. */
     private boolean newExternallyAuthenticatedUserStartActive;
 
@@ -139,11 +136,6 @@ class BusinessContext implements IBusinessContext
     public final void setUserRetention(final int userRetention)
     {
         this.userRetention = userRetention;
-    }
-
-    public final int getMaxUploadRequestSizeInMB()
-    {
-        return maxUploadRequestSizeInMB;
     }
 
     public void setMaxFileSizePerQuotaGroupInMB(Long maxFileSizePerQuotaGroupInMB)

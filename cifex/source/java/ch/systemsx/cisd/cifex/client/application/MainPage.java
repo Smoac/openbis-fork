@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.grid.GridUtils;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
@@ -52,14 +51,25 @@ final class MainPage extends AbstractMainPage
         super(context);
     }
 
-    static private final String getMaxRequestUploadSizeText(final int maxRequestUploadSizeInMB)
+    static private final String getMaxFileSize(final Long maxFileSizeInMBOrNull)
     {
-        if (maxRequestUploadSizeInMB < 0)
+        if (maxFileSizeInMBOrNull == null)
         {
-            return Constants.TABLE_NULL_VALUE;
+            return Constants.UNLIMITED_VALUE;
         } else
         {
-            return maxRequestUploadSizeInMB + " MB";
+            return maxFileSizeInMBOrNull + " MB";
+        }
+    }
+
+    static private final String getMaxFileCount(final Integer maxFileCountOrNull)
+    {
+        if (maxFileCountOrNull == null)
+        {
+            return Constants.UNLIMITED_VALUE;
+        } else
+        {
+            return Integer.toString(maxFileCountOrNull);
         }
     }
 
@@ -68,16 +78,11 @@ final class MainPage extends AbstractMainPage
         IMessageResources messageResources = context.getMessageResources();
         Model model = context.getModel();
         final boolean isPermanent = model.getUser().isPermanent();
-        Configuration configuration = model.getConfiguration();
-        int maxUploadRequestSizeInMB = configuration.getMaxUploadRequestSizeInMB();
-        Long usersMaxUploadSize = model.getUser().getMaxUploadRequestSizeInMB();
-        if (usersMaxUploadSize != null)
-        {
-            maxUploadRequestSizeInMB = usersMaxUploadSize.intValue();
-        }
-        final String maxRequestUploadSize = getMaxRequestUploadSizeText(maxUploadRequestSizeInMB);
+        final UserInfoDTO user = model.getUser();
         StringBuffer notesText = new StringBuffer();
-        notesText.append(messageResources.getUploadFilesHelpUpload(maxRequestUploadSize));
+        notesText.append(messageResources.getUploadFilesHelpUpload(getMaxFileSize(user
+                .getMaxFileSizePerQuotaGroupInMB()), user.getCurrentFileSize(), getMaxFileCount(user
+                .getMaxFileCountPerQuotaGroup()), user.getCurrentFileCount()));
         if (isPermanent)
         {
             notesText.append(messageResources.getUploadFilesHelpPermanentUser());

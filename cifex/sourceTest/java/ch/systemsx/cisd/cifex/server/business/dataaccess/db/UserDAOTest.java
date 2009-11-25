@@ -50,10 +50,12 @@ public final class UserDAOTest extends AbstractDAOTest
 {
     private static final Integer EXAMPLE_FILE_RETENTION = new Integer(42);
 
+    private static final Integer EXAMPLE_FILE_RETENTION_ADMIN = new Integer(128);
+
     private static final String MY_FILE_001_TXT = "my-file-001.txt";
 
     final static UserDTO testAdminUser =
-            createUser(true, true, "admin", "admin@systemsx.ch", null, null);
+            createUser(true, true, "admin", "admin@systemsx.ch", null, EXAMPLE_FILE_RETENTION_ADMIN);
 
     final static UserDTO testPermanentUser =
             createUser(true, false, "user", "someuser@systemsx.ch", testAdminUser,
@@ -95,6 +97,7 @@ public final class UserDAOTest extends AbstractDAOTest
         user.setExternallyAuthenticated(false);
         user.setAdmin(admin);
         user.setFileRetention(fileRetention);
+        user.setCustomFileRetention(true);
         if (registrator == null)
         {
             user.setRegistrator(new UserDTO());
@@ -154,7 +157,7 @@ public final class UserDAOTest extends AbstractDAOTest
             {
                 if (user.isAdmin())
                 {
-                    assertEquals(null, user.getFileRetention());
+                    assertEquals(EXAMPLE_FILE_RETENTION_ADMIN, user.getFileRetention());
                 } else
                 {
                     assertEquals(EXAMPLE_FILE_RETENTION, user.getFileRetention());
@@ -306,6 +309,8 @@ public final class UserDAOTest extends AbstractDAOTest
 
         // Try Update Email and max upload size
         testTemporaryUser.setEmail("updated@temporary.cifex");
+        testTemporaryUser.setMaxFileSizePerQuotaGroupInMB(1000L);
+        testTemporaryUser.setCustomMaxFileSizePerQuotaGroup(true);
         userDAO.updateUser(testTemporaryUser);
         final UserDTO testTemporaryUserFromDB =
                 userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());

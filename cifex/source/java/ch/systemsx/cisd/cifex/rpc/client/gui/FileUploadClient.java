@@ -77,23 +77,20 @@ public class FileUploadClient
     {
         try
         {
-            final int maxUloadSizeInMB;
             final String serviceURL = args[0];
-            if (args.length == 3)
+            if (args.length == 2)
             {
                 final String sessionId = args[1];
-                maxUloadSizeInMB = Integer.parseInt(args[2]);
                 new FileUploadClient(RPCServiceFactory.createCIFEXComponent(serviceURL, true),
-                        sessionId, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER).show();
-            } else if (args.length == 4)
+                        sessionId, SYSTEM_TIME_PROVIDER).show();
+            } else if (args.length == 3)
             {
                 final String userName = args[1];
                 final String passwd = args[2];
-                maxUloadSizeInMB = Integer.parseInt(args[3]);
                 final ICIFEXComponent cifex =
                         RPCServiceFactory.createCIFEXComponent(serviceURL, true);
                 final String sessionId = cifex.login(userName, passwd);
-                new FileUploadClient(cifex, sessionId, maxUloadSizeInMB, SYSTEM_TIME_PROVIDER)
+                new FileUploadClient(cifex, sessionId, SYSTEM_TIME_PROVIDER)
                         .show();
             } else
             {
@@ -110,9 +107,9 @@ public class FileUploadClient
     }
 
     private final ICIFEXComponent cifex;
-    
+
     private final ICIFEXUploader uploader;
-    
+
     private final String sessionId;
 
     private final FileDialog fileDialog;
@@ -130,8 +127,8 @@ public class FileUploadClient
     private JPopupMenu popupMenu;
 
     FileUploadClient(final ICIFEXComponent cifex, final String sessionId,
-            final int maxUploadSizeInMB, final ITimeProvider timeProvider)
-            throws EnvironmentFailureException, InvalidSessionException
+            final ITimeProvider timeProvider) throws EnvironmentFailureException,
+            InvalidSessionException
     {
         this.cifex = cifex;
         this.sessionId = sessionId;
@@ -156,7 +153,7 @@ public class FileUploadClient
                 }
             });
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        UploadTableModel model = new UploadTableModel(uploader, maxUploadSizeInMB, timeProvider);
+        UploadTableModel model = new UploadTableModel(uploader, timeProvider);
         frame.add(createGUI(model), BorderLayout.CENTER);
         frame.setBounds(200, 200, 500, 400);
         frame.setVisible(true);
@@ -475,16 +472,6 @@ public class FileUploadClient
             {
                 JOptionPane.showMessageDialog(frame, "File already added:\n"
                         + file.getAbsolutePath());
-                return;
-            }
-            long freeUploadSpace = tableModel.calculateFreeUploadSpace();
-            long length = file.length();
-            if (freeUploadSpace > 0 && length > freeUploadSpace)
-            {
-                JOptionPane.showMessageDialog(frame, "File size of "
-                        + FileUtilities.byteCountToDisplaySize(length)
-                        + " exceeds the limit for uploads. File size has to be less than "
-                        + FileUtilities.byteCountToDisplaySize(freeUploadSpace) + ".");
                 return;
             }
             tableModel.addFile(file);

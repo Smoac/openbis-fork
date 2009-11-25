@@ -212,8 +212,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    allowing(businessContext).getMaxUploadRequestSizeInMB();
-                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(SMALL_FILE, true);
                     one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
@@ -262,8 +260,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    allowing(businessContext).getMaxUploadRequestSizeInMB();
-                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(LARGE_FILE, true);
                     one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
@@ -309,8 +305,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                 {
                     allowing(domainModel).getBusinessContext();
                     will(returnValue(businessContext));
-                    allowing(businessContext).getMaxUploadRequestSizeInMB();
-                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(LARGE_FILE, true);
                     one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
@@ -487,8 +481,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    allowing(businessContext).getMaxUploadRequestSizeInMB();
-                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(LARGE_FILE, true);
                     one(userActionLog).logUploadFileFinished(LARGE_FILE, true);
                     one(listener).start(fileOnClient, LARGE_FILE_SIZE * 1024L);
@@ -568,8 +560,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     exactly(2).of(userManager).refreshQuotaInformation(user);
-                    allowing(businessContext).getMaxUploadRequestSizeInMB();
-                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(SMALL_FILE, true);
                     one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
                     one(userActionLog).logUploadFileStart(LARGE_FILE, true);
@@ -633,8 +623,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    allowing(businessContext).getMaxUploadRequestSizeInMB();
-                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(SMALL_FILE, true);
                     one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L);
@@ -705,8 +693,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    allowing(businessContext).getMaxUploadRequestSizeInMB();
-                    will(returnValue((int) (SMALL_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(SMALL_FILE, true);
                     one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
@@ -764,9 +750,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    allowing(businessContext).getMaxUploadRequestSizeInMB();
-                    allowing(businessContext).getMaxUploadRequestSizeInMB();
-                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(LARGE_FILE, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
@@ -833,8 +816,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     exactly(3).of(userManager).refreshQuotaInformation(user);
-                    allowing(businessContext).getMaxUploadRequestSizeInMB();
-                    will(returnValue((int) (LARGE_FILE_SIZE * 2)));
                     one(userActionLog).logUploadFileStart(SMALL_FILE, true);
                     one(userActionLog).logUploadFileFinished(SMALL_FILE, true);
                     exactly(2).of(userActionLog).logUploadFileStart(LARGE_FILE, true);

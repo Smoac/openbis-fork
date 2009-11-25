@@ -18,8 +18,6 @@ package ch.systemsx.cisd.cifex.server;
 
 import javax.servlet.http.HttpServletRequest;
 
-import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
-
 /**
  * @author Franz-Josef Elmer
  */
@@ -40,16 +38,6 @@ public abstract class AbstractFileUploadServlet extends AbstractCIFEXServiceServ
 
     protected static final long MB = 1024 * 1024;
     
-    protected long getMaxUploadSize(UserDTO user)
-    {
-        Long sizeInMB = user.getMaxUploadRequestSizeInMB();
-        if (sizeInMB == null)
-        {
-            return domainModel.getBusinessContext().getMaxUploadRequestSizeInMB() * MB;
-        }
-        return sizeInMB.longValue() * MB;
-    }
-
     protected String getURLForEmail(final HttpServletRequest request)
     {
         return HttpUtils.getURLForEmail(request, domainModel.getBusinessContext());

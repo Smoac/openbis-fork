@@ -78,18 +78,16 @@ public class UserDTO extends ID
      * How long (in hours) the file registered by this user is going to stay in the system.
      */
     private Integer fileRetention;
+    
+    private boolean customFileRetention;
 
     /** 
      * How long (in hours) a temporary user registered by this user is going to stay in the system.
      */
     private Integer userRetention;
 
-    /** 
-     * The maximum size (in MB) of an upload request for this user. 
-     */
-    @Deprecated
-    private Long maxUploadRequestSizeInMB;
-    
+    private boolean customUserRetention;
+
     /**
      * Current total size of files uploaded by the user's quota group (in bytes).
      */
@@ -105,10 +103,14 @@ public class UserDTO extends ID
      */
     private Long maxFileSizePerQuotaGroupInMB;
     
+    private boolean customMaxFileSizePerQuotaGroup;
+
     /**
      * Maximum total number of files allowed to be uploaded by the user's quota group.
      */
     private Integer maxFileCountPerQuotaGroup;
+
+    private boolean customMaxFileCountPerQuotaGroup;
 
     /**
      * The unique userCode of the <code>UserDTO</code>.
@@ -255,6 +257,16 @@ public class UserDTO extends ID
         this.fileRetention = fileRetention;
     }
 
+    public final boolean isCustomFileRetention()
+    {
+        return customFileRetention;
+    }
+
+    public final void setCustomFileRetention(boolean customFileRetention)
+    {
+        this.customFileRetention = customFileRetention;
+    }
+
     public void setUserRetention(Integer userRetention)
     {
         this.userRetention = userRetention;
@@ -265,16 +277,14 @@ public class UserDTO extends ID
         return userRetention;
     }
 
-    @Deprecated
-    public final Long getMaxUploadRequestSizeInMB()
+    public final boolean isCustomUserRetention()
     {
-        return maxUploadRequestSizeInMB;
+        return customUserRetention;
     }
 
-    @Deprecated
-    public final void setMaxUploadRequestSizeInMB(Long maxUploadRequestSizeInMB)
+    public final void setCustomUserRetention(boolean customUserRetention)
     {
-        this.maxUploadRequestSizeInMB = maxUploadRequestSizeInMB;
+        this.customUserRetention = customUserRetention;
     }
 
     public void setCurrentFileSize(long currentFileSize)
@@ -307,6 +317,16 @@ public class UserDTO extends ID
         return maxFileSizePerQuotaGroupInMB;
     }
 
+    public final boolean isCustomMaxFileSizePerQuotaGroup()
+    {
+        return customMaxFileSizePerQuotaGroup;
+    }
+
+    public final void setCustomMaxFileSizePerQuotaGroup(boolean customMaxFileSizePerQuotaGroup)
+    {
+        this.customMaxFileSizePerQuotaGroup = customMaxFileSizePerQuotaGroup;
+    }
+
     public void setMaxFileCountPerQuotaGroup(Integer maxFileCountPerQuotaGroup)
     {
         this.maxFileCountPerQuotaGroup = maxFileCountPerQuotaGroup;
@@ -315,6 +335,16 @@ public class UserDTO extends ID
     public Integer getMaxFileCountPerQuotaGroup()
     {
         return maxFileCountPerQuotaGroup;
+    }
+
+    public final boolean isCustomMaxFileCountPerQuotaGroup()
+    {
+        return customMaxFileCountPerQuotaGroup;
+    }
+
+    public final void setCustomMaxFileCountPerQuotaGroup(boolean customMaxFileCountPerQuotaGroup)
+    {
+        this.customMaxFileCountPerQuotaGroup = customMaxFileCountPerQuotaGroup;
     }
 
 }

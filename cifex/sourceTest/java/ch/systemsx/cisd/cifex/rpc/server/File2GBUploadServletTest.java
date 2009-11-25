@@ -60,9 +60,9 @@ public class File2GBUploadServletTest extends AssertJUnit
 
     private static final String UPLOAD_SESSION_ID = "upload-session-id";
 
-    private static final UserDTO USER = createUser("Einstein", null);
+    private static final UserDTO USER = createUser("Einstein");
     
-    private static final UserDTO USER_WITH_MAX_UPLOAD_SIZE = createUser("Einstein", new Long(4711));
+    private static final UserDTO USER_WITH_MAX_UPLOAD_SIZE = createUser("Einstein");
 
     private static final class MockServletOutputStream extends ServletOutputStream
     {
@@ -81,12 +81,11 @@ public class File2GBUploadServletTest extends AssertJUnit
         }
     }
 
-    private static UserDTO createUser(String userID, Long maxUploadSize)
+    private static UserDTO createUser(String userID)
     {
         UserDTO user = new UserDTO();
         user.setUserCode(userID);
         user.setEmail(userID + "@users.org");
-        user.setMaxUploadRequestSizeInMB(maxUploadSize);
         return user;
     }
 
@@ -148,9 +147,6 @@ public class File2GBUploadServletTest extends AssertJUnit
                 {
                     one(uploadService).createSession(USER, BASE_URL);
                     will(returnValue(UPLOAD_SESSION_ID));
-                    
-                    one(businessContext).getMaxUploadRequestSizeInMB();
-                    will(returnValue(42));
                 }
             });
 
@@ -161,7 +157,6 @@ public class File2GBUploadServletTest extends AssertJUnit
         template.bind("main-class", FileUploadClient.class.getName());
         template.bind("service-URL", BASE_URL + "/cifex/rpc-service");
         template.bind("upload-session-id", UPLOAD_SESSION_ID);
-        template.attemptToBind("maxUploadSizeInMB", "42");
         assertEquals(template.createText(false), outputStream.toString());
 
         context.assertIsSatisfied();

@@ -166,8 +166,6 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
         upload.setProgressListener(new FileUploadProgressListener(request.getSession(false),
                 pathnamesToUpload));
         final IFileManager fileManager = domainModel.getFileManager();
-        // Sets the maximum allowed size of a complete request in bytes.
-        upload.setSizeMax(getMaxUploadSize(requestUser));
         final FileItemIterator iter = upload.getItemIterator(request);
         for (int fileIndex = 0; iter.hasNext(); fileIndex++)
         {

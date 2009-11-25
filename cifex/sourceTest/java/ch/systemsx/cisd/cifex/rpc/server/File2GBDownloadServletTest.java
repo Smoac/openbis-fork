@@ -58,7 +58,7 @@ public class File2GBDownloadServletTest extends AssertJUnit
 
     private static final String SESSION_ID = "session-id";
 
-    private static final UserDTO USER = createUser("Einstein", null);
+    private static final UserDTO USER = createUser("Einstein");
 
     private static final class MockServletOutputStream extends ServletOutputStream
     {
@@ -77,12 +77,11 @@ public class File2GBDownloadServletTest extends AssertJUnit
         }
     }
 
-    private static UserDTO createUser(String userID, Long maxUploadSize)
+    private static UserDTO createUser(String userID)
     {
         UserDTO user = new UserDTO();
         user.setUserCode(userID);
         user.setEmail(userID + "@users.org");
-        user.setMaxUploadRequestSizeInMB(maxUploadSize);
         return user;
     }
 

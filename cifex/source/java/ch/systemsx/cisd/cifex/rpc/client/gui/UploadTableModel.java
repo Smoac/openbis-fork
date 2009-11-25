@@ -33,19 +33,14 @@ final class UploadTableModel extends AbstractTableModel
 {
     private static final long serialVersionUID = 1L;
 
-    private static final long MB = 1024L * 1024L;
-
-    private final int maxUploadSizeInMB;
-
     private final ITimeProvider timeProvider;
 
     private List<FileItem> fileItems = new ArrayList<FileItem>();
 
     private FileItem currentFileToBeUploaded;
 
-    UploadTableModel(ICIFEXUploader uploader, int maxUploadSizeInMB, ITimeProvider timeProvider)
+    UploadTableModel(ICIFEXUploader uploader, ITimeProvider timeProvider)
     {
-        this.maxUploadSizeInMB = maxUploadSizeInMB;
         this.timeProvider = timeProvider;
         uploader.addProgressListener(new IUploadProgressListener()
             {
@@ -138,16 +133,6 @@ final class UploadTableModel extends AbstractTableModel
         int size = fileItems.size();
         fileItems.add(new FileItem(file, timeProvider));
         fireTableRowsInserted(size, size);
-    }
-
-    long calculateFreeUploadSpace()
-    {
-        long result = maxUploadSizeInMB * MB;
-        for (FileItem fileItem : fileItems)
-        {
-            result -= fileItem.getFile().length();
-        }
-        return result;
     }
 
     List<File> getFiles()

@@ -67,6 +67,9 @@ public final class Constants
     /** The HTTP URL parameter used to specify the recipients. */
     public static final String RECIPIENTS_PARAMETER = "recipients";
 
+    /** The value representing unlimited usage (<code>unlimited</code>). */
+    public static final String UNLIMITED_VALUE = "unlimited";
+
     /** The table <code>null</code> value representation (<code>-</code>). */
     public static final String TABLE_NULL_VALUE = "-";
 

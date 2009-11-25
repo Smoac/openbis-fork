@@ -54,11 +54,6 @@ public interface IBusinessContext
     public Integer getMaxFileCountPerQuotaGroup();
     
     /**
-     * Returns the maximum upload request size in Megabyte.
-     */
-    public int getMaxUploadRequestSizeInMB();
-    
-    /**
      * Returns whether new externally authenticated users should start active or not.
      */
     public boolean isNewExternallyAuthenticatedUserStartActive();

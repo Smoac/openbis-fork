@@ -28,20 +28,56 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class Configuration implements IsSerializable
 {
 
-    private int maxUploadRequestSizeInMB;
+    private Integer fileRetention;
+    
+    private Integer userRetention;
+    
+    private Long maxFileSizePerQuotaGroupInMB;
+
+    private Integer maxFileCountPerQuotaGroup;
 
     private String administratorEmail;
 
     private String systemVersion;
 
-    public final int getMaxUploadRequestSizeInMB()
+    public final Integer getFileRetention()
     {
-        return maxUploadRequestSizeInMB;
+        return fileRetention;
     }
 
-    public final void setMaxUploadRequestSizeInMB(final int maxRequestSizeInMB)
+    public final void setFileRetention(Integer fileRetention)
     {
-        this.maxUploadRequestSizeInMB = maxRequestSizeInMB;
+        this.fileRetention = fileRetention;
+    }
+
+    public final Integer getUserRetention()
+    {
+        return userRetention;
+    }
+
+    public final void setUserRetention(Integer userRetention)
+    {
+        this.userRetention = userRetention;
+    }
+
+    public final Long getMaxFileSizePerQuotaGroupInMB()
+    {
+        return maxFileSizePerQuotaGroupInMB;
+    }
+
+    public final void setMaxFileSizePerQuotaGroupInMB(Long maxFileSizePerQuotaGroupInMB)
+    {
+        this.maxFileSizePerQuotaGroupInMB = maxFileSizePerQuotaGroupInMB;
+    }
+
+    public final Integer getMaxFileCountPerQuotaGroup()
+    {
+        return maxFileCountPerQuotaGroup;
+    }
+
+    public final void setMaxFileCountPerQuotaGroup(Integer maxFileCountPerQuotaGroup)
+    {
+        this.maxFileCountPerQuotaGroup = maxFileCountPerQuotaGroup;
     }
 
     public final void setAdministratorEmail(final String administratorEmail)
