@@ -38,4 +38,4 @@ rm -fr cifex
 jetty/bin/startup.sh
 cd ~/
 
-Echo "Now restart Datastore if needed"
+echo "Now restart Datastore if needed"
