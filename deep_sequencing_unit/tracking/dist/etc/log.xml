@@ -5,7 +5,7 @@
 
   <appender name="DEFAULT" class="org.apache.log4j.DailyRollingFileAppender">
 
-    <param name="File" value="log/datastore_server_log.txt"/>
+    <param name="File" value="log/tracking_log.txt"/>
     <param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
     <layout class="org.apache.log4j.PatternLayout">

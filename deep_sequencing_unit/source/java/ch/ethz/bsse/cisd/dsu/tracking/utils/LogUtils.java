@@ -78,7 +78,6 @@ public class LogUtils
 
     public static void debug(String msg)
     {
-        // FIXME 2009--, Tomasz Pylak: change to debug
-        operationLog.info(msg);
+        operationLog.debug(msg);
     }
 }
