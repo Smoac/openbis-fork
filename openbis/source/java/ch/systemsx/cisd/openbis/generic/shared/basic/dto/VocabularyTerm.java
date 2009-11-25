@@ -84,13 +84,8 @@ public final class VocabularyTerm extends CodeWithRegistration<Vocabulary> imple
     @Override
     public String toString()
     {
-        if (label == null)
-        {
-            return getCode();
-        } else
-        {
-            return label + " [" + getCode() + "]";
-        }
+        String code = getCode();
+        return label == null ? code : (code == null ? label : label + " [" + code + "]");
     }
 
     public String getUrl()

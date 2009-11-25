@@ -72,15 +72,7 @@ public class VocabularyPropertyColRenderer<T extends IEntityPropertiesHolder> ex
 
     public static final String renderCodeWithLabel(VocabularyTerm term)
     {
-        final String code = term.getCode();
-        final String label = term.getLabel();
-        if (label == null)
-        {
-            return code;
-        } else
-        {
-            return label + " [" + code + "]";
-        }
+        return term.toString();
     }
 
     public static final String renderAsTooltip(VocabularyTerm term)
