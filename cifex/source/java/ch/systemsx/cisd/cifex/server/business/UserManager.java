@@ -79,9 +79,9 @@ class UserManager extends AbstractManager implements IUserManager
     {
         assert code != null : "User Code is null!";
 
-        final UserDTO user = daoFactory.getUserDAO().tryFindUserByCode(code);
-        fillInDefaultQuotaInformation(user);
-        return user;
+        final UserDTO userOrNull = daoFactory.getUserDAO().tryFindUserByCode(code);
+        fillInDefaultQuotaInformation(userOrNull);
+        return userOrNull;
     }
 
     public UserDTO tryFindUserByCodeFillRegistrator(String code)
@@ -398,29 +398,33 @@ class UserManager extends AbstractManager implements IUserManager
         fillInDefaultQuotaInformation(user);
     }
 
-    private void fillInDefaultQuotaInformation(UserDTO user)
+    private void fillInDefaultQuotaInformation(UserDTO userOrNull)
     {
-        if (user.getFileRetention() == null)
+        if (userOrNull == null)
         {
-            user.setFileRetention(businessContext.getFileRetention());
+            return;
         }
-        if (user.getUserRetention() == null)
+        if (userOrNull.getFileRetention() == null)
         {
-            user.setUserRetention(businessContext.getUserRetention());
+            userOrNull.setFileRetention(businessContext.getFileRetention());
         }
-        if (user.getMaxFileCountPerQuotaGroup() == null)
+        if (userOrNull.getUserRetention() == null)
         {
-            user.setMaxFileCountPerQuotaGroup(businessContext.getMaxFileCountPerQuotaGroup());
-        } else if (user.getMaxFileCountPerQuotaGroup() <= 0)
-        {
-            user.setMaxFileCountPerQuotaGroup(null);
+            userOrNull.setUserRetention(businessContext.getUserRetention());
         }
-        if (user.getMaxFileSizePerQuotaGroupInMB() == null)
+        if (userOrNull.getMaxFileCountPerQuotaGroup() == null)
         {
-            user.setMaxFileSizePerQuotaGroupInMB(businessContext.getMaxFileSizePerQuotaGroupInMB());
-        } else if (user.getMaxFileSizePerQuotaGroupInMB() <= 0)
+            userOrNull.setMaxFileCountPerQuotaGroup(businessContext.getMaxFileCountPerQuotaGroup());
+        } else if (userOrNull.getMaxFileCountPerQuotaGroup() <= 0)
         {
-            user.setMaxFileSizePerQuotaGroupInMB(null);
+            userOrNull.setMaxFileCountPerQuotaGroup(null);
+        }
+        if (userOrNull.getMaxFileSizePerQuotaGroupInMB() == null)
+        {
+            userOrNull.setMaxFileSizePerQuotaGroupInMB(businessContext.getMaxFileSizePerQuotaGroupInMB());
+        } else if (userOrNull.getMaxFileSizePerQuotaGroupInMB() <= 0)
+        {
+            userOrNull.setMaxFileSizePerQuotaGroupInMB(null);
         }
     }
     
