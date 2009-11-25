@@ -155,13 +155,14 @@ public class EntityTrackingEmailData
                         seqencingSampleData.getSequencingSample().getIdentifier();
                 final boolean newlyTracked = seqencingSampleData.isNewlyTracked();
                 sb.append(String.format(
-                        "%sSequencing sample: '%s' with %d new Flow Lane samples tracked",
+                        "%sSequencing sample: '%s' with %d new Flow Lane samples tracked%s",
                         newlyTracked ? "new " : "", sequencingSampleIdentifier,
-                        flowLaneSamplesSize, flowLaneSamplesSize > 0 ? ": " : ""));
+                        flowLaneSamplesSize, flowLaneSamplesSize > 0 ? ": \n" : ""));
                 for (Sample flowLaneSample : seqencingSampleData.getFlowLaneSamples())
                 {
-                    sb.append(flowLaneSample.getIdentifier() + ", ");
+                    sb.append("\t" + flowLaneSample.getIdentifier());
                 }
+                sb.append("\n");
             }
         }
         sb.append("\n");
