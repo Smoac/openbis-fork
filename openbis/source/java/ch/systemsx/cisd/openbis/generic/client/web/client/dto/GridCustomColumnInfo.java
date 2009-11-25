@@ -69,4 +69,10 @@ public class GridCustomColumnInfo implements IsSerializable
         GridCustomColumnInfo that = (GridCustomColumnInfo) obj;
         return code.equals(that.code) && label.equals(that.label);
     }
+
+    @Override
+    public int hashCode()
+    {
+        return ((17 * 59) + code.hashCode()) * 59 + label.hashCode(); 
+    }
 }
