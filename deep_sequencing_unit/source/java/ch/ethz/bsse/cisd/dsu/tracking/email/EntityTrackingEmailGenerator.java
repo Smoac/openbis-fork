@@ -252,14 +252,12 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             appendProperties(sb, dataSet.getProperties());
         }
 
-        private static String tryGetSamplePropertyValue(Sample sequencingSample,
-                String externalSampleNamePropertyCode)
+        private static String tryGetSamplePropertyValue(Sample sequencingSample, String propertyCode)
         {
             String result = null;
             for (IEntityProperty property : sequencingSample.getProperties())
             {
-                final String propertyCode = property.getPropertyType().getCode();
-                if (propertyCode.equals(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE))
+                if (property.getPropertyType().getCode().equals(propertyCode))
                 {
                     result = StringEscapeUtils.unescapeHtml(property.getValue());
                     break;
