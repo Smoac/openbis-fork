@@ -66,38 +66,44 @@ public class TrackingBO
                 fetchChangedEntities(prevTrackingState, trackingServer, session);
         List<EmailWithSummary> emailsWithSummary = emailGenerator.generateEmails(changedEntities);
         sendEmails(emailsWithSummary, mailClient);
-        saveTrackingState(changedEntities, trackingDAO);
+        saveTrackingState(prevTrackingState, changedEntities, trackingDAO);
     }
 
     private static void sendEmails(List<EmailWithSummary> emailsWithSummary, IMailClient mailClient)
     {
         for (EmailWithSummary emailWithSummary : emailsWithSummary)
         {
+            Email email = emailWithSummary.getEmail();
             try
             {
-                sendMessage(mailClient, emailWithSummary);
+                logEmailSummary(emailWithSummary);
+                sendMessage(mailClient, email);
             } catch (Exception ex)
             {
-                sendErrorReport(mailClient, ex, emailWithSummary);
+                sendErrorReport(mailClient, ex, email);
             }
         }
+    }
+
+    private static void logEmailSummary(EmailWithSummary emailWithSummary)
+    {
+        LogUtils.info("Sending an email [" + emailWithSummary.getEmail().getSubject()
+                + "]. Summary:\n" + emailWithSummary.getSummary());
     }
 
     // This email could not be sent, most probably the recipient addresses were
     // incorrect.
     // We send the email to the administrator "replyTo' address, the admin should
     // forward it to the right recipient.
-    private static void sendErrorReport(IMailClient mailClient, Exception exception,
-            EmailWithSummary emailWithSummary)
+    private static void sendErrorReport(IMailClient mailClient, Exception exception, Email email)
     {
-        Email email = emailWithSummary.getEmail();
-
         StringBuilder errorReportContentBuilder = new StringBuilder();
         appendLine(errorReportContentBuilder, "Dear openBIS Admin,");
         appendLine(errorReportContentBuilder,
                 "This email has been generated automatically from the openBIS Changes Tracking system.");
         appendLine(errorReportContentBuilder, "There was a failure while trying to send the email:");
-        appendLine(errorReportContentBuilder, exception.getMessage());
+        appendLine(errorReportContentBuilder, exception.getMessage() == null ? "<no details>"
+                : exception.getMessage());
         appendLine(errorReportContentBuilder,
                 "The possible reason is that the recipient address is not valid.");
         appendLine(errorReportContentBuilder,
@@ -112,36 +118,25 @@ public class TrackingBO
                 + CollectionUtils.abbreviate(email.getRecipients(), -1));
         appendLine(errorReportContentBuilder, "");
 
-        StringBuilder errorReportSummaryBuilder =
-                new StringBuilder(errorReportContentBuilder.toString());
-
         appendLine(errorReportContentBuilder, "Original content: ");
         appendLine(errorReportContentBuilder, email.getContent());
         String errorReportContent = errorReportContentBuilder.toString();
 
-        appendLine(errorReportSummaryBuilder, "Original content summary: ");
-        appendLine(errorReportSummaryBuilder, emailWithSummary.getSummary());
-        String errorReportSummary = errorReportSummaryBuilder.toString();
-
         Email errorReportEmail =
                 new Email("[Tracking] Sending an email failed", errorReportContent, null, email
                         .getFromOrNull(), email.getReplyToOrNull());
-        sendMessage(mailClient, new EmailWithSummary(errorReportEmail, errorReportSummary));
+        sendMessage(mailClient, errorReportEmail);
     }
 
-    private static void sendMessage(IMailClient mailClient, EmailWithSummary emailWithSummary)
+    private static void sendMessage(IMailClient mailClient, Email email)
     {
-        Email email = emailWithSummary.getEmail();
-        String summary = emailWithSummary.getSummary();
-
         String subject = email.getSubject();
         String content = email.getContent();
         String replyToOrNull = email.getReplyToOrNull();
         From fromOrNull = email.getFromOrNull();
         String[] recipients = email.getRecipients();
-        mailClient.sendMessage(subject, content, replyToOrNull, fromOrNull, recipients);
 
-        LogUtils.debug("Sending an email [" + subject + "]\n" + summary);
+        mailClient.sendMessage(subject, content, replyToOrNull, fromOrNull, recipients);
     }
 
     private static void appendLine(StringBuilder sb, String msg)
@@ -150,18 +145,36 @@ public class TrackingBO
         sb.append("\n");
     }
 
-    private static void saveTrackingState(TrackedEntities changedEntities, ITrackingDAO trackingDAO)
+    private static void saveTrackingState(TrackingStateDTO prevState,
+            TrackedEntities changedEntities, ITrackingDAO trackingDAO)
     {
-        TrackingStateDTO state = new TrackingStateDTO();
-        state.setLastSeenSequencingSampleId(calcMaxId(changedEntities.getSequencingSamples()));
-        state.setLastSeenFlowLaneSampleId(calcMaxId(changedEntities.getFlowLaneSamples()));
-        state.setLastSeenDatasetId(calcMaxId(changedEntities.getDataSets()));
+        TrackingStateDTO state = calcNewTrackingState(prevState, changedEntities);
         trackingDAO.saveTrackingState(state);
     }
 
-    private static int calcMaxId(List<? extends IIdentifiable> entities)
+    private static TrackingStateDTO calcNewTrackingState(TrackingStateDTO prevState,
+            TrackedEntities changedEntities)
     {
-        long max = 0;
+        TrackingStateDTO state = new TrackingStateDTO();
+        int lastSeenSequencingSampleId =
+                calcMaxId(changedEntities.getSequencingSamples(), prevState
+                        .getLastSeenSequencingSampleId());
+        state.setLastSeenSequencingSampleId(lastSeenSequencingSampleId);
+
+        int lastSeenFlowLaneSampleId =
+                calcMaxId(changedEntities.getFlowLaneSamples(), prevState
+                        .getLastSeenFlowLaneSampleId());
+        state.setLastSeenFlowLaneSampleId(lastSeenFlowLaneSampleId);
+
+        int lastSeenDatasetId =
+                calcMaxId(changedEntities.getDataSets(), prevState.getLastSeenDatasetId());
+        state.setLastSeenDatasetId(lastSeenDatasetId);
+        return state;
+    }
+
+    private static int calcMaxId(List<? extends IIdentifiable> entities, int initialValue)
+    {
+        long max = initialValue;
         for (IIdentifiable entity : entities)
         {
             max = Math.max(max, entity.getId());
