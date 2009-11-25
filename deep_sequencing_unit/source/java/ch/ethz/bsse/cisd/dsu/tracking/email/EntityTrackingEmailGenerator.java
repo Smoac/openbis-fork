@@ -19,6 +19,7 @@ package ch.ethz.bsse.cisd.dsu.tracking.email;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -202,6 +203,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             // basic sample info
             appendAttribute(sb, PERMLINK_LABEL, sample.getPermlink());
             appendAttribute(sb, "Identifier", sample.getIdentifier());
+            appendNewline(sb);
 
             // sample properties
             appendProperties(sb, sample.getProperties());
@@ -239,9 +241,9 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             assert flowLaneSample != null;
             Sample sequencingSample = flowLaneSample.getGeneratedFrom();
             assert sequencingSample != null;
-            appendAttribute(sb, "Flow Lane sample", String.format("'%s'\n  %s", flowLaneSample
+            appendAttribute(sb, "Flow Lane sample", String.format("'%s'\n\t\t%s", flowLaneSample
                     .getCode(), flowLaneSample.getPermlink()));
-            appendAttribute(sb, "Sequencing sample", String.format("'%s'\n  %s", sequencingSample
+            appendAttribute(sb, "Sequencing sample", String.format("'%s'\n\t\t%s", sequencingSample
                     .getCode(), sequencingSample.getPermlink()));
 
             // information about external sample name
@@ -272,17 +274,19 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         // we could group entities by in sections.
         private static void appendProperties(StringBuilder sb, List<IEntityProperty> properties)
         {
+            Collections.sort(properties); // sorting by property label or code if there is no label
             for (IEntityProperty property : properties)
             {
                 final String label = property.getPropertyType().getLabel();
-                final String value = StringEscapeUtils.unescapeHtml(property.getValue());
-                appendAttribute(sb, label, value);
+                final String valueOrNull = property.tryGetAsString();
+                appendAttribute(sb, label, valueOrNull);
             }
         }
 
-        private static void appendAttribute(StringBuilder sb, String name, String value)
+        private static void appendAttribute(StringBuilder sb, String name, String valueOrNull)
         {
-            appendln(sb, String.format("- %s:\n  %s", name, value == null ? "(empty)" : value));
+            appendln(sb, String.format("- %s:\n\t\t%s", StringEscapeUtils.unescapeHtml(name),
+                    valueOrNull == null ? "(empty)" : StringEscapeUtils.unescapeHtml(valueOrNull)));
         }
 
         private static void appendln(StringBuilder sb, String string)
