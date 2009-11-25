@@ -27,6 +27,7 @@ import java.util.Properties;
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
 import ch.ethz.bsse.cisd.dsu.tracking.email.EntityTrackingEmailData.SequencingSampleData;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -206,6 +207,10 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
         private static void appendDataSetsData(StringBuilder sb, List<ExternalData> dataSets)
         {
+            if (dataSets.isEmpty())
+            {
+                return;
+            }
             appendln(sb, SECTION_SEPARATOR_LINE);
             appendln(sb, SUBSECTION_SEPARATOR_LINE);
             appendln(sb, String.format(
@@ -250,7 +255,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             for (IEntityProperty property : properties)
             {
                 final String label = property.getPropertyType().getLabel();
-                final String value = property.getValue();
+                final String value = StringEscapeUtils.unescapeHtml(property.getValue());
                 appendAttribute(sb, label, value);
             }
         }
