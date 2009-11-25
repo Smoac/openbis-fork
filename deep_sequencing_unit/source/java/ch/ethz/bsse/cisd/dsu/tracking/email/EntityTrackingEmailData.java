@@ -155,7 +155,7 @@ public class EntityTrackingEmailData
                         seqencingSampleData.getSequencingSample().getIdentifier();
                 final boolean newlyTracked = seqencingSampleData.isNewlyTracked();
                 sb.append(String.format(
-                        "%sSequencing sample: '%s' with %d new Flow Lane samples tracked%s",
+                        "%sSequencing sample: '%s' with %d new Flow Lane sample(s) tracked%s",
                         newlyTracked ? "new " : "", sequencingSampleIdentifier,
                         flowLaneSamplesSize, flowLaneSamplesSize > 0 ? ": \n" : ""));
                 for (Sample flowLaneSample : seqencingSampleData.getFlowLaneSamples())
