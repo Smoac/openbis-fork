@@ -169,7 +169,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                 {
                     String headingSuffix =
                             flowLaneSamplesSize == 0 ? "" : String.format(
-                                    " and %d connected Flow Lane sample(s).", flowLaneSamplesSize);
+                                    " and %d connected Flow Lane sample(s)", flowLaneSamplesSize);
                     sectionHeading =
                             String.format("Tracked creation of Sequencing sample '%s'%s.",
                                     sequencingSampleCode, headingSuffix);

@@ -145,7 +145,7 @@ public class EntityTrackingEmailData
         // append info about tracked samples
         if (getSequencingSamplesData().isEmpty())
         {
-            sb.append("no new samples tracked");
+            sb.append("no new samples tracked\n");
         } else
         {
             for (SequencingSampleData seqencingSampleData : getSequencingSamplesData())
@@ -165,7 +165,6 @@ public class EntityTrackingEmailData
                 sb.append("\n");
             }
         }
-        sb.append("\n");
         // append info about tracked data sets
         if (getDataSets().isEmpty())
         {
