@@ -1228,9 +1228,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                                 }
                                 // settings will be automatically stored because of event handling
                                 refreshColumnsSettings();
-                            }
-                            if (filtersChanged)
-                            {
                                 filterToolbar.refresh();
                             }
                         }
