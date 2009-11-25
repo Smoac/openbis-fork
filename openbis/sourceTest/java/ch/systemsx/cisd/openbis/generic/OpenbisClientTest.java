@@ -176,6 +176,7 @@ public class OpenbisClientTest
             builder.append(" code", sample.getCode());
             builder.append(" identifier", sample.getIdentifier());
             builder.append(" type", sample.getSampleType());
+            builder.append(" permlink", sample.getPermlink());
             builder.append(" properties", toString(sample.getProperties()));
             sb.append(builder.toString());
             final String newIndent = indent + INDENT;
@@ -200,6 +201,7 @@ public class OpenbisClientTest
             builder.append("id", dataSet.getId());
             builder.append(" code", dataSet.getCode());
             builder.append(" type", dataSet.getDataSetType());
+            builder.append(" permlink", dataSet.getPermlink());
             builder.append(" properties", toString(dataSet.getProperties()));
             sb.append(builder.toString());
             if (dataSet.getSample() != null)

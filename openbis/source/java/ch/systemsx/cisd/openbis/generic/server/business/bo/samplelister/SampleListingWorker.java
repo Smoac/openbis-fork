@@ -145,6 +145,8 @@ final class SampleListingWorker
 
     private boolean singleSampleTypeMode;
 
+    private boolean enrichDependentSamples;
+
     private int maxSampleParentResolutionDepth;
 
     private int maxSampleContainerResolutionDepth;
@@ -185,6 +187,7 @@ final class SampleListingWorker
         this.databaseInstance = databaseInstance;
         this.query = query;
         this.samplePropertiesEnricherOrNull = samplePropertiesEnricherOrNull;
+        this.enrichDependentSamples = criteria.isEnrichDependentSamplesWithProperties();
         this.referencedEntityDAO = referencedEntityDAO;
     }
 
@@ -216,8 +219,7 @@ final class SampleListingWorker
             watch.reset();
             watch.start();
         }
-
-        if (criteria.isEnrichDependentSamplesWithProperties() == false)
+        if (enrichDependentSamples == false)
         {
             // only 'primary' samples were retrieved up to this point
             enrichRetrievedSamplesWithProperties(watch);
@@ -225,7 +227,7 @@ final class SampleListingWorker
         retrieveDependentSamplesRecursively();
         resolveParents();
         resolveContainers();
-        if (criteria.isEnrichDependentSamplesWithProperties())
+        if (enrichDependentSamples)
         {
             // dependent samples will also be enriched
             enrichRetrievedSamplesWithProperties(watch);
@@ -240,12 +242,6 @@ final class SampleListingWorker
 
     private void enrichRetrievedSamplesWithProperties(StopWatch watch)
     {
-        // Initialize property collections of all samples retrieved up to this point
-        // (without this enricher will not work properly).
-        for (Sample sample : sampleMap.values())
-        {
-            sample.setProperties(new ArrayList<IEntityProperty>());
-        }
         if (samplePropertiesEnricherOrNull != null)
         {
             samplePropertiesEnricherOrNull.enrich(sampleMap.keySet(),
@@ -411,9 +407,6 @@ final class SampleListingWorker
         {
             return null;
         }
-        // uncomment if we want all dependent samples to be loaded
-        // maxSampleContainerResolutionDepth = Integer.MAX_VALUE;
-        // maxSampleParentResolutionDepth = Integer.MAX_VALUE;
         Long sampleTypeId =
                 referencedEntityDAO.getSampleTypeIdForSampleTypeCode(criteria.getSampleTypeCode());
         return query.getNewSamplesForSampleType(sampleTypeId, criteria.getLastSeenSampleId());
@@ -423,16 +416,16 @@ final class SampleListingWorker
     {
         assert sampleList != null;
 
-        retrieveBasicSamples(sampleIteratorOrNull, baseIndexURL, sampleList);
+        retrieveBasicSamples(sampleIteratorOrNull, sampleList);
     }
 
     private void retrieveDependentBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull)
     {
-        retrieveBasicSamples(sampleIteratorOrNull, null, null);
+        retrieveBasicSamples(sampleIteratorOrNull, null);
     }
 
     private void retrieveBasicSamples(final Iterable<SampleRecord> sampleIteratorOrNull,
-            final String baseIndexURLOrNull, final List<Sample> sampleListOrNull)
+            final List<Sample> sampleListOrNull)
     {
         if (sampleIteratorOrNull == null)
         {
@@ -441,7 +434,7 @@ final class SampleListingWorker
         final boolean primarySample = (sampleListOrNull != null);
         for (SampleRecord row : sampleIteratorOrNull)
         {
-            final Sample sampleOrNull = tryCreateSample(row, baseIndexURLOrNull, primarySample);
+            final Sample sampleOrNull = tryCreateSample(row, primarySample);
             if (sampleOrNull != null) // null == different db instance
             {
                 sampleMap.put(sampleOrNull.getId(), sampleOrNull);
@@ -453,8 +446,7 @@ final class SampleListingWorker
         }
     }
 
-    private Sample tryCreateSample(SampleRecord row, final String baseIndexURLOrNull,
-            final boolean primarySample)
+    private Sample tryCreateSample(SampleRecord row, final boolean primarySample)
     {
         final Sample sample = new Sample();
         sample.setId(row.id);
@@ -485,11 +477,14 @@ final class SampleListingWorker
             }
         }
         // set properties needed for primary samples
-        if (primarySample)
+        // (dependent samples too if they need to be enriched e.g. for entity tracking)
+        if (primarySample || enrichDependentSamples)
         {
+            // initializing property collection - without this enricher will not work properly
+            sample.setProperties(new ArrayList<IEntityProperty>());
             sample.setPermId(StringEscapeUtils.escapeHtml(row.perm_id));
-            sample.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURLOrNull,
-                    EntityKind.SAMPLE, row.perm_id));
+            sample.setPermlink(PermlinkUtilities.createPermlinkURL(baseIndexURL, EntityKind.SAMPLE,
+                    row.perm_id));
             sample.setRegistrationDate(row.registration_timestamp);
             if (row.inva_id != null)
             {
