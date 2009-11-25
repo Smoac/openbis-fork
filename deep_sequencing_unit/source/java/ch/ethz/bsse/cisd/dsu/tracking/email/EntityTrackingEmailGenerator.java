@@ -134,6 +134,8 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         private static final String SUBSECTION_SEPARATOR_LINE =
                 createSeparatorLine(SUBSECTION_SEPARATOR_CHAR);
 
+        private final static String EXTERNAL_SAMPLE_NAME_PROPERTY_CODE = "EXTERNAL_SAMPLE_NAME";
+
         private static final String PERMLINK_LABEL = "See details in openBIS";
 
         private static final String GENARATED_CONTENT_TARGET = "{generated-content}";
@@ -242,8 +244,28 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             appendAttribute(sb, "Sequencing sample", String.format("'%s'\n  %s", sequencingSample
                     .getCode(), sequencingSample.getPermlink()));
 
+            // information about external sample name
+            appendAttribute(sb, "External sample name", tryGetSamplePropertyValue(sequencingSample,
+                    EXTERNAL_SAMPLE_NAME_PROPERTY_CODE));
+
             // data set properties
             appendProperties(sb, dataSet.getProperties());
+        }
+
+        private static String tryGetSamplePropertyValue(Sample sequencingSample,
+                String externalSampleNamePropertyCode)
+        {
+            String result = null;
+            for (IEntityProperty property : sequencingSample.getProperties())
+            {
+                final String propertyCode = property.getPropertyType().getCode();
+                if (propertyCode.equals(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE))
+                {
+                    result = StringEscapeUtils.unescapeHtml(property.getValue());
+                    break;
+                }
+            }
+            return result;
         }
 
         // NOTE: Information about properties assigned to entity type are not loaded.
