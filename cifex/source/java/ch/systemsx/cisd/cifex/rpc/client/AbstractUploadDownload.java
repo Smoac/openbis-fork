@@ -39,7 +39,7 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
 {
     protected static final int BLOCK_SIZE = 256 * 1024;
 
-    protected static final int MAX_RETRIES = 30;
+    protected static final int MAX_RETRIES = 600;
 
     private static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L;
 
@@ -97,7 +97,8 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
      * <var>checksum</var>. <br>
      * <i>Note: this method resets the <var>checksum</var> object!</i>
      */
-    protected int calculateCRC32(RandomAccessFile fileProvider, CRC32 checksum, long maxSize) throws IOException
+    protected int calculateCRC32(RandomAccessFile fileProvider, CRC32 checksum, long maxSize)
+            throws IOException
     {
         checksum.reset();
         long filePointer = 0L;
@@ -155,8 +156,8 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     }
 
     /**
-     * The same as {@link Thread#sleep(long)} but throws a {@link InterruptedExceptionUnchecked} on interruption
-     * rather than a {@link InterruptedException}.
+     * The same as {@link Thread#sleep(long)} but throws a {@link InterruptedExceptionUnchecked} on
+     * interruption rather than a {@link InterruptedException}.
      */
     protected static void sleepAfterFailure() throws InterruptedExceptionUnchecked
     {
