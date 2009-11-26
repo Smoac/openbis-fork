@@ -78,8 +78,8 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             if (propertyKey.endsWith(AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX))
             {
                 final String affiliation =
-                        propertyKey.substring(0, AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX
-                                .length() - 1);
+                        propertyKey.substring(0, propertyKey.length()
+                                - AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX.length());
                 final String affiliationRecipient =
                         PropertyUtils.getMandatoryProperty(properties, propertyKey);
                 result.put(affiliation, affiliationRecipient);
