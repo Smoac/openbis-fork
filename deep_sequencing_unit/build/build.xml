@@ -58,8 +58,8 @@
 		
 		<copy file="${lib}/spring/spring.jar" todir="${dist.tracking.lib}" />
 
-		<property name="dist.file" value="openbis-tracking-client-DSU-${version.number}-r${revision.number}.zip" />
-		<zip basedir="${dist.tracking}" destfile="${dist}/${dist.file}" excludes="*.zip *.jar">
+		<property name="tracking-dist.file" value="openbis-tracking-client-DSU-${version.number}-r${revision.number}.zip" />
+		<zip basedir="${dist.tracking}" destfile="${dist}/${tracking-dist.file}" excludes="*.zip *.jar">
 			<zipfileset dir="${tracking.original.dist}" excludes="**/*.sh"/>
 			<zipfileset file="${tracking.original.dist}/tracking.sh" filemode="755" />
 		</zip>
@@ -69,7 +69,7 @@
 	<!--
         // Task for creating distributions
         -->
-	<target name="dist" depends="datastore_server.make-dist" />
+	<target name="dist" depends="datastore_server.make-dist, tracking-dist" />
 
 	<!--
         // Task for continuous integration server.
