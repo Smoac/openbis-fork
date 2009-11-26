@@ -1,0 +1,28 @@
+<project name="eu_basysbio" default="ci" basedir="..">
+	<import file="../../datastore_server/build/build.xml" />
+	<project-classpath name="ecp" classes="${classes}" />
+
+	<property name="original.dist" value="dist" />
+	<property name="mainfolder" value="eu_basysbio" />
+	<property name="variant" value="-basysbio" />
+
+	<target name="compile" depends="build-common.compile, clean" />
+
+	<target name="run-tests">
+		<antcall target="build-common.run-tests">
+			<param name="test.suite" value="tests.xml" />
+		</antcall>
+	</target>
+
+	<!--
+        // Task for creating distributions
+        -->
+	<target name="dist" depends="datastore_server.make-dist" />
+
+	<!--
+        // Task for continuous integration server.
+        -->
+	<target name="ci" depends="build-common.ci, dist, check-dependencies" />
+
+
+</project>
