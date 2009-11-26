@@ -136,7 +136,7 @@ class EntityTrackingEmailDataManager
         for (IEntityProperty property : sequencingSample.getProperties())
         {
             final String propertyCode = property.getPropertyType().getCode();
-            final String propertyValue = property.getValue();
+            final String propertyValue = property.tryGetAsString();
             if (recipientPropertyTypeCodes.contains(propertyCode))
             {
                 recipients.add(propertyValue);
