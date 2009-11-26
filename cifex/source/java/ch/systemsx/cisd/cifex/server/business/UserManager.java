@@ -92,7 +92,7 @@ class UserManager extends AbstractManager implements IUserManager
         if (user != null)
         {
             final UserDTO registrator =
-                    daoFactory.getUserDAO().tryFindUserById(user.getRegistrator().getID());
+                    daoFactory.getUserDAO().getUserById(user.getRegistrator().getID());
             user.setRegistrator(registrator);
             fillInDefaultQuotaInformation(user);
         }

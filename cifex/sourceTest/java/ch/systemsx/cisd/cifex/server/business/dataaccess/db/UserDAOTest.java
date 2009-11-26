@@ -230,7 +230,7 @@ public final class UserDAOTest extends AbstractDAOTest
     public final void testRefreshQuotaInfo()
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
-        final UserDTO user = userDAO.tryFindUserById(testTemporaryUser.getID());
+        final UserDTO user = userDAO.getUserById(testTemporaryUser.getID());
         checkUser(testTemporaryUser, user);
         // Fake some changed quota values
         user.setFileRetention(17);

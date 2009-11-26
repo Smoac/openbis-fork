@@ -283,21 +283,15 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
-    public UserDTO tryFindUserById(final long id) throws DataAccessException
+    public UserDTO getUserById(final long id) throws DataAccessException
     {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        try
-        {
-            final UserDTO user =
-                    template.queryForObject(
-                            "select * from users u join quota_groups q on q.id = u.quota_group_id"
-                                    + " where u.id = ?", new UserRowMapperWithQuotaInfo(), id);
-            fillInRegistrator(user);
-            return user;
-        } catch (final EmptyResultDataAccessException e)
-        {
-            return null;
-        }
+        final UserDTO user =
+                template.queryForObject(
+                        "select * from users u join quota_groups q on q.id = u.quota_group_id"
+                                + " where u.id = ?", new UserRowMapperWithQuotaInfo(), id);
+        fillInRegistrator(user);
+        return user;
     }
 
     public String tryFindUserCodeById(final long id) throws DataAccessException

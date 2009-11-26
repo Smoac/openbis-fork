@@ -34,17 +34,16 @@ public interface IUserDAO
      * Finds the user with the given user code.
      * 
      * @param userCode user code. Can not be blank.
-     * @return <code>null</code>, if no user with that code exists.
+     * @return <code>null</code>, if no user with that id exists.
      */
     public UserDTO tryFindUserByCode(String userCode) throws DataAccessException;
 
     /**
-     * Finds the user with the given database id.
+     * Returns the user with the given database <var>id</var>.
      * 
      * @param id The database id to look up the user for.
-     * @return <code>null</code>, if no user with that code exists.
      */
-    public UserDTO tryFindUserById(final long id) throws DataAccessException;
+    public UserDTO getUserById(final long id) throws DataAccessException;
     
     /**
      * Returns the user code for the given <var>id</var>.
