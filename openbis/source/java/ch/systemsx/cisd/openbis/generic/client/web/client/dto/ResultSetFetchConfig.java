@@ -60,7 +60,8 @@ public class ResultSetFetchConfig<K> implements IsSerializable
 
     /**
      * Instruction to fetch the result at the specified key in the cache an then recompute the
-     * custom columns and distinct filter values.
+     * custom columns and distinct filter values. Remember that rows are filtered anyway, even
+     * without recomputing.
      */
     public static <K> ResultSetFetchConfig<K> createFetchFromCacheAndRecompute(K resultSetKey)
     {
