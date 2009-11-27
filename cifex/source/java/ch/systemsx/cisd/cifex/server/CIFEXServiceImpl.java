@@ -98,17 +98,6 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return hasExternalAuthenticationService() && user.isExternallyAuthenticated() == false;
     }
 
-    private final UserDTO privGetCurrentUser() throws InvalidSessionException
-    {
-        final HttpSession session = getSession(false);
-        if (session == null)
-        {
-            throw new InvalidSessionException(
-                    "You are not logged in or your session has expired. Please log in.");
-        }
-        return (UserDTO) session.getAttribute(SESSION_ATTRIBUTE_USER_NAME);
-    }
-
     private void updateCurrentUser(String userID) throws InvalidSessionException
     {
         if (userID.equals(privGetCurrentUser().getUserCode()) == false)
@@ -206,7 +195,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             userDTOOrNull.setPermanent(true);
             userDTOOrNull.setRegistrator(null);
 
-            userManager.updateUser(userDTOOrNull, null);
+            userManager.updateUser(userDTOOrNull, null, privGetCurrentUser());
 
             copyUserDetailsExceptCode(privGetCurrentUser(), userDTOOrNull); // updating session
 
@@ -495,7 +484,8 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
         checkUpdateOfUserIsAllowed(oldUserDTO, newUserDTO);
 
-        userManager.updateUser(oldUserDTO, newUserDTO, new Password(plainPassword));
+        userManager.updateUser(oldUserDTO, newUserDTO, new Password(plainPassword),
+                privGetCurrentUser());
         updateCurrentUser(newUserDTO.getUserCode());
         if (sendUpdateInformationToUser)
         {
@@ -604,21 +594,17 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             throw new InsufficientPrivilegesException("Insufficient privileges for "
                     + describeUser(requestUser) + ".");
         }
-        // Only admins may change the 'active' flag
-        if (userToUpdate.isActive() != oldUser.isActive())
+        // Only admins may change the 'active' flag or the privilege level
+        if (userToUpdate.isActive() != oldUser.isActive()
+                || userToUpdate.isPermanent() != oldUser.isPermanent()
+                || userToUpdate.isAdmin() != oldUser.isPermanent())
         {
             throw new InsufficientPrivilegesException("Insufficient privileges for "
                     + describeUser(requestUser) + ".");
         }
-        // A user is allowed to edit him or herself but not to raise his or her privilege level to
-        // admin.
+        // A user is allowed to edit him or herself.
         if (requestUser.getUserCode().equals(userToUpdate.getUserCode()))
         {
-            if (userToUpdate.isAdmin())
-            {
-                throw new InsufficientPrivilegesException("Insufficient privileges for "
-                        + describeUser(requestUser) + ".");
-            }
             return;
         }
         final List<UserDTO> usersCreatedByRequestUser =

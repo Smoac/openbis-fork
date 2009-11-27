@@ -28,6 +28,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.NullAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.server.Session;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
@@ -184,7 +185,7 @@ abstract public class AbstractCIFEXService
         // Do not transfer the password or its hash value to the client (security).
         userDTO.setPassword(null);
         userDTO.setPasswordHash(null);
-        // Be a bit more restrictive for the registrator. Actually only user_id, name and email
+        // Be a bit more restrictive for the registrator. Actually only user_code, name and email
         // should be transferred.
         final UserDTO fullRegistrator = userDTO.getRegistrator();
         if (fullRegistrator != null)
@@ -335,7 +336,7 @@ abstract public class AbstractCIFEXService
                 userDTO.setAdmin(userOrNull.isAdmin());
                 userDTO.setPermanent(userOrNull.isPermanent());
                 userDTO.setActive(userOrNull.isActive());
-                
+
             } else
             {
                 userDTO.setAdmin(false);
@@ -371,7 +372,11 @@ abstract public class AbstractCIFEXService
             {
                 try
                 {
-                    userManager.updateUser(userDTO, null);
+                    userManager.updateUser(userDTO, null, privGetCurrentUser());
+                } catch (InvalidSessionException ex)
+                {
+                    throw new Error(
+                            "No HTTP session during updating from external authentication service.");
                 } catch (final DataIntegrityViolationException ex)
                 {
                     final String msg =
@@ -382,6 +387,17 @@ abstract public class AbstractCIFEXService
             }
         }
         return userDTO;
+    }
+
+    protected final UserDTO privGetCurrentUser() throws InvalidSessionException
+    {
+        final HttpSession session = getSession(false);
+        if (session == null)
+        {
+            throw new InvalidSessionException(
+                    "You are not logged in or your session has expired. Please log in.");
+        }
+        return (UserDTO) session.getAttribute(SESSION_ATTRIBUTE_USER_NAME);
     }
 
     public final void logout()

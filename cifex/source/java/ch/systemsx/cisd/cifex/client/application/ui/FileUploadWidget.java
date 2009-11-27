@@ -156,8 +156,9 @@ public final class FileUploadWidget extends LayoutContainer
         fieldSetMiddle.setHeading(context.getMessageResources().getRecipientLegend());
         if (context.getModel().getUser().isPermanent() == false)
         {
+            final UserInfoDTO registratorOrNull = context.getModel().getUser().getRegistrator();
             final String registratorUserCode =
-                    context.getModel().getUser().getRegistrator().getUserCode();
+                    (registratorOrNull != null) ? registratorOrNull.getUserCode() : null;
             if (registratorUserCode != null)
             {
                 userTextArea.setValue("id:" + registratorUserCode);

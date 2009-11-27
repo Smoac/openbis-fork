@@ -44,12 +44,17 @@ public final class UserGridModel extends AbstractUserGridModel
     {
         super(viewContext.getMessageResources(), viewContext.getModel().getUser());
         this.context = viewContext;
+        String registratorAnchor = null;
+        if (user.getRegistrator() != null)
+        {
+            registratorAnchor = UserRenderer.createUserAnchor(user.getRegistrator());
+        }
         set(USER_CODE, user.getUserCode());// String
         set(USER_EMAIL, user.getEmail());// String
         set(FULL_NAME, user.getUserFullName());// String
         set(STATUS, getUserRoleDescription(user));// String
         set(ACTIVE, new Boolean(user.isActive()));// Boolean
-        set(REGISTRATOR, UserRenderer.createUserAnchor(user.getRegistrator()));// String
+        set(REGISTRATOR, (registratorAnchor));// String
         set(ACTION, listActionsForUser(user));// String
 
     }

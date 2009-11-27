@@ -25,7 +25,7 @@ import java.sql.SQLException;
  * 
  * @author Bernd Rinn
  */
-public class UpdateQuotaGroupOnInsertUserTrigger extends AbstractUserTrigger
+public class UpdateQuotaGroupIdOnInsertUpdateUserTrigger extends AbstractUserTrigger
 {
 
     public void fire(Connection conn, Object[] oldRow, Object[] newRow) throws SQLException

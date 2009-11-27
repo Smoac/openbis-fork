@@ -48,7 +48,7 @@ public class BasicUserInfoDTO implements IsSerializable, Serializable
     private String userFullName;
 
     /**
-     * Email Adress of the user.
+     * Email address of the user.
      * <p>
      * We are sure that this key is never <code>null</code>.
      * </p>

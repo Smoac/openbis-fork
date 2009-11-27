@@ -879,16 +879,16 @@ public class CIFEXServiceImplTest
                             DEFAULT_USER_CODE);
                     will(returnValue(principal));
 
-                    one(userManager).updateUser(externalyUpdatedUser, null);
-                    one(userManager).updateUser(newUser, null);
+                    one(userManager).updateUser(externalyUpdatedUser, null, externalyUpdatedUser);
+                    one(userManager).updateUser(newUser, null, newUser);
 
-                    one(requestContextProvider).getHttpServletRequest();
+                    allowing(requestContextProvider).getHttpServletRequest();
                     will(returnValue(httpServletRequest));
 
-                    one(httpServletRequest).getSession(false);
+                    allowing(httpServletRequest).getSession(false);
                     will(returnValue(httpSession));
 
-                    one(httpSession).getAttribute("cifex-user");
+                    allowing(httpSession).getAttribute("cifex-user");
                     will(returnValue(oldUser));
                 }
             });
@@ -986,7 +986,7 @@ public class CIFEXServiceImplTest
                 {
                     one(userManager).tryFindUserByCode(code);
                     will(returnValue(oldUserDTO));
-                    one(userManager).updateUser(newUserDTO, null);
+                    one(userManager).updateUser(newUserDTO, null, newUserDTO);
                 }
             });
         prepareForGettingUserFromHTTPSession(newUserDTO, true);
@@ -1027,7 +1027,7 @@ public class CIFEXServiceImplTest
                 {
                     one(userManager).tryFindUserByCode(code);
                     will(returnValue(oldUserDTO));
-                    one(userManager).updateUser(newUserDTO, null);
+                    one(userManager).updateUser(newUserDTO, null, newUserDTO);
                 }
             });
         prepareForGettingUserFromHTTPSession(newUserDTO, true);
@@ -1179,6 +1179,8 @@ public class CIFEXServiceImplTest
                 {
                     allowing(requestContextProvider).getHttpServletRequest();
                     will(returnValue(httpServletRequest));
+                    allowing(httpSession).getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
+                    will(returnValue(userDTO));
 
                     if (createFlag)
                     {
@@ -1208,10 +1210,6 @@ public class CIFEXServiceImplTest
                                 with(any(LinkedBlockingQueue.class)));
                         one(httpSession).getId();
                         will(returnValue(SESSION_TOKEN_EXAMPLE));
-                    } else
-                    {
-                        one(httpSession).getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
-                        will(returnValue(userDTO));
                     }
                 }
             });

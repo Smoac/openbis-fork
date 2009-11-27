@@ -44,19 +44,19 @@ public interface IUserDAO
      * @param id The database id to look up the user for.
      */
     public UserDTO getUserById(final long id) throws DataAccessException;
-    
+
     /**
      * Returns the user code for the given <var>id</var>.
      * 
      * @return <code>null</code>, if no user with that <var>id</var> exists.
      */
     public String tryFindUserCodeById(long id) throws DataAccessException;
-    
+
     /**
      * Returns a list with all users, which have the given email address.
      */
     public List<UserDTO> tryFindUserByEmail(final String email) throws DataAccessException;
-    
+
     /**
      * Inserts given <code>User</code> into the database.
      * <p>
@@ -75,12 +75,22 @@ public interface IUserDAO
     public int getNumberOfUsers() throws DataAccessException;
 
     /**
+     * Returns <code>true</code> if the given <var>user</var> is the "main user" of the quota group
+     * the user is in.
+     * <p>
+     * <i>Note: A user is called "main user" of his quota group, if all other users in this group
+     * have been registered by him.</i>
+     */
+    public boolean isMainUserOfQuotaGroup(UserDTO user) throws DataAccessException;
+
+    /**
      * @return The list of all users currently present in the database.
      */
     public List<UserDTO> listUsers() throws DataAccessException;
 
     /**
-     * @return The list of users that have been registered by the user with given <var>userCode</var>.
+     * @return The list of users that have been registered by the user with given
+     *         <var>userCode</var>.
      */
     public List<UserDTO> listUsersRegisteredBy(String userCode);
 
@@ -93,12 +103,12 @@ public interface IUserDAO
      * Refreshes the quota information (and the file retention time) from the database.
      */
     public void refreshQuotaInformation(UserDTO user) throws DataAccessException;
-    
+
     /**
      * Deletes the user with the given <code>userId</code> from the database.
      * 
-     * @return <code>true</code>, if the user was actually deleted and <code>false</code>, if
-     *         no user was found with that id.
+     * @return <code>true</code>, if the user was actually deleted and <code>false</code>, if no
+     *         user was found with that id.
      */
     public boolean deleteUser(long userId) throws DataAccessException;
 

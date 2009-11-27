@@ -98,10 +98,7 @@ public final class UserDAOTest extends AbstractDAOTest
         user.setAdmin(admin);
         user.setFileRetention(fileRetention);
         user.setCustomFileRetention(true);
-        if (registrator == null)
-        {
-            user.setRegistrator(new UserDTO());
-        } else
+        if (registrator != null)
         {
             user.setRegistrator(registrator);
         }
@@ -141,6 +138,13 @@ public final class UserDAOTest extends AbstractDAOTest
     @Rollback(false)
     public final void testCreateUser(final UserDTO userDTO)
     {
+        final UserDTO registrator =
+                (userDTO.getRegistrator() != null) ? daoFactory.getUserDAO().tryFindUserByCode(
+                        userDTO.getRegistrator().getUserCode()) : null;
+        if (registrator != null && registrator.isAdmin() == false)
+        {
+            userDTO.setQuotaGroupId(registrator.getQuotaGroupId());
+        }
         final IUserDAO userDAO = daoFactory.getUserDAO();
         int currentNumberOfUsers = userDAO.listUsers().size();
         assertNull(userDTO.getID());
@@ -164,6 +168,13 @@ public final class UserDAOTest extends AbstractDAOTest
                 }
                 return;
             }
+        }
+        if (testTemporaryUser.equals(userDTO))
+        {
+            assertFalse(userDAO.isMainUserOfQuotaGroup(userDTO));
+        } else
+        {
+            assertTrue(userDAO.isMainUserOfQuotaGroup(userDTO));
         }
         fail("Created user not found.");
     }
@@ -242,7 +253,7 @@ public final class UserDAOTest extends AbstractDAOTest
         userDAO.refreshQuotaInformation(user);
         checkUser(testTemporaryUser, user);
     }
-    
+
     @Test(dependsOnGroups =
         { "user.create" }, groups = "user.read")
     public final void testListUserRegisteredBy()
@@ -312,7 +323,7 @@ public final class UserDAOTest extends AbstractDAOTest
         testTemporaryUser.setMaxFileSizePerQuotaGroupInMB(1000L);
         testTemporaryUser.setCustomMaxFileSizePerQuotaGroup(true);
         userDAO.updateUser(testTemporaryUser);
-        final UserDTO testTemporaryUserFromDB =
+        UserDTO testTemporaryUserFromDB =
                 userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
         checkUser(testTemporaryUser, testTemporaryUserFromDB);
 
@@ -332,6 +343,18 @@ public final class UserDAOTest extends AbstractDAOTest
         userDAO.updateUser(testPermanentUser);
         testPermanentUserFromDB = userDAO.tryFindUserByCode(testPermanentUser.getUserCode());
         checkUser(testPermanentUser, testPermanentUserFromDB);
+
+        // Check that initially testPermanentUser and testTemporaryUser are in the same quota group
+        assertEquals(testPermanentUserFromDB.getQuotaGroupId(), testTemporaryUserFromDB
+                .getQuotaGroupId());
+        // Now let the database create a new quota group for testTemporaryUser
+        testTemporaryUser.setQuotaGroupId(null);
+        userDAO.updateUser(testTemporaryUser);
+        testTemporaryUserFromDB = userDAO.tryFindUserByCode(testTemporaryUser.getUserCode());
+        // Now temporary user has a brand new quota group.
+        assertNotNull(testTemporaryUserFromDB.getQuotaGroupId());
+        assertFalse(testPermanentUserFromDB.getQuotaGroupId().equals(
+                testTemporaryUserFromDB.getQuotaGroupId()));
     }
 
     //

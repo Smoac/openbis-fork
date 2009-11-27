@@ -91,9 +91,12 @@ class UserManager extends AbstractManager implements IUserManager
         final UserDTO user = daoFactory.getUserDAO().tryFindUserByCode(code);
         if (user != null)
         {
-            final UserDTO registrator =
-                    daoFactory.getUserDAO().getUserById(user.getRegistrator().getID());
-            user.setRegistrator(registrator);
+            if (user.getRegistrator() != null)
+            {
+                final UserDTO registrator =
+                        daoFactory.getUserDAO().getUserById(user.getRegistrator().getID());
+                user.setRegistrator(registrator);
+            }
             fillInDefaultQuotaInformation(user);
         }
         return user;
@@ -297,15 +300,16 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final void updateUser(final UserDTO userToUpdate, final Password passwordOrNull)
-            throws UserFailureException, IllegalArgumentException
+    public final void updateUser(final UserDTO userToUpdate, final Password passwordOrNull,
+            final UserDTO requestUser) throws UserFailureException, IllegalArgumentException
     {
-        updateUser(null, userToUpdate, passwordOrNull);
+        updateUser(null, userToUpdate, passwordOrNull, requestUser);
     }
 
     @Transactional
     public final void updateUser(final UserDTO oldUserToUpdateOrNull, final UserDTO userToUpdate,
-            final Password passwordOrNull) throws UserFailureException, IllegalArgumentException
+            final Password passwordOrNull, final UserDTO requestUser) throws UserFailureException,
+            IllegalArgumentException
     {
         assert userToUpdate != null : "Unspecified user";
 
@@ -320,8 +324,7 @@ class UserManager extends AbstractManager implements IUserManager
                             userToUpdate.getUserCode());
 
             userToUpdate.setID(existingUser.getID());
-
-            checkIllegalModifications(existingUser, userToUpdate);
+            userToUpdate.setQuotaGroupId(existingUser.getQuotaGroupId());
 
             // Renew the expiration Date
             if (userToUpdate.isPermanent() == false)
@@ -336,7 +339,27 @@ class UserManager extends AbstractManager implements IUserManager
                 userToUpdate.setPassword(passwordOrNull);
             }
 
-            userDAO.updateUser(userToUpdate);
+            // Permanent users are always the main user of the quota group that they are in.
+            // If that is not the case (e.g. when a temporary user switches to external
+            // authentication), then we give the user a quota group of its own here.
+            if ((userToUpdate.isAdmin() || userToUpdate.isPermanent())
+                    && userDAO.isMainUserOfQuotaGroup(userToUpdate) == false)
+            {
+                // The trigger UPDATE_ACCOUNTING_ON_UPDATE_USER() will create and set a new quota
+                // group if we set it to null here.
+                userToUpdate.setQuotaGroupId(null);
+            }
+
+            // If we switch a temporary user to permanent and the registrator of the user is no
+            // administrator, make the current request user the new registrator.
+            if (oldUserToUpdateOrNull != null && oldUserToUpdateOrNull.isPermanent() == false
+                    && userToUpdate.isPermanent() && userToUpdate.getRegistrator() != null
+                    && userToUpdate.getRegistrator().isAdmin() == false)
+            {
+                userToUpdate.setRegistrator(requestUser);
+            }
+
+                userDAO.updateUser(userToUpdate);
             success = true;
         } finally
         {
@@ -358,15 +381,6 @@ class UserManager extends AbstractManager implements IUserManager
         }
         assert userCode.equals(existingUser.getUserCode()) : "Mismatch in user code";
         return existingUser;
-    }
-
-    private static void checkIllegalModifications(final UserDTO oldUser, final UserDTO newUser)
-            throws IllegalArgumentException
-    {
-        if (oldUser.isPermanent() && newUser.isPermanent() == false)
-        {
-            throw new IllegalArgumentException("Cannot make a regular user temporary.");
-        }
     }
 
     @Transactional
