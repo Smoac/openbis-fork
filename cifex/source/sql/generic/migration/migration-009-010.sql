@@ -8,8 +8,9 @@
 
 -- Add NOT NULL constraint for FILES.USER_ID
 
-UPDATE FILES SET USER_ID = 1 WHERE USER_ID IS NULL;
-ALTER TABLE FILES ALTER COLUMN USER_ID SET NOT NULL;
+-- Note: This change has been revoked. It is commented out to avoid assigning orphaned files to USER_ID 1 
+-- UPDATE FILES SET USER_ID = 1 WHERE USER_ID IS NULL;
+-- ALTER TABLE FILES ALTER COLUMN USER_ID SET NOT NULL;
 
 -- Clean up old domain USER_NAME that has been forgotten in the migration from 1 to 2
 
