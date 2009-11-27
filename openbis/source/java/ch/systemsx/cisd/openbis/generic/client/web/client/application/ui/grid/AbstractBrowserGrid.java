@@ -1210,26 +1210,21 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                             {
                                 recreateColumnModelAndRefreshColumnsWithFilters();
                             }
-                            boolean filtersChanged =
+                            boolean columnFiltersChanged =
                                     rebuildFiltersFromIds(getFilteredColumnIds(newColumnDataModels));
                             saveColumnDisplaySettings();
 
-                            if (customColumnsChanged)
+                            if (customColumnsChanged || columnFiltersChanged)
                             {
-                                debug("refreshing custom columns in " + pendingFetchConfigOrNull
-                                        + " mode");
+                                debug("refreshing custom columns and/or filter distinct value in "
+                                        + pendingFetchConfigOrNull + " mode");
+                                // we do not need to reload data if custom filters changed (we do
+                                // not need distinct column values)
                                 reloadData(createRefreshSettingsFetchConfig());
-                            } else
-                            {
-                                if (filtersChanged)
-                                {
-                                    // refresh the data - some filters may have been removed
-                                    createApplyFiltersDelagator().execute();
-                                }
-                                // settings will be automatically stored because of event handling
-                                refreshColumnsSettings();
-                                filterToolbar.refresh();
                             }
+                            // settings will be automatically stored because of event handling
+                            refreshColumnsSettings();
+                            filterToolbar.refresh();
                         }
 
                         private ResultSetFetchConfig<String> createRefreshSettingsFetchConfig()
