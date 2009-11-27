@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 /**
  * Definition of basic constants. Can be used by server and GWT client.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class BasicConstant
 {
@@ -56,7 +56,7 @@ public class BasicConstant
     /**
      * Canonical date format pattern used to render dates in GUI in a more readable way.
      */
-    public static final String RENDERED_CANONICAL_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss zzz";
+    public static final String RENDERED_CANONICAL_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss ZZZZ";
 
     private BasicConstant()
     {
