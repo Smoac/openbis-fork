@@ -97,6 +97,17 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         return hasExternalAuthenticationService() && user.isExternallyAuthenticated() == false;
     }
+    
+    private final UserDTO privGetCurrentUser() throws InvalidSessionException
+    {
+        final HttpSession session = getSession(false);
+        if (session == null)
+        {
+            throw new InvalidSessionException(
+                    "You are not logged in or your session has expired. Please log in.");
+        }
+        return (UserDTO) session.getAttribute(SESSION_ATTRIBUTE_USER_NAME);
+    }
 
     private void updateCurrentUser(String userID) throws InvalidSessionException
     {

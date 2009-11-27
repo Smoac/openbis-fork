@@ -879,7 +879,7 @@ public class CIFEXServiceImplTest
                             DEFAULT_USER_CODE);
                     will(returnValue(principal));
 
-                    one(userManager).updateUser(externalyUpdatedUser, null, externalyUpdatedUser);
+                    one(userManager).updateUser(externalyUpdatedUser, null, null);
                     one(userManager).updateUser(newUser, null, newUser);
 
                     allowing(requestContextProvider).getHttpServletRequest();
@@ -986,7 +986,7 @@ public class CIFEXServiceImplTest
                 {
                     one(userManager).tryFindUserByCode(code);
                     will(returnValue(oldUserDTO));
-                    one(userManager).updateUser(newUserDTO, null, newUserDTO);
+                    one(userManager).updateUser(newUserDTO, null, null);
                 }
             });
         prepareForGettingUserFromHTTPSession(newUserDTO, true);
@@ -1027,7 +1027,7 @@ public class CIFEXServiceImplTest
                 {
                     one(userManager).tryFindUserByCode(code);
                     will(returnValue(oldUserDTO));
-                    one(userManager).updateUser(newUserDTO, null, newUserDTO);
+                    one(userManager).updateUser(newUserDTO, null, null);
                 }
             });
         prepareForGettingUserFromHTTPSession(newUserDTO, true);

@@ -301,14 +301,14 @@ class UserManager extends AbstractManager implements IUserManager
 
     @Transactional
     public final void updateUser(final UserDTO userToUpdate, final Password passwordOrNull,
-            final UserDTO requestUser) throws UserFailureException, IllegalArgumentException
+            final UserDTO requestUserOrNull) throws UserFailureException, IllegalArgumentException
     {
-        updateUser(null, userToUpdate, passwordOrNull, requestUser);
+        updateUser(null, userToUpdate, passwordOrNull, requestUserOrNull);
     }
 
     @Transactional
     public final void updateUser(final UserDTO oldUserToUpdateOrNull, final UserDTO userToUpdate,
-            final Password passwordOrNull, final UserDTO requestUser) throws UserFailureException,
+            final Password passwordOrNull, final UserDTO requestUserOrNull) throws UserFailureException,
             IllegalArgumentException
     {
         assert userToUpdate != null : "Unspecified user";
@@ -359,10 +359,10 @@ class UserManager extends AbstractManager implements IUserManager
                     && userToUpdate.isPermanent() && userToUpdate.getRegistrator() != null
                     && userToUpdate.getRegistrator().isAdmin() == false)
             {
-                userToUpdate.setRegistrator(requestUser);
+                userToUpdate.setRegistrator(requestUserOrNull);
             }
 
-                userDAO.updateUser(userToUpdate);
+            userDAO.updateUser(userToUpdate);
             success = true;
         } finally
         {
