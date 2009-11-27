@@ -597,7 +597,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         // Only admins may change the 'active' flag or the privilege level
         if (userToUpdate.isActive() != oldUser.isActive()
                 || userToUpdate.isPermanent() != oldUser.isPermanent()
-                || userToUpdate.isAdmin() != oldUser.isPermanent())
+                || userToUpdate.isAdmin() != oldUser.isAdmin())
         {
             throw new InsufficientPrivilegesException("Insufficient privileges for "
                     + describeUser(requestUser) + ".");

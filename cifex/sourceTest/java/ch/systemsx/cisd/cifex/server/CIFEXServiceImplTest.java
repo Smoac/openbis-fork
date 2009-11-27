@@ -1292,30 +1292,30 @@ public class CIFEXServiceImplTest
         return new Object[][]
             {
                 // admin can change everything
-                    { adminChanger, adminChanger, true },
-                    { adminChanger, adminRegistrant, true },
-                    { adminChanger, alice, true },
-                    { adminChanger, tempRegisteredByAlice, true },
+                    { adminChanger, adminChanger, adminChanger, true },
+                    { adminChanger, adminRegistrant, adminRegistrant, true },
+                    { adminChanger, alice, alice, true },
+                    { adminChanger, tempRegisteredByAlice, tempRegisteredByAlice, true },
 
                     // permanent user can change
-                    { alice, alice, true }, // himself
-                        { alice, tempRegisteredByAlice, true }, // temp registered by him
-                        // permanent user cannot change
-
-                    { alice, adminRegistrant, false }, // admin
-                        { alice, adminChanger, false },
-                        { alice, permNotRegisteredByAlice, false }, // other perm
-                        { alice, permRegisteredByAlice, false },
-                        { alice, tempNotRegisteredByAlice, false }, // temp not registered by him
-                        { alice, aliceWannabeAdmin, false }, // himself to admin
-                        { alice, aliceTemp, true }, // himself to temp
+                    { alice, alice, alice, true }, // herself
+                        { alice, tempRegisteredByAlice, tempRegisteredByAlice, true }, // temp registered by her
+                        
+                    // permanent user cannot change
+                    { alice, adminRegistrant, adminRegistrant, false }, // admin
+                        { alice, adminChanger, adminChanger, false },
+                        { alice, permNotRegisteredByAlice, permNotRegisteredByAlice, false }, // other perm
+                        { alice, permRegisteredByAlice, permRegisteredByAlice, false },
+                        { alice, tempNotRegisteredByAlice, tempNotRegisteredByAlice, false }, // temp not registered by him
+                        { alice, alice, aliceWannabeAdmin, false }, // herself to admin
+                        { alice, alice, aliceTemp, false }, // herself to temp
 
                         // temporary user cannot change anything
-                    { tempRegisteredByAlice, adminChanger, false },
-                    { tempRegisteredByAlice, adminRegistrant, false },
-                    { tempRegisteredByAlice, alice, false },
-                    { tempRegisteredByAlice, tempRegisteredByAlice, false },
-                    { tempRegisteredByAlice, tempNotRegisteredByAlice, false } };
+                    { tempRegisteredByAlice, adminChanger, adminChanger, false },
+                    { tempRegisteredByAlice, adminRegistrant, adminRegistrant, false },
+                    { tempRegisteredByAlice, alice, alice, false },
+                    { tempRegisteredByAlice, tempRegisteredByAlice, tempRegisteredByAlice, false },
+                    { tempRegisteredByAlice, tempNotRegisteredByAlice, tempNotRegisteredByAlice, false } };
     }
 
     final static UserDTO createUser(final boolean permanent, final boolean admin,
@@ -1337,7 +1337,7 @@ public class CIFEXServiceImplTest
 
     @Test(dataProvider = "currentUserAndUserToUpdate")
     public void testCheckUpdateOfUserIsAllowedCurrentUserIsAdmin(final UserDTO currentUser,
-            final UserDTO userToUpdate, final boolean canDo)
+            final UserDTO oldUserToUpdate, final UserDTO userToUpdate, final boolean canDo)
     {
         boolean invalidSessionExceptionThrown = false;
         boolean insufficientPrivilegesExceptionThrown = false;
@@ -1363,7 +1363,7 @@ public class CIFEXServiceImplTest
             });
         try
         {
-            CIFEXServiceImpl.checkUpdateOfUserIsAllowed(userToUpdate, userToUpdate, currentUser,
+            CIFEXServiceImpl.checkUpdateOfUserIsAllowed(oldUserToUpdate, userToUpdate, currentUser,
                     userManager);
         } catch (final InvalidSessionException ex)
         {
