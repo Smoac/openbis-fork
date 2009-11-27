@@ -57,7 +57,7 @@ public class EMailBuilderForUpdateUserTest
                         + "Here's how to login:\n"
                         + "-------------------------------------------------\n" + "\n"
                         + "Visit:\t\thttp://localhost/cifex?user=a\n" + "User:\ta\n"
-                        + "The password has not changed, it is still to old one!\n" + "\n"
+                        + "The password has not changed, it is still the old one!\n" + "\n"
                         + "--------------------------------------------------\n"
                         + "CIFEX - CISD File EXchanger\n"
                         + "Center for Information Sciences and Databases\n" + "ETH Zurich",
@@ -131,7 +131,7 @@ public class EMailBuilderForUpdateUserTest
                         + "\n"
                         + "Visit:\t\thttp://localhost/cifex?user=t\n"
                         + "User:\tt\n"
-                        + "The password has not changed, it is still to old one!\n"
+                        + "The password has not changed, it is still the old one!\n"
                         + "\n"
                         + "This login account expires on 15-Jan-1970 at 07:56:07. Please access your account now!\n"
                         + "\n" + "--------------------------------------------------\n"
