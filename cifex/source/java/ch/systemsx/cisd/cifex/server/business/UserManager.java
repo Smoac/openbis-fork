@@ -331,6 +331,9 @@ class UserManager extends AbstractManager implements IUserManager
             {
                 userToUpdate.setExpirationDate(DateUtils.addHours(new Date(), businessContext
                         .getUserRetention()));
+            } else
+            {
+                userToUpdate.setExpirationDate(null);
             }
 
             // Password, update it if it has been provided.
