@@ -68,7 +68,7 @@ public class EMailBuilderForUpdateUser extends AbstractEMailBuilder
             builder.append("\nPassword:\t").append(password);
         } else
         {
-            builder.append("\nThe password has not changed, it is still to old one!");
+            builder.append("\nThe password has not changed, it is still the old one!");
         }
         if (updateUser.isAdmin() == false && updateUser.isPermanent() == false)
         {
