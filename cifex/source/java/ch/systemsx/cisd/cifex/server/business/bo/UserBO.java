@@ -51,14 +51,12 @@ class UserBO extends AbstractBusinessObject implements IUserBO
         }
         // Logic of deciding on what quota group to use. If no quota group is set here, a new quota
         // group will be created for the user automatically.
-        if (user.getRegistrator() != null && user.getRegistrator().getUserCode() != null)
+        // Note: Here we assume that the registrator information is reliable and complete, i.e. that
+        // is comes from the server side.
+        final UserDTO registratorOrNull = user.getRegistrator();
+        if (registratorOrNull != null && registratorOrNull.isAdmin() == false)
         {
-            final UserDTO registrator =
-                    daoFactory.getUserDAO().tryFindUserByCode(user.getRegistrator().getUserCode());
-            if (registrator.isAdmin() == false)
-            {
-                user.setQuotaGroupId(registrator.getQuotaGroupId());
-            }
+            user.setQuotaGroupId(registratorOrNull.getQuotaGroupId());
         }
         this.userDTO = user;
         dataChanged = true;

@@ -64,7 +64,7 @@ public class CreateUserWidget extends UserWidget
             }
             final ICIFEXServiceAsync cifexService = context.getCifexService();
             cifexService.createUser(user, StringUtils.nullIfBlank(passwordField.getValue()),
-                    context.getModel().getUser(), comment, new CreateUserAsyncCallBack());
+                    comment, new CreateUserAsyncCallBack());
         }
     }
 

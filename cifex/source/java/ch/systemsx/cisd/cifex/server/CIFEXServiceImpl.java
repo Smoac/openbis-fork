@@ -285,7 +285,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     }
 
     public void createUser(final UserInfoDTO user, final String password,
-            final UserInfoDTO registrator, final String comment)
+            final String comment)
             throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException, UserFailureException
     {
@@ -299,10 +299,9 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
 
         final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
-        final UserDTO registratorDTO = BeanUtils.createBean(UserDTO.class, registrator);
         try
         {
-            userManager.createUserAndSendEmail(userDTO, password, registratorDTO, comment,
+            userManager.createUserAndSendEmail(userDTO, password, privGetCurrentUser(), comment,
                     getBasicURL());
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
         {

@@ -348,8 +348,7 @@ public class CIFEXServiceImplTest
                 }
             });
         final CIFEXServiceImpl service = createService(authenticationService);
-        service.createUser(userToCreate, "pass", BeanUtils.createBean(UserInfoDTO.class, admin),
-                "My great new user");
+        service.createUser(userToCreate, "pass", "My great new user");
         context.assertIsSatisfied();
     }
 
@@ -409,8 +408,7 @@ public class CIFEXServiceImplTest
                 }
             });
         final CIFEXServiceImpl service = createService(authenticationService);
-        service.createUser(userToCreate, password, BeanUtils.createBean(UserInfoDTO.class, admin),
-                comment);
+        service.createUser(userToCreate, password, comment);
         context.assertIsSatisfied();
     }
 
@@ -447,8 +445,7 @@ public class CIFEXServiceImplTest
                 }
             });
         final CIFEXServiceImpl service = createService(null);
-        service.createUser(userToCreate, password, BeanUtils.createBean(UserInfoDTO.class, admin),
-                comment);
+        service.createUser(userToCreate, password, comment);
         context.assertIsSatisfied();
     }
 

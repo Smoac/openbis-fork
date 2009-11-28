@@ -73,15 +73,13 @@ public interface ICIFEXServiceAsync extends RemoteService
             final AsyncCallback<List<UserInfoDTO>> callback);
 
     /**
-     * Creates a new <code>User</code> in Cifex with the given <var>password</var>. The user
-     * <var>registrator</var> is the user who creates the new user.
+     * Creates a new <code>User</code> in Cifex with the given <var>password</var>.
      * <p>
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
      */
     public void createUser(final UserInfoDTO user, final String password,
-            final UserInfoDTO registrator, final String comment,
-            final AsyncCallback<Void> callback);
+            final String comment, final AsyncCallback<Void> callback);
 
     /**
      * Update the fields of the user in the database.
