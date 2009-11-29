@@ -765,7 +765,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         assertEquals(imageFile.getName(), createdFileDTO.getName());
         assertEquals(comment, createdFileDTO.getComment());
         assertEquals(inputFile.length(), createdFileDTO.getSize().longValue());
-        final long expectedExpirationDate = calculateFileRetention(fileRetention) * 3600000 + 4711;
+        final long expectedExpirationDate = calculateFileRetention(fileRetention) * 86400000L + 4711;
         assertEquals(expectedExpirationDate, createdFileDTO.getExpirationDate().getTime());
         context.assertIsSatisfied();
     }
@@ -811,7 +811,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                                 }
                                 FileDTO fileDTO = (FileDTO) item;
                                 int r = calculateFileRetention(fileRetention);
-                                return fileDTO.getExpirationDate().getTime() == r * 3600000 + 4711;
+                                return fileDTO.getExpirationDate().getTime() == r * 86400000L + 4711;
                             }
                         }));
                 }
