@@ -70,7 +70,6 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             user.setPasswordHash(rs.getString("password_hash"));
             user.setExternallyAuthenticated(rs.getBoolean("is_externally_authenticated"));
             user.setAdmin(rs.getBoolean("is_admin"));
-            user.setPermanent(rs.getBoolean("is_permanent"));
             user.setActive(rs.getBoolean("is_active"));
             user.setRegistrationDate(DBUtils.tryToTranslateTimestampToDate(rs
                     .getTimestamp("registration_timestamp")));
@@ -367,22 +366,20 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         {
             template.update("insert into users (id, user_code, email, full_name,"
                     + "is_externally_authenticated, is_admin,"
-                    + "is_permanent, is_active, user_id_registrator, quota_group_id,"
-                    + "expiration_timestamp) " + "values (?,?,?,?,?,?,?,?,?,?,?)", id, user
-                    .getUserCode(), user.getEmail(), user.getUserFullName(), user
-                    .isExternallyAuthenticated(), user.isAdmin(), user.isPermanent(), user
+                    + "is_active, user_id_registrator, quota_group_id," + "expiration_timestamp) "
+                    + "values (?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user.getEmail(), user
+                    .getUserFullName(), user.isExternallyAuthenticated(), user.isAdmin(), user
                     .isActive(), registratorIdOrNull, user.getQuotaGroupId(), user
                     .getExpirationDate());
         } else
         {
             template.update("insert into users (id, user_code, email, full_name, password_hash,"
                     + "is_externally_authenticated, is_admin,"
-                    + "is_permanent, is_active, user_id_registrator, quota_group_id,"
-                    + "expiration_timestamp) " + "values (?,?,?,?,?,?,?,?,?,?,?,?)", id, user
-                    .getUserCode(), user.getEmail(), user.getUserFullName(), user.getPassword()
-                    .createPasswordHash(), user.isExternallyAuthenticated(), user.isAdmin(), user
-                    .isPermanent(), user.isActive(), registratorIdOrNull, user.getQuotaGroupId(),
-                    user.getExpirationDate());
+                    + "is_active, user_id_registrator, quota_group_id," + "expiration_timestamp) "
+                    + "values (?,?,?,?,?,?,?,?,?,?,?)", id, user.getUserCode(), user.getEmail(),
+                    user.getUserFullName(), user.getPassword().createPasswordHash(), user
+                            .isExternallyAuthenticated(), user.isAdmin(), user.isActive(),
+                    registratorIdOrNull, user.getQuotaGroupId(), user.getExpirationDate());
         }
         final long quotaGroupId =
                 template.queryForInt("select quota_group_id from users where id = ?", id);
@@ -433,11 +430,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
         template.update("update users set email = ?, user_code = ?, full_name = ?, "
                 + "is_externally_authenticated = ?, is_admin = ?, "
-                + "is_permanent = ?, is_active = ?, quota_group_id = ?, "
-                + "expiration_timestamp = ? where id = ?", user.getEmail(), user.getUserCode(),
-                user.getUserFullName(), user.isExternallyAuthenticated(), user.isAdmin(), user
-                        .isPermanent(), user.isActive(), user.getQuotaGroupId(), user
-                        .getExpirationDate(), user.getID());
+                + "is_active = ?, quota_group_id = ?, " + "expiration_timestamp = ? where id = ?",
+                user.getEmail(), user.getUserCode(), user.getUserFullName(), user
+                        .isExternallyAuthenticated(), user.isAdmin(), user.isActive(), user
+                        .getQuotaGroupId(), user.getExpirationDate(), user.getID());
         if (Password.isEmpty(user.getPassword()) == false)
         {
             template.update("update users set password_hash = ? where id = ?", user.getPassword()

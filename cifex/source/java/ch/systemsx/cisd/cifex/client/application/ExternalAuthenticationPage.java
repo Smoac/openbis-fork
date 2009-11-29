@@ -143,7 +143,6 @@ final class ExternalAuthenticationPage extends AbstractMainPage
             context.getModel().getUser().setUserFullName(user.getUserFullName());
             context.getModel().getUser().setExternallyAuthenticated(
                     user.isExternallyAuthenticated());
-            context.getModel().getUser().setPermanent(user.isPermanent());
             context.getModel().getUser().setExpirationDate(user.getExpirationDate());
             context.getModel().getUser().setRegistrator(user.getRegistrator());
         }

@@ -36,14 +36,6 @@ public final class UserInfoDTO extends BasicUserInfoDTO
     private boolean admin;
 
     /**
-     * Whether this user is <i>permanent</i> or not.
-     * <p>
-     * A non-permanent user has a non-<code>null</code> {@link #expirationDate} value.
-     * </p>
-     */
-    private boolean permanent;
-    
-    /**
      * Whether this user is currently active (set to false to deactivate a user).
      */
     private boolean active = true;
@@ -104,12 +96,7 @@ public final class UserInfoDTO extends BasicUserInfoDTO
 
     public final boolean isPermanent()
     {
-        return permanent;
-    }
-
-    public final void setPermanent(final boolean permanent)
-    {
-        this.permanent = permanent;
+        return expirationDate == null;
     }
 
     public boolean isActive()

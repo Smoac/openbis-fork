@@ -30,6 +30,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.Assert;
@@ -207,7 +208,6 @@ public class CIFEXServiceImplTest
         userDTO.setUserCode("user@users.org");
         userDTO.setEmail("user@users.org");
         userDTO.setPassword(new Password(password));
-        userDTO.setPermanent(true);
         userDTO.setAdmin(true);
         prepareForDBEmptyCheck(true);
         context.checking(new Expectations()
@@ -306,12 +306,10 @@ public class CIFEXServiceImplTest
         userToCreate.setEmail(DEFAULT_USER_EMAIL);
         userToCreate.setUserCode(DEFAULT_USER_CODE);
         userToCreate.setUserFullName(DEFAULT_USER_FIRST_NAME + " " + DEFAULT_USER_LAST_NAME);
-        userToCreate.setPermanent(true);
         final UserDTO admin = new UserDTO();
         admin.setAdmin(true);
         admin.setEmail("admin@admins.com");
         admin.setUserCode("admin");
-        admin.setPermanent(true);
         prepareForGettingUserFromHTTPSession(admin, false);
         context.checking(new Expectations()
             {
@@ -342,7 +340,6 @@ public class CIFEXServiceImplTest
                     userDTO.setUserFullName("First Last");
                     userDTO.setEmail("email@dot.com");
                     userDTO.setExternallyAuthenticated(true);
-                    userDTO.setPermanent(true);
                     userDTO.setActive(true);
                     one(userManager).createUser(userDTO);
                 }
@@ -380,7 +377,6 @@ public class CIFEXServiceImplTest
         admin.setAdmin(true);
         admin.setEmail("admin@admins.com");
         admin.setUserCode("admin");
-        admin.setPermanent(true);
         prepareForGettingUserFromHTTPSession(admin, false);
         final String comment = "My great new user";
         final String basicUrl = "http://cifex.org:8080";
@@ -426,7 +422,6 @@ public class CIFEXServiceImplTest
         admin.setAdmin(true);
         admin.setEmail("admin@admins.com");
         admin.setUserCode("admin");
-        admin.setPermanent(true);
         prepareForGettingUserFromHTTPSession(admin, false);
         final String comment = "My great new user";
         final String basicUrl = "http://cifex.org:8080";
@@ -826,7 +821,6 @@ public class CIFEXServiceImplTest
         oldUser.setExternallyAuthenticated(false);
         oldUser.setUserCode(DEFAULT_USER_CODE);
         oldUser.setAdmin(false);
-        oldUser.setPermanent(false);
         oldUser.setExpirationDate(new Date());
         oldUser.setRegistrator(new UserDTO());
         final String oldUserFullName = "Old Alice Name";
@@ -838,7 +832,6 @@ public class CIFEXServiceImplTest
         externalyUpdatedUser.setExternallyAuthenticated(false);
         externalyUpdatedUser.setUserCode(DEFAULT_USER_CODE);
         externalyUpdatedUser.setAdmin(oldUser.isAdmin());
-        externalyUpdatedUser.setPermanent(oldUser.isPermanent());
         externalyUpdatedUser.setExpirationDate(oldUser.getExpirationDate());
         externalyUpdatedUser.setRegistrator(oldUser.getRegistrator());
         externalyUpdatedUser
@@ -849,7 +842,6 @@ public class CIFEXServiceImplTest
         newUser.setExternallyAuthenticated(true);
         newUser.setUserCode(DEFAULT_USER_CODE);
         newUser.setAdmin(oldUser.isAdmin());
-        newUser.setPermanent(true);
         newUser.setExpirationDate(null);
         newUser.setRegistrator(null);
         newUser.setUserFullName(DEFAULT_USER_FIRST_NAME + " " + DEFAULT_USER_LAST_NAME);
@@ -1056,7 +1048,6 @@ public class CIFEXServiceImplTest
         userDTO.setUserFullName(firstName + " " + lastName);
         userDTO.setEmail(email);
         userDTO.setPasswordHash(new Password(password).createPasswordHash());
-        userDTO.setPermanent(true);
         userDTO.setExternallyAuthenticated(true);
         prepareForExternalAuthentication(userName, password, principal);
         prepareForFindUser(principal.getUserId(), null);
@@ -1098,7 +1089,6 @@ public class CIFEXServiceImplTest
         userDTO.setUserFullName(firstName + " " + lastName);
         userDTO.setEmail(email);
         userDTO.setPasswordHash(new Password(password).createPasswordHash());
-        userDTO.setPermanent(false);
         userDTO.setExternallyAuthenticated(false);
         userDTO.setExpirationDate(new Date());
         context.checking(new Expectations()
@@ -1321,7 +1311,7 @@ public class CIFEXServiceImplTest
         final UserDTO user = new UserDTO();
         user.setUserCode(code);
         user.setAdmin(admin);
-        user.setPermanent(permanent);
+        user.setExpirationDate(permanent ? null : DateUtils.addDays(new Date(), 1));
         if (registrator == null)
         {
             user.setRegistrator(new UserDTO());
@@ -1394,7 +1384,6 @@ public class CIFEXServiceImplTest
     {
         final UserDTO currentUser = new UserDTO();
         currentUser.setUserCode("requestUser");
-        currentUser.setPermanent(true);
         currentUser.setAdmin(true);
         currentUser.setActive(true);
         final UserDTO userToUpdate = new UserDTO();
@@ -1413,7 +1402,6 @@ public class CIFEXServiceImplTest
     {
         final UserDTO currentUser = new UserDTO();
         currentUser.setUserCode("requestUser");
-        currentUser.setPermanent(true);
         currentUser.setAdmin(false);
         currentUser.setActive(true);
         final UserDTO userToUpdate = new UserDTO();

@@ -102,7 +102,6 @@ public final class UserDAOTest extends AbstractDAOTest
         {
             user.setRegistrator(registrator);
         }
-        user.setPermanent(permanent);
         if (permanent == false)
         {
             // Set temporary user expiration date to 0 (in the past).

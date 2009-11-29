@@ -358,7 +358,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final UserDTO requestUser = new UserDTO();
         requestUser.setID(requestUserId);
         requestUser.setUserCode(requestUserCode);
-        requestUser.setPermanent(true);
         requestUser.setEmail(emailOfRequestUser);
         final String emailOfUserToShareWith = "receiving.user@organization.edu";
         final UserDTO receivingUser = new UserDTO();
@@ -418,7 +417,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final UserDTO requestUser = new UserDTO();
         requestUser.setID(requestUserId);
         requestUser.setUserCode(requestUserCode);
-        requestUser.setPermanent(true);
         requestUser.setEmail(emailOfRequestUser);
         final String emailOfUserToShareWith = "receiving.user@organization.edu";
         final UserDTO receivingUser = new UserDTO();
@@ -504,7 +502,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final UserDTO requestUser = new UserDTO();
         requestUser.setID(requestUserId);
         requestUser.setUserCode(requestUserCode);
-        requestUser.setPermanent(true);
         requestUser.setEmail(emailOfRequestUser);
         final String emailOfFirstUserToShareWith = "first.receiving.user@organization.edu";
         final UserDTO firstReceivingUser = new UserDTO();
@@ -582,7 +579,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final UserDTO requestUser = new UserDTO();
         requestUser.setID(requestUserId);
         requestUser.setUserCode(requestUserCode);
-        requestUser.setPermanent(true);
         requestUser.setEmail(emailOfRequestUser);
         final String emailOfUserToShareWith = "Receiving.User@organization.edu";
         final String emailOfReceivingUser = "receiving.user@ORGANIZATION.EDU";
@@ -637,7 +633,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final long requestUserId = 42;
         final UserDTO requestUser = new UserDTO();
         requestUser.setID(requestUserId);
-        requestUser.setPermanent(true);
         requestUser.setUserCode("hello");
         requestUser.setEmail("hello@a.bc");
         final FileDTO file = new FileDTO(requestUserId);
@@ -839,7 +834,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final UserDTO requestUser = new UserDTO();
         requestUser.setID(requestUserId);
         requestUser.setUserCode(requestUserCode);
-        requestUser.setPermanent(true);
         requestUser.setEmail(emailOfRequestUser);
         final String emailOfUserToShareWith = "receiving.user@organization.edu";
         final UserDTO receivingUser = new UserDTO();

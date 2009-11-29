@@ -77,7 +77,8 @@ public class MigrationStepFrom009To010 implements IMigrationStep
     {
         public IdFileRentionHolder mapRow(ResultSet rs, int rowNum) throws SQLException
         {
-            final long fileRetention = rs.getLong("file_retention");
+            // Conversion from minutes to hours.
+            final long fileRetention = Math.max(rs.getLong("file_retention") / 60, 1);
             if (rs.wasNull())
             {
                 return new IdFileRentionHolder(rs.getLong("id"), null);

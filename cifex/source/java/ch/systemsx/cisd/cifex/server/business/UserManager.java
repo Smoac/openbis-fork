@@ -308,8 +308,8 @@ class UserManager extends AbstractManager implements IUserManager
 
     @Transactional
     public final void updateUser(final UserDTO oldUserToUpdateOrNull, final UserDTO userToUpdate,
-            final Password passwordOrNull, final UserDTO requestUserOrNull) throws UserFailureException,
-            IllegalArgumentException
+            final Password passwordOrNull, final UserDTO requestUserOrNull)
+            throws UserFailureException, IllegalArgumentException
     {
         assert userToUpdate != null : "Unspecified user";
 
@@ -329,8 +329,10 @@ class UserManager extends AbstractManager implements IUserManager
             // Renew the expiration Date
             if (userToUpdate.isPermanent() == false)
             {
-                userToUpdate.setExpirationDate(DateUtils.addHours(new Date(), businessContext
-                        .getUserRetention()));
+                final int userRetentionDays =
+                        (requestUserOrNull == null) ? businessContext.getUserRetention()
+                                : requestUserOrNull.getUserRetention();
+                userToUpdate.setExpirationDate(DateUtils.addDays(new Date(), userRetentionDays));
             } else
             {
                 userToUpdate.setExpirationDate(null);

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import java.util.Date;
+
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -26,7 +28,9 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 
+import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
@@ -181,7 +185,11 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
         {
             final UserInfoDTO user = result;
             assert user.isPermanent() == false : "Regular user can not be renewed.";
-            user.setExpirationDate(null);
+
+            final Configuration config = getViewContext().getModel().getConfiguration();
+            final Date newExpirationDate = new Date();
+            CalendarUtil.addDaysToDate(newExpirationDate, config.getUserRetention());
+            user.setExpirationDate(newExpirationDate);
             viewContext.getCifexService().updateUser(user, null, false,
                     new UserGridRefresherCallback(viewContext, modelBasedGrid));
         }

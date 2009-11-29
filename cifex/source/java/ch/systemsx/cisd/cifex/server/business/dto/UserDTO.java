@@ -56,14 +56,6 @@ public class UserDTO extends ID
     private boolean admin;
 
     /**
-     * Whether this user is <i>permanent</i> or not.
-     * <p>
-     * A non-permanent user has a non-<code>null</code> {@link #expirationDate} value.
-     * </p>
-     */
-    private boolean permanent;
-    
-    /**
      * Whether this user is currently active (set to false to deactivate a user).
      */
     private boolean active = true;
@@ -75,14 +67,14 @@ public class UserDTO extends ID
     private Date expirationDate;
 
     /** 
-     * How long (in hours) the file registered by this user is going to stay in the system.
+     * How long (in days) the file registered by this user is going to stay in the system.
      */
     private Integer fileRetention;
     
     private boolean customFileRetention;
 
     /** 
-     * How long (in hours) a temporary user registered by this user is going to stay in the system.
+     * How long (in days) a temporary user registered by this user is going to stay in the system.
      */
     private Integer userRetention;
 
@@ -169,12 +161,7 @@ public class UserDTO extends ID
 
     public final boolean isPermanent()
     {
-        return permanent;
-    }
-
-    public final void setPermanent(final boolean permanent)
-    {
-        this.permanent = permanent;
+        return (expirationDate == null);
     }
 
     public boolean isActive()

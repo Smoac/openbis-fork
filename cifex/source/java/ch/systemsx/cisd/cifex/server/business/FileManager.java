@@ -829,13 +829,14 @@ final class FileManager extends AbstractManager implements IFileManager
         return file;
     }
 
-    private Date calculateExpirationDate(UserDTO user)
+    private Date calculateExpirationDate(UserDTO registratorOrNull)
     {
-        Integer usersFileRetention = user.getFileRetention();
-        int fileRetention =
-                usersFileRetention == null ? businessContext.getFileRetention()
-                        : usersFileRetention.intValue();
-        return DateUtils.addHours(new Date(timeProvider.getTimeInMilliseconds()), fileRetention);
+        Integer registratorFileRetentionOrNull =
+                (registratorOrNull == null) ? null : registratorOrNull.getFileRetention();
+        int fileRetentionDays =
+                (registratorFileRetentionOrNull == null) ? businessContext.getFileRetention()
+                        : registratorFileRetentionOrNull.intValue();
+        return DateUtils.addDays(new Date(timeProvider.getTimeInMilliseconds()), fileRetentionDays);
     }
 
     public void updateFile(final FileDTO file)

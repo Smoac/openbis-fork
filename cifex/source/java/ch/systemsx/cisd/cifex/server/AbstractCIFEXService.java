@@ -255,7 +255,6 @@ abstract public class AbstractCIFEXService
         userDTO.setEmail(userCode);
         userDTO.setPassword(new Password(plainPassword));
         userDTO.setAdmin(true);
-        userDTO.setPermanent(true);
         return userDTO;
     }
 
@@ -333,13 +332,12 @@ abstract public class AbstractCIFEXService
             if (userOrNull != null)
             {
                 userDTO.setAdmin(userOrNull.isAdmin());
-                userDTO.setPermanent(userOrNull.isPermanent());
+                userDTO.setExpirationDate(userOrNull.getExpirationDate());
                 userDTO.setActive(userOrNull.isActive());
 
             } else
             {
                 userDTO.setAdmin(false);
-                userDTO.setPermanent(true);
                 userDTO.setActive(domainModel.getBusinessContext()
                         .isNewExternallyAuthenticatedUserStartActive());
             }

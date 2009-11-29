@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import java.util.Date;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -35,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
@@ -154,7 +157,6 @@ public abstract class UserWidget extends LayoutContainer
             user.setCustomMaxFileSizePerQuotaGroup(editUser.isCustomMaxFileSizePerQuotaGroup());
             user.setMaxFileCountPerQuotaGroup(editUser.getMaxFileCountPerQuotaGroup());
             user.setCustomMaxFileCountPerQuotaGroup(editUser.isCustomMaxFileCountPerQuotaGroup());
-            user.setPermanent(editUser.isPermanent());
             user.setActive(editUser.isActive());
             user.setRegistrator(editUser.getRegistrator());
         }
@@ -164,7 +166,12 @@ public abstract class UserWidget extends LayoutContainer
         if (addStatusField)
         {
             user.setAdmin(isAdminStatus());
-            user.setPermanent(isAdminStatus() || isPermanentStatus());
+            if (isTemporaryStatus())
+            {
+                final Date expirationDate = new Date();
+                CalendarUtil.addDaysToDate(expirationDate, config.getFileRetention());
+                user.setExpirationDate(expirationDate);
+            }
         }
         if (maxFileCountField != null)
         {
@@ -217,8 +224,8 @@ public abstract class UserWidget extends LayoutContainer
             String text = userRetentionField.getValue();
             if (StringUtils.isBlank(text))
             {
-                 user.setUserRetention(config.getUserRetention());
-                 user.setCustomUserRetention(false);
+                user.setUserRetention(config.getUserRetention());
+                user.setCustomUserRetention(false);
             } else
             {
                 user.setUserRetention(new Integer(text));
@@ -357,6 +364,11 @@ public abstract class UserWidget extends LayoutContainer
     {
         assert statusField != null : "Undefined status field.";
         return statusField.getSimpleValue().equals(status);
+    }
+
+    protected final boolean isTemporaryStatus()
+    {
+        return isStatus(getMessageResources().getTemporaryRoleName());
     }
 
     protected final boolean isPermanentStatus()

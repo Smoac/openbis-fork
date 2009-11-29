@@ -203,7 +203,6 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         {
             userDTOOrNull.setExternallyAuthenticated(true);
             userDTOOrNull.setExpirationDate(null);
-            userDTOOrNull.setPermanent(true);
             userDTOOrNull.setRegistrator(null);
 
             userManager.updateUser(userDTOOrNull, null, privGetCurrentUser());
@@ -270,7 +269,6 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         to.setEmail(from.getEmail());
         to.setExpirationDate(from.getExpirationDate());
         to.setExternallyAuthenticated(from.isExternallyAuthenticated());
-        to.setPermanent(from.isPermanent());
         to.setRegistrationDate(from.getRegistrationDate());
         to.setRegistrator(from.getRegistrator());
         to.setUserFullName(from.getUserFullName());

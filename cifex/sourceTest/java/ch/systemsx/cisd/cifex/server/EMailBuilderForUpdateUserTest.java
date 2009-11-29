@@ -73,7 +73,6 @@ public class EMailBuilderForUpdateUserTest
         registrator.setUserCode("registrator");
         registrator.setEmail("reg@r.rr");
         UserDTO newUser = new UserDTO();
-        newUser.setPermanent(true);
         newUser.setUserCode("p");
         newUser.setEmail("p@p.pp");
         MockMailClient mailClient = new MockMailClient();
