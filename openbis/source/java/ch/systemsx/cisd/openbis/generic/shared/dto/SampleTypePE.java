@@ -39,7 +39,6 @@ import org.hibernate.validator.NotNull;
 import org.hibernate.validator.Pattern;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 
 /**
  * Persistence Entity representing 'sample type'.
@@ -170,18 +169,6 @@ public final class SampleTypePE extends EntityTypePE
     public void setContainerHierarchyDepth(final Integer partOfHierarchyDepth)
     {
         this.containerHierarchyDepth = partOfHierarchyDepth;
-    }
-
-    @Transient
-    public final boolean isPlate()
-    {
-        return getCode().endsWith("_PLATE");
-    }
-
-    @Transient
-    public final boolean isControlLayout()
-    {
-        return SampleTypeCode.CONTROL_LAYOUT.getCode().equals(getCode());
     }
 
     //

@@ -21,7 +21,6 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 
 import java.util.List;
 
@@ -37,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -50,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Friend(toClasses = SampleTypeDAO.class)
 public final class SampleTypeDAOTest extends AbstractDAOTest
 {
-    static final String DEFAULT_SAMPLE_TYPE = SampleTypeCode.MASTER_PLATE.getCode();
+    static final String DEFAULT_SAMPLE_TYPE = "MASTER_PLATE";
 
     private BufferedAppender logRecorder;
 
@@ -88,21 +86,6 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
         logRecorder.reset();
         final Logger sampleTypeLogger = SampleTypeDAO.operationLog;
         sampleTypeLogger.setLevel(previousLevel);
-    }
-
-    @Test
-    public final void testSampleTypeCode()
-    {
-        final ISampleTypeDAO sampleDAO = daoFactory.getSampleTypeDAO();
-        for (final SampleTypeCode sampleType : SampleTypeCode.values())
-        {
-            final String sampleTypeCode = sampleType.getCode();
-            if (sampleDAO.tryFindSampleTypeByCode(sampleTypeCode) == null)
-            {
-                fail(String.format("Given sample type code '%s' does not exist in the database",
-                        sampleTypeCode));
-            }
-        }
     }
 
     @Test

@@ -64,7 +64,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 
 /**
  * Test cases for corresponding {@link SampleBO} class.
@@ -77,9 +76,9 @@ public final class SampleBOTest extends AbstractBOTest
 
     private static final String DB = "DB";
 
-    private static final String DILUTION_PLATE = SampleTypeCode.DILUTION_PLATE.getCode();
+    private static final String DILUTION_PLATE = "DILUTION_PLATE";
 
-    private static final String MASTER_PLATE = SampleTypeCode.MASTER_PLATE.getCode();
+    private static final String MASTER_PLATE = "MASTER_PLATE";
 
     private static final String DEFAULT_SAMPLE_CODE = "xx";
 
@@ -143,7 +142,7 @@ public final class SampleBOTest extends AbstractBOTest
         final NewSample newSample = new NewSample();
 
         newSample.setIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
-        newSample.setSampleType(createSampleType(SampleTypeCode.MASTER_PLATE));
+        newSample.setSampleType(createSampleType(MASTER_PLATE));
 
         final SampleTypePE sampleType = new SampleTypePE();
         sampleType.setCode(MASTER_PLATE);
@@ -235,7 +234,7 @@ public final class SampleBOTest extends AbstractBOTest
                 getGroupSampleIdentifier("SAMPLE_CONTAINER:" + DEFAULT_SAMPLE_CODE);
         final NewSample newSample = new NewSample();
         newSample.setIdentifier(sampleIdentifier.toString());
-        newSample.setSampleType(createSampleType(SampleTypeCode.DILUTION_PLATE));
+        newSample.setSampleType(createSampleType(DILUTION_PLATE));
 
         final SampleIdentifier generatedFromIdentifier =
                 getGroupSampleIdentifier("SAMPLE_GENERATOR");
@@ -258,12 +257,6 @@ public final class SampleBOTest extends AbstractBOTest
 
         final SampleTypePE sampleType = new SampleTypePE();
         sampleType.setCode(DILUTION_PLATE);
-
-        final SamplePE samplePE = new SamplePE();
-        samplePE.setRegistrator(EXAMPLE_PERSON);
-        samplePE.setGeneratedFrom(generatedFrom);
-        samplePE.setContainer(container);
-        samplePE.setSampleType(sampleType);
 
         context.checking(new Expectations()
             {
@@ -699,7 +692,7 @@ public final class SampleBOTest extends AbstractBOTest
                 getSharedSampleIdentifier(DEFAULT_SAMPLE_CODE);
         final NewSample newSharedSample = new NewSample();
         newSharedSample.setIdentifier(sharedSampleIdentifier.toString());
-        final SampleType sampleType = createSampleType(SampleTypeCode.DILUTION_PLATE);
+        final SampleType sampleType = createSampleType(DILUTION_PLATE);
         newSharedSample.setSampleType(sampleType);
 
         final SampleIdentifier parentGroupIdentifier = getGroupSampleIdentifier("SAMPLE_GENERATOR");
@@ -789,7 +782,7 @@ public final class SampleBOTest extends AbstractBOTest
     {
         final NewSample sample = new NewSample();
         sample.setIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
-        sample.setSampleType(createSampleType(SampleTypeCode.DILUTION_PLATE));
+        sample.setSampleType(createSampleType(DILUTION_PLATE));
         sample.setContainerIdentifier(getGroupSampleIdentifier("DOES_NOT_EXIST").toString());
 
         context.checking(new Expectations()
@@ -798,8 +791,7 @@ public final class SampleBOTest extends AbstractBOTest
                     ManagerTestTool.prepareFindGroup(this, daoFactory, groupDAO,
                             databaseInstanceDAO);
 
-                    one(sampleTypeDAO).tryFindSampleTypeByCode(
-                            SampleTypeCode.DILUTION_PLATE.getCode());
+                    one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(new SampleTypePE()));
 
                     one(propertiesConverter).convertProperties(IEntityProperty.EMPTY_ARRAY, null,
@@ -826,7 +818,7 @@ public final class SampleBOTest extends AbstractBOTest
     {
         final NewSample sample = new NewSample();
         sample.setIdentifier(getGroupSampleIdentifier(DEFAULT_SAMPLE_CODE).toString());
-        sample.setSampleType(createSampleType(SampleTypeCode.DILUTION_PLATE));
+        sample.setSampleType(createSampleType(DILUTION_PLATE));
         sample.setParentIdentifier(getGroupSampleIdentifier("DOES_NOT_EXIST").toString());
 
         context.checking(new Expectations()
@@ -835,8 +827,7 @@ public final class SampleBOTest extends AbstractBOTest
                     ManagerTestTool.prepareFindGroup(this, daoFactory, groupDAO,
                             databaseInstanceDAO);
 
-                    one(sampleTypeDAO).tryFindSampleTypeByCode(
-                            SampleTypeCode.DILUTION_PLATE.getCode());
+                    one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(new SampleTypePE()));
 
                     one(propertiesConverter).convertProperties(IEntityProperty.EMPTY_ARRAY, null,
@@ -906,10 +897,10 @@ public final class SampleBOTest extends AbstractBOTest
         return new SampleBO(daoFactory, EXAMPLE_SESSION, propertiesConverter);
     }
 
-    private SampleType createSampleType(final SampleTypeCode sampleTypeCode)
+    private SampleType createSampleType(final String sampleTypeCode)
     {
         final SampleType sampleType = new SampleType();
-        sampleType.setCode(sampleTypeCode.getCode());
+        sampleType.setCode(sampleTypeCode);
         return sampleType;
     }
 

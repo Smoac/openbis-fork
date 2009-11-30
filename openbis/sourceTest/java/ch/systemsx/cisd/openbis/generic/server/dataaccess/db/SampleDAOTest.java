@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -56,6 +55,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Friend(toClasses = SamplePE.class)
 public final class SampleDAOTest extends AbstractDAOTest
 {
+    private static final String DILUTION_PLATE = "DILUTION_PLATE";
+
+    private static final String MASTER_PLATE = "MASTER_PLATE";
 
     @Test
     public final void testListGroupSamples()
@@ -71,9 +73,9 @@ public final class SampleDAOTest extends AbstractDAOTest
     @Test
     public final void testListSamplesFetchRelations()
     {
-        final SampleTypePE type1 = getSampleType(SampleTypeCode.MASTER_PLATE);
-        final SampleTypePE type2 = getSampleType(SampleTypeCode.DILUTION_PLATE);
-        final SampleTypePE type3 = getSampleType(SampleTypeCode.CELL_PLATE);
+        final SampleTypePE type1 = getSampleType("MASTER_PLATE");
+        final SampleTypePE type2 = getSampleType("DILUTION_PLATE");
+        final SampleTypePE type3 = getSampleType("CELL_PLATE");
         type3.setContainerHierarchyDepth(1);
         type3.setGeneratedFromHierarchyDepth(1);
         final SamplePE sampleA = createSample(type1, "grandParent", null);
@@ -132,7 +134,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     @Test
     public final void testTryFindByCodeAndDatabaseInstance()
     {
-        final SampleTypePE sampleType = getSampleType(SampleTypeCode.MASTER_PLATE);
+        final SampleTypePE sampleType = getSampleType(MASTER_PLATE);
         final List<SamplePE> samples = listSamplesFromHomeDatabase(sampleType);
         final DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
         final SamplePE sample = samples.get(0);
@@ -371,8 +373,8 @@ public final class SampleDAOTest extends AbstractDAOTest
         final String sampleCode = "A03";
         samplePE.setCode(sampleCode);
         samplePE.setPermId(daoFactory.getPermIdDAO().createPermId());
-        samplePE.setSampleType(daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(
-                SampleTypeCode.DILUTION_PLATE.getCode()));
+        samplePE.setSampleType(daoFactory.getSampleTypeDAO()
+                .tryFindSampleTypeByCode(DILUTION_PLATE));
         final DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
         samplePE.setDatabaseInstance(homeDatabaseInstance);
         samplePE.setRegistrator(getSystemPerson());
@@ -411,10 +413,10 @@ public final class SampleDAOTest extends AbstractDAOTest
         }
     }
 
-    private final SampleTypePE getSampleType(final SampleTypeCode sampleTypeCode)
+    private final SampleTypePE getSampleType(final String sampleTypeCode)
     {
         final SampleTypePE sampleType =
-                daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode.getCode());
+                daoFactory.getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
         assert sampleType != null;
         return sampleType;
     }
@@ -424,7 +426,7 @@ public final class SampleDAOTest extends AbstractDAOTest
      */
     private final SamplePE createGroupSample()
     {
-        final SampleTypePE sampleType = getSampleType(SampleTypeCode.MASTER_PLATE);
+        final SampleTypePE sampleType = getSampleType(MASTER_PLATE);
         final GroupPE group = createGroup("xxx");
         final SamplePE sample =
                 createSample(sampleType, "code", null, SampleOwner.createGroup(group));

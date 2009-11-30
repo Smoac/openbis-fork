@@ -69,7 +69,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 
 /**
  * Test cases for corresponding {@link BDSStorageProcessor} class.
@@ -136,7 +135,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final Properties props = createPropertiesWithVersion();
         props.setProperty(ETLDaemon.STOREROOT_DIR_KEY, "store");
         props.setProperty(SAMPLE_TYPE_DESCRIPTION_KEY, EXAMPLE_TYPE_DESCRIPTION);
-        props.setProperty(SAMPLE_TYPE_CODE_KEY, SampleTypeCode.CELL_PLATE.getCode());
+        props.setProperty(SAMPLE_TYPE_CODE_KEY, "CELL_PLATE");
         props.setProperty(FORMAT_KEY, format.getCode() + " " + format.getVersion());
         props.setProperty(CHANNEL_COUNT_KEY, "1");
         props.setProperty(CONTAINS_ORIGINAL_DATA_KEY, Utilities.Boolean.TRUE.toString());
@@ -356,8 +355,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         prepareMailClient(format);
         final File dataFile =
                 storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
-                        incomingDataSetDirectory, new File(workingDirectory,
-                                STORE_ROOT_DIR));
+                        incomingDataSetDirectory, new File(workingDirectory, STORE_ROOT_DIR));
         assertEquals(new File(workingDirectory, STORE_ROOT_DIR).getAbsolutePath(), dataFile
                 .getAbsolutePath());
         final IDataStructure dataStructure =

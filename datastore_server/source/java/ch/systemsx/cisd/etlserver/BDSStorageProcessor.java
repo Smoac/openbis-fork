@@ -75,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.SampleTypeCode;
 
 /**
  * The <code>AbstractStorageAdapter</code> extension for <i>BDS</i> (Biological Data Standards).
@@ -115,7 +114,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
 
     private final Format format;
 
-    private final SampleTypeCode sampleType;
+    private final String sampleTypeCode;
 
     private final String sampleTypeDescription;
 
@@ -154,8 +153,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         }
         try
         {
-            sampleType =
-                    SampleTypeCode.getSampleTypeCode(getMandatoryProperty(SAMPLE_TYPE_CODE_KEY));
+            sampleTypeCode = getMandatoryProperty(SAMPLE_TYPE_CODE_KEY);
         } catch (final IllegalArgumentException ex)
         {
             throw new ConfigurationFailureException(ex.getMessage());
@@ -287,7 +285,7 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
         assert instanceCode != null : "Unspecified database instance code";
         assert instanceUUID != null : "Unspecified database instance UUID";
         // TODO 2009-09-15, Tomasz Pylak: deal with the case when sample is null
-        return new SampleWithOwner(dataSetInformation.getSampleCode(), sampleType.getCode(),
+        return new SampleWithOwner(dataSetInformation.getSampleCode(), sampleTypeCode,
                 sampleTypeDescription, instanceUUID, instanceCode, groupCode);
     }
 
