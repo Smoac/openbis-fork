@@ -50,6 +50,7 @@ case "$SERVER" in
 	$YEASTX)
 	restore_loginHeader
 	create_individual_greeting_message
+	mv datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
 	echo YEASTX:$YEASTX;
 	$BIN/sprint_post_install_yeastx.sh
 	;;
@@ -67,6 +68,7 @@ case "$SERVER" in
 	echo AGRONOMICS:$AGRONOMICS;
 	restore_loginHeader
 	create_individual_greeting_message
+	mv datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
 	$BIN/sprint_post_install_agronomics.sh
 	;;
 	$DSU)
@@ -83,6 +85,7 @@ case "$SERVER" in
 	echo BASYSBIO:$BASYSBIO;
 	restore_loginHeader
 	create_individual_greeting_message
+	mv datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
 	$BIN/sprint_post_install_basysbio.sh
 	;;
 	*)
