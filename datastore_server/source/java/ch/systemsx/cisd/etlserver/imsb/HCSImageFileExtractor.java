@@ -242,7 +242,7 @@ public class HCSImageFileExtractor implements IHCSImageFileExtractor
             final DataSetInformation dataSetInformation, final IHCSImageFileAccepter accepter)
     {
         assert incomingDataSetDirectory != null;
-        final List<IFile> imageFiles = listTiffFiles(incomingDataSetDirectory);
+        final List<IFile> imageFiles = listImageFiles(incomingDataSetDirectory);
         final long start = System.currentTimeMillis();
         final List<IFile> invalidFiles = new LinkedList<IFile>();
         final ChannelWavelengthSortingHCSImageFileAccepterDecorator accepterDecorator =
@@ -326,10 +326,11 @@ public class HCSImageFileExtractor implements IHCSImageFileExtractor
     }
 
     @Private
-    List<IFile> listTiffFiles(final IDirectory directory)
+    List<IFile> listImageFiles(final IDirectory directory)
     {
         final IDirectory tiffSubDirectory = getTiffSubDirectory(directory);
-        return tiffSubDirectory.listFiles(new String[] { "tif", "tiff" }, true);
+        return tiffSubDirectory.listFiles(new String[]
+            { "tif", "tiff", "png" }, true);
     }
 
 }
