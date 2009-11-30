@@ -269,7 +269,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
      * This may not be known in which case this method will return <code>null</code>.
      * </p>
      */
-    @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Length(min = 1, max = 60, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Column(name = ColumnNames.DATA_PRODUCER_CODE_COLUMN)
     public String getDataProducerCode()
     {

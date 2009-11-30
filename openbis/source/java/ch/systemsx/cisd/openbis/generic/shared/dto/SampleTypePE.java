@@ -136,7 +136,7 @@ public final class SampleTypePE extends EntityTypePE
     }
 
     @Column(name = ColumnNames.GENERATED_CODE_PREFIX)
-    @Length(min = 1, max = 30, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Length(min = 1, max = 60, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     public String getGeneratedCodePrefix()

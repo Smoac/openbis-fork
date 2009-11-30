@@ -557,7 +557,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     }
 
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
-    @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Length(min = 1, max = 60, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     @Column(name = ColumnNames.PERM_ID_COLUMN, nullable = false)
     public String getPermId()

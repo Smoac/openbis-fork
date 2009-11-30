@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  */
 public class CodeField extends TriggerField<String>
 {
-    private static final int CODE_MAX_LENGTH = 40;
+    private static final int CODE_MAX_LENGTH = 60;
 
     private static final String CODE_CHAR_PATTERN = "a-zA-Z0-9_\\-\\.";
 
