@@ -13,7 +13,7 @@ SERVERS_DIR_ALIAS=sprint
 VER=SNAPSHOT
 DATE=`/bin/date +%Y-%m-%d_%H%M`
 DB_NAME=openbis_productive
-DB_SNAPSHOT=~openbis/db_snapshots
+DB_SNAPSHOT=~openbis/db_backups
 TOMCAT_DIR=~openbis/sprint/openBIS-server/apache-tomcat
 DAYS_TO_RETAIN=35
 
