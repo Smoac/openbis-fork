@@ -111,7 +111,8 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadF
                             messageResources.getFileUploadFeedbackMessage(), null);
         } else
         {
-            messageBox.updateProgress(feedback.getPercentage(), createUpdateMessage(feedback));
+            messageBox.updateProgress(feedback.getPercentage(), null);
+            messageBox.updateText(createUpdateMessage(feedback));
         }
         getViewContext().getCifexService().getFileUploadFeedback(
                 new FileUploadFeedbackCallback(getViewContext(), messageBox));
