@@ -418,7 +418,6 @@ public abstract class UserWidget extends LayoutContainer
         textField
                 .setValidator(CifexValidator.getEmailFieldValidator(context.getMessageResources()));
         textField.setAllowBlank(false);
-        textField.setValidateOnBlur(false);
         if (editUser != null && editUser.getEmail() != null)
         {
             textField.setValue(editUser.getEmail());
