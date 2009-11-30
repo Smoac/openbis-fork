@@ -64,7 +64,7 @@ public final class HCSImageFileExtractorTest extends AbstractFileSystemTestCase
         private List<IFile> files;
 
         @Override
-        List<IFile> listTiffFiles(final IDirectory directory)
+        List<IFile> listImageFiles(final IDirectory directory)
         {
             return files;
         }
