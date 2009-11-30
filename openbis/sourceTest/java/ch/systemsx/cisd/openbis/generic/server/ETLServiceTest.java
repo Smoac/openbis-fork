@@ -334,13 +334,16 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         final SampleIdentifier sampleIdentifier =
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
-        prepareLoadSample(sampleIdentifier, new SamplePE());
+        SamplePE toplessSample = new SamplePE();
+        SamplePropertyPE property = setAnyProperty(toplessSample);
+        prepareLoadSample(sampleIdentifier, toplessSample);
 
         final IEntityProperty[] properties =
                 createService().tryToGetPropertiesOfTopSampleRegisteredFor(SESSION_TOKEN,
                         sampleIdentifier);
 
-        assertEquals(0, properties.length);
+        assertEquals(1, properties.length);
+        assertEquals(property.getValue(), properties[0].getValue());
         context.assertIsSatisfied();
     }
 
@@ -368,10 +371,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 new SampleIdentifier(new DatabaseInstanceIdentifier("db"), "s1");
         SamplePE sample = new SamplePE();
         SamplePE top = new SamplePE();
-        SamplePropertyPE property =
-                createSamplePropertyPE("type code", EntityDataType.VARCHAR, "The Value");
-
-        top.setProperties(new LinkedHashSet<SamplePropertyPE>(Arrays.asList(property)));
+        SamplePropertyPE property = setAnyProperty(top);
         sample.setTop(top);
         prepareLoadSample(sampleIdentifier, sample);
 
@@ -382,6 +382,15 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals(1, properties.length);
         assertEquals(property.getValue(), properties[0].getValue());
         context.assertIsSatisfied();
+    }
+
+    private SamplePropertyPE setAnyProperty(SamplePE top)
+    {
+        SamplePropertyPE property =
+                createSamplePropertyPE("type code", EntityDataType.VARCHAR, "The Value");
+
+        top.setProperties(new LinkedHashSet<SamplePropertyPE>(Arrays.asList(property)));
+        return property;
     }
 
     private final static SamplePropertyPE createSamplePropertyPE(final String code,

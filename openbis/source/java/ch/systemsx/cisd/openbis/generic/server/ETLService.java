@@ -122,10 +122,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         Session session = getSession(sessionToken);
 
         String dssSessionToken = info.getSessionToken();
-        String remoteHost = session.getRemoteHost();
-        int port = info.getPort();
-        final String dssURL = "https://" + remoteHost + ":" + port;
-        checkVersion(dssSessionToken, dssURL);
+        String dssURL = checkVersion(info, session, dssSessionToken);
         IDataStoreDAO dataStoreDAO = daoFactory.getDataStoreDAO();
         DataStorePE dataStore = dataStoreDAO.tryToFindDataStoreByCode(info.getDataStoreCode());
         if (dataStore == null)
@@ -139,6 +136,15 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         dataStore.setSessionToken(dssSessionToken);
         setServices(dataStore, info.getServicesDescriptions(), dataStoreDAO);
         dataStoreDAO.createOrUpdateDataStore(dataStore);
+    }
+
+    private String checkVersion(DataStoreServerInfo info, Session session, String dssSessionToken)
+    {
+        int port = info.getPort();
+        String remoteHost = session.getRemoteHost() + ":" + port;
+        String dssURL = "https://" + remoteHost;
+        checkVersion(dssSessionToken, dssURL);
+        return dssURL;
     }
 
     private void checkVersion(String dssSessionToken, final String dssURL)
@@ -342,11 +348,12 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         SamplePE top = sample.getTop();
         if (top == null)
         {
-            return new IEntityProperty[0];
+            top = sample;
         }
-        HibernateUtils.initialize(top.getProperties());
-        return EntityPropertyTranslator.translate(top.getProperties().toArray(
-                new SamplePropertyPE[0]), new HashMap<PropertyTypePE, PropertyType>());
+        Set<SamplePropertyPE> properties = top.getProperties();
+        HibernateUtils.initialize(properties);
+        return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
+                new HashMap<PropertyTypePE, PropertyType>());
     }
 
     public void registerSample(String sessionToken, NewSample newSample)
