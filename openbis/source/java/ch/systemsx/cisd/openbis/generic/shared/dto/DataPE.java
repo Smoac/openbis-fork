@@ -269,7 +269,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
      * This may not be known in which case this method will return <code>null</code>.
      * </p>
      */
-    @Length(min = 1, max = 60, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Column(name = ColumnNames.DATA_PRODUCER_CODE_COLUMN)
     public String getDataProducerCode()
     {
@@ -379,7 +379,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
 
     @Column(unique = true)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
-    @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
     public String getCode()

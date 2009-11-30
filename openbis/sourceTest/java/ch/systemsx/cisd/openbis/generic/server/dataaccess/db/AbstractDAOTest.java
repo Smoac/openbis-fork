@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -82,7 +83,7 @@ public abstract class AbstractDAOTest extends AbstractTransactionalTestNGSpringC
 
     static final Long ANOTHER_DATABASE_INSTANCE_ID = new Long(2);
 
-    static final String EXCEED_40_CHARACTERS = StringUtils.repeat("A", 41);
+    static final String EXCEED_CODE_LENGTH_CHARACTERS = StringUtils.repeat("A", Code.CODE_LENGTH_MAX + 1);
 
     protected IDAOFactory daoFactory;
 

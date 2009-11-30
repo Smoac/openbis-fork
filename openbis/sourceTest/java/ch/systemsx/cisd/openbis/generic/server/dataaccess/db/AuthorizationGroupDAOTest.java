@@ -81,7 +81,7 @@ public class AuthorizationGroupDAOTest extends AbstractDAOTest
     public void testTryCreateWithTooLongCode() throws Exception
     {
         daoFactory.getAuthorizationGroupDAO().create(
-                createAuthorizationGroup(EXCEED_40_CHARACTERS, "desc"));
+                createAuthorizationGroup(EXCEED_CODE_LENGTH_CHARACTERS, "desc"));
     }
 
     @Test(expectedExceptions = DataIntegrityViolationException.class)

@@ -154,7 +154,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
 
     @Column(name = ColumnNames.CODE_COLUMN)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
-    @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     public String getSimpleCode()
     {

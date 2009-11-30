@@ -307,7 +307,7 @@ public final class ProjectPE extends AttachmentHolderPE implements Comparable<Pr
 
     @Column(unique = true)
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
-    @Length(min = 1, max = 40, message = ValidationMessages.CODE_LENGTH_MESSAGE)
+    @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
     @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
     public final String getCode()

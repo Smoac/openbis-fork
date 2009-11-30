@@ -450,7 +450,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         return new Object[][]
             {
-                { EXCEED_40_CHARACTERS },
+                { EXCEED_CODE_LENGTH_CHARACTERS },
                 { "" },
                 { null },
                 { "@XPERIMENT" }, };
