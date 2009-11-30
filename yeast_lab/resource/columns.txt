@@ -62,3 +62,6 @@
 62	motherID
 63	alternatives
 64	generation
+65	f.mean	
+66	f.deviation
+67	f.deviation.smooth

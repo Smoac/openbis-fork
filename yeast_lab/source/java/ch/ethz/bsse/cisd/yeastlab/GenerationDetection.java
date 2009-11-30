@@ -40,15 +40,75 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class GenerationDetection
 {
+
+    // properties that can be modified by the user
+
+    // Could be used as a parameter that user needs to specify but on test data
+    // using value that is higher produces more results that should rather be ignored.
+    // reduce with better picture quality
+    private static final int MAX_NEW_BORN_CELL_PIXELS; // = 400;
+
+    private static final int MIN_PARENT_PIXELS; // = 300;
+
+    // 0.2 - 24fake, 0miss (safe)
+    // 0.3 - 20fake, 1miss
+    // 0.4 - 17fake, 2miss
+    // 0.5 - 12fake, 4miss: 70,93,131,77 - size should increase (exc. 70 that may be important)
+    // 0.6 - 5fake, 13miss
+    private static final double MIN_NEW_BORN_CELL_ECCENTRICITY; // = 0.5;
+
+    // if we have more parent candidates after filtering the new born cell will be ignored
+    // 5 - safe; 2 - miss 11
+    private static final int MAX_PARENT_CANDIDATES; // = 5;
+
+    // number of frames that should be ignored at the beginning
+    private static final int NO_FIRST_FRAMES_TO_IGNORE; // = 5;
+
+    // number of frames that should be ignored in the end
+    private static final int NO_LAST_FRAMES_TO_IGNORE; // = 5;
+
+    // when cell fluorescence gets above this level it means that cell is dying
+    private static final double MAX_F_MEAN_OF_LIVING_CELL; // = 2500;
+
+    // window radius used to calculate smooth fluorescence deviation values (ignore noise)
+    private static final int SMOOTH_F_DEVIATION_WINDOW; // = 5;
+
+    // minimal number of frames that a real the cell should have stable nucleus area = NUCLEUS_AREA
+    private static final int MIN_STABLE_NUCLEUS_AREA_FRAMES; // = 3;
+
+    private static final String PROPERTIES_FILE_PATH = "conf.properties";
+
+    private static final ConfigParameters configParameters;
+
+    static
+    {
+        configParameters = new ConfigParameters(PROPERTIES_FILE_PATH);
+        log(configParameters.getDescription());
+        MAX_F_MEAN_OF_LIVING_CELL = configParameters.getMaxFMeanOfLivingCell();
+        MAX_NEW_BORN_CELL_PIXELS = configParameters.getMaxNewBornCellPixels();
+        MAX_PARENT_CANDIDATES = configParameters.getMaxParentCandidates();
+        MIN_NEW_BORN_CELL_ECCENTRICITY = configParameters.getMinNewBornCellEccentricity();
+        MIN_PARENT_PIXELS = configParameters.getMinParentPixels();
+        MIN_STABLE_NUCLEUS_AREA_FRAMES = configParameters.getMinStableNucleusAreaFrames();
+        NO_FIRST_FRAMES_TO_IGNORE = configParameters.getNumberOfFirstFramesToIgnore();
+        NO_LAST_FRAMES_TO_IGNORE = configParameters.getNumberOfLastFramesToIgnore();
+        SMOOTH_F_DEVIATION_WINDOW = configParameters.getSmoothFDeviationWindow();
+    }
+
+    // constants
+
     private static final boolean PRODUCTION = true;
 
     private static final int FIRST_FRAME_NUM = 0;
 
-    private static final int FIRST_PICTURE_NUM = 1; // 0
+    private static final int FIRST_PICTURE_NUM = 0; // 0
 
     private static final int FRAME_OFFSET = FIRST_PICTURE_NUM - FIRST_FRAME_NUM;
 
     private static final int INITIAL_GENERATION = 1;
+
+    // real cells have a.nucl value almost fixed to this value because of Cell-ID implementation.
+    private static final double NUCLEUS_AREA = 49.0;
 
     private static final String RESULTS_FILE_EXTENSION = "res";
 
@@ -58,48 +118,11 @@ public class GenerationDetection
 
     private static final String GENERATION_COL_NAME = "generation";
 
-    // Could be used as a parameter that user needs to specify but on test data
-    // using value that is higher produces more results that should rather be ignored.
-    private static final int MAX_NEW_BORN_CELL_PIXELS = 400; // reduce with better picture quality
-
-    private static final int MIN_PARENT_PIXELS = 300;
-
-    // 0.2 - 24fake, 0miss (safe)
-    // 0.3 - 20fake, 1miss
-    // 0.4 - 17fake, 2miss
-    // 0.5 - 12fake, 4miss: 70,93,131,77 - size should increase (exc. 70 that may be important)
-    // 0.6 - 5fake, 13miss
-    private static final double MIN_NEW_BORN_CELL_ECCENTRICITY = 0.5;
-
-    // if we have more parent candidates after filtering the new born cell will be ignored
-    // 5 - safe; 2 - miss 11
-    private static final int MAX_PARENT_CANDIDATES = 5;
-
-    // number of frames that should be ignored at the beginning
-    @SuppressWarnings("unused")
-    private static final int NO_FIRST_FRAMES_TO_IGNORE = 5;
-
-    // number of frames that should be ignored in the end
-    private static final int NO_LAST_FRAMES_TO_IGNORE = 5;
-
-    // when cell fluorescence gets above this level it means that cell is dying
-    private static final double MAX_F_MEAN_OF_LIVING_CELL = 2500;
-
-    // window radius used to calculate smooth fluorescence deviation values (ignore noise)
-    private static final int SMOOTH_F_DEVIATION_WINDOW = 5;
-
-    // real cells have a.nucl value almost fixed to this value because of Cell-ID implementation.
-    private static final double NUCLEUS_AREA = 49.0;
-
-    // minimal number of frames that a real the cell should have stable nucleus area = NUCLEUS_AREA
-    private static final int MIN_STABLE_NUCLEUS_AREA_FRAMES = 3;
-
     private static final String SEPARATOR = "\t";
 
     private static final String NEW_LINE = "\n";
 
     // column positions (values from resource/columns.txt - 1)
-    // will they be fixed? or should we read them from file header?
     private static final int CELL_ID_POSITION = 0;
 
     private static final int T_FRAME_POSITION = 1;
@@ -641,7 +664,7 @@ public class GenerationDetection
         {
             System.err.println("usage: java -jar yeast_lab.jar <input file> <output file>");
             System.exit(-1);
-        } 
+        }
         final String inputFileName = args[0];
         final String outputFileName = args[1];
         final File input = new File(inputFileName);
@@ -867,7 +890,8 @@ public class GenerationDetection
         final Set<Cell> previousFrameCells = cellsByFrame.get(previousFrame);
         for (Cell cell : newCells)
         {
-            if (isValidNewBornCell(cell) == false) // ignore cells that are not new born
+            // ignore cells that are not new born or not enough data is available
+            if (isValidNewBornCell(cell) == false)
             {
                 continue;
             }
@@ -1011,13 +1035,13 @@ public class GenerationDetection
         // .format("Reason: there is not enough data about the cell (it appears on one of last few frames)"));
         // return true;
         // }
-        if (isEnoughFramesAvailable(cell) == false)
-        {
-            ignore(cell, IgnoreNewCellReason.NOT_ENOUGH_DATA);
-            log(String
-                    .format("Reason: there is not enough data about the cell (only a few frames)\""));
-            return true;
-        }
+        // if (isEnoughFramesAvailable(cell) == false)
+        // {
+        // ignore(cell, IgnoreNewCellReason.NOT_ENOUGH_DATA);
+        // log(String
+        // .format("Reason: there is not enough data about the cell (only a few frames)."));
+        // return true;
+        // }
         if (isNucleusFound(cell) == false)
         {
             ignore(cell, IgnoreNewCellReason.NO_NUCLEUS);
@@ -1027,7 +1051,11 @@ public class GenerationDetection
         return false;
     }
 
-    @SuppressWarnings("unused")
+    private static boolean isAppearingToEarly(Cell cell)
+    {
+        return cell.getFrame() < NO_FIRST_FRAMES_TO_IGNORE + FIRST_FRAME_NUM;
+    }
+
     private static boolean isAppearingToLate(Cell cell)
     {
         return cell.getFrame() > maxFrame - NO_LAST_FRAMES_TO_IGNORE;
@@ -1083,6 +1111,29 @@ public class GenerationDetection
                             cell.getEccentricity(), MIN_NEW_BORN_CELL_ECCENTRICITY));
             return false;
         }
+        // not enough data
+        if (isAppearingToEarly(cell))
+        {
+            ignore(cell, IgnoreNewCellReason.NOT_ENOUGH_DATA);
+            log(String
+                    .format("Reason: there is not enough data about the cell (it appears on one of last few frames)"));
+            return true;
+        }
+        if (isAppearingToLate(cell))
+        {
+            ignore(cell, IgnoreNewCellReason.NOT_ENOUGH_DATA);
+            log(String
+                    .format("Reason: there is not enough data about the cell (it appears on one of first few frames)"));
+            return true;
+        }
+        if (isEnoughFramesAvailable(cell) == false)
+        {
+            ignore(cell, IgnoreNewCellReason.NOT_ENOUGH_DATA);
+            log(String
+                    .format("Reason: there is not enough data about the cell (only a few frames)."));
+            return true;
+        }
+
         return true;
     }
 
