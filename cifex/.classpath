@@ -35,7 +35,7 @@
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/gwt1.7/gwt-user.jar"/>
-	<classpathentry kind="lib" path="/libraries/gxt2.0/gxt.jar"/>
+	<classpathentry kind="lib" path="/libraries/gxt2.1/gxt.jar"/>
 	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-search/jms.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/server-common"/>

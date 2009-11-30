@@ -10,7 +10,7 @@
 	<property name="gwt.lib" value="${lib}/gwt1.7" />
 	<property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
 	<property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
-	<property name="gxt.lib" value="${lib}/gxt2.0/gxt.jar" />
+	<property name="gxt.lib" value="${lib}/gxt2.1/gxt.jar" />
 
 	<property name="cifex.server.resource" value="../${ant.project.name}/${server-resource}" />
 
@@ -386,7 +386,7 @@
 		<copy file="${lib}/commons-dbcp/commons-dbcp.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${lib}/commons-codec/commons-codec.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${lib}/cisd-base/cisd-base.jar" todir="${gwt.war.web-inf.lib}"/>	
-		<copy file="${lib}/gxt2.0/gxt.jar" todir="${gwt.war.web-inf.lib}"/>	
+		<copy file="${lib}/gxt2.1/gxt.jar" todir="${gwt.war.web-inf.lib}"/>	
 		<copy file="${lib}/cglib/cglib-nodep.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${lib}/hibernate-search/jms.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${gwt.lib}/mac/gwt-dev-mac.jar" todir="${gwt.war.web-inf.lib}"/>
