@@ -164,7 +164,7 @@ public class Parameters
     {
         try
         {
-            this.serviceProperties = PropertyParametersUtil.loadServiceProperties();
+            this.serviceProperties = ExtendedProperties.createWith(PropertyParametersUtil.loadServiceProperties());
             PropertyUtils.trimProperties(serviceProperties);
             this.threads = createThreadParameters(serviceProperties);
             this.mailProperties = createMailProperties(serviceProperties);
