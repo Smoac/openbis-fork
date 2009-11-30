@@ -62,6 +62,7 @@ public class MainTabPanel extends TabPanel
         // "com.google.gwt.core.client.JavaScriptException: (TypeError): Result of expression 'c' [null] is not an object."
         setTabScroll(true);
         setId(ID);
+        setCloseContextMenu(true);
         add(createWelcomePanel());
     }
 
