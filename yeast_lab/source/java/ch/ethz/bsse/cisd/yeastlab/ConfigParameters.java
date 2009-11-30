@@ -16,14 +16,10 @@
 
 package ch.ethz.bsse.cisd.yeastlab;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Enumeration;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
  * Configuration parameters for the Generation Detection algorithm.
@@ -72,18 +68,18 @@ final class ConfigParameters
     /**
      * Creates an instance based on a properties file at given path.
      * 
-     * @throws ConfFailureException if properties file does not exist, a property is missed or has
-     *             an invalid value.
+     * @throws ConfigurationFailureException if properties file does not exist, a property is missed
+     *             or has an invalid value.
      */
-    public ConfigParameters(String propertiesFilePath)
+    public ConfigParameters(String propertiesFilePath) throws ConfigurationFailureException
     {
-        this(ParameterUtils.loadProperties(propertiesFilePath));
+        this(PropertyUtils.loadProperties(propertiesFilePath));
     }
 
     /**
      * Creates an instance based on the specified properties.
      * 
-     * @throws ConfFailureException if a property is missed or has an invalid value.
+     * @throws ConfigurationFailureException if a property is missed or has an invalid value.
      */
     private ConfigParameters(final Properties properties)
     {
@@ -175,19 +171,19 @@ final class ConfigParameters
     }
 
     //
-    // helpers for dealing with Properties
+    // helper methods for dealing with mandatory typed properties
     //
 
     private final static double getMandatoryDoubleProperty(final Properties properties,
             final String key)
     {
-        final String property = ParameterUtils.getMandatoryProperty(properties, key);
+        final String property = PropertyUtils.getMandatoryProperty(properties, key);
         try
         {
             return Double.parseDouble(property);
         } catch (final NumberFormatException ex)
         {
-            throw new ConfFailureException("Configuration parameter '" + key
+            throw new ConfigurationFailureException("Configuration parameter '" + key
                     + "' is not a double number: " + property);
         }
     }
@@ -195,201 +191,15 @@ final class ConfigParameters
     private final static int getMandatoryIntegerProperty(final Properties properties,
             final String key)
     {
-        final String property = ParameterUtils.getMandatoryProperty(properties, key);
+        final String property = PropertyUtils.getMandatoryProperty(properties, key);
         try
         {
             return Integer.parseInt(property);
         } catch (final NumberFormatException ex)
         {
-            throw new ConfFailureException("Configuration parameter '" + key
+            throw new ConfigurationFailureException("Configuration parameter '" + key
                     + "' is not an integer number: " + property);
         }
-    }
-
-    /**
-     * Helper class based on PropertyUtils from common project used to extract values from
-     * {@link Properties}.
-     */
-    // NOTE: this class doesn't use PropertyUtils from common project because that is the only class
-    // needed from that project and all classes from that project would need to be added to
-    // distribution jar.
-    private static class ParameterUtils
-    {
-
-        static final String EMPTY_STRING_FORMAT = "Property '%s' is an empty string.";
-
-        static final String NOT_FOUND_PROPERTY_FORMAT =
-                "Given key '%s' not found in properties: '%s'";
-
-        private ParameterUtils()
-        {
-            // This class can not be instantiated.
-        }
-
-        private static void assertParameters(final Properties properties, final String propertyKey)
-        {
-            assert properties != null : "Given properties can not be null.";
-            assert propertyKey != null : "Given property key can not be null.";
-        }
-
-        /**
-         * Searches for the property with the specified key in this property list.
-         * 
-         * @return <code>null</code> or the value trimmed if found.
-         */
-        public final static String getProperty(final Properties properties, final String propertyKey)
-        {
-            assertParameters(properties, propertyKey);
-            final String property = properties.getProperty(propertyKey);
-            return property == null ? null : property.trim();
-        }
-
-        /**
-         * Looks up given mandatory <var>propertyKey</var> in given <var>properties</var>.
-         * 
-         * @throws ConfFailureException if given <var>propertyKey</var> could not be found or if it
-         *             is empty.
-         */
-        public final static String getMandatoryProperty(final Properties properties,
-                final String propertyKey) throws ConfFailureException
-        {
-            assertParameters(properties, propertyKey);
-            String property = getProperty(properties, propertyKey);
-            if (property == null)
-            {
-                throw ConfFailureException.fromTemplate(NOT_FOUND_PROPERTY_FORMAT, propertyKey,
-                        StringUtils.join(properties.keySet(), ", "));
-            }
-
-            if (property.length() == 0)
-            {
-                throw ConfFailureException.fromTemplate(EMPTY_STRING_FORMAT, propertyKey);
-            }
-            return property;
-        }
-
-        /**
-         * Trims each value of given <var>properties</var> using {@link StringUtils#trim(String)}.
-         */
-        @SuppressWarnings("unchecked")
-        public final static void trimProperties(final Properties properties)
-        {
-            assert properties != null : "Unspecified properties";
-            for (final Enumeration<String> enumeration =
-                    (Enumeration<String>) properties.propertyNames(); enumeration.hasMoreElements(); /**/)
-            {
-                final String key = enumeration.nextElement();
-                properties.setProperty(key, StringUtils.trim(properties.getProperty(key)));
-            }
-        }
-
-        /**
-         * Loads and returns {@link Properties} found in given <var>propertiesFilePath</var>.
-         * 
-         * @throws ConfFailureException If an exception occurs when loading the properties.
-         * @return never <code>null</code> but could return empty properties.
-         */
-        public final static Properties loadProperties(final String propertiesFilePath)
-        {
-            try
-            {
-                return loadProperties(new FileInputStream(propertiesFilePath), propertiesFilePath);
-            } catch (FileNotFoundException ex)
-            {
-                final String msg =
-                        String.format("Could not load the properties from given resource '%s'.",
-                                propertiesFilePath);
-                throw new ConfFailureException(msg, ex);
-            }
-        }
-
-        /**
-         * Loads and returns {@link Properties} found in given <var>propertiesFilePath</var>.
-         * 
-         * @throws ConfFailureException If an exception occurs when loading the properties.
-         * @return never <code>null</code> but could return empty properties.
-         */
-        public final static Properties loadProperties(final InputStream is,
-                final String resourceName)
-        {
-            assert is != null : "No input stream specified";
-            final Properties properties = new Properties();
-            try
-            {
-                properties.load(is);
-                trimProperties(properties);
-                return properties;
-            } catch (final Exception ex)
-            {
-                final String msg =
-                        String.format("Could not load the properties from given resource '%s'.",
-                                resourceName);
-                throw new ConfFailureException(msg, ex);
-            } finally
-            {
-                // close quietly
-                closeQuietly(is);
-            }
-        }
-
-        // IOUtils
-        /**
-         * Unconditionally close an <code>InputStream</code>.
-         * <p>
-         * Equivalent to {@link InputStream#close()}, except any exceptions will be ignored. This is
-         * typically used in finally blocks.
-         * 
-         * @param input the InputStream to close, may be null or already closed
-         */
-        public static void closeQuietly(InputStream input)
-        {
-            try
-            {
-                if (input != null)
-                {
-                    input.close();
-                }
-            } catch (IOException ioe)
-            {
-                // ignore
-            }
-        }
-
-    }
-
-    // copy of ConfigurationFailureException from commons
-    private static class ConfFailureException extends RuntimeException
-    {
-
-        private static final long serialVersionUID = 1L;
-
-        public ConfFailureException(String message)
-        {
-            super(message);
-        }
-
-        public ConfFailureException(String message, Throwable cause)
-        {
-            super(message, cause);
-        }
-
-        /**
-         * Creates an {@link ConfFailureException} using a {@link java.util.Formatter}.
-         */
-        public static ConfFailureException fromTemplate(String messageTemplate, Object... args)
-        {
-            return new ConfFailureException(String.format(messageTemplate, args));
-        }
-
-        /**
-         * Creates an {@link ConfFailureException} using a {@link java.util.Formatter}.
-         */
-        public static ConfFailureException fromTemplate(Throwable cause, String messageTemplate,
-                Object... args)
-        {
-            return new ConfFailureException(String.format(messageTemplate, args), cause);
-        }
-
     }
 
 }
