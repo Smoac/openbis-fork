@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
@@ -157,12 +158,9 @@ public class DataStoreServer
         final ConfigParameters configParameters = applicationContext.getConfigParameters();
         final int port = configParameters.getPort();
         final Server thisServer = new Server();
-        final SslSocketConnector socketConnector = new SslSocketConnector();
+        final SocketConnector socketConnector = createSocketConnector(configParameters);
         socketConnector.setPort(port);
         socketConnector.setMaxIdleTime(30000);
-        socketConnector.setKeystore(configParameters.getKeystorePath());
-        socketConnector.setPassword(configParameters.getKeystorePassword());
-        socketConnector.setKeyPassword(configParameters.getKeystoreKeyPassword());
         thisServer.addConnector(socketConnector);
         final Context context = new Context(thisServer, "/", Context.SESSIONS);
         context.setAttribute(APPLICATION_CONTEXT_KEY, applicationContext);
@@ -171,6 +169,15 @@ public class DataStoreServer
                 + DATA_STORE_SERVER_SERVICE_NAME + "/*");
         context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
         return thisServer;
+    }
+
+    private static SslSocketConnector createSocketConnector(ConfigParameters configParameters)
+    {
+        SslSocketConnector socketConnector = new SslSocketConnector();
+        socketConnector.setKeystore(configParameters.getKeystorePath());
+        socketConnector.setPassword(configParameters.getKeystorePassword());
+        socketConnector.setKeyPassword(configParameters.getKeystoreKeyPassword());
+        return socketConnector;
     }
 
     private final static void selfTest(final ApplicationContext applicationContext)
