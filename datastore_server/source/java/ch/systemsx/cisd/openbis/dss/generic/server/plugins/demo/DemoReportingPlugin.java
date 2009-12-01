@@ -32,7 +32,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NumberTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -96,7 +96,7 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
                 Arrays.<ISerializableComparable> asList(new StringTableCell(datasetCode), image,
                         new StringTableCell(file.getName()),
                         new DateTableCell(new Date(file.lastModified())),
-                        new NumberTableCell(0));
+                        new DoubleTableCell(0));
         builder.addRow(row);
     }
 
@@ -119,7 +119,7 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
                 Arrays.<ISerializableComparable> asList(new StringTableCell(dataset
                         .getDatasetCode()), image, new StringTableCell(file.getName()),
                         new DateTableCell(new Date(file.lastModified())),
-                        new NumberTableCell(getSize(file)));
+                        new DoubleTableCell(getSize(file)));
         builder.addRow(row);
     }
 

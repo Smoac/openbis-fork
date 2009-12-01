@@ -21,13 +21,13 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
  *
  * @author Franz-Josef Elmer
  */
-public class NumberTableCell implements ISerializableComparable
+public class DoubleTableCell implements ISerializableComparable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
     
     private double number;
     
-    public NumberTableCell(double doubleValue)
+    public DoubleTableCell(double doubleValue)
     {
         this.number = doubleValue;
     }
@@ -39,10 +39,10 @@ public class NumberTableCell implements ISerializableComparable
     
     public int compareTo(ISerializableComparable o)
     {
-        if (o instanceof NumberTableCell)
+        if (o instanceof DoubleTableCell)
         {
             double v1 = number;
-            NumberTableCell numberTableCell = (NumberTableCell) o;
+            DoubleTableCell numberTableCell = (DoubleTableCell) o;
             double v2 = numberTableCell.number;
             return v1 < v2 ? -1 : (v1 > v2 ? 1 : 0);
         }
@@ -53,7 +53,7 @@ public class NumberTableCell implements ISerializableComparable
     public boolean equals(Object obj)
     {
         return this == obj
-                || (obj instanceof NumberTableCell && number == ((NumberTableCell) obj).number);
+                || (obj instanceof DoubleTableCell && number == ((DoubleTableCell) obj).number);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class NumberTableCell implements ISerializableComparable
 
     // GWT only
     @SuppressWarnings("unused")
-    private NumberTableCell()
+    private DoubleTableCell()
     {
     }
 }

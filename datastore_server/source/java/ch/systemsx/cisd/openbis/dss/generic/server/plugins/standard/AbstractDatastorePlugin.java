@@ -33,10 +33,10 @@ public abstract class AbstractDatastorePlugin implements Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private final File storeRoot;
+    protected final File storeRoot;
 
     private final String subDirectory;
-    
+
     protected final Properties properties;
 
     protected AbstractDatastorePlugin(Properties properties, File storeRoot)
