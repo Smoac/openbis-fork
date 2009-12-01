@@ -16,12 +16,10 @@
 
 package eu.basysbio.cisd.dss;
 
-import java.io.File;
 import java.util.Properties;
 
 import ch.systemsx.cisd.etlserver.DelegatingStorageProcessorWithDropbox;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 
 /**
  * 
@@ -33,21 +31,7 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
 
     public StorageProcessor(Properties properties)
     {
-        super(properties, new IPostRegistrationDatasetHandler()
-            {
-                
-                public void undoLastOperation()
-                {
-                    System.out.println("undoLastOperation()");
-                    
-                }
-                
-                public void handle(File originalData, DataSetInformation dataSetInformation)
-                {
-                    System.out
-                            .println(".handle(" + originalData + ", " + dataSetInformation + ")");
-                }
-            });
+        super(properties, new Cleaver(properties, ServiceProvider.getOpenBISService()));
     }
 
 }
