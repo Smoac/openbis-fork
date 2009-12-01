@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -85,14 +87,21 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                 msg = message;
             }
         }
-        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg, null);
-        if (caught instanceof InvalidSessionException)
-        {
-            if (associatedDialogOrNull != null)
-            {
-                associatedDialogOrNull.hide();
-            }
-            context.getPageController().createLoginPage();
-        }
+        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg,
+        // go to login page after message box is closed if the problem is caused by invalid session
+                new Listener<MessageBoxEvent>()
+                    {
+                        public void handleEvent(MessageBoxEvent be)
+                        {
+                            if (caught instanceof InvalidSessionException)
+                            {
+                                if (associatedDialogOrNull != null)
+                                {
+                                    associatedDialogOrNull.hide();
+                                }
+                                context.getPageController().createLoginPage();
+                            }
+                        }
+                    });
     }
 }
