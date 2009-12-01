@@ -257,7 +257,7 @@ public final class RPCServiceFactory
         }
     }
 
-    // see comment submitted on 31-JAN-2008 for
+    // WORKAROUND: see comment submitted on 31-JAN-2008 for
     // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6514454
     private static void workAroundABugInJava6()
     {

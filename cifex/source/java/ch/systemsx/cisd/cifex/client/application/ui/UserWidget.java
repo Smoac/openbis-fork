@@ -638,6 +638,7 @@ public abstract class UserWidget extends LayoutContainer
     private final CheckBox createSendUserInformationCheckbox()
     {
         CheckBox checkbox = new CheckBox();
+        checkbox.setBoxLabel(""); // WORKAROUND to align check box to left
         checkbox.setValue(true);
         checkbox.setName("send-user-information");
         checkbox.setFieldLabel(getMessageResources().getSendUserUpdateInformationLabel());
@@ -648,6 +649,7 @@ public abstract class UserWidget extends LayoutContainer
     private final CheckBox createUserIsActiveCheckbox()
     {
         CheckBox checkBox = new CheckBox();
+        checkBox.setBoxLabel(""); // WORKAROUND to align check box to left
         if (editUser != null)
         {
             checkBox.setValue(editUser.isActive());

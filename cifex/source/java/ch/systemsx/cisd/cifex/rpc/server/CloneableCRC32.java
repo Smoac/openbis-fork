@@ -36,8 +36,8 @@ public class CloneableCRC32 extends CRC32 implements Cloneable
      */
     public CloneableCRC32(int initialCRC32Value)
     {
-        // Note: this is an awful hack, but the Sun engineers just didn't think of this case when
-        // designing the API.
+        // WORKAROUND: this is an awful hack, but the Sun engineers just didn't think of this case
+        // when designing the API.
         final Field crcField;
         try
         {

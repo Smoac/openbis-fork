@@ -227,7 +227,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         return new LabelToolItem(messageProvider.getMessage(Dict.TABLE_OPERATIONS));
     }
 
-    // HACK
+    // WORKAROUND to keep disabled state of buttons independent from the toolbar state
     //
     // In GXT 1.2 ToolBar items were subclasses of ToolItems and we added widgets
     // to BrowserGridPagingToolbar wrapped in AdapterToolItems. Now components are kept directly as

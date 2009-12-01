@@ -171,8 +171,8 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
     {
         this.viewContext = viewContext;
         setBorders(true);
-        // TODO 2009-11-24, Franz-Josef Elmer: Next line is a hack to get all elements in the
-        // toolbar present independent of the original width of the parent
+        // WORKAROUND to get all elements in the toolbar present independent of the original width
+        // of the parent
         setWidth(3000);
         add(new LabelToolItem(viewContext.getMessage(Dict.SELECTED_EXPERIMENT_LABEL)
                 + GenericConstants.LABEL_SEPARATOR));
@@ -302,7 +302,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
     {
         this.browserGrid = browserGrid;
     }
-    
+
     void setSummaryGrid(ProteinSummaryGrid summaryGrid)
     {
         this.summaryGrid = summaryGrid;
