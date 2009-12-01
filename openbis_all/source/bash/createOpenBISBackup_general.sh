@@ -3,7 +3,7 @@
 # Creates a snapshot of the openbis database
 # 2009, John Ryan, Manuel Kohler D-BSSE
 
-export BACKUP_DIR=~/db_backups
+export BACKUP_DIR=~openbis/db_backups
 export DATE=`/bin/date +%Y-%m-%d_%H%M`
 export DAYS_TO_RETAIN=3
 export DATABASES=$1
