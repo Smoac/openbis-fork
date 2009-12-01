@@ -83,8 +83,9 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadF
     @Override
     public final void onFailure(final Throwable caught)
     {
-        super.onFailure(caught);
+        // refresh causes message box with failure message disappear so it needs to be done first
         refreshMainPage();
+        super.onFailure(caught);
     }
 
     public final void onSuccess(final FileUploadFeedback result)
@@ -94,8 +95,9 @@ final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadF
         final Message message = feedback.getMessage();
         if (message != null)
         {
-            WidgetUtils.showMessage(message, messageResources);
+            // refresh causes message box with failure message disappear so it needs to be done first
             refreshMainPage();
+            WidgetUtils.showMessage(message, messageResources);
             return;
         }
         if (feedback.isFinished())
