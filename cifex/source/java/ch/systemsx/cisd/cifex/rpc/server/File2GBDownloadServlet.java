@@ -46,8 +46,8 @@ public class File2GBDownloadServlet extends AbstractFileDownloadServlet
 {
     private static final long serialVersionUID = 1L;
 
-    // TODO: CR -- There is much commonality between this class and the File2GBUploadServlet, but
-    // I'm not familiar enough with the internals to do this refactoring yet myself.
+    // TODO: 2009-12-01 CR: There is much commonality between this class and the
+    // File2GBUploadServlet, refactoring needed
 
     @Private
     static final Template JNLP_TEMPLATE =
