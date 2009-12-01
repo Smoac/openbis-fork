@@ -68,17 +68,18 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     public void registerDataStoreServer(String sessionToken, DataStoreServerInfo dataStoreServerInfo);
 
     /**
-     * Returns the specified experiment or <code>null</code> if not found. 
+     * Returns the specified experiment or <code>null</code> if not found.
      * 
      * @param sessionToken the user authentication token. Must not be <code>null</code>.
      * @param experimentIdentifier an identifier which uniquely identifies the experiment.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public Experiment tryToGetExperiment(String sessionToken,
-            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class)
-            ExperimentIdentifier experimentIdentifier) throws UserFailureException;
-    
+    public Experiment tryToGetExperiment(
+            String sessionToken,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier)
+            throws UserFailureException;
+
     /**
      * Gets a sample with the specified identifier. Sample is enriched with properties and the
      * experiment with properties.
@@ -107,7 +108,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
 
     /**
      * Tries to return the properties of the top sample (e.g. master plate) registered for the
-     * specified sample code.
+     * specified sample code. If sample has no top sample, its own properties are returned.
      * 
      * @param sessionToken the user authentication token. Must not be <code>null</code>.
      * @param sampleIdentifier an identifier which uniquely identifies the sample.
