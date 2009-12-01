@@ -311,10 +311,11 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
                                 * MB);
         if ((countOK && sizeOK) == false)
         {
+            final double currentFileSizeInMB = ((double) requestUser.getCurrentFileSize()) / MB;
             final QuotaExceededException excetion =
                     new QuotaExceededException(requestUser.getMaxFileCountPerQuotaGroup(),
                             requestUser.getMaxFileSizePerQuotaGroupInMB(), requestUser
-                                    .getCurrentFileCount(), requestUser.getCurrentFileSize());
+                                    .getCurrentFileCount(), currentFileSizeInMB);
             operationLog.error("[" + sessionID + "]: " + excetion.getMessage());
             throw excetion;
         }

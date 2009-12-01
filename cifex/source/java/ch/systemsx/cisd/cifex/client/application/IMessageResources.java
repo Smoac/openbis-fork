@@ -467,8 +467,8 @@ public interface IMessageResources extends Messages
 
     /** Returns the help text for uploading files section upload. */
     @Key(value = "uploadfiles.help.upload")
-    public String getUploadFilesHelpUpload(String maxFileSizePerQuotaGroup,
-            long currentFileSize, String maxFileCountPerQuotaGroup, int currentFileCount);
+    public String getUploadFilesHelpUpload(String maxFileSizePerQuotaGroup, String currentFileSize,
+            String maxFileCountPerQuotaGroup, int currentFileCount);
 
     /** Returns the help text for uploading files section Java upload. */
     @Key(value = "uploadfiles.help.javaUpload")

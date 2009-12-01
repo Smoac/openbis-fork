@@ -148,10 +148,11 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                                 * MB);
         if ((countOK && sizeOK) == false)
         {
+            final double currentFileSizeInMB = ((double) requestUser.getCurrentFileSize()) / MB;
             final QuotaExceededException exception =
                     new QuotaExceededException(requestUser.getMaxFileCountPerQuotaGroup(),
                             requestUser.getMaxFileSizePerQuotaGroupInMB(), requestUser
-                                    .getCurrentFileCount(), requestUser.getCurrentFileSize());
+                                    .getCurrentFileCount(), currentFileSizeInMB);
             operationLog.error(exception.getMessage());
             throw exception;
         }

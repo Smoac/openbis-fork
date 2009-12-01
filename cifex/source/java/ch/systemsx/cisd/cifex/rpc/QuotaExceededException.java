@@ -29,30 +29,28 @@ public class QuotaExceededException extends UserFailureException
     private static final long serialVersionUID = 1L;
 
     public QuotaExceededException(Integer maxFileCount, Long maxFileSize, int currentFileCount,
-            long currentFileSize)
+            double currentFileSize)
     {
         super(constructMessage(maxFileCount, maxFileSize, currentFileCount, currentFileSize));
     }
 
     private static String constructMessage(Integer maxFileCount, Long maxFileSize,
-            int currentFileCount, long currentFileSize)
+            int currentFileCount, double currentFileSize)
     {
         if (maxFileCount == null)
         {
-            return String.format(
-                    "The upload would exceed the quota limit of %d MB total size "
-                            + "(current usage: %d MB)", maxFileSize, currentFileSize);
+            return String.format("The upload would exceed the quota limit of %d MB total size "
+                    + "(current usage: %d MB)", maxFileSize, currentFileSize);
         } else if (maxFileSize == null)
         {
-            return String.format(
-                    "The upload would exceed the quota limit of %d files "
-                            + "(current usage: %d files)", maxFileCount, maxFileSize,
-                    currentFileCount, currentFileSize);
+            return String.format("The upload would exceed the quota limit of %d files "
+                    + "(current usage: %d files)", maxFileCount, maxFileSize, currentFileCount,
+                    currentFileSize);
         } else
         {
             return String.format(
                     "The upload would exceed the quota limit of %d files or %d MB total size "
-                            + "(current usage: %d files, %d MB)", maxFileCount, maxFileSize,
+                            + "(current usage: %d files, %1.2f MB)", maxFileCount, maxFileSize,
                     currentFileCount, currentFileSize);
         }
     }

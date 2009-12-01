@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -45,6 +46,8 @@ final class MainPage extends AbstractMainPage
     private final static boolean DOWNLOAD = true;
 
     private final static boolean UPLOAD = false;
+
+    private static final long MB = 1024 * 1024;
 
     MainPage(final ViewContext context)
     {
@@ -73,6 +76,12 @@ final class MainPage extends AbstractMainPage
         }
     }
 
+    static private final String getCurrentFileSizeInMB(final long currentFileSize)
+    {
+        NumberFormat fmt = NumberFormat.getDecimalFormat();
+        return fmt.format((double) currentFileSize / MB) + " MB";
+    }
+
     private static final Widget createExplanationPanel(ViewContext context)
     {
         IMessageResources messageResources = context.getMessageResources();
@@ -81,8 +90,9 @@ final class MainPage extends AbstractMainPage
         final UserInfoDTO user = model.getUser();
         StringBuffer notesText = new StringBuffer();
         notesText.append(messageResources.getUploadFilesHelpUpload(getMaxFileSize(user
-                .getMaxFileSizePerQuotaGroupInMB()), user.getCurrentFileSize(), getMaxFileCount(user
-                .getMaxFileCountPerQuotaGroup()), user.getCurrentFileCount()));
+                .getMaxFileSizePerQuotaGroupInMB()), getCurrentFileSizeInMB(user
+                .getCurrentFileSize()), getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user
+                .getCurrentFileCount()));
         if (isPermanent)
         {
             notesText.append(messageResources.getUploadFilesHelpPermanentUser());
