@@ -18,7 +18,6 @@ package ch.systemsx.cisd.etlserver.validation;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,13 +29,12 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.LineIterator;
-import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.utils.FileScanner;
+import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -129,12 +127,8 @@ class DataSetValidatorForTSV implements IDataSetValidator
         try
         {
             reader = new FileReader(file);
-            LineIterator lineIterator = IOUtils.lineIterator(reader);
-            if (lineIterator.hasNext() == false)
-            {
-                throw new IOException("Empty file '" + file);
-            }
-            String[] headers = getRowCells(lineIterator.nextLine());
+            TabSeparatedValueTable table = new TabSeparatedValueTable(reader, file.toString());
+            List<String> headers = table.getHeaders();
             assertUniqueHeaders(headers);
             ColumnDefinition[] definitions = findColumnDefinitions(headers);
             IValidator[] validators = new IValidator[definitions.length];
@@ -143,20 +137,20 @@ class DataSetValidatorForTSV implements IDataSetValidator
                 validators[i] = definitions[i].createValidator();
             }
             int lineNumber = 1;
-            while (lineIterator.hasNext())
+            while (table.hasMoreRows())
             {
                 lineNumber++;
-                String[] row = getRowCells(lineIterator.nextLine());
-                if (row.length > definitions.length)
+                List<String> row = table.tryToGetNextRow();
+                if (row.size() > definitions.length)
                 {
                     throw new UserFailureException("The row in line " + lineNumber + " has "
-                            + row.length + " cells instead of " + definitions.length);
+                            + row.size() + " cells instead of " + definitions.length);
                 }
-                for (int i = 0; i < row.length; i++)
+                for (int i = 0; i < row.size(); i++)
                 {
                     try
                     {
-                        validators[i].assertValid(row[i]);
+                        validators[i].assertValid(row.get(i));
                     } catch (RuntimeException ex)
                     {
                         throw new UserFailureException("Error in file '" + file + "': " + (i + 1)
@@ -176,7 +170,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
         }
     }
 
-    private void assertUniqueHeaders(String[] headers)
+    private void assertUniqueHeaders(List<String> headers)
     {
         HashSet<String> headerSet = new HashSet<String>();
         for (String header : headers)
@@ -189,7 +183,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
         }
     }
     
-    private ColumnDefinition[] findColumnDefinitions(String[] columnHeaders)
+    private ColumnDefinition[] findColumnDefinitions(List<String> columnHeaders)
     {
         ColumnDefinition[] definitions = findOrderedColumnDefinitions(columnHeaders);
         List<ColumnDefinition> remainingDefinitions =
@@ -198,7 +192,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
         {
             if (definitions[i] == null)
             {
-                definitions[i] = getDefinition(remainingDefinitions, columnHeaders[i]);
+                definitions[i] = getDefinition(remainingDefinitions, columnHeaders.get(i));
             }
         }
         String list = createListOfMissingColumns(remainingDefinitions);
@@ -227,25 +221,25 @@ class DataSetValidatorForTSV implements IDataSetValidator
         return builder.toString();
     }
 
-    private ColumnDefinition[] findOrderedColumnDefinitions(String[] columnHeaders)
+    private ColumnDefinition[] findOrderedColumnDefinitions(List<String> columnHeaders)
     {
-        ColumnDefinition[] definitions = new ColumnDefinition[columnHeaders.length];
+        ColumnDefinition[] definitions = new ColumnDefinition[columnHeaders.size()];
         for (ColumnDefinition columnDefinition : orderedDefinitions.values())
         {
             boolean mandatory = columnDefinition.isMandatory();
             int orderIndex = columnDefinition.getOrderOrNull() - 1;
-            if (orderIndex >= columnHeaders.length)
+            if (orderIndex >= columnHeaders.size())
             {
                 if (mandatory)
                 {
                     throw new UserFailureException(columnDefinition.getOrderOrNull()
                             + ". column [name=" + columnDefinition.getName()
                             + "] is mandatory but missing because there are only "
-                            + columnHeaders.length + " column headers.");
+                            + columnHeaders.size() + " column headers.");
                 }
             } else
             {
-                columnDefinition.assertValidHeader(columnHeaders[orderIndex]);
+                columnDefinition.assertValidHeader(columnHeaders.get(orderIndex));
                 definitions[orderIndex] = columnDefinition;
             }
         }
@@ -268,12 +262,6 @@ class DataSetValidatorForTSV implements IDataSetValidator
         }
         throw new UserFailureException("No column definition matches the following column header: "
                 + columnHeader);
-    }
-
-    private String[] getRowCells(String line)
-    {
-        String[] cells = StringUtils.splitByWholeSeparatorPreserveAllTokens(line, "\t");
-        return cells == null ? new String[0] : cells;
     }
 
 }
