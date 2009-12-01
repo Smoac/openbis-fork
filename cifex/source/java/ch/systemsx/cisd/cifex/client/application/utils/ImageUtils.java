@@ -43,6 +43,7 @@ public final class ImageUtils
 
     public final static Image getLogoImage()
     {
-        return createImage("cisd.jpeg");
+        //return createImage("cisd.jpeg");
+        return createImage("cifex.png");
     }
 }

@@ -18,10 +18,15 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import java.util.Map;
 
+import com.google.gwt.dom.client.AnchorElement;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -53,11 +58,16 @@ final class LoginPage extends VerticalPanel
         // panel.
         DockPanel loginPanel = new DockPanel();
         loginPanel.add(loginWidget, DockPanel.CENTER);
+
         Image cisdLogo = createImage();
+        Anchor logo =
+                new Anchor(cisdLogo.getElement().getString(), true, "http://www.cisd.ethz.ch/",
+                        "_blank");
+
         final FooterPanel footerPanel = new FooterPanel(viewContext);
         final HTML welcomePanel = createWelcomePanel();
         final CellPanel northPanel = createNorthPanel();
-        northPanel.add(cisdLogo);
+        northPanel.add(logo);
         northPanel.add(welcomePanel);
         add(northPanel);
         add(loginPanel);
@@ -88,6 +98,7 @@ final class LoginPage extends VerticalPanel
     {
         final Image image = ImageUtils.getLogoImage();
         image.setTitle(viewContext.getMessageResources().getCISDLogoTitle());
+        image.setPixelSize(175, 107);
         return image;
     }
 
