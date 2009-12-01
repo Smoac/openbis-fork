@@ -41,7 +41,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -49,8 +48,8 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
+import ch.systemsx.cisd.etlserver.AbstractPostRegistrationDataSetHandlerForFileBasedUndo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -66,7 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  * 
  * @author Franz-Josef Elmer
  */
-class FlowLaneFeeder implements IPostRegistrationDatasetHandler
+class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
 {
     static final String META_DATA_FILE_TYPE = ".tsv";
 
@@ -97,16 +96,13 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
 
     private final IImmutableCopier copier;
 
-    private final IFileOperations fileOperations;
-
-    private final List<File> createdFiles = new ArrayList<File>();
-
     private final Map<String, File> transferDropBoxes = new HashMap<String, File>();
 
     private final String srfInfoPathOrNull;
 
     FlowLaneFeeder(Properties properties, IEncapsulatedOpenBISService service)
     {
+        super(FileOperations.getInstance());
         this.service = service;
         flowLaneDropBoxTemplate =
                 new MessageFormat(PropertyUtils.getMandatoryProperty(properties,
@@ -123,7 +119,6 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
             }
         }
         copier = FastRecursiveHardLinkMaker.tryCreate(TimingParameters.getDefaultParameters());
-        fileOperations = FileOperations.getInstance();
         Properties transferDropBoxMapping =
                 ExtendedProperties.getSubset(properties, TRANSFER_PREFIX, true);
         Set<Entry<Object, Object>> entries = transferDropBoxMapping.entrySet();
@@ -172,7 +167,7 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
                 throw new EnvironmentFailureException("There is already a data set for flow lane "
                         + flowLane + ".");
             }
-            createdFiles.add(flowLaneDataSet);
+            addFileForUndo(flowLaneDataSet);
             boolean success = flowLaneDataSet.mkdir();
             if (success == false)
             {
@@ -183,7 +178,7 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
             createMetaDataFileAndHartLinkInTransferDropBox(flowLaneDataSet, flowLaneSample,
                     flowLane, srfInfo);
             File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName);
-            createdFiles.add(markerFile);
+            addFileForUndo(markerFile);
             FileUtilities.writeToFile(markerFile, "");
             if (operationLog.isInfoEnabled())
             {
@@ -293,7 +288,7 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
         if (dropBox != null)
         {
             createHartLink(flowLaneDataSet, dropBox);
-            createdFiles.add(new File(dropBox, flowLaneDataSet.getName()));
+            addFileForUndo(new File(dropBox, flowLaneDataSet.getName()));
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Flow lane data set '" + flowLaneDataSet.getName()
@@ -358,22 +353,6 @@ class FlowLaneFeeder implements IPostRegistrationDatasetHandler
             for (File child : file.listFiles())
             {
                 findFiles(child, files);
-            }
-        }
-    }
-
-    public void undoLastOperation()
-    {
-        if (operationLog.isInfoEnabled())
-        {
-            operationLog.info("Undo last operation by deleting following files: " + createdFiles);
-        }
-
-        for (File file : createdFiles)
-        {
-            if (file.exists())
-            {
-                fileOperations.deleteRecursively(file);
             }
         }
     }
