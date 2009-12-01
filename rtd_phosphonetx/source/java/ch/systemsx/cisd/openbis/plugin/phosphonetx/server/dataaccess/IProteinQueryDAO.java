@@ -62,7 +62,7 @@ public interface IProteinQueryDAO extends BaseQuery
     public DataSet<ProteinReferenceWithProbabilityAndPeptide> listProteinsWithProbabilityAndPeptidesByExperiment(
             String experimentPermID);
     
-    @Select("select distinct s.prre_id, s.amino_acid_sequence, pe.sequence " 
+    @Select("select distinct on (s.prre_id,s.checksum,pe.sequence) s.prre_id, s.amino_acid_sequence, pe.sequence " 
             + "from identified_proteins as ip "
             + "left join proteins as p on ip.prot_id = p.id "
             + "left join data_sets as d on p.dase_id = d.id "
