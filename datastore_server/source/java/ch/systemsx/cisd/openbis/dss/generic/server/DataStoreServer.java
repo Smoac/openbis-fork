@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
@@ -217,7 +218,8 @@ public class DataStoreServer
                 properties.setProperty(name.substring(PREFIX_LENGTH), value);
             }
         }
-        final ConfigParameters configParameters = new ConfigParameters(properties);
+        final ConfigParameters configParameters =
+                new ConfigParameters(ExtendedProperties.createWith(properties));
         configParameters.log();
         return configParameters;
     }

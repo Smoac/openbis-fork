@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.etlserver.utils;
 
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -69,21 +68,13 @@ public class TabSeparatedValueTable
      */
     public List<Column> getColumns()
     {
-        List<Column> columns = new ArrayList<Column>(headers.size());
-        for (String header : headers)
-        {
-            columns.add(new Column(header));
-        }
+        TableBuilder builder = new TableBuilder(headers);
         while (hasMoreRows())
         {
             List<String> row = tryToGetNextRow();
-            for (int i = 0, n = columns.size(); i < n; i++)
-            {
-                Column column = columns.get(i);
-                column.add(i < row.size() ? row.get(i) : "");
-            }
+            builder.addRow(row);
         }
-        return columns;
+        return builder.getColumns();
     }
     
     /**
