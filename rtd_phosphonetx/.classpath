@@ -17,9 +17,9 @@
 	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-impl.jar"/>
 	<classpathentry kind="lib" path="/libraries/jaxb/jsr173_1.0_api.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt1.7/gwt-user.jar"/>
-	<classpathentry kind="lib" path="/libraries/gxt2.0/gxt.jar">
+	<classpathentry kind="lib" path="/libraries/gxt2.1/gxt.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/gxt2.0/gxt-api.zip!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/gxt2.1/gxt-api.zip!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>

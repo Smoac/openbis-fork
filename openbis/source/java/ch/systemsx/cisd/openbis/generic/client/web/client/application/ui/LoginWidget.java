@@ -94,6 +94,7 @@ public class LoginWidget extends VerticalPanel
         final FormPanel formPanel = new FormPanel();
         formPanel.setStyleName("login-widget");
         formPanel.setBodyBorder(false);
+        formPanel.setBorders(false);
         formPanel.setHeaderVisible(false);
         formPanel.setFieldWidth(130);
         formPanel.setWidth(250);
