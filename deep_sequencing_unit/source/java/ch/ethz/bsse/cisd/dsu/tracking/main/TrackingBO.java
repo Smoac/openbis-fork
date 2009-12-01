@@ -179,7 +179,7 @@ public class TrackingBO
         {
             max = Math.max(max, entity.getId());
         }
-        // FIXME 2009--, Tomasz Pylak: refactor ids to long everywhere
+        // TODO 2009-12-01, Tomasz Pylak: refactor ids to long everywhere
         return (int) max;
     }
 
