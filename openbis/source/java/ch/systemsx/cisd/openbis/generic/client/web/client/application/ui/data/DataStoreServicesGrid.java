@@ -24,7 +24,7 @@ import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Text;
@@ -63,8 +63,8 @@ class DataStoreServicesGrid extends ContentPanel
 
     private final DisplaySettingsManager displaySettingsManager;
 
-    private final List<Listener<SelectionEvent<ModelData>>> gridSelectionChangedListeners =
-            new ArrayList<Listener<SelectionEvent<ModelData>>>();
+    private final List<Listener<SelectionChangedEvent<ModelData>>> gridSelectionChangedListeners =
+            new ArrayList<Listener<SelectionChangedEvent<ModelData>>>();
 
     // null if not fetched asynchronously yet
     private List<DatastoreServiceDescription> servicesOrNull;
@@ -195,19 +195,20 @@ class DataStoreServicesGrid extends ContentPanel
         return false;
     }
 
-    final void registerGridSelectionChangeListener(Listener<SelectionEvent<ModelData>> listener)
+    final void registerGridSelectionChangeListener(
+            Listener<SelectionChangedEvent<ModelData>> listener)
     {
         gridSelectionChangedListeners.add(listener);
     }
 
     /** Creates grid selection change listener that handles all registered listeners. */
-    private Listener<SelectionEvent<ModelData>> createGridSelectionChangeListener()
+    private Listener<SelectionChangedEvent<ModelData>> createGridSelectionChangeListener()
     {
-        return new Listener<SelectionEvent<ModelData>>()
+        return new Listener<SelectionChangedEvent<ModelData>>()
             {
-                public void handleEvent(SelectionEvent<ModelData> be)
+                public void handleEvent(SelectionChangedEvent<ModelData> be)
                 {
-                    for (Listener<SelectionEvent<ModelData>> listener : gridSelectionChangedListeners)
+                    for (Listener<SelectionChangedEvent<ModelData>> listener : gridSelectionChangedListeners)
                     {
                         listener.handleEvent(be);
                     }

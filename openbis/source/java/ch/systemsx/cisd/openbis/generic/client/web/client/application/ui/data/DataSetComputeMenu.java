@@ -28,7 +28,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -464,6 +464,7 @@ public class DataSetComputeMenu extends TextToolItem
         {
             formPanel.setLabelWidth(LABEL_WIDTH);
             formPanel.setFieldWidth(FIELD_WIDTH);
+            servicesGrid = new DataStoreServicesGrid(viewContext);
 
             if (data.getSelectedDataSets().size() > 0 && isSingleDatastore())
             {
@@ -472,16 +473,15 @@ public class DataSetComputeMenu extends TextToolItem
                 updateComputationDataSetsState();
             }
 
-            servicesGrid = new DataStoreServicesGrid(viewContext);
             formPanel.add(servicesGrid);
             loadAvailableServices();
 
             Button confirmButton = getButtonById(Dialog.OK);
             confirmButton.setText("Run");
             servicesGrid
-                    .registerGridSelectionChangeListener(new Listener<SelectionEvent<ModelData>>()
+                    .registerGridSelectionChangeListener(new Listener<SelectionChangedEvent<ModelData>>()
                         {
-                            public void handleEvent(SelectionEvent<ModelData> se)
+                            public void handleEvent(SelectionChangedEvent<ModelData> se)
                             {
                                 updateOkButtonState();
                             }
@@ -538,6 +538,13 @@ public class DataSetComputeMenu extends TextToolItem
             result.setFieldLabel("Data Sets");
             result.setSelectionRequired(true);
             result.setOrientation(Orientation.HORIZONTAL);
+            computeOnAllRadio = createRadio("all");
+            computeOnSelectedRadio =
+                    createRadio("selected (" + data.getSelectedDataSets().size() + ")");
+            result.add(computeOnSelectedRadio);
+            result.add(computeOnAllRadio);
+            result.setValue(computeOnSelectedRadio);
+            result.setAutoHeight(true);
             result.addListener(Events.Change, new Listener<BaseEvent>()
                 {
                     public void handleEvent(BaseEvent be)
@@ -547,13 +554,6 @@ public class DataSetComputeMenu extends TextToolItem
                         updateOkButtonState();
                     }
                 });
-            computeOnAllRadio = createRadio("all");
-            computeOnSelectedRadio =
-                    createRadio("selected (" + data.getSelectedDataSets().size() + ")");
-            result.add(computeOnSelectedRadio);
-            result.add(computeOnAllRadio);
-            result.setValue(computeOnSelectedRadio);
-            result.setAutoHeight(true);
             return result;
         }
 
