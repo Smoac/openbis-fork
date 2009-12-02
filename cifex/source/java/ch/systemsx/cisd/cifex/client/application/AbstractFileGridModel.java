@@ -16,14 +16,13 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
-import ch.systemsx.cisd.cifex.client.application.grid.ContainFilterField;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.FileSizeRenderer;
@@ -175,16 +174,14 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     }
 
     public static <M extends ModelData> List<AbstractFilterField<M>> createFilterItems(
-            IMessageResources messageResources)
+            IMessageResources messageResources, List<ColumnConfig> columnConfigs)
     {
-        List<AbstractFilterField<M>> filterFields = new ArrayList<AbstractFilterField<M>>();
-        filterFields.add(new ContainFilterField<M>(AbstractFileGridModel.NAME, messageResources
-                .getFileNameLabel()));
-        filterFields.add(new ContainFilterField<M>(AbstractFileGridModel.COMMENT, messageResources
-                .getFileCommentLabel()));
-        filterFields.add(new ContainFilterField<M>(AbstractFileGridModel.CONTENT_TYPE,
-                messageResources.getFileContentTypeLabel()));
-        return filterFields;
+        return createFilterItems(columnConfigs, getInitialFilters());
     }
 
+    private static List<String> getInitialFilters()
+    {
+        return Arrays.asList(AbstractFileGridModel.NAME, AbstractFileGridModel.COMMENT,
+                AbstractFileGridModel.CONTENT_TYPE);
+    }
 }

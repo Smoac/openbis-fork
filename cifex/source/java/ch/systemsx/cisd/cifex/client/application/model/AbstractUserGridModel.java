@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -25,7 +25,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
-import ch.systemsx.cisd.cifex.client.application.grid.ContainFilterField;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -59,16 +58,15 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
     public static final String FILE_NAME = "fileName";
 
     public static <M extends ModelData> List<AbstractFilterField<M>> createFilterItems(
-            IMessageResources messageResources)
+            IMessageResources messageResources, List<ColumnConfig> columnConfigs)
     {
-        List<AbstractFilterField<M>> filterFields = new ArrayList<AbstractFilterField<M>>();
-        filterFields.add(new ContainFilterField<M>(AbstractUserGridModel.USER_CODE,
-                messageResources.getUserCodeLabel()));
-        filterFields.add(new ContainFilterField<M>(AbstractUserGridModel.FULL_NAME,
-                messageResources.getUserFullNameLabel()));
-        filterFields.add(new ContainFilterField<M>(AbstractUserGridModel.STATUS, messageResources
-                .getStatusLabel()));
-        return filterFields;
+        return createFilterItems(columnConfigs, getInitialFilters());
+    }
+
+    private static List<String> getInitialFilters()
+    {
+        return Arrays.asList(AbstractUserGridModel.USER_CODE, AbstractUserGridModel.FULL_NAME,
+                AbstractUserGridModel.STATUS);
     }
 
     /**

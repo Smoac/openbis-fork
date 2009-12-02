@@ -44,9 +44,9 @@ public class ContainFilterField<M extends ModelData> extends AbstractFilterField
         {
             return true;
         }
-        String rawValue = record.get(filteredPropertyKey);
-        boolean showItem =
-                rawValue != null && rawValue.toLowerCase().contains(filterText.toLowerCase());
-        return showItem;
+        Object rawValue = record.get(filteredPropertyKey);
+        return rawValue != null
+                && rawValue.toString().toLowerCase().contains(filterText.toLowerCase());
+
     }
 }

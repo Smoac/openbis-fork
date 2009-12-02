@@ -89,7 +89,8 @@ final class AdminMainPage extends AbstractMainPage
         List<ColumnConfig> columnConfigs =
                 AdminFileGridModel.getColumnConfigs(context.getMessageResources());
         List<AbstractFilterField<AbstractFileGridModel>> filterItems =
-                AbstractFileGridModel.createFilterItems(context.getMessageResources());
+                AbstractFileGridModel.createFilterItems(context.getMessageResources(),
+                        columnConfigs);
 
         GridWidget<AbstractFileGridModel> gridWidget =
                 GridWidget.create(columnConfigs, modelData, filterItems, context
@@ -164,7 +165,8 @@ final class AdminMainPage extends AbstractMainPage
 
         public final void onSuccess(final List<AdminFileInfoDTO> result)
         {
-            filesGrid.setDataAndRefresh(AdminFileGridModel.convert(context.getMessageResources(), result));
+            filesGrid.setDataAndRefresh(AdminFileGridModel.convert(context.getMessageResources(),
+                    result));
         }
     }
 

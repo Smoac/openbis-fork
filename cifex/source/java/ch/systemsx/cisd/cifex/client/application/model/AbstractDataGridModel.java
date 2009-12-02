@@ -16,10 +16,16 @@
 
 package ch.systemsx.cisd.cifex.client.application.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
+import ch.systemsx.cisd.cifex.client.application.grid.ContainFilterField;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
@@ -55,5 +61,23 @@ public abstract class AbstractDataGridModel extends BaseModelData
         columnConfig.setHeader(title);
         columnConfig.setWidth(width);
         return columnConfig;
+    }
+
+    protected static <M extends ModelData> List<AbstractFilterField<M>> createFilterItems(
+            List<ColumnConfig> columnConfigs, List<String> initialFilters)
+    {
+        List<AbstractFilterField<M>> filterFields = new ArrayList<AbstractFilterField<M>>();
+        for (ColumnConfig cc : columnConfigs)
+        {
+            if (false == cc.isHidden() || false == cc.isFixed())
+            {
+                ContainFilterField<M> field = new ContainFilterField<M>(cc.getId(), cc.getHeader());
+                boolean initiallyVisible = initialFilters.contains(cc.getId());
+                field.setVisible(initiallyVisible);
+                field.setEnabled(initiallyVisible);
+                filterFields.add(field);
+            }
+        }
+        return filterFields;
     }
 }

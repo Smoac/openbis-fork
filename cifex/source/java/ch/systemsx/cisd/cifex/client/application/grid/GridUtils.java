@@ -41,7 +41,7 @@ public class GridUtils
         IMessageResources messageResources = viewContext.getMessageResources();
         List<ColumnConfig> columnConfigs = UserGridModel.getColumnConfigs(messageResources);
         List<AbstractFilterField<UserGridModel>> filterItems =
-                AbstractUserGridModel.createFilterItems(messageResources);
+                AbstractUserGridModel.createFilterItems(messageResources, columnConfigs);
 
         GridWidget<UserGridModel> gridWidget =
                 GridWidget.create(columnConfigs, data, filterItems, messageResources);

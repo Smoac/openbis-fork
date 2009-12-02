@@ -156,7 +156,8 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         List<ColumnConfig> columnConfigs =
                 FileShareUserGridModel.getColumnConfigs(messageResources);
         List<AbstractFilterField<FileShareUserGridModel>> filterItems =
-                AbstractUserGridModel.createFilterItems(viewContext.getMessageResources());
+                AbstractUserGridModel.createFilterItems(viewContext.getMessageResources(),
+                        columnConfigs);
 
         GridWidget<FileShareUserGridModel> gridWidget =
                 GridWidget.create(columnConfigs, data, filterItems, viewContext

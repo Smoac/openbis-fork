@@ -89,7 +89,7 @@ final class MainPage extends AbstractMainPage
         final boolean isPermanent = model.getUser().isPermanent();
         final UserInfoDTO user = model.getUser();
         StringBuffer notesText = new StringBuffer();
-        notesText.append(messageResources.getUploadFilesHelpUpload(getMaxFileSize(user
+       notesText.append(messageResources.getUploadFilesHelpUpload(getMaxFileSize(user
                 .getMaxFileSizePerQuotaGroupInMB()), getCurrentFileSizeInMB(user
                 .getCurrentFileSize()), getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user
                 .getCurrentFileCount()));
@@ -254,7 +254,7 @@ final class MainPage extends AbstractMainPage
                 List<AbstractFileGridModel> data)
         {
             List<AbstractFilterField<AbstractFileGridModel>> filterItems =
-                    AbstractFileGridModel.createFilterItems(getMessageResources());
+                    AbstractFileGridModel.createFilterItems(getMessageResources(), columnConfigs);
 
             GridWidget<AbstractFileGridModel> gridWidget =
                     GridWidget.create(columnConfigs, data, filterItems, getMessageResources());

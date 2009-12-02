@@ -25,15 +25,19 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.PagingModelMemoryProxy;
 import com.extjs.gxt.ui.client.data.SortInfo;
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.button.SplitButton;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -203,13 +207,42 @@ public class GridWidget<M extends ModelData>
             IMessageResources messageResources)
     {
         List<Component> filterItems = new ArrayList<Component>();
-        filterItems.add(new LabelField(messageResources.getGridFiltersLabel()));
+        filterItems.add(createFiltersMenu(filterFields, messageResources.getGridFiltersLabel()));
         for (AbstractFilterField<M> filterField : filterFields)
         {
             filterItems.add(filterField);
             filterField.bind(onFilterAction);
         }
         return filterItems;
+    }
+
+    private static <M extends ModelData> SplitButton createFiltersMenu(
+            List<AbstractFilterField<M>> filterFields, String label)
+    {
+        SplitButton button = new SplitButton(label);
+        Menu menu = new Menu();
+        for (final AbstractFilterField<M> ff : filterFields)
+        {
+            final CheckMenuItem menuItem = new CheckMenuItem(ff.getEmptyText());
+            menuItem.setChecked(ff.isEnabled(), false);
+            menuItem.setHideOnClick(false);
+            menuItem.addSelectionListener(new SelectionListener<MenuEvent>()
+                {
+                    @Override
+                    public void componentSelected(MenuEvent ce)
+                    {
+                        if (menuItem.isChecked() == false)
+                        {
+                            ff.clear();
+                        }
+                        ff.setEnabled(menuItem.isChecked());
+                        ff.setVisible(menuItem.isChecked());
+                    }
+                });
+            menu.add(menuItem);
+        }
+        button.setMenu(menu);
+        return button;
     }
 
     private static <M extends ModelData> Grid<M> createGrid(List<ColumnConfig> columnConfigs)
