@@ -16,6 +16,8 @@
 
 package eu.basysbio.cisd.dss;
 
+import static eu.basysbio.cisd.dss.DataColumnHeaderValidator.SEPARATOR;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
@@ -28,7 +30,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -59,7 +60,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
 {
-    private static final Pattern DATA_COLUMN_HEADER_PATTERN = Pattern.compile(".*(::.*)+");
+    private static final Pattern DATA_COLUMN_HEADER_PATTERN =
+            Pattern.compile(".*(" + SEPARATOR + ".*)+");
 
     static final String EXPERIMENT_CODE_TEMPLATE_KEY = "experiment-code-template";
     static final String DEFAULT_EXPERIMENT_CODE_TEMPLATE = "{0}_{1}_{2}";
@@ -80,6 +82,9 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     {
         private static final int HEADER_PARTS = 12;
         
+        private static final int TIME_POINT_INDEX = 3;
+        private static final int TIME_POINT_TYPE_INDEX = 4;
+        
         private final String experimentCode;
         private final String cultivationMethod;
         private final String biologicalReplicateCode;
@@ -95,17 +100,18 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
 
         DataColumnHeader(String header)
         {
-            String[] parts = header.split("::");
+            String[] parts = header.split(SEPARATOR);
             if (parts.length < HEADER_PARTS)
             {
                 throw new IllegalArgumentException(HEADER_PARTS
-                        + " parts of the following header separated by '::' expected: " + header);
+                        + " elements of the following header separated by '" + SEPARATOR
+                        + "' expected: " + header);
             }
             experimentCode = parts[0];
             cultivationMethod = parts[1];
             biologicalReplicateCode = parts[2];
-            timePoint = parseTimePoint(parts[3], header);
-            timePointType = parts[4];
+            timePoint = parseTimePoint(parts[TIME_POINT_INDEX], header);
+            timePointType = parts[TIME_POINT_TYPE_INDEX];
             technicalReplicateCode = parts[5];
             celLoc = parts[6];
             dataSetType = parts[7];
@@ -119,11 +125,11 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         {
             try
             {
-                return Integer.parseInt(value.startsWith("+") ? value.substring(1) : value);
+                return Integer.parseInt(value);
             } catch (NumberFormatException ex)
             {
-                throw new UserFailureException(
-                        "4. part [" + value + "] of the following header isn't an integer number: " + header);
+                throw new UserFailureException((TIME_POINT_INDEX + 1) + ". part [" + value
+                        + "] of the following header isn't an integer number: " + header);
             }
         }
         
@@ -278,55 +284,13 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     private void writeAsTSVFile(File tsvFile, List<Column> columns)
     {
         IOutputStream outputStream = getFileOperations().getIOutputStream(tsvFile);
+        TSVOutputWriter writer = new TSVOutputWriter(outputStream);
         try
         {
-            Printer printer = new Printer(outputStream);
-            List<List<String>> cols = new ArrayList<List<String>>();
-            int numberOfRows = Integer.MAX_VALUE;
-            String delim = "";
-            for (Column column : columns)
-            {
-                printer.print(delim + column.getHeader());
-                delim = "\t";
-                List<String> values = column.getValues();
-                numberOfRows = Math.min(numberOfRows, values.size());
-                cols.add(values);
-            }
-            printer.println("");
-            for (int i = 0; i < numberOfRows; i++)
-            {
-                delim = "";
-                for (List<String> col : cols)
-                {
-                    printer.print(delim + col.get(i));
-                    delim = "\t";
-                }
-                printer.println("");
-            }
-            outputStream.flush();
+            writer.write(columns);
         } finally
         {
-            outputStream.close();
-        }
-    }
-
-    private static final class Printer
-    {
-        private final IOutputStream outputStream;
-
-        public Printer(IOutputStream outputStream)
-        {
-            this.outputStream = outputStream;
-        }
-        
-        public void println(Object object)
-        {
-            print(object + OSUtilities.LINE_SEPARATOR);
-        }
-        
-        public void print(Object object)
-        {
-            outputStream.write(String.valueOf(object).getBytes());
+            writer.close();
         }
     }
 
