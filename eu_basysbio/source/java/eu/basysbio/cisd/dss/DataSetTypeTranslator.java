@@ -43,8 +43,8 @@ class DataSetTypeTranslator
 
     DataSetTypeTranslator(Properties properties)
     {
-        String l = PropertyUtils.getMandatoryProperty(properties, DATA_SET_TYPES_KEY);
-        String[] types = PropertyParametersUtil.parseItemisedProperty(l, DATA_SET_TYPES_KEY);
+        String sequence = PropertyUtils.getMandatoryProperty(properties, DATA_SET_TYPES_KEY);
+        String[] types = PropertyParametersUtil.parseItemisedProperty(sequence, DATA_SET_TYPES_KEY);
         for (String type : types)
         {
             String translatedType = properties.getProperty(type);
