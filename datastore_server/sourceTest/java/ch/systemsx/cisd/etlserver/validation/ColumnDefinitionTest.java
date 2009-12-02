@@ -46,9 +46,9 @@ public class ColumnDefinitionTest extends AssertJUnit
         validator.assertValid("abc");
 
         definition.assertValidHeader("blabla");
-        assertEquals(true, definition.isValidHeader("blabla"));
+        assertEquals(Result.OK, definition.validateHeader("blabla"));
         definition.assertValidHeader("");
-        assertEquals(true, definition.isValidHeader(""));
+        assertEquals(Result.OK, definition.validateHeader(""));
 
         assertEquals("col", definition.getName());
         assertEquals(false, definition.isMandatory());
@@ -103,9 +103,9 @@ public class ColumnDefinitionTest extends AssertJUnit
         validator.assertValid("abc");
 
         definition.assertValidHeader("blabla");
-        assertEquals(true, definition.isValidHeader("blabla"));
+        assertEquals(Result.OK, definition.validateHeader("blabla"));
         definition.assertValidHeader("");
-        assertEquals(true, definition.isValidHeader(""));
+        assertEquals(Result.OK, definition.validateHeader(""));
 
         assertEquals("col", definition.getName());
         assertEquals(false, definition.isMandatory());
@@ -131,10 +131,12 @@ public class ColumnDefinitionTest extends AssertJUnit
             fail("Empty string header should raise UserFailureException");
         } catch (UserFailureException ex)
         {
-            assertEquals("According to column definition 'col' the following header is invalid: ",
-                    ex.getMessage());
+            assertEquals("According to column definition 'col' the header '' is invalid "
+                    + "because of the following reason: "
+                    + "Does not match the following regular expression: ID", ex.getMessage());
         }
-        assertEquals(false, definition.isValidHeader(""));
+        assertEquals("Does not match the following regular expression: ID", definition
+                .validateHeader("").toString());
 
         try
         {
@@ -142,14 +144,15 @@ public class ColumnDefinitionTest extends AssertJUnit
             fail("A header of 'abc' should raise UserFailureException");
         } catch (UserFailureException ex)
         {
-            assertEquals(
-                    "According to column definition 'col' the following header is invalid: abc", ex
-                            .getMessage());
+            assertEquals("According to column definition 'col' the header 'abc' is invalid "
+                    + "because of the following reason: "
+                    + "Does not match the following regular expression: ID", ex.getMessage());
         }
-        assertEquals(false, definition.isValidHeader("abc"));
+        assertEquals("Does not match the following regular expression: ID", definition
+                .validateHeader("abc").toString());
 
         definition.assertValidHeader("ID");
-        assertEquals(true, definition.isValidHeader("ID"));
+        assertEquals(Result.OK, definition.validateHeader("ID"));
     }
 
     @Test
@@ -172,8 +175,9 @@ public class ColumnDefinitionTest extends AssertJUnit
             fail("Empty string header should raise UserFailureException");
         } catch (UserFailureException ex)
         {
-            assertEquals("According to column definition 'col' the following header is invalid: ",
-                    ex.getMessage());
+            assertEquals("According to column definition 'col' the header '' is invalid "
+                    + "because of the following reason: "
+                    + "Does not match the following regular expression: ID", ex.getMessage());
         }
 
         try
@@ -182,13 +186,13 @@ public class ColumnDefinitionTest extends AssertJUnit
             fail("A header of 'abc' should raise UserFailureException");
         } catch (UserFailureException ex)
         {
-            assertEquals(
-                    "According to column definition 'col' the following header is invalid: abc", ex
-                            .getMessage());
+            assertEquals("According to column definition 'col' the header 'abc' is invalid "
+                    + "because of the following reason: "
+                    + "Does not match the following regular expression: ID", ex.getMessage());
         }
 
         definition.assertValidHeader("ID");
-        assertEquals(true, definition.isValidHeader("ID"));
+        assertEquals(Result.OK, definition.validateHeader("ID"));
     }
 
     @Test
@@ -219,9 +223,9 @@ public class ColumnDefinitionTest extends AssertJUnit
             fail("A header of 'ID' should raise UserFailureException");
         } catch (UserFailureException ex)
         {
-            assertEquals(
-                    "According to column definition 'col' the following header is invalid: ID", ex
-                            .getMessage());
+            assertEquals("According to column definition 'col' the header 'ID' is invalid "
+                    + "because of the following reason: "
+                    + "Does not match the following regular expression: ID[ab]+", ex.getMessage());
         }
 
         try
@@ -230,9 +234,9 @@ public class ColumnDefinitionTest extends AssertJUnit
             fail("A header of 'IDabc' should raise UserFailureException");
         } catch (UserFailureException ex)
         {
-            assertEquals(
-                    "According to column definition 'col' the following header is invalid: IDabc",
-                    ex.getMessage());
+            assertEquals("According to column definition 'col' the header 'IDabc' is invalid "
+                    + "because of the following reason: "
+                    + "Does not match the following regular expression: ID[ab]+", ex.getMessage());
         }
 
         definition.assertValidHeader("IDa");
@@ -361,8 +365,8 @@ public class ColumnDefinitionTest extends AssertJUnit
             fail("A value of 'abc' should raise UserFailureException");
         } catch (UserFailureException ex)
         {
-            assertEquals("'abc' doesn't match the following regular expression: [0-9]+", ex
-                    .getMessage());
+            assertEquals("'abc' is invalid: Does not match the following regular expression: "
+                    + "[0-9]+", ex.getMessage());
         }
 
         valueValidator.assertValid("1");
@@ -391,8 +395,8 @@ public class ColumnDefinitionTest extends AssertJUnit
             fail("A value of 'abc' should raise UserFailureException");
         } catch (UserFailureException ex)
         {
-            assertEquals("'abc' doesn't match the following regular expression: .+ :.*", ex
-                    .getMessage());
+            assertEquals("'abc' is invalid: Does not match the following regular expression: "
+                    + ".+ :.*", ex.getMessage());
         }
 
         valueValidator.assertValid(null);

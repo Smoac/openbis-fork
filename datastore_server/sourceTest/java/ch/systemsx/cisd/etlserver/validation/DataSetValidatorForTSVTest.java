@@ -177,8 +177,9 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("No column definition matches the following column header: ID", 
-                    ex.getMessage());
+            assertEquals("No column definition matches the following column header: ID\n"
+                    + "Column Definition 'c1' does not match: Reason: "
+                    + "Does not match the following regular expression: Name", ex.getMessage());
         }
         
         MockValidatorFactory.assertSatisfied();
@@ -399,7 +400,9 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("According to column definition 'c1' the following header is invalid: ID", ex.getMessage());
+            assertEquals("According to column definition 'c1' the header 'ID' is invalid "
+                    + "because of the following reason: "
+                    + "Does not match the following regular expression: Name", ex.getMessage());
         }
         
         MockValidatorFactory.assertSatisfied();

@@ -120,16 +120,18 @@ class ColumnDefinition
 
     void assertValidHeader(String header)
     {
-        if (isValidHeader(header) == false)
+        Result result = validateHeader(header);
+        if (result.isValid() == false)
         {
             throw new UserFailureException("According to column definition '" + name
-                    + "' the following header is invalid: " + header);
+                    + "' the header '" + header + "' is invalid because of the following reason: "
+                    + result);
         }
     }
 
-    boolean isValidHeader(String header)
+    Result validateHeader(String header)
     {
-        return headerValidator.isValidHeader(header);
+        return headerValidator.validateHeader(header);
     }
 
     IValidator createValidator()

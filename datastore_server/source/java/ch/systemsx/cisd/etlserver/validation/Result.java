@@ -17,14 +17,37 @@
 package ch.systemsx.cisd.etlserver.validation;
 
 /**
- * Interface of a validator for the header of a column.
+ * Result of a column header validation.
  *
  * @author Franz-Josef Elmer
  */
-public interface IColumnHeaderValidator
+public class Result
 {
-    /**
-     * Validates the specified header.
-     */
-    public Result validateHeader(String header);
+    public static final Result OK = new Result(null);
+    
+    public static final Result failure(String failureMessage)
+    {
+        assert failureMessage != null;
+        return new Result(failureMessage);
+    }
+    
+    private final String failureMessage;
+
+    private Result(String failureMessage)
+    {
+        this.failureMessage = failureMessage;
+    }
+    
+    boolean isValid()
+    {
+        return failureMessage == null;
+    }
+
+    @Override
+    public String toString()
+    {
+        return failureMessage == null ? "" : failureMessage;
+    }
+    
+    
 }

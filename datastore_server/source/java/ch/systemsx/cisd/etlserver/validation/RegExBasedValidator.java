@@ -46,16 +46,21 @@ class RegExBasedValidator extends AbstractValidator implements IColumnHeaderVali
     @Override
     protected void assertValidNonEmptyValue(String value)
     {
-        if (isValidHeader(value) == false)
+        Result result = validateHeader(value);
+        if (result.isValid() == false)
         {
             throw new UserFailureException("'" + value
-                    + "' doesn't match the following regular expression: " + pattern);
+                    + "' is invalid: " + result);
         }
     }
 
-    public boolean isValidHeader(String header)
+    public Result validateHeader(String header)
     {
-        return pattern.matcher(header).matches();
+        if (pattern.matcher(header).matches())
+        {
+            return Result.OK;
+        }
+        return Result.failure("Does not match the following regular expression: " + pattern);
     }
 
 }

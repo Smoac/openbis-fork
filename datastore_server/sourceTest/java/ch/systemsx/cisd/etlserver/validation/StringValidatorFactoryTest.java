@@ -62,7 +62,8 @@ public class StringValidatorFactoryTest extends AssertJUnit
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("'bc' doesn't match the following regular expression: a.*", ex.getMessage());
+            assertEquals("'bc' is invalid: Does not match the following regular expression: "
+                    + "a.*", ex.getMessage());
         }
         try
         {
@@ -95,7 +96,8 @@ public class StringValidatorFactoryTest extends AssertJUnit
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("'bc' doesn't match the following regular expression: a.*", ex.getMessage());
+            assertEquals("'bc' is invalid: Does not match the following regular expression: a.*",
+                    ex.getMessage());
         }
     }
     
@@ -122,7 +124,8 @@ public class StringValidatorFactoryTest extends AssertJUnit
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("'N/A' doesn't match the following regular expression: a.*", ex.getMessage());
+            assertEquals("'N/A' is invalid: Does not match the following regular expression: a.*",
+                    ex.getMessage());
         }
     }
 }

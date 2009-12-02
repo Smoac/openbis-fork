@@ -65,7 +65,8 @@ public class UniqueValidatorFactoryTest extends AssertJUnit
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("'ab' doesn't match the following regular expression: a[0-9]*", ex.getMessage());
+            assertEquals("'ab' is invalid: Does not match the following regular expression: "
+                    + "a[0-9]*", ex.getMessage());
         }
     }
     

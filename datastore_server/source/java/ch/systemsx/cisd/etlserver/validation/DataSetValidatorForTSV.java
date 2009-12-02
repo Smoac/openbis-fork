@@ -248,20 +248,26 @@ class DataSetValidatorForTSV implements IDataSetValidator
 
     private ColumnDefinition getDefinition(List<ColumnDefinition> definitions, String columnHeader)
     {
+        StringBuilder builder = new StringBuilder();
         for (Iterator<ColumnDefinition> iterator = definitions.iterator(); iterator.hasNext();)
         {
             ColumnDefinition columnDefinition = iterator.next();
-            if (columnDefinition.isValidHeader(columnHeader))
+            Result result = columnDefinition.validateHeader(columnHeader);
+            if (result.isValid())
             {
                 if (columnDefinition.canDefineMultipleColumns() == false)
                 {
                     iterator.remove();
                 }
                 return columnDefinition;
+            } else
+            {
+                builder.append("\nColumn Definition '").append(columnDefinition.getName());
+                builder.append("' does not match: Reason: ").append(result);
             }
         }
         throw new UserFailureException("No column definition matches the following column header: "
-                + columnHeader);
+                + columnHeader + builder);
     }
 
 }
