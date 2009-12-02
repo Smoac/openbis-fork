@@ -31,7 +31,7 @@ public class StorageProcessor extends DelegatingStorageProcessorWithDropbox
 
     public StorageProcessor(Properties properties)
     {
-        super(properties, new Cleaver(properties, ServiceProvider.getOpenBISService()));
+        super(properties, new TimeSeriesDataSetHandler(properties, ServiceProvider.getOpenBISService()));
     }
 
 }

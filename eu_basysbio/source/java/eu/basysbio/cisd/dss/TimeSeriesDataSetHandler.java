@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  *
  * @author Franz-Josef Elmer
  */
-class Cleaver extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
+class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
 {
     private static final Pattern DATA_COLUMN_HEADER_PATTERN = Pattern.compile(".*(::.*)+");
 
@@ -68,7 +68,7 @@ class Cleaver extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
     static final String DEFAULT_SAMPLE_CODE_TEMPLATE = "{0}_{1}";
     
     static final String SAMPLE_TYPE_CODE_KEY = "sample-type-code";
-    static final String DEFAULT_SAMPLE_TYPE_CODE = "TIME_SERIES";
+    static final String DEFAULT_SAMPLE_TYPE_CODE = "TIME_POINT";
     
     static final String TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY = "time-point-data-set-drop-box-path";
     
@@ -147,7 +147,7 @@ class Cleaver extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
     private final String dataSetPropertiesFileName;
     private final DataSetTypeTranslator translation;
 
-    Cleaver(Properties properties, IEncapsulatedOpenBISService service)
+    TimeSeriesDataSetHandler(Properties properties, IEncapsulatedOpenBISService service)
     {
         super(FileOperations.getInstance());
         this.service = service;
