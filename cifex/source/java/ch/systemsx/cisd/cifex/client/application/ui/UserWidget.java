@@ -171,6 +171,9 @@ public abstract class UserWidget extends LayoutContainer
                 final Date expirationDate = new Date();
                 CalendarUtil.addDaysToDate(expirationDate, config.getFileRetention());
                 user.setExpirationDate(expirationDate);
+            } else
+            {
+                user.setExpirationDate(null);
             }
         }
         if (maxFileCountField != null)
