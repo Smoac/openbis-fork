@@ -28,6 +28,32 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 final class ConfigParameters
 {
+    private static final String BEGINNING_F_WINDOW_FILTER_ENABLED =
+            "beginning-f-window-filter-enabled";
+
+    private static final String BEGINNING_F_WINDOW_LENGTH = "beginning-f-window-length";
+
+    private static final String BEGINNING_F_WINDOW_MAX_AVG_DIFF = "beginning-f-window-max-avg-diff";
+
+    private static final String BEGINNING_F_WINDOW_MAX_MISSING = "beginning-f-window-max-missing";
+
+    private static final String BEGINNING_F_WINDOW_MAX_OFFSET = "beginning-f-window-max-offset";
+
+    private static final String FIRST_PEAK_FILTER_ENABLED = "first-peak-filter-enabled";
+
+    private static final String FIRST_PEAK_MAX_START_OFFSET = "first-peak-max-start-offset";
+
+    private static final String FIRST_PEAK_MIN_FRAME_HEIGHT_DIFF =
+            "first-peak-min-frame-height-diff";
+
+    private static final String FIRST_PEAK_MIN_LENGTH = "first-peak-min-length";
+
+    private static final String FIRST_PEAK_MIN_TOTAL_HEIGHT_DIFF =
+            "first-peak-min-total-height-diff";
+
+    private static final String FIRST_PEAK_NUMBER_OF_FIRST_FRAMES_TO_IGNORE =
+            "first-peak-number-of-first-frames-to-ignore";
+
     private static final String MAX_F_MEAN_OF_LIVING_CELL = "max-f-mean-of-living-cell";
 
     private static final String MAX_NEW_BORN_CELL_PIXELS = "max-new-born-cell-pixels";
@@ -46,6 +72,28 @@ final class ConfigParameters
     private static final String NUMBER_OF_LAST_FRAMES_TO_IGNORE = "number-of-last-frames-to-ignore";
 
     private static final String SMOOTH_F_DEVIATION_WINDOW = "smooth-f-deviation-window";
+
+    private final boolean beginningFWindowFilterEnabled;
+
+    private final int beginningFWindowLength;
+
+    private final double beginningFWindowMaxAvgDiff;
+
+    private final int beginningFWindowMaxMissing;
+
+    private final int beginningFWindowMaxOffset;
+
+    private final boolean firstPeakFilterEnabled;
+
+    private final double firstPeakMinFrameHeightDiff;
+
+    private final int firstPeakMinLength;
+
+    private final double firstPeakMinTotalHeightDiff;
+
+    private final int firstPeakMaxStartOffset;
+
+    private final int firstPeakNumberOfFirstFramesToIgnore;
 
     private final double maxFMeanOfLivingCell;
 
@@ -83,6 +131,27 @@ final class ConfigParameters
      */
     private ConfigParameters(final Properties properties)
     {
+        beginningFWindowFilterEnabled =
+                getMandatoryBooleanProperty(properties, BEGINNING_F_WINDOW_FILTER_ENABLED);
+        beginningFWindowLength = getMandatoryIntegerProperty(properties, BEGINNING_F_WINDOW_LENGTH);
+        beginningFWindowMaxAvgDiff =
+                getMandatoryDoubleProperty(properties, BEGINNING_F_WINDOW_MAX_AVG_DIFF);
+        beginningFWindowMaxMissing =
+                getMandatoryIntegerProperty(properties, BEGINNING_F_WINDOW_MAX_MISSING);
+        beginningFWindowMaxOffset =
+                getMandatoryIntegerProperty(properties, BEGINNING_F_WINDOW_MAX_OFFSET);
+
+        firstPeakFilterEnabled = getMandatoryBooleanProperty(properties, FIRST_PEAK_FILTER_ENABLED);
+        firstPeakMaxStartOffset =
+                getMandatoryIntegerProperty(properties, FIRST_PEAK_MAX_START_OFFSET);
+        firstPeakMinFrameHeightDiff =
+                getMandatoryDoubleProperty(properties, FIRST_PEAK_MIN_FRAME_HEIGHT_DIFF);
+        firstPeakMinLength = getMandatoryIntegerProperty(properties, FIRST_PEAK_MIN_LENGTH);
+        firstPeakMinTotalHeightDiff =
+                getMandatoryDoubleProperty(properties, FIRST_PEAK_MIN_TOTAL_HEIGHT_DIFF);
+        firstPeakNumberOfFirstFramesToIgnore =
+                getMandatoryIntegerProperty(properties, FIRST_PEAK_NUMBER_OF_FIRST_FRAMES_TO_IGNORE);
+
         maxFMeanOfLivingCell = getMandatoryDoubleProperty(properties, MAX_F_MEAN_OF_LIVING_CELL);
         maxNewBornCellPixels = getMandatoryIntegerProperty(properties, MAX_NEW_BORN_CELL_PIXELS);
         maxParentCandidates = getMandatoryIntegerProperty(properties, MAX_PARENT_CANDIDATES);
@@ -143,6 +212,61 @@ final class ConfigParameters
         return smoothFDeviationWindow;
     }
 
+    public boolean isBeginningFWindowFilterEnabled()
+    {
+        return beginningFWindowFilterEnabled;
+    }
+
+    public int getBeginningFWindowLength()
+    {
+        return beginningFWindowLength;
+    }
+
+    public double getBeginningFWindowMaxAvgDiff()
+    {
+        return beginningFWindowMaxAvgDiff;
+    }
+
+    public int getBeginningFWindowMaxMissing()
+    {
+        return beginningFWindowMaxMissing;
+    }
+
+    public int getBeginningFWindowMaxOffset()
+    {
+        return beginningFWindowMaxOffset;
+    }
+
+    public boolean isFirstPeakFilterEnabled()
+    {
+        return firstPeakFilterEnabled;
+    }
+
+    public int getFirstPeakMaxStartOffset()
+    {
+        return firstPeakMaxStartOffset;
+    }
+
+    public double getFirstPeakMinFrameHeightDiff()
+    {
+        return firstPeakMinFrameHeightDiff;
+    }
+
+    public int getFirstPeakMinLength()
+    {
+        return firstPeakMinLength;
+    }
+
+    public double getFirstPeakMinTotalHeightDiff()
+    {
+        return firstPeakMinTotalHeightDiff;
+    }
+
+    public int getFirstPeakNumberOfFirstFramesToIgnore()
+    {
+        return firstPeakNumberOfFirstFramesToIgnore;
+    }
+
     public final String getDescription()
     {
         final StringBuilder sb = new StringBuilder();
@@ -166,6 +290,26 @@ final class ConfigParameters
                 getMaxFMeanOfLivingCell()));
         sb.append(String.format("Max number of parent candidates per cell: %d\n",
                 getMaxParentCandidates()));
+        sb.append(String.format("beginning-f-window-filter-enabled: %s\n",
+                isBeginningFWindowFilterEnabled()));
+        sb.append(String.format("beginning-f-window-length: %d\n", getBeginningFWindowLength()));
+        sb.append(String.format("beginning-f-window-max-avg-diff: %1.2f\n",
+                getBeginningFWindowMaxAvgDiff()));
+        sb.append(String.format("beginning-f-window-max-missing: %d\n",
+                getBeginningFWindowMaxMissing()));
+        sb.append(String.format("beginning-f-window-max-offset: %d\n",
+                getBeginningFWindowMaxOffset()));
+        sb.append(String.format("first-peak-filter-enabled: %s\n", isFirstPeakFilterEnabled()));
+        sb.append(String.format("first-peak-number-of-first-frames-to-ignore: %d\n,",
+                getFirstPeakNumberOfFirstFramesToIgnore()));
+        sb
+                .append(String.format("first-peak-max-start-offset: %d\n,",
+                        getFirstPeakMaxStartOffset()));
+        sb.append(String.format("first-peak-min-length: %d\n,", getFirstPeakMinLength()));
+        sb.append(String.format("first-peak-min-frame-height-diff: %1.2f\n,",
+                getFirstPeakMinFrameHeightDiff()));
+        sb.append(String.format("first-peak-min-total-height-diff: %1.2f\n,",
+                getFirstPeakMinTotalHeightDiff()));
         sb.append("\n");
         return sb.toString();
     }
@@ -199,6 +343,20 @@ final class ConfigParameters
         {
             throw new ConfigurationFailureException("Configuration parameter '" + key
                     + "' is not an integer number: " + property);
+        }
+    }
+
+    private final static boolean getMandatoryBooleanProperty(final Properties properties,
+            final String key)
+    {
+        final String property = PropertyUtils.getMandatoryProperty(properties, key);
+        try
+        {
+            return Boolean.parseBoolean(property);
+        } catch (final NumberFormatException ex)
+        {
+            throw new ConfigurationFailureException("Configuration parameter '" + key
+                    + "' is not a boolean value: " + property);
         }
     }
 

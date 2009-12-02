@@ -99,6 +99,8 @@ public class GenerationDetection
 
     private static final boolean PRODUCTION = true;
 
+    private static final boolean DEBUG = true;
+
     private static final int FIRST_FRAME_NUM = 0;
 
     private static final int FIRST_PICTURE_NUM = 0; // 0
@@ -415,6 +417,11 @@ public class GenerationDetection
             return fDeviation;
         }
 
+        public double getSmoothFDeviation()
+        {
+            return cellSmoothFDeviationByIdAndFrame.get(this.id)[this.frame];
+        }
+
         public double getFMean()
         {
             return fMean;
@@ -619,11 +626,6 @@ public class GenerationDetection
             return parent.getNumPix() >= MIN_PARENT_PIXELS;
         }
 
-        public double getEccentricityIncrease()
-        {
-            return parent.getEccentricity() - previousFrameParent.getEccentricity();
-        }
-
         @Override
         public String toString()
         {
@@ -651,6 +653,11 @@ public class GenerationDetection
 
     // <frame, cells>
     private static Map<Integer, Set<Cell>> cellsByFrame;
+
+    // <id, smooth fluorescence deviation values>
+    // - smooth fluorescence deviation values are indexed by cell frame
+    // - if cell didn't exist on a frame there will be null as a value
+    private static Map<Integer, Double[]> cellSmoothFDeviationByIdAndFrame;
 
     // <child id, parent candidates sorted in order (first cell is most likely a parent)>
     private static Map<Integer, ParentCandidate[]> parentCandidatesByChildId;
@@ -710,7 +717,7 @@ public class GenerationDetection
                     writer.append(SEPARATOR + intToString(cell.getGeneration()));
                     writer.append(SEPARATOR + doubleToString(cell.getFMean()));
                     writer.append(SEPARATOR + doubleToString(cell.getFDeviation()));
-                    writer.append(SEPARATOR + doubleToString(getSmoothFDeviation(cell)));
+                    writer.append(SEPARATOR + doubleToString(cell.getSmoothFDeviation()));
                     // writer.append(cell.getOutputString());
                     writer.append(NEW_LINE);
                 }
@@ -811,6 +818,7 @@ public class GenerationDetection
                 maxFrame = cell.getFrame();
             }
         }
+        generateSmoothFDeviationValues();
 
         // filter out fake cells
         final List<Integer> fakeCellIds = new ArrayList<Integer>();
@@ -853,6 +861,81 @@ public class GenerationDetection
         }
     }
 
+    // smooth fluorescence deviation computation - refactor
+    
+    private static void generateSmoothFDeviationValues()
+    {
+        cellSmoothFDeviationByIdAndFrame = new LinkedHashMap<Integer, Double[]>();
+        for (Integer cellId : cellsByIdAndFrame.keySet())
+        {
+            cellSmoothFDeviationByIdAndFrame.put(cellId, generateSmoothFDeviationValues(cellId));
+        }
+    }
+
+    private static Double[] generateSmoothFDeviationValues(int cellId)
+    {
+        final Double[] result = new Double[maxFrame + 1];
+        final Double[] fDeviations = new Double[maxFrame + 1];
+        fillFDeviationArray(fDeviations, cellId);
+        fillSmoothFDeviationArray(result, fDeviations);
+        return result;
+    }
+
+    private static void fillFDeviationArray(Double[] result, int cellId)
+    {
+        final Map<Integer, Cell> byFrame = cellsByIdAndFrame.get(cellId);
+        assert byFrame != null;
+
+        for (Cell cell : byFrame.values())
+        {
+            result[cell.frame] = cell.getFDeviation();
+        }
+    }
+
+    private static void fillSmoothFDeviationArray(Double[] result, Double[] fDeviations)
+    {
+        double fDeviationSum = 0; // sum of cells fluorescence deviations in current window
+        int counter = 0; // number of frames that the cell existed on in current window
+
+        // initialize counter and fDeviationSum values for first window
+        for (int frame = 0; frame <= SMOOTH_F_DEVIATION_WINDOW; frame++)
+        {
+            final Double fDeviationOrNull = fDeviations[frame];
+            if (fDeviationOrNull != null)
+            {
+                fDeviationSum += fDeviationOrNull;
+                counter++;
+            }
+        }
+        // At the beginning of each loop iteration result[frame] value is set from already computed
+        // window fDeviationSum and counter values. Then the window is shifted.
+        for (int frame = 0; frame <= maxFrame; frame++)
+        {
+            // fill value only if cell existed on current frame
+            // TODO 2009-12-02, Piotr Buczek: check what happens if this check is removed
+            if (fDeviations[frame] != null)
+            {
+                assert counter > 0;
+                result[frame] = fDeviationSum / counter;
+            }
+            // shift window:
+            // - subtract first value if present
+            final int curWindowFirstFrame = frame - SMOOTH_F_DEVIATION_WINDOW;
+            if (curWindowFirstFrame >= 0 && fDeviations[curWindowFirstFrame] != null)
+            {
+                fDeviationSum -= fDeviations[curWindowFirstFrame];
+                counter--;
+            }
+            // - add next value if present
+            final int nextWindowLastFrame = frame + SMOOTH_F_DEVIATION_WINDOW + 1;
+            if (nextWindowLastFrame <= maxFrame && fDeviations[nextWindowLastFrame] != null)
+            {
+                fDeviationSum += fDeviations[nextWindowLastFrame];
+                counter++;
+            }
+        }
+    }
+
     private static void analyzeData() throws Exception
     {
         Set<Cell> cellsFromOldFrames = new LinkedHashSet<Cell>();
@@ -872,6 +955,8 @@ public class GenerationDetection
             cellsFromOldFrames.addAll(newCells);
         }
     }
+
+    //
 
     private static List<Cell> newBornCells = new ArrayList<Cell>();
 
@@ -929,6 +1014,14 @@ public class GenerationDetection
                 // sort parent - best will be first
                 Collections.sort(parentCandidates);
                 filterCandidatesWithDistance(parentCandidates);
+                if (configParameters.isBeginningFWindowFilterEnabled())
+                {
+                    filterCandidatesWithBeginningFluorescence(parentCandidates);
+                }
+                if (configParameters.isFirstPeakFilterEnabled())
+                {
+                    filterCandidatesWithFirstPeak(parentCandidates);
+                }
                 // if we have many candidates it is rather difficult to decide
                 if (parentCandidates.size() <= MAX_PARENT_CANDIDATES)
                 {
@@ -947,6 +1040,120 @@ public class GenerationDetection
 
     }
 
+    // TODO 2009-12-02, Piotr Buczek: extract filterBetterCandidates
+    private static void filterCandidatesWithFirstPeak(List<ParentCandidate> parentCandidates)
+    {
+        // If some candidates have a fluorescence peak raise (short: peak) in the same point of time
+        // as first peak of daughter they are better candidates and other candidates will be
+        // filtered out.
+
+        final List<ParentCandidate> betterCandidates = new ArrayList<ParentCandidate>();
+        final int framesToIgnore = configParameters.getFirstPeakNumberOfFirstFramesToIgnore();
+        final int maxOffset = configParameters.getFirstPeakMaxStartOffset();
+        final int minLength = configParameters.getFirstPeakMinLength();
+        final double minFrameDiff = configParameters.getFirstPeakMinFrameHeightDiff();
+        final double minTotalDiff = configParameters.getFirstPeakMinTotalHeightDiff();
+
+        for (ParentCandidate candidate : parentCandidates)
+        {
+            if (hasSimilarFirstPeak(candidate, framesToIgnore, maxOffset, minLength, minFrameDiff,
+                    minTotalDiff))
+            {
+                betterCandidates.add(candidate);
+            }
+        }
+
+        if (betterCandidates.size() > 0)
+        {
+            parentCandidates.retainAll(betterCandidates);
+        }
+    }
+
+    private static boolean hasSimilarFirstPeak(ParentCandidate candidate, int framesToIgnore,
+            int maxOffset, int minLength, double minFrameDiff, double minTotalDiff)
+    {
+        // TODO 2009-12-02, Piotr Buczek: implement
+        return false;
+    }
+
+    private static void filterCandidatesWithBeginningFluorescence(
+            List<ParentCandidate> parentCandidates)
+    {
+        // If some candidates have very similar fluorescence as the child cell in the first few
+        // frames they are better candidates and other candidates will be filtered out
+        final List<ParentCandidate> betterCandidates = new ArrayList<ParentCandidate>();
+        final int maxOffset = configParameters.getBeginningFWindowMaxOffset();
+        final int windowLength = configParameters.getBeginningFWindowLength();
+        final int maxMissing = configParameters.getBeginningFWindowMaxMissing();
+        final double maxAvgDiff = configParameters.getBeginningFWindowMaxAvgDiff();
+
+        for (ParentCandidate candidate : parentCandidates)
+        {
+            if (hasSimilarBeginningFluorescence(candidate, maxOffset, windowLength, maxMissing,
+                    maxAvgDiff))
+            {
+                betterCandidates.add(candidate);
+            }
+        }
+
+        if (betterCandidates.size() > 0)
+        {
+            parentCandidates.retainAll(betterCandidates);
+        }
+    }
+
+    private static boolean hasSimilarBeginningFluorescence(ParentCandidate candidate,
+            final int maxOffset, final int windowLength, final int maxMissing,
+            final double maxAvgDiff)
+    {
+        final int childId = candidate.child.id;
+        final int parentId = candidate.parent.id;
+        final Map<Integer, Cell> childByFrame = cellsByIdAndFrame.get(childId);
+        final Map<Integer, Cell> candidateByFrame = cellsByIdAndFrame.get(parentId);
+
+        for (int candidateOffset = -maxOffset; candidateOffset <= maxOffset; candidateOffset++)
+        {
+            final int firstChildFrame = candidate.child.frame;
+            final int firstCandidateFrame = firstChildFrame + candidateOffset;
+            double currentDiff = Double.MAX_VALUE;
+            int counter = 0;
+            for (int windowOffset = firstChildFrame; windowOffset < windowLength; windowOffset++)
+            {
+                final Cell childOrNull = childByFrame.get(firstChildFrame + windowOffset);
+                final Cell parentOrNull = candidateByFrame.get(firstCandidateFrame + windowOffset);
+                if (childOrNull != null && parentOrNull != null)
+                {
+                    final double childF = childOrNull.getSmoothFDeviation();
+                    final double candidateF = parentOrNull.getSmoothFDeviation();
+                    currentDiff += Math.abs(childF - candidateF);
+                    counter++;
+                }
+            }
+            if (windowLength - counter > maxMissing)
+            {
+                if (DEBUG)
+                {
+                    log(String.format(
+                            "too many missing frames (%d) for child:%d, parent:%d and offset:%d",
+                            windowLength - counter, childId, parentId, candidateOffset));
+                }
+            } else
+            {
+                double currentAvgDiff = currentDiff / counter;
+                if (DEBUG)
+                {
+                    log(String.format("currentAvgDiff %1.2f = %s", currentAvgDiff,
+                            currentAvgDiff <= maxAvgDiff ? "OK" : "to high"));
+                }
+                if (currentAvgDiff <= maxAvgDiff)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private static void filterCandidatesWithDistance(List<ParentCandidate> parentCandidates)
     {
         // If some candidates almost touch the child cell they are better candidates
@@ -954,10 +1161,7 @@ public class GenerationDetection
         final List<ParentCandidate> betterCandidates = new ArrayList<ParentCandidate>();
         for (ParentCandidate candidate : parentCandidates)
         {
-            final double closeDistance =
-                    (candidate.parent.getMajAxis() + candidate.child.getMajAxis()) / 2;
-            final double maxDistanceSq = square(1.2 * closeDistance);
-            if (maxDistanceSq >= candidate.distanceSq)
+            if (hasCloseDistance(candidate))
             {
                 betterCandidates.add(candidate);
             }
@@ -966,6 +1170,14 @@ public class GenerationDetection
         {
             parentCandidates.retainAll(betterCandidates);
         }
+    }
+
+    private static boolean hasCloseDistance(ParentCandidate candidate)
+    {
+        final double closeDistance =
+                (candidate.parent.getMajAxis() + candidate.child.getMajAxis()) / 2;
+        final double maxDistanceSq = square(1.2 * closeDistance);
+        return maxDistanceSq >= candidate.distanceSq;
     }
 
     private static void setParents(Cell child, ParentCandidate... candidates)
@@ -1141,33 +1353,6 @@ public class GenerationDetection
     private static boolean isDying(Cell cell)
     {
         return cell.getFMean() > MAX_F_MEAN_OF_LIVING_CELL;
-    }
-
-    private static double getSmoothFDeviation(Cell cell)
-    {
-        double value = 0;
-        int counter = 0;
-
-        final Map<Integer, Cell> byFrame = cellsByIdAndFrame.get(cell.id);
-        if (byFrame == null)
-        {
-            return 0.0;
-        }
-
-        final int minF = cell.frame - SMOOTH_F_DEVIATION_WINDOW;
-        final int maxF = cell.frame + SMOOTH_F_DEVIATION_WINDOW;
-
-        for (int f = minF; f <= maxF; f++)
-        {
-            final Cell c = byFrame.get(f);
-            if (c != null)
-            {
-                counter++;
-                value += c.getFDeviation();
-            }
-        }
-
-        return value / counter;
     }
 
     private static int distanceSq(Cell c1, Cell c2)
