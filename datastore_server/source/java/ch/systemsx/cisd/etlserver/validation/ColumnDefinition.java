@@ -21,6 +21,7 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ClassUtils;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
@@ -70,9 +71,11 @@ class ColumnDefinition
             headerValidator = new RegExBasedValidator(headerPattern);
         } else
         {
+            ExtendedProperties headerValidatorProperties =
+                    ExtendedProperties.getSubset(properties, HEADER_VALIDATOR_KEY + ".", true);
             headerValidator =
-                    ClassUtils
-                            .create(IColumnHeaderValidator.class, headerValidatorName, properties);
+                    ClassUtils.create(IColumnHeaderValidator.class, headerValidatorName,
+                            headerValidatorProperties);
         }
         String validatorFactoryName =
                 properties.getProperty(VALUE_VALIDATOR_KEY, DefaultValueValidatorFactory.class
