@@ -103,7 +103,7 @@ public class DataSetValidator implements IDataSetValidator
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Data set [" + incomingDataSetFileOrFolder + "] of type '"
-                        + dataSetType.getCode() + "' successdully validated.");
+                        + dataSetType.getCode() + "' successfully validated.");
             }
         }
     }
