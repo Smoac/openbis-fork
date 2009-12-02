@@ -17,9 +17,10 @@
 package ch.systemsx.cisd.etlserver.utils;
 
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
@@ -63,8 +64,8 @@ public class TabSeparatedValueTable
     }
 
     /**
-     * Returns all columns. This method should not be invoked if {@link #tryToGetNextRow()} has
-     * already been invoked.
+     * Returns all columns. This method returns only rows which are not consumed by previous
+     * invocations of {@link #tryToGetNextRow()}.
      */
     public List<Column> getColumns()
     {
@@ -87,20 +88,38 @@ public class TabSeparatedValueTable
     }
     
     /**
-     * Returns the next row as a list of its cell values.
+     * Returns the next row as a list of its cell values. Missing cells are returned as empty strings.
+     * The size of returned list is the size of the header list.
      * 
      * @return <code>null</code> if there are no more rows.
      */
     public List<String> tryToGetNextRow()
     {
-        String line = lineIterator.nextLine();
-        return line == null ? null : getRowCells(line);
+        try
+        {
+            List<String> row = getRowCells(lineIterator.nextLine());
+            for (int i = row.size(); i < headers.size(); i++)
+            {
+                row.add("");
+            }
+            return row;
+        } catch (NoSuchElementException ex)
+        {
+            return null;
+        }
+
     }
     
     private List<String> getRowCells(String line)
     {
         String[] cells = StringUtils.splitByWholeSeparatorPreserveAllTokens(line, "\t");
-        return cells == null ? Collections.<String>emptyList() : Arrays.asList(cells);
+        if (cells == null)
+        {
+            cells = new String[0];
+        }
+        List<String> row = new ArrayList<String>();
+        row.addAll(Arrays.asList(cells));
+        return row;
     }
 
 

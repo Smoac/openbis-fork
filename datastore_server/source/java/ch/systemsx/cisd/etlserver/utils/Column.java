@@ -30,7 +30,7 @@ public final class Column
     private final String header;
     private final List<String> values;
 
-    public Column(String header)
+    Column(String header)
     {
         this.header = header;
         values = new ArrayList<String>();
