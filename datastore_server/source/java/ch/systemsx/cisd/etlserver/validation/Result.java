@@ -38,7 +38,7 @@ public class Result
         this.failureMessage = failureMessage;
     }
     
-    boolean isValid()
+    public boolean isValid()
     {
         return failureMessage == null;
     }
