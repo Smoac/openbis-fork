@@ -34,15 +34,20 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
 
 /**
- * 
+ * Special {@link IColumnHeaderValidator} for Data Columns in time series data sets.
  *
  * @author Franz-Josef Elmer
  */
 public class DataColumnHeaderValidator implements IColumnHeaderValidator
 {
-    private static final String SEPARATOR = "::";
+    static final String SEPARATOR = "::";
     static final String ELEMENTS_KEY = "elements";
     static final String TYPE_KEY = "type";
+    static final String TYPE_VOCABULARY = "vocabulary";
+    static final String TERMS_KEY = "terms";
+    static final String TYPE_INTEGER = "integer";
+    static final String TYPE_STRING = "string";
+    static final String PATTERN_KEY = "pattern";
     
     private static interface IElementValidator
     {
@@ -58,11 +63,11 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
     
     private static final class VocabularyValidatorFactory implements IElementValidatorFactory
     {
-        private static final String TERMS_KEY = "terms";
+
 
         public String getType()
         {
-            return "vocabulary";
+            return TYPE_VOCABULARY;
         }
         
         public IElementValidator createValidator(Properties properties)
@@ -79,7 +84,7 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
                         {
                             return null;
                         }
-                        return "Is not a term from the following vocabulary: " + set;
+                        return "It is not a term from the following vocabulary: " + set;
                     }
                 };
         }
@@ -87,9 +92,10 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
     
     private static final class IntegerValidatorFactory implements IElementValidatorFactory
     {
+
         public String getType()
         {
-            return "integer";
+            return TYPE_INTEGER;
         }
         
         public IElementValidator createValidator(Properties properties)
@@ -104,7 +110,7 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
                             return null;
                         } catch (NumberFormatException ex)
                         {
-                            return "Is not an integer number";
+                            return "It is not an integer number.";
                         }
                     }
                 };
@@ -113,11 +119,11 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
     
     private static final class StringValidatorFactory implements IElementValidatorFactory
     {
-        private static final String PATTERN_KEY = "pattern";
         
+
         public String getType()
         {
-            return "string";
+            return TYPE_STRING;
         }
 
         public IElementValidator createValidator(Properties properties)
@@ -140,7 +146,7 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
                         {
                             return null;
                         }
-                        return "Does not match the following regular expression: " + pattern;
+                        return "It does not match the following regular expression: " + pattern;
                     }
                 };
         }
@@ -204,7 +210,7 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
             return Result.failure(elementValidators.size() + " elements separated by '" + SEPARATOR
                     + "' expected instead of only " + elements.length + ".");
         }
-        for (int i = 0; i < elements.length; i++)
+        for (int i = 0, n = Math.min(elements.length, elementValidators.size()); i < n; i++)
         {
             String element = elements[i];
             String result = elementValidators.get(i).validate(element);
@@ -213,7 +219,6 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
                 return Result.failure("Element '" + element + "' is invalid: " + result);
             }
         }
-        System.out.println(Arrays.asList(elements));
         return Result.OK;
     }
 
