@@ -28,7 +28,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
- * 
+ * Type extractor based on {@link SimpleTypeExtractor}. Data set type code is extracted from
+ * the name of the one and only one file of type {@link #DATA_TYPE}.
  *
  * @author Franz-Josef Elmer
  */
@@ -60,7 +61,7 @@ public class TypeExtractor implements ITypeExtractor
         if (files.length != 1)
         {
             throw new UserFailureException("Exactly one file of type '" + DATA_TYPE
-                    + "' expected instead of " + files.length);
+                    + "' expected instead of " + files.length + ".");
         }
         DataSetType dataSetType = new DataSetType();
         dataSetType.setCode(files[0].substring(0, files[0].length() - DATA_TYPE.length()));
