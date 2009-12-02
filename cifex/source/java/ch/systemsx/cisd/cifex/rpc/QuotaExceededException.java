@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.rpc;
 
+import java.util.Locale;
+
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -48,7 +50,7 @@ public class QuotaExceededException extends UserFailureException
                     currentFileSize);
         } else
         {
-            return String.format(
+            return String.format(Locale.ENGLISH,
                     "The upload would exceed the quota limit of %d files or %d MB total size "
                             + "(current usage: %d files, %1.2f MB)", maxFileCount, maxFileSize,
                     currentFileCount, currentFileSize);
