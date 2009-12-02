@@ -22,11 +22,11 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
 /**
  * Translator of data set types into openBIS conform upper-case data set types. 
