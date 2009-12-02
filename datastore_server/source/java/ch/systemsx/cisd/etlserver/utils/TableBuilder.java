@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ * Builder for a bunch of table columns.
  *
  * @author Franz-Josef Elmer
  */
@@ -28,11 +28,17 @@ public class TableBuilder
 {
     private final List<Column> columns;
     
+    /**
+     * Creates an instance for the specified list of column headers.
+     */
     public TableBuilder(List<String> headers)
     {
         this(headers.toArray(new String[headers.size()]));
     }
     
+    /**
+     * Creates an instance for the specified array of column headers.
+     */
     public TableBuilder(String... headers)
     {
         columns = new ArrayList<Column>(headers.length);
@@ -42,11 +48,17 @@ public class TableBuilder
         }
     }
     
+    /**
+     * Adds the specified values as a new row to the table.
+     */
     public void addRow(List<String> values)
     {
         addRow(values.toArray(new String[values.size()]));
     }
     
+    /**
+     * Adds the specified values as a new row to the table.
+     */
     public void addRow(String... values)
     {
         for (int i = 0, n = columns.size(); i < n; i++)
@@ -55,7 +67,10 @@ public class TableBuilder
            column.add(i < values.length ? values[i] : "");
         }
     }
-    
+
+    /**
+     * Returns the columns after table has been built.
+     */
     public List<Column> getColumns()
     {
         return columns;
