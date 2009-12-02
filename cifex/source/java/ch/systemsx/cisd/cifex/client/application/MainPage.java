@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -32,6 +31,7 @@ import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -47,14 +47,12 @@ final class MainPage extends AbstractMainPage
 
     private final static boolean UPLOAD = false;
 
-    private static final long MB = 1024 * 1024;
-
     MainPage(final ViewContext context)
     {
         super(context);
     }
 
-    static private final String getMaxFileSize(final Long maxFileSizeInMBOrNull)
+    static private final String renderMaxFileSize(final Long maxFileSizeInMBOrNull)
     {
         if (maxFileSizeInMBOrNull == null)
         {
@@ -65,7 +63,7 @@ final class MainPage extends AbstractMainPage
         }
     }
 
-    static private final String getMaxFileCount(final Integer maxFileCountOrNull)
+    static private final String renderMaxFileCount(final Integer maxFileCountOrNull)
     {
         if (maxFileCountOrNull == null)
         {
@@ -76,10 +74,9 @@ final class MainPage extends AbstractMainPage
         }
     }
 
-    static private final String getCurrentFileSizeInMB(final long currentFileSize)
+    static private final String renderCurrentFileSize(final long currentFileSize)
     {
-        NumberFormat fmt = NumberFormat.getDecimalFormat();
-        return fmt.format((double) currentFileSize / MB) + " MB";
+        return FileUtils.byteCountToDisplaySize(currentFileSize);
     }
 
     private static final Widget createExplanationPanel(ViewContext context)
@@ -89,10 +86,10 @@ final class MainPage extends AbstractMainPage
         final boolean isPermanent = model.getUser().isPermanent();
         final UserInfoDTO user = model.getUser();
         StringBuffer notesText = new StringBuffer();
-       notesText.append(messageResources.getUploadFilesHelpUpload(getMaxFileSize(user
-                .getMaxFileSizePerQuotaGroupInMB()), getCurrentFileSizeInMB(user
-                .getCurrentFileSize()), getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user
-                .getCurrentFileCount()));
+        notesText.append(messageResources.getUploadFilesHelpUpload(renderMaxFileSize(user
+                .getMaxFileSizePerQuotaGroupInMB()), renderCurrentFileSize(user
+                .getCurrentFileSize()), renderMaxFileCount(user.getMaxFileCountPerQuotaGroup()),
+                user.getCurrentFileCount()));
         if (isPermanent)
         {
             notesText.append(messageResources.getUploadFilesHelpPermanentUser());
