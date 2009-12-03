@@ -43,38 +43,29 @@ public class GenerationDetection
 
     // properties that can be modified by the user
 
-    // Could be used as a parameter that user needs to specify but on test data
-    // using value that is higher produces more results that should rather be ignored.
-    // reduce with better picture quality
-    private static final int MAX_NEW_BORN_CELL_PIXELS; // = 400;
+    private static final int MAX_NEW_BORN_CELL_PIXELS; // reduce with better picture quality
 
-    private static final int MIN_PARENT_PIXELS; // = 300;
+    private static final int MIN_PARENT_PIXELS;
 
-    // 0.2 - 24fake, 0miss (safe)
-    // 0.3 - 20fake, 1miss
-    // 0.4 - 17fake, 2miss
-    // 0.5 - 12fake, 4miss: 70,93,131,77 - size should increase (exc. 70 that may be important)
-    // 0.6 - 5fake, 13miss
-    private static final double MIN_NEW_BORN_CELL_ECCENTRICITY; // = 0.5;
+    private static final double MIN_NEW_BORN_CELL_ECCENTRICITY;
 
     // if we have more parent candidates after filtering the new born cell will be ignored
-    // 5 - safe; 2 - miss 11
-    private static final int MAX_PARENT_CANDIDATES; // = 5;
+    private static final int MAX_PARENT_CANDIDATES;
 
     // number of frames that should be ignored at the beginning
-    private static final int NO_FIRST_FRAMES_TO_IGNORE; // = 5;
+    private static final int NO_FIRST_FRAMES_TO_IGNORE;
 
     // number of frames that should be ignored in the end
-    private static final int NO_LAST_FRAMES_TO_IGNORE; // = 5;
+    private static final int NO_LAST_FRAMES_TO_IGNORE;
 
     // when cell fluorescence gets above this level it means that cell is dying
-    private static final double MAX_F_MEAN_OF_LIVING_CELL; // = 2500;
+    private static final double MAX_F_MEAN_OF_LIVING_CELL;
 
     // window radius used to calculate smooth fluorescence deviation values (ignore noise)
-    private static final int SMOOTH_F_DEVIATION_WINDOW; // = 5;
+    private static final int SMOOTH_F_DEVIATION_WINDOW;
 
     // minimal number of frames that a real the cell should have stable nucleus area = NUCLEUS_AREA
-    private static final int MIN_STABLE_NUCLEUS_AREA_FRAMES; // = 3;
+    private static final int MIN_STABLE_NUCLEUS_AREA_FRAMES;
 
     private static final String PROPERTIES_FILE_PATH = "conf.properties";
 
@@ -1013,12 +1004,18 @@ public class GenerationDetection
             {
                 // sort parent - best will be first
                 Collections.sort(parentCandidates);
-                filterCandidatesWithDistance(parentCandidates);
-                if (configParameters.isBeginningFWindowFilterEnabled())
+                // filter only when filter is enabled and there is more than one candidate
+                // (otherwise filtering will always leave the only one candidate that is available)
+                if (parentCandidates.size() > 1)
+                {
+                    filterCandidatesWithDistance(parentCandidates);
+                }
+                if (parentCandidates.size() > 1
+                        && configParameters.isBeginningFWindowFilterEnabled())
                 {
                     filterCandidatesWithBeginningFluorescence(parentCandidates);
                 }
-                if (configParameters.isFirstPeakFilterEnabled())
+                if (parentCandidates.size() > 1 && configParameters.isFirstPeakFilterEnabled())
                 {
                     filterCandidatesWithFirstPeak(parentCandidates);
                 }
@@ -1055,11 +1052,14 @@ public class GenerationDetection
         final int minLength = configParameters.getFirstPeakMinLength();
         final double minFrameHeightDiff = configParameters.getFirstPeakMinFrameHeightDiff();
         final double minTotalHeightDiff = configParameters.getFirstPeakMinTotalHeightDiff();
+        final int maxFrameHeightDiffExceptions =
+                configParameters.getFirstPeakMaxFrameHeightDiffExceptions();
 
         for (ParentCandidate candidate : parentCandidates)
         {
             if (hasSimilarFirstPeak(candidate, framesToIgnore, maxChildOffset, maxParentOffset,
-                    maxMissing, minLength, minFrameHeightDiff, minTotalHeightDiff))
+                    maxMissing, minLength, minFrameHeightDiff, minTotalHeightDiff,
+                    maxFrameHeightDiffExceptions))
             {
                 betterCandidates.add(candidate);
             }
@@ -1073,7 +1073,7 @@ public class GenerationDetection
 
     private static boolean hasSimilarFirstPeak(ParentCandidate candidate, int framesToIgnore,
             int maxChildOffset, int maxParentOffset, int maxMissing, int minLength,
-            double minFrameHeightDiff, double minTotalHeightDiff)
+            double minFrameHeightDiff, double minTotalHeightDiff, int maxFrameHeightDiffExceptions)
     {
         final int childId = candidate.child.id;
         final int candidateId = candidate.parent.id;
@@ -1082,12 +1082,12 @@ public class GenerationDetection
 
         Integer childFirstPeakStartOrNull =
                 tryFindPeakStart(childId, minFrame, maxChildOffset, minLength, minFrameHeightDiff,
-                        minTotalHeightDiff, maxMissing);
+                        minTotalHeightDiff, maxMissing, maxFrameHeightDiffExceptions);
         if (childFirstPeakStartOrNull != null)
         {
             if (tryFindPeakStart(candidateId, childFirstPeakStartOrNull - maxParentOffset,
                     maxParentOffset * 2, minLength, minFrameHeightDiff, minTotalHeightDiff,
-                    maxMissing) != null)
+                    maxMissing, maxFrameHeightDiffExceptions) != null)
             {
                 debug(String.format("found candidate %d peak ", candidateId));
                 return true;
@@ -1104,18 +1104,28 @@ public class GenerationDetection
     }
 
     private static Integer tryFindPeakStart(int cellId, int minFrame, int maxOffset, int minLength,
-            double minFrameHeightDiff, double minTotalHeightDiff, int maxMissing)
+            double minFrameHeightDiff, double minTotalHeightDiff, int maxMissing,
+            int maxFrameHeightDiffExceptions)
     {
         final Double[] cellSFDeviations = cellSmoothFDeviationByIdAndFrame.get(cellId);
 
-        for (int frame = minFrame; frame <= minFrame + maxOffset; frame++)
+        int minFrameIndex = Math.max(minFrame, 0);
+        int maxFrameIndex = Math.min(minFrame + maxOffset, maxFrame);
+
+        for (int frame = minFrameIndex; frame <= maxFrameIndex; frame++)
         {
+            if (cellSFDeviations[frame] == null)
+            {
+                continue; // cell needs to exist on the first frame of a peak
+            }
             double currentSFD = cellSFDeviations[frame];
             double totalHeightDiff = 0;
             int missing = 0;
+            int exceptions = 0;
             int nextFrame = frame + 1;
 
-            while (missing < maxMissing && nextFrame <= maxFrame)
+            while (missing <= maxMissing && exceptions <= maxFrameHeightDiffExceptions
+                    && nextFrame <= maxFrame)
             {
                 if (cellSFDeviations[nextFrame] != null)
                 {
@@ -1123,7 +1133,14 @@ public class GenerationDetection
                     double frameHeightDiff = nextFrameSFD - currentSFD;
                     if (frameHeightDiff < minFrameHeightDiff)
                     {
-                        break;
+                        if (nextFrame > frame + 1)
+                        {
+                            exceptions++;
+                        } else
+                        {
+                            // exceptions at the beginning of peak are not allowed
+                            break;
+                        }
                     } else
                     {
                         currentSFD = nextFrameSFD;
@@ -1140,7 +1157,7 @@ public class GenerationDetection
             if (nextFrame - frame > minLength && totalHeightDiff > minTotalHeightDiff)
             {
                 debug(String.format(
-                        "found a peak of cell %d (start frame: %d, length: %d, height: %1.2f",
+                        "found a peak of cell %d (start frame:%d, length:%d, height:%1.2f)",
                         cellId, frame, nextFrame - 1 - frame, totalHeightDiff));
                 return frame;
             }

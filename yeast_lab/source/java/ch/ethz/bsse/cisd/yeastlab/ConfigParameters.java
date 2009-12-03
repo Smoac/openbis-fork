@@ -50,6 +50,9 @@ final class ConfigParameters
     private static final String FIRST_PEAK_MIN_FRAME_HEIGHT_DIFF =
             "first-peak-min-frame-height-diff";
 
+    private static final String FIRST_PEAK_MAX_FRAME_HEIGHT_DIFF_EXCEPTIONS =
+            "first-peak-max-frame-height-diff-exceptions";
+
     private static final String FIRST_PEAK_MIN_LENGTH = "first-peak-min-length";
 
     private static final String FIRST_PEAK_MIN_TOTAL_HEIGHT_DIFF =
@@ -88,6 +91,8 @@ final class ConfigParameters
     private final int beginningFWindowMaxOffset;
 
     private final boolean firstPeakFilterEnabled;
+
+    private final int firstPeakMaxFrameHeightDiffExceptions;
 
     private final double firstPeakMinFrameHeightDiff;
 
@@ -155,6 +160,8 @@ final class ConfigParameters
         firstPeakMaxParentOffset =
                 getMandatoryIntegerProperty(properties, FIRST_PEAK_MAX_PARENT_OFFSET);
         firstPeakMaxMissing = getMandatoryIntegerProperty(properties, FIRST_PEAK_MAX_MISSING);
+        firstPeakMaxFrameHeightDiffExceptions =
+                getMandatoryIntegerProperty(properties, FIRST_PEAK_MAX_FRAME_HEIGHT_DIFF_EXCEPTIONS);
         firstPeakMinFrameHeightDiff =
                 getMandatoryDoubleProperty(properties, FIRST_PEAK_MIN_FRAME_HEIGHT_DIFF);
         firstPeakMinLength = getMandatoryIntegerProperty(properties, FIRST_PEAK_MIN_LENGTH);
@@ -273,6 +280,11 @@ final class ConfigParameters
         return firstPeakMinFrameHeightDiff;
     }
 
+    public int getFirstPeakMaxFrameHeightDiffExceptions()
+    {
+        return firstPeakMaxFrameHeightDiffExceptions;
+    }
+
     public int getFirstPeakMinLength()
     {
         return firstPeakMinLength;
@@ -330,6 +342,8 @@ final class ConfigParameters
         sb.append(String.format("first-peak-min-length: %d\n", getFirstPeakMinLength()));
         sb.append(String.format("first-peak-min-frame-height-diff: %1.2f\n",
                 getFirstPeakMinFrameHeightDiff()));
+        sb.append(String.format("first-peak-max-frame-height-diff-exceptions: %d\n",
+                getFirstPeakMaxFrameHeightDiffExceptions()));
         sb.append(String.format("first-peak-min-total-height-diff: %1.2f\n",
                 getFirstPeakMinTotalHeightDiff()));
         sb.append("\n");
