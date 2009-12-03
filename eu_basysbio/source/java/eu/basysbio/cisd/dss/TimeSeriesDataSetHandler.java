@@ -60,6 +60,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
 {
+    static final String DATA_FILE_TYPE = ".data.txt";
+
     private static final Pattern DATA_COLUMN_HEADER_PATTERN =
             Pattern.compile(".*(" + SEPARATOR + ".*)+");
 
@@ -253,7 +255,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
                     + "' couldn't be created.");
         }
         addFileForUndo(dataSetFolder);
-        String dataFileName = translation.translate(dataColumnHeader.dataSetType) + ".data.txt";
+        String dataFileName = translation.translate(dataColumnHeader.dataSetType) + DATA_FILE_TYPE;
         File dataFile = new File(dataSetFolder, dataFileName);
         List<Column> columns = new ArrayList<Column>(commonColumns);
         columns.add(dataColumn);
@@ -298,7 +300,6 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     {
         ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(new TechId(experiment.getId()));
         List<Sample> samples = service.listSamples(criteria);
-        System.out.println(samples);
         for (Sample sample : samples)
         {
             if (sample.getCode().equals(sampleCode))
