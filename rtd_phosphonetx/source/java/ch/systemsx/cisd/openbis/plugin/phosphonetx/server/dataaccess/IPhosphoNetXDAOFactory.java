@@ -24,4 +24,6 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess;
 public interface IPhosphoNetXDAOFactory
 {
     public IProteinQueryDAO getProteinQueryDAO();
+
+    public IProteinQueryDAO getSecondProteinQueryDAO();
 }
