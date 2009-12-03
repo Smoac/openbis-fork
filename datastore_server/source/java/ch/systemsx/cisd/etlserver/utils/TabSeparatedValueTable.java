@@ -52,7 +52,7 @@ public class TabSeparatedValueTable
         {
             throw new IllegalArgumentException("Empty file '" + nameOfReadingSource + "'.");
         }
-        headers = getRowCells(lineIterator.nextLine());
+        headers = getRowCells(lineIterator.nextLine().trim());
     }
     
     /**
@@ -112,7 +112,7 @@ public class TabSeparatedValueTable
     
     private List<String> getRowCells(String line)
     {
-        String[] cells = StringUtils.splitByWholeSeparatorPreserveAllTokens(line.trim(), "\t");
+        String[] cells = StringUtils.splitByWholeSeparatorPreserveAllTokens(line, "\t");
         if (cells == null)
         {
             cells = new String[0];
