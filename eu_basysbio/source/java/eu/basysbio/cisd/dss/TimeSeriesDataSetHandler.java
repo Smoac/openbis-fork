@@ -127,7 +127,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         {
             try
             {
-                return Integer.parseInt(value);
+                return Util.parseIntegerWithPlusSign(value);
             } catch (NumberFormatException ex)
             {
                 throw new UserFailureException((TIME_POINT_INDEX + 1) + ". part [" + value

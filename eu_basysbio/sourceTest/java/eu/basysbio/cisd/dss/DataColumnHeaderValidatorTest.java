@@ -181,7 +181,7 @@ public class DataColumnHeaderValidatorTest extends AssertJUnit
     {
         assertEquals(Result.OK, validator.validateHeader("a42::beta::-34"));
         assertEquals(Result.OK, validator.validateHeader("a4711::gamma::0"));
-        assertEquals(Result.OK, validator.validateHeader("a0::alpha::42::additional element"));
+        assertEquals(Result.OK, validator.validateHeader("a0::alpha::+42::additional element"));
     }
     
     @Test

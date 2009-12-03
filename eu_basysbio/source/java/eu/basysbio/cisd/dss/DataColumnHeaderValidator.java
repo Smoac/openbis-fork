@@ -106,7 +106,7 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
                     {
                         try
                         {
-                            Integer.parseInt(element);
+                            Util.parseIntegerWithPlusSign(element);
                             return null;
                         } catch (NumberFormatException ex)
                         {
