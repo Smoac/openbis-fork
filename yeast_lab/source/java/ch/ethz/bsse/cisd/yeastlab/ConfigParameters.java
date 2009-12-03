@@ -41,7 +41,11 @@ final class ConfigParameters
 
     private static final String FIRST_PEAK_FILTER_ENABLED = "first-peak-filter-enabled";
 
-    private static final String FIRST_PEAK_MAX_START_OFFSET = "first-peak-max-start-offset";
+    private static final String FIRST_PEAK_MAX_CHILD_OFFSET = "first-peak-max-child-offset";
+
+    private static final String FIRST_PEAK_MAX_PARENT_OFFSET = "first-peak-max-parent-offset";
+
+    private static final String FIRST_PEAK_MAX_MISSING = "first-peak-max-missing";
 
     private static final String FIRST_PEAK_MIN_FRAME_HEIGHT_DIFF =
             "first-peak-min-frame-height-diff";
@@ -91,7 +95,11 @@ final class ConfigParameters
 
     private final double firstPeakMinTotalHeightDiff;
 
-    private final int firstPeakMaxStartOffset;
+    private final int firstPeakMaxChildOffset;
+
+    private final int firstPeakMaxParentOffset;
+
+    private final int firstPeakMaxMissing;
 
     private final int firstPeakNumberOfFirstFramesToIgnore;
 
@@ -142,8 +150,11 @@ final class ConfigParameters
                 getMandatoryIntegerProperty(properties, BEGINNING_F_WINDOW_MAX_OFFSET);
 
         firstPeakFilterEnabled = getMandatoryBooleanProperty(properties, FIRST_PEAK_FILTER_ENABLED);
-        firstPeakMaxStartOffset =
-                getMandatoryIntegerProperty(properties, FIRST_PEAK_MAX_START_OFFSET);
+        firstPeakMaxChildOffset =
+                getMandatoryIntegerProperty(properties, FIRST_PEAK_MAX_CHILD_OFFSET);
+        firstPeakMaxParentOffset =
+                getMandatoryIntegerProperty(properties, FIRST_PEAK_MAX_PARENT_OFFSET);
+        firstPeakMaxMissing = getMandatoryIntegerProperty(properties, FIRST_PEAK_MAX_MISSING);
         firstPeakMinFrameHeightDiff =
                 getMandatoryDoubleProperty(properties, FIRST_PEAK_MIN_FRAME_HEIGHT_DIFF);
         firstPeakMinLength = getMandatoryIntegerProperty(properties, FIRST_PEAK_MIN_LENGTH);
@@ -242,9 +253,19 @@ final class ConfigParameters
         return firstPeakFilterEnabled;
     }
 
-    public int getFirstPeakMaxStartOffset()
+    public int getFirstPeakMaxChildOffset()
     {
-        return firstPeakMaxStartOffset;
+        return firstPeakMaxChildOffset;
+    }
+
+    public int getFirstPeakMaxParentOffset()
+    {
+        return firstPeakMaxParentOffset;
+    }
+
+    public int getFirstPeakMaxMissing()
+    {
+        return firstPeakMaxMissing;
     }
 
     public double getFirstPeakMinFrameHeightDiff()
@@ -300,15 +321,16 @@ final class ConfigParameters
         sb.append(String.format("beginning-f-window-max-offset: %d\n",
                 getBeginningFWindowMaxOffset()));
         sb.append(String.format("first-peak-filter-enabled: %s\n", isFirstPeakFilterEnabled()));
-        sb.append(String.format("first-peak-number-of-first-frames-to-ignore: %d\n,",
+        sb.append(String.format("first-peak-number-of-first-frames-to-ignore: %d\n",
                 getFirstPeakNumberOfFirstFramesToIgnore()));
-        sb
-                .append(String.format("first-peak-max-start-offset: %d\n,",
-                        getFirstPeakMaxStartOffset()));
-        sb.append(String.format("first-peak-min-length: %d\n,", getFirstPeakMinLength()));
-        sb.append(String.format("first-peak-min-frame-height-diff: %1.2f\n,",
+        sb.append(String.format("first-peak-max-child-offset: %d\n", getFirstPeakMaxChildOffset()));
+        sb.append(String
+                .format("first-peak-max-parent-offset: %d\n", getFirstPeakMaxParentOffset()));
+        sb.append(String.format("first-peak-max-missing: %d\n", getFirstPeakMaxMissing()));
+        sb.append(String.format("first-peak-min-length: %d\n", getFirstPeakMinLength()));
+        sb.append(String.format("first-peak-min-frame-height-diff: %1.2f\n",
                 getFirstPeakMinFrameHeightDiff()));
-        sb.append(String.format("first-peak-min-total-height-diff: %1.2f\n,",
+        sb.append(String.format("first-peak-min-total-height-diff: %1.2f\n",
                 getFirstPeakMinTotalHeightDiff()));
         sb.append("\n");
         return sb.toString();

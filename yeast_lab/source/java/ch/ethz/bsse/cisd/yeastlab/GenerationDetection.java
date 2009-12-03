@@ -862,7 +862,7 @@ public class GenerationDetection
     }
 
     // smooth fluorescence deviation computation - refactor
-    
+
     private static void generateSmoothFDeviationValues()
     {
         cellSmoothFDeviationByIdAndFrame = new LinkedHashMap<Integer, Double[]>();
@@ -1049,15 +1049,17 @@ public class GenerationDetection
 
         final List<ParentCandidate> betterCandidates = new ArrayList<ParentCandidate>();
         final int framesToIgnore = configParameters.getFirstPeakNumberOfFirstFramesToIgnore();
-        final int maxOffset = configParameters.getFirstPeakMaxStartOffset();
+        final int maxChildOffset = configParameters.getFirstPeakMaxChildOffset();
+        final int maxParentOffset = configParameters.getFirstPeakMaxParentOffset();
+        final int maxMissing = configParameters.getFirstPeakMaxMissing();
         final int minLength = configParameters.getFirstPeakMinLength();
-        final double minFrameDiff = configParameters.getFirstPeakMinFrameHeightDiff();
-        final double minTotalDiff = configParameters.getFirstPeakMinTotalHeightDiff();
+        final double minFrameHeightDiff = configParameters.getFirstPeakMinFrameHeightDiff();
+        final double minTotalHeightDiff = configParameters.getFirstPeakMinTotalHeightDiff();
 
         for (ParentCandidate candidate : parentCandidates)
         {
-            if (hasSimilarFirstPeak(candidate, framesToIgnore, maxOffset, minLength, minFrameDiff,
-                    minTotalDiff))
+            if (hasSimilarFirstPeak(candidate, framesToIgnore, maxChildOffset, maxParentOffset,
+                    maxMissing, minLength, minFrameHeightDiff, minTotalHeightDiff))
             {
                 betterCandidates.add(candidate);
             }
@@ -1070,10 +1072,80 @@ public class GenerationDetection
     }
 
     private static boolean hasSimilarFirstPeak(ParentCandidate candidate, int framesToIgnore,
-            int maxOffset, int minLength, double minFrameDiff, double minTotalDiff)
+            int maxChildOffset, int maxParentOffset, int maxMissing, int minLength,
+            double minFrameHeightDiff, double minTotalHeightDiff)
     {
-        // TODO 2009-12-02, Piotr Buczek: implement
-        return false;
+        final int childId = candidate.child.id;
+        final int candidateId = candidate.parent.id;
+
+        int minFrame = candidate.child.frame + framesToIgnore;
+
+        Integer childFirstPeakStartOrNull =
+                tryFindPeakStart(childId, minFrame, maxChildOffset, minLength, minFrameHeightDiff,
+                        minTotalHeightDiff, maxMissing);
+        if (childFirstPeakStartOrNull != null)
+        {
+            if (tryFindPeakStart(candidateId, childFirstPeakStartOrNull - maxParentOffset,
+                    maxParentOffset * 2, minLength, minFrameHeightDiff, minTotalHeightDiff,
+                    maxMissing) != null)
+            {
+                debug(String.format("found candidate %d peak ", candidateId));
+                return true;
+            } else
+            {
+                debug(String.format("didn't find candidate %d peak ", candidateId));
+                return false;
+            }
+        } else
+        {
+            debug(String.format("didn't find child %d peak ", childId));
+            return false;
+        }
+    }
+
+    private static Integer tryFindPeakStart(int cellId, int minFrame, int maxOffset, int minLength,
+            double minFrameHeightDiff, double minTotalHeightDiff, int maxMissing)
+    {
+        final Double[] cellSFDeviations = cellSmoothFDeviationByIdAndFrame.get(cellId);
+
+        for (int frame = minFrame; frame <= minFrame + maxOffset; frame++)
+        {
+            double currentSFD = cellSFDeviations[frame];
+            double totalHeightDiff = 0;
+            int missing = 0;
+            int nextFrame = frame + 1;
+
+            while (missing < maxMissing && nextFrame <= maxFrame)
+            {
+                if (cellSFDeviations[nextFrame] != null)
+                {
+                    double nextFrameSFD = cellSFDeviations[nextFrame];
+                    double frameHeightDiff = nextFrameSFD - currentSFD;
+                    if (frameHeightDiff < minFrameHeightDiff)
+                    {
+                        break;
+                    } else
+                    {
+                        currentSFD = nextFrameSFD;
+                        totalHeightDiff += frameHeightDiff;
+                    }
+                } else
+                {
+                    missing++;
+                }
+                nextFrame++;
+            }
+
+            // nextFrame is bigger than the last frame of the peak
+            if (nextFrame - frame > minLength && totalHeightDiff > minTotalHeightDiff)
+            {
+                debug(String.format(
+                        "found a peak of cell %d (start frame: %d, length: %d, height: %1.2f",
+                        cellId, frame, nextFrame - 1 - frame, totalHeightDiff));
+                return frame;
+            }
+        }
+        return null;
     }
 
     private static void filterCandidatesWithBeginningFluorescence(
@@ -1107,44 +1179,39 @@ public class GenerationDetection
             final double maxAvgDiff)
     {
         final int childId = candidate.child.id;
-        final int parentId = candidate.parent.id;
-        final Map<Integer, Cell> childByFrame = cellsByIdAndFrame.get(childId);
-        final Map<Integer, Cell> candidateByFrame = cellsByIdAndFrame.get(parentId);
+        final int candidateId = candidate.parent.id;
+        final Double[] childSFDeviations = cellSmoothFDeviationByIdAndFrame.get(childId);
+        final Double[] candidateSFDeviations = cellSmoothFDeviationByIdAndFrame.get(candidateId);
 
         for (int candidateOffset = -maxOffset; candidateOffset <= maxOffset; candidateOffset++)
         {
             final int firstChildFrame = candidate.child.frame;
             final int firstCandidateFrame = firstChildFrame + candidateOffset;
-            double currentDiff = Double.MAX_VALUE;
+            double currentDiff = 0;
             int counter = 0;
-            for (int windowOffset = firstChildFrame; windowOffset < windowLength; windowOffset++)
+            for (int windowOffset = 0; windowOffset < windowLength; windowOffset++)
             {
-                final Cell childOrNull = childByFrame.get(firstChildFrame + windowOffset);
-                final Cell parentOrNull = candidateByFrame.get(firstCandidateFrame + windowOffset);
-                if (childOrNull != null && parentOrNull != null)
+                final Double childSFD = childSFDeviations[firstChildFrame + windowOffset];
+                final Double candidateSFD =
+                        candidateSFDeviations[firstCandidateFrame + windowOffset];
+                if (childSFD != null && candidateSFD != null)
                 {
-                    final double childF = childOrNull.getSmoothFDeviation();
-                    final double candidateF = parentOrNull.getSmoothFDeviation();
-                    currentDiff += Math.abs(childF - candidateF);
+                    currentDiff += Math.abs(childSFD - candidateSFD);
                     counter++;
                 }
             }
             if (windowLength - counter > maxMissing)
             {
-                if (DEBUG)
-                {
-                    log(String.format(
-                            "too many missing frames (%d) for child:%d, parent:%d and offset:%d",
-                            windowLength - counter, childId, parentId, candidateOffset));
-                }
+                debug(String.format(
+                        "too many missing frames (%d) for child:%d, candidate:%d and offset:%d",
+                        windowLength - counter, childId, candidateId, candidateOffset));
             } else
             {
                 double currentAvgDiff = currentDiff / counter;
-                if (DEBUG)
-                {
-                    log(String.format("currentAvgDiff %1.2f = %s", currentAvgDiff,
-                            currentAvgDiff <= maxAvgDiff ? "OK" : "to high"));
-                }
+                debug(String.format(
+                        "child:%d, candidate:%d, missing:%d, offset:%d, avgDiff:%1.2f = %s",
+                        childId, candidateId, windowLength - counter, candidateOffset,
+                        currentAvgDiff, currentAvgDiff <= maxAvgDiff ? "OK" : "too high"));
                 if (currentAvgDiff <= maxAvgDiff)
                 {
                     return true;
@@ -1398,5 +1465,14 @@ public class GenerationDetection
     private static void log(String message)
     {
         System.err.println(message);
+    }
+
+    /** log (on stderr) if debug messages are enabled */
+    private static void debug(String message)
+    {
+        if (DEBUG)
+        {
+            System.err.println("DEBUG: " + message);
+        }
     }
 }
