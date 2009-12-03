@@ -244,6 +244,30 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
     }
     
     @Test
+    public void testMissingOrderedColumn()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(DataSetValidatorForTSV.PATH_PATTERNS_KEY, "*");
+        properties.setProperty(DataSetValidatorForTSV.COLUMNS_KEY, "c1, c2");
+        properties.setProperty("c1." + ColumnDefinition.HEADER_PATTERN_KEY, "Name");
+        properties.setProperty("c1." + ColumnDefinition.ORDER_KEY, "1");
+        properties.setProperty("c1." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
+        properties.setProperty("c1." + NAME_KEY, "c1");
+        properties.setProperty("c2." + ColumnDefinition.HEADER_PATTERN_KEY, "a[0-9]+");
+        properties.setProperty("c2." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
+        properties.setProperty("c2." + ColumnDefinition.CAN_DEFINE_MULTIPLE_COLUMNS_KEY, "yes");
+        properties.setProperty("c2." + NAME_KEY, "c2");
+        properties.setProperty("c2." + EXPECTED_VALUES_KEY, "1,2");
+        DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
+        
+        FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "a1\ta2\n" + "1\t2\n");
+        
+        validator.assertValidDataSet(null, workingDirectory);
+        
+        MockValidatorFactory.assertSatisfied();
+    }
+    
+    @Test
     public void testRowsLongerThanHeaders()
     {
         Properties properties = new Properties();
@@ -385,7 +409,7 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
     {
         Properties properties = new Properties();
         properties.setProperty(DataSetValidatorForTSV.PATH_PATTERNS_KEY, "a.txt");
-        properties.setProperty(DataSetValidatorForTSV.COLUMNS_KEY, "c1, c2");
+        properties.setProperty(DataSetValidatorForTSV.COLUMNS_KEY, "c1");
         properties.setProperty("c1." + ColumnDefinition.HEADER_PATTERN_KEY, "Name");
         properties.setProperty("c1." + ColumnDefinition.ORDER_KEY, "1");
         properties.setProperty("c1." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
@@ -400,9 +424,7 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("According to column definition 'c1' the header 'ID' is invalid "
-                    + "because of the following reason: "
-                    + "Does not match the following regular expression: Name", ex.getMessage());
+            assertEquals("No column definition matches the header of the 1. column: ID", ex.getMessage());
         }
         
         MockValidatorFactory.assertSatisfied();

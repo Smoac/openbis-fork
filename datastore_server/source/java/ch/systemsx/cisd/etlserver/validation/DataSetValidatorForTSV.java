@@ -239,8 +239,19 @@ class DataSetValidatorForTSV implements IDataSetValidator
                 }
             } else
             {
-                columnDefinition.assertValidHeader(columnHeaders.get(orderIndex));
-                definitions[orderIndex] = columnDefinition;
+                String header = columnHeaders.get(orderIndex);
+                Result result = columnDefinition.validateHeader(header);
+                if (result.isValid())
+                {
+                    definitions[orderIndex] = columnDefinition;
+                    
+                } else if (mandatory)
+                {
+                    throw new UserFailureException("According to column definition '" + columnDefinition.getName()
+                            + "' the header '" + header + "' is invalid because of the following reason: "
+                            + result);
+                }
+
             }
         }
         return definitions;
