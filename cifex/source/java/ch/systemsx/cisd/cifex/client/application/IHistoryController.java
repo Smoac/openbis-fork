@@ -21,55 +21,61 @@ package ch.systemsx.cisd.cifex.client.application;
  * 
  * @author Christian Ribeaud
  */
-public interface IHistoryController {
+public interface IHistoryController
+{
 
-	/**
-	 * Sets the current page.
-	 * <p>
-	 * The old one (if not <code>null</code>) will become the previous page.
-	 * </p>
-	 */
-	public void setCurrentPage(final Page page);
+    /**
+     * Sets the current page.
+     * <p>
+     * The old one (if not <code>null</code>) will become the previous page.
+     * </p>
+     */
+    public void setCurrentPage(final Page page);
 
-	/**
-	 * Returns the current Page.
-	 * 
-	 * @return <code>null</code> if no current page has been set till now.
-	 */
-	public Page getCurrentPage();
+    /**
+     * Returns the current Page.
+     * 
+     * @return <code>null</code> if no current page has been set till now.
+     */
+    public Page getCurrentPage();
 
-	/**
-	 * Returns the previous page to the current one.
-	 * 
-	 * @return <code>null</code> if no current page has been set till now.
-	 */
-	public Page getPreviousPage();
+    /**
+     * Returns the previous page to the current one.
+     * 
+     * @return <code>null</code> if no current page has been set till now.
+     */
+    public Page getPreviousPage();
 
-	//
-	// Helper classes
-	//
+    //
+    // Helper classes
+    //
 
-	public final static class Page {
+    public final static class Page
+    {
 
-		public final static Page ADMIN_PAGE = new Page();
+        public final static Page ADMIN_PAGE = new Page();
 
-		public final static Page INBOX_PAGE = new Page();
+        public final static Page INBOX_PAGE = new Page();
 
-		public final static Page SHARE_PAGE = new Page();
+        public final static Page SHARE_PAGE = new Page();
 
-		public final static Page INVITE_PAGE = new Page();
+        public final static Page INVITE_PAGE = new Page();
 
-		public final static Page LOGIN_PAGE = new Page();
+        public final static Page HELP_PAGE = new Page();
 
-		public final static Page EDIT_PROFILE = new Page();
+        public final static Page LOGIN_PAGE = new Page();
 
-		public static final Page EXTERNAL_AUTHENTICATION = new Page();
+        public final static Page EDIT_PROFILE = new Page();
 
-		public final static Page[] ALL_PAGES = new Page[] { ADMIN_PAGE,
-				INBOX_PAGE, SHARE_PAGE, INVITE_PAGE, LOGIN_PAGE, EDIT_PROFILE,
-				EXTERNAL_AUTHENTICATION };
+        public static final Page EXTERNAL_AUTHENTICATION = new Page();
 
-		private Page() {
-		}
-	}
+        public final static Page[] ALL_PAGES =
+                new Page[]
+                    { ADMIN_PAGE, INBOX_PAGE, SHARE_PAGE, INVITE_PAGE, HELP_PAGE, LOGIN_PAGE,
+                            EDIT_PROFILE, EXTERNAL_AUTHENTICATION };
+
+        private Page()
+        {
+        }
+    }
 }

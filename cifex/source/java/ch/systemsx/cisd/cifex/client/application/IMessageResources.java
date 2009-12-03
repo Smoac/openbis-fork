@@ -388,6 +388,14 @@ public interface IMessageResources extends Messages {
 	/** Label for the tooltip of button, for the invite view. */
 	@Key(value = "inviteview.link.tooltip")
 	public String getInviteViewTooltipLabel();
+	
+	   /** Label for the button for the invite view. */
+    @Key(value = "help.link.label")
+    public String getHelpPageLinkLabel();
+
+    /** Label for the tooltip of button, for the invite view. */
+    @Key(value = "help.link.tooltip")
+    public String getHelpPageTooltipLabel();
 
 	/** Label for the button for the Main view. */
 	@Key(value = "mainview.link.label")
