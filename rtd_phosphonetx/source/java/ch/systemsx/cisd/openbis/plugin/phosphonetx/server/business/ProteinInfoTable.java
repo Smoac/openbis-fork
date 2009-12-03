@@ -79,11 +79,11 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         final String permID = experimentDAO.getByTechId(experimentID).getPermId();
         final Future<CoverageCalculator> coverageCalculatorFuture =
                 setUpCoverageCalculatorAsynchronously(permID);
-        final Future<AbundanceManager> abundanceManagerFuture =
-                setUpAbundanceManagerAsynchronously(permID, falseDiscoveryRate);
+        final Future<DataSet<ProteinReferenceWithProbability>> proteinReferencesFuture =
+                getProteinReferencesAsynchronously(permID);
         final AbundanceManager abundanceManager =
-                ConcurrencyUtilities.tryGetResult(abundanceManagerFuture,
-                        ConcurrencyUtilities.NO_TIMEOUT);
+                setUpAbundanceManager(ConcurrencyUtilities.tryGetResult(proteinReferencesFuture,
+                        ConcurrencyUtilities.NO_TIMEOUT), falseDiscoveryRate);
         final Collection<ProteinWithAbundances> proteins =
                 abundanceManager.getProteinsWithAbundances();
         infos = new ArrayList<ProteinInfo>(proteins.size());
@@ -126,29 +126,27 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         }
     }
 
-    private Future<AbundanceManager> setUpAbundanceManagerAsynchronously(
-            final String experimentPermID, final double falseDiscoveryRate)
+    private Future<DataSet<ProteinReferenceWithProbability>> getProteinReferencesAsynchronously(
+            final String experimentPermID)
     {
-        return executor.submit(new Callable<AbundanceManager>()
+        return executor.submit(new Callable<DataSet<ProteinReferenceWithProbability>>()
             {
-                public AbundanceManager call() throws Exception
+                public DataSet<ProteinReferenceWithProbability> call() throws Exception
                 {
-                    return setUpAbundanceManager(experimentPermID, falseDiscoveryRate);
+                    final IProteinQueryDAO dao = getSpecificDAOFactory().getSecondProteinQueryDAO();
+                    return dao.listProteinsByExperiment(experimentPermID);
                 }
             });
     }
 
-    private AbundanceManager setUpAbundanceManager(String experimentPermID,
-            double falseDiscoveryRate)
+    private AbundanceManager setUpAbundanceManager(
+            DataSet<ProteinReferenceWithProbability> proteinReferences, double falseDiscoveryRate)
     {
         AbundanceManager abundanceManager = new AbundanceManager(getDaoFactory().getSampleDAO());
-        IProteinQueryDAO dao = getSpecificDAOFactory().getSecondProteinQueryDAO();
         ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
-        DataSet<ProteinReferenceWithProbability> resultSet =
-                dao.listProteinsByExperiment(experimentPermID);
         try
         {
-            for (ProteinReferenceWithProbability protein : resultSet)
+            for (ProteinReferenceWithProbability protein : proteinReferences)
             {
                 if (errorModel.passProtein(protein, falseDiscoveryRate))
                 {
@@ -157,7 +155,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
             }
         } finally
         {
-            resultSet.close();
+            proteinReferences.close();
         }
         return abundanceManager;
     }
