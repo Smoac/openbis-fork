@@ -9,5 +9,9 @@
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
