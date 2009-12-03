@@ -172,6 +172,7 @@
 	<target name="prepare-gwt"
             description="Override 'prepare-gwt' by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating 'ClientPluginProvider.java'.">
 		<antcall target="prepare-web-client" />
+		<antcall target="compile-tests" />
 		<antcall target="server-common-common.prepare-gwt" />
 		<copy todir="${targets.www.web-inf}/lib">
 			<fileset dir="${lib}/cisd-base">
