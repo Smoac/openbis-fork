@@ -192,7 +192,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
         {
             if (definitions[i] == null)
             {
-                definitions[i] = getDefinition(remainingDefinitions, columnHeaders.get(i));
+                definitions[i] = getDefinition(remainingDefinitions, columnHeaders, i);
             }
         }
         String list = createListOfMissingColumns(remainingDefinitions);
@@ -246,8 +246,10 @@ class DataSetValidatorForTSV implements IDataSetValidator
         return definitions;
     }
 
-    private ColumnDefinition getDefinition(List<ColumnDefinition> definitions, String columnHeader)
+    private ColumnDefinition getDefinition(List<ColumnDefinition> definitions,
+            List<String> columnHeaders, int i)
     {
+        String columnHeader = columnHeaders.get(i);
         StringBuilder builder = new StringBuilder();
         for (Iterator<ColumnDefinition> iterator = definitions.iterator(); iterator.hasNext();)
         {
@@ -266,8 +268,8 @@ class DataSetValidatorForTSV implements IDataSetValidator
                 builder.append("' does not match: Reason: ").append(result);
             }
         }
-        throw new UserFailureException("No column definition matches the following column header: "
-                + columnHeader + builder);
+        throw new UserFailureException("No column definition matches the header of the " + (i + 1)
+                + ". column: " + columnHeader + builder);
     }
 
 }
