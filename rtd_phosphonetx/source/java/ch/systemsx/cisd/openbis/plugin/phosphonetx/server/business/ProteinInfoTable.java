@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import net.lemnik.eodsql.DataSet;
 
@@ -50,8 +52,8 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundan
 class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTable
 {
     private static final ExecutorService executor =
-            new NamingThreadPoolExecutor("ProteinInfoTableQueries").corePoolSize(2)
-                    .maximumPoolSize(2);
+            new NamingThreadPoolExecutor("ProteinInfoTableQueries", 2, 2, 0L,
+                    TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()).daemonize();
 
     private List<ProteinInfo> infos;
 
@@ -86,8 +88,8 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
                 abundanceManager.getProteinsWithAbundances();
         infos = new ArrayList<ProteinInfo>(proteins.size());
         final CoverageCalculator coverageCalculator =
-            ConcurrencyUtilities.tryGetResult(coverageCalculatorFuture,
-                    ConcurrencyUtilities.NO_TIMEOUT);
+                ConcurrencyUtilities.tryGetResult(coverageCalculatorFuture,
+                        ConcurrencyUtilities.NO_TIMEOUT);
         for (ProteinWithAbundances protein : proteins)
         {
             ProteinInfo proteinInfo = new ProteinInfo();
