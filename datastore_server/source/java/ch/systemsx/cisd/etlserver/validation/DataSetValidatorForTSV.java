@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -143,10 +144,16 @@ class DataSetValidatorForTSV implements IDataSetValidator
                 List<String> row = table.tryToGetNextRow();
                 if (row.size() > definitions.length)
                 {
-                    throw new UserFailureException("The row in line " + lineNumber + " has "
-                            + row.size() + " cells instead of " + definitions.length);
+                    for (int i = definitions.length; i < row.size(); i++)
+                    {
+                        if (StringUtils.isNotBlank(row.get(i)))
+                        {
+                            throw new UserFailureException("The row in line " + lineNumber + " has "
+                                    + row.size() + " cells instead of " + definitions.length);
+                        }
+                    }
                 }
-                for (int i = 0; i < row.size(); i++)
+                for (int i = 0, n = Math.min(row.size(), validators.length); i < n; i++)
                 {
                     try
                     {
