@@ -97,7 +97,7 @@ public class TabSeparatedValueTable
     {
         try
         {
-            List<String> row = getRowCells(lineIterator.nextLine());
+            List<String> row = getRowCells(lineIterator.nextLine().trim());
             for (int i = row.size(); i < headers.size(); i++)
             {
                 row.add("");
