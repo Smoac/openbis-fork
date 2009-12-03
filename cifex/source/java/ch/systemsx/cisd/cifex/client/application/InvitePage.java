@@ -1,0 +1,100 @@
+/*
+ * Copyright 2009 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package ch.systemsx.cisd.cifex.client.application;
+
+import java.util.List;
+
+import ch.systemsx.cisd.cifex.client.application.grid.GridUtils;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.google.gwt.user.client.ui.Widget;
+
+/**
+ * The page where temporary users may be created.
+ * 
+ * @author Chandrasekhar Ramakrishnan
+ */
+final class InvitePage extends AbstractMainPage {
+	InvitePage(final ViewContext context) {
+		super(context);
+	}
+
+	@Override
+	protected final LayoutContainer createMainPanel() {
+		final LayoutContainer contentPanel = new LayoutContainer();
+		Model model = context.getModel();
+		final UserInfoDTO user = model.getUser();
+		LayoutContainer createUserPanel = createUserPanel(user.isAdmin(),
+				context);
+		LayoutContainer listCreatedUserPanel = createContainer();
+		createListCreatedUserPanel(listCreatedUserPanel, context);
+		if (user.isPermanent() && user.isAdmin() == false) {
+			contentPanel.add(createUserPanel);
+		}
+		contentPanel.add(listCreatedUserPanel);
+		return contentPanel;
+	}
+
+	static private void createListCreatedUserPanel(
+			LayoutContainer listCreatedUserPanel, ViewContext context) {
+		context.getCifexService().listUsersRegisteredBy(
+				context.getModel().getUser().getUserCode(),
+				new CreatedUserAsyncCallback(listCreatedUserPanel, context));
+	}
+
+	private static final class CreatedUserAsyncCallback extends
+			AbstractAsyncCallback<List<UserInfoDTO>> {
+
+		private final LayoutContainer listCreatedUserPanel;
+
+		private final ViewContext context;
+
+		CreatedUserAsyncCallback(LayoutContainer listCreatedUserPanel,
+				ViewContext context) {
+			super(context);
+			this.listCreatedUserPanel = listCreatedUserPanel;
+			this.context = context;
+		}
+
+		private Widget createUserTable(final List<UserInfoDTO> users) {
+			GridWidget<UserGridModel> gridWidget = GridUtils.createUserGrid(
+					users, context);
+			// Delete user function
+			gridWidget.getGrid().addListener(Events.CellClick,
+					new UserActionGridCellListener(context, null, gridWidget));
+			return gridWidget.getWidget();
+		}
+
+		private IMessageResources getMessageResources() {
+			return context.getMessageResources();
+		}
+
+		public final void onSuccess(final List<UserInfoDTO> result) {
+			if (result.size() > 0) {
+				addTitlePart(listCreatedUserPanel, getMessageResources()
+						.getOwnUserTitle());
+				listCreatedUserPanel.add(createUserTable(result));
+				listCreatedUserPanel.layout();
+			}
+		}
+	}
+
+}

@@ -40,10 +40,14 @@ public final class ImageUtils
     {
         return new Image(IMG_DIR + fileName);
     }
-
-    public final static Image getLogoImage()
+    
+    public final static Image getCIFEXLogoImage()
     {
-        //return createImage("cisd.jpeg");
         return createImage("cifex.png");
+    }
+    
+    public final static Image getCIFEXLogoImageSmall()
+    {
+        return createImage("cifex_small.png");
     }
 }

@@ -19,39 +19,59 @@ package ch.systemsx.cisd.cifex.client.application;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 
 /**
- * An interface to control the creation of (or switching to) current application pages.
+ * An interface to control the creation of (or switching to) current application
+ * pages.
  * 
  * @author Christian Ribeaud
  */
-public interface IPageController
-{
-    /** Instantiates <code>LoginPage</code> and adds it to the <code>RootPanel</code>. */
-    public void createLoginPage();
+public interface IPageController {
+	/**
+	 * Instantiates <code>LoginPage</code> and adds it to the
+	 * <code>RootPanel</code>.
+	 */
+	public void createLoginPage();
 
-    /** Instantiates <code>MainPage</code> and adds it to the <code>RootPanel</code>. */
-    public void createMainPage();
+	/**
+	 * Instantiates <code>InboxPage</code> and adds it to the
+	 * <code>RootPanel</code>.
+	 */
+	public void createInboxPage();
 
-    /**
-     * Instantiates <code>AdminPage</code> and adds it to the <code>RootPanel</code>.
-     * <p>
-     * Calling this method creates an {@link AdminMainPage} for <i>administrators</i> and a
-     * {@link MainPage} for <i>regular</i> or <i>temporary</i> users.
-     * </p>
-     */
-    public void createAdminPage();
+	/**
+	 * Instantiates <code>SharePage</code> and adds it to the
+	 * <code>RootPanel</code>.
+	 */
+	public void createSharePage();
 
-    /**
-     * Instantiates <code>UpdateUserPage</code> with the given User fields and adds it to the
-     * <code>RootPanel</code>.
-     */
-    public void createEditCurrentUserPage();
+	/**
+	 * Instantiates <code>InvitePage</code> and adds it to the
+	 * <code>RootPanel</code>.
+	 */
+	public void createInvitePage();
 
-    /** Creates page specified by given <var>page</var>. */
-    public void createPage(final Page page);
+	/**
+	 * Instantiates <code>AdminPage</code> and adds it to the
+	 * <code>RootPanel</code>.
+	 * <p>
+	 * Calling this method creates an {@link AdminMainPage} for
+	 * <i>administrators</i> and a {@link MainPage} for <i>regular</i> or
+	 * <i>temporary</i> users.
+	 * </p>
+	 */
+	public void createAdminPage();
 
-    /**
-     * Instantiates <code>ExternalAuthenticationPage</code> and adds it to the
-     * <code>RootPanel</code>.
-     */
-    public void createExternalAuthenticationPage();
+	/**
+	 * Instantiates <code>UpdateUserPage</code> with the given User fields and
+	 * adds it to the <code>RootPanel</code>.
+	 */
+	public void createEditCurrentUserPage();
+
+	/** Creates page specified by given <var>page</var>. */
+	public void createPage(final Page page);
+
+	/**
+	 * Instantiates <code>ExternalAuthenticationPage</code> and adds it to the
+	 * <code>RootPanel</code>.
+	 */
+	public void createExternalAuthenticationPage();
 }

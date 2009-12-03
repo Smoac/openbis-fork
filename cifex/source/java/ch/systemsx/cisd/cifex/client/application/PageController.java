@@ -25,139 +25,141 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  * 
  * @author Franz-Josef Elmer
  */
-final class PageController implements IPageController, IHistoryController
-{
-    private ViewContext viewContext;
+final class PageController implements IPageController, IHistoryController {
+	private ViewContext viewContext;
 
-    private Page currentPage;
+	private Page currentPage;
 
-    private Page previousPage;
+	private Page previousPage;
 
-    final void setViewContext(final ViewContext viewContext)
-    {
-        this.viewContext = viewContext;
-    }
+	final void setViewContext(final ViewContext viewContext) {
+		this.viewContext = viewContext;
+	}
 
-    /**
-     * This method clears <code>RootPanel</code>.
-     * <p>
-     * Note that this method should be called in a very early stage, before building any new GUI
-     * stuff. Otherwise <code>RootPanel.get().clear()</code> may destroy some of the created GUI
-     * elements.
-     * </p>
-     */
-    private final void clearRootPanel()
-    {
-        final RootPanel rootPanel = RootPanel.get();
-        rootPanel.clear();
-    }
+	/**
+	 * This method clears <code>RootPanel</code>.
+	 * <p>
+	 * Note that this method should be called in a very early stage, before
+	 * building any new GUI stuff. Otherwise
+	 * <code>RootPanel.get().clear()</code> may destroy some of the created GUI
+	 * elements.
+	 * </p>
+	 */
+	private final void clearRootPanel() {
+		final RootPanel rootPanel = RootPanel.get();
+		rootPanel.clear();
+	}
 
-    //
-    // IPageController
-    //
+	//
+	// IPageController
+	//
 
-    public final void createLoginPage()
-    {
-        clearRootPanel();
-        final LoginPage loginPage = new LoginPage(viewContext);
-        setCurrentPage(Page.LOGIN_PAGE);
-        RootPanel.get().add(loginPage);
-    }
+	public final void createLoginPage() {
+		clearRootPanel();
+		final LoginPage loginPage = new LoginPage(viewContext);
+		setCurrentPage(Page.LOGIN_PAGE);
+		RootPanel.get().add(loginPage);
+	}
 
-    public final void createMainPage()
-    {
-        clearRootPanel();
-        final MainPage mainPage = new MainPage(viewContext);
-        setCurrentPage(Page.MAIN_PAGE);
-        RootPanel.get().add(mainPage);
-    }
+	public final void createAdminPage() {
+		clearRootPanel();
+		final UserInfoDTO user = viewContext.getModel().getUser();
+		final AbstractMainPage mainPage;
+		if (user.isAdmin()) {
+			mainPage = new AdminMainPage(viewContext);
+			setCurrentPage(Page.ADMIN_PAGE);
+		} else {
+			mainPage = new MainPage(viewContext);
+			setCurrentPage(Page.SHARE_PAGE);
+		}
+		RootPanel.get().add(mainPage);
+	}
 
-    public final void createAdminPage()
-    {
-        clearRootPanel();
-        final UserInfoDTO user = viewContext.getModel().getUser();
-        final AbstractMainPage mainPage;
-        if (user.isAdmin())
-        {
-            mainPage = new AdminMainPage(viewContext);
-            setCurrentPage(Page.ADMIN_PAGE);
-        } else
-        {
-            mainPage = new MainPage(viewContext);
-            setCurrentPage(Page.MAIN_PAGE);
-        }
-        RootPanel.get().add(mainPage);
-    }
+	public final void createInboxPage() {
+		clearRootPanel();
+		final InboxPage inboxPage = new InboxPage(viewContext);
+		setCurrentPage(Page.INBOX_PAGE);
+		RootPanel.get().add(inboxPage);
+	}
 
-    public final void createEditCurrentUserPage()
-    {
-        clearRootPanel();
-        final EditCurrentUserPage editUserPage = new EditCurrentUserPage(viewContext);
-        setCurrentPage(Page.EDIT_PROFILE);
-        RootPanel.get().add(editUserPage);
-    }
+	public final void createSharePage() {
+		clearRootPanel();
+		final SharePage sharePage = new SharePage(viewContext);
+		setCurrentPage(Page.SHARE_PAGE);
+		RootPanel.get().add(sharePage);
+	}
 
-    /**
-     * Creates the given Page to the root panel. If the page is not known, it creates the main page.
-     */
-    public final void createPage(final Page page)
-    {
-        if (page == Page.ADMIN_PAGE)
-        {
-            createAdminPage();
-        } else if (page == Page.EDIT_PROFILE)
-        {
-            createEditCurrentUserPage();
-        } else if (page == Page.LOGIN_PAGE)
-        {
-            createLoginPage();
-        } else if (page == Page.EXTERNAL_AUTHENTICATION)
-        {
-            createExternalAuthenticationPage();
-        } else
-        {
-            createMainPage();
-        }
-    }
+	public final void createInvitePage() {
+		clearRootPanel();
+		final InvitePage invitePage = new InvitePage(viewContext);
+		setCurrentPage(Page.INVITE_PAGE);
+		RootPanel.get().add(invitePage);
+	}
 
-    //
-    // IHistoryController
-    //
+	public final void createEditCurrentUserPage() {
+		clearRootPanel();
+		final EditCurrentUserPage editUserPage = new EditCurrentUserPage(
+				viewContext);
+		setCurrentPage(Page.EDIT_PROFILE);
+		RootPanel.get().add(editUserPage);
+	}
 
-    public final Page getCurrentPage()
-    {
-        return currentPage;
-    }
+	/**
+	 * Creates the given Page to the root panel. If the page is not known, it
+	 * creates the main page.
+	 */
+	public final void createPage(final Page page) {
+		if (page == Page.ADMIN_PAGE) {
+			createAdminPage();
+		} else if (page == Page.EDIT_PROFILE) {
+			createEditCurrentUserPage();
+		} else if (page == Page.LOGIN_PAGE) {
+			createLoginPage();
+		} else if (page == Page.EXTERNAL_AUTHENTICATION) {
+			createExternalAuthenticationPage();
+		} else if (page == Page.INBOX_PAGE) {
+			createInboxPage();
+		} else if (page == Page.SHARE_PAGE) {
+			createSharePage();
+		} else if (page == Page.INVITE_PAGE) {
+			createInvitePage();
+		} else {
+			createSharePage();
+		}
+	}
 
-    public final Page getPreviousPage()
-    {
-        return previousPage;
-    }
+	//
+	// IHistoryController
+	//
 
-    /**
-     * Sets the given page to the current page, if it differ from the the current page and moves the
-     * current page to the previous page. If the given page is the same as the current page,
-     * everything stays as it is.
-     */
-    public final void setCurrentPage(final Page page)
-    {
-        if (previousPage == null)
-        {
-            previousPage = currentPage;
-            currentPage = page;
-        } else if (currentPage != page)
-        {
-            previousPage = currentPage;
-            currentPage = page;
-        }
-    }
+	public final Page getCurrentPage() {
+		return currentPage;
+	}
 
-    public void createExternalAuthenticationPage()
-    {
-        clearRootPanel();
-        final ExternalAuthenticationPage externalAuthenticationPage =
-                new ExternalAuthenticationPage(viewContext);
-        setCurrentPage(Page.EXTERNAL_AUTHENTICATION);
-        RootPanel.get().add(externalAuthenticationPage);
-    }
+	public final Page getPreviousPage() {
+		return previousPage;
+	}
+
+	/**
+	 * Sets the given page to the current page, if it differ from the the
+	 * current page and moves the current page to the previous page. If the
+	 * given page is the same as the current page, everything stays as it is.
+	 */
+	public final void setCurrentPage(final Page page) {
+		if (previousPage == null) {
+			previousPage = currentPage;
+			currentPage = page;
+		} else if (currentPage != page) {
+			previousPage = currentPage;
+			currentPage = page;
+		}
+	}
+
+	public void createExternalAuthenticationPage() {
+		clearRootPanel();
+		final ExternalAuthenticationPage externalAuthenticationPage = new ExternalAuthenticationPage(
+				viewContext);
+		setCurrentPage(Page.EXTERNAL_AUTHENTICATION);
+		RootPanel.get().add(externalAuthenticationPage);
+	}
 }

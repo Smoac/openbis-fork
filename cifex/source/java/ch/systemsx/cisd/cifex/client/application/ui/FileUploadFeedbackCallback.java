@@ -33,91 +33,89 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
  * 
  * @author Christian Ribeaud
  */
-final class FileUploadFeedbackCallback extends AbstractAsyncCallback<FileUploadFeedback>
-{
+final class FileUploadFeedbackCallback extends
+		AbstractAsyncCallback<FileUploadFeedback> {
 
-    /**
-     * Whether the progress bar has already been initialized (using
-     * {@link MessageBox#progress(String, String)}).
-     */
-    private MessageBox messageBox;
+	/**
+	 * Whether the progress bar has already been initialized (using
+	 * {@link MessageBox#progress(String, String)}).
+	 */
+	private MessageBox messageBox;
 
-    FileUploadFeedbackCallback(final ViewContext context)
-    {
-        this(context, null);
-    }
+	FileUploadFeedbackCallback(final ViewContext context) {
+		this(context, null);
+	}
 
-    private FileUploadFeedbackCallback(final ViewContext context, final MessageBox initialized)
-    {
-        super(context);
-        this.messageBox = initialized;
-    }
+	private FileUploadFeedbackCallback(final ViewContext context,
+			final MessageBox initialized) {
+		super(context);
+		this.messageBox = initialized;
+	}
 
-    private final void refreshMainPage()
-    {
-        getViewContext().getPageController().createMainPage();
-    }
+	private final void refreshMainPage() {
+		getViewContext().getPageController().createSharePage();
+	}
 
-    private final String createUpdateMessage(final FileUploadFeedback feedback)
-    {
-        final StringBuffer buffer = new StringBuffer();
-        final IMessageResources messageResources = getViewContext().getMessageResources();
-        buffer.append(messageResources.getFileUploadFeedbackFileLabel(feedback.getFileName()));
-        buffer.append(DOMUtils.BR);
-        final String byteRead = FileUtils.byteCountToDisplaySize(feedback.getBytesRead());
-        final long length = feedback.getContentLength();
-        final String contentLength =
-                length == Long.MAX_VALUE ? messageResources.getUnknownLabel() : FileUtils
-                        .byteCountToDisplaySize(length);
-        buffer.append(messageResources.getFileUploadFeedbackBytesLabel(byteRead, contentLength));
-        buffer.append(DOMUtils.BR);
-        final long timeLeft = feedback.getTimeLeft();
-        if (timeLeft < Long.MAX_VALUE)
-        {
-            buffer.append(messageResources.getFileUploadFeedbackTimeLabel(DateTimeUtils
-                    .formatDuration(timeLeft)));
-        }
-        return buffer.toString();
-    }
+	private final String createUpdateMessage(final FileUploadFeedback feedback) {
+		final StringBuffer buffer = new StringBuffer();
+		final IMessageResources messageResources = getViewContext()
+				.getMessageResources();
+		buffer.append(messageResources.getFileUploadFeedbackFileLabel(feedback
+				.getFileName()));
+		buffer.append(DOMUtils.BR);
+		final String byteRead = FileUtils.byteCountToDisplaySize(feedback
+				.getBytesRead());
+		final long length = feedback.getContentLength();
+		final String contentLength = length == Long.MAX_VALUE ? messageResources
+				.getUnknownLabel()
+				: FileUtils.byteCountToDisplaySize(length);
+		buffer.append(messageResources.getFileUploadFeedbackBytesLabel(
+				byteRead, contentLength));
+		buffer.append(DOMUtils.BR);
+		final long timeLeft = feedback.getTimeLeft();
+		if (timeLeft < Long.MAX_VALUE) {
+			buffer.append(messageResources
+					.getFileUploadFeedbackTimeLabel(DateTimeUtils
+							.formatDuration(timeLeft)));
+		}
+		return buffer.toString();
+	}
 
-    @Override
-    public final void onFailure(final Throwable caught)
-    {
-        // refresh causes message box with failure message disappear so it needs to be done first
-        refreshMainPage();
-        super.onFailure(caught);
-    }
+	@Override
+	public final void onFailure(final Throwable caught) {
+		// refresh causes message box with failure message disappear so it needs
+		// to be done first
+		refreshMainPage();
+		super.onFailure(caught);
+	}
 
-    public final void onSuccess(final FileUploadFeedback result)
-    {
-        final FileUploadFeedback feedback = result;
-        final IMessageResources messageResources = getViewContext().getMessageResources();
-        final Message message = feedback.getMessage();
-        if (message != null)
-        {
-            // refresh causes message box with failure message disappear so it needs to be done first
-            refreshMainPage();
-            WidgetUtils.showMessage(message, messageResources);
-            return;
-        }
-        if (feedback.isFinished())
-        {
-            messageBox.close();
-            refreshMainPage();
-            return;
-        }
-        if (messageBox == null)
-        {
-            messageBox =
-                    MessageBox.progress(messageResources.getFileUploadFeedbackTitle(),
-                            messageResources.getFileUploadFeedbackMessage(), null);
-        } else
-        {
-            // Convert a percentage to a double between 0 and 1
-            messageBox.updateProgress(feedback.getPercentage() * 0.01, "");
-            messageBox.updateText(createUpdateMessage(feedback));
-        }
-        getViewContext().getCifexService().getFileUploadFeedback(
-                new FileUploadFeedbackCallback(getViewContext(), messageBox));
-    }
+	public final void onSuccess(final FileUploadFeedback result) {
+		final FileUploadFeedback feedback = result;
+		final IMessageResources messageResources = getViewContext()
+				.getMessageResources();
+		final Message message = feedback.getMessage();
+		if (message != null) {
+			// refresh causes message box with failure message disappear so it
+			// needs to be done first
+			refreshMainPage();
+			WidgetUtils.showMessage(message, messageResources);
+			return;
+		}
+		if (feedback.isFinished()) {
+			messageBox.close();
+			refreshMainPage();
+			return;
+		}
+		if (messageBox == null) {
+			messageBox = MessageBox.progress(messageResources
+					.getFileUploadFeedbackTitle(), messageResources
+					.getFileUploadFeedbackMessage(), null);
+		} else {
+			// Convert a percentage to a double between 0 and 1
+			messageBox.updateProgress(feedback.getPercentage() * 0.01, "");
+			messageBox.updateText(createUpdateMessage(feedback));
+		}
+		getViewContext().getCifexService().getFileUploadFeedback(
+				new FileUploadFeedbackCallback(getViewContext(), messageBox));
+	}
 }

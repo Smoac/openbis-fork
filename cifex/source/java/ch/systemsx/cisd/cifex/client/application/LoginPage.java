@@ -18,6 +18,11 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import java.util.Map;
 
+import ch.systemsx.cisd.cifex.client.application.ui.LoginWidget;
+import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
+
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
@@ -25,11 +30,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
-
-import ch.systemsx.cisd.cifex.client.application.ui.LoginWidget;
-import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
  * The login page.
@@ -92,7 +92,7 @@ final class LoginPage extends VerticalPanel
 
     private final Image createImage()
     {
-        final Image image = ImageUtils.getLogoImage();
+        final Image image = ImageUtils.getCIFEXLogoImage();
         image.setTitle(viewContext.getMessageResources().getCISDLogoTitle());
         image.setPixelSize(175, 107);
         return image;

@@ -33,96 +33,91 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 /**
  * Entry point of <i>GWT</i> <i>CIFEX</i>.
  * <p>
- * {@link #onModuleLoad()} gets called when the user enters the application (by calling
- * <code>index.html</code> page) or when the user pushes the navigator refresh button.
+ * {@link #onModuleLoad()} gets called when the user enters the application (by
+ * calling <code>index.html</code> page) or when the user pushes the navigator
+ * refresh button.
  * </p>
  * 
  * @author Christian Ribeaud
  */
-public final class CIFEXEntryPoint implements EntryPoint
-{
+public final class CIFEXEntryPoint implements EntryPoint {
 
-    private final static ICIFEXServiceAsync createCIFEXService()
-    {
-        final ICIFEXServiceAsync service = (ICIFEXServiceAsync) GWT.create(ICIFEXService.class);
-        final ServiceDefTarget endpoint = (ServiceDefTarget) service;
-        // 'GWT.getModuleBaseURL()/GWT.getHostPageBaseURL()' returns
-        // 'http://localhost:8888/ch.systemsx.cisd.cifex.Cifex/' in Hosted/Web mode and
-        // 'http://localhost:8080/cifex/' when deployed.
-        // 'GWT.getModuleName()' always returns 'ch.systemsx.cisd.cifex.Cifex'.
-        // Do not prepend 'GWT.getModuleBaseURL()' here as we want '/cifex/cifex' in Hosted Mode.
-        endpoint.setServiceEntryPoint(ServletPathConstants.CIFEX_SERVLET_NAME);
-        return service;
-    }
+	private final static ICIFEXServiceAsync createCIFEXService() {
+		final ICIFEXServiceAsync service = (ICIFEXServiceAsync) GWT
+				.create(ICIFEXService.class);
+		final ServiceDefTarget endpoint = (ServiceDefTarget) service;
+		// 'GWT.getModuleBaseURL()/GWT.getHostPageBaseURL()' returns
+		// 'http://localhost:8888/ch.systemsx.cisd.cifex.Cifex/' in Hosted/Web
+		// mode and
+		// 'http://localhost:8080/cifex/' when deployed.
+		// 'GWT.getModuleName()' always returns 'ch.systemsx.cisd.cifex.Cifex'.
+		// Do not prepend 'GWT.getModuleBaseURL()' here as we want
+		// '/cifex/cifex' in Hosted Mode.
+		endpoint.setServiceEntryPoint(ServletPathConstants.CIFEX_SERVLET_NAME);
+		return service;
+	}
 
-    private final ViewContext createViewContext(final ICIFEXServiceAsync cifexService)
-    {
-        final IMessageResources messageResources =
-                (IMessageResources) GWT.create(IMessageResources.class);
-        final PageController pageController = new PageController();
-        final ViewContext viewContext =
-                new ViewContext(pageController, pageController, cifexService, new Model(),
-                        messageResources);
-        pageController.setViewContext(viewContext);
-        return viewContext;
-    }
+	private final ViewContext createViewContext(
+			final ICIFEXServiceAsync cifexService) {
+		final IMessageResources messageResources = (IMessageResources) GWT
+				.create(IMessageResources.class);
+		final PageController pageController = new PageController();
+		final ViewContext viewContext = new ViewContext(pageController,
+				pageController, cifexService, new Model(), messageResources);
+		pageController.setViewContext(viewContext);
+		return viewContext;
+	}
 
-    //
-    // EntryPoint
-    //
+	//
+	// EntryPoint
+	//
 
-    public final void onModuleLoad()
-    {
-        final ICIFEXServiceAsync cifexService = createCIFEXService();
-        final ViewContext viewContext = createViewContext(cifexService);
-        final String paramString = GWTUtils.getParamString();
-        if (StringUtils.isBlank(paramString) == false)
-        {
-            viewContext.getModel().setUrlParams(GWTUtils.parseParamString(paramString));
-        }
-        cifexService.getConfiguration(new AbstractAsyncCallback<Configuration>(viewContext)
-            {
+	public final void onModuleLoad() {
+		final ICIFEXServiceAsync cifexService = createCIFEXService();
+		final ViewContext viewContext = createViewContext(cifexService);
+		final String paramString = GWTUtils.getParamString();
+		if (StringUtils.isBlank(paramString) == false) {
+			viewContext.getModel().setUrlParams(
+					GWTUtils.parseParamString(paramString));
+		}
+		cifexService.getConfiguration(new AbstractAsyncCallback<Configuration>(
+				viewContext) {
 
-                //
-                // AsyncCallbackAdapter
-                //
+			//
+			// AsyncCallbackAdapter
+			//
 
-                public final void onSuccess(final Configuration result)
-                {
-                    viewContext.getModel().setConfiguration(result);
-                    cifexService.getCurrentUser(new AsyncCallback<UserInfoDTO>()
-                        {
+			public final void onSuccess(final Configuration result) {
+				viewContext.getModel().setConfiguration(result);
+				cifexService.getCurrentUser(new AsyncCallback<UserInfoDTO>() {
 
-                            //
-                            // AsyncCallback
-                            //
+					//
+					// AsyncCallback
+					//
 
-                            public final void onSuccess(final UserInfoDTO res)
-                            {
-                                final IPageController pageController =
-                                        viewContext.getPageController();
-                                if (res != null)
-                                {
-                                    final Model model = viewContext.getModel();
-                                    model.setUser(res);
-                                    FileDownloadHelper.startFileDownload(model);
-                                    pageController.createMainPage();
-                                } else
-                                {
-                                    pageController.createLoginPage();
-                                }
-                            }
+					public final void onSuccess(final UserInfoDTO res) {
+						final IPageController pageController = viewContext
+								.getPageController();
+						if (res != null) {
+							final Model model = viewContext.getModel();
+							model.setUser(res);
+							if (FileDownloadHelper.startFileDownload(model))
+								pageController.createInboxPage();
+							else
+								pageController.createSharePage();
+						} else {
+							pageController.createLoginPage();
+						}
+					}
 
-                            public final void onFailure(final Throwable caught)
-                            {
-                                if (caught instanceof InvalidSessionException)
-                                {
-                                    viewContext.getPageController().createLoginPage();
-                                }
-                            }
-                        });
-                }
+					public final void onFailure(final Throwable caught) {
+						if (caught instanceof InvalidSessionException) {
+							viewContext.getPageController().createLoginPage();
+						}
+					}
+				});
+			}
 
-            });
-    }
+		});
+	}
 }
