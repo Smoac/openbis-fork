@@ -24,8 +24,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import net.lemnik.eodsql.DataSet;
 
@@ -52,8 +50,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundan
 class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTable
 {
     private static final ExecutorService executor =
-            new NamingThreadPoolExecutor("ProteinInfoTableQueries", 2, 2, 0L,
-                    TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()).daemonize();
+            new NamingThreadPoolExecutor("ProteinInfoTableQueries").corePoolSize(2).daemonize();
 
     private List<ProteinInfo> infos;
 
@@ -77,19 +74,36 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
     {
         final IExperimentDAO experimentDAO = getDaoFactory().getExperimentDAO();
         final String permID = experimentDAO.getByTechId(experimentID).getPermId();
-        final Future<CoverageCalculator> coverageCalculatorFuture =
-                setUpCoverageCalculatorAsynchronously(permID);
-        final Future<DataSet<ProteinReferenceWithProbability>> proteinReferencesFuture =
-                getProteinReferencesAsynchronously(permID);
-        final AbundanceManager abundanceManager =
-                setUpAbundanceManager(ConcurrencyUtilities.tryGetResult(proteinReferencesFuture,
-                        ConcurrencyUtilities.NO_TIMEOUT), falseDiscoveryRate);
-        final Collection<ProteinWithAbundances> proteins =
-                abundanceManager.getProteinsWithAbundances();
-        infos = new ArrayList<ProteinInfo>(proteins.size());
-        final CoverageCalculator coverageCalculator =
-                ConcurrencyUtilities.tryGetResult(coverageCalculatorFuture,
-                        ConcurrencyUtilities.NO_TIMEOUT);
+        final IProteinQueryDAO dao1 = getSpecificDAOFactory().getProteinQueryDAOFromPool();
+        final AbundanceManager abundanceManager;
+        final CoverageCalculator coverageCalculator;
+        final Collection<ProteinWithAbundances> proteins;
+        try
+        {
+            final Future<DataSet<ProteinReferenceWithPeptideSequence>> proteinReferencesWithPeptidesFuture =
+                    getProteinReferencesWithPeptideAsynchronously(dao1, permID);
+            final IProteinQueryDAO dao2 = getSpecificDAOFactory().getProteinQueryDAOFromPool();
+            try
+            {
+                final Future<DataSet<ProteinReferenceWithProbability>> proteinReferencesWithProbabilityFuture =
+                        getProteinReferencesWithProbabilityAsynchronously(dao2, permID);
+                abundanceManager =
+                        setUpAbundanceManager(ConcurrencyUtilities.tryGetResult(
+                                proteinReferencesWithProbabilityFuture,
+                                ConcurrencyUtilities.NO_TIMEOUT), falseDiscoveryRate);
+            } finally
+            {
+                getSpecificDAOFactory().returnProteinQueryDAOToPool(dao2);
+            }
+            proteins = abundanceManager.getProteinsWithAbundances();
+            infos = new ArrayList<ProteinInfo>(proteins.size());
+            coverageCalculator =
+                    setUpCoverageCalculator(ConcurrencyUtilities.tryGetResult(
+                            proteinReferencesWithPeptidesFuture, ConcurrencyUtilities.NO_TIMEOUT));
+        } finally
+        {
+            getSpecificDAOFactory().returnProteinQueryDAOToPool(dao1);
+        }
         for (ProteinWithAbundances protein : proteins)
         {
             ProteinInfo proteinInfo = new ProteinInfo();
@@ -126,14 +140,13 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         }
     }
 
-    private Future<DataSet<ProteinReferenceWithProbability>> getProteinReferencesAsynchronously(
-            final String experimentPermID)
+    private Future<DataSet<ProteinReferenceWithProbability>> getProteinReferencesWithProbabilityAsynchronously(
+            final IProteinQueryDAO dao, final String experimentPermID)
     {
         return executor.submit(new Callable<DataSet<ProteinReferenceWithProbability>>()
             {
                 public DataSet<ProteinReferenceWithProbability> call() throws Exception
                 {
-                    final IProteinQueryDAO dao = getSpecificDAOFactory().getSecondProteinQueryDAO();
                     return dao.listProteinsByExperiment(experimentPermID);
                 }
             });
@@ -160,29 +173,27 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         return abundanceManager;
     }
 
-    private Future<CoverageCalculator> setUpCoverageCalculatorAsynchronously(
-            final String experimentPermID)
+    private Future<DataSet<ProteinReferenceWithPeptideSequence>> getProteinReferencesWithPeptideAsynchronously(
+            final IProteinQueryDAO dao, final String experimentPermID)
     {
-        return executor.submit(new Callable<CoverageCalculator>()
+        return executor.submit(new Callable<DataSet<ProteinReferenceWithPeptideSequence>>()
             {
-                public CoverageCalculator call() throws Exception
+                public DataSet<ProteinReferenceWithPeptideSequence> call() throws Exception
                 {
-                    return setUpCoverageCalculator(experimentPermID);
+                    return dao.listProteinsWithPeptidesByExperiment(experimentPermID);
                 }
             });
     }
 
-    private CoverageCalculator setUpCoverageCalculator(String experimentPermID)
+    private CoverageCalculator setUpCoverageCalculator(
+            DataSet<ProteinReferenceWithPeptideSequence> proteinReferences)
     {
-        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
-        DataSet<ProteinReferenceWithPeptideSequence> resultSet =
-                dao.listProteinsWithPeptidesByExperiment(experimentPermID);
         try
         {
-            return new CoverageCalculator(resultSet);
+            return new CoverageCalculator(proteinReferences);
         } finally
         {
-            resultSet.close();
+            proteinReferences.close();
         }
     }
 

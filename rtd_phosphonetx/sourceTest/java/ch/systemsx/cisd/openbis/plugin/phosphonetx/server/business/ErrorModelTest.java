@@ -56,8 +56,9 @@ public class ErrorModelTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    allowing(specificDAOFactory).getProteinQueryDAO();
+                    allowing(specificDAOFactory).getProteinQueryDAOFromPool();
                     will(returnValue(proteinQueryDAO));
+                    allowing(specificDAOFactory).returnProteinQueryDAOToPool(proteinQueryDAO);
                     
                     atMost(1).of(proteinQueryDAO).getProbabilityFDRMapping(DATA_SET1_ID);
                     MockDataSet<ProbabilityFDRMapping> dataSet1 = new MockDataSet<ProbabilityFDRMapping>();

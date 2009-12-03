@@ -62,8 +62,9 @@ public class ProteinSummaryTableTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(specificDAOFactory).getProteinQueryDAO();
+                    allowing(specificDAOFactory).getProteinQueryDAOFromPool();
                     will(returnValue(proteinDAO));
+                    allowing(specificDAOFactory).returnProteinQueryDAOToPool(proteinDAO);
                 }
             });
         table = new ProteinSummaryTable(daoFactory, specificDAOFactory, SESSION);

@@ -31,8 +31,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapp
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class ErrorModel
@@ -42,6 +40,7 @@ class ErrorModel
         private static final class MappingEntry implements Comparable<MappingEntry>
         {
             private final double probability;
+
             private final double fdr;
 
             MappingEntry(double probability, double fdr)
@@ -52,7 +51,8 @@ class ErrorModel
 
             public int compareTo(MappingEntry that)
             {
-                return probability < that.probability ? -1 : (probability > that.probability ? 1 : 0);
+                return probability < that.probability ? -1 : (probability > that.probability ? 1
+                        : 0);
             }
 
             @Override
@@ -61,7 +61,7 @@ class ErrorModel
                 return probability + " = " + fdr;
             }
         }
-        
+
         private final List<MappingEntry> mappingEntries = new ArrayList<MappingEntry>();
 
         void add(double probability, double falseDiscoveryRate)
@@ -73,7 +73,7 @@ class ErrorModel
         {
             Collections.sort(mappingEntries);
         }
-        
+
         double calculateFDR(double probability)
         {
             int index = Collections.binarySearch(mappingEntries, new MappingEntry(probability, 0));
@@ -91,7 +91,7 @@ class ErrorModel
             return m0.fdr + scale * (probability - m0.probability);
         }
     }
-    
+
     private final Map<Long, ProbabilityToFDRCalculator> calculators =
             new HashMap<Long, ProbabilityToFDRCalculator>();
 
@@ -101,13 +101,13 @@ class ErrorModel
     {
         this.specificDAOFactory = specificDAOFactory;
     }
-    
+
     boolean passProtein(ProteinReferenceWithProbability protein, double falseDiscoveryRate)
     {
         ProbabilityToFDRCalculator calculator = getCalculator(protein.getDataSetID());
         return calculator.calculateFDR(protein.getProbability()) <= falseDiscoveryRate;
     }
-    
+
     void setFalseDiscoveryRateFor(IdentifiedProtein protein)
     {
         long dataSetID = protein.getDataSetID();
@@ -128,15 +128,27 @@ class ErrorModel
         if (calculator == null)
         {
             calculator = new ProbabilityToFDRCalculator();
-            IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
-            DataSet<ProbabilityFDRMapping> mappings = dao.getProbabilityFDRMapping(dataSetID);
-            for (ProbabilityFDRMapping probabilityFDRMapping : mappings)
+            final IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAOFromPool();
+            try
             {
-                double probability = probabilityFDRMapping.getProbability();
-                double falseDiscoveryRate = probabilityFDRMapping.getFalseDiscoveryRate();
-                calculator.add(probability, falseDiscoveryRate);
+                final DataSet<ProbabilityFDRMapping> mappings =
+                        dao.getProbabilityFDRMapping(dataSetID);
+                try
+                {
+                    for (ProbabilityFDRMapping probabilityFDRMapping : mappings)
+                    {
+                        double probability = probabilityFDRMapping.getProbability();
+                        double falseDiscoveryRate = probabilityFDRMapping.getFalseDiscoveryRate();
+                        calculator.add(probability, falseDiscoveryRate);
+                    }
+                } finally
+                {
+                    mappings.close();
+                }
+            } finally
+            {
+                specificDAOFactory.returnProteinQueryDAOToPool(dao);
             }
-            mappings.close();
             calculator.init();
             calculators.put(dataSetID, calculator);
         }

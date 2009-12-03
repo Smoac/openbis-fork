@@ -17,13 +17,19 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess;
 
 /**
- * 
+ * A factory for PhosphoNetX specific DAOs.
  *
  * @author Franz-Josef Elmer
  */
 public interface IPhosphoNetXDAOFactory
 {
-    public IProteinQueryDAO getProteinQueryDAO();
+    /**
+     * Retrieves a {@link IProteinQueryDAO} from the pool.
+     */
+    public IProteinQueryDAO getProteinQueryDAOFromPool();
 
-    public IProteinQueryDAO getSecondProteinQueryDAO();
+    /**
+     * Returns the given <var>proteinQueryDAO</var> to the pool.
+     */
+    public void returnProteinQueryDAOToPool(IProteinQueryDAO proteinQueryDAO);
 }

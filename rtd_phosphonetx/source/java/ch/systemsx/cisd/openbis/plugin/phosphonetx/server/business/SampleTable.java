@@ -62,27 +62,33 @@ class SampleTable extends AbstractBusinessObject implements ISampleTable
     public void loadSamplesWithAbundance(TechId experimentID, TechId proteinReferenceID)
     {
         samples = new ArrayList<SampleWithPropertiesAndAbundance>();
-        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
-        IDAOFactory daoFactory = getDaoFactory();
-        String experimentPermID = daoFactory.getExperimentDAO().getByTechId(experimentID).getPermId();
-        DataSet<SampleAbundance> sampleAbundances =
-                proteinQueryDAO.listSampleAbundanceByProtein(experimentPermID, proteinReferenceID.getId());
+        final IDAOFactory daoFactory = getDaoFactory();
+        final String experimentPermID = daoFactory.getExperimentDAO().getByTechId(experimentID).getPermId();
+        final IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAOFromPool();
         try
         {
-            ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-            for (SampleAbundance sampleAbundance : sampleAbundances)
+            final DataSet<SampleAbundance> sampleAbundances =
+                    proteinQueryDAO.listSampleAbundanceByProtein(experimentPermID, proteinReferenceID.getId());
+            try
             {
-                SampleWithPropertiesAndAbundance sample = new SampleWithPropertiesAndAbundance();
-                sample.setAbundance(sampleAbundance.getAbundance());
-                String samplePermID = sampleAbundance.getSamplePermID();
-                long sampleID = sampleIDProvider.getSampleIDOrParentSampleID(samplePermID);
-                SamplePE samplePE = sampleDAO.getByTechId(new TechId(sampleID));
-                fillSampleData(sample, samplePE);
-                samples.add(sample);
+                ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+                for (SampleAbundance sampleAbundance : sampleAbundances)
+                {
+                    SampleWithPropertiesAndAbundance sample = new SampleWithPropertiesAndAbundance();
+                    sample.setAbundance(sampleAbundance.getAbundance());
+                    String samplePermID = sampleAbundance.getSamplePermID();
+                    long sampleID = sampleIDProvider.getSampleIDOrParentSampleID(samplePermID);
+                    SamplePE samplePE = sampleDAO.getByTechId(new TechId(sampleID));
+                    fillSampleData(sample, samplePE);
+                    samples.add(sample);
+                }
+            } finally
+            {
+                sampleAbundances.close();
             }
         } finally
         {
-            sampleAbundances.close();
+            getSpecificDAOFactory().returnProteinQueryDAOToPool(proteinQueryDAO);
         }
     }
 

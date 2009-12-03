@@ -72,26 +72,37 @@ class ProteinSequenceTable extends AbstractBusinessObject implements IProteinSeq
 
     public void loadByReference(TechId proteinReferenceID)
     {
-        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
-        DataSet<Sequence> sequences =
-                proteinQueryDAO.listProteinSequencesByProteinReference(proteinReferenceID.getId());
-        proteinSequences = new ArrayList<ProteinSequence>(sequences.size());
-        databaseIDToShortNameMap = new HashMap<Long, String>();
-        int number = 0;
-        for (Sequence sequence : sequences)
+        final IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAOFromPool();
+        try
         {
-            ProteinSequence proteinSequence = new ProteinSequence();
-            proteinSequence.setId(new TechId(sequence.getId()));
-            String shortName = createShortName(number++);
-            proteinSequence.setShortName(shortName);
-            proteinSequence.setSequence(sequence.getSequence());
-            long databaseID = sequence.getDatabaseID();
-            proteinSequence.setDatabaseID(new TechId(databaseID));
-            proteinSequence.setDatabaseNameAndVersion(sequence.getDatabaseNameAndVersion());
-            proteinSequences.add(proteinSequence);
-            databaseIDToShortNameMap.put(databaseID, shortName);
+            final DataSet<Sequence> sequences =
+                    proteinQueryDAO.listProteinSequencesByProteinReference(proteinReferenceID.getId());
+            try
+            {
+                proteinSequences = new ArrayList<ProteinSequence>(sequences.size());
+                databaseIDToShortNameMap = new HashMap<Long, String>();
+                int number = 0;
+                for (Sequence sequence : sequences)
+                {
+                    ProteinSequence proteinSequence = new ProteinSequence();
+                    proteinSequence.setId(new TechId(sequence.getId()));
+                    String shortName = createShortName(number++);
+                    proteinSequence.setShortName(shortName);
+                    proteinSequence.setSequence(sequence.getSequence());
+                    long databaseID = sequence.getDatabaseID();
+                    proteinSequence.setDatabaseID(new TechId(databaseID));
+                    proteinSequence.setDatabaseNameAndVersion(sequence.getDatabaseNameAndVersion());
+                    proteinSequences.add(proteinSequence);
+                    databaseIDToShortNameMap.put(databaseID, shortName);
+                }
+            } finally
+            {
+                sequences.close();
+            }
+        } finally
+        {
+            getSpecificDAOFactory().returnProteinQueryDAOToPool(proteinQueryDAO);
         }
-        sequences.close();
     }
 
     private String createShortName(int number)
