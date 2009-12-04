@@ -68,7 +68,7 @@ public class LoginWidget extends VerticalPanel
     public LoginWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         setSpacing(10);
-
+        setBorders(false);
         add(new Text(viewContext.getMessage(Dict.LOGIN_INVITATION)));
         formPanel = createFormPanel();
         userField = createUserField(viewContext);
@@ -92,7 +92,6 @@ public class LoginWidget extends VerticalPanel
     private final static FormPanel createFormPanel()
     {
         final FormPanel formPanel = new FormPanel();
-        formPanel.setStyleName("login-widget");
         formPanel.setBodyBorder(false);
         formPanel.setBorders(false);
         formPanel.setHeaderVisible(false);
