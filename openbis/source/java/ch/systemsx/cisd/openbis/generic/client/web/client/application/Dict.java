@@ -829,5 +829,7 @@ public abstract class Dict
 
     public static final String INSERT_COLUMNS = "insert_columns";
 
+    public static final String OPENBIS_LOGO_TITLE = "openbis_logo_title";
+
     // ----- end generic ------------------
 }

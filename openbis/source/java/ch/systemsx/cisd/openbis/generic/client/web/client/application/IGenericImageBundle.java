@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.ImageBundle;
  * Note that this approach does not render correctly animated <i>gif</i> (no animation!).
  * </p>
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IGenericImageBundle extends ImageBundle
 {
@@ -33,6 +33,12 @@ public interface IGenericImageBundle extends ImageBundle
      * Returns CISD logo.
      */
     @Resource("cisd.jpg")
-    public AbstractImagePrototype getLogo();
+    public AbstractImagePrototype getCISDLogo();
+
+    /**
+     * Returns openBIS logo.
+     */
+    @Resource("openBIS_logo_229x100.png")
+    public AbstractImagePrototype getOpenBISLogo();
 
 }

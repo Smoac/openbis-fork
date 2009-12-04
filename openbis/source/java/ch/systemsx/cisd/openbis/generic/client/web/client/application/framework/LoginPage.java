@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import java.util.Date;
 
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -51,12 +52,12 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         // panel.
         DockPanel loginPanel = new DockPanel();
         loginPanel.add(loginWidget, DockPanel.CENTER);
-        Image cisdLogo = viewContext.getImageBundle().getLogo().createImage();
+        Anchor logo = createLogo(viewContext);
         final Widget footerPanel = createFooter(viewContext);
         final HTML welcomePanel = new HTML(viewContext.getMessage(Dict.WELCOME, new Date()));
         welcomePanel.setStyleName("login-welcome-text");
         final CellPanel northPanel = createNorthPanel();
-        northPanel.add(cisdLogo);
+        northPanel.add(logo);
         northPanel.add(welcomePanel);
         add(getBannersPage());
         add(northPanel);
@@ -64,6 +65,16 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         add(footerPanel);
         this.setCellVerticalAlignment(footerPanel, VerticalPanel.ALIGN_BOTTOM);
 
+    }
+
+    private Anchor createLogo(final IViewContext<ICommonClientServiceAsync> viewContext)
+    {
+        Image image = viewContext.getImageBundle().getOpenBISLogo().createImage();
+        image.setTitle(viewContext.getMessage(Dict.OPENBIS_LOGO_TITLE));
+        Anchor logo =
+                new Anchor(image.getElement().getString(), true,
+                        "http://www.cisd.ethz.ch/software/openBIS", "_blank");
+        return logo;
     }
 
     private final static CellPanel createNorthPanel()
