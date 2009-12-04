@@ -19,7 +19,7 @@ function create_individual_greeting_message {
 	if [ -f ~/config/openbis_instance.txt ]; then
 	   export OPENBIS_DICT=~/sprint/openBIS-server/apache-tomcat/webapps/openbis/common-dictionary.js
 	   export SERVER_INSTANCE_NAME=`cat ~/config/openbis_instance.txt`
-	   perl -pe 's/Welcome to openBIS/Welcome to $ENV{SERVER_INSTANCE_NAME} openBIS/' -i $OPENBIS_DICT
+	   perl -pe 's/openbis_instance:/openbis_instance: $ENV{SERVER_INSTANCE_NAME}/' -i $OPENBIS_DICT
 	fi
 }
 
