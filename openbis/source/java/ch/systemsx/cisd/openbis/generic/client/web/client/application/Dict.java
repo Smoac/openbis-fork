@@ -829,6 +829,5 @@ public abstract class Dict
 
     public static final String INSERT_COLUMNS = "insert_columns";
 
-
     // ----- end generic ------------------
 }

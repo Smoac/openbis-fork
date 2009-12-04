@@ -71,7 +71,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         // wait for the command which fetches URL content to finish
         remoteConsole.prepare(new WaitForAllActiveCallbacksFinish());
 
-        remoteConsole.finish(20000);
+        remoteConsole.finish(60000);
         client.onModuleLoad(controller);
     }
 

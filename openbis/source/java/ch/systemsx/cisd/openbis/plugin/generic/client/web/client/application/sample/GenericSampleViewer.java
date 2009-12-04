@@ -118,6 +118,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
             final IIdentifiable identifiable)
     {
         super(viewContext, createId(identifiable));
+        setLayout(new BorderLayout());
         this.sampleId = TechId.create(identifiable);
         extendToolBar();
         reloadAllData();
@@ -405,7 +406,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         {
             genericSampleViewer.updateOriginalData(result.getParent());
             genericSampleViewer.removeAll();
-            genericSampleViewer.setLayout(new BorderLayout());
             // Left panel
             final Component leftPanel = genericSampleViewer.createLeftPanel(result);
             genericSampleViewer.add(leftPanel, createLeftBorderLayoutData());

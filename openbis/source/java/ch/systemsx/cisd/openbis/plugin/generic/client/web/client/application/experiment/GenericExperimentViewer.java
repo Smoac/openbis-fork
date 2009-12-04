@@ -66,6 +66,7 @@ public final class GenericExperimentViewer extends
             final IIdentifiable identifiable)
     {
         super(viewContext, createId(identifiable));
+        setLayout(new BorderLayout());
         this.experimentId = TechId.create(identifiable);
         this.modificationObserver = new CompositeDatabaseModificationObserverWithMainObserver();
         extendToolBar();
@@ -165,7 +166,6 @@ public final class GenericExperimentViewer extends
         {
             genericExperimentViewer.updateOriginalData(result);
             genericExperimentViewer.removeAll();
-            genericExperimentViewer.setLayout(new BorderLayout());
 
             // Left panel
             final Component leftPanel = genericExperimentViewer.createLeftPanel(result, observer);

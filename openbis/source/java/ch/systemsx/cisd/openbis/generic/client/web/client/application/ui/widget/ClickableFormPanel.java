@@ -28,7 +28,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
  */
 public final class ClickableFormPanel extends FormPanel
 {
-    // FIXME: check clicking on panels
 
     public final void addClickListener(final ClickHandler handler)
     {

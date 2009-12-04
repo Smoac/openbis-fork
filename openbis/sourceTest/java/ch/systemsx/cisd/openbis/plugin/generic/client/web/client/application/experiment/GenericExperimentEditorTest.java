@@ -72,7 +72,7 @@ public class GenericExperimentEditorTest extends AbstractGWTTestCase
         CheckExperimentTable table = new CheckExperimentTable();
         table.expectedRow(new ExperimentRow(EXP1).withUserPropertyCell("description", description));
         remoteConsole.prepare(table);
-        launchTest(20 * SECOND);
+        launchTest(60 * SECOND);
     }
 
     public final void testEditExperimentProject()
@@ -87,7 +87,7 @@ public class GenericExperimentEditorTest extends AbstractGWTTestCase
         CheckExperimentTable table = new CheckExperimentTable();
         table.expectedRow(new ExperimentRow(experiment));
         remoteConsole.prepare(table);
-        launchTest(20 * SECOND);
+        launchTest(60 * SECOND);
     }
 
     private void prepareShowExperimentEditor(String group, final String project,

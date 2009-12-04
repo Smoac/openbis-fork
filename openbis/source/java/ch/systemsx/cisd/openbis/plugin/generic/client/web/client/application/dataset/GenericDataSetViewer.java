@@ -77,6 +77,7 @@ public final class GenericDataSetViewer extends
             final IIdentifiable identifiable)
     {
         super(viewContext, createId(identifiable));
+        setLayout(new BorderLayout());
         this.datasetId = TechId.create(identifiable);
         this.browseButtonHolder = new BrowseButtonHolder();
         extendToolBar();
@@ -186,7 +187,6 @@ public final class GenericDataSetViewer extends
         {
             genericDataSetViewer.updateOriginalData(result);
             genericDataSetViewer.removeAll();
-            genericDataSetViewer.setLayout(new BorderLayout());
 
             // Left panel
             final Component leftPanel = genericDataSetViewer.createLeftPanel(result);

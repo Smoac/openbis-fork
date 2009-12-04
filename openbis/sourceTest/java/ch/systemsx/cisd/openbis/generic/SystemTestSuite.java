@@ -66,6 +66,7 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(GenericSampleViewerTest.class);
         testSuite.addTestSuite(SearchTest.class);
         testSuite.addTestSuite(GenericSampleRegistrationTest.class);
+
         testSuite.addTestSuite(ExperimentBrowserTest.class);
         testSuite.addTestSuite(MaterialBrowserTest.class);
 

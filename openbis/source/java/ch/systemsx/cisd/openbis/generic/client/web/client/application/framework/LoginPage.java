@@ -18,14 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import java.util.Date;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.VerticalAlignment;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.VerticalPanel;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.google.gwt.user.client.ui.CellPanel;
+import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -38,45 +36,48 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWi
  * 
  * @author Christian Ribeaud
  */
-final class LoginPage extends LayoutContainer
+final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
 {
+    private static final int CELL_SPACING = 20;
 
     LoginPage(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        setStyleName("login-page");
-        setLayout(new CenterLayout());
-        final VerticalPanel verticalPanel = new VerticalPanel();
-        verticalPanel.setSpacing(30);
-        verticalPanel.setWidth(600);
-        verticalPanel.setHorizontalAlign(HorizontalAlignment.CENTER);
+        setSpacing(CELL_SPACING);
+        setWidth("100%");
+        this.setHeight("100%");
+        setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
+        final LoginWidget loginWidget = new LoginWidget(viewContext);
+        // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this
+        // panel.
+        DockPanel loginPanel = new DockPanel();
+        loginPanel.add(loginWidget, DockPanel.CENTER);
+        Image cisdLogo = viewContext.getImageBundle().getLogo().createImage();
+        final Widget footerPanel = createFooter(viewContext);
+        final HTML welcomePanel = new HTML(viewContext.getMessage(Dict.WELCOME, new Date()));
+        welcomePanel.setStyleName("login-welcome-text");
+        final CellPanel northPanel = createNorthPanel();
+        northPanel.add(cisdLogo);
+        northPanel.add(welcomePanel);
+        add(getBannersPage());
+        add(northPanel);
+        add(loginPanel);
+        add(footerPanel);
+        this.setCellVerticalAlignment(footerPanel, VerticalPanel.ALIGN_BOTTOM);
 
-        verticalPanel.add(getBannersPage());
+    }
 
-        final HorizontalPanel headerPanel = new HorizontalPanel();
-        headerPanel.setSpacing(10);
-        headerPanel.add(viewContext.getImageBundle().getLogo().createImage());
-
-        final Text welcomeLabel = new Text(viewContext.getMessage(Dict.WELCOME, new Date()));
-        welcomeLabel.setStyleName("login-welcome-text");
-
-        headerPanel.add(welcomeLabel);
-        verticalPanel.add(headerPanel);
-
-        verticalPanel.add(new HorizontalPanel());
-        verticalPanel.add(new LoginWidget(viewContext));
-        verticalPanel.add(createFooter(viewContext));
-        add(verticalPanel);
-
-        layout();
+    private final static CellPanel createNorthPanel()
+    {
+        HorizontalPanel horizontalPanel = new HorizontalPanel();
+        horizontalPanel.setSpacing(20);
+        return horizontalPanel;
     }
 
     private Widget createFooter(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         HorizontalPanel footer = new HorizontalPanel();
-        footer.setStyleName("login-help");
         final HTML html = new HTML("Click <a href='help.html' target='_blank'>here</a> for help.");
         footer.add(html);
-        footer.setVerticalAlign(VerticalAlignment.BOTTOM);
         return footer;
     }
 

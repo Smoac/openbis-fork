@@ -59,6 +59,7 @@ public final class ProjectViewer extends
             final TechId projectId)
     {
         super(viewContext, createId(projectId));
+        setLayout(new BorderLayout());
         this.projectId = projectId;
         this.modificationObserver = new CompositeDatabaseModificationObserver();
         reloadAllData();
@@ -105,7 +106,6 @@ public final class ProjectViewer extends
         @Override
         protected final void process(final Project result)
         {
-            viewer.setLayout(new BorderLayout());
             viewer.updateOriginalProject(result);
             viewer.removeAll();
             viewer.setScrollMode(Scroll.AUTO);

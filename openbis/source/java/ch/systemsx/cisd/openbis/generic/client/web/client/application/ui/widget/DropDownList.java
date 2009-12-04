@@ -109,6 +109,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
     public static <M extends ModelData> ListStore<M> createEmptyStoreWithContainsFilter(
             final ComboBox<M> comboBox)
     {
+
         StoreFilter<M> filter = new StoreFilter<M>()
             {
 
@@ -116,7 +117,9 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                 public boolean select(Store s, M parent, M item, String property)
                 {
                     String v = comboBox.getRawValue();
-                    if (StringUtils.isBlank(v))
+                    // FIXME: (workaround GXT2.1) only one option in the list when something
+                    // selected and trigger field clicked
+                    if (StringUtils.isBlank(v) || comboBox.getValue() != null)
                     {
                         return true;
                     }
@@ -130,13 +133,15 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                     }
                     return false;
                 }
+
             };
         ListStore<M> newStore = new ListStore<M>()
             {
+
                 @Override
                 public void filter(String property, String beginsWith)
                 {
-                    super.filter(property);
+                    super.filter(property, null);
                 }
             };
         newStore.addFilter(filter);

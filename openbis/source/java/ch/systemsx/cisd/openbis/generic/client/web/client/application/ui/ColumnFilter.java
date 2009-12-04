@@ -42,9 +42,9 @@ public class ColumnFilter<T extends ModelData> extends StoreFilterField<T>
     protected boolean doSelect(Store<T> store, T parent, T record, String property,
             String filterText)
     {
-        String name = record.get(column);
-        name = name.toLowerCase();
-        if (name.startsWith(filterText.toLowerCase()))
+        String columnValue = record.get(column);
+        columnValue = columnValue.toLowerCase();
+        if (columnValue.startsWith(filterText.toLowerCase()))
         {
             return true;
         }
