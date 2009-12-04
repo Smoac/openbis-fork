@@ -29,6 +29,12 @@ public interface IPhosphoNetXDAOFactory
     public IProteinQueryDAO getProteinQueryDAOFromPool();
 
     /**
+     * Retrieves a {@link IProteinQueryDAO} from the pool or <code>null</code> if none is currently 
+     * available.
+     */
+    public IProteinQueryDAO tryGetProteinQueryDAOFromPool();
+
+    /**
      * Returns the given <var>proteinQueryDAO</var> to the pool.
      */
     public void returnProteinQueryDAOToPool(IProteinQueryDAO proteinQueryDAO);

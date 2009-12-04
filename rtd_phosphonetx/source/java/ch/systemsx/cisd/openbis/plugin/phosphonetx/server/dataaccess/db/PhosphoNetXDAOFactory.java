@@ -86,6 +86,11 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
         }
     }
 
+    public IProteinQueryDAO tryGetProteinQueryDAOFromPool()
+    {
+        return availableProteinQueryObjects.poll();
+    }
+
     public void returnProteinQueryDAOToPool(IProteinQueryDAO proteinQueryDAO)
     {
         availableProteinQueryObjects.add(proteinQueryDAO);

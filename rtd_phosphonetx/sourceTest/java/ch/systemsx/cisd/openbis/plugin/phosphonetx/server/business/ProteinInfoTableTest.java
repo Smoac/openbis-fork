@@ -77,6 +77,8 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
                 {
                     allowing(specificDAOFactory).getProteinQueryDAOFromPool();
                     will(returnValue(proteinDAO));
+                    allowing(specificDAOFactory).tryGetProteinQueryDAOFromPool();
+                    will(returnValue(proteinDAO));
                     allowing(specificDAOFactory).returnProteinQueryDAOToPool(proteinDAO);
                 }
             });
