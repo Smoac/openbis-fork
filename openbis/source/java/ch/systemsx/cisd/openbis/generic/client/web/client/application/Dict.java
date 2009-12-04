@@ -36,6 +36,8 @@ public abstract class Dict
 
     public static final String APPLICATION_NAME = "applicationName";
 
+    public static final String OPENBIS_INSTANCE = "openbis_instance";
+
     public static final String WELCOME = "welcome";
 
     public static final String FOOTER = "footer";

@@ -2,7 +2,8 @@
 var common = {
 
   applicationName: "openBIS",
-  welcome: "",
+  welcome: "Welcome to openBIS",
+  openbis_instance: "",
   footer: "openBIS (Version {0})",
   openbis_logo_title: "openBIS",
   
