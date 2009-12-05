@@ -19,11 +19,13 @@ package ch.systemsx.cisd.common.parser;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -36,8 +38,9 @@ import ch.systemsx.cisd.common.parser.filter.AlwaysAcceptLineFilter;
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
 /**
- * Convenient class to load a tab file and deliver a list of beans of type <code>T</code>. The
- * following formats for the column headers are recognized.
+ * Convenient class to load (or iterate over) a tab file, a reader or a stream. The loader delivers
+ * either a list or an iterator of beans of type <code>T</code>. The following formats for the
+ * column headers are recognized.
  * <ol>
  * <li>Column headers in first line:
  * 
@@ -85,6 +88,34 @@ public class TabFileLoader<T>
     }
 
     /**
+     * Iterates over the data in the specified file.
+     * <p>
+     * The header can contain comments which are ignored. The column names can be the first
+     * uncommented line or the last commented line. The latter case is determined by the fact, that
+     * the one before the last line is a single hash.
+     * </p>
+     */
+    public Iterator<T> iterate(final File file) throws ParserException, ParsingException,
+            IllegalArgumentException
+    {
+        assert file != null : "Given file must not be null";
+        assert file.isFile() : "Given file '" + file.getAbsolutePath() + "' is not a file.";
+
+        FileReader reader = null;
+        try
+        {
+            reader = new FileReader(file);
+            return iterate(reader);
+        } catch (final IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
+        } finally
+        {
+            IOUtils.closeQuietly(reader);
+        }
+    }
+
+    /**
      * Loads from the specified tab file a list of objects of type <code>T</code>.
      * 
      * @throws IOExceptionUnchecked if a {@link IOException} has occurred.
@@ -110,6 +141,23 @@ public class TabFileLoader<T>
     }
 
     /**
+     * Iterates over the data in the specified reader.
+     * <p>
+     * The header can contain comments which are ignored. The column names can be the first
+     * uncommented line or the last commented line. The latter case is determined by the fact, that
+     * the one before the last line is a single hash.
+     * </p>
+     */
+    public Iterator<T> iterate(final Reader reader) throws ParserException, ParsingException,
+            IllegalArgumentException
+    {
+        assert reader != null : "Unspecified reader";
+
+        final Iterator<Line> lineIterator = createLineIterator(reader);
+        return iterate(lineIterator);
+    }
+
+    /**
      * Loads data from the specified reader.
      * <p>
      * The header can contain comments which are ignored. The column names can be the first
@@ -123,6 +171,57 @@ public class TabFileLoader<T>
         assert reader != null : "Unspecified reader";
 
         final Iterator<Line> lineIterator = createLineIterator(reader);
+        return load(lineIterator);
+    }
+
+    /**
+     * Iterates over the data in the specified stream.
+     * <p>
+     * The header can contain comments which are ignored. The column names can be the first
+     * uncommented line or the last commented line. The latter case is determined by the fact, that
+     * the one before the last line is a single hash.
+     * </p>
+     */
+    public Iterator<T> iterate(final InputStream stream) throws ParserException, ParsingException,
+            IllegalArgumentException
+    {
+        assert stream != null : "Unspecified stream";
+
+        try
+        {
+            final Iterator<Line> lineIterator = createLineIterator(stream);
+            return iterate(lineIterator);
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
+
+    /**
+     * Loads data from the specified stream.
+     * <p>
+     * The header can contain comments which are ignored. The column names can be the first
+     * uncommented line or the last commented line. The latter case is determined by the fact, that
+     * the one before the last line is a single hash.
+     * </p>
+     */
+    public List<T> load(final InputStream stream) throws ParserException, ParsingException,
+            IllegalArgumentException
+    {
+        assert stream != null : "Unspecified stream";
+
+        try
+        {
+            final Iterator<Line> lineIterator = createLineIterator(stream);
+            return load(lineIterator);
+        } catch (IOException ex)
+        {
+            throw new IOExceptionUnchecked(ex);
+        }
+    }
+
+    private List<T> load(final Iterator<Line> lineIterator)
+    {
         Line previousLine = null;
         Line line = null;
         boolean previousLineHasColumnHeaders = false;
@@ -164,6 +263,67 @@ public class TabFileLoader<T>
                 createContentIterator(firstContentLine, lineIterator, lastEmptyHeadersToSkip);
         final ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
         return parser.parse(contentLineIterator, filter, headerLength);
+    }
+
+    private Iterator<T> iterate(final Iterator<Line> lineIterator)
+    {
+        Line previousLine = null;
+        Line line = null;
+        boolean previousLineHasColumnHeaders = false;
+        while (lineIterator.hasNext())
+        {
+            previousLineHasColumnHeaders = (previousLine != null) && isComment(previousLine);
+            previousLine = line;
+            line = lineIterator.next();
+            if (startsWithComment(line) == false)
+            {
+                break;
+            }
+        }
+        if (line == null) // no lines present
+        {
+            return new Iterator<T>()
+                {
+                    public boolean hasNext()
+                    {
+                        return false;
+                    }
+
+                    public T next()
+                    {
+                        throw new NoSuchElementException();
+                    }
+
+                    public void remove()
+                    {
+                        throw new UnsupportedOperationException();
+                    }
+                };
+        }
+
+        final String headerLine;
+        if (previousLineHasColumnHeaders && (previousLine != null /* just for eclipse */))
+        {
+            headerLine = trimComment(previousLine);
+        } else
+        {
+            headerLine = line.getText();
+        }
+
+        final DefaultParser<T> parser = new DefaultParser<T>();
+        final String[] tokens = StringUtils.split(headerLine, TOKENS_SEPARATOR);
+        int lastEmptyHeadersToSkip = countLastEmptyTokens(headerLine);
+        final int headerLength = tokens.length;
+        notUnique(tokens);
+
+        final IPropertyMapper propertyMapper = new DefaultPropertyMapper(tokens);
+        parser.setObjectFactory(factory.createFactory(propertyMapper));
+
+        Line firstContentLine = previousLineHasColumnHeaders ? line : null;
+        Iterator<Line> contentLineIterator =
+                createContentIterator(firstContentLine, lineIterator, lastEmptyHeadersToSkip);
+        final ILineFilter filter = AlwaysAcceptLineFilter.INSTANCE;
+        return parser.parseIteratively(contentLineIterator, filter, headerLength);
     }
 
     private static boolean startsWithComment(Line line)
@@ -293,6 +453,13 @@ public class TabFileLoader<T>
     private Iterator<Line> createLineIterator(final Reader reader)
     {
         final LineIterator lineIterator = IOUtils.lineIterator(reader);
+        final Iterator<Line> iterator = new TabFileLineIterator(lineIterator);
+        return iterator;
+    }
+
+    private Iterator<Line> createLineIterator(final InputStream stream) throws IOException
+    {
+        final LineIterator lineIterator = IOUtils.lineIterator(stream, "UTF-8");
         final Iterator<Line> iterator = new TabFileLineIterator(lineIterator);
         return iterator;
     }

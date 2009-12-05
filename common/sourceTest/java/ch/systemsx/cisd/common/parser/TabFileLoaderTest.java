@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.*;
 
 import java.io.StringReader;
 import java.util.List;
@@ -116,6 +116,13 @@ public final class TabFileLoaderTest
         List<ABC> list = loader.load(new StringReader(""));
 
         assertEmptyResult(list);
+    }
+
+    @Test
+    public void testEmptyInputIteratively()
+    {
+        TabFileLoader<ABC> loader = new TabFileLoader<ABC>(new ABCFactoryFactory());
+        assertFalse(loader.iterate(new StringReader("")).hasNext());
     }
 
     @Test
