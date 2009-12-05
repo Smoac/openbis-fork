@@ -62,38 +62,85 @@ public class DefaultParser<E> implements IParser<E>
             final int headerLength) throws ParsingException
     {
         final List<E> elements = new ArrayList<E>();
-        synchronized (lineTokenizer)
+        lineTokenizer.init();
+        while (lineIterator.hasNext())
         {
-            lineTokenizer.init();
-            while (lineIterator.hasNext())
+            final Line line = lineIterator.next();
+            final String nextLine = line.getText();
+            final int number = line.getNumber();
+            if (lineFilter.acceptLine(nextLine, number))
             {
-                final Line line = lineIterator.next();
-                final String nextLine = line.getText();
-                final int number = line.getNumber();
-                if (lineFilter.acceptLine(nextLine, number))
+                E object = null;
+                String[] tokens = parseLine(number, nextLine, headerLength);
+                try
                 {
-                    E object = null;
+                    object = createObject(tokens);
+                } catch (final ParserException parserException)
+                {
+                    throw new ParsingException(parserException, tokens, number);
+                }
+                elements.add(object);
+            }
+        }
+        lineTokenizer.destroy();
+        return elements;
+    }
+
+    public final Iterator<E> parseIteratively(final Iterator<Line> lineIterator,
+            final ILineFilter lineFilter, final int headerLength)
+            throws ParsingException
+    {
+        lineTokenizer.init();
+        return new Iterator<E>()
+            {
+            Line currentLine;
+                
+                public boolean hasNext()
+                {
+                    boolean hasNext = lineIterator.hasNext();
+                    while (hasNext)
+                    {
+                        currentLine = lineIterator.next();
+                        if (lineFilter.acceptLine(currentLine.getText(), currentLine.getNumber()))
+                        {
+                            break;
+                        }
+                        hasNext = lineIterator.hasNext();
+                    }
+                    if (hasNext == false)
+                    {
+                        lineTokenizer.destroy();
+                    }
+                    return hasNext;
+                }
+
+                public E next()
+                {
+                    final String nextLine = currentLine.getText();
+                    final int number = currentLine.getNumber();
                     String[] tokens = parseLine(number, nextLine, headerLength);
                     try
                     {
-                        object = createObject(tokens);
+                        return createObject(tokens);
                     } catch (final ParserException parserException)
                     {
                         throw new ParsingException(parserException, tokens, number);
                     }
-                    elements.add(object);
                 }
-            }
-            lineTokenizer.destroy();
-            return elements;
-        }
+
+                public void remove()
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+            };
     }
 
     public final void setObjectFactory(final IParserObjectFactory<E> factory)
     {
         this.factory = factory;
     }
-    
+
     private String[] parseLine(final int lineNumber, final String nextLine, final int headerLength)
     {
         String[] tokens = lineTokenizer.tokenize(nextLine);

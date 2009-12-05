@@ -16,8 +16,7 @@
 
 package ch.systemsx.cisd.common.parser;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
+import static org.testng.AssertJUnit.*;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -38,15 +37,14 @@ public final class DefaultParserTest
                     "Albert\tEinstein\tNewton Road 1905\t4711 Princton");
 
     private final static List<String> textWithTab =
-        Arrays.asList("", "# This is a comment", "firstName\tlastName\taddress\tcity",
-                "Charles\tDarwin\tHumboldt Ave. 1865\t4242 Somewhere",
-        "Albert\t\tNewton Road 1905\t");
-    
+            Arrays.asList("", "# This is a comment", "firstName\tlastName\taddress\tcity",
+                    "Charles\tDarwin\tHumboldt Ave. 1865\t4242 Somewhere",
+                    "Albert\t\tNewton Road 1905\t");
+
     private final static List<String> textWithMissingLastCells =
-        Arrays.asList("", "# This is a comment", "firstName\tlastName\taddress\tcity",
-                "\tDarwin\tHumboldt Ave. 1865",
-        "Albert\tEinstein");
-    
+            Arrays.asList("", "# This is a comment", "firstName\tlastName\taddress\tcity",
+                    "\tDarwin\tHumboldt Ave. 1865", "Albert\tEinstein");
+
     private final static int HEADER_LENGTH = 4;
 
     private final static IParser<String[]> createParser()
@@ -70,6 +68,25 @@ public final class DefaultParserTest
     }
 
     @Test
+    public final void testParseIterativelyWithoutFactoryAndHeader()
+    {
+        final IParser<String[]> parser = createParser();
+        final Iterator<String[]> result =
+                parser.parseIteratively(createLineIterator(text), new HeaderLineFilter(),
+                        HEADER_LENGTH);
+        assertTrue(result.hasNext());
+        assertTrue(Arrays.equals(new String[]
+            { "firstName", "lastName", "address", "city" }, result.next()));
+        assertTrue(result.hasNext());
+        assertTrue(Arrays.equals(new String[]
+            { "Charles", "Darwin", "Humboldt Ave. 1865", "4242 Somewhere" }, result.next()));
+        assertTrue(result.hasNext());
+        assertTrue(Arrays.equals(new String[]
+            { "Albert", "Einstein", "Newton Road 1905", "4711 Princton" }, result.next()));
+        assertFalse(result.hasNext());
+    }
+
+    @Test
     public final void testParseWithoutFactoryWithLineFilter()
     {
         final IParser<String[]> parser = createParser();
@@ -79,26 +96,29 @@ public final class DefaultParserTest
         assertEquals(result.get(0)[0], "Charles");
         assertEquals(result.get(1)[1], "Einstein");
     }
-    
+
     @Test
     public final void testParseFileWithTabs()
     {
         final IParser<String[]> parser = createParser();
         final List<String[]> result =
-            parser.parse(createLineIterator(textWithTab), new HeaderLineFilter(), HEADER_LENGTH);
+                parser
+                        .parse(createLineIterator(textWithTab), new HeaderLineFilter(),
+                                HEADER_LENGTH);
         assertEquals(3, result.size());
         assertEquals("Albert", result.get(2)[0]);
         assertEquals("", result.get(2)[1]);
         assertEquals("Newton Road 1905", result.get(2)[2]);
         assertEquals("", result.get(2)[3]);
     }
-    
+
     @Test
     public final void testParseFileWithMissingLastCells()
     {
         final IParser<String[]> parser = createParser();
         final List<String[]> result =
-            parser.parse(createLineIterator(textWithMissingLastCells), new HeaderLineFilter(), HEADER_LENGTH);
+                parser.parse(createLineIterator(textWithMissingLastCells), new HeaderLineFilter(),
+                        HEADER_LENGTH);
         assertEquals(3, result.size());
         assertEquals("", result.get(1)[0]);
         assertEquals("Darwin", result.get(1)[1]);
