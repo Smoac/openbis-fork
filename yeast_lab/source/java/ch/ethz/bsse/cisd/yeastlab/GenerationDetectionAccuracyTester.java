@@ -28,14 +28,17 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.ethz.bsse.cisd.yeastlab.GenerationDetection.Cell;
+import ch.ethz.bsse.cisd.yeastlab.model.Cell;
 
 /**
+ * Generation detection algorithm extension testing algorithm accuracy given a set of correct
+ * child-parent connections (read from a file).
+ * 
  * @author Piotr Buczek
  */
 public class GenerationDetectionAccuracyTester
 {
-    // the right connections for data in pos2 file: <child id, parent id>
+    // the correct connections for data in pos2 file: <child id, parent id>
     public static Map<Integer, Integer> correctParents;
 
     static void loadCorrectParents(final File file)
