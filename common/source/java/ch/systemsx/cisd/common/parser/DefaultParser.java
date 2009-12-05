@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.parser;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import ch.systemsx.cisd.common.parser.filter.ILineFilter;
 
@@ -87,14 +88,13 @@ public class DefaultParser<E> implements IParser<E>
     }
 
     public final Iterator<E> parseIteratively(final Iterator<Line> lineIterator,
-            final ILineFilter lineFilter, final int headerLength)
-            throws ParsingException
+            final ILineFilter lineFilter, final int headerLength) throws ParsingException
     {
         lineTokenizer.init();
         return new Iterator<E>()
             {
-            Line currentLine;
-                
+                Line currentLine = null;
+
                 public boolean hasNext()
                 {
                     boolean hasNext = lineIterator.hasNext();
@@ -109,6 +109,7 @@ public class DefaultParser<E> implements IParser<E>
                     }
                     if (hasNext == false)
                     {
+                        currentLine = null;
                         lineTokenizer.destroy();
                     }
                     return hasNext;
@@ -116,8 +117,13 @@ public class DefaultParser<E> implements IParser<E>
 
                 public E next()
                 {
+                    if (currentLine == null && hasNext() == false)
+                    {
+                        throw new NoSuchElementException();
+                    }
                     final String nextLine = currentLine.getText();
                     final int number = currentLine.getNumber();
+                    currentLine = null;
                     String[] tokens = parseLine(number, nextLine, headerLength);
                     try
                     {
