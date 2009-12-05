@@ -19,6 +19,8 @@ package ch.systemsx.cisd.common.net.uniprot;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -27,7 +29,7 @@ import ch.systemsx.cisd.common.utilities.DateFormatThreadLocal;
 
 /**
  * A data transfer object for a Uniprot database entry.
- *
+ * 
  * @author Bernd Rinn
  */
 public class UniprotEntry
@@ -39,65 +41,75 @@ public class UniprotEntry
             new DateFormatThreadLocal(UNIPROT_DATE_FORMAT_PATTERN);
 
     private String citation;
-    
+
     private String comments;
-    
+
     private String database;
 
+    private String[] disease;
+
     private String domains;
-    
+
     private String domain;
-    
+
     private String ec;
-    
+
     private String id;
-    
+
     private String entryName;
-    
+
     private String existence;
-    
+
     private String families;
-    
+
     private String features;
-    
+
+    private String[] function;
+
     private String genes;
-    
+
     private String go;
-    
+
     private String goId;
-    
+
     private String interpro;
-    
+
     private String interactor;
-    
+
     private String keywords;
-    
+
     private Date lastModified;
-    
+
     private Integer length;
-    
+
     private String organism;
-    
+
     private String organismId;
-    
+
     private String pathway;
-    
+
     private String proteinNames;
-    
+
     private String status;
-    
+
     private String score;
-    
+
     private String sequence;
-    
-    private String threeD;
-    
+
+    private String[] sequenceSimilarities;
+
     private String subcellularLocations;
-    
+
+    private String[] subUnitStructure;
+
     private String taxon;
-    
+
+    private String threeD;
+
+    private String[] tissueSpecificity;
+
     private Integer version;
-    
+
     private String virusHosts;
 
     public String getCitation()
@@ -133,6 +145,43 @@ public class UniprotEntry
     public String getDomains()
     {
         return domains;
+    }
+
+    public String[] getDisease()
+    {
+        return disease;
+    }
+    
+    private static String toString(String[] array)
+    {
+        if (array == null)
+        {
+            return null;
+        }
+        if (array.length == 1)
+        {
+            return array[0];
+        }
+        final StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < array.length; ++i)
+        {
+            builder.append('(');
+            builder.append(i);
+            builder.append("): ");
+            builder.append(array[i]);
+            builder.append('\n');
+        }
+        return builder.toString();
+    }
+    
+    public String getDiseaseStr()
+    {
+        return toString(disease);
+    }
+
+    void setDisease(String[] disease)
+    {
+        this.disease = disease;
     }
 
     void setDomains(String domains)
@@ -213,6 +262,21 @@ public class UniprotEntry
     public String getGenes()
     {
         return genes;
+    }
+
+    public String[] getFunction()
+    {
+        return function;
+    }
+
+    public String getFunctionStr()
+    {
+        return toString(function);
+    }
+
+    void setFunction(String[] function)
+    {
+        this.function = function;
     }
 
     void setGenes(String genes)
@@ -395,6 +459,21 @@ public class UniprotEntry
         this.taxon = taxon;
     }
 
+    public String[] getTissueSpecificity()
+    {
+        return tissueSpecificity;
+    }
+
+    void setTissueSpecificity(String[] tissueSpecificity)
+    {
+        this.tissueSpecificity = tissueSpecificity;
+    }
+
+    public String getTissueSpecificityStr()
+    {
+        return toString(tissueSpecificity);
+    }
+    
     public Integer getVersion()
     {
         return version;
@@ -414,7 +493,69 @@ public class UniprotEntry
     {
         this.virusHosts = virusHosts;
     }
+
+    public String[] getSequenceSimilarities()
+    {
+        return sequenceSimilarities;
+    }
     
+    public String getSequenceSimilaritiesStr()
+    {
+        return toString(sequenceSimilarities);
+    }
+
+    void setSequenceSimilarities(String[] sequenceSimilarities)
+    {
+        this.sequenceSimilarities = sequenceSimilarities;
+    }
+
+    public String[] getSubUnitStructure()
+    {
+        return subUnitStructure;
+    }
+
+    public String getSubUnitStructureStr()
+    {
+        return toString(subUnitStructure);
+    }
+
+    void setSubUnitStructure(String[] subUnitStructure)
+    {
+        this.subUnitStructure = subUnitStructure;
+    }
+
+    private String[] parse(UniprotColumn column, String value)
+    {
+        if (StringUtils.isBlank(value) || column.getPrefix() == null)
+        {
+            return null;
+        }
+        final int prefixLength = column.getPrefix().length();
+        int oldIndex = 0;
+        int newIndex = value.indexOf(column.getPrefix(), oldIndex);
+        final List<Integer> indices = new LinkedList<Integer>();
+        while (newIndex >= 0)
+        {
+            indices.add(newIndex);
+            oldIndex = newIndex + prefixLength;
+            newIndex = value.indexOf(column.getPrefix(), oldIndex);
+        }
+        final String[] values = new String[indices.size()];
+        for (int i = 0; i < indices.size() - 1; ++i)
+        {
+            values[i] =
+                    StringUtils.trim(value.substring(indices.get(i) + prefixLength, indices
+                            .get(i + 1)));
+        }
+        if (indices.size() > 0)
+        {
+            values[indices.size() - 1] =
+                    StringUtils.trim(value
+                            .substring(indices.get(indices.size() - 1) + prefixLength));
+        }
+        return values;
+    }
+
     void set(UniprotColumn column, String value)
     {
         switch (column)
@@ -427,6 +568,9 @@ public class UniprotEntry
                 break;
             case DATABASE:
                 setDatabase(value);
+                break;
+            case DISEASE:
+                setDisease(parse(UniprotColumn.DISEASE, value));
                 break;
             case DOMAIN:
                 setDomain(value);
@@ -448,6 +592,9 @@ public class UniprotEntry
                 break;
             case FEATURES:
                 setFeatures(value);
+                break;
+            case FUNCTION:
+                setFunction(parse(UniprotColumn.FUNCTION, value));
                 break;
             case GENES:
                 setGenes(value);
@@ -506,14 +653,23 @@ public class UniprotEntry
             case SEQUENCE:
                 setSequence(value);
                 break;
+            case SEQUENCE_SIMILARITIES:
+                setSequenceSimilarities(parse(UniprotColumn.SEQUENCE_SIMILARITIES, value));
+                break;
             case STATUS:
                 setStatus(value);
                 break;
             case SUBCELLULAR_LOCATIONS:
                 setSubcellularLocations(value);
                 break;
+            case SUBUNIT_STRUCTURE:
+                setSubUnitStructure(parse(UniprotColumn.SUBUNIT_STRUCTURE, value));
+                break;
             case TAXON:
                 setTaxon(value);
+                break;
+            case TISSUE_SPECIFITY:
+                setTissueSpecificity(parse(UniprotColumn.TISSUE_SPECIFITY, value));
                 break;
             case THREED:
                 setThreeD(value);
@@ -527,8 +683,7 @@ public class UniprotEntry
             case VIRUS_HOSTS:
                 setVirusHosts(value);
                 break;
-            
         }
     }
-    
+
 }
