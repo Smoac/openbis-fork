@@ -21,5 +21,7 @@
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/fast-md5/fast-md5.jar" sourcepath="/libraries/fast-md5/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jython/jython.jar" sourcepath="/libraries/jython/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/commons-httpclient/commons-httpclient.jar" sourcepath="/libraries/commons-httpclient/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/commons-logging/commons-logging.jar" sourcepath="/libraries/commons-logging/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
