@@ -990,4 +990,13 @@ public interface ICommonServer extends IServer
     public void updateGridCustomColumn(
             String sessionToken,
             @AuthorizationGuard(guardClass = UpdateGridCustomColumnPredicate.class) IFilterOrColumnUpdates updates);
+
+    /**
+     * Updates vocabulary terms.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseUpdateModification(value = ObjectKind.VOCABULARY_TERM)
+    public void updateVocabularyTerms(String sessionToken, TechId vocabularyId,
+            List<VocabularyTerm> terms);
 }

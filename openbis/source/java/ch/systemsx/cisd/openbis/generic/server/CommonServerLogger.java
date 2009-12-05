@@ -800,4 +800,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logTracking(sessionToken, "keepSessionAlive", "TOKEN(%s)", sessionToken);
     }
 
+    public void updateVocabularyTerms(String sessionToken, TechId vocabularyId,
+            List<VocabularyTerm> terms)
+    {
+        logTracking(sessionToken, "update_vocabulary_terms", "VOCABULARY_TERMS(%s) VOCABULARY(%s)",
+                terms.size(), vocabularyId);
+    }
+
 }

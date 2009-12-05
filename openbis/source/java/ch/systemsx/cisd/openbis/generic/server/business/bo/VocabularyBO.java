@@ -17,21 +17,27 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DataRetrievalFailureException;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collections.IKeyExtractor;
 import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.KeyExtractorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
@@ -56,12 +62,27 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 public class VocabularyBO extends AbstractBusinessObject implements IVocabularyBO
 {
+    @Private
+    static final String UPDATING_CONTENT_OF_INTERNALLY_MANAGED_VOCABULARIES_IS_NOT_ALLOWED =
+            "Updating content of internally managed vocabularies is not allowed.";
+
+    private static final String UNSPECIFIED_VOCABULARY = "Unspecified vocabulary";
+
     private static final int MAX_NUMBER_OF_INVAID_TERMS_IN_ERROR_MESSAGE = 10;
+
     private VocabularyPE vocabularyPE;
 
     public VocabularyBO(final IDAOFactory daoFactory, final Session session)
     {
         super(daoFactory, session);
+    }
+
+    // For tests only
+    @Private
+    VocabularyBO(final IDAOFactory daoFactory, final Session session, VocabularyPE vocabulary)
+    {
+        super(daoFactory, session);
+        vocabularyPE = vocabulary;
     }
 
     //
@@ -87,7 +108,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
     public void addNewTerms(List<String> newTermCodes, Long previousTermOrdinal)
     {
-        assert vocabularyPE != null : "Unspecified vocabulary";
+        assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
         assert previousTermOrdinal != null : "Unspecified previous term ordinal";
         if (vocabularyPE.isManagedInternally())
         {
@@ -135,7 +156,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     public void delete(List<VocabularyTerm> termsToBeDeleted,
             List<VocabularyTermReplacement> termsToBeReplaced)
     {
-        assert vocabularyPE != null : "Unspecified vocabulary";
+        assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
         if (vocabularyPE.isManagedInternally())
         {
             throw new UserFailureException(
@@ -208,7 +229,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
     public void save() throws UserFailureException
     {
-        assert vocabularyPE != null : "Unspecified vocabulary";
+        assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
         try
         {
             StringBuilder builder = new StringBuilder();
@@ -230,7 +251,8 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
             if (builder.length() > 0)
             {
                 builder.insert(0, "Invalid terms:");
-                int additionalTerms = numberOfInvalidTerms - MAX_NUMBER_OF_INVAID_TERMS_IN_ERROR_MESSAGE;
+                int additionalTerms =
+                        numberOfInvalidTerms - MAX_NUMBER_OF_INVAID_TERMS_IN_ERROR_MESSAGE;
                 if (additionalTerms > 0)
                 {
                     builder.append("\n").append("and ").append(additionalTerms);
@@ -264,13 +286,13 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
     public final VocabularyPE getVocabulary()
     {
-        assert vocabularyPE != null : "Unspecified vocabulary";
+        assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
         return vocabularyPE;
     }
 
     public List<VocabularyTermWithStats> countTermsUsageStatistics()
     {
-        assert vocabularyPE != null : "Unspecified vocabulary";
+        assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
         enrichWithTerms();
         Set<VocabularyTermPE> terms = vocabularyPE.getTerms();
         return createTermsWithStatistics(terms);
@@ -350,4 +372,72 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     {
         return String.format("%s", vocabularyPE.getCode());
     }
+
+    public void updateTerms(List<VocabularyTerm> terms)
+    {
+        assert vocabularyPE != null : UNSPECIFIED_VOCABULARY;
+        if (vocabularyPE.isManagedInternally())
+        {
+            throw new UserFailureException(
+                    UPDATING_CONTENT_OF_INTERNALLY_MANAGED_VOCABULARIES_IS_NOT_ALLOWED);
+        }
+        checkAllTermsPresent(vocabularyPE.getTerms(), terms);
+        Map<String, VocabularyTerm> newTermsMap = prepareUpdateMap(terms);
+        updateExistingTermsAndRemoveFromMap(newTermsMap);
+        addNewTerms(newTermsMap);
+    }
+
+    private Map<String, VocabularyTerm> prepareUpdateMap(List<VocabularyTerm> terms)
+    {
+        Map<String, VocabularyTerm> newTermsMap = new HashMap<String, VocabularyTerm>();
+        for (VocabularyTerm v : terms)
+        {
+            newTermsMap.put(v.getCode(), v);
+        }
+        return newTermsMap;
+    }
+
+    private void updateExistingTermsAndRemoveFromMap(Map<String, VocabularyTerm> newTermsMap)
+    {
+        for (VocabularyTermPE oldTerm : vocabularyPE.getTerms())
+        {
+            String code = oldTerm.getCode();
+            VocabularyTerm update = newTermsMap.get(code);
+            oldTerm.setDescription(update.getDescription());
+            oldTerm.setLabel(update.getLabel());
+            oldTerm.setOrdinal(update.getOrdinal());
+            newTermsMap.remove(code);
+        }
+    }
+
+    private void addNewTerms(Map<String, VocabularyTerm> newTermsMap)
+    {
+        for (VocabularyTerm newTerm : newTermsMap.values())
+        {
+            addTerm(newTerm.getCode(), newTerm.getDescription(), newTerm.getLabel(), newTerm
+                    .getOrdinal());
+        }
+    }
+
+    private void checkAllTermsPresent(Set<VocabularyTermPE> oldTerms, List<VocabularyTerm> newTerms)
+    {
+        Collection<String> undetected = convert(oldTerms);
+        undetected.removeAll(convert(newTerms));
+        if (undetected.size() > 0)
+        {
+            throw new UserFailureException(String.format("Missing vocabulary terms: [%s]",
+                    StringUtils.join(undetected, ",")));
+        }
+    }
+
+    private <T extends ICodeProvider> Collection<String> convert(Collection<T> terms)
+    {
+        ArrayList<String> list = new ArrayList<String>();
+        for (ICodeProvider t : terms)
+        {
+            list.add(t.getCode());
+        }
+        return list;
+    }
+
 }

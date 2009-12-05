@@ -208,6 +208,8 @@ var common = {
   assigned_to: "Entity Type",
   type_of: "Entity",
   vocabulary: "Vocabulary",
+  button_edit_content: "Edit Content",
+  edit_content_title: "Edit Terms in Vocabulary {0}",
   vocabulary_terms: "Terms",
   vocabulary_terms_file_format: "<pre>code	label (optional)	description (optional)</pre>",
   vocabulary_terms_url_template: "URL Template",

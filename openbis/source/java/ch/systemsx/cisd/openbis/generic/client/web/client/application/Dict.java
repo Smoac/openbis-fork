@@ -833,5 +833,9 @@ public abstract class Dict
 
     public static final String OPENBIS_LOGO_TITLE = "openbis_logo_title";
 
+    public static final String BUTTON_EDIT_CONTENT = "button_edit_content";
+
+    public static final String EDIT_CONTENT_TITLE = "edit_content_title";
+
     // ----- end generic ------------------
 }

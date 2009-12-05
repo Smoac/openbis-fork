@@ -57,7 +57,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
 {
     private static final String SESSION_KEY_PREFIX = "sessionKey_";
 
-    private static final String SESSION_KEYS_NUMBER = "sessionKeysNumber";
+    public static final String SESSION_KEYS_NUMBER = "sessionKeysNumber";
 
     public static final String SAVE_BUTTON = "save-button";
 
@@ -284,7 +284,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         return createHiddenField(name, value);
     }
 
-    private static HiddenField<String> createHiddenField(String name, String value)
+    public static HiddenField<String> createHiddenField(String name, String value)
     {
         final HiddenField<String> hiddenField = new HiddenField<String>();
         hiddenField.setName(name);

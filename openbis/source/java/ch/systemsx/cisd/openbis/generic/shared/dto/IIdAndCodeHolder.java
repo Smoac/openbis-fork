@@ -16,19 +16,16 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
-
 
 /**
  * Read-only interface for beans with a (unique) business code as a string and a unique technical
  * ID.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
-public interface IIdAndCodeHolder extends IIdHolder
+public interface IIdAndCodeHolder extends IIdHolder, ICodeProvider
 {
-    /**
-     * Returns the business code of this instance.
-     */
-    public String getCode();
+
 }

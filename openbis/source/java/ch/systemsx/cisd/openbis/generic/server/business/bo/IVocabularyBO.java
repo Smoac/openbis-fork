@@ -94,4 +94,10 @@ public interface IVocabularyBO extends IEntityBusinessObject
      */
     void deleteByTechId(TechId vocabularyId, String reason);
 
+    /**
+     * Adds new terms, updates the details (label, description) of existing terms and updates the
+     * order.
+     */
+    void updateTerms(List<VocabularyTerm> terms);
+
 }

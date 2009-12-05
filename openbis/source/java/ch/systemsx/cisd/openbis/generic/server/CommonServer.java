@@ -1826,4 +1826,13 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         checkSession(sessionToken);
     }
 
+    public void updateVocabularyTerms(String sessionToken, TechId vocabularyId,
+            List<VocabularyTerm> terms)
+    {
+        Session session = getSession(sessionToken);
+        IVocabularyBO bo = getBusinessObjectFactory().createVocabularyBO(session);
+        bo.loadDataByTechId(vocabularyId);
+        bo.updateTerms(terms);
+        bo.save();
+    }
 }

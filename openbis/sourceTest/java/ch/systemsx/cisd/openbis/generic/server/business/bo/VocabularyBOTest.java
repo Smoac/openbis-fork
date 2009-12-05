@@ -21,7 +21,9 @@ import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.E
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -47,6 +49,28 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 @Friend(toClasses = VocabularyBO.class)
 public final class VocabularyBOTest extends AbstractBOTest
 {
+    private static final String DESC_D = "desc_d";
+
+    private static final String DESC_C = "desc_c";
+
+    private static final String DESC_B = "desc_b";
+
+    private static final String DESC_A = "desc_a";
+
+    private static final String LABEL_C = "label_c";
+
+    private static final String LABEL_D = "label_d";
+
+    private static final String LABEL_B = "label_B";
+
+    private static final String LABEL_A = "label_A";
+
+    private static final String WHITE = "WHITE";
+
+    private static final String YELLOW = "YELLOW";
+
+    private static final String RED = "RED";
+
     static final String VOCABULARY_CODE = "USER.COLOR";
 
     static final String VOCABULARY_DESCRIPTION = "Some predefined colors";
@@ -54,6 +78,11 @@ public final class VocabularyBOTest extends AbstractBOTest
     private final VocabularyBO createVocabularyBO()
     {
         return new VocabularyBO(daoFactory, EXAMPLE_SESSION);
+    }
+
+    private final VocabularyBO createVocabularyBO(VocabularyPE vocabulary)
+    {
+        return new VocabularyBO(daoFactory, EXAMPLE_SESSION, vocabulary);
     }
 
     static final NewVocabulary createVocabulary()
@@ -68,9 +97,9 @@ public final class VocabularyBOTest extends AbstractBOTest
     final static List<VocabularyTerm> createTerms()
     {
         final List<VocabularyTerm> terms = new ArrayList<VocabularyTerm>();
-        terms.add(createVocabularyTerm("RED"));
-        terms.add(createVocabularyTerm("YELLOW"));
-        terms.add(createVocabularyTerm("WHITE"));
+        terms.add(createVocabularyTerm(RED));
+        terms.add(createVocabularyTerm(YELLOW));
+        terms.add(createVocabularyTerm(WHITE));
         return terms;
     }
 
@@ -206,7 +235,8 @@ public final class VocabularyBOTest extends AbstractBOTest
                     one(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
 
-                    exactly(3).of(vocabularyTermDAO).validate(with(aNonNull(VocabularyTermPE.class)));
+                    exactly(3).of(vocabularyTermDAO).validate(
+                            with(aNonNull(VocabularyTermPE.class)));
                     will(throwException(new DataIntegrityViolationException(null)));
                 }
             });
@@ -494,10 +524,188 @@ public final class VocabularyBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testUpdateTermsMissing() throws Exception
+    {
+        VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.setManagedInternally(false);
+        String commonCode = YELLOW;
+        vocabulary.setTerms(Arrays.asList(createTermPE(RED), createTermPE(commonCode),
+                createTermPE(WHITE)));
+        VocabularyBO bo = createVocabularyBO(vocabulary);
+        boolean exceptionThrown = false;
+        try
+        {
+            bo.updateTerms(Arrays.asList(createTerm(commonCode)));
+        } catch (UserFailureException ex)
+        {
+            exceptionThrown = true;
+            assertTrue(ex.getMessage().contains("Missing vocabulary terms"));
+            assertTrue(ex.getMessage().contains(RED));
+            assertTrue(ex.getMessage().contains(WHITE));
+        }
+
+        assertTrue(exceptionThrown);
+    }
+
+    @Test
+    public void testUpdateTermsInternalVocabulary() throws Exception
+    {
+        VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.setManagedInternally(true);
+        VocabularyBO bo = createVocabularyBO(vocabulary);
+        boolean exceptionThrown = false;
+        try
+        {
+            bo.updateTerms(new ArrayList<VocabularyTerm>());
+        } catch (UserFailureException ex)
+        {
+            exceptionThrown = true;
+            assertEquals(
+                    VocabularyBO.UPDATING_CONTENT_OF_INTERNALLY_MANAGED_VOCABULARIES_IS_NOT_ALLOWED,
+                    ex.getMessage());
+        }
+
+        assertTrue(exceptionThrown);
+    }
+
+    @Test
+    public void testUpdateTermsAddNew() throws Exception
+    {
+        VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.setManagedInternally(false);
+        vocabulary.setTerms(Arrays.asList(createTermPE(RED, 1)));
+        VocabularyBO bo = createVocabularyBO(vocabulary);
+        bo.updateTerms(Arrays.asList(createTerm(RED, 1), createTerm(WHITE, 2),
+                createTerm(YELLOW, 3)));
+        List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
+
+        assertEquals(RED, sorted.get(0).getCode());
+        assertEquals(WHITE, sorted.get(1).getCode());
+        assertEquals(YELLOW, sorted.get(2).getCode());
+    }
+
+    @Test
+    public void testUpdateTermsChangeOrder() throws Exception
+    {
+        VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.setManagedInternally(false);
+        vocabulary.setTerms(Arrays.asList(createTermPE(RED, 1), createTermPE(WHITE, 2),
+                createTermPE(YELLOW, 3)));
+        VocabularyBO bo = createVocabularyBO(vocabulary);
+        bo.updateTerms(Arrays.asList(createTerm(WHITE, 1), createTerm(YELLOW, 2),
+                createTerm(RED, 3)));
+        List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
+
+        assertEquals(WHITE, sorted.get(0).getCode());
+        assertEquals(YELLOW, sorted.get(1).getCode());
+        assertEquals(RED, sorted.get(2).getCode());
+    }
+
+    @Test
+    public void testUpdateTermsChangeLabel() throws Exception
+    {
+        VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.setManagedInternally(false);
+        vocabulary.setTerms(Arrays.asList(createTermPEWithLabel(RED, LABEL_A, 1),
+                createTermPEWithLabel(WHITE, LABEL_B, 2)));
+        VocabularyBO bo = createVocabularyBO(vocabulary);
+        bo.updateTerms(Arrays.asList(createTermWithLabel(RED, LABEL_C, 1), createTermWithLabel(
+                WHITE, LABEL_D, 2)));
+        List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
+
+        assertEquals(RED, sorted.get(0).getCode());
+        assertEquals(WHITE, sorted.get(1).getCode());
+
+        assertEquals(LABEL_C, sorted.get(0).getLabel());
+        assertEquals(LABEL_D, sorted.get(1).getLabel());
+    }
+
+    @Test
+    public void testUpdateTermsChangeDescription() throws Exception
+    {
+        VocabularyPE vocabulary = new VocabularyPE();
+        vocabulary.setManagedInternally(false);
+        vocabulary.setTerms(Arrays.asList(createTermPEWithDesc(RED, DESC_A, 1),
+                createTermPEWithDesc(WHITE, DESC_B, 1)));
+        VocabularyBO bo = createVocabularyBO(vocabulary);
+        bo.updateTerms(Arrays.asList(createTermWithDescription(RED, DESC_C, 1),
+                createTermWithDescription(WHITE, DESC_D, 2)));
+        List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
+
+        assertEquals(RED, sorted.get(0).getCode());
+        assertEquals(WHITE, sorted.get(1).getCode());
+
+        assertEquals(DESC_C, sorted.get(0).getDescription());
+        assertEquals(DESC_D, sorted.get(1).getDescription());
+    }
+
+    private VocabularyTerm createTermWithDescription(String code, String desc, int ordinal)
+    {
+        VocabularyTerm term = createTerm(code, ordinal);
+        term.setDescription(desc);
+        return term;
+    }
+
+    private VocabularyTerm createTermWithLabel(String code, String label, int ordinal)
+    {
+        VocabularyTerm term = createTerm(code, ordinal);
+        term.setLabel(label);
+        return term;
+    }
+
+    private VocabularyTermPE createTermPEWithLabel(String code, String label, int ordinal)
+    {
+        VocabularyTermPE term = createTermPE(code, ordinal);
+        term.setLabel(label);
+        return term;
+    }
+
+    private VocabularyTermPE createTermPEWithDesc(String code, String desc, int ordinal)
+    {
+        VocabularyTermPE term = createTermPE(code, ordinal);
+        term.setDescription(desc);
+        return term;
+    }
+
+    private List<VocabularyTermPE> sortByOrdinal(Set<VocabularyTermPE> terms)
+    {
+        List<VocabularyTermPE> sorted = new ArrayList<VocabularyTermPE>(terms);
+        Collections.sort(sorted, new Comparator<VocabularyTermPE>()
+            {
+                public int compare(VocabularyTermPE o1, VocabularyTermPE o2)
+                {
+                    return o1.getOrdinal().compareTo(o2.getOrdinal());
+                }
+            });
+        return sorted;
+    }
+
+    private VocabularyTermPE createTermPE(String code, int ordinal)
+    {
+        VocabularyTermPE term = createTermPE(code);
+        term.setOrdinal((long) ordinal);
+        return term;
+    }
+
+    private VocabularyTermPE createTermPE(String code)
+    {
+        VocabularyTermPE term = new VocabularyTermPE();
+        term.setCode(code);
+        return term;
+    }
+
     private VocabularyTerm createTerm(String code)
     {
         VocabularyTerm vocabularyTerm = new VocabularyTerm();
         vocabularyTerm.setCode(code);
+        return vocabularyTerm;
+    }
+
+    private VocabularyTerm createTerm(String code, int ordinal)
+    {
+        VocabularyTerm vocabularyTerm = createTerm(code);
+        vocabularyTerm.setOrdinal((long) ordinal);
         return vocabularyTerm;
     }
 

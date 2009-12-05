@@ -68,6 +68,8 @@ abstract public class AbstractSaveDialog extends Window
 
     protected final FormPanel form;
 
+    protected Button saveButton;
+
     public AbstractSaveDialog(final IViewContext<?> viewContext, String title,
             final IDelegatedAction postSaveCallback)
     {
@@ -83,7 +85,7 @@ abstract public class AbstractSaveDialog extends Window
         form.setFieldWidth(FIELD_WIDTH);
         add(form);
 
-        addButton(createSaveButton());
+        addButton(saveButton = createSaveButton());
         addButton(createCancelButton());
     }
 
