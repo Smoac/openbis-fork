@@ -19,7 +19,6 @@ package ch.systemsx.cisd.common.net.uniprot;
 import static ch.systemsx.cisd.common.net.uniprot.UniprotColumn.ENTRY_NAME;
 import static ch.systemsx.cisd.common.net.uniprot.UniprotColumn.EXISTENCE;
 import static ch.systemsx.cisd.common.net.uniprot.UniprotColumn.GENES;
-import static ch.systemsx.cisd.common.net.uniprot.UniprotColumn.ID;
 import static ch.systemsx.cisd.common.net.uniprot.UniprotColumn.LAST_MODIFIED;
 import static ch.systemsx.cisd.common.net.uniprot.UniprotColumn.LENGTH;
 import static ch.systemsx.cisd.common.net.uniprot.UniprotColumn.SEQUENCE;
@@ -79,16 +78,6 @@ public class UniprotQueryTest
             assertTrue(Integer.toString(entry.getVersion()), entry.getVersion() >= 63);
             assertTrue(entry.getLastModifiedStr(),
                     entry.getLastModified().getTime() >= REFERENCE_DATE.getTime());
-            System.out.println(ID.name() + ": " + entry.getId());
-            System.out.println(ENTRY_NAME.name() + ": " + entry.getEntryName());
-            System.out.println(GENES.name() + ": " + entry.getGenes());
-            System.out.println(EXISTENCE.name() + ": " + entry.getExistence());
-            System.out.println(STATUS.name() + ": " + entry.getStatus());
-            System.out.println(LENGTH.name() + ": " + entry.getLength());
-            System.out.println(SEQUENCE.name() + ": " + entry.getSequence());
-            System.out.println(VERSION.name() + ": " + entry.getVersion());
-            System.out.println(LAST_MODIFIED.name() + ": " + entry.getLastModifiedStr());
-            System.out.println();
         }
         assertEquals(1, count);
     }
