@@ -105,12 +105,16 @@ public interface IUserDAO
     public void refreshQuotaInformation(UserDTO user) throws DataAccessException;
 
     /**
-     * Deletes the user with the given <code>userId</code> from the database.
+     * Deletes the given <var>user</var> from the database. The <var>requestUserIdOrNull</var> is
+     * the id of the user who requests the deletion, if any. It will be <code>null</code> for any
+     * expired user that is deleted by a backend process. The user denoted by
+     * <var>requestUserIdOrNull</var> will be the new owner of all files and users that the user to
+     * be deleted owns, <i>if</i> the user to be deleted has no registrator.
      * 
-     * @return <code>true</code>, if the user was actually deleted and <code>false</code>, if no
-     *         user was found with that id.
+     * @return <code>true</code>, if the user was actually deleted and <code>false</code>, if the
+     *         <var>user</var> was not found in the database.
      */
-    public boolean deleteUser(long userId) throws DataAccessException;
+    public boolean deleteUser(UserDTO user, Long requestUserIdOrNull) throws DataAccessException;
 
     /** Returns a list of expired users. */
     public List<UserDTO> listExpiredUsers();

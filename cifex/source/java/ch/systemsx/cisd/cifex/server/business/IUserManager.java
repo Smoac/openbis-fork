@@ -119,7 +119,7 @@ public interface IUserManager
      *             the database.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void deleteUser(String userCode) throws UserFailureException;
+    public void deleteUser(String userCode, UserDTO requestUser) throws UserFailureException;
 
     /**
      * Updates the fields of the specified user, providing the old user for comparison. Compared to

@@ -227,7 +227,7 @@ class UserManager extends AbstractManager implements IUserManager
         {
             try
             {
-                final boolean success = userDAO.deleteUser(user.getID());
+                final boolean success = userDAO.deleteUser(user, null);
                 if (success)
                 {
                     businessContext.getUserSessionInvalidator().invalidateSessionWithUser(user);
@@ -256,7 +256,8 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final void deleteUser(final String userCode) throws UserFailureException
+    public final void deleteUser(final String userCode, final UserDTO requestUser)
+            throws UserFailureException
     {
         assert userCode != null : "userCode is null";
 
@@ -268,7 +269,7 @@ class UserManager extends AbstractManager implements IUserManager
             userOrNull = userDAO.tryFindUserByCode(userCode);
             if (userOrNull != null)
             {
-                success = userDAO.deleteUser(userOrNull.getID());
+                success = userDAO.deleteUser(userOrNull, requestUser.getID());
                 if (success)
                 {
                     if (operationLog.isInfoEnabled())
@@ -357,9 +358,11 @@ class UserManager extends AbstractManager implements IUserManager
 
             // If we switch a temporary user to permanent and the registrator of the user is no
             // administrator, make the current request user the new registrator.
-            if (oldUserToUpdateOrNull != null && oldUserToUpdateOrNull.isPermanent() == false
-                    && userToUpdate.isPermanent() && userToUpdate.getRegistrator() != null
-                    && userToUpdate.getRegistrator().isAdmin() == false)
+            // Same is true when the user doesn't yet have a registrator.
+            if ((oldUserToUpdateOrNull != null && oldUserToUpdateOrNull.isPermanent() == false
+                    && userToUpdate.isPermanent() && userToUpdate.getRegistrator() != null && userToUpdate
+                    .getRegistrator().isAdmin() == false)
+                    || userToUpdate.getRegistrator() == null)
             {
                 userToUpdate.setRegistrator(requestUserOrNull);
             }

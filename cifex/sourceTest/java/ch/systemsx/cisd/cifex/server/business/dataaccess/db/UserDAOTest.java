@@ -65,6 +65,10 @@ public final class UserDAOTest extends AbstractDAOTest
             createUser(false, false, "tempuser", "someuser@somewhereelse.edu", testPermanentUser,
                     EXAMPLE_FILE_RETENTION);
 
+    final static UserDTO nonExistingUser =
+            createUser(true, false, "nouser", "nouser@systemsx.ch", testAdminUser,
+                    EXAMPLE_FILE_RETENTION_ADMIN);
+
     final static String getTestUserName()
     {
         return "bneff";
@@ -367,14 +371,31 @@ public final class UserDAOTest extends AbstractDAOTest
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
 
+        assertFalse(userDAO.deleteUser(nonExistingUser, null));
+
+        try
+        {
+            userDAO.deleteUser(testAdminUser, null);
+            fail("didn't detect that deleting the user would violate a fk constraint");
+        } catch (DataIntegrityViolationException ex)
+        {
+            // Expected cannot delete a user that still own other users.
+        }
+    }
+
+    @Test(dependsOnGroups =
+        { "user.delete" }, groups =
+        { "user.delete2" })
+    public final void testDeleteUser2()
+    {
+        final IUserDAO userDAO = daoFactory.getUserDAO();
+
         final List<UserDTO> listUsers = userDAO.listUsers();
 
-        assertFalse(userDAO.deleteUser(-1));
-
-        assertTrue(userDAO.deleteUser(testAdminUser.getID()));
+        assertTrue(userDAO.deleteUser(testAdminUser, testPermanentUser.getID()));
         assertEquals(listUsers.size() - 1, userDAO.listUsers().size());
-
-        assertTrue(userDAO.deleteUser(testTemporaryUser.getID()));
+        
+        assertTrue(userDAO.deleteUser(testTemporaryUser, null));
         assertEquals(listUsers.size() - 2, userDAO.listUsers().size());
     }
 

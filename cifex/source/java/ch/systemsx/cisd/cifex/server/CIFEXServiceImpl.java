@@ -422,7 +422,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         checkUpdateOfUserIsAllowed(user, user);
         try
         {
-            domainModel.getUserManager().deleteUser(code);
+            domainModel.getUserManager().deleteUser(code, privGetCurrentUser());
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
         {
             throw new UserNotFoundException(ex.getMessage());

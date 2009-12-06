@@ -416,10 +416,24 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
-    public boolean deleteUser(final long userId)
+    public boolean deleteUser(final UserDTO user, final Long requestUserIdOrNull)
     {
+        assert user != null;
+
+        final Long registratorIdOrNull = tryGetRegistratorId(user);
+        final Long newOwnerIdOrNull =
+                (registratorIdOrNull == null) ? requestUserIdOrNull : registratorIdOrNull;
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        final int affectedRows = template.update("delete from users where id = ?", userId);
+        if (newOwnerIdOrNull != null)
+        {
+            // Set new owner for owned users and files.
+            template.update(
+                    "update users set user_id_registrator = ? where user_id_registrator = ?",
+                    newOwnerIdOrNull, user.getID());
+            template.update("update files set user_id = ? where user_id = ?", newOwnerIdOrNull,
+                    user.getID());
+        }
+        final int affectedRows = template.update("delete from users where id = ?", user.getID());
         return affectedRows > 0;
     }
 

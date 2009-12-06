@@ -126,7 +126,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(expiredUsers));
                     allowing(businessContext).getUserActionLog();
                     will(returnValue(new DummyUserActionLog()));
-                    exactly(numberOfExpiredUsers).of(userDAO).deleteUser(userAlice.getID());
+                    exactly(numberOfExpiredUsers).of(userDAO).deleteUser(userAlice, null);
                     will(returnValue(true));
                     exactly(numberOfExpiredUsers).of(businessContext).getUserSessionInvalidator();
                     will(returnValue(userSessionInvalidator));
@@ -375,7 +375,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(new DummyUserActionLog()));
                     if (user != null)
                     {
-                        one(userDAO).deleteUser(user.getID());
+                        one(userDAO).deleteUser(user, null);
                         will(returnValue(true));
                         one(businessContext).getUserSessionInvalidator();
                         will(returnValue(userSessionInvalidator));
@@ -384,7 +384,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
                 }
             });
-        userManager.deleteUser(userCode);
+        userManager.deleteUser(userCode, new UserDTO());
         context.assertIsSatisfied();
     }
 
@@ -402,6 +402,6 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(null));
                 }
             });
-        userManager.deleteUser(userCode);
+        userManager.deleteUser(userCode, null);
     }
 }
