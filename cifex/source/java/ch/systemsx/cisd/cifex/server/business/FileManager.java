@@ -316,7 +316,7 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             return true;
         }
-        if (userDTO.getID().equals(fileDTO.getRegistratorId()))
+        if (userDTO.getID().equals(fileDTO.getOwnerId()))
         {
             return true;
         }
@@ -486,7 +486,7 @@ final class FileManager extends AbstractManager implements IFileManager
     public void updateUploadProgress(FileDTO fileDTO)
     {
         daoFactory.getFileDAO().updateFileUploadProgress(fileDTO.getID(), fileDTO.getSize(),
-                fileDTO.getCrc32Value(), calculateExpirationDate(fileDTO.getRegistrator()));
+                fileDTO.getCrc32Value(), calculateExpirationDate(fileDTO.getOwner()));
     }
 
     @Transactional
@@ -546,7 +546,7 @@ final class FileManager extends AbstractManager implements IFileManager
     {
         for (FileDTO file : files)
         {
-            file.setRegistrator(requestUser);
+            file.setOwner(requestUser);
         }
     }
 
@@ -808,7 +808,7 @@ final class FileManager extends AbstractManager implements IFileManager
         boolean success = false;
         try
         {
-            file.setExpirationDate(calculateExpirationDate(file.getRegistrator()));
+            file.setExpirationDate(calculateExpirationDate(file.getOwner()));
             daoFactory.getFileDAO().updateFile(file);
             success = true;
         } finally

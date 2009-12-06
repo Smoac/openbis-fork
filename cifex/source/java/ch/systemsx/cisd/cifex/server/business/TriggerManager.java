@@ -124,7 +124,7 @@ class TriggerManager implements ITriggerManager
                 {
                     continue;
                 }
-                if (userIdOrNull != null && userIdOrNull != fileDTO.getRegistratorId())
+                if (userIdOrNull != null && userIdOrNull != fileDTO.getOwnerId())
                 {
                     continue;
                 }
@@ -221,17 +221,17 @@ class TriggerManager implements ITriggerManager
 
         public String getUploadingUserEmail()
         {
-            return fileDTO.getRegistrator().getEmail();
+            return fileDTO.getOwner().getEmail();
         }
 
         public String getUploadingUserId()
         {
-            return fileDTO.getRegistrator().getUserCode();
+            return fileDTO.getOwner().getUserCode();
         }
 
         public String getUploadingUserFullName()
         {
-            return fileDTO.getRegistrator().getUserFullName();
+            return fileDTO.getOwner().getUserFullName();
         }
 
         public long getFileID()
@@ -516,7 +516,7 @@ class TriggerManager implements ITriggerManager
         final TriggerDescription triggerDesc = triggerMap.get(triggerUser.getUserCode());
         final ITrigger trigger = triggerDesc.getTrigger();
         final TriggerConsole console =
-                new TriggerConsole(trigger, fileManager, request, fileDTO.getRegistrator(),
+                new TriggerConsole(trigger, fileManager, request, fileDTO.getOwner(),
                         triggerUser);
         if (triggerDesc.isAsync())
         {

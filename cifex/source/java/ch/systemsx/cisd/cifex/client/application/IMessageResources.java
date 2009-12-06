@@ -222,8 +222,8 @@ public interface IMessageResources extends Messages {
 	@Key(value = "file.registrationdate.label")
 	public String getFileRegistrationDateLabel();
 
-	/** Returns the label of the file registerer column. */
-	@Key(value = "file.registrator.label")
+	/** Returns the label of the file owner column. */
+	@Key(value = "file.owner.label")
 	public String getFileRegistratorLabel();
 
 	/** Returns the label of the file "shared with" column. */

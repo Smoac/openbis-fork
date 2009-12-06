@@ -55,9 +55,12 @@ public class FileInfoDTO implements IsSerializable, Serializable
     private Integer crc32Value;
 
     /**
-     * Person who registered the file.
+     * Person who owns (controls) the file.
      */
-    private BasicUserInfoDTO registrator;
+    private BasicUserInfoDTO owner;
+
+    /** User code of the person who (originally) registered the file. */
+    private String registratorCode;
 
     /**
      * Date at which file has been registered.
@@ -102,14 +105,24 @@ public class FileInfoDTO implements IsSerializable, Serializable
         this.name = name;
     }
 
-    public final BasicUserInfoDTO getRegistrator()
+    public final BasicUserInfoDTO getOwner()
     {
-        return registrator;
+        return owner;
     }
 
-    public final void setRegistrator(final BasicUserInfoDTO registerer)
+    public final void setOwner(final BasicUserInfoDTO registerer)
     {
-        this.registrator = registerer;
+        this.owner = registerer;
+    }
+
+    public final String getRegistratorCode()
+    {
+        return registratorCode;
+    }
+
+    public final void setRegistratorCode(String registratorCode)
+    {
+        this.registratorCode = registratorCode;
     }
 
     public final Date getRegistrationDate()

@@ -35,8 +35,9 @@ CREATE TRIGGER UPDATE_ACCOUNTING_ON_UPDATE_FILE AFTER UPDATE ON FILES
 -------------------------------------------------------------------------------------------
 --  Purpose:  Create trigger for creating and setting a new quota_group if none is provided
 -------------------------------------------------------------------------------------------
-CREATE TRIGGER UPDATE_QUOTA_GROUP_ID_ON_INSERT BEFORE INSERT ON USERS
-	FOR EACH ROW CALL "ch.systemsx.cisd.cifex.server.business.dataaccess.db.h2.UpdateQuotaGroupOnInsertUserTrigger";
+-- Replaced by UPDATE_QUOTA_GROUP_ID_ON_INSERT_UPDATE_USER in 011
+-- CREATE TRIGGER UPDATE_QUOTA_GROUP_ID_ON_INSERT BEFORE INSERT ON USERS
+-- 	FOR EACH ROW CALL "ch.systemsx.cisd.cifex.server.business.dataaccess.db.h2.UpdateQuotaGroupOnInsertUserTrigger";
     
 -------------------------------------------------------------------------------------------
 --  Purpose:  Create trigger for deleting a quota group when its last user is deleted

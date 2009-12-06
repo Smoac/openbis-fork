@@ -311,7 +311,7 @@ public class FileDownloadClientModel extends AbstractTableModel
             case FILE_DETAILS_COLUMN:
                 return fileDownloadInfo.fileInfoDTO;
             case SENDER_COLUMN:
-                return fileDownloadInfo.fileInfoDTO.getRegistrator();                
+                return fileDownloadInfo.fileInfoDTO.getOwner();                
             case COMMENT_COLUMN:
                 return fileDownloadInfo.fileInfoDTO.getComment();
             case SENT_DATE_COLUMN:

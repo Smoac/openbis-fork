@@ -760,7 +760,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         assertTrue(createdFile.exists());
         assertEquals(expectedFilePath.getPath(), createdFile.getPath());
         assertEquals(imageFile.getContentType(), createdFileDTO.getContentType());
-        assertEquals(imageFile.getRegistratorId(), createdFileDTO.getRegistratorId());
+        assertEquals(imageFile.getOwnerId(), createdFileDTO.getOwnerId());
         assertEquals(imageFile.getSharingUsers(), createdFileDTO.getSharingUsers());
         assertEquals(imageFile.getName(), createdFileDTO.getName());
         assertEquals(comment, createdFileDTO.getComment());
@@ -789,9 +789,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
                     FileDTO file = new FileDTO(42L);
                     UserDTO userDTO = new UserDTO();
-                    userDTO.setID(file.getRegistratorId());
+                    userDTO.setID(file.getOwnerId());
                     userDTO.setFileRetention(fileRetention);
-                    file.setRegistrator(userDTO);
+                    file.setOwner(userDTO);
                     will(returnValue(file));
 
                     one(timeProvider).getTimeInMilliseconds();
@@ -923,7 +923,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         final String path = owner.getEmail() + "/" + fileName;
         fileDTO.setPath(path);
         fileDTO.setContentType(contentType);
-        fileDTO.setRegistrator(owner);
+        fileDTO.setOwner(owner);
         return fileDTO;
     }
 

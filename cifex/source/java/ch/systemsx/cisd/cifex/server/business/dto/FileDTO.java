@@ -37,9 +37,12 @@ public final class FileDTO extends ID
     private String comment;
 
     /**
-     * Represents registrator of the file.
+     * Represents the owner of the file.
      */
-    private UserDTO registrator;
+    private UserDTO owner;
+    
+    /** User code of the person who (originally) registered the file. */
+    private String registratorCode;
 
     /** The date at which this file was registered. */
     private Date registrationDate;
@@ -53,24 +56,24 @@ public final class FileDTO extends ID
      */
     private List<UserDTO> sharingUsers = Collections.emptyList();
 
-    private final Long registratorId;
+    private final Long ownerId;
 
     private final BasicFileDTO basicFileDTO = new BasicFileDTO();
 
     public FileDTO()
     {
-        registratorId = null;
+        ownerId = null;
     }
     
-    public FileDTO(final UserDTO registrator)
+    public FileDTO(final UserDTO owner)
     {
-        this.registrator = registrator;
-        this.registratorId = registrator.getID();
+        this.owner = owner;
+        this.ownerId = owner.getID();
     }
 
     public FileDTO(final Long registererId)
     {
-        this.registratorId = registererId;
+        this.ownerId = registererId;
     }
 
     public final String getName()
@@ -93,15 +96,25 @@ public final class FileDTO extends ID
         this.path = path;
     }
 
-    public final UserDTO getRegistrator()
+    public final UserDTO getOwner()
     {
-        return registrator;
+        return owner;
     }
 
-    public final void setRegistrator(final UserDTO registerer)
+    public final void setOwner(final UserDTO registerer)
     {
-        getAndCheckID(registerer, registratorId);
-        this.registrator = registerer;
+        getAndCheckID(registerer, ownerId);
+        this.owner = registerer;
+    }
+
+    public final String getRegistratorCode()
+    {
+        return registratorCode;
+    }
+
+    public final void setRegistratorCode(String registratorCode)
+    {
+        this.registratorCode = registratorCode;
     }
 
     public final Date getRegistrationDate()
@@ -134,9 +147,9 @@ public final class FileDTO extends ID
         this.sharingUsers = sharingUsers;
     }
 
-    public final Long getRegistratorId()
+    public final Long getOwnerId()
     {
-        return registratorId;
+        return ownerId;
     }
 
     public final void setContentType(final String contentType)

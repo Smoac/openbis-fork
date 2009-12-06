@@ -61,7 +61,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         set(ID, file.getID());// long
         set(NAME, file.getName());// String
         set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
-        set(REGISTERER, UserRenderer.createUserAnchor(file.getRegistrator()));// String
+        set(OWNER, UserRenderer.createUserAnchor(file.getOwner()));// String
         set(SHARED_WITH, UserRenderer.createUserAnchor(file.getSharingUsers()));// String
         set(CONTENT_TYPE, file.getContentType());// String
         set(SIZE, FileUtils.tryToGetFileSize(file));// Double

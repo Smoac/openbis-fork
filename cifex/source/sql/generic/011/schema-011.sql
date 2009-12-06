@@ -1,25 +1,3 @@
--- D:\DDL\postgresql\CIFEX-schema-001.sql
---
--- Generated for ANSI SQL92 on Thu Jan 24  11:20:39 2008 by Server Generator 10.1.2.6.18
-------------------------------------------------------------------------------------
---
---  Post-Generation Modifications:
---
---  1. Added the Sequence and Index sections
---  2. Add qualifiers to the foreigen key constraints:
---     FILE_USER_FK -> ON DELETE SET NULL
---     FISH_USER_FK -> ON DELETE CASCADE
---     FISH_FILE_FK -> ON DELETE CASCADE
---
---  Oracle Specific Details removed or modified:
---  1. Changed domain BOOLEAN_CHAR from CHAR(5) DEFAULT FALSE to BOOLEAN DEFAULT FALSE
---  2. Removed the check constraints required by Oracle for allowing only values TRUE or FALSE
---     this applies to AVCON_1197023825_IS_MA_000 CHECK from the
---     columns IS_EXTERNALLY_AUTHENTICATED, IS_ADMIN and IS_PERMANENT
---  3. At the table level, changed the DEFAULT value from SYSDATE to CURRENT_TIMESTAMP
---  4. Changed domain TECH_ID from NUMERIC(20) to BIGINT
-------------------------------------------------------------------------------------
-
 -- Creating domains
 
 CREATE DOMAIN HASH AS VARCHAR(32);
@@ -40,17 +18,18 @@ CREATE DOMAIN OBJECT_NAME AS VARCHAR(50);
 
 CREATE TABLE FILES  (
   ID TECH_ID NOT NULL,
-	NAME FILE_NAME NOT NULL,
-	PATH PATH_NAME NOT NULL,
-	COMMENT COMMENT,
-	REGISTRATION_TIMESTAMP TIME_STAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	EXPIRATION_TIMESTAMP TIME_STAMP NOT NULL,
-	-- Note: we cannot set a NOT NULL constraint on USER_ID as it would prevent deleting expired users with files
-	USER_ID TECH_ID,
-	CONTENT_TYPE CONTENT_TYPE, 
-	SIZE SIZE, 
-	CRC32_CHECKSUM CHECKSUM32, 
-	COMPLETE_SIZE SIZE NOT NULL
+  NAME FILE_NAME NOT NULL,
+  PATH PATH_NAME NOT NULL,
+  COMMENT COMMENT,
+  REGISTRATION_TIMESTAMP TIME_STAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  REGISTRATOR_CODE USER_CODE NOT NULL,
+  EXPIRATION_TIMESTAMP TIME_STAMP NOT NULL,
+  -- Note: we cannot set a NOT NULL constraint on USER_ID as it would prevent deleting expired users with files
+  USER_ID TECH_ID,
+  CONTENT_TYPE CONTENT_TYPE, 
+  SIZE SIZE, 
+  CRC32_CHECKSUM CHECKSUM32, 
+  COMPLETE_SIZE SIZE NOT NULL
 );
 
 CREATE TABLE USERS  (
@@ -78,7 +57,7 @@ CREATE TABLE FILE_SHARES  (
 
 CREATE TABLE QUOTA_GROUPS (
   ID TECH_ID NOT NULL,
-	FILE_COUNT INTEGER NOT NULL DEFAULT 0,
+  FILE_COUNT INTEGER NOT NULL DEFAULT 0,
   FILE_SIZE SIZE NOT NULL DEFAULT 0,
   QUOTA_FILE_COUNT INTEGER,
   QUOTA_FILE_SIZE SIZE,

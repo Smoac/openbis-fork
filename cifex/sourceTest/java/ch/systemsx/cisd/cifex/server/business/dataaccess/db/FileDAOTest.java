@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
@@ -74,7 +75,7 @@ public final class FileDAOTest extends AbstractDAOTest
         file.setName(name);
         file.setPath(path);
         file.setComment(comment);
-        file.setRegistrator(registerer);
+        file.setOwner(registerer);
         file.setSize(100L);
         file.setCompleteSize(100L);
         file.setSharingUsers(fileViewers);
@@ -102,7 +103,7 @@ public final class FileDAOTest extends AbstractDAOTest
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getPath(), actual.getPath());
         assertEquals(expected.getComment(), actual.getComment());
-        assertEquals(expected.getRegistratorId(), actual.getRegistratorId());
+        assertEquals(expected.getOwnerId(), actual.getOwnerId());
         assertNotNull(actual.getRegistrationDate());
         assertEquals(expected.getExpirationDate(), actual.getExpirationDate());
     }
@@ -140,9 +141,15 @@ public final class FileDAOTest extends AbstractDAOTest
         try
         {
             fileDAO.createFile(file1);
-            fail("DataIntegrityViolationException thrown.");
+            fail("DataIntegrityViolationException not thrown.");
         } catch (final DataIntegrityViolationException e)
         {
+            // Spring will translate PostgreSQL's exception into a DataIntegrityViolationException
+        } catch (final UncategorizedSQLException e)
+        {
+            // Spring will translate H2's exception into a UncategorizedSQLException
+            assertTrue(e.getMessage(), e.getMessage().indexOf(
+                    "NULL not allowed for column REGISTRATOR_CODE") >= 0);
         }
     }
 

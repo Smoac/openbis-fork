@@ -57,7 +57,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     protected static final String REGISTRATION_DATE = "registrationDate";
 
-    protected static final String REGISTERER = "registerer";
+    protected static final String OWNER = "owner";
 
     protected static final String SHARED_WITH = "sharedWith";
 
@@ -118,7 +118,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
             IMessageResources messageResources)
     {
         final ColumnConfig registererConfig =
-                createColumnConfig(REGISTERER, messageResources.getFileRegistratorLabel(), 120);
+                createColumnConfig(OWNER, messageResources.getFileRegistratorLabel(), 120);
         return registererConfig;
     }
 
