@@ -20,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -40,6 +41,8 @@ import ch.systemsx.cisd.yeastx.db.DBUtils;
  * 
  * @author Izabela Adamczyk
  */
+// TODO 2009-12-07, Franz-Josef Elmer: Extend from DataSetDeletionMaintenanceTask and use
+// properties to setup database configuration
 public class MetabolDatabaseUpdater implements IMaintenanceTask
 {
 
@@ -69,7 +72,7 @@ public class MetabolDatabaseUpdater implements IMaintenanceTask
         openBISService = ServiceProvider.getOpenBISService();
     }
 
-    public void setUp(String pluginName)
+    public void setUp(String pluginName, Properties properties)
     {
         operationLog.info("Plugin initialized: " + pluginName);
     }
