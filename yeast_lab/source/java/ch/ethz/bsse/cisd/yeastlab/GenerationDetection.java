@@ -700,8 +700,7 @@ public class GenerationDetection
             matchingFirstFluoerscencePeakCondition =
                     new MatchingFirstFluorescencePeakCandidateCondition(sfdProvider,
                             framesToIgnore, maxChildOffset, maxParentOffset, maxMissing, minLength,
-                            minFrameHeightDiff, minTotalHeightDiff, maxFrameHeightDiffExceptions,
-                            maxFrame);
+                            minFrameHeightDiff, minTotalHeightDiff, maxFrameHeightDiffExceptions);
         }
         return matchingFirstFluoerscencePeakCondition;
     }
@@ -792,24 +791,18 @@ public class GenerationDetection
 
     private static boolean isNucleusFound(Cell cell)
     {
-        // MIN_STABLE_NUCLEUS_AREA_FRAMES consecutive cell frames need to have correct nucleus area
+        // MIN_STABLE_NUCLEUS_AREA_FRAMES cell frames need to have correct nucleus area
         int counter = 0;
-        int previousFrame = cell.getFrame() - 1;
         for (Cell c : cellsByIdAndFrame.get(cell.getId()).values())
         {
-            final int currentFrame = c.getFrame();
-            if (c.getANucleus() == NUCLEUS_AREA && currentFrame == previousFrame + 1)
+            if (c.getANucleus() == NUCLEUS_AREA)
             {
                 counter++;
                 if (counter == MIN_STABLE_NUCLEUS_AREA_FRAMES)
                 {
                     return true;
                 }
-            } else
-            {
-                counter = 0;
             }
-            previousFrame = currentFrame;
         }
         return false;
     }
@@ -840,22 +833,22 @@ public class GenerationDetection
         {
             ignore(cell, IgnoreNewCellReason.NOT_ENOUGH_DATA);
             log(String
-                    .format("Reason: there is not enough data about the cell (it appears on one of last few frames)"));
-            return true;
+                    .format("Reason: there is not enough data about the cell (it appears on one of first few frames)"));
+            return false;
         }
         if (isAppearingToLate(cell))
         {
             ignore(cell, IgnoreNewCellReason.NOT_ENOUGH_DATA);
             log(String
-                    .format("Reason: there is not enough data about the cell (it appears on one of first few frames)"));
-            return true;
+                    .format("Reason: there is not enough data about the cell (it appears on one of last few frames)"));
+            return false;
         }
         if (isEnoughFramesAvailable(cell) == false)
         {
             ignore(cell, IgnoreNewCellReason.NOT_ENOUGH_DATA);
             log(String
                     .format("Reason: there is not enough data about the cell (only a few frames)."));
-            return true;
+            return false;
         }
 
         return true;

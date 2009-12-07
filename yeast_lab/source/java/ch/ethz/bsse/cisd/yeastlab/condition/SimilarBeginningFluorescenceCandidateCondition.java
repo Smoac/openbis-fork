@@ -66,12 +66,17 @@ public class SimilarBeginningFluorescenceCandidateCondition implements IBetterCa
             int counter = 0;
             for (int windowOffset = 0; windowOffset < windowLength; windowOffset++)
             {
-                final Double childSFD = childSFDs[firstChildFrame + windowOffset];
-                final Double candidateSFD = candidateSFDs[firstCandidateFrame + windowOffset];
-                if (childSFD != null && candidateSFD != null)
+                if (firstChildFrame + windowOffset < childSFDs.length
+                        && firstCandidateFrame + windowOffset < candidateSFDs.length
+                        && firstCandidateFrame + windowOffset >= 0)
                 {
-                    currentDiff += Math.abs(childSFD - candidateSFD);
-                    counter++;
+                    final Double childSFD = childSFDs[firstChildFrame + windowOffset];
+                    final Double candidateSFD = candidateSFDs[firstCandidateFrame + windowOffset];
+                    if (childSFD != null && candidateSFD != null)
+                    {
+                        currentDiff += Math.abs(childSFD - candidateSFD);
+                        counter++;
+                    }
                 }
             }
             if (windowLength - counter > maxMissing)
@@ -94,5 +99,4 @@ public class SimilarBeginningFluorescenceCandidateCondition implements IBetterCa
         }
         return false;
     }
-
 }

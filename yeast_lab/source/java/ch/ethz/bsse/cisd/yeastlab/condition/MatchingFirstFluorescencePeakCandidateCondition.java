@@ -47,13 +47,10 @@ public class MatchingFirstFluorescencePeakCandidateCondition implements IBetterC
 
     private final int maxFrameHeightDiffExceptions;
 
-    private final int maxFrame;
-
     public MatchingFirstFluorescencePeakCandidateCondition(
             ISmoothFluorescenceDeviationsProvider sfdProvider, int framesToIgnore,
             int maxChildOffset, int maxParentOffset, int maxMissing, int minLength,
-            double minFrameHeightDiff, double minTotalHeightDiff, int maxFrameHeightDiffExceptions,
-            int maxFrame)
+            double minFrameHeightDiff, double minTotalHeightDiff, int maxFrameHeightDiffExceptions)
     {
         this.sfdProvider = sfdProvider;
 
@@ -65,7 +62,6 @@ public class MatchingFirstFluorescencePeakCandidateCondition implements IBetterC
         this.minFrameHeightDiff = minFrameHeightDiff;
         this.minTotalHeightDiff = minTotalHeightDiff;
         this.maxFrameHeightDiffExceptions = maxFrameHeightDiffExceptions;
-        this.maxFrame = maxFrame;
     }
 
     public boolean isBetter(ParentCandidate candidate)
@@ -100,7 +96,7 @@ public class MatchingFirstFluorescencePeakCandidateCondition implements IBetterC
         final Double[] cellSFDs = sfdProvider.getSFDs(cellId);
 
         int minFrameIndex = Math.max(minFrame, 0);
-        int maxFrameIndex = Math.min(minFrame + maxOffset, maxFrame);
+        int maxFrameIndex = Math.min(minFrame + maxOffset, cellSFDs.length - 1);
 
         for (int frame = minFrameIndex; frame <= maxFrameIndex; frame++)
         {
@@ -115,7 +111,7 @@ public class MatchingFirstFluorescencePeakCandidateCondition implements IBetterC
             int nextFrame = frame + 1;
 
             while (missing <= maxMissing && exceptions <= maxFrameHeightDiffExceptions
-                    && nextFrame <= maxFrame)
+                    && nextFrame <= maxFrameIndex)
             {
                 if (cellSFDs[nextFrame] != null)
                 {
