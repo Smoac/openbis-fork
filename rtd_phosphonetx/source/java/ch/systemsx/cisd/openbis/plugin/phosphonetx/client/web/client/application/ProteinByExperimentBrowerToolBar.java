@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -179,7 +180,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         chooser =
                 ExperimentChooserField.create("", false, null, viewContext.getCommonViewContext());
         ExperimentChooserField chooserField = chooser.getChooserField();
-        chooserField.setReadOnly(true);
+        chooserField.setEditable(false);
         chooserField.addChosenEntityListener(new IChosenEntityListener<Experiment>()
             {
                 public void entityChosen(Experiment entity)
@@ -266,6 +267,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         comboBox.addSelectionChangedListener(changedListener);
         comboBox.setEnabled(true);
         comboBox.setWidth(60);
+        comboBox.setTriggerAction(TriggerAction.ALL);
         return comboBox;
     }
 
@@ -290,6 +292,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         comboBox.addSelectionChangedListener(changedListener);
         comboBox.setWidth(100);
         comboBox.setEnabled(true);
+        comboBox.setTriggerAction(TriggerAction.ALL);
         return comboBox;
     }
 
