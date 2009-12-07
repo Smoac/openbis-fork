@@ -76,7 +76,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
     static final String EXTERNAL_SAMPLE_NAME_KEY = "EXTERNAL_SAMPLE_NAME";
 
     static final String FLOW_LANE_DROP_BOX_TEMPLATE = "flow-lane-drop-box-template";
-    
+
     static final String SRF_INFO_PATH = "srf-info-path";
 
     static final String ENTITY_SEPARATOR_KEY = "entity-separator";
@@ -189,7 +189,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         }
 
     }
-    
+
     private List<String> getSRFInfo(File file)
     {
         if (srfInfoPathOrNull == null)
@@ -283,10 +283,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                 flowLaneSample.getCode()
                         + (externalSampleName == null ? "" : "_" + externalSampleName)
                         + META_DATA_FILE_TYPE;
-        // TODO : more generic solution for avoiding escape chars in file names, this is just quick and dirty
-        metaFileName = metaFileName.replace("/", "_");
-        metaFileName = metaFileName.replace(":", "_");
-        metaFileName = metaFileName.replace("\\", "_");
+        metaFileName = asFileName(metaFileName);
         FileUtilities.writeToFile(new File(flowLaneDataSet, metaFileName), builder.toString());
         if (dropBox != null)
         {
@@ -298,6 +295,17 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                         + "' successfully transfered to drop box '" + dropBox + "'");
             }
         }
+    }
+
+    // TODO : more generic solution for avoiding escape chars in file names, this is just quick and
+    // dirty
+    static String asFileName(String originalFileName)
+    {
+        String fileName = originalFileName;
+        fileName = fileName.replace("/", "_");
+        fileName = fileName.replace(":", "_");
+        fileName = fileName.replace("\\", "_");
+        return fileName;
     }
 
     private void addLine(StringBuilder builder, String key, String value)
