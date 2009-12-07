@@ -283,7 +283,10 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                 flowLaneSample.getCode()
                         + (externalSampleName == null ? "" : "_" + externalSampleName)
                         + META_DATA_FILE_TYPE;
+        // TODO : more generic solution for avoiding escape chars in file names, this is just quick and dirty
         metaFileName = metaFileName.replace("/", "_");
+        metaFileName = metaFileName.replace(":", "_");
+        metaFileName = metaFileName.replace("\\", "_");
         FileUtilities.writeToFile(new File(flowLaneDataSet, metaFileName), builder.toString());
         if (dropBox != null)
         {
