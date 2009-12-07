@@ -118,6 +118,17 @@ public interface IGenericServer extends IPluginCommonServer
             throws UserFailureException;
 
     /**
+     * Updates samples of different types in batches.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    public void updateSamples(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class) final List<NewSamplesWithTypes> newSamplesWithType)
+            throws UserFailureException;
+
+    /**
      * Registers experiment.
      */
     @Transactional

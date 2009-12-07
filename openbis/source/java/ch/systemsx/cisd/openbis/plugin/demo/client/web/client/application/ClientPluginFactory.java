@@ -143,6 +143,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<IDemo
             return new DummyComponent();
         }
 
+        public final Widget createBatchUpdateForEntityType(final SampleType sampleType)
+        {
+            return new DummyComponent();
+        }
+
         public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
         {
             return new ITabItemFactory()

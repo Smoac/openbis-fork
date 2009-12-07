@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -36,31 +37,39 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
- * The {@link LayoutContainer} extension for batch registering a sample.
+ * The {@link LayoutContainer} extension for batch registration and update of samples of certain
+ * type.
  * 
  * @author Christian Ribeaud
  */
-public final class SampleBatchRegistrationPanel extends LayoutContainer
+public final class SampleBatchRegisterUpdatePanel extends LayoutContainer
 {
     private static final String ID_SUFFIX = "sample-batch-registration";
 
-    public static final String ID = GenericConstants.ID_PREFIX + ID_SUFFIX;
+    private static final String ID = GenericConstants.ID_PREFIX + ID_SUFFIX;
 
     private final SampleTypeSelectionWidget sampleTypeSelection;
 
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
-    public static DatabaseModificationAwareComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext)
+    public static String getId(final boolean update)
     {
-        SampleBatchRegistrationPanel panel = new SampleBatchRegistrationPanel(viewContext);
+        return ID + "_" + (update == true ? "update" : "registration");
+    }
+
+    public static DatabaseModificationAwareComponent create(
+            final IViewContext<ICommonClientServiceAsync> viewContext, final boolean update)
+    {
+        SampleBatchRegisterUpdatePanel panel =
+                new SampleBatchRegisterUpdatePanel(viewContext, update);
         return new DatabaseModificationAwareComponent(panel, panel.sampleTypeSelection);
     }
 
-    private SampleBatchRegistrationPanel(final IViewContext<ICommonClientServiceAsync> viewContext)
+    private SampleBatchRegisterUpdatePanel(
+            final IViewContext<ICommonClientServiceAsync> viewContext, final boolean update)
     {
         this.viewContext = viewContext;
-        setId(ID);
+        setId(getId(update));
         setScrollMode(Scroll.AUTO);
         sampleTypeSelection =
                 new SampleTypeSelectionWidget(viewContext, ID_SUFFIX, false, false, true);
@@ -89,8 +98,19 @@ public final class SampleBatchRegistrationPanel extends LayoutContainer
                                         viewContext.getClientPluginFactoryProvider()
                                                 .getClientPluginFactory(entityKind, sampleType)
                                                 .createClientPlugin(entityKind);
-                                add(createClientPlugin
-                                        .createBatchRegistrationForEntityType(sampleType));
+                                final Widget batchOperationWidget;
+                                if (update)
+                                {
+                                    batchOperationWidget =
+                                            createClientPlugin
+                                                    .createBatchUpdateForEntityType(sampleType);
+                                } else
+                                {
+                                    batchOperationWidget =
+                                            createClientPlugin
+                                                    .createBatchRegistrationForEntityType(sampleType);
+                                }
+                                add(batchOperationWidget);
                                 layout();
                             }
                         }

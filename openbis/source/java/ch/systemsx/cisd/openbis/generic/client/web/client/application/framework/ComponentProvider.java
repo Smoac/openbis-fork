@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegistrationPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBatchRegisterUpdatePanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleRegistrationPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleSearchHitGrid;
@@ -238,18 +238,39 @@ public final class ComponentProvider
 
     public final ITabItemFactory getSampleBatchRegistration()
     {
+        final boolean update = false;
         return new ITabItemFactory()
             {
                 public ITabItem create()
                 {
                     DatabaseModificationAwareComponent component =
-                            SampleBatchRegistrationPanel.create(viewContext);
+                            SampleBatchRegisterUpdatePanel.create(viewContext, update);
                     return createRegistrationTab(Dict.SAMPLE_BATCH_REGISTRATION, component);
                 }
 
                 public String getId()
                 {
-                    return SampleBatchRegistrationPanel.ID;
+                    return SampleBatchRegisterUpdatePanel.getId(update);
+                }
+            };
+    }
+
+    public final ITabItemFactory getSampleBatchUpdate()
+    {
+        final boolean update = true;
+
+        return new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    DatabaseModificationAwareComponent component =
+                            SampleBatchRegisterUpdatePanel.create(viewContext, true);
+                    return createRegistrationTab(Dict.SAMPLE_BATCH_UPDATE, component);
+                }
+
+                public String getId()
+                {
+                    return SampleBatchRegisterUpdatePanel.getId(update);
                 }
             };
     }

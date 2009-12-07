@@ -162,11 +162,29 @@ public final class GenericClientService extends AbstractClientService implements
     {
         BatchSamplesRegistration info =
                 parseSamples(sampleType, sessionKey, defaultGroupIdentifier,
-                        defaultGroupIdentifier != null, true);
+                        defaultGroupIdentifier != null, true, "registered");
         try
         {
             final String sessionToken = getSessionToken();
             genericServer.registerSamples(sessionToken, info.getSamples());
+            return info.getResultList();
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+
+    }
+
+    public final List<BatchRegistrationResult> updateSamples(final SampleType sampleType,
+            final String sessionKey)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        BatchSamplesRegistration info =
+                parseSamples(sampleType, sessionKey, null, false, true, "updated");
+        try
+        {
+            final String sessionToken = getSessionToken();
+            genericServer.updateSamples(sessionToken, info.getSamples());
             return info.getResultList();
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
@@ -247,7 +265,7 @@ public final class GenericClientService extends AbstractClientService implements
                     parseSamples(experiment.getSampleType(), samplesSessionKey,
                             new GroupIdentifier(identifier.getDatabaseInstanceCode(), identifier
                                     .getGroupCode()).toString(), experiment.isGenerateCodes(),
-                            false);
+                            false, "registered");
             experiment.setNewSamples(result.getSamples());
             experiment.setSamples(result.getCodes());
         }
@@ -263,7 +281,7 @@ public final class GenericClientService extends AbstractClientService implements
 
     private BatchSamplesRegistration parseSamples(final SampleType sampleType,
             final String sessionKey, String defaultGroupIdentifier,
-            final boolean isAutoGenerateCodes, final boolean allowExperiments)
+            final boolean isAutoGenerateCodes, final boolean allowExperiments, String operation)
     {
         HttpSession httpSession = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
@@ -273,7 +291,7 @@ public final class GenericClientService extends AbstractClientService implements
                     tryGetSampleCodeGenerator(isAutoGenerateCodes);
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
             return SampleUploadSectionsParser.prepareSamples(sampleType, uploadedFiles,
-                    defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments);
+                    defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments, operation);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -394,7 +412,7 @@ public final class GenericClientService extends AbstractClientService implements
                     }
                     Date date =
                             genericServer.updateSample(sessionToken, new SampleUpdatesDTO(updates
-                                    .getSampleId(), updates.getProperties(),
+                                    .getSampleIdOrNull(), updates.getProperties(),
                                     convExperimentIdentifierOrNull, attachments, updates
                                             .getVersion(), sampleOwner, updates
                                             .getParentIdentifierOrNull(), updates
@@ -430,7 +448,8 @@ public final class GenericClientService extends AbstractClientService implements
             BatchSamplesRegistration info =
                     parseSamples(updates.getSampleType(), updates.getSamplesSessionKey(),
                             new GroupIdentifier(newProject.getDatabaseInstanceCode(), newProject
-                                    .getGroupCode()).toString(), updates.isGenerateCodes(), false);
+                                    .getGroupCode()).toString(), updates.isGenerateCodes(), false,
+                            "registered");
             updates.setNewSamples(info.getSamples());
             updates.setSampleCodes(info.getCodes());
         }

@@ -268,6 +268,7 @@ var common = {
   SAMPLE_MENU_BROWSE: "Browse",
   SAMPLE_MENU_NEW: "New",
   SAMPLE_MENU_IMPORT: "Import",
+  SAMPLE_MENU_MASS_UPDATE: "Mass Update",
   SAMPLE_MENU_TYPES: "Types",
   
   menu_project: "Project",
@@ -310,6 +311,7 @@ var common = {
   experiment_browser: "Experiment Browser",
   vocabulary_registration: "Vocabulary Registration",
   sample_batch_registration: "Sample Batch Registration",
+  sample_batch_update: "Sample Batch Update",
   sample_registration: "Sample Registration",
   sample_broser: "Sample Browser",
   list_groups: "Groups Browser",

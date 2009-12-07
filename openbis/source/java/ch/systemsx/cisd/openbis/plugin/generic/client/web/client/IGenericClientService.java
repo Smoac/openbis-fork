@@ -47,7 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * unexpected exception.
  * </p>
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IGenericClientService extends IClientService
 {
@@ -77,6 +77,15 @@ public interface IGenericClientService extends IClientService
      */
     public List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
             final String sessionKey, String defaultGroupIdentifier) throws UserFailureException;
+
+    /**
+     * Updates samples from files which have been previously uploaded.
+     * <p>
+     * Uploaded files can be found as session attribute under given <var>sessionKey</var>.
+     * </p>
+     */
+    public List<BatchRegistrationResult> updateSamples(final SampleType sampleType,
+            final String sessionKey) throws UserFailureException;
 
     /**
      * For given <var>experimentIdentifier</var> returns corresponding {@link Experiment}.

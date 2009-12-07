@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.mat
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.GenericMaterialViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleBatchRegistrationForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleBatchUpdateForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
@@ -167,6 +168,11 @@ public final class ClientPluginFactory extends
         public final Widget createBatchRegistrationForEntityType(final SampleType sampleType)
         {
             return new GenericSampleBatchRegistrationForm(getViewContext(), sampleType);
+        }
+
+        public final Widget createBatchUpdateForEntityType(final SampleType sampleType)
+        {
+            return new GenericSampleBatchUpdateForm(getViewContext(), sampleType);
         }
 
         public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)

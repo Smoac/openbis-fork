@@ -65,7 +65,7 @@ public class SampleUpdatesPredicate extends AbstractPredicate<SampleUpdatesDTO>
     {// TODO 2009-07-27, IA: tests needed
         assert sampleTechIdPredicate.initialized : "Predicate has not been initialized";
         Status status;
-        status = sampleTechIdPredicate.doEvaluation(person, allowedRoles, updates.getSampleId());
+        status = sampleTechIdPredicate.doEvaluation(person, allowedRoles, updates.getSampleIdOrNull());
         if (status.equals(Status.OK) == false)
         {
             return status;

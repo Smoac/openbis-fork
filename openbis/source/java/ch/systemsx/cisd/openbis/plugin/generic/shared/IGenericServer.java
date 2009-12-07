@@ -60,7 +60,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 /**
  * Definition of the client-server interface.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IGenericServer extends IPluginCommonServer
 {
@@ -113,6 +113,17 @@ public interface IGenericServer extends IPluginCommonServer
     @RolesAllowed(RoleSet.USER)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
     public void registerSamples(
+            final String sessionToken,
+            @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class) final List<NewSamplesWithTypes> newSamplesWithType)
+            throws UserFailureException;
+
+    /**
+     * Updates samples of different types in batches.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.USER)
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    public void updateSamples(
             final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class) final List<NewSamplesWithTypes> newSamplesWithType)
             throws UserFailureException;

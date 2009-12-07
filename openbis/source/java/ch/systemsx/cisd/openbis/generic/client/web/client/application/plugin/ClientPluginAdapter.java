@@ -42,6 +42,11 @@ public class ClientPluginAdapter<E extends EntityType, I extends IIdentifiable> 
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
+    public Widget createBatchUpdateForEntityType(E entityType)
+    {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
     public ITabItemFactory createEntityViewer(final I identifiable)
     {
         throw new UnsupportedOperationException("Not yet implemented.");

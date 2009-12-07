@@ -47,6 +47,8 @@ public class SampleMenu extends TopMenuItem
                 componentProvider.getSampleRegistration()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_IMPORT, messageProvider,
                 componentProvider.getSampleBatchRegistration()));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_MASS_UPDATE, messageProvider,
+                componentProvider.getSampleBatchUpdate()));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.SAMPLE_MENU_TYPES, messageProvider,
                 componentProvider.getSampleTypeBrowser()));
         setMenu(submenu);

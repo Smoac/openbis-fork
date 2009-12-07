@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -67,8 +68,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -246,6 +250,17 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
     }
 
+    public void updateSamples(String sessionToken, List<NewSamplesWithTypes> newSamplesWithType)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        final Session session = getSession(sessionToken);
+        for (NewSamplesWithTypes samples : newSamplesWithType)
+        {
+            updateSamples(session, samples);
+        }
+    }
+
     private void registerSamples(final Session session, final NewSamplesWithTypes newSamplesWithType)
     {
         final SampleType sampleType = newSamplesWithType.getSampleType();
@@ -278,6 +293,74 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                     sampleTypeCode);
         }
         getSampleTypeSlaveServerPlugin(sampleTypePE).registerSamples(session, newSamples);
+    }
+
+    private void updateSamples(final Session session,
+            final NewSamplesWithTypes updatedSamplesWithType)
+    {
+        final SampleType sampleType = updatedSamplesWithType.getSampleType();
+        final List<NewSample> updatedSamples = updatedSamplesWithType.getNewSamples();
+        assert sampleType != null : "Unspecified sample type.";
+        assert updatedSamples != null : "Unspecified new samples.";
+
+        // Does nothing if samples list is empty.
+        if (updatedSamples.size() == 0)
+        {
+            return;
+        }
+        // Check uniqueness of given list based on sample identifier.
+        final HashSet<NewSample> sampleSet = new HashSet<NewSample>(updatedSamples);
+        if (sampleSet.size() != updatedSamples.size())
+        {
+            for (NewSample s : sampleSet)
+            {
+                updatedSamples.remove(s);
+            }
+            throw UserFailureException.fromTemplate("Following samples '%s' are duplicated.",
+                    CollectionUtils.abbreviate(updatedSamples, 20));
+        }
+        final String sampleTypeCode = sampleType.getCode();
+        final SampleTypePE sampleTypePE =
+                getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(sampleTypeCode);
+        if (sampleTypePE == null)
+        {
+            throw UserFailureException.fromTemplate("Sample type with code '%s' does not exist.",
+                    sampleTypeCode);
+        }
+
+        for (NewSample updatedSample : updatedSamples)
+        {
+            final SampleIdentifier oldSampleIdentifier =
+                    SampleIdentifierFactory.parse(updatedSample.getIdentifier());
+            final List<IEntityProperty> properties = Arrays.asList(updatedSample.getProperties());
+            final ExperimentIdentifier experimentIdentifierOrNull;
+            final SampleIdentifier newSampleIdentifier;
+            if (updatedSample.getExperimentIdentifier() != null)
+            {
+                // experiment is provided - new sample identifier takes experiment group
+                experimentIdentifierOrNull =
+                        new ExperimentIdentifierFactory(updatedSample.getExperimentIdentifier())
+                                .createIdentifier();
+                newSampleIdentifier =
+                        new SampleIdentifier(new GroupIdentifier(experimentIdentifierOrNull
+                                .getDatabaseInstanceCode(), experimentIdentifierOrNull
+                                .getGroupCode()), oldSampleIdentifier.getSampleCode()); // subcode?
+            } else
+            {
+                // FIXME looses experiment, parent and container information if there is no column
+                // no experiment - leave sample identifier unchanged
+                experimentIdentifierOrNull = null;
+                newSampleIdentifier = oldSampleIdentifier;
+            }
+            final Collection<NewAttachment> attachments = new ArrayList<NewAttachment>(0); // empty
+            final Date version = null; // no version check
+            final String parentIdentifierOrNull = updatedSample.getParentIdentifier();
+            final String containerIdentifierOrNull = updatedSample.getContainerIdentifier();
+
+            updateSample(session, new SampleUpdatesDTO(oldSampleIdentifier, properties,
+                    experimentIdentifierOrNull, attachments, version, newSampleIdentifier,
+                    parentIdentifierOrNull, containerIdentifierOrNull));
+        }
     }
 
     public void registerExperiment(String sessionToken, NewExperiment newExperiment,
@@ -435,6 +518,11 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public Date updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
+        return updateSample(session, updates);
+    }
+
+    private Date updateSample(Session session, SampleUpdatesDTO updates)
+    {
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.update(updates);
         sampleBO.save();
@@ -465,4 +553,5 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         }
         return codes;
     }
+
 }

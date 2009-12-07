@@ -32,7 +32,8 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private TechId sampleId;
+    // if technical id is null old identifier must be provided by subclass
+    private TechId sampleIdOrNull;
 
     private List<IEntityProperty> properties;
 
@@ -69,21 +70,21 @@ public class BasicSampleUpdates implements IsSerializable, Serializable
     public BasicSampleUpdates(TechId sampleId, List<IEntityProperty> properties, Date version,
             String parentIdentifierOrNull, String containerIdentifierOrNull)
     {
-        this.sampleId = sampleId;
+        this.sampleIdOrNull = sampleId;
         this.properties = properties;
         this.version = version;
         this.parentIdentifierOrNull = parentIdentifierOrNull;
         this.containerIdentifierOrNull = containerIdentifierOrNull;
     }
 
-    public TechId getSampleId()
+    public TechId getSampleIdOrNull()
     {
-        return sampleId;
+        return sampleIdOrNull;
     }
 
     public void setSampleId(TechId sampleId)
     {
-        this.sampleId = sampleId;
+        this.sampleIdOrNull = sampleId;
     }
 
     public List<IEntityProperty> getProperties()

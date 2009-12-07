@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 /**
  * Asynchronous version of {@link IGenericClientService}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IGenericClientServiceAsync extends IClientServiceAsync
 {
@@ -70,6 +70,13 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
      */
     public void registerSamples(final SampleType sampleType, final String sessionKey,
             String defaultGroupIdentifier,
+            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
+            throws UserFailureException;
+
+    /**
+     * @see IGenericClientService#updateSamples(SampleType, String)
+     */
+    public void updateSamples(final SampleType sampleType, final String sessionKey,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws UserFailureException;
 

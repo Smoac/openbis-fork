@@ -87,13 +87,14 @@ public class SampleUploadSectionsParser
 
     public static BatchSamplesRegistration prepareSamples(final SampleType sampleType,
             final UploadedFilesBean uploadedFiles, String defaultGroupIdentifier,
-            final SampleCodeGenerator sampleCodeGeneratorOrNull, final boolean allowExperiments)
+            final SampleCodeGenerator sampleCodeGeneratorOrNull, final boolean allowExperiments,
+            String operation)
     {
         final List<NewSamplesWithTypes> newSamples = new ArrayList<NewSamplesWithTypes>();
         boolean isAutoGenerateCodes = (sampleCodeGeneratorOrNull != null);
         final List<BatchRegistrationResult> results =
                 loadSamplesFromFiles(uploadedFiles, sampleType, isAutoGenerateCodes, newSamples,
-                        allowExperiments);
+                        allowExperiments, operation);
         generateIdentifiersIfNecessary(defaultGroupIdentifier, sampleCodeGeneratorOrNull,
                 isAutoGenerateCodes, newSamples);
         return new BatchSamplesRegistration(newSamples, results, parseCodes(newSamples));
@@ -112,6 +113,7 @@ public class SampleUploadSectionsParser
         return codes.toArray(new String[0]);
     }
 
+    // TODO
     private static BisTabFileLoader<NewSample> createSampleLoader(final SampleType sampleType,
             final boolean isAutoGenerateCodes, final boolean allowExperiments)
     {
@@ -215,7 +217,7 @@ public class SampleUploadSectionsParser
 
     private static List<BatchRegistrationResult> loadSamplesFromFiles(
             UploadedFilesBean uploadedFiles, SampleType sampleType, boolean isAutoGenerateCodes,
-            final List<NewSamplesWithTypes> newSamples, boolean allowExperiments)
+            final List<NewSamplesWithTypes> newSamples, boolean allowExperiments, String operation)
     {
 
         final List<BatchRegistrationResult> results =
@@ -253,7 +255,7 @@ public class SampleUploadSectionsParser
                 }
             }
             results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                    .format("%d sample(s) found and registered.", sampleCounter)));
+                    .format("%d sample(s) found and %s.", sampleCounter, operation)));
         }
         return results;
     }

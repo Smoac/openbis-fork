@@ -53,6 +53,11 @@ public interface IClientPlugin<T extends EntityType, I extends IIdentifiable>
     public Widget createBatchRegistrationForEntityType(final T entityType);
 
     /**
+     * Shows a batch update form for entities of given <var>entityType</var>.
+     */
+    public Widget createBatchUpdateForEntityType(final T entityType);
+
+    /**
      * Shows a editor of the specified entity..
      */
     public ITabItemFactory createEntityEditor(final I identifiable);

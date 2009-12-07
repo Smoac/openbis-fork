@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -52,7 +51,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 /**
  * Logger class for {@link GenericServer} which creates readable logs of method invocations.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 final class GenericServerLogger extends AbstractServerLogger implements IGenericServer
 {
@@ -114,13 +113,6 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     {
         logAccess(sessionToken, "get_data_set_info", "ID(%s)", datasetId);
         return null;
-    }
-
-    public final void registerSamples(final String sessionToken, final SampleType sampleType,
-            final List<NewSample> newSamples) throws UserFailureException
-    {
-        logAccess(sessionToken, "register_samples", "SAMPLE_TYPE(%s) SAMPLES(%s)", sampleType,
-                CollectionUtils.abbreviate(newSamples, 20));
     }
 
     public void registerExperiment(String sessionToken, NewExperiment experiment,
@@ -188,7 +180,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public Date updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         logTracking(sessionToken, "edit_sample",
-                "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)", updates.getSampleId(),
+                "SAMPLE(%s), CHANGE_TO_EXPERIMENT(%s) ATTACHMENTS(%s)", updates.getSampleIdOrNull(),
                 updates.getExperimentIdentifierOrNull(), updates.getAttachments().size());
         return null;
     }
@@ -215,6 +207,21 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         }
         logAccess(sessionToken, "register_samples", sb.toString());
 
+    }
+
+    public void updateSamples(String sessionToken, List<NewSamplesWithTypes> updatedSamplesWithType)
+            throws UserFailureException
+    {
+        StringBuilder sb = new StringBuilder();
+        for (NewSamplesWithTypes s : updatedSamplesWithType)
+        {
+            if (sb.length() > 0)
+            {
+                sb.append(",");
+            }
+            sb.append(s.getSampleType().getCode() + ":" + s.getNewSamples().size());
+        }
+        logAccess(sessionToken, "update_samples", sb.toString());
     }
 
 }

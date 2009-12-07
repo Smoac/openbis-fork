@@ -269,10 +269,16 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     public void update(SampleUpdatesDTO updates)
     {
-        loadDataByTechId(updates.getSampleId());
-        if (updates.getVersion().equals(sample.getModificationDate()) == false)
+        if (updates.getSampleIdOrNull() != null)
         {
-            throwModifiedEntityException("Sample");
+            loadDataByTechId(updates.getSampleIdOrNull());
+            if (updates.getVersion().equals(sample.getModificationDate()) == false)
+            {
+                throwModifiedEntityException("Sample");
+            }
+        } else
+        {
+            loadBySampleIdentifier(updates.getOldSampleIdentifierOrNull());
         }
         updateProperties(updates.getProperties());
         updateGroup(updates.getSampleIdentifier());
