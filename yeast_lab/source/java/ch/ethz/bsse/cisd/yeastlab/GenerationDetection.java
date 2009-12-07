@@ -404,8 +404,12 @@ public class GenerationDetection
             }
             for (Cell cell : cellsToRemove)
             {
+                // remove cell from all data structures
                 log(String.format("Removing isolated cell id:%d frame:%d.", cell.getId(), cell
                         .getFrame()));
+                cells.remove(cell);
+                cellsByFrame.get(cell.getFrame()).remove(cell);
+                cellsByIdAndFrame.get(cell.getId()).remove(cell.getFrame());
             }
         }
     }
