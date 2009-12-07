@@ -61,11 +61,16 @@ final class ConfigParameters
     private static final String FIRST_PEAK_NUMBER_OF_FIRST_FRAMES_TO_IGNORE =
             "first-peak-number-of-first-frames-to-ignore";
 
+    private static final String ISOLATED_FAKE_FRAME_REMOVAL_WINDOW =
+            "isolated-fake-frame-removal-window";
+
     private static final String MAX_F_MEAN_OF_LIVING_CELL = "max-f-mean-of-living-cell";
 
     private static final String MAX_NEW_BORN_CELL_PIXELS = "max-new-born-cell-pixels";
 
     private static final String MAX_PARENT_CANDIDATES = "max-parent-candidates";
+
+    private static final String MAX_PARENT_SHIFT = "max-parent-shift";
 
     private static final String MIN_NEW_BORN_CELL_ECCENTRICITY = "min-new-born-cell-eccentricity";
 
@@ -108,11 +113,15 @@ final class ConfigParameters
 
     private final int firstPeakNumberOfFirstFramesToIgnore;
 
+    private final int isolatedFakeFrameRemovalWindow;
+
     private final double maxFMeanOfLivingCell;
 
     private final int maxNewBornCellPixels;
 
     private final int maxParentCandidates;
+
+    private final int maxParentShift;
 
     private final double minNewBornCellEccentricity;
 
@@ -170,9 +179,12 @@ final class ConfigParameters
         firstPeakNumberOfFirstFramesToIgnore =
                 getMandatoryIntegerProperty(properties, FIRST_PEAK_NUMBER_OF_FIRST_FRAMES_TO_IGNORE);
 
+        isolatedFakeFrameRemovalWindow =
+                getMandatoryIntegerProperty(properties, ISOLATED_FAKE_FRAME_REMOVAL_WINDOW);
         maxFMeanOfLivingCell = getMandatoryDoubleProperty(properties, MAX_F_MEAN_OF_LIVING_CELL);
         maxNewBornCellPixels = getMandatoryIntegerProperty(properties, MAX_NEW_BORN_CELL_PIXELS);
         maxParentCandidates = getMandatoryIntegerProperty(properties, MAX_PARENT_CANDIDATES);
+        maxParentShift = getMandatoryIntegerProperty(properties, MAX_PARENT_SHIFT);
         minNewBornCellEccentricity =
                 getMandatoryDoubleProperty(properties, MIN_NEW_BORN_CELL_ECCENTRICITY);
         minParentPixels = getMandatoryIntegerProperty(properties, MIN_PARENT_PIXELS);
@@ -183,6 +195,11 @@ final class ConfigParameters
         numberOfLastFramesToIgnore =
                 getMandatoryIntegerProperty(properties, NUMBER_OF_LAST_FRAMES_TO_IGNORE);
         smoothFDeviationWindow = getMandatoryIntegerProperty(properties, SMOOTH_F_DEVIATION_WINDOW);
+    }
+
+    public int getIsolatedFakeFrameRemovalWindow()
+    {
+        return isolatedFakeFrameRemovalWindow;
     }
 
     public double getMaxFMeanOfLivingCell()
@@ -198,6 +215,11 @@ final class ConfigParameters
     public int getMaxParentCandidates()
     {
         return maxParentCandidates;
+    }
+
+    public int getMaxParentShift()
+    {
+        return maxParentShift;
     }
 
     public double getMinNewBornCellEccentricity()
@@ -316,13 +338,16 @@ final class ConfigParameters
                 getNumberOfFirstFramesToIgnore()));
         sb.append(String.format("Number of last frames to ignore: %d\n",
                 getNumberOfLastFramesToIgnore()));
-        sb.append(String.format(
-                "Frame window radius for smooth fluorescence deviation evaluation: %d\n",
-                getSmoothFDeviationWindow()));
         sb.append(String.format("Max fluorescence mean of a living cell: %1.2f\n",
                 getMaxFMeanOfLivingCell()));
         sb.append(String.format("Max number of parent candidates per cell: %d\n",
                 getMaxParentCandidates()));
+        sb.append(String.format(
+                "Frame window radius for removal of isolated frames of fake cells: %d\n",
+                getIsolatedFakeFrameRemovalWindow()));
+        sb.append(String.format(
+                "Frame window radius for smooth fluorescence deviation evaluation: %d\n",
+                getSmoothFDeviationWindow()));
         sb.append(String.format("beginning-f-window-filter-enabled: %s\n",
                 isBeginningFWindowFilterEnabled()));
         sb.append(String.format("beginning-f-window-length: %d\n", getBeginningFWindowLength()));

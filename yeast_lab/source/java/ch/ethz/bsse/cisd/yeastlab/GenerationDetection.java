@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -54,9 +55,13 @@ public class GenerationDetection
 
     // properties that can be modified by the user
 
+    private static final int ISOLATED_FAKE_CELL_REMOVAL_WINDOW;
+
     private static final int MAX_NEW_BORN_CELL_PIXELS; // reduce with better picture quality
 
     private static final int MIN_PARENT_PIXELS;
+
+    private static final int MAX_PARENT_SHIFT;
 
     private static final double MIN_NEW_BORN_CELL_ECCENTRICITY;
 
@@ -86,9 +91,11 @@ public class GenerationDetection
     {
         configParameters = new ConfigParameters(PROPERTIES_FILE_PATH);
         log(configParameters.getDescription());
+        ISOLATED_FAKE_CELL_REMOVAL_WINDOW = configParameters.getIsolatedFakeFrameRemovalWindow();
         MAX_F_MEAN_OF_LIVING_CELL = configParameters.getMaxFMeanOfLivingCell();
         MAX_NEW_BORN_CELL_PIXELS = configParameters.getMaxNewBornCellPixels();
         MAX_PARENT_CANDIDATES = configParameters.getMaxParentCandidates();
+        MAX_PARENT_SHIFT = configParameters.getMaxParentShift();
         MIN_NEW_BORN_CELL_ECCENTRICITY = configParameters.getMinNewBornCellEccentricity();
         MIN_PARENT_PIXELS = configParameters.getMinParentPixels();
         MIN_STABLE_NUCLEUS_AREA_FRAMES = configParameters.getMinStableNucleusAreaFrames();
@@ -101,7 +108,7 @@ public class GenerationDetection
 
     static final boolean PRODUCTION = true;
 
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
 
     static final int FIRST_FRAME_NUM = 0;
 
@@ -158,7 +165,15 @@ public class GenerationDetection
 
     private static double getSmoothFDeviation(Cell cell)
     {
-        return cellSmoothFDeviationByIdAndFrame.get(cell.getId())[cell.getFrame()];
+        final Double[] sfdsOrNull = cellSmoothFDeviationByIdAndFrame.get(cell.getId());
+        if (sfdsOrNull == null)
+        {
+            return -1;
+        } else
+        {
+            final Double valueOrNull = sfdsOrNull[cell.getFrame()];
+            return valueOrNull == null ? -1 : valueOrNull;
+        }
     }
 
     public static void main(String[] args)
@@ -293,7 +308,6 @@ public class GenerationDetection
                 maxFrame = cell.getFrame();
             }
         }
-        generateSmoothFDeviationValues();
 
         // filter out fake cells
         final List<Integer> fakeCellIds = new ArrayList<Integer>();
@@ -334,9 +348,69 @@ public class GenerationDetection
                 }
             }
         }
+
+        removeIsolatedFakeFrames(cells);
+        generateSmoothFDeviationValues();
     }
 
-    // smooth fluorescence deviation computation - refactor
+    private static void removeIsolatedFakeFrames(List<Cell> cells)
+    {
+        if (ISOLATED_FAKE_CELL_REMOVAL_WINDOW > 0)
+        {
+            // remove cell frames that have no frames close available
+            final List<Cell> cellsToRemove = new ArrayList<Cell>();
+
+            for (Map<Integer, Cell> byFrame : cellsByIdAndFrame.values())
+            {
+                Set<Integer> frames = byFrame.keySet();
+
+                int counter = 0; // number of frames that the cell existed on in current window
+
+                // initialize counter for first window
+                for (int frame = 0; frame <= ISOLATED_FAKE_CELL_REMOVAL_WINDOW; frame++)
+                {
+                    if (frames.contains(frame))
+                    {
+                        counter++;
+                    }
+                }
+                // At the beginning of each loop iteration counter for window for 'frame' is already
+                // computed. Then the window is shifted.
+                for (int frame = 0; frame <= maxFrame; frame++)
+                {
+                    // check counter if cell existed on current frame
+                    if (frames.contains(frame))
+                    {
+                        if (counter == 1) // only this frame is available in the window
+                        {
+                            Cell cell = byFrame.get(frame);
+                            cellsToRemove.add(cell);
+                        }
+                    }
+                    // shift window:
+                    // - subtract counter for first frame if present
+                    final int curWindowFirstFrame = frame - ISOLATED_FAKE_CELL_REMOVAL_WINDOW;
+                    if (frames.contains(curWindowFirstFrame))
+                    {
+                        counter--;
+                    }
+                    // - increase counter for next frame if present
+                    final int nextWindowLastFrame = frame + ISOLATED_FAKE_CELL_REMOVAL_WINDOW + 1;
+                    if (frames.contains(nextWindowLastFrame))
+                    {
+                        counter++;
+                    }
+                }
+            }
+            for (Cell cell : cellsToRemove)
+            {
+                log(String.format("Removing isolated cell id:%d frame:%d.", cell.getId(), cell
+                        .getFrame()));
+            }
+        }
+    }
+
+    // smooth fluorescence deviation computation
 
     private static void generateSmoothFDeviationValues()
     {
@@ -444,9 +518,10 @@ public class GenerationDetection
             }
             return; // nothing to analyze in the first frame
         }
-        final int previousFrame = frame - 1;
-        // TODO 2009-11-06, Piotr Buczek: take 2 or 3 frames
-        final Set<Cell> previousFrameCells = cellsByFrame.get(previousFrame);
+        // we take cells from last few cells (for cell with certain id only one Cell will be kept in
+        // the set - the one with the highest frame number)
+        final Set<Cell> previousFramesCells = new HashSet<Cell>();
+        addPreviousFrameCells(previousFramesCells, frame, MAX_PARENT_SHIFT);
         for (Cell cell : newCells)
         {
             // ignore cells that are not new born or not enough data is available
@@ -456,7 +531,7 @@ public class GenerationDetection
             }
             final List<ParentCandidate> parentCandidates = new ArrayList<ParentCandidate>(4);
 
-            for (Cell previousFrameCell : previousFrameCells)
+            for (Cell previousFrameCell : previousFramesCells)
             {
                 final ParentCandidate candidate = ParentCandidate.create(previousFrameCell, cell);
                 // Its easier and more effective to get only those cells that are closer then a
@@ -514,6 +589,19 @@ public class GenerationDetection
             }
         }
 
+    }
+
+    private static void addPreviousFrameCells(Set<Cell> previousFramesCells, int frame, int maxShift)
+    {
+        if (maxShift >= 1)
+        {
+            Set<Cell> previousFrameCells = cellsByFrame.get(frame - 1);
+            if (previousFrameCells != null)
+            {
+                previousFramesCells.addAll(previousFrameCells);
+            }
+            addPreviousFrameCells(previousFramesCells, frame - 1, maxShift - 1);
+        }
     }
 
     private static void filterCandidatesWithFirstPeak(List<ParentCandidate> parentCandidates)

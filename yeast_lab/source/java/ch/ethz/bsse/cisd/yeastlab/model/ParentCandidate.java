@@ -40,8 +40,8 @@ public class ParentCandidate implements Comparable<ParentCandidate>
     }
 
     /**
-     * parent cell from the same frame that the child appeared on or from the previous frame if
-     * parent disappeared just after division
+     * parent cell from the same frame that the child appeared on or from one of the previous frames
+     * if parent disappeared just after division
      */
     private final Cell parent;
 
