@@ -16,6 +16,8 @@
 
 package ch.ethz.bsse.cisd.dsu.dss;
 
+import static ch.ethz.bsse.cisd.dsu.dss.FlowLaneFeeder.asFileName;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
@@ -265,8 +267,10 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                 SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING + "2";
         assertEquals("G2_" + sampleName, transferedFiles[0].getName());
         File metaFile = getFile(transferedFiles[0], FlowLaneFeeder.META_DATA_FILE_TYPE);
-        assertEquals(sampleName + "_" + EXTERNAL_SAMPLE_NAME + FlowLaneFeeder.META_DATA_FILE_TYPE,
-                metaFile.getName());
+        String myFileName =
+                asFileName(sampleName + "_" + EXTERNAL_SAMPLE_NAME
+                        + FlowLaneFeeder.META_DATA_FILE_TYPE);
+        assertEquals(myFileName, metaFile.getName());
         assertHardLinkOnSameFile(originalFlowLane2, getFile(transferedFiles[0], "2.srf"));
 
         context.assertIsSatisfied();
@@ -306,8 +310,8 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                 SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING + "2";
         assertEquals("G2_" + sampleName, transferedFiles[0].getName());
         File metaFile = getFile(transferedFiles[0], FlowLaneFeeder.META_DATA_FILE_TYPE);
-        assertEquals(sampleName + "_" + EXTERNAL_SAMPLE_NAME + FlowLaneFeeder.META_DATA_FILE_TYPE,
-                metaFile.getName());
+        assertEquals(asFileName(sampleName + "_" + EXTERNAL_SAMPLE_NAME
+                + FlowLaneFeeder.META_DATA_FILE_TYPE), metaFile.getName());
         List<String> metaData = FileUtilities.loadToStringList(metaFile);
         String lastLine = metaData.remove(metaData.size() - 1);
         assertEquals("[Parent\tnull, Code\tfc:2, Contact Person Email\tab@c.de, "
@@ -472,7 +476,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         String metaDataFileName =
                 flowLaneSampleCode + (flowLaneNumber.equals("2") ? "_" + EXTERNAL_SAMPLE_NAME : "")
                         + FlowLaneFeeder.META_DATA_FILE_TYPE;
-        metaDataFileName = FlowLaneFeeder.asFileName(metaDataFileName);
+        metaDataFileName = asFileName(metaDataFileName);
         assertEquals(true, new File(ds, metaDataFileName).exists());
         assertEquals(true, new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName).exists());
     }
