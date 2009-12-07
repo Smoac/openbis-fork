@@ -63,7 +63,7 @@ public class HierarchicalStorageUpdater implements IMaintenanceTask
 
     private String hierarchyRoot;
 
-    public void setUp(String pluginName)
+    public void setUp(String pluginName, Properties pluginProperties)
     {
         LogInitializer.init();
         Properties properties = PropertyParametersUtil.loadServiceProperties();

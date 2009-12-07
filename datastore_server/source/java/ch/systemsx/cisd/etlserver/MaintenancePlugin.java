@@ -21,10 +21,10 @@ public class MaintenancePlugin
             this.task = ClassUtils.create(IMaintenanceTask.class, parameters.getClassName());
         } catch (Exception ex)
         {
-            throw new ConfigurationFailureException("Cannot find the plugin class '" + parameters
+            throw new ConfigurationFailureException("Cannot find the plugin class '" + parameters.getClassName()
                     + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
         }
-        task.setUp(parameters.getPluginName());
+        task.setUp(parameters.getPluginName(), parameters.getProperties());
     }
 
     public void start()

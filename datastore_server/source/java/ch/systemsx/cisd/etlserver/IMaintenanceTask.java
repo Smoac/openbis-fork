@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver;
 
+import java.util.Properties;
+
 /**
  * The interface that should be implemented by all maintenance tasks.
  * 
@@ -31,7 +33,10 @@ public interface IMaintenanceTask
 
     /**
      * Prepares the task for execution and checks that it has been configured correctly.
+     * 
+     * @param pluginName Name of the plugin. Useful for creating messages.
+     * @param properties Properties to set up the task. 
      */
-    public void setUp(String pluginName);
+    public void setUp(String pluginName, Properties properties);
 
 }

@@ -37,11 +37,14 @@ public class MaintenanceTaskParameters
 
     private final String className;
 
+    private final Properties properties;
+
     public MaintenanceTaskParameters(Properties properties, String pluginName)
     {
+        this.properties = properties;
         this.pluginName = pluginName;
         interval = PropertyUtils.getLong(properties, INTERVAL_KEY, ONE_DAY_IN_SEC);
-        className = PropertyUtils.getProperty(properties, CLASS_KEY);
+        className = PropertyUtils.getMandatoryProperty(properties, CLASS_KEY);
     }
 
     public long getIntervalSeconds()
@@ -57,5 +60,10 @@ public class MaintenanceTaskParameters
     public String getPluginName()
     {
         return pluginName;
+    }
+
+    public Properties getProperties()
+    {
+        return properties;
     }
 }
