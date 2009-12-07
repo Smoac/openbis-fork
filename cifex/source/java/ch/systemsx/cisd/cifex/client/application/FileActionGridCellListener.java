@@ -82,12 +82,12 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         public final void onSuccess(final Void result)
         {
             assert adminView == false;
-            viewContext.getCifexService().listUploadedFiles(
+            viewContext.getCifexService().listOwnedFiles(
                     new AbstractAsyncCallback<List<FileInfoDTO>>(viewContext)
                         {
                             public final void onSuccess(final List<FileInfoDTO> res)
                             {
-                                modelBasedGrid.setDataAndRefresh(UploadedFileGridModel.convert(viewContext
+                                modelBasedGrid.setDataAndRefresh(OwnedFileGridModel.convert(viewContext
                                         .getMessageResources(), res));
                             }
                         });

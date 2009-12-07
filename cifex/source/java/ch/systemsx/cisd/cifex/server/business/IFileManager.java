@@ -79,9 +79,9 @@ public interface IFileManager
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public List<FileDTO> listDownloadFiles(final long userId);
 
-    /** Lists files uploaded by user with given <var>userId</var>. */
+    /** Lists files directly or indirectly owned by user with given <var>userId</var>. */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
-    public List<FileDTO> listUploadedFiles(final long userId);
+    public List<FileDTO> listOwnedFiles(final long userId);
 
     /**
      * Returns the content for the given <var>fileDTO</var>.

@@ -416,7 +416,7 @@ public final class UserDAOTest extends AbstractDAOTest
         fileDTO.setSize(1L);
         fileDTO.setCompleteSize(1L);
         fileDAO.createFile(fileDTO);
-        assertEquals(1, fileDAO.listUploadedFiles(userDTO.getID()).size());
+        assertEquals(1, fileDAO.listDirectlyAndIndirectlyOwnedFiles(userDTO.getID()).size());
         List<UserDTO> shared = userDAO.listUsersFileSharedWith(fileDTO.getID());
         assertTrue(shared != null);
         assertEquals(shared.size(), 0);

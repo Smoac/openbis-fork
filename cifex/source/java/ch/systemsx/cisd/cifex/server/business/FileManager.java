@@ -179,9 +179,9 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public final List<FileDTO> listUploadedFiles(final long userId)
+    public final List<FileDTO> listOwnedFiles(final long userId)
     {
-        return daoFactory.getFileDAO().listUploadedFiles(userId);
+        return daoFactory.getFileDAO().listDirectlyAndIndirectlyOwnedFiles(userId);
     }
 
     @Transactional
@@ -312,11 +312,19 @@ final class FileManager extends AbstractManager implements IFileManager
     @Transactional
     public boolean isControlling(final UserDTO userDTO, final FileDTO fileDTO)
     {
+        // Admins are in control of all files.
         if (userDTO.isAdmin())
         {
             return true;
         }
+        // The owner of a file is in control of it.
         if (userDTO.getID().equals(fileDTO.getOwnerId()))
+        {
+            return true;
+        }
+        // The registrator of the owner of a file is in control of it, too.
+        if (fileDTO.getOwner() != null
+                && userDTO.getID().equals(fileDTO.getOwner().getRegistrator().getID()))
         {
             return true;
         }

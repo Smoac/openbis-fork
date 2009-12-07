@@ -59,13 +59,10 @@ public class ListDownloadFilesCommand extends AbstractCommandWithSessionToken
             System.out.println("No files available for you to download.");
         } else
         {
-            System.out
-                    .println("Id\tName\tSize\tCRC32\tContent Type\tOwner\tExpiration\tComment");
+            System.out.println("Id\tName\tSize\tCRC32\tContent Type\tOwner\tExpiration\tComment");
             for (FileInfoDTO file : files)
             {
-                final String crc32 =
-                        (file.getCrc32Value() == null) ? "-" : String.format("%x", file
-                                .getCrc32Value());
+                final String crc32 = (file.getCrc32Str() == null) ? "-" : file.getCrc32Str();
                 System.out.println(file.getID() + "\t" + file.getName() + "\t" + file.getSize()
                         + "\t" + crc32 + "\t" + file.getContentType() + "\t" + file.getOwner()
                         + "\t" + file.getExpirationDate() + "\t" + file.getComment());

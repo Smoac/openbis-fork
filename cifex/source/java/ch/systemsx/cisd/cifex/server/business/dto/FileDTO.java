@@ -32,7 +32,7 @@ public final class FileDTO extends ID
 
     /** The relative location of this file. */
     private String path;
-    
+
     /** The comment the uploader provided. */
     private String comment;
 
@@ -40,7 +40,7 @@ public final class FileDTO extends ID
      * Represents the owner of the file.
      */
     private UserDTO owner;
-    
+
     /** User code of the person who (originally) registered the file. */
     private String registratorCode;
 
@@ -64,7 +64,7 @@ public final class FileDTO extends ID
     {
         ownerId = null;
     }
-    
+
     public FileDTO(final UserDTO owner)
     {
         this.owner = owner;
@@ -175,6 +175,12 @@ public final class FileDTO extends ID
     public Integer getCrc32Value()
     {
         return basicFileDTO.getCrc32Value();
+    }
+
+    public String getCrc32Str()
+    {
+        return (basicFileDTO.getCrc32Value() == null) ? "-" : String.format("%x", basicFileDTO
+                .getCrc32Value());
     }
 
     public void setCrc32Value(int crc32Value)

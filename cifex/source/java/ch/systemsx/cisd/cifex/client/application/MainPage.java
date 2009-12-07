@@ -162,7 +162,7 @@ final class MainPage extends AbstractMainPage
             context.getCifexService().listDownloadFiles(callback);
         } else
         {
-            context.getCifexService().listUploadedFiles(callback);
+            context.getCifexService().listOwnedFiles(callback);
         }
     }
 
@@ -240,8 +240,8 @@ final class MainPage extends AbstractMainPage
                 data = DownloadFileGridModel.convert(messageResources, files);
             } else
             {
-                columnConfigs = UploadedFileGridModel.getColumnConfigs(messageResources);
-                data = UploadedFileGridModel.convert(messageResources, files);
+                columnConfigs = OwnedFileGridModel.getColumnConfigs(messageResources);
+                data = OwnedFileGridModel.convert(messageResources, files);
             }
 
             return createFileGrid(columnConfigs, data);

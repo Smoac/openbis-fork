@@ -222,9 +222,13 @@ public interface IMessageResources extends Messages {
 	@Key(value = "file.registrationdate.label")
 	public String getFileRegistrationDateLabel();
 
-	/** Returns the label of the file owner column. */
-	@Key(value = "file.owner.label")
+	/** Returns the label of the file registrator column. */
+	@Key(value = "file.registrator.label")
 	public String getFileRegistratorLabel();
+
+    /** Returns the label of the file owner column. */
+    @Key(value = "file.owner.label")
+    public String getFileOwnerLabel();
 
 	/** Returns the label of the file "shared with" column. */
 	@Key(value = "file.shared_with.label")
@@ -253,6 +257,10 @@ public interface IMessageResources extends Messages {
 	/** Returns the label of the is_complete column. */
 	@Key(value = "file.is_complete.label")
 	public String getIsCompleteLabel();
+
+    /** Returns the label of the CRC32 checksum column. */
+    @Key(value = "file.crc32_checksum.label")
+    public String getCRC32ChecksumLabel();
 
 	/** Returns the label of the file upload part of the page. */
 	@Key(value = "files.part.title")

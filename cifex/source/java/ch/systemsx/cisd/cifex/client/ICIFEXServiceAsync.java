@@ -106,9 +106,9 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void listDownloadFiles(final AsyncCallback<List<FileInfoDTO>> callback);
 
     /**
-     * List the files uploaded by the currently logged user.
+     * List the files directly or indirectly owned by the currently logged user.
      */
-    public void listUploadedFiles(final AsyncCallback<List<FileInfoDTO>> fileAsyncCallback);
+    public void listOwnedFiles(final AsyncCallback<List<FileInfoDTO>> fileAsyncCallback);
 
     /**
      * List all files (only for admins).

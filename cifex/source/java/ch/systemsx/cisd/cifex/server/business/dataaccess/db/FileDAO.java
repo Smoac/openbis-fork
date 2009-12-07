@@ -218,13 +218,15 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         return list;
     }
 
-    public final List<FileDTO> listUploadedFiles(final long userId) throws DataAccessException
+    public final List<FileDTO> listDirectlyAndIndirectlyOwnedFiles(final long userId) throws DataAccessException
     {
         final List<FileDTO> list =
                 getSimpleJdbcTemplate().query(
-                        SELECT_FILES + ", u.* from files f, users u "
-                                + "where f.user_id = u.id and u.id = ?",
-                        FILE_WITH_OWNER_ROW_MAPPER, userId);
+                        SELECT_FILES
+                                + ", u1.* from files f left join users u1 on f.user_id = u1.id "
+                                + "left join users u2 on u1.user_id_registrator = u2.id "
+                                + "where u1.id = ? or u2.id = ?", FILE_WITH_OWNER_ROW_MAPPER,
+                        userId, userId);
         return list;
     }
 

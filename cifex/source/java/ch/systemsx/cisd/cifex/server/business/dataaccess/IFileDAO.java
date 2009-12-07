@@ -51,8 +51,7 @@ public interface IFileDAO
      * Updates the <var>file</var> in the database with the current upload progress.
      */
     public void updateFileUploadProgress(final long id, final long size, final int crc32,
-            final Date expirationDate)
-            throws DataAccessException;
+            final Date expirationDate) throws DataAccessException;
 
     /**
      * Removes <code>File</code> with given id from database.
@@ -94,9 +93,11 @@ public interface IFileDAO
     public List<FileDTO> listDownloadFiles(final long userId) throws DataAccessException;
 
     /**
-     * Returns a list of all files uploaded by user with given <var>userId</var>.
+     * Returns a list of all files owned by the user with given <var>userId</var> or by a user that
+     * this user has registered.
      */
-    public List<FileDTO> listUploadedFiles(final long userId) throws DataAccessException;
+    public List<FileDTO> listDirectlyAndIndirectlyOwnedFiles(final long userId)
+            throws DataAccessException;
 
     /**
      * Returns a partially uploaded file that is a candidate for resuming upload. Candidates are

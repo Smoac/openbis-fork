@@ -194,7 +194,7 @@ public final class FileDAOTest extends AbstractDAOTest
         assertEquals(1, files.size());
         FileDTO file = files.get(0);
         assertEqual(sampleFile, file);
-        List<FileDTO> uploadedFiles = fileDAO.listUploadedFiles(getFirstSampleUserFromDB().getID());
+        List<FileDTO> uploadedFiles = fileDAO.listDirectlyAndIndirectlyOwnedFiles(getFirstSampleUserFromDB().getID());
         // incomplete files are listed in listUploadedFiles()
         assertEquals(1, uploadedFiles.size());
 
@@ -210,7 +210,7 @@ public final class FileDAOTest extends AbstractDAOTest
         // now we mark the file as "complete" as size = complete_size
         fileDAO.updateFileUploadProgress(file.getID(), file.getCompleteSize(), 1234, file
                 .getExpirationDate());
-        uploadedFiles = fileDAO.listUploadedFiles(getFirstSampleUserFromDB().getID());
+        uploadedFiles = fileDAO.listDirectlyAndIndirectlyOwnedFiles(getFirstSampleUserFromDB().getID());
         assertEquals(1, uploadedFiles.size());
         file = uploadedFiles.get(0);
         assertEquals(200L, file.getSize().longValue());

@@ -155,12 +155,12 @@ public interface ICIFEXService extends RemoteService
     public List<FileInfoDTO> listDownloadFiles() throws InvalidSessionException;
 
     /**
-     * List the files uploaded by the currently logged user.
+     * List the files directly or indirectly owned by the currently logged user.
      * <p>
      * Never returns <code>null</code> but could return an empty array.
      * </p>
      */
-    public List<FileInfoDTO> listUploadedFiles() throws InvalidSessionException;
+    public List<FileInfoDTO> listOwnedFiles() throws InvalidSessionException;
 
     /**
      * List all files (only for admins).

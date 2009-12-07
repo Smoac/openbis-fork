@@ -63,7 +63,7 @@ public abstract class AbstractFileListPage extends AbstractMainPage
             context.getCifexService().listDownloadFiles(callback);
         } else
         {
-            context.getCifexService().listUploadedFiles(callback);
+            context.getCifexService().listOwnedFiles(callback);
         }
     }
 
@@ -137,8 +137,8 @@ public abstract class AbstractFileListPage extends AbstractMainPage
                 data = DownloadFileGridModel.convert(messageResources, files);
             } else
             {
-                columnConfigs = UploadedFileGridModel.getColumnConfigs(messageResources);
-                data = UploadedFileGridModel.convert(messageResources, files);
+                columnConfigs = OwnedFileGridModel.getColumnConfigs(messageResources);
+                data = OwnedFileGridModel.convert(messageResources, files);
             }
 
             return createFileGrid(columnConfigs, data);

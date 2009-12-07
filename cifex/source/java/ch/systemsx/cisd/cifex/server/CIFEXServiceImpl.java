@@ -395,7 +395,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return listFiles(DOWNLOAD);
     }
 
-    public final List<FileInfoDTO> listUploadedFiles() throws InvalidSessionException
+    public final List<FileInfoDTO> listOwnedFiles() throws InvalidSessionException
     {
         return listFiles(UPLOAD);
     }
@@ -410,7 +410,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             files = domainModel.getFileManager().listDownloadFiles(user.getID());
         } else
         {
-            files = domainModel.getFileManager().listUploadedFiles(user.getID());
+            files = domainModel.getFileManager().listOwnedFiles(user.getID());
         }
         return BeanUtils.createBeanList(FileInfoDTO.class, files, null);
     }

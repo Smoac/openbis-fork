@@ -693,7 +693,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(files));
                     one(fileDAO).listFiles();
                     will(returnValue(files));
-                    one(fileDAO).listUploadedFiles(userId);
+                    one(fileDAO).listDirectlyAndIndirectlyOwnedFiles(userId);
                     will(returnValue(files));
                 }
             });
@@ -702,7 +702,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         /* listFiles */
         assertEquals(files, fileManager.listFiles());
         /* listUploadedFiles */
-        assertEquals(files, fileManager.listUploadedFiles(userId));
+        assertEquals(files, fileManager.listOwnedFiles(userId));
         context.assertIsSatisfied();
     }
 

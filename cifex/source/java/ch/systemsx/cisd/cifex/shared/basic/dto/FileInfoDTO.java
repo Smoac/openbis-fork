@@ -52,7 +52,9 @@ public class FileInfoDTO implements IsSerializable, Serializable
     
     private long completeSize; 
     
-    private Integer crc32Value;
+    private int crc32Value;
+    
+    private String crc32Str;
 
     /**
      * Person who owns (controls) the file.
@@ -170,14 +172,24 @@ public class FileInfoDTO implements IsSerializable, Serializable
         return getSize() != null && getSize().longValue() == getCompleteSize();
     }
 
-    public void setCrc32Value(Integer crc32Value)
+    public Integer getCrc32Value()
+    {
+        return crc32Value;
+    }
+
+    public void setCrc32Value(int crc32Value)
     {
         this.crc32Value = crc32Value;
     }
 
-    public Integer getCrc32Value()
+    public void setCrc32Str(String crc32Str)
     {
-        return crc32Value;
+        this.crc32Str = crc32Str;
+    }
+
+    public String getCrc32Str()
+    {
+        return crc32Str;
     }
 
     public final String getContentType()

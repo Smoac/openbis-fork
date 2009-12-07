@@ -44,12 +44,12 @@ class UpdateUploadedFileAsyncCallback extends AbstractAsyncCallback<Void>
     public final void onSuccess(final Void result)
     {
 
-        viewContext.getCifexService().listUploadedFiles(
+        viewContext.getCifexService().listOwnedFiles(
                 new AbstractAsyncCallback<List<FileInfoDTO>>(viewContext)
                     {
                         public final void onSuccess(final List<FileInfoDTO> res)
                         {
-                            modelBasedGrid.setDataAndRefresh(UploadedFileGridModel.convert(viewContext
+                            modelBasedGrid.setDataAndRefresh(OwnedFileGridModel.convert(viewContext
                                     .getMessageResources(), res));
                         }
                     });

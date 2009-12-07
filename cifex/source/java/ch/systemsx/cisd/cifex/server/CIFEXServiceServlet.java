@@ -103,9 +103,9 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listDownloadFiles();
     }
 
-    public List<FileInfoDTO> listUploadedFiles() throws InvalidSessionException
+    public List<FileInfoDTO> listOwnedFiles() throws InvalidSessionException
     {
-        return cifexServiceDelegate.listUploadedFiles();
+        return cifexServiceDelegate.listOwnedFiles();
     }
 
     public List<AdminFileInfoDTO> listFiles() throws InvalidSessionException,

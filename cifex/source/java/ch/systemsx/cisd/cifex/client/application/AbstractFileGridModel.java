@@ -53,11 +53,15 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
 
     protected static final String IS_COMPLETE = "isComplete";
 
+    protected static final String CRC32_CHECKSUM = "crc32Checksum";
+
     protected static final String EXPIRATION_DATE = "expirationDate";
 
     protected static final String REGISTRATION_DATE = "registrationDate";
 
     protected static final String OWNER = "owner";
+
+    protected static final String REGISTRATOR = "registrator";
 
     protected static final String SHARED_WITH = "sharedWith";
 
@@ -114,12 +118,21 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     /**
      * Note that this column is not sortable.
      */
-    protected final static ColumnConfig createRegistererColumnConfig(
+    protected final static ColumnConfig createOwnerColumnConfig(IMessageResources messageResources)
+    {
+        final ColumnConfig ownerConfig =
+                createColumnConfig(OWNER, messageResources.getFileOwnerLabel(), 120);
+        return ownerConfig;
+    }
+
+    protected final static ColumnConfig createRegistratorColumnConfig(
             IMessageResources messageResources)
     {
-        final ColumnConfig registererConfig =
-                createColumnConfig(OWNER, messageResources.getFileRegistratorLabel(), 120);
-        return registererConfig;
+        final ColumnConfig registratorConfig =
+                createSortableColumnConfig(REGISTRATOR, messageResources.getFileRegistratorLabel(),
+                        80);
+        registratorConfig.setHidden(true);
+        return registratorConfig;
     }
 
     /**
@@ -155,6 +168,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
                 createSortableColumnConfig(COMPLETE_SIZE, messageResources
                         .getCompleteFileSizeLabel(), 80);
         columnConfig.setRenderer(FileSizeRenderer.FILE_SIZE_RENDERER);
+        columnConfig.setHidden(true);
         return columnConfig;
     }
 
@@ -163,6 +177,16 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(IS_COMPLETE, messageResources.getIsCompleteLabel(), 80);
+        return columnConfig;
+    }
+
+    protected final static ColumnConfig createCRC32ChecksumColumnConfig(
+            IMessageResources messageResources)
+    {
+        final ColumnConfig columnConfig =
+                createSortableColumnConfig(CRC32_CHECKSUM,
+                        messageResources.getCRC32ChecksumLabel(), 80);
+        columnConfig.setHidden(true);
         return columnConfig;
     }
 

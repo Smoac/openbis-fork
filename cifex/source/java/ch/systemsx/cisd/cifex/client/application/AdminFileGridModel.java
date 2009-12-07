@@ -43,12 +43,13 @@ public class AdminFileGridModel extends AbstractFileGridModel
         configs.add(createIdColumnConfig());
         configs.add(createNameColumnConfig(messageResources));
         configs.add(createCommentColumnConfig(messageResources));
-        configs.add(createRegistererColumnConfig(messageResources));
-        configs.add(createSharedWithColumnConfig(messageResources));
+        configs.add(createOwnerColumnConfig(messageResources));
+        configs.add(createRegistratorColumnConfig(messageResources));
         configs.add(createContentTypeColumnConfig(messageResources));
         configs.add(createSizeColumnConfig(messageResources));
         configs.add(createCompleteSizeColumnConfig(messageResources));
         configs.add(createIsCompleteColumnConfig(messageResources));
+        configs.add(createCRC32ChecksumColumnConfig(messageResources));
         configs.add(createRegistrationDateColumnConfig(messageResources));
         configs.add(createExpirationDateColumnConfig(messageResources));
         configs.add(createActionColumnConfig(messageResources));
@@ -62,18 +63,23 @@ public class AdminFileGridModel extends AbstractFileGridModel
         set(NAME, file.getName());// String
         set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
         set(OWNER, UserRenderer.createUserAnchor(file.getOwner()));// String
+        set(REGISTRATOR, file.getRegistratorCode());// String
         set(SHARED_WITH, UserRenderer.createUserAnchor(file.getSharingUsers()));// String
         set(CONTENT_TYPE, file.getContentType());// String
         set(SIZE, FileUtils.tryToGetFileSize(file));// Double
         set(COMPLETE_SIZE, new Double(file.getCompleteSize()));// Double
         set(IS_COMPLETE, Boolean.valueOf(file.isComplete()));// Boolean
+        set(CRC32_CHECKSUM, file.getCrc32Str());// String
         set(REGISTRATION_DATE, file.getRegistrationDate());// Date
         set(EXPIRATION_DATE, file.getExpirationDate());// Date
         set(ACTION, DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
                 Constants.RENEW_ID)
                 + " | "
                 + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
-                        Constants.DELETE_ID));// String
+                        Constants.DELETE_ID)
+                + " | "
+                + DOMUtils.createAnchor(messageResources.getActionSharedLabel(),
+                        Constants.SHARED_ID));// String
     }
 
     public final static List<AbstractFileGridModel> convert(IMessageResources messageResources,

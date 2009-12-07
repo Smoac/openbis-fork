@@ -22,27 +22,29 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
+import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
- * A <code>AbstractFileGridModel</code> extension for uploaded files.
+ * A <code>AbstractFileGridModel</code> extension for (directly or indirectly) owned files.
  * 
  * @author Izabela Adamczyk
  */
-public class UploadedFileGridModel extends AbstractFileGridModel
+public class OwnedFileGridModel extends AbstractFileGridModel
 {
     private static final long serialVersionUID = Constants.VERSION;
 
-    public UploadedFileGridModel(IMessageResources messageResources, FileInfoDTO file)
+    public OwnedFileGridModel(IMessageResources messageResources, FileInfoDTO file)
     {
 
         super(messageResources);
         set(ID, file.getID());// long
         set(NAME, file.getName());// String
         set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
+        set(OWNER, UserRenderer.createUserAnchor(file.getOwner()));// String
         set(CONTENT_TYPE, file.getContentType());// String
         set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
         set(COMPLETE_SIZE, new Double(file.getCompleteSize()));// Double
@@ -65,6 +67,7 @@ public class UploadedFileGridModel extends AbstractFileGridModel
         configs.add(createIdColumnConfig());
         configs.add(createNameColumnConfig(messageResources));
         configs.add(createCommentColumnConfig(messageResources));
+        configs.add(createOwnerColumnConfig(messageResources));
         configs.add(createContentTypeColumnConfig(messageResources));
         configs.add(createSizeColumnConfig(messageResources));
         configs.add(createCompleteSizeColumnConfig(messageResources));
@@ -82,7 +85,7 @@ public class UploadedFileGridModel extends AbstractFileGridModel
 
         for (final FileInfoDTO filter : filters)
         {
-            result.add(new UploadedFileGridModel(messageResources, filter));
+            result.add(new OwnedFileGridModel(messageResources, filter));
         }
         return result;
     }

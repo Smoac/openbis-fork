@@ -57,7 +57,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         configs.add(createCommentColumnConfig(messageResources));
         configs.add(createContentTypeColumnConfig(messageResources));
         configs.add(createSizeColumnConfig(messageResources));
-        configs.add(createRegistererColumnConfig(messageResources));
+        configs.add(createOwnerColumnConfig(messageResources));
         configs.add(createRegistrationDateColumnConfig(messageResources));
         configs.add(createExpirationDateColumnConfig(messageResources));
         return configs;
