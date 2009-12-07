@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -389,10 +390,21 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
 
     private Map<String, VocabularyTerm> prepareUpdateMap(List<VocabularyTerm> terms)
     {
+        // additionally check if all terms are present only once
         Map<String, VocabularyTerm> newTermsMap = new HashMap<String, VocabularyTerm>();
+        Set<String> multipliedCodes = new LinkedHashSet<String>(); // keep order
         for (VocabularyTerm v : terms)
         {
-            newTermsMap.put(v.getCode(), v);
+            VocabularyTerm previousTermOrNull = newTermsMap.put(v.getCode(), v);
+            if (previousTermOrNull != null)
+            {
+                multipliedCodes.add(v.getCode());
+            }
+        }
+        if (multipliedCodes.size() > 0)
+        {
+            throw new UserFailureException(String.format("Mulitiple rows found for terms: [%s]",
+                    StringUtils.join(multipliedCodes, ",")));
         }
         return newTermsMap;
     }
@@ -414,8 +426,7 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     {
         for (VocabularyTerm newTerm : newTermsMap.values())
         {
-            addTerm(newTerm.getCode(), newTerm.getDescription(), newTerm.getLabel(), newTerm
-                    .getOrdinal());
+            addTerm(newTerm, newTerm.getOrdinal());
         }
     }
 

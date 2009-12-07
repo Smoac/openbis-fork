@@ -431,7 +431,10 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
                     DatabaseModificationKind.edit(ObjectKind.SAMPLE),
                     DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
+                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    // TODO 2009-12-07, Piotr Buczek: remove when bulk update is moved to term grid
+                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
+                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM), };
     }
 
     private void deleteTerms()
