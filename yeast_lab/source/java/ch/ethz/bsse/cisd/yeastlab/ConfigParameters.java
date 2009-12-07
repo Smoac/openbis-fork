@@ -371,7 +371,6 @@ final class ConfigParameters
                 getFirstPeakMaxFrameHeightDiffExceptions()));
         sb.append(String.format("first-peak-min-total-height-diff: %1.2f\n",
                 getFirstPeakMinTotalHeightDiff()));
-        sb.append("\n");
         return sb.toString();
     }
 

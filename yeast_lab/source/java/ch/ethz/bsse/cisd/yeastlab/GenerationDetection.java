@@ -946,7 +946,7 @@ public class GenerationDetection
                     {
                         sb.append(candidateInformation(candidate) + ",");
                     }
-                    return String.format("%d \t f:%d \t p:%d \t c(%d):%s", cell.getId(), cell
+                    return String.format("%d \t f:%d \t m:%d \t c(%d):%s", cell.getId(), cell
                             .getFrame()
                             + FRAME_OFFSET, cell.getParentCellId(), candidates.length, sb
                             .toString());
