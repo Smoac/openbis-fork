@@ -1,4 +1,4 @@
-<project name="yeastx" default="dist" basedir="..">
+<project name="rtd_yeastx" default="dist" basedir="..">
 	<import file="../../build_resources/ant/build-common.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
@@ -14,7 +14,13 @@
 
 	<target name="compile" depends="build-common.compile, clean" />
 
-	<target name="dist" depends="jar" />
+	<target name="dist" depends="jar" >
+		<move file="${jar.file}" todir="${dist}/lib" />
+		<property name="dist.file"
+		          value="${dist}/datastore_server_plugin-yeastx-${version.number}-r${revision.number}.zip" />
+		<zip basedir="${dist}" destfile="${dist.file}" excludes="*.zip *.jar"/>
+		<delete dir="${dist}/lib"/>
+	</target>
 	
 	<target name="jar" depends="compile">
 		<mkdir dir="${dist}" />
@@ -31,7 +37,17 @@
 			<fileset dir="source/java">
 				<include name="**/*.xsd" />
 			</fileset>	
+			<manifest>
+				<attribute name="Main-Class" value="ch.systemsx.cisd.yeastx.BuildAndEnvironmentInfo" />
+				<attribute name="Version" value="${version.number}" />
+				<attribute name="Build-Number"
+				           value="${version.number} (r${revision.number},${clean.flag})" />
+			</manifest>
 		</recursive-jar>
+		<jar update="true" destfile="${jar.file}">
+			<zipfileset src="${lib}/cisd-base/cisd-base.jar"
+			            includes="ch/systemsx/cisd/base/utilities/AbstractBuildAndEnvironmentInfo.class" />
+		</jar>
 	</target>
 
       <!--
