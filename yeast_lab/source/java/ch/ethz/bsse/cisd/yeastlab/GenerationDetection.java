@@ -54,6 +54,7 @@ public class GenerationDetection
 {
 
     // properties that can be modified by the user
+    static final boolean DEBUG;
 
     private static final int ISOLATED_FAKE_CELL_REMOVAL_WINDOW;
 
@@ -91,6 +92,7 @@ public class GenerationDetection
     {
         configParameters = new ConfigParameters(PROPERTIES_FILE_PATH);
         log(configParameters.getDescription());
+        DEBUG = configParameters.isDebugEnabled();
         ISOLATED_FAKE_CELL_REMOVAL_WINDOW = configParameters.getIsolatedFakeFrameRemovalWindow();
         MAX_F_MEAN_OF_LIVING_CELL = configParameters.getMaxFMeanOfLivingCell();
         MAX_NEW_BORN_CELL_PIXELS = configParameters.getMaxNewBornCellPixels();
@@ -107,8 +109,6 @@ public class GenerationDetection
     // constants
 
     static final boolean PRODUCTION = true;
-
-    static final boolean DEBUG = false;
 
     static final int FIRST_FRAME_NUM = 0;
 
@@ -299,10 +299,6 @@ public class GenerationDetection
             byFrame.put(cell.getFrame(), cell);
             // initialize candidates
             parentCandidatesByChildId.put(cell.getId(), initialCandidates);
-            if (cell.getMajAxis() > maxAxis)
-            {
-                maxAxis = cell.getMajAxis();
-            }
             if (cell.getFrame() > maxFrame)
             {
                 maxFrame = cell.getFrame();
@@ -351,6 +347,15 @@ public class GenerationDetection
 
         removeIsolatedFakeFrames(cells);
         generateSmoothFDeviationValues();
+
+        // get maxAxis of cells excluding fake cells
+        for (Cell cell : cells)
+        {
+            if (cell.getMajAxis() > maxAxis)
+            {
+                maxAxis = cell.getMajAxis();
+            }
+        }
     }
 
     private static void removeIsolatedFakeFrames(List<Cell> cells)
@@ -691,7 +696,6 @@ public class GenerationDetection
     {
         if (matchingFirstFluoerscencePeakCondition == null)
         {
-            final int framesToIgnore = configParameters.getFirstPeakNumberOfFirstFramesToIgnore();
             final int maxChildOffset = configParameters.getFirstPeakMaxChildOffset();
             final int maxParentOffset = configParameters.getFirstPeakMaxParentOffset();
             final int maxMissing = configParameters.getFirstPeakMaxMissing();
@@ -703,7 +707,7 @@ public class GenerationDetection
 
             matchingFirstFluoerscencePeakCondition =
                     new MatchingFirstFluorescencePeakCandidateCondition(sfdProvider,
-                            framesToIgnore, maxChildOffset, maxParentOffset, maxMissing, minLength,
+                            maxChildOffset, maxParentOffset, maxMissing, minLength,
                             minFrameHeightDiff, minTotalHeightDiff, maxFrameHeightDiffExceptions);
         }
         return matchingFirstFluoerscencePeakCondition;

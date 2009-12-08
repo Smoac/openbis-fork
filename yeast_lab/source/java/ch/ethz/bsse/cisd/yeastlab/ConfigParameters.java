@@ -28,6 +28,8 @@ import ch.systemsx.cisd.common.utilities.PropertyUtils;
  */
 final class ConfigParameters
 {
+    private static final String DEBUG_ENABLED = "debug-enabled";
+
     private static final String BEGINNING_F_WINDOW_FILTER_ENABLED =
             "beginning-f-window-filter-enabled";
 
@@ -58,9 +60,6 @@ final class ConfigParameters
     private static final String FIRST_PEAK_MIN_TOTAL_HEIGHT_DIFF =
             "first-peak-min-total-height-diff";
 
-    private static final String FIRST_PEAK_NUMBER_OF_FIRST_FRAMES_TO_IGNORE =
-            "first-peak-number-of-first-frames-to-ignore";
-
     private static final String ISOLATED_FAKE_FRAME_REMOVAL_WINDOW =
             "isolated-fake-frame-removal-window";
 
@@ -84,6 +83,8 @@ final class ConfigParameters
     private static final String NUMBER_OF_LAST_FRAMES_TO_IGNORE = "number-of-last-frames-to-ignore";
 
     private static final String SMOOTH_F_DEVIATION_WINDOW = "smooth-f-deviation-window";
+
+    private final boolean debugEnabled;
 
     private final boolean beginningFWindowFilterEnabled;
 
@@ -110,8 +111,6 @@ final class ConfigParameters
     private final int firstPeakMaxParentOffset;
 
     private final int firstPeakMaxMissing;
-
-    private final int firstPeakNumberOfFirstFramesToIgnore;
 
     private final int isolatedFakeFrameRemovalWindow;
 
@@ -153,6 +152,8 @@ final class ConfigParameters
      */
     private ConfigParameters(final Properties properties)
     {
+        debugEnabled = getMandatoryBooleanProperty(properties, DEBUG_ENABLED);
+
         beginningFWindowFilterEnabled =
                 getMandatoryBooleanProperty(properties, BEGINNING_F_WINDOW_FILTER_ENABLED);
         beginningFWindowLength = getMandatoryIntegerProperty(properties, BEGINNING_F_WINDOW_LENGTH);
@@ -176,8 +177,6 @@ final class ConfigParameters
         firstPeakMinLength = getMandatoryIntegerProperty(properties, FIRST_PEAK_MIN_LENGTH);
         firstPeakMinTotalHeightDiff =
                 getMandatoryDoubleProperty(properties, FIRST_PEAK_MIN_TOTAL_HEIGHT_DIFF);
-        firstPeakNumberOfFirstFramesToIgnore =
-                getMandatoryIntegerProperty(properties, FIRST_PEAK_NUMBER_OF_FIRST_FRAMES_TO_IGNORE);
 
         isolatedFakeFrameRemovalWindow =
                 getMandatoryIntegerProperty(properties, ISOLATED_FAKE_FRAME_REMOVAL_WINDOW);
@@ -252,6 +251,11 @@ final class ConfigParameters
         return smoothFDeviationWindow;
     }
 
+    public boolean isDebugEnabled()
+    {
+        return debugEnabled;
+    }
+
     public boolean isBeginningFWindowFilterEnabled()
     {
         return beginningFWindowFilterEnabled;
@@ -317,11 +321,6 @@ final class ConfigParameters
         return firstPeakMinTotalHeightDiff;
     }
 
-    public int getFirstPeakNumberOfFirstFramesToIgnore()
-    {
-        return firstPeakNumberOfFirstFramesToIgnore;
-    }
-
     public final String getDescription()
     {
         final StringBuilder sb = new StringBuilder();
@@ -348,6 +347,9 @@ final class ConfigParameters
         sb.append(String.format(
                 "Frame window radius for smooth fluorescence deviation evaluation: %d\n",
                 getSmoothFDeviationWindow()));
+        sb.append(String.format(
+                "Show additional debug information about filter computations: %s\n",
+                isDebugEnabled()));
         sb.append(String.format("beginning-f-window-filter-enabled: %s\n",
                 isBeginningFWindowFilterEnabled()));
         sb.append(String.format("beginning-f-window-length: %d\n", getBeginningFWindowLength()));
@@ -358,8 +360,6 @@ final class ConfigParameters
         sb.append(String.format("beginning-f-window-max-offset: %d\n",
                 getBeginningFWindowMaxOffset()));
         sb.append(String.format("first-peak-filter-enabled: %s\n", isFirstPeakFilterEnabled()));
-        sb.append(String.format("first-peak-number-of-first-frames-to-ignore: %d\n",
-                getFirstPeakNumberOfFirstFramesToIgnore()));
         sb.append(String.format("first-peak-max-child-offset: %d\n", getFirstPeakMaxChildOffset()));
         sb.append(String
                 .format("first-peak-max-parent-offset: %d\n", getFirstPeakMaxParentOffset()));

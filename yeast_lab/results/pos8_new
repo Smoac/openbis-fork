@@ -11,6 +11,6 @@ stable nucleus = 2 / non-consecutive
 +P 442 	 f:93 	 p:33 	 c(1):33,
 triv 449 	 f:99 	 p:4 	 c(1):4,
 triv 451 	 f:101 	 p:25 	 c(1):25,
-- 477 349 (6)  - poor segmentation
++B 477 	 f:122 	 p:6 	 c(1):6, - poor segmentation
 
 - 466 408,33 - can't decide + unstable nucleus

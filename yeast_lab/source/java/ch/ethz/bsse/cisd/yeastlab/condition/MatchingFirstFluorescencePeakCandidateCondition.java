@@ -31,8 +31,6 @@ public class MatchingFirstFluorescencePeakCandidateCondition implements IBetterC
 {
     private final ISmoothFluorescenceDeviationsProvider sfdProvider;
 
-    private final int framesToIgnore;
-
     private final int maxChildOffset;
 
     private final int maxParentOffset;
@@ -48,13 +46,12 @@ public class MatchingFirstFluorescencePeakCandidateCondition implements IBetterC
     private final int maxFrameHeightDiffExceptions;
 
     public MatchingFirstFluorescencePeakCandidateCondition(
-            ISmoothFluorescenceDeviationsProvider sfdProvider, int framesToIgnore,
-            int maxChildOffset, int maxParentOffset, int maxMissing, int minLength,
-            double minFrameHeightDiff, double minTotalHeightDiff, int maxFrameHeightDiffExceptions)
+            ISmoothFluorescenceDeviationsProvider sfdProvider, int maxChildOffset,
+            int maxParentOffset, int maxMissing, int minLength, double minFrameHeightDiff,
+            double minTotalHeightDiff, int maxFrameHeightDiffExceptions)
     {
         this.sfdProvider = sfdProvider;
 
-        this.framesToIgnore = framesToIgnore;
         this.maxChildOffset = maxChildOffset;
         this.maxParentOffset = maxParentOffset;
         this.maxMissing = maxMissing;
@@ -68,8 +65,7 @@ public class MatchingFirstFluorescencePeakCandidateCondition implements IBetterC
     {
         final int childId = candidate.getChild().getId();
         final int candidateId = candidate.getParent().getId();
-
-        int minFrame = candidate.getChild().getFrame() + framesToIgnore;
+        final int minFrame = candidate.getChild().getFrame();
 
         Integer childFirstPeakStartOrNull = tryFindPeakStart(childId, minFrame, maxChildOffset);
         if (childFirstPeakStartOrNull != null)
@@ -77,16 +73,16 @@ public class MatchingFirstFluorescencePeakCandidateCondition implements IBetterC
             if (tryFindPeakStart(candidateId, childFirstPeakStartOrNull - maxParentOffset,
                     maxParentOffset * 2) != null)
             {
-                debug(String.format("found candidate %d peak ", candidateId));
+                debug(String.format("found candidate %d peak", candidateId));
                 return true;
             } else
             {
-                debug(String.format("didn't find candidate %d peak ", candidateId));
+                debug(String.format("didn't find candidate %d peak", candidateId));
                 return false;
             }
         } else
         {
-            debug(String.format("didn't find child %d peak ", childId));
+            debug(String.format("didn't find child %d peak", childId));
             return false;
         }
     }
