@@ -10,7 +10,7 @@
 # Check dependencies to openbis
 
 [etlserver] = ${root}.etlserver.phosphonetx.*
-[private_openbis] = ${root}.* excluding [etlserver] ${root}.dss.generic.shared.* ${root}.generic.shared.*
+[private_openbis] = ${root}.* excluding [etlserver] ${root}.dss.generic.shared.* ${root}.generic.shared.* ${phosphonetx}.shared.*
 
 check sets [etlserver]
 
