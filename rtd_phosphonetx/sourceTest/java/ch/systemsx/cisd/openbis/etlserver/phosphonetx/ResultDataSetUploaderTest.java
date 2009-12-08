@@ -596,20 +596,36 @@ public class ResultDataSetUploaderTest extends AssertJUnit
         return info;
     }
 
-    private ProteinSummary createProteinSummary(ProteinSummaryDataFilter... dataFilters)
+    private ProteinSummary createProteinSummary()
     {
         ProteinSummary proteinSummary = new ProteinSummary();
         ProteinSummaryHeader proteinSummaryHeader = new ProteinSummaryHeader();
         proteinSummaryHeader.setReferenceDatabase(REFERENCE_DATABASE);
         ProgramDetails programDetails = new ProgramDetails();
         ProteinProphetDetails proteinProphetDetails = new ProteinProphetDetails();
-        proteinProphetDetails.setDataFilters(Arrays.asList(dataFilters));
+        ProteinSummaryDataFilter m1 = createFilter(0.5, 0.125);
+        ProteinSummaryDataFilter m2 = createFilter(1.0, 0.0);
+        proteinProphetDetails.setDataFilters(Arrays.asList(m1, m2));
         programDetails.setSummary(new Object[]
             { proteinProphetDetails });
         proteinSummaryHeader.setProgramDetails(programDetails);
         proteinSummary.setSummaryHeader(proteinSummaryHeader);
         proteinSummary.setProteinGroups(new ArrayList<ProteinGroup>());
         return proteinSummary;
+    }
+
+    private ProteinSummaryDataFilter createFilter(final double probability, final double fdr)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dao).createProbabilityToFDRMapping(DATA_SET_ID, probability, fdr);
+                }
+            });
+        ProteinSummaryDataFilter mapping = new ProteinSummaryDataFilter();
+        mapping.setMinProbability(probability);
+        mapping.setFalsePositiveErrorRate(fdr);
+        return mapping;
     }
 
 }
