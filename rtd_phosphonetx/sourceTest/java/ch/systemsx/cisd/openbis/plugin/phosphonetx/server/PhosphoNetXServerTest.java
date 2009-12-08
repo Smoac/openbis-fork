@@ -70,9 +70,8 @@ public class PhosphoNetXServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(phosphoNetXDAOFactory).getProteinQueryDAOFromPool();
+                    allowing(phosphoNetXDAOFactory).getProteinQueryDAO();
                     will(returnValue(proteinDAO));
-                    allowing(phosphoNetXDAOFactory).returnProteinQueryDAOToPool(proteinDAO);
                 }
             });
     }

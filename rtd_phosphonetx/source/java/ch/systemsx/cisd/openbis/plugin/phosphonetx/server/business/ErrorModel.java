@@ -69,27 +69,15 @@ class ErrorModel
         if (calculator == null)
         {
             calculator = new ProbabilityToFDRCalculator();
-            final IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAOFromPool();
-            try
+            IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
+            DataSet<ProbabilityFDRMapping> mappings = dao.getProbabilityFDRMapping(dataSetID);
+            for (ProbabilityFDRMapping probabilityFDRMapping : mappings)
             {
-                final DataSet<ProbabilityFDRMapping> mappings =
-                        dao.getProbabilityFDRMapping(dataSetID);
-                try
-                {
-                    for (ProbabilityFDRMapping probabilityFDRMapping : mappings)
-                    {
-                        double probability = probabilityFDRMapping.getProbability();
-                        double falseDiscoveryRate = probabilityFDRMapping.getFalseDiscoveryRate();
-                        calculator.add(probability, falseDiscoveryRate);
-                    }
-                } finally
-                {
-                    mappings.close();
-                }
-            } finally
-            {
-                specificDAOFactory.returnProteinQueryDAOToPool(dao);
+                double probability = probabilityFDRMapping.getProbability();
+                double falseDiscoveryRate = probabilityFDRMapping.getFalseDiscoveryRate();
+                calculator.add(probability, falseDiscoveryRate);
             }
+            mappings.close();
             calculator.init();
             calculators.put(dataSetID, calculator);
         }

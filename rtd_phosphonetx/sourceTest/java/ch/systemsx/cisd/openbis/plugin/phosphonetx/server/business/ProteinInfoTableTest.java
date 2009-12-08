@@ -75,11 +75,8 @@ public class ProteinInfoTableTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    allowing(specificDAOFactory).getProteinQueryDAOFromPool();
+                    allowing(specificDAOFactory).getProteinQueryDAO();
                     will(returnValue(proteinDAO));
-                    allowing(specificDAOFactory).tryGetProteinQueryDAOFromPool();
-                    will(returnValue(proteinDAO));
-                    allowing(specificDAOFactory).returnProteinQueryDAOToPool(proteinDAO);
                 }
             });
         table = new ProteinInfoTable(daoFactory, specificDAOFactory, SESSION);

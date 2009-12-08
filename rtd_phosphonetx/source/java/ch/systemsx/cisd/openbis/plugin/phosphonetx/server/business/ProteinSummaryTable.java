@@ -88,43 +88,37 @@ class ProteinSummaryTable extends AbstractBusinessObject implements IProteinSumm
 
     public void load(TechId experimentID)
     {
-        final IExperimentDAO experimentDAO = getDaoFactory().getExperimentDAO();
-        final String permID = experimentDAO.getByTechId(experimentID).getPermId();
-        final ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
-        final IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAOFromPool();
+        IExperimentDAO experimentDAO = getDaoFactory().getExperimentDAO();
+        String permID = experimentDAO.getByTechId(experimentID).getPermId();
+        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
+        ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
+        DataSet<ProteinReferenceWithProbabilityAndPeptide> resultSet =
+                dao.listProteinsWithProbabilityAndPeptidesByExperiment(permID);
+        List<Counter> counters = new ArrayList<Counter>(FDR_LEVELS.length);
+        for (double fdrLevel : FDR_LEVELS)
+        {
+            counters.add(new Counter(fdrLevel));
+        }
         try
         {
-            final DataSet<ProteinReferenceWithProbabilityAndPeptide> resultSet =
-                    dao.listProteinsWithProbabilityAndPeptidesByExperiment(permID);
-            final List<Counter> counters = new ArrayList<Counter>(FDR_LEVELS.length);
-            for (double fdrLevel : FDR_LEVELS)
+            for (ProteinReferenceWithProbabilityAndPeptide protein : resultSet)
             {
-                counters.add(new Counter(fdrLevel));
-            }
-            try
-            {
-                for (ProteinReferenceWithProbabilityAndPeptide protein : resultSet)
-                {
-                    long dataSetID = protein.getDataSetID();
-                    double probability = protein.getProbability();
-                    double fdr = errorModel.calculateFalsDiscoveryRate(dataSetID, probability);
-                    for (Counter counter : counters)
-                    {
-                        counter.handle(fdr, protein);
-                    }
-                }
-                summaries = new ArrayList<ProteinSummary>(counters.size());
+                long dataSetID = protein.getDataSetID();
+                double probability = protein.getProbability();
+                double fdr = errorModel.calculateFalsDiscoveryRate(dataSetID, probability);
                 for (Counter counter : counters)
                 {
-                    summaries.add(counter.getProteinSummary());
+                    counter.handle(fdr, protein);
                 }
-            } finally
+            }
+            summaries = new ArrayList<ProteinSummary>(counters.size());
+            for (Counter counter : counters)
             {
-                resultSet.close();
+                summaries.add(counter.getProteinSummary());
             }
         } finally
         {
-            getSpecificDAOFactory().returnProteinQueryDAOToPool(dao);
+            resultSet.close();
         }
     }
 

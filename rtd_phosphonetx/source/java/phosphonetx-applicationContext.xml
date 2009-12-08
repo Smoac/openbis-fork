@@ -32,7 +32,6 @@
     <bean id="phosphonetx-dao-factory"
           class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.db.PhosphoNetXDAOFactory">
         <constructor-arg ref="phosphonetx-db-configuration-context"/>
-        <constructor-arg value="${phosphonetx.number-of-parallel-queries}"/>
     </bean>
     
     <bean id="phosphonetx-bo-factory"

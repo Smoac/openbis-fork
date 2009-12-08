@@ -16,9 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.db;
 
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import net.lemnik.eodsql.QueryTool;
 
@@ -43,57 +42,28 @@ public class PhosphoNetXDAOFactory implements IPhosphoNetXDAOFactory
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PhosphoNetXDAOFactory.class);
 
-    private final BlockingQueue<IProteinQueryDAO> availableProteinQueryObjects =
-            new LinkedBlockingQueue<IProteinQueryDAO>();
+    private IProteinQueryDAO proteinQueryDAO;
 
-    public PhosphoNetXDAOFactory(DatabaseConfigurationContext context,
-            int numberOfParallelQueriesHint)
+    public PhosphoNetXDAOFactory(DatabaseConfigurationContext context)
     {
-        final int numberOfParallelQueries =
-                (numberOfParallelQueriesHint <= 0) ? Runtime.getRuntime().availableProcessors()
-                        : numberOfParallelQueriesHint;
         DBMigrationEngine.createOrMigrateDatabaseAndGetScriptProvider(context, DATABASE_VERSION);
-        for (int i = 0; i < numberOfParallelQueries; ++i)
+        Connection connection = null;
+        try
         {
-            availableProteinQueryObjects.add(createQuery(context));
+            connection = context.getDataSource().getConnection();
+        } catch (SQLException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         }
+        proteinQueryDAO = QueryTool.getQuery(connection, IProteinQueryDAO.class);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("DAO factory for PhosphoNetX created.");
         }
     }
 
-    private IProteinQueryDAO createQuery(DatabaseConfigurationContext context)
+    public IProteinQueryDAO getProteinQueryDAO()
     {
-        try
-        {
-            return QueryTool.getQuery(context.getDataSource().getConnection(),
-                    IProteinQueryDAO.class);
-        } catch (SQLException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
+        return proteinQueryDAO;
     }
-
-    public IProteinQueryDAO getProteinQueryDAOFromPool()
-    {
-        try
-        {
-            return availableProteinQueryObjects.take();
-        } catch (InterruptedException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        }
-    }
-
-    public IProteinQueryDAO tryGetProteinQueryDAOFromPool()
-    {
-        return availableProteinQueryObjects.poll();
-    }
-
-    public void returnProteinQueryDAOToPool(IProteinQueryDAO proteinQueryDAO)
-    {
-        availableProteinQueryObjects.add(proteinQueryDAO);
-    }
-
 }

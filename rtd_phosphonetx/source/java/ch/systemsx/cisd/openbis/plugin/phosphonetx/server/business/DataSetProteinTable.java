@@ -50,37 +50,25 @@ class DataSetProteinTable extends AbstractBusinessObject implements IDataSetProt
     public void load(String experimentPermID, TechId proteinReferenceID,
             IProteinSequenceTable sequenceTable)
     {
-        final ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
-        final IProteinQueryDAO proteinQueryDAO =
-                getSpecificDAOFactory().getProteinQueryDAOFromPool();
-        try
+        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
+        ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
+        DataSet<IdentifiedProtein> proteins =
+                proteinQueryDAO.listProteinsByProteinReferenceAndExperiment(experimentPermID,
+                        proteinReferenceID.getId());
+        dataSetProteins = new ArrayList<DataSetProtein>();
+        for (IdentifiedProtein protein : proteins)
         {
-            final DataSet<IdentifiedProtein> proteins =
-                    proteinQueryDAO.listProteinsByProteinReferenceAndExperiment(experimentPermID,
-                            proteinReferenceID.getId());
-            try
-            {
-                dataSetProteins = new ArrayList<DataSetProtein>();
-                for (IdentifiedProtein protein : proteins)
-                {
-                    errorModel.setFalseDiscoveryRateFor(protein);
-                    DataSetProtein dataSetProtein = new DataSetProtein();
-                    dataSetProtein.setDataSetID(new TechId(protein.getDataSetID()));
-                    dataSetProtein.setDataSetPermID(protein.getDataSetPermID());
-                    dataSetProtein.setFalseDiscoveryRate(protein.getFalseDiscoveryRate());
-                    dataSetProtein.setPeptideCount(protein.getPeptideCount());
-                    dataSetProtein.setProteinID(new TechId(protein.getProteinID()));
-                    dataSetProtein.setSequenceName(sequenceTable.getShortName(protein.getDatabaseID()));
-                    dataSetProteins.add(dataSetProtein);
-                }
-            } finally
-            {
-                proteins.close();
-            }
-        } finally
-        {
-            getSpecificDAOFactory().returnProteinQueryDAOToPool(proteinQueryDAO);
+            errorModel.setFalseDiscoveryRateFor(protein);
+            DataSetProtein dataSetProtein = new DataSetProtein();
+            dataSetProtein.setDataSetID(new TechId(protein.getDataSetID()));
+            dataSetProtein.setDataSetPermID(protein.getDataSetPermID());
+            dataSetProtein.setFalseDiscoveryRate(protein.getFalseDiscoveryRate());
+            dataSetProtein.setPeptideCount(protein.getPeptideCount());
+            dataSetProtein.setProteinID(new TechId(protein.getProteinID()));
+            dataSetProtein.setSequenceName(sequenceTable.getShortName(protein.getDatabaseID()));
+            dataSetProteins.add(dataSetProtein);
         }
+        proteins.close();
     }
 
 }

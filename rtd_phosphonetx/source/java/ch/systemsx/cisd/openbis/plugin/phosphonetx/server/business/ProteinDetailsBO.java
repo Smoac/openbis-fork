@@ -54,74 +54,53 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
     public void loadByExperimentAndReference(TechId experimentID, TechId proteinReferenceID)
     {
         String experimentPermID = getExperimentPermIDFor(experimentID);
-        final IProteinQueryDAO proteinQueryDAO =
-                getSpecificDAOFactory().getProteinQueryDAOFromPool();
+        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
+        DataSet<IdentifiedProtein> proteins =
+                proteinQueryDAO.listProteinsByProteinReferenceAndExperiment(experimentPermID,
+                        proteinReferenceID.getId());
         try
         {
-            final DataSet<IdentifiedProtein> proteins =
-                    proteinQueryDAO.listProteinsByProteinReferenceAndExperiment(experimentPermID,
-                            proteinReferenceID.getId());
-            try
+            if (proteins.size() == 1)
             {
-                if (proteins.size() == 1)
+                ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
+                IdentifiedProtein protein = proteins.get(0);
+                errorModel.setFalseDiscoveryRateFor(protein);
+                details = new ProteinDetails();
+                details.setSequence(protein.getSequence());
+                details.setDatabaseNameAndVersion(protein.getDatabaseNameAndVersion());
+                details.setFalseDiscoveryRate(protein.getFalseDiscoveryRate());
+                String dataSetPermID = protein.getDataSetPermID();
+                details.setDataSetPermID(dataSetPermID);
+                DataPE ds = getDaoFactory().getExternalDataDAO().tryToFindDataSetByCode(dataSetPermID);
+                if (ds != null)
                 {
-                    ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
-                    IdentifiedProtein protein = proteins.get(0);
-                    errorModel.setFalseDiscoveryRateFor(protein);
-                    details = new ProteinDetails();
-                    details.setSequence(protein.getSequence());
-                    details.setDatabaseNameAndVersion(protein.getDatabaseNameAndVersion());
-                    details.setFalseDiscoveryRate(protein.getFalseDiscoveryRate());
-                    String dataSetPermID = protein.getDataSetPermID();
-                    details.setDataSetPermID(dataSetPermID);
-                    DataPE ds =
-                            getDaoFactory().getExternalDataDAO().tryToFindDataSetByCode(
-                                    dataSetPermID);
-                    if (ds != null)
-                    {
-                        details.setDataSetTechID(ds.getId());
-                        details.setDataSetTypeCode(ds.getDataSetType().getCode());
-                    }
-                    details.setPeptides(loadPeptides(protein));
-                    details.setProteinID(new TechId(protein.getProteinID()));
+                    details.setDataSetTechID(ds.getId());
+                    details.setDataSetTypeCode(ds.getDataSetType().getCode());
                 }
-            } finally
-            {
-                proteins.close();
+                details.setPeptides(loadPeptides(protein));
+                details.setProteinID(new TechId(protein.getProteinID()));
             }
         } finally
         {
-            getSpecificDAOFactory().returnProteinQueryDAOToPool(proteinQueryDAO);
+            proteins.close();
         }
     }
 
     private List<Peptide> loadPeptides(IdentifiedProtein protein)
     {
-        final IProteinQueryDAO proteinQueryDAO =
-                getSpecificDAOFactory().getProteinQueryDAOFromPool();
-        try
+        IProteinQueryDAO proteinQueryDAO = getSpecificDAOFactory().getProteinQueryDAO();
+        DataSet<IdentifiedPeptide> identifiedPeptides =
+                proteinQueryDAO.listIdentifiedPeptidesByProtein(protein.getProteinID());
+        List<Peptide> peptides = new ArrayList<Peptide>();
+        for (IdentifiedPeptide identifiedPeptide : identifiedPeptides)
         {
-            final DataSet<IdentifiedPeptide> identifiedPeptides =
-                    proteinQueryDAO.listIdentifiedPeptidesByProtein(protein.getProteinID());
-            try
-            {
-                final List<Peptide> peptides = new ArrayList<Peptide>();
-                for (IdentifiedPeptide identifiedPeptide : identifiedPeptides)
-                {
-                    Peptide peptide = new Peptide();
-                    peptide.setSequence(identifiedPeptide.getSequence());
-                    peptide.setCharge(identifiedPeptide.getCharge());
-                    peptides.add(peptide);
-                }
-                return peptides;
-            } finally
-            {
-                identifiedPeptides.close();
-            }
-        } finally
-        {
-            getSpecificDAOFactory().returnProteinQueryDAOToPool(proteinQueryDAO);
+            Peptide peptide = new Peptide();
+            peptide.setSequence(identifiedPeptide.getSequence());
+            peptide.setCharge(identifiedPeptide.getCharge());
+            peptides.add(peptide);
         }
+        identifiedPeptides.close();
+        return peptides;
     }
 
     private String getExperimentPermIDFor(TechId experimentId)

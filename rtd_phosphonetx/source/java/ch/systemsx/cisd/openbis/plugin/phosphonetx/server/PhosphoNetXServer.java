@@ -108,27 +108,21 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
     {
         Session session = getSession(sessionToken);
         String experimentPermID = getExperimentPermIDFor(experimentID);
-        final IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAOFromPool();
+        IProteinQueryDAO dao = specificDAOFactory.getProteinQueryDAO();
+        DataSet<String> samplePermIDs =
+                dao.listAbundanceRelatedSamplePermIDsByExperiment(experimentPermID);
         try
         {
-            DataSet<String> samplePermIDs =
-                    dao.listAbundanceRelatedSamplePermIDsByExperiment(experimentPermID);
-            try
+            IAbundanceColumnDefinitionTable table =
+                    specificBOFactory.createAbundanceColumnDefinitionTable(session);
+            for (String samplePermID : samplePermIDs)
             {
-                IAbundanceColumnDefinitionTable table =
-                        specificBOFactory.createAbundanceColumnDefinitionTable(session);
-                for (String samplePermID : samplePermIDs)
-                {
-                    table.add(samplePermID);
-                }
-                return table.getSortedAndAggregatedDefinitions(treatmentTypeOrNull);
-            } finally
-            {
-                samplePermIDs.close();
+                table.add(samplePermID);
             }
+            return table.getSortedAndAggregatedDefinitions(treatmentTypeOrNull);
         } finally
         {
-            specificDAOFactory.returnProteinQueryDAOToPool(dao);
+            samplePermIDs.close();
         }
     }
 
@@ -158,20 +152,13 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
             TechId proteinReferenceID) throws UserFailureException
     {
         Session session = getSession(sessionToken);
+        IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAO();
         ProteinByExperiment proteinByExperiment = new ProteinByExperiment();
-        final IProteinQueryDAO proteinQueryDAO = specificDAOFactory.getProteinQueryDAOFromPool();
-        final ProteinReference proteinReference;
-        try
-        {
-            proteinReference = proteinQueryDAO.tryToGetProteinReference(proteinReferenceID.getId());
-        } finally
-        {
-            specificDAOFactory.returnProteinQueryDAOToPool(proteinQueryDAO);
-        }
+        ProteinReference proteinReference =
+                proteinQueryDAO.tryToGetProteinReference(proteinReferenceID.getId());
         if (proteinReference == null)
         {
-            throw new UserFailureException("No protein reference found for ID: "
-                    + proteinReferenceID);
+            throw new UserFailureException("No protein reference found for ID: " + proteinReferenceID);
         }
         AccessionNumberBuilder builder =
                 new AccessionNumberBuilder(proteinReference.getAccessionNumber());
@@ -199,10 +186,8 @@ public class PhosphoNetXServer extends AbstractServer<IPhosphoNetXServer> implem
         final Session session = getSession(sessionToken);
         IProteinSequenceTable sequenceTable = specificBOFactory.createProteinSequenceTable(session);
         sequenceTable.loadByReference(proteinReferenceID);
-        IDataSetProteinTable dataSetProteinTable =
-                specificBOFactory.createDataSetProteinTable(session);
-        dataSetProteinTable.load(getExperimentPermIDFor(experimentId), proteinReferenceID,
-                sequenceTable);
+        IDataSetProteinTable dataSetProteinTable = specificBOFactory.createDataSetProteinTable(session);
+        dataSetProteinTable.load(getExperimentPermIDFor(experimentId), proteinReferenceID, sequenceTable);
         return dataSetProteinTable.getDataSetProteins();
     }
 

@@ -21,14 +21,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import net.lemnik.eodsql.DataSet;
 
-import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
-import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -49,9 +44,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinWithAbundan
  */
 class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTable
 {
-    private static final ExecutorService executor =
-            new NamingThreadPoolExecutor("ProteinInfoTableQuery").daemonize();
-
     private List<ProteinInfo> infos;
 
     ProteinInfoTable(IDAOFactory daoFactory, IPhosphoNetXDAOFactory specificDAOFactory,
@@ -72,50 +64,17 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
     public void load(List<AbundanceColumnDefinition> definitions, TechId experimentID,
             double falseDiscoveryRate, AggregateFunction function, boolean aggregateOnOriginal)
     {
-        final IExperimentDAO experimentDAO = getDaoFactory().getExperimentDAO();
-        final String permID = experimentDAO.getByTechId(experimentID).getPermId();
-        final CoverageCalculator coverageCalculator;
-        final Collection<ProteinWithAbundances> proteins;
-        final DataSet<ProteinReferenceWithPeptideSequence> proteinReferencesWithPeptides;
-        final DataSet<ProteinReferenceWithProbability> proteinReferencesWithProbability;
-        final IProteinQueryDAO dao1 = getSpecificDAOFactory().getProteinQueryDAOFromPool();
-        final IProteinQueryDAO dao2OrNull = getSpecificDAOFactory().tryGetProteinQueryDAOFromPool();
-        try
-        {
-            if (dao2OrNull != null)
-            {
-                // Run 2nd query in a separate thread in parallel to the 1st one
-                final Future<DataSet<ProteinReferenceWithPeptideSequence>> proteinReferencesWithPeptidesFuture =
-                        getProteinReferencesWithPeptideAsynchronously(dao1, permID);
-                proteinReferencesWithProbability = dao2OrNull.listProteinsByExperiment(permID);
-                proteinReferencesWithPeptides =
-                        ConcurrencyUtilities.tryGetResult(proteinReferencesWithPeptidesFuture,
-                                ConcurrencyUtilities.NO_TIMEOUT);
-            } else
-            {
-                // Run queries sequentially in the current thread
-                proteinReferencesWithPeptides = dao1.listProteinsWithPeptidesByExperiment(permID);
-                proteinReferencesWithProbability = dao1.listProteinsByExperiment(permID);
-            }
-            coverageCalculator = setUpCoverageCalculator(proteinReferencesWithPeptides);
-            proteins =
-                    setUpAbundanceManager(proteinReferencesWithProbability, falseDiscoveryRate)
-                            .getProteinsWithAbundances();
-        } finally
-        {
-            getSpecificDAOFactory().returnProteinQueryDAOToPool(dao1);
-            if (dao2OrNull != null)
-            {
-                getSpecificDAOFactory().returnProteinQueryDAOToPool(dao2OrNull);
-            }
-        }
+        IExperimentDAO experimentDAO = getDaoFactory().getExperimentDAO();
+        String permID = experimentDAO.getByTechId(experimentID).getPermId();
+        CoverageCalculator coverageCalculator = setUpCoverageCalculator(permID);
+        AbundanceManager abundanceManager = setUpAbundanceManager(permID, falseDiscoveryRate);
+        Collection<ProteinWithAbundances> proteins = abundanceManager.getProteinsWithAbundances();
         infos = new ArrayList<ProteinInfo>(proteins.size());
         for (ProteinWithAbundances protein : proteins)
         {
             ProteinInfo proteinInfo = new ProteinInfo();
             proteinInfo.setId(new TechId(protein.getId()));
-            AccessionNumberBuilder builder =
-                    new AccessionNumberBuilder(protein.getAccessionNumber());
+            AccessionNumberBuilder builder = new AccessionNumberBuilder(protein.getAccessionNumber());
             proteinInfo.setCoverage(coverageCalculator.calculateCoverageFor(protein.getId()));
             proteinInfo.setAccessionNumber(builder.getAccessionNumber());
             proteinInfo.setDescription(protein.getDescription());
@@ -130,8 +89,7 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
                     double[] values = protein.getAbundancesForSample(sampleID);
                     if (values != null && values.length > 0 && aggregateOnOriginal == false)
                     {
-                        values = new double[]
-                            { function.aggregate(values) };
+                        values = new double[] {function.aggregate(values)};
                     }
                     abundanceValues = concatenate(abundanceValues, values);
                 }
@@ -146,14 +104,17 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
         }
     }
 
-    private AbundanceManager setUpAbundanceManager(
-            DataSet<ProteinReferenceWithProbability> proteinReferences, double falseDiscoveryRate)
+    private AbundanceManager setUpAbundanceManager(String experimentPermID,
+            double falseDiscoveryRate)
     {
         AbundanceManager abundanceManager = new AbundanceManager(getDaoFactory().getSampleDAO());
+        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
         ErrorModel errorModel = new ErrorModel(getSpecificDAOFactory());
+        DataSet<ProteinReferenceWithProbability> resultSet =
+                dao.listProteinsByExperiment(experimentPermID);
         try
         {
-            for (ProteinReferenceWithProbability protein : proteinReferences)
+            for (ProteinReferenceWithProbability protein : resultSet)
             {
                 if (errorModel.passProtein(protein, falseDiscoveryRate))
                 {
@@ -162,35 +123,24 @@ class ProteinInfoTable extends AbstractBusinessObject implements IProteinInfoTab
             }
         } finally
         {
-            proteinReferences.close();
+            resultSet.close();
         }
         return abundanceManager;
     }
-
-    private Future<DataSet<ProteinReferenceWithPeptideSequence>> getProteinReferencesWithPeptideAsynchronously(
-            final IProteinQueryDAO dao, final String experimentPermID)
+    
+    private CoverageCalculator setUpCoverageCalculator(String experimentPermID)
     {
-        return executor.submit(new Callable<DataSet<ProteinReferenceWithPeptideSequence>>()
-            {
-                public DataSet<ProteinReferenceWithPeptideSequence> call() throws Exception
-                {
-                    return dao.listProteinsWithPeptidesByExperiment(experimentPermID);
-                }
-            });
-    }
-
-    private CoverageCalculator setUpCoverageCalculator(
-            DataSet<ProteinReferenceWithPeptideSequence> proteinReferences)
-    {
+        IProteinQueryDAO dao = getSpecificDAOFactory().getProteinQueryDAO();
+        DataSet<ProteinReferenceWithPeptideSequence> resultSet = dao.listProteinsWithPeptidesByExperiment(experimentPermID);
         try
         {
-            return new CoverageCalculator(proteinReferences);
+            return new CoverageCalculator(resultSet);
         } finally
         {
-            proteinReferences.close();
+            resultSet.close();
         }
     }
-
+    
     private static double[] concatenate(double[] array1OrNull, double[] array2OrNull)
     {
         if (array1OrNull == null || array1OrNull.length == 0)
