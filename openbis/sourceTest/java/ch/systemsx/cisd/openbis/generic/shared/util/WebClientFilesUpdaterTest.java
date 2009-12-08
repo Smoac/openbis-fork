@@ -108,12 +108,12 @@ public final class WebClientFilesUpdaterTest extends AbstractFileSystemTestCase
         assertEquals(OPENBIS_GWT_XML_FILE_CONTENT, FileUtils.readFileToString(openBISGwtXmlFile));
         filesUpdater.updateOpenBISGwtXmlFile();
         assertEquals("<!-- Automatically generated part - START -->\n"
-                + "    <!-- Demo plugin -->\n"
-                + "    <script src=\"demo-dictionary.js\"/>\n"
+                + "    <!-- Demo plugin -->\n" + "    <script src=\"demo-dictionary.js\"/>\n"
                 + "    <public path=\"plugin/demo/client/web/public\"/>\n"
                 + "    <source path=\"plugin/demo/client/web/client\"/>\n"
-                + "    <!-- Automatically generated part - END -->\n",
-                FileUtils.readFileToString(openBISGwtXmlFile));
+                + "    <source path=\"plugin/demo/shared/basic\"/>\n"
+                + "    <!-- Automatically generated part - END -->\n", FileUtils
+                .readFileToString(openBISGwtXmlFile));
     }
 
     @Test

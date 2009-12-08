@@ -44,7 +44,7 @@ public final class WebClientFilesUpdater
     @Private
     static final String SOURCE_TAG_TEMPLATE =
             "<source path=\"plugin/%1$s/client/web/client\"/>\n"
-                    + "\t\t<source path=\"plugin/%1$s/shared/basic\"/>";
+                    + "    <source path=\"plugin/%1$s/shared/basic\"/>";
 
     @Private
     static final String SCRIPT_TAG_TEMPLATE = "<script src=\"%s-dictionary.js\"/>";
