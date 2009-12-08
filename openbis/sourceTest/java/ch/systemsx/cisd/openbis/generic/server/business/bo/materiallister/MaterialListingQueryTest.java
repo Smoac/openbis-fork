@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { IMaterialListingQuery.class })
+    { IMaterialListingQuery.class, MaterialListerDAO.class })
 @Test(groups =
     { "db", "material" })
 public class MaterialListingQueryTest extends AbstractDAOTest
