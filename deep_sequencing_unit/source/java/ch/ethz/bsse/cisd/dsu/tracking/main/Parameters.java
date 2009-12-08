@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 
 /**
  * @author Tomasz Pylak
@@ -34,11 +35,15 @@ public class Parameters
 
     private static final String OPENBIS_SERVER_URL = "openbis-server-url";
 
+    private static final String PERMLINK_URL = "permlink-url";
+
     private final String openbisUser;
 
     private final String openbisPassword;
 
     private final String openbisServerURL;
+
+    private final String permlinkURL;
 
     private final IMailClient mailClient;
 
@@ -47,6 +52,7 @@ public class Parameters
         this.openbisUser = getMandatoryProperty(props, OPENBIS_USER);
         this.openbisPassword = getMandatoryProperty(props, OPENBIS_PASSWORD);
         this.openbisServerURL = getMandatoryProperty(props, OPENBIS_SERVER_URL);
+        this.permlinkURL = PropertyUtils.getProperty(props, PERMLINK_URL, openbisServerURL);
         this.mailClient = new MailClient(props);
     }
 
@@ -68,5 +74,10 @@ public class Parameters
     public IMailClient getMailClient()
     {
         return mailClient;
+    }
+
+    public String getPermlinkURL()
+    {
+        return permlinkURL;
     }
 }
