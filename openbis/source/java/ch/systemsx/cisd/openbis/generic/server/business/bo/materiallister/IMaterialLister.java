@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
+package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
+
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 
 /**
- * Useful constants for screening plugin.
+ * A class for fast material listing.
  * 
  * @author Tomasz Pylak
  */
-public class ScreeningConstants
+public interface IMaterialLister
 {
-    public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
-
-    public static final String WELL_PLUGIN_TYPE_CODE = "WELL";
+    /** fetches and sets all properties of specified materials */
+    void enrichWithProperties(List<Material> materials);
 }

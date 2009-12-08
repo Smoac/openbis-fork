@@ -88,6 +88,12 @@ public class HCSImageFileExtractor implements IHCSImageFileExtractor
         wellGeometry = getWellGeometry(properties);
     }
 
+    @Private
+    HCSImageFileExtractor(Geometry wellGeometry)
+    {
+        this.wellGeometry = wellGeometry;
+    }
+
     private final static Geometry getWellGeometry(final Properties properties)
     {
         final String property = properties.getProperty(WellGeometry.WELL_GEOMETRY);
@@ -112,11 +118,28 @@ public class HCSImageFileExtractor implements IHCSImageFileExtractor
      * Returns <code>null</code> if the operation fails.
      * </p>
      */
-    private final Location tryGetWellLocation(final String value)
+    @Private
+    final Location tryGetWellLocation(final String value)
     {
         try
         {
-            return Location.tryCreateLocationFromPosition(Integer.parseInt(value), wellGeometry);
+            // Tiles are numbered in a zig-zag way, starting from left bottom row.
+            // For a 3x3 plate it would be:
+            // 7 8 9
+            // 6 5 4
+            // 1 2 3
+            int tileNumber = Integer.parseInt(value);
+            Location letterLoc = Location.tryCreateLocationFromPosition(tileNumber, wellGeometry);
+            int row = letterLoc.getY();
+            int col = letterLoc.getX();
+            // microscops starts at the last row, so let's make a mirror
+            row = wellGeometry.getRows() - row + 1;
+            // even rows counting from the bottom have reverted columns
+            if (letterLoc.getY() % 2 == 0)
+            {
+                col = wellGeometry.getColumns() - col + 1;
+            }
+            return new Location(col, row);
         } catch (final NumberFormatException ex)
         {
             // Nothing to do here. Rest of the code can handle this.

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
-import java.util.Collection;
-
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
@@ -26,16 +24,14 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
-import ch.systemsx.cisd.openbis.generic.client.web.server.AttachmentRegistrationHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 
 /**
  * The {@link IScreeningClientService} implementation.
@@ -76,39 +72,27 @@ public final class ScreeningClientService extends AbstractClientService implemen
     // IScreeningClientService
     //
 
-    public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId,
-            String baseIndexURL) throws UserFailureException
+    public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId)
+            throws UserFailureException
     {
         try
         {
-            final String sessionToken = getSessionToken();
-            final SampleParentWithDerived sampleGenerationDTO =
-                    server.getSampleInfo(sessionToken, sampleId);
-            return sampleGenerationDTO;
+            return server.getSampleInfo(getSessionToken(), sampleId);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
     }
 
-    public final void registerSample(final String sessionKey, final NewSample sample)
-            throws UserFailureException
+    public PlateContent getPlateContent(TechId plateId) throws UserFailureException
     {
-
-        final String sessionToken = getSessionToken();
-        new AttachmentRegistrationHelper()
-            {
-                @Override
-                public void register(Collection<NewAttachment> attachments)
-                {
-                    server.registerSample(sessionToken, sample, attachments);
-                }
-            }.process(sessionKey, getHttpSession(), sample.getAttachments());
+        try
+        {
+            return server.getPlateContent(getSessionToken(), plateId);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 
-    public int getNumberOfExperiments() throws UserFailureException
-    {
-        final String sessionToken = getSessionToken();
-        return server.getNumberOfExperiments(sessionToken);
-    }
 }

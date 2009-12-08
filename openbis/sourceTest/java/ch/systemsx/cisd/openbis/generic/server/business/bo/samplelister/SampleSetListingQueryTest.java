@@ -18,14 +18,14 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.asList;
 import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.createSet;
+import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.findExactlyOneProperty;
+import static ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils.findProperties;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -147,41 +147,6 @@ public class SampleSetListingQueryTest extends AbstractDAOTest
                 assertEquals(comment.value, "extremely simple stuff");
             }
         }
-    }
-
-    private static <T extends BaseEntityPropertyRecord> T findExactlyOneProperty(
-            Iterable<T> properties, long propertyTypeId, long sampleId)
-    {
-        List<T> found = new ArrayList<T>();
-        for (T property : properties)
-        {
-            if (property.prty_id == propertyTypeId && property.entity_id == sampleId)
-            {
-                found.add(property);
-            }
-        }
-        if (found.size() != 1)
-        {
-            fail(String
-                    .format(
-                            "Exactly 1 property expected for sample id %d and property type id %d, but %d found.",
-                            sampleId, propertyTypeId, found.size()));
-        }
-        return found.get(0);
-    }
-
-    private static <T extends BaseEntityPropertyRecord> List<T> findProperties(
-            Iterable<T> properties, long propertyTypeId)
-    {
-        List<T> found = new ArrayList<T>();
-        for (T property : properties)
-        {
-            if (property.prty_id == propertyTypeId)
-            {
-                found.add(property);
-            }
-        }
-        return found;
     }
 
     @Test

@@ -33,11 +33,13 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
  * 
  * @author Christian Ribeaud
  */
-public final class DemoSampleViewer extends AbstractViewer<IDemoClientServiceAsync, Sample>
+public final class DemoSampleViewer extends AbstractViewer<Sample>
 {
     private static final String PREFIX = "demo-sample-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+
+    private final IViewContext<IDemoClientServiceAsync> viewContext;
 
     private final TechId sampleId;
 
@@ -46,6 +48,7 @@ public final class DemoSampleViewer extends AbstractViewer<IDemoClientServiceAsy
     {
         super(viewContext, createId(sampleId));
         this.sampleId = sampleId;
+        this.viewContext = viewContext;
         reloadData();
     }
 

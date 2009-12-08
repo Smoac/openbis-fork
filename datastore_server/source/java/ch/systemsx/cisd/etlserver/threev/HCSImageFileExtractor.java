@@ -25,6 +25,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.bds.hcs.Geometry;
 import ch.systemsx.cisd.bds.hcs.Location;
@@ -100,7 +101,8 @@ public final class HCSImageFileExtractor implements IHCSImageFileExtractor
      * Returns <code>null</code> if the operation fails.
      * </p>
      */
-    private final Location tryGetWellLocation(final String value)
+    @Private
+    final Location tryGetWellLocation(final String value)
     {
         final String startsWith = "s";
         if (value.startsWith(startsWith))

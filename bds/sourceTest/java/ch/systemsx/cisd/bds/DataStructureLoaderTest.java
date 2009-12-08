@@ -61,7 +61,7 @@ public final class DataStructureLoaderTest extends AbstractFileSystemTestCase
                 parentCodes));
         dataStructure.close();
 
-        final IDataStructure ds = new DataStructureLoader(workingDirectory).load("ds");
+        final IDataStructure ds = new DataStructureLoader(workingDirectory).load("ds", true);
         assertTrue(ds instanceof IDataStructureV1_0);
         assertEquals(new Version(1, 0), ds.getVersion());
         assertEquals(experimentIdentifier, ((IDataStructureV1_0) ds).getExperimentIdentifier());

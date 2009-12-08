@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -38,17 +38,11 @@ public interface IScreeningClientService extends IClientService
     /**
      * For given {@link TechId} returns corresponding {@link SampleParentWithDerived}.
      */
-    public SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId, String baseIndexURL)
+    public SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId)
             throws UserFailureException;
 
     /**
-     * Registers a new sample.
+     * Fetches information about wells on a plate and their content.
      */
-    public void registerSample(final String sessionKey, final NewSample sample)
-            throws UserFailureException;
-
-    /**
-     * Get number of experiments.
-     */
-    public int getNumberOfExperiments() throws UserFailureException;
+    public PlateContent getPlateContent(TechId sampleId) throws UserFailureException;
 }

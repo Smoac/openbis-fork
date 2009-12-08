@@ -19,10 +19,9 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -32,19 +31,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived
 public interface IScreeningClientServiceAsync extends IClientServiceAsync
 {
 
-    /** @see IScreeningClientService#getSampleGenerationInfo(TechId, String) */
-    public void getSampleGenerationInfo(final TechId sampleId, String baseIndexUrl,
+    /** @see IScreeningClientService#getSampleGenerationInfo(TechId) */
+    public void getSampleGenerationInfo(final TechId sampleId,
             final AsyncCallback<SampleParentWithDerived> callback);
 
-    /**
-     * @see IScreeningClientService#registerSample(String, NewSample)
-     */
-    public void registerSample(final String sessionKey, final NewSample sample,
-            final AsyncCallback<Void> asyncCallback) throws UserFailureException;
-
-    /**
-     * @see IScreeningClientService#getNumberOfExperiments()
-     */
-    public void getNumberOfExperiments(final AsyncCallback<Integer> asyncCallback)
-            throws UserFailureException;
+    /** @see IScreeningClientService#getPlateContent(TechId) */
+    public void getPlateContent(TechId sampleId, final AsyncCallback<PlateContent> callback);
 }

@@ -186,7 +186,7 @@ public final class HCSImageFileExtractorTest extends AbstractFileSystemTestCase
         final int channel1 = 2;
         final int channel2 = 1;
         final Location plateLocation = new Location(24, 8);
-        final Location wellLocation = new Location(3, 2);
+        final Location wellLocation = new Location(1, 2);
         context.checking(new Expectations()
             {
                 {
@@ -212,8 +212,8 @@ public final class HCSImageFileExtractorTest extends AbstractFileSystemTestCase
         files.add(file1);
         createFile(imagePath);
         fileExtractor.process(workingDirectoryNode, dataSetInformation, fileAccepter);
-        assertEquals(1, fileExtractor.process(workingDirectoryNode, dataSetInformation, fileAccepter)
-                .getInvalidFiles().size());
+        assertEquals(1, fileExtractor.process(workingDirectoryNode, dataSetInformation,
+                fileAccepter).getInvalidFiles().size());
     }
 
     @Test
@@ -226,8 +226,8 @@ public final class HCSImageFileExtractorTest extends AbstractFileSystemTestCase
         files.add(file1);
         createFile(imagePath);
         fileExtractor.process(workingDirectoryNode, dataSetInformation, fileAccepter);
-        assertEquals(1, fileExtractor.process(workingDirectoryNode, dataSetInformation, fileAccepter)
-                .getInvalidFiles().size());
+        assertEquals(1, fileExtractor.process(workingDirectoryNode, dataSetInformation,
+                fileAccepter).getInvalidFiles().size());
     }
 
     @Test
@@ -239,7 +239,24 @@ public final class HCSImageFileExtractorTest extends AbstractFileSystemTestCase
         final IFile file1 = createFile(imagePath);
         files.add(file1);
         fileExtractor.process(workingDirectoryNode, dataSetInformation, fileAccepter);
-        assertEquals(1, fileExtractor.process(workingDirectoryNode, dataSetInformation, fileAccepter)
-                .getInvalidFiles().size());
+        assertEquals(1, fileExtractor.process(workingDirectoryNode, dataSetInformation,
+                fileAccepter).getInvalidFiles().size());
+    }
+
+    @Test
+    public final void testZigZagTileConvertion() throws IOException
+    {
+        HCSImageFileExtractor extractor = new HCSImageFileExtractor(new WellGeometry(4, 3));
+        assertLocation(extractor, 8, new Location(2, 2));
+        assertLocation(extractor, 12, new Location(1, 1));
+        assertLocation(extractor, 1, new Location(1, 4));
+        assertLocation(extractor, 5, new Location(2, 3));
+    }
+
+    private void assertLocation(HCSImageFileExtractor extractor, int tileNumber,
+            Location expectedLocation)
+    {
+        Location location = extractor.tryGetWellLocation("" + tileNumber);
+        assertEquals(expectedLocation, location);
     }
 }

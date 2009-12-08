@@ -18,7 +18,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import org.springframework.stereotype.Component;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.AbstractPluginBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
@@ -33,13 +36,24 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
         implements IScreeningBusinessObjectFactory
 {
 
-    //
-    // IGenericBusinessObjectFactory
-    //
-
     public final ISampleBO createSampleBO(final Session session)
     {
         return getCommonBusinessObjectFactory().createSampleBO(session);
+    }
+
+    public ISampleLister createSampleLister(Session session)
+    {
+        return getCommonBusinessObjectFactory().createSampleLister(session);
+    }
+
+    public IMaterialLister createMaterialLister(Session session)
+    {
+        return getCommonBusinessObjectFactory().createMaterialLister(session);
+    }
+
+    public IExternalDataTable createExternalDataTable(Session session)
+    {
+        return getCommonBusinessObjectFactory().createExternalDataTable(session);
     }
 
 }

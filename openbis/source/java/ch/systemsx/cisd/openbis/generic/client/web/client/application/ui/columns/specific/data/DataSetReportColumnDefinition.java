@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDatastoreImageRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
@@ -34,10 +34,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 public class DataSetReportColumnDefinition implements IColumnDefinition<TableModelRow>
 {
     private TableModelColumnHeader columnHeader;
+
     private String downloadURL;
+
     private String sessionID;
 
-    public DataSetReportColumnDefinition(TableModelColumnHeader columnHeader, String downloadURL, String sessionID)
+    public DataSetReportColumnDefinition(TableModelColumnHeader columnHeader, String downloadURL,
+            String sessionID)
     {
         this.columnHeader = columnHeader;
         this.downloadURL = downloadURL;
@@ -65,15 +68,11 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
         if (cell instanceof ImageTableCell)
         {
             ImageTableCell imageCell = (ImageTableCell) cell;
-            URLMethodWithParameters methodWithParameters =
-                new URLMethodWithParameters(downloadURL + "/datastore_server/" + imageCell.getPath());
-            methodWithParameters.addParameter("sessionID", sessionID);
-            String linkURL = methodWithParameters.toString();
-            methodWithParameters.addParameter("mode", "thumbnail"
-                    + imageCell.getMaxThumbnailWidth() + "x" + imageCell.getMaxThumbnailHeight());
-            String imageURL = methodWithParameters.toString();
-            return "<div align='center'><a class='link-style' href='" + linkURL + "' target='_blank'><img src='"
-            + imageURL + "' alt='" + cell.toString() + "'/></a></div>";
+            int width = imageCell.getMaxThumbnailWidth();
+            int height = imageCell.getMaxThumbnailHeight();
+            String imagePath = imageCell.getPath();
+            return SimpleDatastoreImageRenderer.createDatastoreImageUrl(imagePath, width, height,
+                    downloadURL, sessionID);
         }
         if (cell instanceof DateTableCell)
         {
@@ -86,7 +85,7 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
     {
         return columnHeader.isNumeric();
     }
-    
+
     private ISerializableComparable getCellValue(GridRowModel<TableModelRow> rowModel)
     {
         int index = columnHeader.getIndex();
@@ -94,7 +93,7 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
         ISerializableComparable cell = originalObject.getValues().get(index);
         return cell;
     }
-    
+
     public String tryToGetProperty(String key)
     {
         return null;

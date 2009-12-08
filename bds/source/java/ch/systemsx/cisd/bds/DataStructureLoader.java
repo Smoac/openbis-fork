@@ -49,19 +49,19 @@ public final class DataStructureLoader
     }
 
     /**
-     * Loads the data structure with specified name.
+     * Loads the data structure with specified name. Validates the structure on request.
      * 
      * @return an unmodifiable {@link IDataStructure} (opened in {@link Mode#READ_ONLY READ_ONLY}
      *         mode).
      */
-    public final IDataStructure load(final String name)
+    public final IDataStructure load(final String name, boolean validate)
     {
         final IStorage storage = createStorage(name);
         storage.mount();
         final Version version = Version.loadFrom(storage.getRoot());
         final IDataStructure dataStructure =
                 DataStructureFactory.createDataStructure(storage, version);
-        dataStructure.open(Mode.READ_ONLY);
+        dataStructure.open(Mode.READ_ONLY, validate);
         return dataStructure;
     }
 

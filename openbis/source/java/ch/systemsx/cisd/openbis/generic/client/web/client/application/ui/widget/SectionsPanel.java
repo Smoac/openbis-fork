@@ -145,7 +145,9 @@ public class SectionsPanel extends ContentPanel
         elements.add(element);
         addToToolbar(element.getButton());
         if (element.getButton().isPressed())
+        {
             internalAdd(element);
+        }
     }
 
     /** removes all sections and adds them once again with with refreshed state */

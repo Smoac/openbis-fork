@@ -59,7 +59,8 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
     {
         final Long2ObjectMap<PropertyType> propertyTypes = getPropertyTypes();
         // Generic properties
-        for (GenericEntityPropertyRecord val : propertySetQuery.getEntityPropertyGenericValues(entityIDs))
+        for (GenericEntityPropertyRecord val : propertySetQuery
+                .getEntityPropertyGenericValues(entityIDs))
         {
             final IEntityPropertiesHolder entity = entities.get(val.entity_id);
             final IEntityProperty property = new GenericValueEntityProperty();
@@ -70,7 +71,8 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
         // Controlled vocabulary properties
         Long2ObjectMap<String> vocabularyURLMap = null;
         Long2ObjectMap<VocabularyTerm> terms = new Long2ObjectOpenHashMap<VocabularyTerm>();
-        for (VocabularyTermRecord val : propertySetQuery.getEntityPropertyVocabularyTermValues(entityIDs))
+        for (VocabularyTermRecord val : propertySetQuery
+                .getEntityPropertyVocabularyTermValues(entityIDs))
         {
             if (vocabularyURLMap == null)
             {
@@ -99,7 +101,8 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
         // Material-type properties
         Long2ObjectMap<MaterialType> materialTypes = null;
         Long2ObjectMap<Material> materials = new Long2ObjectOpenHashMap<Material>();
-        for (MaterialEntityPropertyRecord val : propertySetQuery.getEntityPropertyMaterialValues(entityIDs))
+        for (MaterialEntityPropertyRecord val : propertySetQuery
+                .getEntityPropertyMaterialValues(entityIDs))
         {
             if (materialTypes == null)
             {
@@ -113,6 +116,7 @@ public final class EntityPropertiesEnricher implements IEntityPropertiesEnricher
                 material = new Material();
                 material.setCode(StringEscapeUtils.escapeHtml(val.code));
                 material.setMaterialType(materialTypes.get(val.maty_id));
+                material.setId(val.id);
                 materials.put(val.id, material);
             }
             property.setMaterial(material);

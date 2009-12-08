@@ -111,6 +111,11 @@ public abstract class AbstractDataStructure implements IDataStructure, IDataStru
 
     public final void open(final Mode thatMode)
     {
+        open(thatMode, true);
+    }
+
+    public final void open(final Mode thatMode, boolean validate)
+    {
         assert thatMode != null : "Unspecified mode";
         mode = thatMode;
         mountStorage();
@@ -121,7 +126,10 @@ public abstract class AbstractDataStructure implements IDataStructure, IDataStru
             throw new DataStructureException("Version of loaded data structure is " + loadedVersion
                     + " which is not backward compatible with " + getVersion());
         }
-        assertValid();
+        if (validate)
+        {
+            assertValid();
+        }
     }
 
     public final void close()

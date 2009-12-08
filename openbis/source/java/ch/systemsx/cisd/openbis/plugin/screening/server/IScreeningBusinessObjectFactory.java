@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -26,10 +29,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
  */
 public interface IScreeningBusinessObjectFactory
 {
-
-    /**
-     * Creates a {@link ISampleBO} <i>Business Object</i>.
-     */
     public ISampleBO createSampleBO(final Session session);
+
+    public IExternalDataTable createExternalDataTable(final Session session);
+
+    public ISampleLister createSampleLister(Session session);
+
+    public IMaterialLister createMaterialLister(Session session);
 
 }

@@ -62,6 +62,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyTermBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.DatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.MaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -111,6 +113,11 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     {
         return DatasetLister.create(getDaoFactory(), session.getBaseIndexURL(),
                 defaultDataStoreBaseURL);
+    }
+
+    public IMaterialLister createMaterialLister(Session session)
+    {
+        return MaterialLister.create(getDaoFactory(), session.getBaseIndexURL());
     }
 
     public final ISampleBO createSampleBO(final Session session)

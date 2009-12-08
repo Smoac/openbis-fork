@@ -60,6 +60,11 @@ public interface IDataStructure extends IHasVersion
     public void open(final Mode mode);
 
     /**
+     * Performs {@link #open(Mode)} and validates the structure if it was requested.
+     */
+    public void open(final Mode mode, boolean validate);
+
+    /**
      * Closes the data structure. Before the data structure is closed it will be validated.
      * 
      * @throws DataStructureException if the data structure is invalid.

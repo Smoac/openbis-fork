@@ -359,7 +359,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         assertEquals(new File(workingDirectory, STORE_ROOT_DIR).getAbsolutePath(), dataFile
                 .getAbsolutePath());
         final IDataStructure dataStructure =
-                new DataStructureLoader(workingDirectory).load(STORE_ROOT_DIR);
+                new DataStructureLoader(workingDirectory).load(STORE_ROOT_DIR, true);
         assertEquals(true, dataStructure instanceof IDataStructureV1_1);
         final IDataStructureV1_1 ds = (IDataStructureV1_1) dataStructure;
         assertEquals(new Version(1, 1), ds.getVersion());

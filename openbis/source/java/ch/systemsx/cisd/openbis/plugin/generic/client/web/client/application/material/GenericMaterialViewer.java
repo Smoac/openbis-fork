@@ -41,13 +41,14 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Piotr Buczek
  */
-public final class GenericMaterialViewer extends
-        AbstractViewer<IGenericClientServiceAsync, Material> implements
+public final class GenericMaterialViewer extends AbstractViewer<Material> implements
         IDatabaseModificationObserver
 {
     private static final String PREFIX = "generic-material-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     private final TechId materialId;
 
@@ -63,6 +64,7 @@ public final class GenericMaterialViewer extends
     {
         super(viewContext, createId(materialId));
         this.materialId = materialId;
+        this.viewContext = viewContext;
         reloadData();
     }
 

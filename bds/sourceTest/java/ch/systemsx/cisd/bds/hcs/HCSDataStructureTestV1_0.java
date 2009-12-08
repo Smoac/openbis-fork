@@ -105,8 +105,8 @@ public final class HCSDataStructureTestV1_0 extends AbstractFileSystemTestCase
         dataStructure.close();
         // And loading...
         final IDataStructure ds =
-                new DataStructureLoader(workingDirectory.getParentFile())
-                        .load(getClass().getName());
+                new DataStructureLoader(workingDirectory.getParentFile()).load(
+                        getClass().getName(), true);
         assertNotNull(ds);
     }
 }

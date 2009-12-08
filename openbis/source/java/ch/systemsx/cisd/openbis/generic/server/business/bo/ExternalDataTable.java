@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -363,10 +362,10 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return service.getKnownDataSets(sessionToken, locations);
     }
 
-    public void processDatasets(DatastoreServiceDescription serviceDescription,
+    public void processDatasets(String datastoreServiceKey, String datastoreCode,
             List<String> datasetCodes)
     {
-        DataStorePE dataStore = findDataStore(serviceDescription);
+        DataStorePE dataStore = findDataStore(datastoreCode);
         IDataStoreService service = tryGetDataStoreService(dataStore);
         if (service == null)
         {
@@ -374,7 +373,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
         List<DatasetDescription> locations = loadDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
-        service.processDatasets(sessionToken, serviceDescription.getKey(), locations);
+        service.processDatasets(sessionToken, datastoreServiceKey, locations);
     }
 
     private ConfigurationFailureException createUnknownDataStoreServerException()
@@ -384,10 +383,10 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                         + "Conntact your administrator.");
     }
 
-    public TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
+    public TableModel createReportFromDatasets(String datastoreServiceKey, String datastoreCode,
             List<String> datasetCodes)
     {
-        DataStorePE dataStore = findDataStore(serviceDescription);
+        DataStorePE dataStore = findDataStore(datastoreCode);
         IDataStoreService service = tryGetDataStoreService(dataStore);
         if (service == null)
         {
@@ -395,8 +394,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
         List<DatasetDescription> locations = loadDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
-        return service.createReportFromDatasets(sessionToken, serviceDescription.getKey(),
-                locations);
+        return service.createReportFromDatasets(sessionToken, datastoreServiceKey, locations);
     }
 
     private List<DatasetDescription> loadDatasetDescriptions(List<String> datasetCodes)
@@ -423,9 +421,8 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         return result;
     }
 
-    private DataStorePE findDataStore(DatastoreServiceDescription serviceDescription)
+    private DataStorePE findDataStore(String datastoreCode)
     {
-        String datastoreCode = serviceDescription.getDatastoreCode();
         DataStorePE dataStore = getDataStoreDAO().tryToFindDataStoreByCode(datastoreCode);
         if (dataStore == null)
         {

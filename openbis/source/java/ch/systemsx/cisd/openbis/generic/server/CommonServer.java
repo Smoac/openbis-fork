@@ -1615,7 +1615,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        return externalDataTable.createReportFromDatasets(serviceDescription, datasetCodes);
+        return externalDataTable.createReportFromDatasets(serviceDescription.getKey(),
+                serviceDescription.getDatastoreCode(), datasetCodes);
     }
 
     public void processDatasets(String sessionToken,
@@ -1624,7 +1625,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         Session session = getSession(sessionToken);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.processDatasets(serviceDescription, datasetCodes);
+        externalDataTable.processDatasets(serviceDescription.getKey(), serviceDescription
+                .getDatastoreCode(), datasetCodes);
     }
 
     public void registerAuthorizationGroup(String sessionToken,

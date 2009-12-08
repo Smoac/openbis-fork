@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
@@ -78,8 +80,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Christian Ribeaud
  */
-public final class GenericSampleViewer extends AbstractViewer<IGenericClientServiceAsync, Sample>
-        implements IDatabaseModificationObserver
+abstract public class GenericSampleViewer extends AbstractViewer<Sample> implements
+        IDatabaseModificationObserver
 {
     private static final String GENERIC_SAMPLE_VIEWER = "generic-sample-viewer";
 
@@ -97,7 +99,9 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     public static final String SHOW_ONLY_DIRECTLY_CONNECTED_CHECKBOX_ID_POSTFIX =
             "-show_only_directly_connected_checkbox";
 
-    private final TechId sampleId;
+    private final IViewContext<?> viewContext;
+
+    protected final TechId sampleId;
 
     private AttachmentVersionsSection<Sample> attachmentsSection;
 
@@ -108,20 +112,35 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     private PropertyGrid propertyGrid;
 
     public static DatabaseModificationAwareComponent create(
-            IViewContext<IGenericClientServiceAsync> viewContext, final IIdentifiable identifiable)
+            final IViewContext<IGenericClientServiceAsync> viewContext,
+            final IIdentifiable identifiable)
     {
-        GenericSampleViewer viewer = new GenericSampleViewer(viewContext, identifiable);
+        GenericSampleViewer viewer = new GenericSampleViewer(viewContext, identifiable)
+            {
+                @Override
+                protected void loadSampleGenerationInfo(TechId sampleTechId,
+                        AsyncCallback<SampleParentWithDerived> callback)
+                {
+                    TechId techId = TechId.create(identifiable);
+                    viewContext.getService().getSampleGenerationInfo(techId, callback);
+                }
+
+            };
+        viewer.reloadAllData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
-    private GenericSampleViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
+    abstract protected void loadSampleGenerationInfo(final TechId sampleTechId,
+            AsyncCallback<SampleParentWithDerived> asyncCallback);
+
+    protected GenericSampleViewer(final IViewContext<?> viewContext,
             final IIdentifiable identifiable)
     {
         super(viewContext, createId(identifiable));
         setLayout(new BorderLayout());
         this.sampleId = TechId.create(identifiable);
+        this.viewContext = viewContext;
         extendToolBar();
-        reloadAllData();
     }
 
     private void extendToolBar()
@@ -163,6 +182,11 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         String displayIdSuffix = getDisplayIdSuffix(generator.getSampleType().getCode());
 
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
+        List<SingleSectionPanel> additionalPanels = createAdditionalSectionPanels();
+        for (SingleSectionPanel panel : additionalPanels)
+        {
+            container.addPanel(panel);
+        }
 
         // 'Part of' samples
         containerSamplesSection = new ContainerSamplesSection(viewContext);
@@ -189,6 +213,15 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
 
         container.layout();
         return container;
+    }
+
+    /**
+     * To be subclassed. Creates additional panels of the viewer in the right side section besides
+     * components, datasets and attachments
+     */
+    protected List<SingleSectionPanel> createAdditionalSectionPanels()
+    {
+        return new ArrayList<SingleSectionPanel>();
     }
 
     private CheckBox createShowOnlyDirectlyConnectedCheckBox()
@@ -295,7 +328,6 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     {
         final Map<String, Object> properties = createProperties(viewContext, sampleGeneration);
         final PropertyGrid propertyGrid = new PropertyGrid(viewContext, properties.size());
-        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleId);
         propertyGrid.registerPropertyValueRenderer(Person.class, PropertyValueRenderers
                 .createPersonPropertyValueRenderer(viewContext));
         propertyGrid.registerPropertyValueRenderer(SampleType.class, PropertyValueRenderers
@@ -316,6 +348,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         propertyGrid.registerPropertyValueRenderer(Experiment.class, PropertyValueRenderers
                 .createExperimentPropertyValueRenderer(viewContext));
         propertyGrid.setProperties(properties);
+        propertyGrid.getElement().setId(PROPERTIES_ID_PREFIX + sampleId);
 
         return propertyGrid;
     }
@@ -333,7 +366,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     protected void reloadSampleGenerationData(
             AbstractAsyncCallback<SampleParentWithDerived> callback)
     {
-        viewContext.getService().getSampleGenerationInfo(sampleId, callback);
+        loadSampleGenerationInfo(sampleId, callback);
     }
 
     //
@@ -383,8 +416,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
     {
         private final GenericSampleViewer genericSampleViewer;
 
-        private SampleGenerationInfoCallback(
-                final IViewContext<IGenericClientServiceAsync> viewContext,
+        private SampleGenerationInfoCallback(final IViewContext<?> viewContext,
                 final GenericSampleViewer genericSampleViewer)
         {
             super(viewContext);
@@ -476,8 +508,7 @@ public final class GenericSampleViewer extends AbstractViewer<IGenericClientServ
         {
             private final GenericSampleViewer genericSampleViewer;
 
-            private ReloadPropertyGridCallback(
-                    final IViewContext<IGenericClientServiceAsync> viewContext,
+            private ReloadPropertyGridCallback(final IViewContext<?> viewContext,
                     final GenericSampleViewer genericSampleViewer)
             {
                 super(viewContext);

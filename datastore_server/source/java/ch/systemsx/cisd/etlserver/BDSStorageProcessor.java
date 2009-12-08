@@ -384,7 +384,8 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
             final DataStructureLoader dataStructureLoader =
                     new DataStructureLoader(storedDataDirectory.getParentFile());
             thisStructure =
-                    (IDataStructureV1_1) dataStructureLoader.load(storedDataDirectory.getName());
+                    (IDataStructureV1_1) dataStructureLoader.load(storedDataDirectory.getName(),
+                            true);
         } else
         {
             thisStructure = dataStructure;

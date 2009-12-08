@@ -176,7 +176,7 @@ public final class DataStructureV1_1Test extends AbstractFileSystemTestCase
         dataStructure.close();
         dataStructure.open(Mode.READ_ONLY);
         assertEquals(new Version(1, 0), new DataStructureLoader(workingDirectory.getParentFile())
-                .load(getClass().getName()).getVersion());
+                .load(getClass().getName(), true).getVersion());
         try
         {
             dataStructure.setSample(createSampleWithOwner());

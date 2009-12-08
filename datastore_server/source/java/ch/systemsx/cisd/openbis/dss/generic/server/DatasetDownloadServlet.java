@@ -69,6 +69,7 @@ public class DatasetDownloadServlet extends HttpServlet
     private static final class Size
     {
         private final int width;
+
         private final int height;
 
         Size(int width, int height)
@@ -76,21 +77,24 @@ public class DatasetDownloadServlet extends HttpServlet
             this.width = width;
             this.height = height;
         }
-        
+
         public int getWidth()
         {
             return width;
         }
-        
+
         public int getHeight()
         {
             return height;
         }
     }
-    
+
     private static final Size DEFAULT_THUMBNAIL_SIZE = new Size(100, 60);
+
     private static final String TEXT_MODE_DISPLAY = "txt";
+
     private static final String HTML_MODE_DISPLAY = "html";
+
     private static final String THUMBNAIL_MODE_DISPLAY = "thumbnail";
 
     static final String DATA_SET_KEY = "data-set";
@@ -120,7 +124,7 @@ public class DatasetDownloadServlet extends HttpServlet
     {
         if (plainTextMode)
         {
-             return BINARY_CONTENT_TYPE;
+            return BINARY_CONTENT_TYPE;
         } else
         {
             if (FilenameUtils.getExtension(f.getName()).length() == 0)
@@ -215,13 +219,13 @@ public class DatasetDownloadServlet extends HttpServlet
         {
             return displayMode;
         }
-        
+
         public String getURLPrefix()
         {
             return urlPrefixWithDataset;
         }
     }
-    
+
     @Override
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException
@@ -365,8 +369,7 @@ public class DatasetDownloadServlet extends HttpServlet
     }
 
     private void createPage(IRendererFactory rendererFactory, HttpServletResponse response,
-            ExternalData dataSet, RenderingContext renderingContext, File file)
-            throws IOException
+            ExternalData dataSet, RenderingContext renderingContext, File file) throws IOException
     {
         if (operationLog.isInfoEnabled())
         {
@@ -411,7 +414,7 @@ public class DatasetDownloadServlet extends HttpServlet
             IOUtils.closeQuietly(writer);
         }
     }
-    
+
     private void deliverFile(final HttpServletResponse response, ExternalData dataSet, File file,
             String displayMode) throws IOException, FileNotFoundException
     {
@@ -491,6 +494,11 @@ public class DatasetDownloadServlet extends HttpServlet
     private void obtainDataSetFromServer(String dataSetCode, String sessionIdOrNull,
             final HttpServletRequest request)
     {
+        HttpSession session = request.getSession(false);
+        if (session != null && tryToGetDataSet(session, dataSetCode) != null)
+        {
+            return; // dataset is already in the cache
+        }
         if (sessionIdOrNull != null)
         {
             IEncapsulatedOpenBISService dataSetService = applicationContext.getDataSetService();
@@ -501,9 +509,13 @@ public class DatasetDownloadServlet extends HttpServlet
                 operationLog.info(String.format("Data set '%s' %s openBIS server.", dataSetCode,
                         actionDesc));
             }
-            HttpSession session = request.getSession(true);
+
             ConfigParameters configParameters = applicationContext.getConfigParameters();
-            session.setMaxInactiveInterval(configParameters.getSessionTimeout());
+            if (session == null)
+            {
+                session = request.getSession(true);
+                session.setMaxInactiveInterval(configParameters.getSessionTimeout());
+            }
             if (dataSet != null)
             {
                 putDataSetToMap(session, dataSetCode, dataSet);

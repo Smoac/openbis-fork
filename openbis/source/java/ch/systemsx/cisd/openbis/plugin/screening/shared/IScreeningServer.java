@@ -19,8 +19,12 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 
 /**
  * The <i>screening</i> server.
@@ -30,9 +34,10 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 public interface IScreeningServer extends IPluginCommonServer
 {
     /**
-     * Returns number of experiments.
+     * Returns plate content.
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public int getNumberOfExperiments(String sessionToken);
+    public PlateContent getPlateContent(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId);
 }

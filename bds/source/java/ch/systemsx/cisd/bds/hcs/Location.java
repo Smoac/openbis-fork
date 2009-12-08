@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.geometry.Point;
  * 
  * @author Christian Ribeaud
  */
+// REFACTOR 2009-12-07, Tomasz Pylak: change (x,y) -> (row, col)
 public final class Location
 {
     static final String NOT_POSITIVE = "Given coordinate '%s' must be > 0 (%d <= 0).";
@@ -48,7 +49,11 @@ public final class Location
 
     /**
      * For given <var>position</var> in given <code>geometry</code> returns corresponding
-     * <code>Location</code>. Position should be greater than 0.
+     * <code>Location</code>. Position should be greater than 0.<br>
+     * Assumes that element index grows as column/row numbers grow, so for a 3x2 geometry elements
+     * would be numbered like:<br>
+     * 1 2 3<br>
+     * 4 5 6<br>
      * 
      * @return <code>null</code> if position is out of range.
      */
@@ -70,8 +75,8 @@ public final class Location
     }
 
     /**
-     * For given matrix <var>coordinate</var> in given <code>geometry</code> returns
-     * corresponding <code>Location</code>.
+     * For given matrix <var>coordinate</var> in given <code>geometry</code> returns corresponding
+     * <code>Location</code>.
      * 
      * @return <code>null</code> if given <var>coordinate</var> is not a matrix coordinate.
      */

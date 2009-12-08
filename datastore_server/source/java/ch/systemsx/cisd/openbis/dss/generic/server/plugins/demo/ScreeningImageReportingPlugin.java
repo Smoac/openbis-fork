@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImage;
 
 /**
  * Reporting plugin which shows all images in wells of a plate dataset.
@@ -73,12 +74,13 @@ public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin imple
 
     private void addReportHeaders(SimpleTableModelBuilder builder)
     {
-        builder.addHeader("Dataset Code");
-        builder.addHeader("Row");
-        builder.addHeader("Column");
-        builder.addHeader("Tile");
-        builder.addHeader("Channel");
-        builder.addHeader("Thumbnail");
+        // Note: we rely on that column order at the openBIS server side!
+        builder.addHeader(PlateImage.DATASET_CODE);
+        builder.addHeader(PlateImage.ROW);
+        builder.addHeader(PlateImage.COLUMN);
+        builder.addHeader(PlateImage.TILE);
+        builder.addHeader(PlateImage.CHANNEL);
+        builder.addHeader(PlateImage.IMAGE);
     }
 
     private void addReportRows(SimpleTableModelBuilder builder, DatasetDescription dataset,
@@ -86,14 +88,14 @@ public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin imple
     {
         Geometry plateGeometry = imageAccessor.getPlateGeometry();
         Geometry wellGeometry = imageAccessor.getWellGeometry();
-        for (int chanel = 1; chanel <= imageAccessor.getChannelCount(); chanel++)
+        for (int channel = 1; channel <= imageAccessor.getChannelCount(); channel++)
         {
             for (Location wellLocation : new GeometryIterable(plateGeometry))
             {
                 for (Location tileLocation : new GeometryIterable(wellGeometry))
                 {
                     INode img =
-                            imageAccessor.tryGetStandardNodeAt(chanel, wellLocation, tileLocation);
+                            imageAccessor.tryGetStandardNodeAt(channel, wellLocation, tileLocation);
                     if (img != null)
                     {
 
@@ -101,13 +103,13 @@ public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin imple
                                 createImageCell(dataset, new File(img.getPath()));
                         String datasetCode = dataset.getDatasetCode();
                         int tileNumber =
-                                (tileLocation.getY() - 1) * wellGeometry.getColumns()
-                                        + tileLocation.getX();
+                                tileLocation.getX() + (tileLocation.getY() - 1)
+                                        * wellGeometry.getColumns();
                         List<ISerializableComparable> row =
                                 Arrays.<ISerializableComparable> asList(new StringTableCell(
-                                        datasetCode), asNum(wellLocation.getX()),
-                                        asNum(wellLocation.getY()), asNum(tileNumber),
-                                        asNum(chanel), image);
+                                        datasetCode), asNum(wellLocation.getY()),
+                                        asNum(wellLocation.getX()), asNum(tileNumber),
+                                        asNum(channel), image);
                         builder.addRow(row);
                     }
                 }
@@ -171,7 +173,7 @@ public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin imple
     private IDataStructureV1_0 createDatasetAccessor(DataStructureLoader loader,
             DatasetDescription dataset)
     {
-        IDataStructure dataStructure = loader.load(dataset.getDataSetLocation());
+        IDataStructure dataStructure = loader.load(dataset.getDataSetLocation(), false);
         return (IDataStructureV1_0) dataStructure;
     }
 

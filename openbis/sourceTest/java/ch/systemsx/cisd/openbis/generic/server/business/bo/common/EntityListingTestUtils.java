@@ -129,6 +129,41 @@ public class EntityListingTestUtils
 
     // --- generic helpers for entity properties tests ----------------
 
+    public static <T extends BaseEntityPropertyRecord> List<T> findProperties(
+            Iterable<T> properties, long propertyTypeId)
+    {
+        List<T> found = new ArrayList<T>();
+        for (T property : properties)
+        {
+            if (property.prty_id == propertyTypeId)
+            {
+                found.add(property);
+            }
+        }
+        return found;
+    }
+
+    public static <T extends BaseEntityPropertyRecord> T findExactlyOneProperty(
+            Iterable<T> properties, long propertyTypeId, long entityId)
+    {
+        List<T> found = new ArrayList<T>();
+        for (T property : properties)
+        {
+            if (property.prty_id == propertyTypeId && property.entity_id == entityId)
+            {
+                found.add(property);
+            }
+        }
+        if (found.size() != 1)
+        {
+            fail(String
+                    .format(
+                            "Exactly 1 property expected for sample id %d and property type id %d, but %d found.",
+                            entityId, propertyTypeId, found.size()));
+        }
+        return found.get(0);
+    }
+
     public static void checkPropertiesGenericValues(long entityId,
             DataIterator<GenericEntityPropertyRecord> properties)
     {

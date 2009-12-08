@@ -34,12 +34,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
  * 
  * @author Izabela Adamczyk
  */
-public final class ProjectViewer extends
-        AbstractViewer<ICommonClientServiceAsync, IEntityInformationHolder>
+public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder>
 {
     private static final String PREFIX = "project-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
 
     private final TechId projectId;
 
@@ -62,6 +63,7 @@ public final class ProjectViewer extends
         setLayout(new BorderLayout());
         this.projectId = projectId;
         this.modificationObserver = new CompositeDatabaseModificationObserver();
+        this.viewContext = viewContext;
         reloadAllData();
     }
 

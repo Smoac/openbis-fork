@@ -63,7 +63,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         return FORM_ID;
     }
 
-    private static final String PLATE_GEOMETRY = "$plate_geometry";
+    private static final String PLATE_GEOMETRY = "$PLATE_GEOMETRY";
 
     private static final String CONTROL_LAYOUT = "CONTROL_LAYOUT";
 

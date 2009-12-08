@@ -31,7 +31,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -52,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 /**
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractViewer<T extends IClientServiceAsync, D extends IEntityInformationHolder>
+public abstract class AbstractViewer<D extends IEntityInformationHolder>
         extends ContentPanel
 {
 
@@ -64,7 +63,7 @@ public abstract class AbstractViewer<T extends IClientServiceAsync, D extends IE
 
     private final List<Button> toolBarButtons = new ArrayList<Button>();
 
-    protected final IViewContext<T> viewContext;
+    private final IViewContext<?> viewContext;
 
     protected Button editButton;
 
@@ -72,12 +71,12 @@ public abstract class AbstractViewer<T extends IClientServiceAsync, D extends IE
 
     private D originalData;
 
-    public AbstractViewer(final IViewContext<T> viewContext, String id)
+    public AbstractViewer(final IViewContext<?> viewContext, String id)
     {
         this(viewContext, null, id, true); // title is set later with updateTitle method
     }
 
-    public AbstractViewer(final IViewContext<T> viewContext, String title, String id,
+    public AbstractViewer(final IViewContext<?> viewContext, String title, String id,
             boolean withToolBar)
     {
         this.viewContext = viewContext;

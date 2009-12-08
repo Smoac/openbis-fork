@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
@@ -34,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -44,6 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Gen
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.plateviewer.ScreeningSampleViewer;
 
 /**
  * {@link IClientPluginFactory} implementation for <i>screening</i> plugin.
@@ -122,10 +125,15 @@ public final class ClientPluginFactory extends
                 {
                     public ITabItem create()
                     {
-                        final ScreeningSampleViewer sampleViewer =
-                                new ScreeningSampleViewer(getViewContext(), sampleId);
-                        return DefaultTabItem.createUnaware(identifiable.getCode(), sampleViewer,
-                                false);
+                        final DatabaseModificationAwareComponent sampleViewer =
+                                ScreeningSampleViewer.create(getViewContext(), identifiable);
+                        return DefaultTabItem.create(getViewerTitle(), sampleViewer,
+                                getViewContext(), false);
+                    }
+
+                    private String getViewerTitle()
+                    {
+                        return AbstractViewer.getTitle(getViewContext(), Dict.SAMPLE, identifiable);
                     }
 
                     public String getId()

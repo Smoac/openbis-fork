@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -71,14 +70,15 @@ public interface IExternalDataTable
     String uploadLoadedDataSetsToCIFEX(DataSetUploadContext uploadContext);
 
     /** Creates a report from specified datasets using the specified datastore service. */
-    TableModel createReportFromDatasets(DatastoreServiceDescription serviceDescription,
+    TableModel createReportFromDatasets(String datastoreServiceKey, String datastoreCode,
             List<String> datasetCodes);
 
     /** Schedules processing of specified datasets using the specified datastore service. */
-    void processDatasets(DatastoreServiceDescription serviceDescription, List<String> datasetCodes);
+    void processDatasets(String datastoreServiceKey, String datastoreCode, List<String> datasetCodes);
 
     /**
      * Loads data sets that belong to chosen data store.
      */
     public void loadByDataStore(DataStorePE dataStore);
+
 }

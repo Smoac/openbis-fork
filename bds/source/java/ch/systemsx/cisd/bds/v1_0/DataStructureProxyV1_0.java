@@ -124,7 +124,12 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
 
     public final void open(final Mode thatMode)
     {
-        dataStructure.open(thatMode);
+        open(thatMode, true);
+    }
+
+    public void open(Mode thatMode, boolean validate)
+    {
+        dataStructure.open(thatMode, validate);
         this.mode = thatMode;
     }
 
@@ -204,5 +209,4 @@ public class DataStructureProxyV1_0 implements IDataStructureV1_0
     {
         return dataStructure.getVersion();
     }
-
 }

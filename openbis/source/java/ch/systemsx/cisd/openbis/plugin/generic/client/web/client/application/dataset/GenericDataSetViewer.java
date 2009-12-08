@@ -51,8 +51,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Piotr Buczek
  */
-public final class GenericDataSetViewer extends
-        AbstractViewer<IGenericClientServiceAsync, ExternalData> implements
+public final class GenericDataSetViewer extends AbstractViewer<ExternalData> implements
         IDatabaseModificationObserver
 {
     private static final String PREFIX = "generic-dataset-viewer_";
@@ -64,6 +63,8 @@ public final class GenericDataSetViewer extends
     private final BrowseButtonHolder browseButtonHolder;
 
     private final TechId datasetId;
+
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -78,6 +79,7 @@ public final class GenericDataSetViewer extends
     {
         super(viewContext, createId(identifiable));
         setLayout(new BorderLayout());
+        this.viewContext = viewContext;
         this.datasetId = TechId.create(identifiable);
         this.browseButtonHolder = new BrowseButtonHolder();
         extendToolBar();

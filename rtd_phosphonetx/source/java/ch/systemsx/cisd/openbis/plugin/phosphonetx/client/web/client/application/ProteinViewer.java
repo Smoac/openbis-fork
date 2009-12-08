@@ -57,8 +57,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 /**
  * @author Franz-Josef Elmer
  */
-public class ProteinViewer extends
-        AbstractViewer<IPhosphoNetXClientServiceAsync, IEntityInformationHolder> implements
+public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> implements
         IDatabaseModificationObserver
 {
     private static final int AMINOACIDS_IN_SEQUENCE_PER_LINE = 60;

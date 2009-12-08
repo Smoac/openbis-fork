@@ -41,14 +41,15 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericExperimentViewer extends
-        AbstractViewer<IGenericClientServiceAsync, Experiment>
+public final class GenericExperimentViewer extends AbstractViewer<Experiment>
 {
     private static final String GENERIC_EXPERIMENT_VIEWER = "generic-experiment-viewer";
 
     private static final String PREFIX = GENERIC_EXPERIMENT_VIEWER + "_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
+
+    private final IViewContext<IGenericClientServiceAsync> viewContext;
 
     private final TechId experimentId;
 
@@ -69,6 +70,7 @@ public final class GenericExperimentViewer extends
         setLayout(new BorderLayout());
         this.experimentId = TechId.create(identifiable);
         this.modificationObserver = new CompositeDatabaseModificationObserverWithMainObserver();
+        this.viewContext = viewContext;
         extendToolBar();
         reloadAllData();
     }

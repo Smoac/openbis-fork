@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 
 /**
  * The <i>screening</i> specific {@link AbstractServerLogger} extension.
@@ -44,26 +45,27 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public final SampleParentWithDerived getSampleInfo(final String sessionToken,
             final SampleIdentifier identifier)
     {
-        logAccess(sessionToken, "get_sample_info", "CODE(%s)", identifier);
+        logAccess(sessionToken, "getSampleInfo", "CODE(%s)", identifier);
         return null;
     }
 
-    public final SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
+            final TechId sampleId)
     {
-        logAccess(sessionToken, "get_sample_info", "ID(%s)", sampleId);
+        logAccess(sessionToken, "getSampleInfo", "ID(%s)", sampleId);
         return null;
     }
 
     public void registerSample(final String sessionToken, final NewSample newSample,
             final Collection<NewAttachment> attachments)
     {
-        logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%s) ATTACHMENTS(%s)",
+        logTracking(sessionToken, "registerSample", "SAMPLE_TYPE(%s) SAMPLE(%s) ATTACHMENTS(%s)",
                 newSample.getSampleType(), newSample.getIdentifier(), attachments.size());
     }
 
-    public int getNumberOfExperiments(String sessionToken)
+    public PlateContent getPlateContent(String sessionToken, TechId plateId)
     {
-        logTracking(sessionToken, "get_number_of_experiments", "");
-        return 0;
+        logTracking(sessionToken, "getPlateContent", "PLATE(%s)", plateId.getId());
+        return null;
     }
 }
