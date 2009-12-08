@@ -16,7 +16,27 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import com.extjs.gxt.ui.client.Style.Orientation;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.InlineHyperlink;
+
+import ch.systemsx.cisd.cifex.client.Configuration;
+import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
+import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -34,9 +54,155 @@ public class HelpPage extends AbstractMainPage
     @Override
     protected final LayoutContainer createMainPanel()
     {
+        final Configuration configuration = context.getModel().getConfiguration();
+        assert configuration != null : "Must not be null reached this point.";
+
         LayoutContainer container = new LayoutContainer();
-        container.add(new FooterPanel(context));
+        RowLayout layout = new RowLayout(Orientation.VERTICAL);
+        container.setLayout(layout);
+        final IMessageResources messageResources = context.getMessageResources();
+        final Html contactAdministrator =
+                new Html(createContactAdministrator(configuration, messageResources));
+        final Hyperlink disclaimerLink = createDisclaimerLink(messageResources);
+        final Hyperlink documentationLink = createDocumentationLink(messageResources);
+        container.add(documentationLink);
+        container.add(disclaimerLink);
+        container.add(contactAdministrator);
+        container.add(createApplicationDescriptionHTML(messageResources, configuration));
+
         return container;
+    }
+
+    private final Hyperlink createDisclaimerLink(final IMessageResources messageResources)
+    {
+        return getLinkWidget(messageResources.getFooterDisclaimerLinkLabel(), new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    try
+                    {
+                        new RequestBuilder(RequestBuilder.GET, "disclaimer.html").sendRequest(null,
+                                new HTMLRequestCallback(messageResources
+                                        .getFooterDisclaimerDialogTitle()));
+                    } catch (final RequestException ex)
+                    {
+                        showErrorMessage(ex);
+                    }
+                }
+            });
+    }
+
+    public static Hyperlink getInlineLinkWidget(final String text, final ClickHandler handler)
+    {
+        Hyperlink link = new InlineHyperlink();
+        link.setText(text);
+        link.setStyleName("cifex-a");
+        if (handler != null)
+        {
+            link.addClickHandler(handler);
+        }
+        return link;
+    }
+
+    public static Hyperlink getLinkWidget(final String text, final ClickHandler handler)
+    {
+        Hyperlink link = new Hyperlink();
+        link.setText(text);
+        link.setStyleName("cifex-a");
+        if (handler != null)
+        {
+            link.addClickHandler(handler);
+        }
+        return link;
+    }
+
+    private final Hyperlink createDocumentationLink(final IMessageResources messageResources)
+    {
+        return getLinkWidget(messageResources.getFooterDocumentationLinkLabel(), new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    try
+                    {
+                        new RequestBuilder(RequestBuilder.GET, "documentation.html").sendRequest(
+                                null, new HTMLRequestCallback(messageResources
+                                        .getFooterDocumentationDialogTitle()));
+                    } catch (final RequestException ex)
+                    {
+                        showErrorMessage(ex);
+                    }
+                }
+            });
+    }
+
+    private final Html createApplicationDescriptionHTML(final IMessageResources messageResources,
+            final Configuration configuration)
+    {
+        final Element versionSpan = DOM.createSpan();
+        DOM.setElementAttribute(versionSpan, "class", "cifex-light-div");
+        DOM.setInnerText(versionSpan, "(Version: " + configuration.getSystemVersion() + ")");
+
+        final Element descDiv = DOM.createDiv();
+        StringBuffer sb = new StringBuffer();
+        sb.append(messageResources.getFooterPoweredBy());
+        sb.append(" ");
+        sb.append(messageResources.getFooterApplicationDescription());
+        sb.append(" ");
+        sb.append(DOM.toString(versionSpan));
+        DOM.setInnerHTML(descDiv, sb.toString());
+
+        final Html applicationDescription = new Html(DOM.toString(descDiv));
+        return applicationDescription;
+    }
+
+    private final static String createContactAdministrator(final Configuration configuration,
+            final IMessageResources messageResources)
+    {
+        return DOMUtils.createEmailAnchor(configuration.getAdministratorEmail(), messageResources
+                .getFooterContactAdministrator());
+    }
+
+    private final void showErrorMessage(final Throwable ex)
+    {
+        final String msg;
+        final String message = ex.getMessage();
+        final IMessageResources messageResources = context.getMessageResources();
+        if (StringUtils.isBlank(message))
+        {
+            msg = messageResources.getExceptionWithoutMessage(ex.getClass().getName());
+        } else
+        {
+            msg = message;
+        }
+        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg, null);
+    }
+
+    /**
+     * A {@link RequestCallback} that shows a legal disclaimer on success.
+     */
+    private final class HTMLRequestCallback implements RequestCallback
+    {
+        private final String panelTitle;
+
+        public HTMLRequestCallback(String title)
+        {
+            this.panelTitle = title;
+        }
+
+        public final void onResponseReceived(final Request request, final Response response)
+        {
+            final DefaultLayoutDialog layoutDialog =
+                    new DefaultLayoutDialog(context.getMessageResources(), this.panelTitle,
+                            DefaultLayoutDialog.DEFAULT_WIDTH, DefaultLayoutDialog.DEFAULT_HEIGHT,
+                            true, true);
+            layoutDialog.addText(response.getText());
+            layoutDialog.show();
+        }
+
+        public void onError(final Request request, final Throwable exception)
+        {
+            showErrorMessage(exception);
+        }
     }
 
 }

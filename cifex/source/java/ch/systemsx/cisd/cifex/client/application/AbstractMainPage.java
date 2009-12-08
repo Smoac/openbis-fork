@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
@@ -36,14 +37,21 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
+import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -99,7 +107,6 @@ abstract class AbstractMainPage extends Viewport
                 VerticalAlignment.BOTTOM));
         container.add(createUserInfoWidget(), new TableData(HorizontalAlignment.RIGHT,
                 VerticalAlignment.MIDDLE));
-        // layout.setCellHorizontalAlign(HorizontalAlignment.RIGHT);
 
         return container;
     }
@@ -121,6 +128,12 @@ abstract class AbstractMainPage extends Viewport
             container.add(new InlineHTML(" | "));
             container.add(createEditSettingsWidget());
         }
+
+        container.add(new InlineHTML(" | "));
+        container.add(createFAQWidget());
+
+        container.add(new InlineHTML(" | "));
+        container.add(createDisclamerWidget());
 
         container.add(new InlineHTML(" | "));
         container.add(createHelpWidget());
@@ -234,6 +247,54 @@ abstract class AbstractMainPage extends Viewport
                 public void onClick(ClickEvent event)
                 {
                     context.getPageController().createHelpPage();
+                }
+            });
+        return html;
+    }
+
+    private Widget createFAQWidget()
+    {
+        final IMessageResources messageResources = context.getMessageResources();
+        Anchor html =
+                clickableHTMLWidget(messageResources.getFooterDocumentationLinkLabel(),
+                        messageResources.getFooterDocumentationDialogTitle());
+        html.addClickHandler(new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    try
+                    {
+                        new RequestBuilder(RequestBuilder.GET, "documentation.html").sendRequest(
+                                null, new HTMLRequestCallback(messageResources
+                                        .getFooterDocumentationDialogTitle()));
+                    } catch (final RequestException ex)
+                    {
+                        showErrorMessage(ex);
+                    }
+                }
+            });
+        return html;
+    }
+
+    private Widget createDisclamerWidget()
+    {
+        final IMessageResources messageResources = context.getMessageResources();
+        Anchor html =
+                clickableHTMLWidget(messageResources.getFooterDisclaimerLinkLabel(),
+                        messageResources.getFooterDisclaimerDialogTitle());
+        html.addClickHandler(new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    try
+                    {
+                        new RequestBuilder(RequestBuilder.GET, "disclaimer.html").sendRequest(null,
+                                new HTMLRequestCallback(messageResources
+                                        .getFooterDisclaimerDialogTitle()));
+                    } catch (final RequestException ex)
+                    {
+                        showErrorMessage(ex);
+                    }
                 }
             });
         return html;
@@ -401,6 +462,49 @@ abstract class AbstractMainPage extends Viewport
                 new CreateUserWidget(context, allowPermanentUsers);
         createUserPanel.add(createUserWidget);
         return createUserPanel;
+    }
+
+    /**
+     * A {@link RequestCallback} that shows a popup window
+     */
+    private final class HTMLRequestCallback implements RequestCallback
+    {
+        private final String panelTitle;
+
+        public HTMLRequestCallback(String title)
+        {
+            this.panelTitle = title;
+        }
+
+        public final void onResponseReceived(final Request request, final Response response)
+        {
+            final DefaultLayoutDialog layoutDialog =
+                    new DefaultLayoutDialog(context.getMessageResources(), this.panelTitle,
+                            DefaultLayoutDialog.DEFAULT_WIDTH, DefaultLayoutDialog.DEFAULT_HEIGHT,
+                            true, true);
+            layoutDialog.addText(response.getText());
+            layoutDialog.show();
+        }
+
+        public void onError(final Request request, final Throwable exception)
+        {
+            showErrorMessage(exception);
+        }
+    }
+
+    private final void showErrorMessage(final Throwable ex)
+    {
+        final String msg;
+        final String message = ex.getMessage();
+        final IMessageResources messageResources = context.getMessageResources();
+        if (StringUtils.isBlank(message))
+        {
+            msg = messageResources.getExceptionWithoutMessage(ex.getClass().getName());
+        } else
+        {
+            msg = message;
+        }
+        MessageBox.alert(messageResources.getMessageBoxErrorTitle(), msg, null);
     }
 
     protected abstract LayoutContainer createMainPanel();
