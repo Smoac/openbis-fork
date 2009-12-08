@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * 
  * @author Christian Ribeaud
  */
-final class NewSampleParserObjectFactory extends AbstractParserObjectFactory<NewSample>
+class NewSampleParserObjectFactory extends AbstractParserObjectFactory<NewSample>
 {
     private final SampleType sampleType;
 
@@ -94,7 +94,7 @@ final class NewSampleParserObjectFactory extends AbstractParserObjectFactory<New
     }
 
     @Override
-    public final NewSample createObject(final String[] lineTokens) throws ParserException
+    public NewSample createObject(final String[] lineTokens) throws ParserException
     {
         final NewSample newSample = super.createObject(lineTokens);
         if (identifierExpectedInFile && newSample.getIdentifier() == null)

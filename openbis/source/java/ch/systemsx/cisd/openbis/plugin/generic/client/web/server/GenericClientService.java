@@ -77,7 +77,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.NewMaterialParserObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser.BatchSamplesRegistration;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser.BatchSamplesOperation;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser.BatchSamplesOperationKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser.SampleCodeGenerator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
@@ -160,9 +161,10 @@ public final class GenericClientService extends AbstractClientService implements
             final String sessionKey, String defaultGroupIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        BatchSamplesRegistration info =
+        BatchSamplesOperation info =
                 parseSamples(sampleType, sessionKey, defaultGroupIdentifier,
-                        defaultGroupIdentifier != null, true, "registered");
+                        defaultGroupIdentifier != null, true,
+                        BatchSamplesOperationKind.REGISTRATION);
         try
         {
             final String sessionToken = getSessionToken();
@@ -179,8 +181,9 @@ public final class GenericClientService extends AbstractClientService implements
             final String sessionKey)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        BatchSamplesRegistration info =
-                parseSamples(sampleType, sessionKey, null, false, true, "updated");
+        BatchSamplesOperation info =
+                parseSamples(sampleType, sessionKey, null, false, true,
+                        BatchSamplesOperationKind.UPDATE);
         try
         {
             final String sessionToken = getSessionToken();
@@ -261,11 +264,11 @@ public final class GenericClientService extends AbstractClientService implements
         {
             final ExperimentIdentifier identifier =
                     new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier();
-            BatchSamplesRegistration result =
+            BatchSamplesOperation result =
                     parseSamples(experiment.getSampleType(), samplesSessionKey,
                             new GroupIdentifier(identifier.getDatabaseInstanceCode(), identifier
                                     .getGroupCode()).toString(), experiment.isGenerateCodes(),
-                            false, "registered");
+                            false, BatchSamplesOperationKind.REGISTRATION);
             experiment.setNewSamples(result.getSamples());
             experiment.setSamples(result.getCodes());
         }
@@ -279,9 +282,10 @@ public final class GenericClientService extends AbstractClientService implements
             }.process(attachmentsSessionKey, getHttpSession(), experiment.getAttachments());
     }
 
-    private BatchSamplesRegistration parseSamples(final SampleType sampleType,
+    private BatchSamplesOperation parseSamples(final SampleType sampleType,
             final String sessionKey, String defaultGroupIdentifier,
-            final boolean isAutoGenerateCodes, final boolean allowExperiments, String operation)
+            final boolean isAutoGenerateCodes, final boolean allowExperiments,
+            BatchSamplesOperationKind operationKind)
     {
         HttpSession httpSession = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
@@ -291,7 +295,8 @@ public final class GenericClientService extends AbstractClientService implements
                     tryGetSampleCodeGenerator(isAutoGenerateCodes);
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
             return SampleUploadSectionsParser.prepareSamples(sampleType, uploadedFiles,
-                    defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments, operation);
+                    defaultGroupIdentifier, sampleCodeGeneratorOrNull, allowExperiments,
+                    operationKind);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -445,11 +450,11 @@ public final class GenericClientService extends AbstractClientService implements
         {
             final ProjectIdentifier newProject =
                     new ProjectIdentifierFactory(updates.getProjectIdentifier()).createIdentifier();
-            BatchSamplesRegistration info =
+            BatchSamplesOperation info =
                     parseSamples(updates.getSampleType(), updates.getSamplesSessionKey(),
                             new GroupIdentifier(newProject.getDatabaseInstanceCode(), newProject
                                     .getGroupCode()).toString(), updates.isGenerateCodes(), false,
-                            "registered");
+                            BatchSamplesOperationKind.REGISTRATION);
             updates.setNewSamples(info.getSamples());
             updates.setSampleCodes(info.getCodes());
         }

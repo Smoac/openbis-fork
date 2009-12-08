@@ -47,7 +47,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class SampleUploadSectionsParser
 {
-    public static class BatchSamplesRegistration
+
+    public static enum BatchSamplesOperationKind
+    {
+        REGISTRATION("registered"), UPDATE("updated");
+
+        private String operationName;
+
+        BatchSamplesOperationKind(String operationName)
+        {
+            this.operationName = operationName;
+        }
+
+        public Object getOperationName()
+        {
+            return operationName;
+        }
+    }
+
+    public static class BatchSamplesOperation
     {
         private final List<NewSamplesWithTypes> samples;
 
@@ -55,7 +73,9 @@ public class SampleUploadSectionsParser
 
         private final String[] sampleCodes;
 
-        public BatchSamplesRegistration(List<NewSamplesWithTypes> samples,
+        private Object operationDetailsOrNull;
+
+        public BatchSamplesOperation(List<NewSamplesWithTypes> samples,
                 List<BatchRegistrationResult> resultList, String[] sampleCodes)
         {
             this.samples = samples;
@@ -77,6 +97,16 @@ public class SampleUploadSectionsParser
         {
             return sampleCodes;
         }
+
+        public Object getOperationDetailsOrNull()
+        {
+            return operationDetailsOrNull;
+        }
+
+        public void setOperationDetailsOrNull(Object operationDetailsOrNull)
+        {
+            this.operationDetailsOrNull = operationDetailsOrNull;
+        }
     }
 
     public interface SampleCodeGenerator
@@ -85,19 +115,19 @@ public class SampleUploadSectionsParser
         List<String> generateCodes(int size);
     }
 
-    public static BatchSamplesRegistration prepareSamples(final SampleType sampleType,
+    public static BatchSamplesOperation prepareSamples(final SampleType sampleType,
             final UploadedFilesBean uploadedFiles, String defaultGroupIdentifier,
             final SampleCodeGenerator sampleCodeGeneratorOrNull, final boolean allowExperiments,
-            String operation)
+            BatchSamplesOperationKind operationKind)
     {
         final List<NewSamplesWithTypes> newSamples = new ArrayList<NewSamplesWithTypes>();
         boolean isAutoGenerateCodes = (sampleCodeGeneratorOrNull != null);
         final List<BatchRegistrationResult> results =
                 loadSamplesFromFiles(uploadedFiles, sampleType, isAutoGenerateCodes, newSamples,
-                        allowExperiments, operation);
+                        allowExperiments, operationKind);
         generateIdentifiersIfNecessary(defaultGroupIdentifier, sampleCodeGeneratorOrNull,
                 isAutoGenerateCodes, newSamples);
-        return new BatchSamplesRegistration(newSamples, results, parseCodes(newSamples));
+        return new BatchSamplesOperation(newSamples, results, parseCodes(newSamples));
     }
 
     private static String[] parseCodes(final List<NewSamplesWithTypes> newSamples)
@@ -113,9 +143,9 @@ public class SampleUploadSectionsParser
         return codes.toArray(new String[0]);
     }
 
-    // TODO
     private static BisTabFileLoader<NewSample> createSampleLoader(final SampleType sampleType,
-            final boolean isAutoGenerateCodes, final boolean allowExperiments)
+            final boolean isAutoGenerateCodes, final boolean allowExperiments,
+            final BatchSamplesOperationKind operationKind)
     {
         final BisTabFileLoader<NewSample> tabFileLoader =
                 new BisTabFileLoader<NewSample>(new IParserObjectFactoryFactory<NewSample>()
@@ -123,8 +153,19 @@ public class SampleUploadSectionsParser
                         public final IParserObjectFactory<NewSample> createFactory(
                                 final IPropertyMapper propertyMapper) throws ParserException
                         {
-                            return new NewSampleParserObjectFactory(sampleType, propertyMapper,
-                                    isAutoGenerateCodes == false, allowExperiments);
+                            switch (operationKind)
+                            {
+                                case REGISTRATION:
+                                    return new NewSampleParserObjectFactory(sampleType,
+                                            propertyMapper, isAutoGenerateCodes == false,
+                                            allowExperiments);
+                                case UPDATE:
+                                    return new UpdatedSampleParserObjectFactory(sampleType,
+                                            propertyMapper, isAutoGenerateCodes == false,
+                                            allowExperiments);
+                            }
+                            throw new UnsupportedOperationException(operationKind
+                                    + " is not supported");
                         }
                     }, true);
         return tabFileLoader;
@@ -217,7 +258,8 @@ public class SampleUploadSectionsParser
 
     private static List<BatchRegistrationResult> loadSamplesFromFiles(
             UploadedFilesBean uploadedFiles, SampleType sampleType, boolean isAutoGenerateCodes,
-            final List<NewSamplesWithTypes> newSamples, boolean allowExperiments, String operation)
+            final List<NewSamplesWithTypes> newSamples, boolean allowExperiments,
+            BatchSamplesOperationKind operationKind)
     {
 
         final List<BatchRegistrationResult> results =
@@ -241,7 +283,8 @@ public class SampleUploadSectionsParser
                 SampleType typeFromSection = new SampleType();
                 typeFromSection.setCode(fs.getSectionName());
                 final BisTabFileLoader<NewSample> tabFileLoader =
-                        createSampleLoader(typeFromSection, isAutoGenerateCodes, allowExperiments);
+                        createSampleLoader(typeFromSection, isAutoGenerateCodes, allowExperiments,
+                                operationKind);
                 String sectionInFile =
                         sampleSections.size() == 1 ? "" : " (section:" + fs.getSectionName() + ")";
                 final List<NewSample> loadedSamples =
@@ -255,7 +298,8 @@ public class SampleUploadSectionsParser
                 }
             }
             results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                    .format("%d sample(s) found and %s.", sampleCounter, operation)));
+                    .format("%d sample(s) found and %s.", sampleCounter, operationKind
+                            .getOperationName())));
         }
         return results;
     }

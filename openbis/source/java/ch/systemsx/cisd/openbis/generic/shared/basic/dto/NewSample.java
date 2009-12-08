@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
  * 
  * @author Christian Ribeaud
  */
-public final class NewSample extends Identifier<NewSample>
+public class NewSample extends Identifier<NewSample>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -73,6 +73,16 @@ public final class NewSample extends Identifier<NewSample>
         setSampleType(sampleType);
         setParentIdentifier(parentIdentifier);
         setContainerIdentifier(containerIdentifier);
+    }
+
+    public NewSample(final String identifier, SampleType sampleType, String parentIdentifier,
+            String containerIdentifier, String experimentIdentifier, IEntityProperty[] properties,
+            List<NewAttachment> attachments)
+    {
+        this(identifier, sampleType, parentIdentifier, containerIdentifier);
+        this.experimentIdentifier = experimentIdentifier;
+        this.properties = properties;
+        this.attachments = attachments;
     }
 
     public List<NewAttachment> getAttachments()

@@ -59,6 +59,14 @@ public interface IEntityPropertiesConverter
             PersonPE registrator);
 
     /**
+     * Updates Set<T> of properties but preserve those old properties which codes are not among
+     * <var>propertiesToUpdate</var>.
+     */
+    public <T extends EntityPropertyPE, P extends IEntityProperty> Set<T> updateProperties(
+            Collection<T> oldProperties, EntityTypePE entityType, List<P> newProperties,
+            PersonPE registrator, Set<String> propertiesToUpdate);
+
+    /**
      * Checks whether all mandatory properties are provided.
      */
     public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
@@ -70,4 +78,5 @@ public interface IEntityPropertiesConverter
      */
     public <T extends EntityPropertyPE> void checkMandatoryProperties(Collection<T> properties,
             EntityTypePE entityTypePE, Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache);
+
 }

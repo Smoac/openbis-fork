@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -269,16 +271,10 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
 
     public void update(SampleUpdatesDTO updates)
     {
-        if (updates.getSampleIdOrNull() != null)
+        loadDataByTechId(updates.getSampleIdOrNull());
+        if (updates.getVersion().equals(sample.getModificationDate()) == false)
         {
-            loadDataByTechId(updates.getSampleIdOrNull());
-            if (updates.getVersion().equals(sample.getModificationDate()) == false)
-            {
-                throwModifiedEntityException("Sample");
-            }
-        } else
-        {
-            loadBySampleIdentifier(updates.getOldSampleIdentifierOrNull());
+            throwModifiedEntityException("Sample");
         }
         updateProperties(updates.getProperties());
         updateGroup(updates.getSampleIdentifier());
@@ -289,6 +285,34 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         {
             addAttachment(AttachmentTranslator.translate(attachment));
         }
+        dataChanged = true;
+    }
+
+    public void batchUpdate(SampleBatchUpdatesDTO updates)
+    {
+        // batch update doesn't use tech id, check version and update attributes
+        loadBySampleIdentifier(updates.getOldSampleIdentifierOrNull());
+
+        SampleBatchUpdateDetails details = updates.getDetails();
+
+        batchUpdateProperties(updates.getProperties(), details.getPropertiesToUpdate());
+
+        if (details.isExperimentUpdateRequested())
+        {
+            updateGroup(updates.getSampleIdentifier());
+            updateExperiment(updates.getExperimentIdentifierOrNull());
+        }
+        if (details.isParentUpdateRequested())
+        {
+            setGeneratedFrom(updates.getSampleIdentifier(), sample, updates
+                    .getParentIdentifierOrNull());
+        }
+        if (details.isContainerUpdateRequested())
+        {
+            setContainer(updates.getSampleIdentifier(), sample, updates
+                    .getContainerIdentifierOrNull());
+        }
+
         dataChanged = true;
     }
 
@@ -386,6 +410,16 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
         final PersonPE registrator = findRegistrator();
         sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
                 properties, registrator));
+    }
+
+    private void batchUpdateProperties(List<IEntityProperty> properties,
+            Set<String> propertiesToUpdate)
+    {
+        final Set<SamplePropertyPE> existingProperties = sample.getProperties();
+        final EntityTypePE type = sample.getSampleType();
+        final PersonPE registrator = findRegistrator();
+        sample.setProperties(entityPropertiesConverter.updateProperties(existingProperties, type,
+                properties, registrator, propertiesToUpdate));
     }
 
     public void setGeneratedCode()

@@ -39,8 +39,6 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
 
     private SampleIdentifier sampleIdentifier;
 
-    private SampleIdentifier oldSampleIdentifierOrNull;
-
     private Collection<NewAttachment> attachments;
 
     public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties,
@@ -54,18 +52,6 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
         this.sampleIdentifier = sampleIdentifier;
     }
 
-    public SampleUpdatesDTO(SampleIdentifier oldSampleIdentifier, List<IEntityProperty> properties,
-            ExperimentIdentifier experimentIdentifierOrNull, Collection<NewAttachment> attachments,
-            Date version, SampleIdentifier sampleIdentifier, String parentIdentifierOrNull,
-            String containerIdentifierOrNull)
-    {
-        super(null, properties, version, parentIdentifierOrNull, containerIdentifierOrNull);
-        this.experimentIdentifierOrNull = experimentIdentifierOrNull;
-        this.attachments = attachments;
-        this.sampleIdentifier = sampleIdentifier;
-        this.oldSampleIdentifierOrNull = oldSampleIdentifier;
-    }
-
     public SampleIdentifier getSampleIdentifier()
     {
         return sampleIdentifier;
@@ -74,16 +60,6 @@ public class SampleUpdatesDTO extends BasicSampleUpdates
     public void setSampleIdentifier(SampleIdentifier sampleIdentifier)
     {
         this.sampleIdentifier = sampleIdentifier;
-    }
-
-    public SampleIdentifier getOldSampleIdentifierOrNull()
-    {
-        return oldSampleIdentifierOrNull;
-    }
-
-    public void setOldSampleIdentifier(SampleIdentifier sampleIdentifier)
-    {
-        this.oldSampleIdentifierOrNull = sampleIdentifier;
     }
 
     public ExperimentIdentifier getExperimentIdentifierOrNull()

@@ -54,8 +54,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -63,6 +65,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
@@ -344,22 +347,22 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 newSampleIdentifier =
                         new SampleIdentifier(new GroupIdentifier(experimentIdentifierOrNull
                                 .getDatabaseInstanceCode(), experimentIdentifierOrNull
-                                .getGroupCode()), oldSampleIdentifier.getSampleCode()); // subcode?
+                                .getGroupCode()), oldSampleIdentifier.getSampleCode());
+                // TODO 2009-12-08, Piotr Buczek: does it work well with subcodes?
             } else
             {
-                // FIXME looses experiment, parent and container information if there is no column
                 // no experiment - leave sample identifier unchanged
                 experimentIdentifierOrNull = null;
                 newSampleIdentifier = oldSampleIdentifier;
             }
-            final Collection<NewAttachment> attachments = new ArrayList<NewAttachment>(0); // empty
-            final Date version = null; // no version check
             final String parentIdentifierOrNull = updatedSample.getParentIdentifier();
             final String containerIdentifierOrNull = updatedSample.getContainerIdentifier();
+            final SampleBatchUpdateDetails batchUpdateDetails =
+                    ((UpdatedSample) updatedSample).getBatchUpdateDetails();
 
-            updateSample(session, new SampleUpdatesDTO(oldSampleIdentifier, properties,
-                    experimentIdentifierOrNull, attachments, version, newSampleIdentifier,
-                    parentIdentifierOrNull, containerIdentifierOrNull));
+            batchUpdateSample(session, new SampleBatchUpdatesDTO(oldSampleIdentifier, properties,
+                    experimentIdentifierOrNull, newSampleIdentifier, parentIdentifierOrNull,
+                    containerIdentifierOrNull, batchUpdateDetails));
         }
     }
 
@@ -518,15 +521,17 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     public Date updateSample(String sessionToken, SampleUpdatesDTO updates)
     {
         final Session session = getSession(sessionToken);
-        return updateSample(session, updates);
-    }
-
-    private Date updateSample(Session session, SampleUpdatesDTO updates)
-    {
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.update(updates);
         sampleBO.save();
         return sampleBO.getSample().getModificationDate();
+    }
+
+    private void batchUpdateSample(Session session, SampleBatchUpdatesDTO updates)
+    {
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.batchUpdate(updates);
+        sampleBO.save();
     }
 
     public DataSetUpdateResult updateDataSet(String sessionToken, DataSetUpdatesDTO updates)

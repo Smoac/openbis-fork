@@ -348,6 +348,25 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         return set;
     }
 
+    public <T extends EntityPropertyPE, P extends IEntityProperty> Set<T> updateProperties(
+            Collection<T> oldProperties, EntityTypePE entityType, List<P> newProperties,
+            PersonPE registrator, Set<String> propertiesToUpdate)
+    {
+        // all new properties should be among propertiesToUpdate (no need to check it)
+        final Set<T> set = updateProperties(oldProperties, entityType, newProperties, registrator);
+        // add old properties that are not among propertiesToUpdate (preserve those properties)
+        for (T oldProperty : oldProperties)
+        {
+            final String oldPropertyCode =
+                    oldProperty.getEntityTypePropertyType().getPropertyType().getCode();
+            if (propertiesToUpdate.contains(oldPropertyCode.toLowerCase()) == false)
+            {
+                set.add(oldProperty);
+            }
+        }
+        return set;
+    }
+
     private static <T extends EntityPropertyPE> T tryFind(Collection<T> oldProperties, T p)
     {
         for (T oldProperty : oldProperties)
