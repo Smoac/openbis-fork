@@ -48,12 +48,15 @@ import ch.systemsx.cisd.openbis.etlserver.phosphonetx.dto.Sequence;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ProbabilityToFDRCalculator;
 
 /**
  * @author Franz-Josef Elmer
  */
 class ResultDataSetUploader extends AbstractHandler
 {
+    private static final double MAX_FALSE_DISCOVERY_RATE = 0.1;
+
     static final String PARAMETER_TYPE_ABUNDANCE = "abundance";
 
     private final Connection connection;
@@ -214,7 +217,7 @@ class ResultDataSetUploader extends AbstractHandler
         Long databaseID = dataSet.getDatabaseID();
         AbundanceHandler abundanceHandler =
                 new AbundanceHandler(openbisService, dao, groupIdentifier, experiment);
-        createProbabilityToFDRMapping(dataSetID, summary);
+        ProbabilityToFDRCalculator calculator = createProbabilityToFDRMapping(dataSetID, summary);
         List<ProteinGroup> proteinGroups = summary.getProteinGroups();
         for (ProteinGroup proteinGroup : proteinGroups)
         {
@@ -225,7 +228,10 @@ class ResultDataSetUploader extends AbstractHandler
                 Protein protein = proteins.get(0);
                 try
                 {
-                    addProtein(protein, dataSetID, databaseID, abundanceHandler);
+                    if (calculator.calculateFDR(protein.getProbability()) <= MAX_FALSE_DISCOVERY_RATE)
+                    {
+                        addProtein(protein, dataSetID, databaseID, abundanceHandler);
+                    }
                 } catch (Exception e)
                 {
                     logException(e, "protein", protein.getName());
@@ -354,8 +360,9 @@ class ResultDataSetUploader extends AbstractHandler
         return null;
     }
 
-    private void createProbabilityToFDRMapping(long dataSetID, ProteinSummary summary)
+    private ProbabilityToFDRCalculator createProbabilityToFDRMapping(long dataSetID, ProteinSummary summary)
     {
+        ProbabilityToFDRCalculator calculator = new ProbabilityToFDRCalculator();
         Object[] s = summary.getSummaryHeader().getProgramDetails().getSummary();
         if (s != null)
         {
@@ -369,9 +376,10 @@ class ResultDataSetUploader extends AbstractHandler
                     {
                         double probability = proteinSummaryDataFilter.getMinProbability();
                         double fdr = proteinSummaryDataFilter.getFalsePositiveErrorRate();
+                        calculator.add(probability, fdr);
                         dao.createProbabilityToFDRMapping(dataSetID, probability, fdr);
                     }
-                    return;
+                    return calculator;
                 }
             }
         }

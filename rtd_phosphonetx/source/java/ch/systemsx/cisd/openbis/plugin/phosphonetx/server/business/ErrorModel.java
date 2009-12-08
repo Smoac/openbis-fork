@@ -16,16 +16,14 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server.business;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import net.lemnik.eodsql.DataSet;
 
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IPhosphoNetXDAOFactory;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.server.dataaccess.IProteinQueryDAO;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ProbabilityToFDRCalculator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProbabilityFDRMapping;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWithProbability;
@@ -35,63 +33,6 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.dto.ProteinReferenceWi
  */
 class ErrorModel
 {
-    private static final class ProbabilityToFDRCalculator
-    {
-        private static final class MappingEntry implements Comparable<MappingEntry>
-        {
-            private final double probability;
-
-            private final double fdr;
-
-            MappingEntry(double probability, double fdr)
-            {
-                this.probability = probability;
-                this.fdr = fdr;
-            }
-
-            public int compareTo(MappingEntry that)
-            {
-                return probability < that.probability ? -1 : (probability > that.probability ? 1
-                        : 0);
-            }
-
-            @Override
-            public String toString()
-            {
-                return probability + " = " + fdr;
-            }
-        }
-
-        private final List<MappingEntry> mappingEntries = new ArrayList<MappingEntry>();
-
-        void add(double probability, double falseDiscoveryRate)
-        {
-            mappingEntries.add(new MappingEntry(probability, falseDiscoveryRate));
-        }
-
-        void init()
-        {
-            Collections.sort(mappingEntries);
-        }
-
-        double calculateFDR(double probability)
-        {
-            int index = Collections.binarySearch(mappingEntries, new MappingEntry(probability, 0));
-            if (index >= 0)
-            {
-                return mappingEntries.get(index).fdr;
-            }
-            // calculate by linear interpolation
-            int index1 = -index - 1;
-            int index0 = index1 - 1;
-            assert index0 >= 0;
-            MappingEntry m0 = mappingEntries.get(index0);
-            MappingEntry m1 = mappingEntries.get(index1);
-            double scale = (m1.fdr - m0.fdr) / (m1.probability - m0.probability);
-            return m0.fdr + scale * (probability - m0.probability);
-        }
-    }
-
     private final Map<Long, ProbabilityToFDRCalculator> calculators =
             new HashMap<Long, ProbabilityToFDRCalculator>();
 
