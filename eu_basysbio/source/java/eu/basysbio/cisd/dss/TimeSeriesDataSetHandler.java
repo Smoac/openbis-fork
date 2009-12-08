@@ -45,9 +45,11 @@ import ch.systemsx.cisd.etlserver.utils.TableBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -245,7 +247,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         DataColumnHeader dataColumnHeader = new DataColumnHeader(dataColumn.getHeader());
         Experiment experiment = getExperiment(dataColumnHeader, dataSetInformation);
         String sampleCode = dataColumnHeader.createSampleCode(sampleCodeFormat).toUpperCase();
-        createSampleIfNecessary(sampleCode, experiment);
+        createSampleIfNecessary(sampleCode, dataColumnHeader.timePoint, experiment);
         
         File dataSetFolder = new File(dropBox, sampleCode);
         boolean success = getFileOperations().mkdirs(dataSetFolder);
@@ -280,6 +282,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         builder.addRow("SCALE", dataColumnHeader.scale);
         builder.addRow("BI_ID", dataColumnHeader.biID);
         builder.addRow("CG", dataColumnHeader.controlledGene);
+        builder.addRow("TIME_SERIES_DATA_SET_TYPE", dataColumnHeader.dataSetType);
         writeAsTSVFile(dataSetPropertiesFile, builder.getColumns());
     }
     
@@ -296,7 +299,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         }
     }
 
-    private void createSampleIfNecessary(String sampleCode, Experiment experiment)
+    private void createSampleIfNecessary(String sampleCode, int timePoint, Experiment experiment)
     {
         ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(new TechId(experiment.getId()));
         List<Sample> samples = service.listSamples(criteria);
@@ -315,6 +318,12 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         String groupIdentifier = experiment.getProject().getGroup().getIdentifier();
         sample.setIdentifier(groupIdentifier
                 + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + sampleCode);
+        EntityProperty property = new EntityProperty();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode("TIME_POINT");
+        property.setPropertyType(propertyType);
+        property.setValue(Integer.toString(timePoint));
+        sample.setProperties(new EntityProperty[] {property});
         service.registerSample(sample);
     }
 

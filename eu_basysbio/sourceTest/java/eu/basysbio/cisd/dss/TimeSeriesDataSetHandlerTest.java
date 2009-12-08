@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -210,10 +211,29 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                                 return false;
                             }
                         }));
-                    will(returnValue(Arrays.<Sample>asList(createSample(SAMPLE_EX_200))));
-                    
-                    NewSample sample = createNewSample(SAMPLE_EX_7200);
-                    one(service).registerSample(sample);
+                    will(returnValue(Arrays.<Sample> asList(createSample(SAMPLE_EX_200))));
+
+                    final NewSample sample = createNewSample(SAMPLE_EX_7200);
+                    one(service).registerSample(with(new BaseMatcher<NewSample>()
+                        {
+                            public boolean matches(Object item)
+                            {
+                                if (sample.equals(item))
+                                {
+                                    IEntityProperty[] p = ((NewSample) item).getProperties();
+                                    assertEquals(1, p.length);
+                                    assertEquals("7200", p[0].getValue());
+                                    assertEquals("TIME_POINT", p[0].getPropertyType().getCode());
+                                    return true;
+                                }
+                                return false;
+                            }
+
+                            public void describeTo(Description description)
+                            {
+                                description.appendValue(sample);
+                            }
+                        }));
                 }
             });
         
@@ -238,7 +258,8 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         assertEquals("SCALE\tLog10", dataSetProperties.get(4));
         assertEquals("BI_ID\tNB", dataSetProperties.get(5));
         assertEquals("CG\tNC", dataSetProperties.get(6));
-        assertEquals(7, dataSetProperties.size());
+        assertEquals("TIME_SERIES_DATA_SET_TYPE\tMetaboliteLCMS", dataSetProperties.get(7));
+        assertEquals(8, dataSetProperties.size());
         File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + SAMPLE_EX_200);
         assertEquals(true, markerFile.exists());
         
@@ -246,7 +267,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         assertEquals(true, dataSet.isDirectory());
         dataFile = new File(dataSet, "B" + DATA_FILE_TYPE);
         data = FileUtilities.loadToStringList(dataFile);
-        assertEquals("ID\tHumanReadable\tGM::BR::B1::7200::EX::T2::CE::b::Value[mM]::LIN::NB::NC", data.get(0));
+        assertEquals("ID\tHumanReadable\tGM::BR::B1::+7200::EX::T2::CE::b::Value[mM]::LIN::NB::NC", data.get(0));
         assertEquals("CHEBI:15721\tsedoheptulose 7-phosphate\t0.799920281", data.get(1));
         assertEquals("CHEBI:18211\tcitrulline\t1.203723714", data.get(2));
         assertEquals(3, data.size());
@@ -259,7 +280,8 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         assertEquals("SCALE\tLIN", dataSetProperties.get(4));
         assertEquals("BI_ID\tNB", dataSetProperties.get(5));
         assertEquals("CG\tNC", dataSetProperties.get(6));
-        assertEquals(7, dataSetProperties.size());
+        assertEquals("TIME_SERIES_DATA_SET_TYPE\tb", dataSetProperties.get(7));
+        assertEquals(8, dataSetProperties.size());
         markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + SAMPLE_EX_7200);
         assertEquals(true, markerFile.exists());
         
@@ -271,7 +293,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         TableBuilder builder =
                 new TableBuilder("ID", "HumanReadable",
                         "GM::BR::B1::200::EX::T1::CE::MetaboliteLCMS::Value[mM]::Log10::NB::NC",
-                        "GM::BR::B1::7200::EX::T2::CE::b::Value[mM]::LIN::NB::NC");
+                        "GM::BR::B1::+7200::EX::T2::CE::b::Value[mM]::LIN::NB::NC");
         builder.addRow("CHEBI:15721", "sedoheptulose 7-phosphate", "0.34", "0.799920281");
         builder.addRow("CHEBI:18211", "citrulline", "0.87", "1.203723714");
         File file = new File(workingDirectory, "data.txt");
