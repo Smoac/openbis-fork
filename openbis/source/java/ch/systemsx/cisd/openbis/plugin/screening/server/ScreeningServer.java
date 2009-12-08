@@ -70,7 +70,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         IScreeningServer
 {
     // name of the property which stores material (gene) inhibited by the material stored in a well
-    private static final String INHIBITOR_PROPERTY_CODE = "$INHIBITOR_OF";
+    private static final String INHIBITOR_PROPERTY_CODE = "INHIBITOR_OF";
 
     // type of the dataset which stores plate images, there should be at most one
     private static final String IMAGE_DATASET_TYPE = "HCS_IMAGE";
