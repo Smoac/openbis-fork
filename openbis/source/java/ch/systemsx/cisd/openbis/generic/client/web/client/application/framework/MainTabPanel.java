@@ -22,20 +22,27 @@ import java.util.Map;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.DOM;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
 /**
  * Main panel - where the tabs will open.
@@ -118,10 +125,48 @@ public class MainTabPanel extends TabPanel
         }
     }
 
+    @Override
+    protected void onItemContextMenu(TabItem item, int x, int y)
+    {
+        // WORKAROUND -- GXT does not provide a mechanism to extend the context menu. This is a
+        // workaround for this problem.
+
+        // Check if the menu has not been initialized yet
+        boolean shouldInitializeContextMenu = (closeContextMenu == null);
+
+        // call the super
+        super.onItemContextMenu(item, x, y);
+
+        // If the menu was not initialized, we can now add menu items to the context menu and
+        // refresh the menu
+        if (shouldInitializeContextMenu)
+        {
+            MenuItem menuItem = new MenuItem("Help", new SelectionListener<MenuEvent>()
+                {
+                    @Override
+                    public void componentSelected(MenuEvent ce)
+                    {
+                        MainTabItem selectedTab = (MainTabItem) ce.getContainer().getData("tab");
+                        URLMethodWithParameters url =
+                                new URLMethodWithParameters(
+                                        GenericConstants.HELP_REDIRECT_SERVLET_NAME);
+                        HelpPageIdentifier helpPageId = selectedTab.getHelpPageIdentifier();
+                        url.addParameter(GenericConstants.HELP_REDIRECT_DOMAIN_KEY, helpPageId
+                                .getHelpPageDomain());
+                        url.addParameter(GenericConstants.HELP_REDIRECT_ACTION_KEY, helpPageId
+                                .getHelpPageAction());
+                        WindowUtils.openWindow(URL.encode(url.toString()));
+                    }
+                });
+            closeContextMenu.add(menuItem);
+            super.onItemContextMenu(item, x, y);
+        }
+
+    }
+
     //
     // Helper classes
     //
-
     private final class MainTabItem extends TabItem
     {
         private final ITabItem tabItem;
@@ -145,6 +190,11 @@ public class MainTabPanel extends TabPanel
             }
             addListener(Events.Close, createCloseTabListener());
             addListener(Events.Select, createActivateTabListener());
+        }
+
+        public HelpPageIdentifier getHelpPageIdentifier()
+        {
+            return tabItem.getHelpPageIdentifier();
         }
 
         @Override

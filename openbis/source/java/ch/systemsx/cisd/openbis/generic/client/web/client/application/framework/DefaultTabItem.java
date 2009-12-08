@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Header;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
@@ -41,6 +42,8 @@ public class DefaultTabItem implements ITabItem
 
     private final LastModificationStateUpdater lastModificationStateUpdaterOrNull;
 
+    private final HelpPageIdentifier helpPageIdentifier;
+
     /**
      * Creates a tab with the specified {@link Component}. The tab is unaware of database
      * modifications and will not be automatically refreshed if changes occur.
@@ -48,7 +51,8 @@ public class DefaultTabItem implements ITabItem
     public static ITabItem createUnaware(final String title, final Component component,
             boolean isCloseConfirmationNeeded)
     {
-        return new DefaultTabItem(title, component, null, null, isCloseConfirmationNeeded);
+        return new DefaultTabItem(title, component, null, null, isCloseConfirmationNeeded,
+                defaultHelpPageIdentifierForTitle(title));
     }
 
     /**
@@ -59,7 +63,8 @@ public class DefaultTabItem implements ITabItem
             boolean isCloseConfirmationNeeded)
     {
         String title = getTabTitle(component);
-        return new DefaultTabItem(title, component, null, null, isCloseConfirmationNeeded);
+        return new DefaultTabItem(title, component, null, null, isCloseConfirmationNeeded,
+                defaultHelpPageIdentifierForTitle(title));
     }
 
     private static String getTabTitle(ContentPanel contentPanel)
@@ -96,8 +101,73 @@ public class DefaultTabItem implements ITabItem
         LastModificationStateUpdater updater =
                 new LastModificationStateUpdater(viewContext, modificationObserver);
         return new DefaultTabItem(title, component, updater, disposerActionOrNull,
-                isCloseConfirmationNeeded);
+                isCloseConfirmationNeeded, defaultHelpPageIdentifierForTitle(title));
+    }
 
+    /**
+     * Compute a help page identifier based on the title. This should work in many cases.
+     */
+    private static HelpPageIdentifier defaultHelpPageIdentifierForTitle(String title)
+    {
+        String titleCapitalized = title.toUpperCase();
+        String domainPrefixes[] =
+                    { "DATA SET", "PROPERTY TYPE", "PROPERTY TYPES", "SAMPLE", "EXPERIMENT",
+                            "MATERIAL", "GROUP", "PROJECT", "VOCABULARY", "FILE TYPE",
+                            "AUTHORIZATION" };
+        String actionPrefixes[] =
+            { "BROWSE", "REGISTR", "IMPORT", "UPLOAD" };
+
+        String domainString = null;
+        String actionString = null;
+        HelpPageIdentifier.HelpPageDomain domain = null;
+        HelpPageIdentifier.HelpPageAction action = null;
+
+        // Try to recognize the domain from the title
+        for (String prefix : domainPrefixes)
+        {
+            if (titleCapitalized.startsWith(prefix))
+            {
+                domainString = prefix;
+                break;
+            }
+        }
+
+        if (domainString != null)
+        {
+            domainString = domainString.replace(' ', '_');
+            // correct this small anomaly
+            if ("PROPERTY_TYPES".equals(domainString))
+                domainString = "PROPERTY_TYPE";
+            domain = HelpPageIdentifier.HelpPageDomain.valueOf(domainString);
+
+            String remaining = titleCapitalized.substring(domainString.length() + 1);
+            // Try to recognize the action from the title
+            for (String prefix : actionPrefixes)
+            {
+                if (remaining.startsWith(prefix))
+                {
+                    actionString = prefix;
+                    break;
+                }
+            }
+        }
+
+        if (actionString != null)
+        {
+            actionString = actionString.replace(' ', '_');
+            // correct this small anomaly
+            if ("REGISTR".equals(actionString))
+                actionString = "REGISTER";
+            action = HelpPageIdentifier.HelpPageAction.valueOf(actionString);
+        }
+
+        // DEBUG
+        if (domain == null || action == null)
+        {
+            System.out.println("DEBUG " + title + "(" + titleCapitalized + ")");
+        }
+
+        return new HelpPageIdentifier(domain, action);
     }
 
     private static IDelegatedAction createDisposer(final IDisposableComponent disposableComponent)
@@ -113,7 +183,8 @@ public class DefaultTabItem implements ITabItem
 
     private DefaultTabItem(final String initialTitle, final Component component,
             LastModificationStateUpdater lastModificationStateUpdaterOrNull,
-            IDelegatedAction disposerActionOrNull, boolean isCloseConfirmationNeeded)
+            IDelegatedAction disposerActionOrNull, boolean isCloseConfirmationNeeded,
+            HelpPageIdentifier helpPageIdentifier)
     {
         assert initialTitle != null : "Unspecified title.";
         assert component != null : "Unspecified component.";
@@ -125,12 +196,12 @@ public class DefaultTabItem implements ITabItem
         // relevant moments.
         // this.isCloseConfirmationNeeded = isCloseConfirmationNeeded;
         this.isCloseConfirmationNeeded = false;
+        this.helpPageIdentifier = helpPageIdentifier;
     }
 
     //
     // ITabItem
     //
-
     public final Component getComponent()
     {
         return component;
@@ -144,6 +215,14 @@ public class DefaultTabItem implements ITabItem
     public boolean isCloseConfirmationNeeded()
     {
         return isCloseConfirmationNeeded;
+    }
+
+    /**
+     * @return The unique identifier for the help page for this tab.
+     */
+    public HelpPageIdentifier getHelpPageIdentifier()
+    {
+        return helpPageIdentifier;
     }
 
     public void onActivate()

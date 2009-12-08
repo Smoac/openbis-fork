@@ -89,6 +89,15 @@ public final class GenericConstants
     /** The HTTP URL parameter used to specify if codes are automatically generated. */
     public static final String AUTO_GENERATE = "autoGenerate";
 
+    /** Name of the servlet that redirects to the URL for a help page. */
+    public static final String HELP_REDIRECT_SERVLET_NAME = createServicePath("help");
+
+    /** The HTTP URL parameter that specifies the domain for which we want help. */
+    public static final String HELP_REDIRECT_DOMAIN_KEY = "hd";
+
+    /** The HTTP URL parameter that specifies the action for which we want help. */
+    public static final String HELP_REDIRECT_ACTION_KEY = "ha";
+
     public static final int DESCRIPTION_1000 = 1000;
 
     public static final int COLUMN_LABEL = 128;
