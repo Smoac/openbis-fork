@@ -99,6 +99,7 @@ public class TrackingClient
             {
                 throw createAuthentificationException(params, null);
             }
+            trackingServer.setBaseIndexURL(session.getSessionToken(), params.getOpenbisServerURL());
             return session;
         } catch (Exception ex)
         {
