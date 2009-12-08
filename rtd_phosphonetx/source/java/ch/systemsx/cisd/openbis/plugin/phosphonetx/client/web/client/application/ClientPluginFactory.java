@@ -39,11 +39,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-public class ClientPluginFactory extends AbstractClientPluginFactory<IPhosphoNetXClientServiceAsync>
+public class ClientPluginFactory extends
+        AbstractClientPluginFactory<IPhosphoNetXClientServiceAsync>
 {
 
     public ClientPluginFactory(IViewContext<ICommonClientServiceAsync> originalViewContext)
@@ -97,7 +96,7 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<IPhosphoNet
 
         public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
-            
+
             final TechId sampleId = TechId.create(identifiable);
             return new ITabItemFactory()
                 {
@@ -122,6 +121,11 @@ public class ClientPluginFactory extends AbstractClientPluginFactory<IPhosphoNet
         }
 
         public final Widget createBatchRegistrationForEntityType(final SampleType sampleType)
+        {
+            return new DummyComponent();
+        }
+
+        public final Widget createBatchUpdateForEntityType(final SampleType sampleType)
         {
             return new DummyComponent();
         }
