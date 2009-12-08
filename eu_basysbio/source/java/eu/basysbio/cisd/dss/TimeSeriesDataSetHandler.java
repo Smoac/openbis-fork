@@ -23,6 +23,8 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -71,12 +73,15 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     static final String DEFAULT_EXPERIMENT_CODE_TEMPLATE = "{0}_{1}_{2}";
     
     static final String SAMPLE_CODE_TEMPLATE_KEY = "sample-code-template";
-    static final String DEFAULT_SAMPLE_CODE_TEMPLATE = "{0}_{1}";
+    static final String DEFAULT_SAMPLE_CODE_TEMPLATE = "{0}_{1}_{2}";
     
     static final String SAMPLE_TYPE_CODE_KEY = "sample-type-code";
     static final String DEFAULT_SAMPLE_TYPE_CODE = "TIME_POINT";
     
     static final String TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY = "time-point-data-set-drop-box-path";
+    
+    static final String TIME_POINT_DATA_SET_FILE_NAME_SEPARATOR_KEY = "time-point-data-set-file-name-separator";
+    static final String DEFAULT_TIME_POINT_DATA_SET_FILE_NAME_SEPARATOR = ".";
     
     static final String DATA_SET_PROPERTIES_FILE_NAME_KEY = "data-set-properties-file-name";
 
@@ -101,9 +106,13 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         private final String scale;
         private final String biID;
         private final String controlledGene;
+        private final MessageFormat experimentCodeFormat;
+        private final MessageFormat sampleCodeFormat;
 
-        DataColumnHeader(String header)
+        DataColumnHeader(String header, MessageFormat experimentCodeFormat, MessageFormat sampleCodeFormat)
         {
+            this.experimentCodeFormat = experimentCodeFormat;
+            this.sampleCodeFormat = sampleCodeFormat;
             String[] parts = header.split(SEPARATOR);
             if (parts.length < HEADER_PARTS)
             {
@@ -136,16 +145,17 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
                         + "] of the following header isn't an integer number: " + header);
             }
         }
-        
-        String createExperimentCode(MessageFormat format)
+
+        String createExperimentCode()
         {
-            return format.format(new Object[]
+            return experimentCodeFormat.format(new Object[]
                 { experimentCode, cultivationMethod, biologicalReplicateCode });
         }
-        
-        String createSampleCode(MessageFormat format)
+
+        String createSampleCode()
         {
-            return format.format(new Object[] {timePointType, Integer.toString(timePoint)} );
+            return sampleCodeFormat.format(new Object[]
+                { createExperimentCode(), timePointType, Integer.toString(timePoint) });
         }
     }
     
@@ -153,9 +163,14 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     private final MessageFormat sampleCodeFormat;
     private final IEncapsulatedOpenBISService service;
     private final String sampleTypeCode;
+
     private final File dropBox;
+
     private final String dataSetPropertiesFileName;
+
     private final DataSetTypeTranslator translation;
+
+    private final String timePointDataSetFileSeparator;
 
     TimeSeriesDataSetHandler(Properties properties, IEncapsulatedOpenBISService service)
     {
@@ -168,7 +183,9 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         sampleCodeFormat =
                 new MessageFormat(properties.getProperty(SAMPLE_CODE_TEMPLATE_KEY,
                         DEFAULT_SAMPLE_CODE_TEMPLATE));
-        String dropBoxPath = PropertyUtils.getMandatoryProperty(properties, TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY);
+        String dropBoxPath =
+                PropertyUtils.getMandatoryProperty(properties,
+                        TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY);
         dropBox = new File(dropBoxPath);
         if (dropBox.isDirectory() == false)
         {
@@ -176,8 +193,14 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
                     "Drop box for time-point data sets does not exists or isn't a folder: "
                             + dropBox.getAbsolutePath());
         }
-        dataSetPropertiesFileName = PropertyUtils.getMandatoryProperty(properties, DATA_SET_PROPERTIES_FILE_NAME_KEY);
-        translation = new DataSetTypeTranslator(ExtendedProperties.getSubset(properties, TRANSLATION_KEY, true));
+        timePointDataSetFileSeparator =
+                properties.getProperty(TIME_POINT_DATA_SET_FILE_NAME_SEPARATOR_KEY,
+                        DEFAULT_TIME_POINT_DATA_SET_FILE_NAME_SEPARATOR);
+        dataSetPropertiesFileName =
+                PropertyUtils.getMandatoryProperty(properties, DATA_SET_PROPERTIES_FILE_NAME_KEY);
+        translation =
+                new DataSetTypeTranslator(ExtendedProperties.getSubset(properties, TRANSLATION_KEY,
+                        true));
     }
 
     public void handle(File originalData, DataSetInformation dataSetInformation)
@@ -244,17 +267,34 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     private void createDataSet(List<Column> commonColumns, Column dataColumn,
             DataSetInformation dataSetInformation)
     {
-        DataColumnHeader dataColumnHeader = new DataColumnHeader(dataColumn.getHeader());
+        DataColumnHeader dataColumnHeader = new DataColumnHeader(dataColumn.getHeader(), experimentCodeFormat, sampleCodeFormat);
         Experiment experiment = getExperiment(dataColumnHeader, dataSetInformation);
-        String sampleCode = dataColumnHeader.createSampleCode(sampleCodeFormat).toUpperCase();
+        String sampleCode = dataColumnHeader.createSampleCode().toUpperCase();
         createSampleIfNecessary(sampleCode, dataColumnHeader.timePoint, experiment);
         
-        File dataSetFolder = new File(dropBox, sampleCode);
+        String dataSetFolderName =
+                sampleCode + timePointDataSetFileSeparator
+                        + dataColumnHeader.technicalReplicateCode + timePointDataSetFileSeparator
+                        + dataColumnHeader.celLoc + timePointDataSetFileSeparator
+                        + dataColumnHeader.dataSetType + timePointDataSetFileSeparator
+                        + dataColumnHeader.valueType + timePointDataSetFileSeparator
+                        + dataColumnHeader.scale + timePointDataSetFileSeparator
+                        + dataColumnHeader.biID + timePointDataSetFileSeparator
+                        + dataColumnHeader.controlledGene;
+        File dataSetFolder = new File(dropBox, dataSetFolderName);
         boolean success = getFileOperations().mkdirs(dataSetFolder);
         if (success == false)
         {
-            throw new EnvironmentFailureException("Folder '" + dataSetFolder.getAbsolutePath()
-                    + "' couldn't be created.");
+            HashSet<String> filesInDropBox = new HashSet<String>(Arrays.asList(getFileOperations().list(dropBox)));
+            if (filesInDropBox.contains(dataSetFolder.getName()))
+            {
+                throw new UserFailureException("There exists already a folder '" + dataSetFolder.getAbsolutePath()
+                        + "'.");
+            } else
+            {
+                throw new EnvironmentFailureException("Folder '" + dataSetFolder.getAbsolutePath()
+                        + "' couldn't be created.");
+            }
         }
         addFileForUndo(dataSetFolder);
         String dataFileName = translation.translate(dataColumnHeader.dataSetType) + DATA_FILE_TYPE;
@@ -263,7 +303,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         columns.add(dataColumn);
         writeAsTSVFile(dataFile, columns);
         writeDataSetProperties(dataSetFolder, dataColumnHeader);
-        File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + sampleCode);
+        File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + dataSetFolderName);
         success = getFileOperations().createNewFile(markerFile);
         if (success == false)
         {
@@ -342,7 +382,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     private ExperimentIdentifier createExperimentIdentifier(DataColumnHeader dataColumnHeader,
             DataSetInformation dataSetInformation)
     {
-        String experimentCode = dataColumnHeader.createExperimentCode(experimentCodeFormat);
+        String experimentCode = dataColumnHeader.createExperimentCode();
         ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
         if (experimentIdentifier == null)
         {

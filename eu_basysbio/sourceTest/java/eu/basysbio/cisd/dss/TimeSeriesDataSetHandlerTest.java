@@ -69,8 +69,10 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
 {
 
     private static final String DATA_SET_PROPERTIES_FILE = "data-set-properties.txt";
-    private static final String SAMPLE_EX_200 = "EX_200";
-    private static final String SAMPLE_EX_7200 = "EX_7200";
+    private static final String SAMPLE_EX_200 = "GM_BR_B1_EX_200";
+    private static final String DATA_SET_EX_200 = SAMPLE_EX_200 + ".T1.CE.MetaboliteLCMS.Value[mM].Log10.NB.NC";
+    private static final String SAMPLE_EX_7200 = "GM_BR_B1_EX_7200";
+    private static final String DATA_SET_EX_7200 = SAMPLE_EX_7200 + ".T2.CE.b.Value[mM].LIN.NB.NC";
     private static final String GROUP_CODE = "G1";
     private static final long EXP_ID = 42L;
     private static final String PROJECT_CODE = "p1";
@@ -241,7 +243,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "exp1"));
         handler.handle(file, dataSetInformation);
         
-        File dataSet = new File(dropBox, SAMPLE_EX_200);
+        File dataSet = new File(dropBox, DATA_SET_EX_200);
         assertEquals(true, dataSet.isDirectory());
         File dataFile = new File(dataSet, "METABOLITE_LCMS" + DATA_FILE_TYPE);
         List<String> data = FileUtilities.loadToStringList(dataFile);
@@ -260,10 +262,10 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         assertEquals("CG\tNC", dataSetProperties.get(6));
         assertEquals("TIME_SERIES_DATA_SET_TYPE\tMetaboliteLCMS", dataSetProperties.get(7));
         assertEquals(8, dataSetProperties.size());
-        File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + SAMPLE_EX_200);
+        File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + DATA_SET_EX_200);
         assertEquals(true, markerFile.exists());
         
-        dataSet = new File(dropBox, SAMPLE_EX_7200);
+        dataSet = new File(dropBox, DATA_SET_EX_7200);
         assertEquals(true, dataSet.isDirectory());
         dataFile = new File(dataSet, "B" + DATA_FILE_TYPE);
         data = FileUtilities.loadToStringList(dataFile);
@@ -282,7 +284,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         assertEquals("CG\tNC", dataSetProperties.get(6));
         assertEquals("TIME_SERIES_DATA_SET_TYPE\tb", dataSetProperties.get(7));
         assertEquals(8, dataSetProperties.size());
-        markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + SAMPLE_EX_7200);
+        markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + DATA_SET_EX_7200);
         assertEquals(true, markerFile.exists());
         
         context.assertIsSatisfied();
