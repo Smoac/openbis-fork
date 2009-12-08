@@ -42,7 +42,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.Def
 public final class WebClientFilesUpdater
 {
     @Private
-    static final String SOURCE_TAG_TEMPLATE = "<source path=\"plugin/%s/client/web/client\"/>";
+    static final String SOURCE_TAG_TEMPLATE =
+            "<source path=\"plugin/%1$s/client/web/client\"/>\n"
+                    + "\t\t<source path=\"plugin/%1$s/shared/basic\"/>";
 
     @Private
     static final String SCRIPT_TAG_TEMPLATE = "<script src=\"%s-dictionary.js\"/>";

@@ -3,7 +3,5 @@
 <module>
   <inherits name='ch.systemsx.cisd.openbis.OpenBIS-without-entry-point' />
 
-  <source path="plugin/screening/shared/basic" />
-
   <entry-point class='ch.systemsx.cisd.openbis.generic.client.web.client.application.Client' />
 </module>
