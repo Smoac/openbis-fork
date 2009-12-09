@@ -89,9 +89,16 @@ public class HelpRedirectServlet extends AbstractController
 
     private String getRootURL(boolean isSpecific)
     {
+        if (!isSpecific)
+            return service.getOnlineHelpGenericRootURL();
 
-        return (isSpecific) ? service.getOnlineHelpSpecificRootURL() : service
-                .getOnlineHelpGenericRootURL();
+        String specificURL = service.getOnlineHelpSpecificRootURL();
+        if ("".equals(specificURL))
+        {
+            return service.getOnlineHelpGenericRootURL();
+        }
+
+        return specificURL;
     }
 
     private Template getPageTemplate(boolean isSpecific)

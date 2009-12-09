@@ -313,6 +313,38 @@ public class HelpRedirectServletTest
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testSpecificHelpRequestWithoutProperty() throws Exception
+    {
+        // An junk request should redirect to the help root
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(service).getOnlineHelpGenericRootURL();
+                    will(returnValue("https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp"));
+                    allowing(service).getOnlineHelpGenericPageTemplate();
+                    will(returnValue("https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=${title}&linkCreation=true&fromPageId=40633829"));
+                    allowing(service).getOnlineHelpSpecificRootURL();
+                    will(returnValue(""));
+                    allowing(service).getOnlineHelpSpecificPageTemplate();
+                    will(returnValue(""));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_DOMAIN_KEY);
+                    will(returnValue("junk"));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_ACTION_KEY);
+                    will(returnValue("more junk"));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_SPECIFIC_KEY);
+                    will(returnValue("true"));
+                    oneOf(servletResponse).sendRedirect(
+                            with(equal("https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp")));
+                }
+            });
+        createServlet().handleRequestInternal(servletRequest, servletResponse);
+        context.assertIsSatisfied();
+    }
+
     private final HelpRedirectServlet createServlet()
     {
         return new HelpRedirectServlet(service);
