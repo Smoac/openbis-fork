@@ -25,6 +25,7 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -50,7 +51,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -387,23 +387,31 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
-        container.add(toolbar);
 
         final LayoutContainer subContainer = new LayoutContainer();
-        subContainer.setLayout(new BorderLayout());
-        subContainer.add(tree, createLeftBorderLayoutData());
-        subContainer.add(this, createCenterBorderLayoutData());
+
+        // WORKAROUND: BorderLayout causes problems when rendered in a tab
+        // We use RowLayout here but we loose the split this way.
+        subContainer.setLayout(new RowLayout(Orientation.HORIZONTAL));
+        subContainer.add(tree, new RowData(200, 1));
+        subContainer.add(this, new RowData(1, 1));
+        // previous version using BorderLayout:
+        // subContainer.setLayout(new BorderLayout());
+        // subContainer.add(tree, createLeftBorderLayoutData());
+        // subContainer.add(this, createCenterBorderLayoutData());
 
         container.add(subContainer, new RowData(1, 1));
 
         return asDisposableEntityChooser(container);
     }
 
+    @SuppressWarnings("unused")
     private BorderLayoutData createLeftBorderLayoutData()
     {
         return BorderLayoutDataFactory.create(LayoutRegion.WEST, 200);
     }
 
+    @SuppressWarnings("unused")
     private BorderLayoutData createCenterBorderLayoutData()
     {
         return BorderLayoutDataFactory.create(LayoutRegion.CENTER);
