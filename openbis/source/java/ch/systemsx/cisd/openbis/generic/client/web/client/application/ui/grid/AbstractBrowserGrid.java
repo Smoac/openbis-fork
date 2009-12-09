@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.GXT;
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
@@ -51,7 +50,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -75,7 +73,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InternalLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.MultilineStringCellRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -397,24 +394,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         subContainer.add(this, new RowData(1, 1));
         container.add(subContainer, new RowData(1, 1));
 
-        // previous version using BorderLayout:
-        // subContainer.setLayout(new BorderLayout());
-        // subContainer.add(tree, createLeftBorderLayoutData());
-        // subContainer.add(this, createCenterBorderLayoutData());
-
         return asDisposableEntityChooser(container);
-    }
-
-    @SuppressWarnings("unused")
-    private BorderLayoutData createLeftBorderLayoutData()
-    {
-        return BorderLayoutDataFactory.create(LayoutRegion.WEST, 200);
-    }
-
-    @SuppressWarnings("unused")
-    private BorderLayoutData createCenterBorderLayoutData()
-    {
-        return BorderLayoutDataFactory.create(LayoutRegion.CENTER);
     }
 
     private DisposableEntityChooser<T> asDisposableEntityChooser(final Component mainComponent)
