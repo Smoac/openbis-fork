@@ -47,6 +47,7 @@ import ch.systemsx.cisd.etlserver.utils.TableBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -64,6 +65,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
 {
+    static final String DATA_SET_TYPE = "TIME_SERIES";
+
     static final String DATA_FILE_TYPE = ".data.txt";
 
     private static final Pattern DATA_COLUMN_HEADER_PATTERN =
@@ -205,6 +208,12 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
 
     public void handle(File originalData, DataSetInformation dataSetInformation)
     {
+        DataSetType dataSetType = dataSetInformation.getDataSetType();
+        if (dataSetType == null || dataSetType.getCode().equals(DATA_SET_TYPE) == false)
+        {
+            throw new UserFailureException("Data has to be uploaded for data set type "
+                    + DATA_SET_TYPE + " instead of " + dataSetType + ".");
+        }
         if (originalData.isFile())
         {
             cleaveFileIntoDataSets(originalData, dataSetInformation);

@@ -51,6 +51,7 @@ import ch.systemsx.cisd.etlserver.utils.TableBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -155,7 +156,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     }
     
     @Test
-    public void testMissingExperiment() throws IOException
+    public void testWrongDataSetType() throws IOException
     {
         Properties properties = new Properties();
         properties.setProperty(TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox.getAbsolutePath());
@@ -168,7 +169,32 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
 
         try
         {
-            handler.handle(file, new DataSetInformation());
+            handler.handle(file, createDataSetInformation("BLABLA"));
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Data has to be uploaded for data set type TIME_SERIES instead of "
+                    + "BLABLA.", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testMissingExperiment() throws IOException
+    {
+        Properties properties = new Properties();
+        properties.setProperty(TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox.getAbsolutePath());
+        properties.setProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
+        properties.setProperty(TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
+        properties.setProperty(TRANSLATION_KEY + "a", "Alpha");
+        TimeSeriesDataSetHandler handler = new TimeSeriesDataSetHandler(properties, service);
+        
+        File file = createDataExample();
+        
+        try
+        {
+            handler.handle(file, createDataSetInformation(TimeSeriesDataSetHandler.DATA_SET_TYPE));
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -177,7 +203,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void test()
     {
@@ -239,7 +265,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 }
             });
         
-        DataSetInformation dataSetInformation = new DataSetInformation();
+        DataSetInformation dataSetInformation = createDataSetInformation(TimeSeriesDataSetHandler.DATA_SET_TYPE);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "exp1"));
         handler.handle(file, dataSetInformation);
         
@@ -366,4 +392,14 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         sample.setCode(sampleCode);
         return sample;
     }
+    
+    private DataSetInformation createDataSetInformation(String dataSetTypeCode)
+    {
+        DataSetInformation dataSetInformation = new DataSetInformation();
+        DataSetType dataSetType = new DataSetType();
+        dataSetType.setCode(dataSetTypeCode);
+        dataSetInformation.setDataSetType(dataSetType);
+        return dataSetInformation;
+    }
+
 }
