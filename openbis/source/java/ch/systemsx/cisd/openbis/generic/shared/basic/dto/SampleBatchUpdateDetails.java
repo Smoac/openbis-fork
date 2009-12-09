@@ -58,12 +58,12 @@ public class SampleBatchUpdateDetails implements IsSerializable, Serializable
 
     public boolean isParentUpdateRequested()
     {
-        return containerUpdateRequested;
+        return parentUpdateRequested;
     }
 
     public boolean isContainerUpdateRequested()
     {
-        return parentUpdateRequested;
+        return containerUpdateRequested;
     }
 
     public Set<String> getPropertiesToUpdate()
