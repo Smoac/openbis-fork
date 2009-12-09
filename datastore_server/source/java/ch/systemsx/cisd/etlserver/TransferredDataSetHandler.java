@@ -406,6 +406,7 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             this.dataStoreStrategy =
                     dataStrategyStore.getDataStoreStrategy(dataSetInformation, incomingDataSetFile);
             this.dataSetType = typeExtractor.getDataSetType(incomingDataSetFile);
+            dataSetInformation.setDataSetType(dataSetType);
             this.storeRoot = storageProcessor.getStoreRootDirectory();
         }
 

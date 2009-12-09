@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -49,6 +50,8 @@ public class DataSetInformation implements Serializable
     private String sampleCode;
 
     private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
+    
+    private DataSetType dataSetType;
 
     /**
      * The database instance <i>UUID</i>.
@@ -128,6 +131,16 @@ public class DataSetInformation implements Serializable
         this.properties = properties;
     }
 
+    public DataSetType getDataSetType()
+    {
+        return dataSetType;
+    }
+
+    public void setDataSetType(DataSetType dataSetType)
+    {
+        this.dataSetType = dataSetType;
+    }
+    
     public final String getInstanceCode()
     {
         return instanceCode;
