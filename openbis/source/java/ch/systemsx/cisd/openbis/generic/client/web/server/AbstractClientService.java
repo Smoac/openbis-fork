@@ -31,6 +31,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.IOnlineHelpResourceLocatorService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ApplicationInfo;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
@@ -65,7 +66,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractClientService implements IClientService
+public abstract class AbstractClientService implements IClientService,
+        IOnlineHelpResourceLocatorService
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AbstractClientService.class);
@@ -79,6 +81,14 @@ public abstract class AbstractClientService implements IClientService
     private String cifexURL;
 
     private String cifexRecipient;
+
+    private String onlineHelpGenericRootURL;
+
+    private String onlineHelpGenericPageTemplate;
+
+    private String onlineHelpSpecificRootURL;
+
+    private String onlineHelpSpecificPageTemplate;
 
     protected AbstractClientService()
     {
@@ -162,6 +172,46 @@ public abstract class AbstractClientService implements IClientService
     public final void setCifexRecipient(String cifexRecipient)
     {
         this.cifexRecipient = cifexRecipient;
+    }
+
+    public String getOnlineHelpGenericRootURL()
+    {
+        return onlineHelpGenericRootURL;
+    }
+
+    public void setOnlineHelpGenericRootURL(String onlineHelpGenericRootURL)
+    {
+        this.onlineHelpGenericRootURL = onlineHelpGenericRootURL;
+    }
+
+    public String getOnlineHelpGenericPageTemplate()
+    {
+        return onlineHelpGenericPageTemplate;
+    }
+
+    public void setOnlineHelpGenericPageTemplate(String onlineHelpGenericPageTemplate)
+    {
+        this.onlineHelpGenericPageTemplate = onlineHelpGenericPageTemplate;
+    }
+
+    public String getOnlineHelpSpecificRootURL()
+    {
+        return onlineHelpSpecificRootURL;
+    }
+
+    public void setOnlineHelpSpecificRootURL(String onlineHelpSpecificRootURL)
+    {
+        this.onlineHelpSpecificRootURL = onlineHelpSpecificRootURL;
+    }
+
+    public String getOnlineHelpSpecificPageTemplate()
+    {
+        return onlineHelpSpecificPageTemplate;
+    }
+
+    public void setOnlineHelpSpecificPageTemplate(String onlineHelpSpecificPageTemplate)
+    {
+        this.onlineHelpSpecificPageTemplate = onlineHelpSpecificPageTemplate;
     }
 
     private final SessionContext createSessionContext(final SessionContextDTO session)
@@ -249,7 +299,7 @@ public abstract class AbstractClientService implements IClientService
 
     /** Returns the {@link IServer} implementation for this client service. */
     protected abstract IServer getServer();
-    
+
     //
     // IClientService
     //

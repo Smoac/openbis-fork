@@ -88,6 +88,10 @@
         <property name="dataStoreBaseURL" value="${data-store-server-base-url}"/>
         <property name="cifexURL" value="${cifex-url}"/>
         <property name="cifexRecipient" value="${cifex-recipient}"/>
+        <property name="onlineHelpGenericRootURL" value="${onlinehelp.generic.root-url}"/>
+        <property name="onlineHelpGenericPageTemplate" value="${onlinehelp.generic.page-template}"/>
+        <property name="onlineHelpSpecificRootURL" value="${onlinehelp.specific.root-url}"/>
+        <property name="onlineHelpSpecificPageTemplate" value="${onlinehelp.specific.page-template}"/>
     </bean>
     
     <!-- 

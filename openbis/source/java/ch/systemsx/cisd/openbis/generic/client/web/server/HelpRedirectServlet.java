@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,6 +27,9 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.IOnlineHelpResourceLocatorService;
+import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
  * Takes a help page identifier (i.e., the context for the help request) and redirects to the
@@ -39,6 +43,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 public class HelpRedirectServlet extends AbstractController
 {
 
+    @Resource(name = ResourceNames.COMMON_SERVICE)
+    private IOnlineHelpResourceLocatorService service;
+
+    public HelpRedirectServlet()
+    {
+        super();
+    }
+
+    /**
+     * A constructor for testing purposes.
+     * 
+     * @param service
+     */
+    HelpRedirectServlet(IOnlineHelpResourceLocatorService service)
+    {
+        super();
+        this.service = service;
+    }
+
     /**
      * Write an HTTP redirect to the help page identified by the request parameters into the
      * response.
@@ -51,15 +74,32 @@ public class HelpRedirectServlet extends AbstractController
         return null;
     }
 
-    private String getDocumentationRootURL()
+    private boolean getIsSpecificForRequest(HttpServletRequest request)
     {
-        return "https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp";
+        final String isSpecificString =
+                request.getParameter(GenericConstants.HELP_REDIRECT_SPECIFIC_KEY);
+        boolean isSpecific = false;
+        if (isSpecificString != null)
+        {
+            final String isSpecificCompareString = isSpecificString.toUpperCase();
+            isSpecific = "TRUE".equals(isSpecificCompareString);
+        }
+        return isSpecific;
     }
 
-    private Template getHelpPageWikiURLTemplate()
+    private String getRootURL(boolean isSpecific)
     {
-        return new Template(
-                "https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=${title}&linkCreation=true&fromPageId=40633829");
+
+        return (isSpecific) ? service.getOnlineHelpSpecificRootURL() : service
+                .getOnlineHelpGenericRootURL();
+    }
+
+    private Template getPageTemplate(boolean isSpecific)
+    {
+        final String templateString =
+                (isSpecific) ? service.getOnlineHelpSpecificPageTemplate() : service
+                        .getOnlineHelpGenericPageTemplate();
+        return new Template(templateString);
     }
 
     /**
@@ -69,13 +109,20 @@ public class HelpRedirectServlet extends AbstractController
     {
         // Use the page title to generate an absolute URL for the documentation page
         String pageTitle = tryGetHelpPageTitleForRequest(request);
+        boolean isSpecific = getIsSpecificForRequest(request);
         if (null == pageTitle)
-            return getDocumentationRootURL();
+            return getRootURL(isSpecific);
         else
         {
-            Template urlTemplate = getHelpPageWikiURLTemplate();
-            urlTemplate.bind("title", pageTitle);
-            return urlTemplate.createText();
+            try
+            {
+                Template urlTemplate = getPageTemplate(isSpecific);
+                urlTemplate.bind("title", pageTitle);
+                return urlTemplate.createText();
+            } catch (Exception e)
+            {
+                return getRootURL(isSpecific);
+            }
         }
     }
 
@@ -92,15 +139,32 @@ public class HelpRedirectServlet extends AbstractController
                 request.getParameter(GenericConstants.HELP_REDIRECT_ACTION_KEY);
         if (helpPageDomain == null)
             return null;
-        StringBuffer sb = new StringBuffer();
+        // Make sure the domain is valid
+        try
+        {
+            HelpPageIdentifier.HelpPageDomain.valueOf(helpPageDomain);
+        } catch (IllegalArgumentException ex)
+        {
+            // this is not a valid domain
+            return null;
+        }
 
+        StringBuffer sb = new StringBuffer();
         String helpTitleDomain = helpPageDomain.replace("_", "+");
         sb.append(helpTitleDomain);
 
         if (helpPageAction != null)
         {
-            sb.append("+");
-            sb.append(helpPageAction);
+            // Make sure the action is valid
+            try
+            {
+                HelpPageIdentifier.HelpPageAction.valueOf(helpPageAction);
+                sb.append("+");
+                sb.append(helpPageAction);
+            } catch (IllegalArgumentException ex)
+            {
+                // this is not a valid action -- don't alter the string buffer
+            }
         }
         return sb.toString();
     }

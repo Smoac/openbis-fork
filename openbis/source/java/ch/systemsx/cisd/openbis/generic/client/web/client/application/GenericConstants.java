@@ -98,6 +98,9 @@ public final class GenericConstants
     /** The HTTP URL parameter that specifies the action for which we want help. */
     public static final String HELP_REDIRECT_ACTION_KEY = "ha";
 
+    /** The HTTP URL parameter that specifies whether we want generic or specific help. */
+    public static final String HELP_REDIRECT_SPECIFIC_KEY = "specific";
+
     public static final int DESCRIPTION_1000 = 1000;
 
     public static final int COLUMN_LABEL = 128;

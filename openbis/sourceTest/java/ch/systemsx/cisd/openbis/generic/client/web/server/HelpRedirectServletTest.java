@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -28,6 +29,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.IOnlineHelpResourceLocatorService;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -42,15 +44,36 @@ public class HelpRedirectServletTest
 
     private HttpServletRequest servletRequest;
 
-    // TODO: Not sure how best to test the session
-    // private HttpSession httpSession;
+    private HttpServletResponse servletResponse;
+
+    private IOnlineHelpResourceLocatorService service;
+
+    /**
+     * Internal helper method to mock the the IOnlineHelpResourceLocatorService
+     */
+    private void prepareServiceExpectations(Expectations exps)
+    {
+        exps.allowing(service).getOnlineHelpGenericRootURL();
+        exps.will(Expectations.returnValue("https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp"));
+        exps.allowing(service).getOnlineHelpGenericPageTemplate();
+        exps
+                .will(Expectations
+                        .returnValue("https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=${title}&linkCreation=true&fromPageId=40633829"));
+        exps.allowing(service).getOnlineHelpSpecificRootURL();
+        exps.will(Expectations.returnValue("https://irgendwo.li/display/OurDoc/OnlineHelp"));
+        exps.allowing(service).getOnlineHelpSpecificPageTemplate();
+        exps
+                .will(Expectations
+                        .returnValue("https://irgendwo.li/pages/createpage.action?spaceKey=OurDoc&title=${title}&linkCreation=true&fromPageId=40633829"));
+    }
 
     @BeforeMethod
     public final void setUp()
     {
         context = new Mockery();
         servletRequest = context.mock(HttpServletRequest.class);
-        // httpSession = context.mock(HttpSession.class);
+        servletResponse = context.mock(HttpServletResponse.class);
+        service = context.mock(IOnlineHelpResourceLocatorService.class);
     }
 
     @AfterMethod
@@ -62,7 +85,7 @@ public class HelpRedirectServletTest
     }
 
     @Test
-    public final void testRedirectHelpURL() throws Exception
+    public final void testGenericHelpTitle() throws Exception
     {
         context.checking(new Expectations()
             {
@@ -81,7 +104,7 @@ public class HelpRedirectServletTest
     }
 
     @Test
-    public final void testRedirectHelpURLWithoutAction() throws Exception
+    public final void testGenericHelpTitleWithoutAction() throws Exception
     {
         context.checking(new Expectations()
             {
@@ -100,7 +123,7 @@ public class HelpRedirectServletTest
     }
 
     @Test
-    public final void testRedirectHelpURLWithoutParameters() throws Exception
+    public final void testGenericHelpTitleWithoutParameters() throws Exception
     {
         context.checking(new Expectations()
             {
@@ -118,8 +141,180 @@ public class HelpRedirectServletTest
         context.assertIsSatisfied();
     }
 
-    private HelpRedirectServlet createServlet()
+    @Test
+    public final void testGenericHelpPageRequest() throws Exception
     {
-        return new HelpRedirectServlet();
+        context.checking(new Expectations()
+            {
+                {
+                    prepareServiceExpectations(this);
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_DOMAIN_KEY);
+                    will(returnValue(HelpPageIdentifier.HelpPageDomain.EXPERIMENT.toString()));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_ACTION_KEY);
+                    will(returnValue(HelpPageIdentifier.HelpPageAction.BROWSE.toString()));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_SPECIFIC_KEY);
+                    will(returnValue(null));
+                    oneOf(servletResponse)
+                            .sendRedirect(
+                                    with(equal("https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=EXPERIMENT+BROWSE&linkCreation=true&fromPageId=40633829")));
+                }
+            });
+        createServlet().handleRequestInternal(servletRequest, servletResponse);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testGenericHelpRootRequest() throws Exception
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    prepareServiceExpectations(this);
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_DOMAIN_KEY);
+                    will(returnValue(null));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_ACTION_KEY);
+                    will(returnValue(null));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_SPECIFIC_KEY);
+                    will(returnValue("false"));
+                    oneOf(servletResponse).sendRedirect(
+                            with(equal("https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp")));
+                }
+            });
+        createServlet().handleRequestInternal(servletRequest, servletResponse);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testSpecificHelpPageRequest() throws Exception
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    prepareServiceExpectations(this);
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_DOMAIN_KEY);
+                    will(returnValue(HelpPageIdentifier.HelpPageDomain.EXPERIMENT.toString()));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_ACTION_KEY);
+                    will(returnValue(HelpPageIdentifier.HelpPageAction.BROWSE.toString()));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_SPECIFIC_KEY);
+                    will(returnValue("TRUE"));
+                    oneOf(servletResponse)
+                            .sendRedirect(
+                                    with(equal("https://irgendwo.li/pages/createpage.action?spaceKey=OurDoc&title=EXPERIMENT+BROWSE&linkCreation=true&fromPageId=40633829")));
+                }
+            });
+        createServlet().handleRequestInternal(servletRequest, servletResponse);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testSpecificHelpRootRequest() throws Exception
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    prepareServiceExpectations(this);
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_DOMAIN_KEY);
+                    will(returnValue(null));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_ACTION_KEY);
+                    will(returnValue(null));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_SPECIFIC_KEY);
+                    will(returnValue("true"));
+                    oneOf(servletResponse).sendRedirect(
+                            with(equal("https://irgendwo.li/display/OurDoc/OnlineHelp")));
+                }
+            });
+        createServlet().handleRequestInternal(servletRequest, servletResponse);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testInvalidGenericHelpRequest() throws Exception
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    prepareServiceExpectations(this);
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_DOMAIN_KEY);
+                    will(returnValue("junk"));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_ACTION_KEY);
+                    will(returnValue("more junk"));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_SPECIFIC_KEY);
+                    will(returnValue("even more junk"));
+                    oneOf(servletResponse).sendRedirect(
+                            with(equal("https://wiki-bsse.ethz.ch/display/CISDDoc/OnlineHelp")));
+                }
+            });
+        createServlet().handleRequestInternal(servletRequest, servletResponse);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testPartiallyInvalidGenericHelpRequest() throws Exception
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    prepareServiceExpectations(this);
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_DOMAIN_KEY);
+                    will(returnValue(HelpPageIdentifier.HelpPageDomain.AUTHORIZATION.toString()));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_ACTION_KEY);
+                    will(returnValue("junk"));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_SPECIFIC_KEY);
+                    will(returnValue("even more junk"));
+                    oneOf(servletResponse)
+                            .sendRedirect(
+                                    with(equal("https://wiki-bsse.ethz.ch/pages/createpage.action?spaceKey=CISDDoc&title=AUTHORIZATION&linkCreation=true&fromPageId=40633829")));
+                }
+            });
+        createServlet().handleRequestInternal(servletRequest, servletResponse);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public final void testInvalidSpecificHelpRequest() throws Exception
+    {
+        // An junk request should redirect to the help root
+        context.checking(new Expectations()
+            {
+                {
+                    prepareServiceExpectations(this);
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_DOMAIN_KEY);
+                    will(returnValue("junk"));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_ACTION_KEY);
+                    will(returnValue("more junk"));
+                    atLeast(1).of(servletRequest).getParameter(
+                            GenericConstants.HELP_REDIRECT_SPECIFIC_KEY);
+                    will(returnValue("true"));
+                    oneOf(servletResponse).sendRedirect(
+                            with(equal("https://irgendwo.li/display/OurDoc/OnlineHelp")));
+                }
+            });
+        createServlet().handleRequestInternal(servletRequest, servletResponse);
+        context.assertIsSatisfied();
+    }
+
+    private final HelpRedirectServlet createServlet()
+    {
+        return new HelpRedirectServlet(service);
     }
 }
