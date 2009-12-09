@@ -44,9 +44,15 @@ public class PropertyParametersUtil
     public static final String ITEMS_DELIMITER = ",";
 
     /** loads server configuration */
-    public static Properties loadServiceProperties()
+    public static ExtendedProperties loadServiceProperties()
     {
-        return PropertyUtils.loadProperties(SERVICE_PROPERTIES_FILE);
+        return loadProperties(SERVICE_PROPERTIES_FILE);
+    }
+
+    public static ExtendedProperties loadProperties(String filePath)
+    {
+        Properties properties = PropertyUtils.loadProperties(filePath);
+        return ExtendedProperties.createWith(properties);
     }
 
     public static String getDataStoreCode(Properties serviceProperties)

@@ -118,7 +118,8 @@ public abstract class AbstractPluginTaskFactory<T>
         addAll(properties, pluginProperties);
         if (StringUtils.isBlank(parametersFilePath) == false)
         {
-            Properties propertiesFromFile = PropertyUtils.loadProperties(parametersFilePath);
+            Properties propertiesFromFile =
+                    PropertyParametersUtil.loadProperties(parametersFilePath);
             addAll(properties, propertiesFromFile);
         }
         return properties;

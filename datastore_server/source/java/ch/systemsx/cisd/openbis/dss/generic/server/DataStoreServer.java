@@ -45,9 +45,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
-import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
@@ -172,7 +172,7 @@ public class DataStoreServer
         return thisServer;
     }
 
-    private static SslSocketConnector createSocketConnector(ConfigParameters configParameters)
+    private static SocketConnector createSocketConnector(ConfigParameters configParameters)
     {
         SslSocketConnector socketConnector = new SslSocketConnector();
         socketConnector.setKeystore(configParameters.getKeystorePath());
@@ -205,7 +205,7 @@ public class DataStoreServer
             properties = new Properties();
         } else
         {
-            properties = PropertyUtils.loadProperties(SERVICE_PROPERTIES_FILE);
+            properties = PropertyParametersUtil.loadProperties(SERVICE_PROPERTIES_FILE);
         }
         final Properties systemProperties = System.getProperties();
         final Enumeration<?> propertyNames = systemProperties.propertyNames();
