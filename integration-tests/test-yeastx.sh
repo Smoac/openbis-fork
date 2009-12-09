@@ -48,7 +48,7 @@ function refresh_components_and_start_openbis {
 }
 
 function build_and_install_yeastx {
-		cp $INSTALL/datastore_server-plugins.jar $WORK/datastore_server_yeastx/lib/
+		unzip $INSTALL/datastore_server_plugin-yeastx-*.zip -d $WORK/datastore_server_yeastx
 		chmod_exec $WORK/datastore_server_yeastx/takeCifsOwnershipRecursive.sh
 		
 		prepare_data

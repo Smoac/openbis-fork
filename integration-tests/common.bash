@@ -249,8 +249,8 @@ function build_zips {
 		echo "Build process skipped."
     fi
     assert_file_exists_or_die "$INSTALL/openBIS*.zip"
-    assert_file_exists_or_die "$INSTALL/datastore_server*.zip"
-    assert_file_exists_or_die "$INSTALL/datastore_server-plugins.jar"
+    assert_file_exists_or_die "$INSTALL/datastore_server-*.zip"
+    assert_file_exists_or_die "$INSTALL/datastore_server_plugin-yeastx-*.zip"
     assert_file_exists_or_die "$INSTALL/datamover*.zip"
 
 }
@@ -268,7 +268,6 @@ function build_local {
     $LOCAL_PROJECTS/$PROJECT_NAME/build/antrun.sh
     local dir=$LOCAL_PROJECTS/$PROJECT_NAME/targets/dist/
     mv $dir/*.zip $INSTALL
-    mv $dir/*.jar $INSTALL
 }
 
 function build_components {
@@ -279,7 +278,6 @@ function build_components {
 
     if [ $build_dss == "true" ]; then
 	rm -f $INSTALL/datastore_server*.zip
-	rm -f $INSTALL/datastore_server*.jar
         $build_cmd datastore_server
         $build_cmd rtd_yeastx
     fi
@@ -312,7 +310,6 @@ function build_zips_from_svn {
     run_svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/build_resources/trunk $RSC
     build_components "build_remote $RSC" $build_dss $build_dmv $build_openbis
     mv $RSC/*.zip $INSTALL
-    mv $RSC/*.jar $INSTALL
     rm -fr $RSC 
 }
 
