@@ -323,8 +323,9 @@ final class FileManager extends AbstractManager implements IFileManager
             return true;
         }
         // The registrator of the owner of a file is in control of it, too.
-        if (fileDTO.getOwner() != null
-                && userDTO.getID().equals(fileDTO.getOwner().getRegistrator().getID()))
+        UserDTO owner = fileDTO.getOwner();
+        if (owner != null && owner.getRegistrator() != null
+                && userDTO.getID().equals(owner.getRegistrator().getID()))
         {
             return true;
         }
