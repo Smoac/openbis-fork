@@ -403,7 +403,7 @@ function install_dsss {
     local install_dss=$1
     local dss_dirs="datastore_server1 datastore_server2 datastore_server_yeastx"
     if [ $install_dss == "true" ]; then
-        unpack datastore_server
+        unpack datastore_server-
 	for dss_dir in $dss_dirs; do
     	    prepare datastore_server $dss_dir
 	done
