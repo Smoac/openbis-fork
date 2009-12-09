@@ -28,8 +28,8 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.IOnlineHelpResourceLocatorService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.onlinehelp.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.onlinehelp.IOnlineHelpResourceLocatorService;
 
 /**
  * @author Chandrasekhar Ramakrishnan

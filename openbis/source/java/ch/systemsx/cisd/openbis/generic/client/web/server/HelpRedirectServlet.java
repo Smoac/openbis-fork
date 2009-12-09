@@ -27,8 +27,8 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.IOnlineHelpResourceLocatorService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.onlinehelp.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.onlinehelp.IOnlineHelpResourceLocatorService;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
 /**
