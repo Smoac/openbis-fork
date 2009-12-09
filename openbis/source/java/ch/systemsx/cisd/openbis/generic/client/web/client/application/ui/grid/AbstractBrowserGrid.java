@@ -385,22 +385,22 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected final DisposableEntityChooser<T> asDisposableWithToolbarAndTree(
             final Component toolbar, final Component tree)
     {
-        final LayoutContainer container = new LayoutContainer();
-        container.setLayout(new RowLayout());
-
-        final LayoutContainer subContainer = new LayoutContainer();
-
         // WORKAROUND: BorderLayout causes problems when rendered in a tab
         // We use RowLayout here but we loose the split this way.
+        final LayoutContainer container = new LayoutContainer();
+        container.setLayout(new RowLayout(Orientation.VERTICAL));
+        container.add(toolbar, new RowData(1, -1));
+
+        final LayoutContainer subContainer = new LayoutContainer();
         subContainer.setLayout(new RowLayout(Orientation.HORIZONTAL));
         subContainer.add(tree, new RowData(200, 1));
         subContainer.add(this, new RowData(1, 1));
+        container.add(subContainer, new RowData(1, 1));
+
         // previous version using BorderLayout:
         // subContainer.setLayout(new BorderLayout());
         // subContainer.add(tree, createLeftBorderLayoutData());
         // subContainer.add(this, createCenterBorderLayoutData());
-
-        container.add(subContainer, new RowData(1, 1));
 
         return asDisposableEntityChooser(container);
     }
