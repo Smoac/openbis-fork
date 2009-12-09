@@ -85,7 +85,7 @@ export JAVA_HOME=/usr
 
 #echo Doing some cleaning...
 cd
-mv -f *.zip tmp
+mv -f *.zip old/
 rm -rf openbis
 cd ~openbis/sprint/openBIS-server
 rm apache-tomcat.zip install.sh openbis.conf openBIS.keystore openBIS.war passwd.sh server.xml service.properties tomcat-version.txt
