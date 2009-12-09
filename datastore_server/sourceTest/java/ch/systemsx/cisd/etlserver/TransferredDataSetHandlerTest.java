@@ -269,6 +269,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                         authorizedLimsService, mailClient, dataSetValidator, true, true, false);
 
         dataSetInformation = new DataSetInformation();
+        dataSetInformation.setDataSetType(DATA_SET_TYPE);
         final ExperimentIdentifier experimentIdentifier = new ExperimentIdentifier();
         experimentIdentifier.setExperimentCode("experiment1".toUpperCase());
         experimentIdentifier.setProjectCode("project1".toUpperCase());

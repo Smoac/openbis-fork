@@ -539,10 +539,10 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             final File markerFile = createProcessingMarkerFile();
             try
             {
+                String entityDescription = createEntityDescription();
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("Start storing data set for sample '"
-                            + dataSetInformation.getSampleIdentifier() + "'.");
+                    operationLog.info("Start storing data set for " + entityDescription + ".");
                 }
                 final StopWatch watch = new StopWatch();
                 watch.start();
@@ -552,8 +552,8 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
                                 incomingDataSetFile, baseDirectoryHolder.getBaseDirectory());
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info("Finished storing data set for sample '"
-                            + dataSetInformation.getSampleIdentifier() + "', took " + watch);
+                    operationLog.info("Finished storing data set for " + entityDescription
+                            + ", took " + watch);
                 }
                 assert dataFile != null : "The folder that contains the stored data should not be null.";
                 final String relativePath = FileUtilities.getRelativeFile(storeRoot, dataFile);
@@ -578,6 +578,16 @@ public final class TransferredDataSetHandler implements IPathHandler, ISelfTesta
             {
                 fileOperations.delete(markerFile);
             }
+        }
+
+        private String createEntityDescription()
+        {
+            SampleIdentifier sampleIdentifier = dataSetInformation.getSampleIdentifier();
+            if (sampleIdentifier != null)
+            {
+                return "sample '" + sampleIdentifier + "'";
+            }
+            return "experiment '" + dataSetInformation.getExperimentIdentifier() + "'";
         }
 
         private final File createProcessingMarkerFile()
