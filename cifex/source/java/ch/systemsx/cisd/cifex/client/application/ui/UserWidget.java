@@ -166,15 +166,15 @@ public abstract class UserWidget extends LayoutContainer
         if (addStatusField)
         {
             user.setAdmin(isAdminStatus());
-            if (isTemporaryStatus())
-            {
-                final Date expirationDate = new Date();
-                CalendarUtil.addDaysToDate(expirationDate, config.getFileRetention());
-                user.setExpirationDate(expirationDate);
-            } else
-            {
-                user.setExpirationDate(null);
-            }
+        }
+        if (statusField == null || isTemporaryStatus())
+        {
+            final Date expirationDate = new Date();
+            CalendarUtil.addDaysToDate(expirationDate, config.getFileRetention());
+            user.setExpirationDate(expirationDate);
+        } else
+        {
+            user.setExpirationDate(null);
         }
         if (maxFileCountField != null)
         {
