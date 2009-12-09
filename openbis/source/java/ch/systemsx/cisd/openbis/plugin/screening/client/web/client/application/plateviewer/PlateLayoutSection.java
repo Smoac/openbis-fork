@@ -62,6 +62,7 @@ public class PlateLayoutSection extends SingleSectionPanel
             TechId sampleId)
     {
         super("Plate Layout");
+        add(new Text("Loading..."));
         viewContext.getService().getPlateContent(sampleId, createDisplayPlateCallback(viewContext));
         setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
     }
@@ -73,6 +74,7 @@ public class PlateLayoutSection extends SingleSectionPanel
                 @Override
                 protected void process(PlateContent plateContent)
                 {
+                    removeAll();
                     setLayout(new RowLayout());
 
                     LayoutContainer container = new LayoutContainer();
@@ -118,11 +120,13 @@ public class PlateLayoutSection extends SingleSectionPanel
 
     private LayoutContainer renderWellsMatrix(PlateContent plateContent, IViewContext<?> viewContext)
     {
+        WellData[][] wellMatrix = createMatrix(plateContent);
+        List<Widget> wellWidgets = createWellWidgets(wellMatrix, plateContent, viewContext);
+
         LayoutContainer plateMatrix = new LayoutContainer();
-        TableLayout layout = new TableLayout(plateContent.getColsNum() + 1);
+        TableLayout layout = new TableLayout(getColumnsNum(wellMatrix));
         layout.setCellSpacing(2);
         plateMatrix.setLayout(layout);
-        List<Widget> wellWidgets = createWellWidgets(plateContent, viewContext);
         for (Widget wellWidget : wellWidgets)
         {
             plateMatrix.add(wellWidget);
@@ -130,14 +134,15 @@ public class PlateLayoutSection extends SingleSectionPanel
         return plateMatrix;
     }
 
-    private static List<Widget> createWellWidgets(PlateContent plateContent,
-            IViewContext<?> viewContext)
+    private static List<Widget> createWellWidgets(WellData[][] wellMatrix,
+            PlateContent plateContent, IViewContext<?> viewContext)
     {
-        WellData[][] wellMatrix = createMatrix(plateContent);
         List<Widget> wellWidgets = new ArrayList<Widget>();
-        for (int row = 0; row <= plateContent.getRowsNum(); row++)
+        int rowsNum = wellMatrix.length;
+        int colsNum = getColumnsNum(wellMatrix);
+        for (int row = 0; row < rowsNum; row++)
         {
-            for (int col = 0; col <= plateContent.getColsNum(); col++)
+            for (int col = 0; col < colsNum; col++)
             {
                 Widget wellWidget = tryCreateLabelWidget(row, col);
                 if (wellWidget == null)
@@ -157,7 +162,14 @@ public class PlateLayoutSection extends SingleSectionPanel
         return wellWidgets;
     }
 
-    // creates column or row label
+    private static int getColumnsNum(WellData[][] wellMatrix)
+    {
+        int rowsNum = wellMatrix.length;
+        return (rowsNum == 0 ? 0 : wellMatrix[0].length);
+    }
+
+    // creates column or row label. Returns null if the coordinates do not point to the first column
+    // or row.
     private static Component tryCreateLabelWidget(int row, int col)
     {
         String text = null;

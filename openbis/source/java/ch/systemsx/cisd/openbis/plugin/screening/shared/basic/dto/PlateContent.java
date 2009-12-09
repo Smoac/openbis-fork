@@ -27,8 +27,6 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class PlateContent implements IsSerializable
 {
-    private PlateImageParameters imageParameters;
-
     private List<WellMetadata> wells;
 
     private PlateImages imagesOrNull;
@@ -39,37 +37,10 @@ public class PlateContent implements IsSerializable
     {
     }
 
-    public PlateContent(PlateImageParameters imageParameters, List<WellMetadata> wells,
-            PlateImages imagesOrNull)
+    public PlateContent(List<WellMetadata> wells, PlateImages imagesOrNull)
     {
-        this.imageParameters = imageParameters;
         this.wells = wells;
         this.imagesOrNull = imagesOrNull;
-    }
-
-    public int getRowsNum()
-    {
-        return imageParameters.getRowsNum();
-    }
-
-    public int getColsNum()
-    {
-        return imageParameters.getColsNum();
-    }
-
-    public int getTileRowsNum()
-    {
-        return imageParameters.getTileRowsNum();
-    }
-
-    public int getTileColsNum()
-    {
-        return imageParameters.getTileColsNum();
-    }
-
-    public int getChannelsNum()
-    {
-        return imageParameters.getChannelsNum();
     }
 
     public List<WellMetadata> getWells()
@@ -81,5 +52,29 @@ public class PlateContent implements IsSerializable
     public PlateImages tryGetImages()
     {
         return imagesOrNull;
+    }
+
+    public int getRowsNum()
+    {
+        if (imagesOrNull != null)
+        {
+            return imagesOrNull.getImageParameters().getRowsNum();
+        } else
+        {
+            // TODO 2009-12-09, Tomasz Pylak: calculate rows number on the basis of metadata
+            return 16;
+        }
+    }
+
+    public int getColsNum()
+    {
+        if (imagesOrNull != null)
+        {
+            return imagesOrNull.getImageParameters().getColsNum();
+        } else
+        {
+            // TODO 2009-12-09, Tomasz Pylak: calculate rows number on the basis of metadata
+            return 24;
+        }
     }
 }

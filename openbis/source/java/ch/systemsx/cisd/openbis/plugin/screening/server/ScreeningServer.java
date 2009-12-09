@@ -56,7 +56,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImage;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
@@ -77,6 +76,9 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     // id of the DSS screening reporting plugin to get the images of the plate
     private static final String PLATE_VIEWER_REPORT_KEY = "plate-image-reporter";
+
+    // id of the DSS screening reporting plugin to get the images parameters
+    private static final String PLATE_IMAGE_PARAMS_REPORT_KEY = "plate-image-params-reporter";
 
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
@@ -183,10 +185,17 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         DataStorePE dataStore = dataset.getDataStore();
         String datasetCode = dataset.getCode();
+        List<String> datasets = Arrays.asList(datasetCode);
+        String datastoreCode = dataStore.getCode();
         TableModel plateReport =
-                externalDataTable.createReportFromDatasets(PLATE_VIEWER_REPORT_KEY, dataStore
-                        .getCode(), Arrays.asList(datasetCode));
-        return PlateImage.createImages(datasetCode, dataStore.getDownloadUrl(), plateReport);
+                externalDataTable.createReportFromDatasets(PLATE_VIEWER_REPORT_KEY, datastoreCode,
+                        datasets);
+        TableModel imageParamsReport =
+                externalDataTable.createReportFromDatasets(PLATE_IMAGE_PARAMS_REPORT_KEY,
+                        datastoreCode, datasets);
+
+        return PlateImage.createImages(datasetCode, dataStore.getDownloadUrl(), plateReport,
+                imageParamsReport);
     }
 
     private static ExternalDataPE tryFindDataset(List<ExternalDataPE> datasets, String datasetType)
@@ -201,24 +210,11 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         return null;
     }
 
-    private static PlateContent createPlateContent(List<Sample> wellSamples, PlateImages images)
+    private static PlateContent createPlateContent(List<Sample> wellSamples,
+            PlateImages imagesOrNull)
     {
         List<WellMetadata> wells = createWells(wellSamples);
-        PlateImageParameters imageParameters = loadImageParameters();
-        return new PlateContent(imageParameters, wells, images);
-    }
-
-    // TODO 2009-12-04, Tomasz Pylak: make the plate size customizable
-    // Write a DSS plugin which returns those data for a dataset
-    private static PlateImageParameters loadImageParameters()
-    {
-        PlateImageParameters params = new PlateImageParameters();
-        params.setChannelsNum(2);
-        params.setTileRowsNum(3);
-        params.setTileColsNum(3);
-        params.setRowsNum(16);
-        params.setColsNum(24);
-        return params;
+        return new PlateContent(wells, imagesOrNull);
     }
 
     private static List<WellMetadata> createWells(List<Sample> wellSamples)

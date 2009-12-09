@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -52,22 +53,33 @@ public class WellContentDialog
     public static void show(final WellData wellData, final PlateContent plateContent,
             final IViewContext<?> viewContext)
     {
-        int imgWidth = 200;
-        int imgHeight = 120;
-        int tileRowsNum = plateContent.getTileRowsNum();
-        int tileColsNum = plateContent.getTileColsNum();
-
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
 
         WellContentDialog viewer = new WellContentDialog(wellData, plateContent, viewContext);
         container.add(viewer.createContentDescription());
-        LayoutContainer wellsGrid =
-                viewer.createWellsGrid(imgWidth, imgHeight, tileRowsNum, tileColsNum);
-        container.add(wellsGrid);
 
-        int dialogWidth = imgWidth * tileColsNum;
-        int dialogHeight = imgHeight * tileRowsNum + 160;
+        int dialogWidth;
+        int dialogHeight;
+        PlateImages images = plateContent.tryGetImages();
+        if (images != null)
+        {
+            int imgWidth = 200;
+            int imgHeight = 120;
+            int tileRowsNum = images.getImageParameters().getTileRowsNum();
+            int tileColsNum = images.getImageParameters().getTileColsNum();
+
+            LayoutContainer wellsGrid =
+                    viewer.createWellsGrid(imgWidth, imgHeight, tileRowsNum, tileColsNum);
+            container.add(wellsGrid);
+
+            dialogWidth = imgWidth * tileColsNum;
+            dialogHeight = imgHeight * tileRowsNum + 150;
+        } else
+        {
+            dialogWidth = 200;
+            dialogHeight = 150;
+        }
         String title = "Well Content: " + wellData.getWellSubcode();
         showWellContentDialog(container, dialogWidth, dialogHeight, title);
     }

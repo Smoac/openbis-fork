@@ -33,17 +33,21 @@ public class PlateImages implements IsSerializable
 
     private List<PlateImage> images;
 
+    private PlateImageParameters imageParameters;
+
     // GWT only
     @SuppressWarnings("unused")
     private PlateImages()
     {
     }
 
-    public PlateImages(String datasetCode, String downloadUrl, List<PlateImage> images)
+    public PlateImages(String datasetCode, String downloadUrl, List<PlateImage> images,
+            PlateImageParameters imageParameters)
     {
         this.datasetCode = datasetCode;
         this.downloadUrl = downloadUrl;
         this.images = images;
+        this.imageParameters = imageParameters;
     }
 
     public String getDownloadUrl()
@@ -59,5 +63,10 @@ public class PlateImages implements IsSerializable
     public List<PlateImage> getImages()
     {
         return images;
+    }
+
+    public PlateImageParameters getImageParameters()
+    {
+        return imageParameters;
     }
 }

@@ -50,9 +50,24 @@ public class PlateImage implements IsSerializable
 
     /** @param plateReport report of a screening plugun with images for the whole plate */
     public static final PlateImages createImages(String datasetCode, String downloadUrl,
-            TableModel plateReport)
+            TableModel plateReport, TableModel imageParamsReport)
     {
-        return new PlateImages(datasetCode, downloadUrl, createImageList(plateReport));
+        return new PlateImages(datasetCode, downloadUrl, createImageList(plateReport),
+                createImageParams(imageParamsReport));
+    }
+
+    private static PlateImageParameters createImageParams(TableModel imageParamsReport)
+    {
+        PlateImageParameters params = new PlateImageParameters();
+        assert imageParamsReport.getRows().size() == 1 : "exactly one row expected in imageParamsReport";
+        List<ISerializableComparable> values = imageParamsReport.getRows().get(0).getValues();
+
+        params.setRowsNum(asNum(values.get(0)));
+        params.setColsNum(asNum(values.get(1)));
+        params.setTileRowsNum(asNum(values.get(2)));
+        params.setTileColsNum(asNum(values.get(3)));
+        params.setChannelsNum(asNum(values.get(4)));
+        return params;
     }
 
     private static final List<PlateImage> createImageList(TableModel plateReport)

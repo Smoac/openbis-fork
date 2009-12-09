@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImage;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -33,15 +35,27 @@ class WellData
 
     public WellData(PlateContent plateContent)
     {
-        int tilesNum = plateContent.getTileRowsNum() * plateContent.getTileColsNum();
-        this.imagePaths = new String[plateContent.getChannelsNum()][tilesNum];
+        PlateImages images = plateContent.tryGetImages();
+        if (images != null)
+        {
+            this.imagePaths = initImagePathArray(images.getImageParameters());
+        } else
+        {
+            this.imagePaths = null;
+        }
+    }
+
+    private String[][] initImagePathArray(PlateImageParameters params)
+    {
+        int tilesNum = params.getTileRowsNum() * params.getTileColsNum();
+        return new String[params.getChannelsNum()][tilesNum];
     }
 
     public void addImage(PlateImage image)
     {
         int channelIx = image.getChannel() - 1;
         int tileIx = image.getTile() - 1;
-        assert imagePaths[channelIx][tileIx] == null : "duplicated image for channelIx = "
+        assert imagePaths != null && imagePaths[channelIx][tileIx] == null : "duplicated image for channelIx = "
                 + channelIx + ", tileIx = " + tileIx;
         imagePaths[channelIx][tileIx] = image.getImagePath();
     }
@@ -53,7 +67,7 @@ class WellData
 
     public String tryGetImagePath(int channel, int tile)
     {
-        return imagePaths[channel - 1][tile - 1];
+        return imagePaths != null ? imagePaths[channel - 1][tile - 1] : null;
     }
 
     public WellMetadata tryGetMetadata()
