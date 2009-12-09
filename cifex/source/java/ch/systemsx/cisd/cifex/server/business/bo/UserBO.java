@@ -16,10 +16,6 @@
 
 package ch.systemsx.cisd.cifex.server.business.bo;
 
-import java.util.Date;
-
-import org.apache.commons.lang.time.DateUtils;
-
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -43,18 +39,11 @@ class UserBO extends AbstractBusinessObject implements IUserBO
         assert user != null : "Given user can not be null.";
         assert user.getID() == null : "User ID is set, this will be done from the UserDAO.";
 
-        final UserDTO registratorOrNull = user.getRegistrator();
-        if (user.isPermanent() == false)
-        {
-            final int userRetentionDays =
-                    (registratorOrNull == null) ? businessContext.getUserRetention()
-                            : registratorOrNull.getUserRetention();
-            user.setExpirationDate(DateUtils.addDays(new Date(), userRetentionDays));
-        }
         // Logic of deciding on what quota group to use. If no quota group is set here, a new quota
         // group will be created for the user automatically.
         // Note: Here we assume that the registrator information is reliable and complete, i.e. that
         // is comes from the server side.
+        final UserDTO registratorOrNull = user.getRegistrator();
         if (registratorOrNull != null && registratorOrNull.isAdmin() == false)
         {
             user.setQuotaGroupId(registratorOrNull.getQuotaGroupId());

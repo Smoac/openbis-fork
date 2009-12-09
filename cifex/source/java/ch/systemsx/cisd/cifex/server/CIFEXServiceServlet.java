@@ -136,10 +136,10 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
 
     }
 
-    public void deleteFile(final String idStr) throws InvalidSessionException,
+    public void deleteFile(final long id) throws InvalidSessionException,
             InsufficientPrivilegesException, FileNotFoundException
     {
-        cifexServiceDelegate.deleteFile(idStr);
+        cifexServiceDelegate.deleteFile(id);
     }
 
     public void registerFilenamesForUpload(final String[] filenamesForUpload)
@@ -199,26 +199,26 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsersRegisteredBy(userCode);
     }
 
-    public void updateFileExpiration(final String idStr) throws InvalidSessionException,
+    public void updateFileExpiration(final long id) throws InvalidSessionException,
             InsufficientPrivilegesException, FileNotFoundException
     {
-        cifexServiceDelegate.updateFileExpiration(idStr);
+        cifexServiceDelegate.updateFileExpiration(id);
     }
 
-    public List<UserInfoDTO> listUsersFileSharedWith(final String fileId)
+    public List<UserInfoDTO> listUsersFileSharedWith(final long fileId)
             throws InvalidSessionException
     {
         return cifexServiceDelegate.listUsersFileSharedWith(fileId);
     }
 
-    public void deleteSharingLink(final String fileId, final String userCode)
+    public void deleteSharingLink(final long file, final String userCode)
             throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
     {
-        cifexServiceDelegate.deleteSharingLink(fileId, userCode);
+        cifexServiceDelegate.deleteSharingLink(file, userCode);
 
     }
 
-    public void createSharingLink(final String fileId, final String emailsOfUsers)
+    public void createSharingLink(final long fileId, final String emailsOfUsers)
             throws UserFailureException, InvalidSessionException, InsufficientPrivilegesException,
             FileNotFoundException
     {

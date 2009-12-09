@@ -97,7 +97,7 @@ public interface ICIFEXService extends RemoteService
      * 
      * @throws InvalidSessionException
      */
-    public List<UserInfoDTO> listUsersFileSharedWith(final String fileId)
+    public List<UserInfoDTO> listUsersFileSharedWith(final long fileId)
             throws InvalidSessionException;
 
     /**
@@ -135,7 +135,7 @@ public interface ICIFEXService extends RemoteService
      * 
      * @throws InvalidSessionException, InsufficientPrivilegesException
      */
-    public void deleteSharingLink(String fileId, String userCode) throws InvalidSessionException,
+    public void deleteSharingLink(long file, String userCode) throws InvalidSessionException,
             InsufficientPrivilegesException, FileNotFoundException;
 
     /**
@@ -173,7 +173,7 @@ public interface ICIFEXService extends RemoteService
      * 
      * @throws FileNotFoundException If the file defined by <var>idStr</var> could not be found.
      */
-    public void deleteFile(final String idStr) throws InvalidSessionException,
+    public void deleteFile(final long id) throws InvalidSessionException,
             InsufficientPrivilegesException, FileNotFoundException;
 
     /**
@@ -199,14 +199,14 @@ public interface ICIFEXService extends RemoteService
      * 
      * @throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
      */
-    public void updateFileExpiration(final String idStr) throws InvalidSessionException,
+    public void updateFileExpiration(final long id) throws InvalidSessionException,
             InsufficientPrivilegesException, FileNotFoundException;
 
     /**
      * Creates a sharing link between file and users. The user identifyer can either be a email
      * addess (which can be ambiguous) or a usercode (specified with the prefix 'id:')
      */
-    public void createSharingLink(final String fileIdStr, final String userIdentifier)
+    public void createSharingLink(final long fileId, final String userIdentifier)
             throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
             UserFailureException;
 

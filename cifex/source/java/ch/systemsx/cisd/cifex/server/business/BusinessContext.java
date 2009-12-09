@@ -31,11 +31,17 @@ class BusinessContext implements IBusinessContext
     /** The root location where uploaded files are going to be stored. */
     private File fileStore;
 
-    /** How long (in hours) an uploaded file is going to stay in the system? */
+    /** How long (in days) an uploaded file is going to stay in the system by default? */
     private int fileRetention;
 
-    /** How long (in hours) a temporary user is going to stay in the system? */
+    /** How long (in days) a temporary user is going to stay in the system by default? */
     private int userRetention;
+
+    /** How long (in days) an uploaded file is going to stay in the system at the max? */
+    private int maxFileRetention;
+
+    /** How long (in days) a temporary user is going to stay in the system at the max? */
+    private int maxUserRetention;
 
     /**
      * Maximum size of all uploaded files allowed per quota group in MB, <code>null</code> for 'no
@@ -118,6 +124,16 @@ class BusinessContext implements IBusinessContext
         this.fileRetention = fileRetention;
     }
 
+    public void setMaxFileRetention(int maxFileRetention)
+    {
+        this.maxFileRetention = maxFileRetention;
+    }
+
+    public int getMaxFileRetention()
+    {
+        return maxFileRetention;
+    }
+
     public final File getFileStore()
     {
         return fileStore;
@@ -136,6 +152,16 @@ class BusinessContext implements IBusinessContext
     public final void setUserRetention(final int userRetention)
     {
         this.userRetention = userRetention;
+    }
+
+    public void setMaxUserRetention(int maxUserRetention)
+    {
+        this.maxUserRetention = maxUserRetention;
+    }
+
+    public int getMaxUserRetention()
+    {
+        return maxUserRetention;
     }
 
     public void setMaxFileSizePerQuotaGroupInMB(Long maxFileSizePerQuotaGroupInMB)

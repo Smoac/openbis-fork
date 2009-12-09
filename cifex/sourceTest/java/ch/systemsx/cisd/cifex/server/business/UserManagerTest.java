@@ -99,7 +99,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userBO).save();
                 }
             });
-        userManager.createUser(user);
+        userManager.createUser(user, user.getRegistrator());
         context.assertIsSatisfied();
     }
 
@@ -196,9 +196,9 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(userDAO));
                     one(userDAO).tryFindUserByCode(userCode);
                     will(returnValue(user));
-                    one(businessContext).getFileRetention();
+                    one(businessContext).getMaxFileRetention();
                     will(returnValue(0));
-                    one(businessContext).getUserRetention();
+                    one(businessContext).getMaxUserRetention();
                     will(returnValue(0));
                     one(businessContext).getMaxFileCountPerQuotaGroup();
                     will(returnValue(0));
@@ -325,9 +325,9 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(usersFromDAO));
                     if (usersFromDAO.size() > 0)
                     {
-                        one(businessContext).getFileRetention();
+                        one(businessContext).getMaxFileRetention();
                         will(returnValue(0));
-                        one(businessContext).getUserRetention();
+                        one(businessContext).getMaxUserRetention();
                         will(returnValue(0));
                         one(businessContext).getMaxFileCountPerQuotaGroup();
                         will(returnValue(0));

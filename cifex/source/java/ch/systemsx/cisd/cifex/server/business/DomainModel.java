@@ -113,7 +113,7 @@ public final class DomainModel implements IDomainModel
     }
 
     /**
-     * Sets the file retention time in minutes.
+     * Sets the file retention time in days.
      * <p>
      * This is typically set by <i>Spring</i> via injection.
      * </p>
@@ -123,12 +123,12 @@ public final class DomainModel implements IDomainModel
         businessContext.setFileRetention(fileRetention);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("File retention set to %d hours.", fileRetention));
+            operationLog.info(String.format("File retention set to %d days.", fileRetention));
         }
     }
 
     /**
-     * Sets the user retention time in minutes.
+     * Sets the user retention time in days.
      * <p>
      * This is typically by <i>Spring</i> via injection.
      * </p>
@@ -138,7 +138,39 @@ public final class DomainModel implements IDomainModel
         businessContext.setUserRetention(userRetention);
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("User retention set to %d hours.", userRetention));
+            operationLog.info(String.format("User retention set to %d days.", userRetention));
+        }
+    }
+
+    /**
+     * Sets the maximum file retention time in days.
+     * <p>
+     * This is typically set by <i>Spring</i> via injection.
+     * </p>
+     */
+    public final void setMaxFileRetention(final int maxFileRetention)
+    {
+        businessContext.setMaxFileRetention(maxFileRetention);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("Maximum file retention set to %d days.",
+                    maxFileRetention));
+        }
+    }
+
+    /**
+     * Sets the maximum user retention time in days.
+     * <p>
+     * This is typically by <i>Spring</i> via injection.
+     * </p>
+     */
+    public final void setMaxUserRetention(final int maxUserRetention)
+    {
+        businessContext.setMaxUserRetention(maxUserRetention);
+        if (operationLog.isInfoEnabled())
+        {
+            operationLog.info(String.format("Maximum user retention set to %d days.",
+                    maxUserRetention));
         }
     }
 

@@ -195,6 +195,13 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         }
     }
 
+    public Date getFileRegistrationDate(long fileId) throws DataAccessException
+    {
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+        return template.queryForObject("select registration_timestamp from files where id = ?",
+                Date.class, fileId);
+    }
+
     public final List<FileDTO> getExpiredFiles()
     {
         final List<FileDTO> list =
@@ -218,7 +225,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
         return list;
     }
 
-    public final List<FileDTO> listDirectlyAndIndirectlyOwnedFiles(final long userId) throws DataAccessException
+    public final List<FileDTO> listDirectlyAndIndirectlyOwnedFiles(final long userId)
+            throws DataAccessException
     {
         final List<FileDTO> list =
                 getSimpleJdbcTemplate().query(
@@ -265,14 +273,7 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                 throws SQLException
         {
             final long registererId = rs.getLong("f_USER_ID");
-            final FileDTO file;
-            if (rs.wasNull() == false)
-            {
-                file = new FileDTO(registererId);
-            } else
-            {
-                file = new FileDTO();
-            }
+            final FileDTO file = new FileDTO(registererId);
             final Date expDate = new Date(rs.getTimestamp("f_EXPIRATION_TIMESTAMP").getTime());
             file.setExpirationDate(expDate);
             file.setID(rs.getLong("f_ID"));

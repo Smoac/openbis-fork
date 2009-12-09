@@ -54,6 +54,8 @@
         <property name="fileStorePath" value="${file-store}" />
         <property name="fileRetention" value="${file-retention}" />
         <property name="userRetention" value="${user-retention}" />
+        <property name="maxFileRetention" value="${max-file-retention}" />
+        <property name="maxUserRetention" value="${max-user-retention}" />
         <property name="maxFileCountPerQuotaGroup" value="${quota-file-count}" />
         <property name="maxFileSizePerQuotaGroupInMB" value="${quota-file-size}" />
         <property name="newExternallyAuthenticatedUserStartActive" value="${new-externally-authenticated-user-start-active}" />

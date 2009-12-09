@@ -231,7 +231,7 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                     for (final FileDTO file : files)
                     {
                         file.setComment(comment.toString());
-                        fileManager.updateFile(file);
+                        fileManager.updateFile(file, requestUser);
                     }
                 }
             }

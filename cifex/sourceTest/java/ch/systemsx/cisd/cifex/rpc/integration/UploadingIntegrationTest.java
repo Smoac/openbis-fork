@@ -449,7 +449,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                                     description.appendText("fileDTO<completeSize=" + completeSize
                                             + ", size=" + currentSize + ">");
                                 }
-                            }));
+                            }), with(same(user)));
                         if (size[0] == maxSize)
                         {
                             break;

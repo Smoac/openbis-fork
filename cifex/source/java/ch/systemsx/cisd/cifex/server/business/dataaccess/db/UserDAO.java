@@ -104,14 +104,14 @@ final class UserDAO extends AbstractDAO implements IUserDAO
             final int fileRetention = rs.getInt("file_retention");
             if (rs.wasNull() == false)
             {
-                user.setFileRetention(fileRetention);
-                user.setCustomFileRetention(true);
+                user.setMaxFileRetention(fileRetention);
+                user.setCustomMaxFileRetention(true);
             }
             final int userRetention = rs.getInt("user_retention");
             if (rs.wasNull() == false)
             {
-                user.setUserRetention(userRetention);
-                user.setCustomUserRetention(true);
+                user.setMaxUserRetention(userRetention);
+                user.setCustomMaxUserRetention(true);
             }
             user.setCurrentFileCount(rs.getInt("file_count"));
             user.setCurrentFileSize(rs.getLong("file_size"));
@@ -144,15 +144,15 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
         public UserDTO mapRow(ResultSet rs, int rowNum) throws SQLException
         {
-            user.setFileRetention(rs.getInt("file_retention"));
+            user.setMaxFileRetention(rs.getInt("file_retention"));
             if (rs.wasNull())
             {
-                user.setFileRetention(null);
+                user.setMaxFileRetention(null);
             }
-            user.setUserRetention(rs.getInt("user_retention"));
+            user.setMaxUserRetention(rs.getInt("user_retention"));
             if (rs.wasNull())
             {
-                user.setUserRetention(null);
+                user.setMaxUserRetention(null);
             }
             user.setCurrentFileCount(rs.getInt("file_count"));
             user.setCurrentFileSize(rs.getLong("file_size"));
@@ -383,10 +383,10 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
         final long quotaGroupId =
                 template.queryForInt("select quota_group_id from users where id = ?", id);
-        if (user.getFileRetention() != null || user.getUserRetention() != null)
+        if (user.getMaxFileRetention() != null || user.getMaxUserRetention() != null)
         {
             template.update("update quota_groups set file_retention = ?, user_retention = ? "
-                    + "where id = ?", user.getFileRetention(), user.getUserRetention(),
+                    + "where id = ?", user.getMaxFileRetention(), user.getMaxUserRetention(),
                     quotaGroupId);
         }
         user.setID(id);
@@ -476,14 +476,14 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                             .getMaxFileSizePerQuotaGroupInMB();
         }
         Integer fileRetention = null;
-        if (user.isCustomFileRetention())
+        if (user.isCustomMaxFileRetention())
         {
-            fileRetention = (user.getFileRetention() == null) ? 0 : user.getFileRetention();
+            fileRetention = (user.getMaxFileRetention() == null) ? 0 : user.getMaxFileRetention();
         }
         Integer userRetention = null;
-        if (user.isCustomUserRetention())
+        if (user.isCustomMaxUserRetention())
         {
-            userRetention = (user.getUserRetention() == null) ? 0 : user.getUserRetention();
+            userRetention = (user.getMaxUserRetention() == null) ? 0 : user.getMaxUserRetention();
         }
         // If quotaGroupId had been set to null, it will now have been set to the id of the new
         // quota group.

@@ -116,9 +116,9 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void listFiles(final AsyncCallback<List<AdminFileInfoDTO>> fileAsyncCallback);
 
     /**
-     * Deletes file given by its <code>idStr</code>.
+     * Deletes file given by its <code>id</code>.
      */
-    public void deleteFile(final String idStr, final AsyncCallback<Void> callback);
+    public void deleteFile(final long id, final AsyncCallback<Void> callback);
 
     /**
      * Registers the file names for the next upload request in the session.
@@ -139,23 +139,23 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void getFileUploadFeedback(final AsyncCallback<FileUploadFeedback> callback);
 
     /**
-     * Update the Expiration Date of the file with the given <var>fileIdStr</var>.
+     * Update the Expiration Date of the file with the given <var>fileId</var>.
      */
-    public void updateFileExpiration(final String fileIdStr, final AsyncCallback<Void> callback);
+    public void updateFileExpiration(final long fileId, final AsyncCallback<Void> callback);
 
     /**
      * List users the file with given <var>fileId</var> has been shared with.
      */
-    public void listUsersFileSharedWith(String fileId,
+    public void listUsersFileSharedWith(long fileId,
             AsyncCallback<List<UserInfoDTO>> showUsersFileSharedWithAsyncCallback);
 
     /** Revokes user with given userCode access to file with fileId. */
-    public void deleteSharingLink(String fileId, String userCode, AsyncCallback<Void> callback);
+    public void deleteSharingLink(long fileId, String userCode, AsyncCallback<Void> callback);
 
     /**
      * Creates a sharing link between file and users.
      */
-    public void createSharingLink(String fileId, String emailsOfUsers, AsyncCallback<Void> callback);
+    public void createSharingLink(long fileId, String emailsOfUsers, AsyncCallback<Void> callback);
 
     /**
      * Try to change user type from internally authenticated to externally authenticated.

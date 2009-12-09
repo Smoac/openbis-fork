@@ -34,15 +34,25 @@ public interface IBusinessContext
     public File getFileStore();
 
     /**
-     * Returns the file retention time in minutes.
+     * Returns the default file retention time in days.
      */
     public int getFileRetention();
 
     /**
-     * Returns the retention time in minutes of temporary users.
+     * Returns the maximum file retention time in days.
+     */
+    public int getMaxFileRetention();
+    
+    /**
+     * Returns the default retention time of temporary users in days.
      */
     public int getUserRetention();
 
+    /**
+     * Returns the maximum retention time of temporary users in days.
+     */
+    public int getMaxUserRetention();
+    
     /**
      * Returns the maximum sum of the size of all files allowed to be uploaded per quota group (in MB).
      */

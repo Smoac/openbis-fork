@@ -69,16 +69,16 @@ public class UserDTO extends ID
     /** 
      * How long (in days) the file registered by this user is going to stay in the system.
      */
-    private Integer fileRetention;
+    private Integer maxFileRetention;
     
-    private boolean customFileRetention;
+    private boolean customMaxFileRetention;
 
     /** 
      * How long (in days) a temporary user registered by this user is going to stay in the system.
      */
-    private Integer userRetention;
+    private Integer maxUserRetention;
 
-    private boolean customUserRetention;
+    private boolean customMaxUserRetention;
 
     /**
      * Current total size of files uploaded by the user's quota group (in bytes).
@@ -234,44 +234,44 @@ public class UserDTO extends ID
         this.userCode = userCode;
     }
 
-    public final Integer getFileRetention()
+    public final Integer getMaxFileRetention()
     {
-        return fileRetention;
+        return maxFileRetention;
     }
 
-    public final void setFileRetention(Integer fileRetention)
+    public final void setMaxFileRetention(Integer fileRetention)
     {
-        this.fileRetention = fileRetention;
+        this.maxFileRetention = fileRetention;
     }
 
-    public final boolean isCustomFileRetention()
+    public final boolean isCustomMaxFileRetention()
     {
-        return customFileRetention;
+        return customMaxFileRetention;
     }
 
-    public final void setCustomFileRetention(boolean customFileRetention)
+    public final void setCustomMaxFileRetention(boolean customFileRetention)
     {
-        this.customFileRetention = customFileRetention;
+        this.customMaxFileRetention = customFileRetention;
     }
 
-    public void setUserRetention(Integer userRetention)
+    public void setMaxUserRetention(Integer userRetention)
     {
-        this.userRetention = userRetention;
+        this.maxUserRetention = userRetention;
     }
 
-    public Integer getUserRetention()
+    public Integer getMaxUserRetention()
     {
-        return userRetention;
+        return maxUserRetention;
     }
 
-    public final boolean isCustomUserRetention()
+    public final boolean isCustomMaxUserRetention()
     {
-        return customUserRetention;
+        return customMaxUserRetention;
     }
 
-    public final void setCustomUserRetention(boolean customUserRetention)
+    public final void setCustomMaxUserRetention(boolean customUserRetention)
     {
-        this.customUserRetention = customUserRetention;
+        this.customMaxUserRetention = customUserRetention;
     }
 
     public void setCurrentFileSize(long currentFileSize)

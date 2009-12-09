@@ -323,7 +323,7 @@ final class FileManager extends AbstractManager implements IFileManager
             return true;
         }
         // The registrator of the owner of a file is in control of it, too.
-        UserDTO owner = fileDTO.getOwner();
+        final UserDTO owner = fileDTO.getOwner();
         if (owner != null && owner.getRegistrator() != null
                 && userDTO.getID().equals(owner.getRegistrator().getID()))
         {
@@ -413,12 +413,12 @@ final class FileManager extends AbstractManager implements IFileManager
             final String contentType, final File file, final long byteCount, final int crc32Value)
     {
         operationLog.info(String.format("File %s has crc32 checksum %x.", fileName, crc32Value));
-        final FileDTO fileDTO = new FileDTO(user.getID());
+        final FileDTO fileDTO = new FileDTO(user);
         fileDTO.setName(FilenameUtilities.ensureMaximumSize(fileName, MAX_FILENAME_LENGTH));
         fileDTO.setContentType(contentType);
         fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
         fileDTO.setComment(comment);
-        fileDTO.setExpirationDate(calculateExpirationDate(user));
+        fileDTO.setExpirationDate(calculateNewExpirationDate(fileDTO, user));
         fileDTO.setSize(byteCount);
         fileDTO.setCompleteSize(byteCount);
         fileDTO.setCrc32Value(crc32Value);
@@ -476,7 +476,7 @@ final class FileManager extends AbstractManager implements IFileManager
         fileDTO.setContentType(contentType);
         fileDTO.setPath(FileUtilities.getRelativeFile(businessContext.getFileStore(), file));
         fileDTO.setComment(comment);
-        fileDTO.setExpirationDate(calculateExpirationDate(user));
+        fileDTO.setExpirationDate(calculateNewExpirationDate(fileDTO, user));
         fileDTO.setSize(0L);
         fileDTO.setCompleteSize(fileInfoDTO.getFileSize());
         daoFactory.getFileDAO().createFile(fileDTO);
@@ -492,10 +492,10 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public void updateUploadProgress(FileDTO fileDTO)
+    public void updateUploadProgress(FileDTO fileDTO, UserDTO requestUser)
     {
         daoFactory.getFileDAO().updateFileUploadProgress(fileDTO.getID(), fileDTO.getSize(),
-                fileDTO.getCrc32Value(), calculateExpirationDate(fileDTO.getOwner()));
+                fileDTO.getCrc32Value(), calculateNewExpirationDate(fileDTO, requestUser));
     }
 
     @Transactional
@@ -811,13 +811,14 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public void updateFileExpiration(final long fileId) throws IllegalArgumentException
+    public void updateFileExpiration(final long fileId, UserDTO requestUser)
+            throws IllegalArgumentException
     {
         final FileDTO file = getFile(fileId);
         boolean success = false;
         try
         {
-            file.setExpirationDate(calculateExpirationDate(file.getOwner()));
+            file.setExpirationDate(calculateNewExpirationDate(file, requestUser));
             daoFactory.getFileDAO().updateFile(file);
             success = true;
         } finally
@@ -838,25 +839,64 @@ final class FileManager extends AbstractManager implements IFileManager
         return file;
     }
 
-    private Date calculateExpirationDate(UserDTO registratorOrNull)
+    private Date calculateNewExpirationDate(final FileDTO file, final UserDTO requestUser)
     {
-        Integer registratorFileRetentionOrNull =
-                (registratorOrNull == null) ? null : registratorOrNull.getFileRetention();
-        int fileRetentionDays =
-                (registratorFileRetentionOrNull == null) ? businessContext.getFileRetention()
-                        : registratorFileRetentionOrNull.intValue();
-        return DateUtils.addDays(new Date(timeProvider.getTimeInMilliseconds()), fileRetentionDays);
+        final Integer maxUserRetentionDaysOrNull = tryGetMaxUserRetentionDays(requestUser);
+        final int fileRetentionDays = businessContext.getFileRetention();
+        final Date now = new Date(timeProvider.getTimeInMilliseconds());
+        final Date newExpirationDate = DateUtils.addDays(now, fileRetentionDays);
+        if (maxUserRetentionDaysOrNull != null)
+        {
+            final Date registrationDate =
+                    (file.getRegistrationDate() == null) ? now : file.getRegistrationDate();
+            final Date maxExpirationDate =
+                    DateUtils.addDays(registrationDate, maxUserRetentionDaysOrNull);
+            if (newExpirationDate.getTime() > maxExpirationDate.getTime())
+            {
+                return maxExpirationDate;
+            }
+        }
+        return newExpirationDate;
     }
 
-    public void updateFile(final FileDTO file)
+    public void updateFile(final FileDTO file, UserDTO requestUser)
     {
+        checkFileExpiration(file, requestUser);
         daoFactory.getFileDAO().updateFile(file);
+    }
+
+    /** Checks that the new expiration date is in the valid range, otherwise set it to the limit. */
+    private void checkFileExpiration(final FileDTO file, UserDTO requestUser)
+    {
+        final Integer maxUserRetentionDaysOrNull = tryGetMaxUserRetentionDays(requestUser);
+        if (maxUserRetentionDaysOrNull != null)
+        {
+            final Date fileRegistrationDate =
+                    daoFactory.getFileDAO().getFileRegistrationDate(file.getID());
+            final Date maxExpirationDate =
+                    DateUtils.addDays(fileRegistrationDate, maxUserRetentionDaysOrNull);
+            if (file.getExpirationDate().getTime() > maxExpirationDate.getTime())
+            {
+                file.setExpirationDate(maxExpirationDate);
+            }
+        }
+    }
+
+    private Integer tryGetMaxUserRetentionDays(final UserDTO requestUser)
+    {
+        if (requestUser.isAdmin())
+        {
+            return null;
+        } else
+        {
+            return (requestUser.getMaxFileRetention() == null) ? businessContext
+                    .getMaxFileRetention() : requestUser.getMaxFileRetention();
+        }
     }
 
     @Transactional
     public void deleteSharingLink(final long fileId, final String userCode)
     {
-
         boolean success = false;
         try
         {

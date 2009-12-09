@@ -39,11 +39,11 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
 
     private final List<String> usersToRemove = new ArrayList<String>();
 
-    private final String fileId;
+    private final long fileId;
 
     public FileShareUpdateUserDialog(final ViewContext context,
             final List<UserInfoDTO> existingUsers, final List<UserInfoDTO> newUsers,
-            final String name, final String fileId)
+            final String name, final long fileId)
     {
         super(context, existingUsers, newUsers, name);
         initialSharingUsers = new ArrayList<UserInfoDTO>(existingUsers);
@@ -52,13 +52,13 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
     }
 
     public FileShareUpdateUserDialog(final ViewContext context, List<UserInfoDTO> existingUsers,
-            String name, String fileId)
+            String name, long fileId)
     {
         this(context, existingUsers, new ArrayList<UserInfoDTO>(), name, fileId);
     }
 
     public FileShareUpdateUserDialog(final ViewContext context, final UserInfoDTO[] existingUsers,
-            final UserInfoDTO[] newUsers, final String name, final String fileId)
+            final UserInfoDTO[] newUsers, final String name, final long fileId)
     {
         super(context, existingUsers, newUsers, name);
         initialSharingUsers = getArrayList(existingUsers);

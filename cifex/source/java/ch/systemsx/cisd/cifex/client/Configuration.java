@@ -28,10 +28,14 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class Configuration implements IsSerializable
 {
 
-    private Integer fileRetention;
+    private int fileRetention;
     
-    private Integer userRetention;
+    private int userRetention;
     
+    private int maxFileRetention;
+
+    private int maxUserRetention;
+
     private Long maxFileSizePerQuotaGroupInMB;
 
     private Integer maxFileCountPerQuotaGroup;
@@ -40,24 +44,44 @@ public class Configuration implements IsSerializable
 
     private String systemVersion;
 
-    public final Integer getFileRetention()
+    public final int getFileRetention()
     {
         return fileRetention;
     }
 
-    public final void setFileRetention(Integer fileRetention)
+    public final void setFileRetention(int fileRetention)
     {
         this.fileRetention = fileRetention;
     }
 
-    public final Integer getUserRetention()
+    public int getMaxFileRetention()
+    {
+        return maxFileRetention;
+    }
+
+    public void setMaxFileRetention(int maxFileRetention)
+    {
+        this.maxFileRetention = maxFileRetention;
+    }
+
+    public final int getUserRetention()
     {
         return userRetention;
     }
 
-    public final void setUserRetention(Integer userRetention)
+    public final void setUserRetention(int userRetention)
     {
         this.userRetention = userRetention;
+    }
+
+    public int getMaxUserRetention()
+    {
+        return maxUserRetention;
+    }
+
+    public void setMaxUserRetention(int maxUserRetention)
+    {
+        this.maxUserRetention = maxUserRetention;
     }
 
     public final Long getMaxFileSizePerQuotaGroupInMB()

@@ -74,6 +74,11 @@ public interface IFileDAO
     public FileDTO tryGetFile(final long fileId) throws DataAccessException;
 
     /**
+     * Returns the registration date of the file with given <var>fileId</var>.
+     */
+    public Date getFileRegistrationDate(final long fileId) throws DataAccessException;
+    
+    /**
      * Adds a link between the specified file and user.
      */
     public void createSharingLink(long fileID, long userID) throws DataAccessException;

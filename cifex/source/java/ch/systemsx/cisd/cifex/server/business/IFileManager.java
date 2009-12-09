@@ -122,9 +122,11 @@ public interface IFileManager
     /**
      * Updates the file in the database specified by <var>fileDTO.getID()</var> regarding size
      * (<var>fileDTO.getSize()</var>) and CRC32 checksum (<var>fileDTO.getCrc32Value()</var>).
+     * 
+     * @param requestUser The user requesting the upload of the upload progress.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void updateUploadProgress(FileDTO fileDTO);
+    public void updateUploadProgress(FileDTO fileDTO, UserDTO requestUser);
 
     /**
      * Returns the candidate for upload resuming for user <var>userId</var> of given
@@ -186,17 +188,19 @@ public interface IFileManager
 
     /**
      * Update the Expiration Date of the file with the given ID.
+     * @param requestUser TODO
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void updateFileExpiration(final long fileId);
+    public void updateFileExpiration(final long fileId, UserDTO requestUser);
 
     /**
      * Update the file DTO.
      * 
      * @param file The file DTO to update.
+     * @param requestUser The user requesting the update of the file
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void updateFile(final FileDTO file);
+    public void updateFile(final FileDTO file, final UserDTO requestUser);
 
     /**
      * Removes sharing link between file with given fileId and user with given userCode

@@ -381,7 +381,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         {
             throw new FileSizeExceededException(session.getFileDTO().getCompleteSize());
         }
-        fileManager.updateUploadProgress(session.getFileDTO());
+        fileManager.updateUploadProgress(session.getFileDTO(), session.getUser());
         try
         {
             randomAccessFileOrNull.seek(filePointer);

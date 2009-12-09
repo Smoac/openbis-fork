@@ -20,12 +20,16 @@ import java.util.Date;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -37,6 +41,7 @@ import com.extjs.gxt.ui.client.widget.layout.ColumnData;
 import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
@@ -54,6 +59,9 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public abstract class UserWidget extends LayoutContainer
 {
+
+    private static final String EXPIRATION_DATE_TOOLTIP_CHOOSE_MSG =
+            "For temporary accounts, choose a date in the allowed range.";
 
     private static final int FIELD_WIDTH = 175;
 
@@ -95,6 +103,8 @@ public abstract class UserWidget extends LayoutContainer
     protected TextField<String> fileRetentionField;
 
     protected TextField<String> userRetentionField;
+
+    protected DateField expirationDateField;
 
     /**
      * Status of the user.
@@ -149,16 +159,17 @@ public abstract class UserWidget extends LayoutContainer
             user.setAdmin(editUser.isAdmin());
             user.setExpirationDate(editUser.getExpirationDate());
             user.setExternallyAuthenticated(editUser.isExternallyAuthenticated());
-            user.setFileRetention(editUser.getFileRetention());
-            user.setCustomFileRetention(editUser.isCustomFileRetention());
-            user.setUserRetention(editUser.getUserRetention());
-            user.setCustomUserRetention(editUser.isCustomUserRetention());
+            user.setMaxFileRetention(editUser.getMaxFileRetention());
+            user.setCustomMaxFileRetention(editUser.isCustomMaxFileRetention());
+            user.setMaxUserRetention(editUser.getMaxUserRetention());
+            user.setCustomMaxUserRetention(editUser.isCustomMaxUserRetention());
             user.setMaxFileSizePerQuotaGroupInMB(editUser.getMaxFileSizePerQuotaGroupInMB());
             user.setCustomMaxFileSizePerQuotaGroup(editUser.isCustomMaxFileSizePerQuotaGroup());
             user.setMaxFileCountPerQuotaGroup(editUser.getMaxFileCountPerQuotaGroup());
             user.setCustomMaxFileCountPerQuotaGroup(editUser.isCustomMaxFileCountPerQuotaGroup());
             user.setActive(editUser.isActive());
             user.setRegistrator(editUser.getRegistrator());
+            user.setExpirationDate(editUser.getExpirationDate());
         }
         user.setEmail(emailField.getValue());
         user.setUserFullName(usernameField.getValue());
@@ -167,11 +178,16 @@ public abstract class UserWidget extends LayoutContainer
         {
             user.setAdmin(isAdminStatus());
         }
-        if (statusField == null || isTemporaryStatus())
+        if (statusField == null || isTemporaryStatus()
+                || (editUser != null && editUser.isPermanent() == false))
         {
-            final Date expirationDate = new Date();
-            CalendarUtil.addDaysToDate(expirationDate, config.getFileRetention());
-            user.setExpirationDate(expirationDate);
+            if (expirationDateField != null)
+            {
+                user.setExpirationDate(expirationDateField.getValue());
+            } else
+            {
+                user.setExpirationDate(getInitialExpirationDate());
+            }
         } else
         {
             user.setExpirationDate(null);
@@ -213,28 +229,27 @@ public abstract class UserWidget extends LayoutContainer
             String text = fileRetentionField.getValue();
             if (StringUtils.isBlank(text))
             {
-                user.setFileRetention(config.getFileRetention());
-                user.setCustomFileRetention(false);
+                user.setMaxFileRetention(config.getFileRetention());
+                user.setCustomMaxFileRetention(false);
             } else
             {
-                user.setFileRetention(new Integer(text));
-                user.setCustomFileRetention(true);
+                user.setMaxFileRetention(new Integer(text));
+                user.setCustomMaxFileRetention(true);
             }
-            user.setFileRetention(StringUtils.isBlank(text) ? null : new Integer(text));
+            user.setMaxFileRetention(StringUtils.isBlank(text) ? null : new Integer(text));
         }
         if (userRetentionField != null)
         {
             String text = userRetentionField.getValue();
             if (StringUtils.isBlank(text))
             {
-                user.setUserRetention(config.getUserRetention());
-                user.setCustomUserRetention(false);
+                user.setMaxUserRetention(config.getMaxUserRetention());
+                user.setCustomMaxUserRetention(false);
             } else
             {
-                user.setUserRetention(new Integer(text));
-                user.setCustomUserRetention(true);
+                user.setMaxUserRetention(new Integer(text));
+                user.setCustomMaxUserRetention(true);
             }
-            user.setUserRetention(StringUtils.isBlank(text) ? null : new Integer(text));
         }
         return user;
     }
@@ -254,6 +269,10 @@ public abstract class UserWidget extends LayoutContainer
         if (addStatusField)
         {
             right.addField(statusField = createStatusComboBox());
+        }
+        if (addStatusField || context.getModel().getUser().isAdmin() == false)
+        {
+            right.addField(expirationDateField = createExpirationDateField());
         }
         // For creation we have more space on the right side.
         if (editUser == null && context.getModel().getUser().isAdmin())
@@ -596,10 +615,10 @@ public abstract class UserWidget extends LayoutContainer
                     }
                 }
             });
-        if (editUser != null && editUser.isCustomFileRetention())
+        if (editUser != null && editUser.isCustomMaxFileRetention())
         {
-            int fileRetentionDuration = editUser.getFileRetention().intValue();
-            textField.setValue(Integer.toString(fileRetentionDuration));
+            int maxFileRetentionDuration = editUser.getMaxFileRetention().intValue();
+            textField.setValue(Integer.toString(maxFileRetentionDuration));
         }
         return textField;
     }
@@ -630,9 +649,9 @@ public abstract class UserWidget extends LayoutContainer
                     }
                 }
             });
-        if (editUser != null && editUser.isCustomUserRetention())
+        if (editUser != null && editUser.isCustomMaxUserRetention())
         {
-            int userRetentionDuration = editUser.getUserRetention().intValue();
+            int userRetentionDuration = editUser.getMaxUserRetention().intValue();
             textField.setValue(Integer.toString(userRetentionDuration));
         }
         return textField;
@@ -670,7 +689,7 @@ public abstract class UserWidget extends LayoutContainer
     private final SimpleComboBox<String> createStatusComboBox()
     {
 
-        SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
+        final SimpleComboBox<String> comboBox = new SimpleComboBox<String>();
         final String adminRoleName = getMessageResources().getAdminRoleName();
         final String permanentRoleName = getMessageResources().getPermanentRoleName();
         final String temporaryRoleName = getMessageResources().getTemporaryRoleName();
@@ -696,6 +715,70 @@ public abstract class UserWidget extends LayoutContainer
         }
         comboBox.setSimpleValue(value);
         return comboBox;
+    }
+
+    private final DateField createExpirationDateField()
+    {
+        final DateField dateField = new DateField();
+        dateField.setFieldLabel(getMessageResources().getExpirationDateLabel());
+        final long registrationTimeOrNow =
+                (editUser != null) ? editUser.getRegistrationDate().getTime() : System
+                        .currentTimeMillis();
+        final Date minExpirationDate = new Date(registrationTimeOrNow);
+        CalendarUtil.addDaysToDate(minExpirationDate, 1);
+        dateField.setMinValue(minExpirationDate);
+        if (context.getModel().getUser().isAdmin() == false)
+        {
+            final Date maxExpirationDate = new Date(registrationTimeOrNow);
+            CalendarUtil.addDaysToDate(maxExpirationDate, context.getModel().getUser()
+                    .getMaxUserRetention());
+            dateField.setMaxValue(maxExpirationDate);
+        }
+        dateField.getPropertyEditor().setFormat(DateTimeFormat.getFormat("yyyy-MM-dd"));
+        dateField.setToolTip(EXPIRATION_DATE_TOOLTIP_CHOOSE_MSG);
+        dateField.setAllowBlank(false);
+        if (statusField == null || isTemporaryStatus())
+        {
+            if (editUser != null)
+            {
+                dateField.setValue(editUser.getExpirationDate());
+            } else
+            {
+                dateField.setValue(getInitialExpirationDate());
+            }
+        } else
+        {
+            dateField.disable();
+        }
+        if (dateField.getValue() == null)
+        {
+            dateField.setValue(getInitialExpirationDate());
+        }
+        if (statusField != null)
+        {
+            statusField.addListener(Events.Select, new Listener<BaseEvent>()
+                {
+                    public void handleEvent(BaseEvent be)
+                    {
+                        if (isTemporaryStatus())
+                        {
+                            dateField.enable();
+                        } else
+                        {
+                            dateField.disable();
+                        }
+                    }
+                });
+        }
+        return dateField;
+    }
+
+    private Date getInitialExpirationDate()
+    {
+        final Date initialExpirationDate = new Date();
+        CalendarUtil.addDaysToDate(initialExpirationDate, context.getModel().getConfiguration()
+                .getUserRetention());
+        return initialExpirationDate;
     }
 
     //

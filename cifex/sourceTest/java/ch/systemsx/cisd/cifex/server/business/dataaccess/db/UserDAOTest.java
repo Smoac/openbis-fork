@@ -82,7 +82,7 @@ public final class UserDAOTest extends AbstractDAOTest
         assertEquals(expectedUser.isExternallyAuthenticated(), actualUserFromDB
                 .isExternallyAuthenticated());
         assertEquals(expectedUser.isPermanent(), actualUserFromDB.isPermanent());
-        assertEquals(expectedUser.getFileRetention(), actualUserFromDB.getFileRetention());
+        assertEquals(expectedUser.getMaxFileRetention(), actualUserFromDB.getMaxFileRetention());
         assertTrue(expectedUser.getPassword().matches(actualUserFromDB.getPasswordHash()));
         assertEquals(expectedUser.getExpirationDate(), actualUserFromDB.getExpirationDate());
         assertEquals(expectedUser.getUserFullName(), actualUserFromDB.getUserFullName());
@@ -100,8 +100,8 @@ public final class UserDAOTest extends AbstractDAOTest
         user.setPassword(new Password("the admin passw0rd"));
         user.setExternallyAuthenticated(false);
         user.setAdmin(admin);
-        user.setFileRetention(fileRetention);
-        user.setCustomFileRetention(true);
+        user.setMaxFileRetention(fileRetention);
+        user.setCustomMaxFileRetention(true);
         if (registrator != null)
         {
             user.setRegistrator(registrator);
@@ -164,10 +164,10 @@ public final class UserDAOTest extends AbstractDAOTest
             {
                 if (user.isAdmin())
                 {
-                    assertEquals(EXAMPLE_FILE_RETENTION_ADMIN, user.getFileRetention());
+                    assertEquals(EXAMPLE_FILE_RETENTION_ADMIN, user.getMaxFileRetention());
                 } else
                 {
-                    assertEquals(EXAMPLE_FILE_RETENTION, user.getFileRetention());
+                    assertEquals(EXAMPLE_FILE_RETENTION, user.getMaxFileRetention());
                 }
                 return;
             }
@@ -247,7 +247,7 @@ public final class UserDAOTest extends AbstractDAOTest
         final UserDTO user = userDAO.getUserById(testTemporaryUser.getID());
         checkUser(testTemporaryUser, user);
         // Fake some changed quota values
-        user.setFileRetention(17);
+        user.setMaxFileRetention(17);
         user.setCurrentFileCount(21);
         user.setCurrentFileSize(103);
         user.setMaxFileCountPerQuotaGroup(22);
@@ -335,7 +335,7 @@ public final class UserDAOTest extends AbstractDAOTest
         testPermanentUser.setAdmin(true);
         testPermanentUser.setExternallyAuthenticated(false);
         testPermanentUser.setUserFullName("User Full Name");
-        testPermanentUser.setFileRetention(new Integer(999));
+        testPermanentUser.setMaxFileRetention(new Integer(999));
         userDAO.updateUser(testPermanentUser);
         UserDTO testPermanentUserFromDB =
                 userDAO.tryFindUserByCode(testPermanentUser.getUserCode());

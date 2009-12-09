@@ -24,7 +24,7 @@ import com.google.gwt.i18n.client.Messages;
  * @author Christian Ribeaud
  */
 public interface IMessageResources extends Messages {
-	/** Returns the label for cancelling action. */
+	/** Returns the label for canceling action. */
 	@Key(value = "action.cancel.label")
 	public String getActionCancelLabel();
 
@@ -644,4 +644,8 @@ public interface IMessageResources extends Messages {
 	/** Returns the grid filters label */
 	@Key(value = "grid.filters")
 	public String getGridFiltersLabel();
+	
+	/** Returns the expiration date for user / file creation editing */
+	@Key(value = "userfile.expiration.date")
+	public String getExpirationDateLabel();
 }

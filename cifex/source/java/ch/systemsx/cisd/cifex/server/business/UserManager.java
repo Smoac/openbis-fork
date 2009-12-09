@@ -115,11 +115,14 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final void createUser(final UserDTO user) throws UserFailureException
+    public final void createUser(final UserDTO user, UserDTO registratorOrNull)
+            throws UserFailureException
     {
         boolean success = false;
         try
         {
+            // Check that the new expiration date is in the valid range.
+            checkUserExpiration(null, user, registratorOrNull);
             final IUserBO userBO = boFactory.createUserBO();
             userBO.define(user);
             userBO.save();
@@ -145,7 +148,7 @@ class UserManager extends AbstractManager implements IUserManager
         final String finalPassword = getFinalPassword(password);
         user.setPassword(new Password(finalPassword));
         user.setRegistrator(registrator);
-        createUser(user);
+        createUser(user, registrator);
         sendEmailToNewUser(user, registrator, comment, basicURL, finalPassword);
     }
 
@@ -327,17 +330,8 @@ class UserManager extends AbstractManager implements IUserManager
             userToUpdate.setID(existingUser.getID());
             userToUpdate.setQuotaGroupId(existingUser.getQuotaGroupId());
 
-            // Renew the expiration Date
-            if (userToUpdate.isPermanent() == false)
-            {
-                final int userRetentionDays =
-                        (requestUserOrNull == null) ? businessContext.getUserRetention()
-                                : requestUserOrNull.getUserRetention();
-                userToUpdate.setExpirationDate(DateUtils.addDays(new Date(), userRetentionDays));
-            } else
-            {
-                userToUpdate.setExpirationDate(null);
-            }
+            // Check that the new expiration date is in the valid range.
+            checkUserExpiration(existingUser, userToUpdate, requestUserOrNull);
 
             // Password, update it if it has been provided.
             if (Password.isEmpty(passwordOrNull) == false)
@@ -374,6 +368,43 @@ class UserManager extends AbstractManager implements IUserManager
             businessContext.getUserActionLog().logUpdateUser(existingUser, userToUpdate, success);
         }
 
+    }
+
+    private void checkUserExpiration(UserDTO oldUserOrNull, final UserDTO userToUpdate,
+            final UserDTO requestUserOrNull)
+    {
+        if (userToUpdate.isPermanent() == false)
+        {
+            final Integer maxUserRetentionDaysOrNull =
+                    tryGetMaxUserRetentionDays(requestUserOrNull);
+            if (maxUserRetentionDaysOrNull != null)
+            {
+                final Date registrationDate =
+                        (oldUserOrNull == null) ? new Date() : oldUserOrNull.getRegistrationDate();
+                final Date maxExpirationDate =
+                        DateUtils.addDays(registrationDate, maxUserRetentionDaysOrNull);
+                if (userToUpdate.getExpirationDate().getTime() > maxExpirationDate.getTime())
+                {
+                    userToUpdate.setExpirationDate(maxExpirationDate);
+                }
+            }
+        }
+    }
+
+    private Integer tryGetMaxUserRetentionDays(final UserDTO requestUserOrNull)
+    {
+        if (requestUserOrNull == null)
+        {
+            return businessContext.getMaxUserRetention();
+        } else
+        {
+            if (requestUserOrNull.isAdmin())
+            {
+                return null;
+            }
+            return (requestUserOrNull.getMaxUserRetention() == null) ? businessContext
+                    .getMaxUserRetention() : requestUserOrNull.getMaxUserRetention();
+        }
     }
 
     private static UserDTO getUserByCode(final IUserDAO userDAO, final String userCode)
@@ -427,15 +458,15 @@ class UserManager extends AbstractManager implements IUserManager
         {
             return;
         }
-        userOrNull.setCustomFileRetention(userOrNull.getFileRetention() != null);
-        if (userOrNull.getFileRetention() == null)
+        userOrNull.setCustomMaxFileRetention(userOrNull.getMaxFileRetention() != null);
+        if (userOrNull.getMaxFileRetention() == null)
         {
-            userOrNull.setFileRetention(businessContext.getFileRetention());
+            userOrNull.setMaxFileRetention(businessContext.getMaxFileRetention());
         }
-        userOrNull.setCustomUserRetention(userOrNull.getUserRetention() != null);
-        if (userOrNull.getUserRetention() == null)
+        userOrNull.setCustomMaxUserRetention(userOrNull.getMaxUserRetention() != null);
+        if (userOrNull.getMaxUserRetention() == null)
         {
-            userOrNull.setUserRetention(businessContext.getUserRetention());
+            userOrNull.setMaxUserRetention(businessContext.getMaxUserRetention());
         }
         userOrNull
                 .setCustomMaxFileCountPerQuotaGroup(userOrNull.getMaxFileCountPerQuotaGroup() != null);

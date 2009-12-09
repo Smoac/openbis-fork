@@ -77,7 +77,7 @@ public class CIFEXServiceImplTest
 
     private static final String SESSION_TOKEN_EXAMPLE = "session-token42";
 
-    private static final String DEFAULT_FILE_ID = "1";
+    private static final long DEFAULT_FILE_ID = 1;
 
     private static final String DEFAULT_USER_CODE = "alice";
 
@@ -213,7 +213,7 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
-                    one(userManager).createUser(userDTO);
+                    one(userManager).createUser(userDTO, null);
                 }
             });
         prepareForGettingUserFromHTTPSession(userDTO, true);
@@ -328,20 +328,20 @@ public class CIFEXServiceImplTest
                             new Principal(userToCreate.getUserCode(), "First", "Last",
                                     "email@dot.com");
                     will(returnValue(principal));
-                    
+
                     one(domainModel).getUserManager();
                     will(returnValue(userManager));
 
                     one(userManager).tryFindUserByCode(userToCreate.getUserCode());
                     will(returnValue(null));
-                    
+
                     final UserDTO userDTO = new UserDTO();
                     userDTO.setUserCode(userToCreate.getUserCode());
                     userDTO.setUserFullName("First Last");
                     userDTO.setEmail("email@dot.com");
                     userDTO.setExternallyAuthenticated(true);
                     userDTO.setActive(true);
-                    one(userManager).createUser(userDTO);
+                    one(userManager).createUser(userDTO, null);
                 }
             });
         final CIFEXServiceImpl service = createService(authenticationService);
@@ -546,9 +546,8 @@ public class CIFEXServiceImplTest
         userDTO.setEmail(email);
         prepareForGettingUserFromHTTPSession(userDTO, false);
 
-        final long fileID = Long.parseLong(DEFAULT_FILE_ID);
-        final FileDTO fileDTO = new FileDTO(fileID);
-        final FileInformation fileInformation = new FileInformation(fileID, fileDTO, null);
+        final FileDTO fileDTO = new FileDTO(DEFAULT_FILE_ID);
+        final FileInformation fileInformation = new FileInformation(DEFAULT_FILE_ID, fileDTO, null);
 
         context.checking(new Expectations()
             {
@@ -556,7 +555,7 @@ public class CIFEXServiceImplTest
                     allowing(domainModel).getFileManager();
                     will(returnValue(fileManager));
 
-                    one(fileManager).getFileInformationFilestoreUnimportant(fileID);
+                    one(fileManager).getFileInformationFilestoreUnimportant(DEFAULT_FILE_ID);
                     will(returnValue(fileInformation));
 
                     one(fileManager).isControlling(userDTO, fileDTO);
@@ -582,9 +581,9 @@ public class CIFEXServiceImplTest
         userDTO.setEmail(email);
         prepareForGettingUserFromHTTPSession(userDTO, false);
 
-        final long fileID = Long.parseLong(DEFAULT_FILE_ID);
-        final String errorMessage = String.format(ERROR_MSG_FILE_FOUND_IN_THE_DATABASE, fileID);
-        final FileInformation fileInformation = new FileInformation(fileID, errorMessage);
+        final String errorMessage =
+                String.format(ERROR_MSG_FILE_FOUND_IN_THE_DATABASE, DEFAULT_FILE_ID);
+        final FileInformation fileInformation = new FileInformation(DEFAULT_FILE_ID, errorMessage);
 
         context.checking(new Expectations()
             {
@@ -592,7 +591,7 @@ public class CIFEXServiceImplTest
                     allowing(domainModel).getFileManager();
                     will(returnValue(fileManager));
 
-                    one(fileManager).getFileInformationFilestoreUnimportant(fileID);
+                    one(fileManager).getFileInformationFilestoreUnimportant(DEFAULT_FILE_ID);
                     will(returnValue(fileInformation));
                 }
             });
@@ -1059,7 +1058,7 @@ public class CIFEXServiceImplTest
                     // We do not store the password of externally authenticated users.
                     final UserDTO createdUserDTO = BeanUtils.createBean(UserDTO.class, userDTO);
                     createdUserDTO.setPasswordHash(null);
-                    one(userManager).createUser(createdUserDTO);
+                    one(userManager).createUser(createdUserDTO, null);
                 }
             });
         prepareForGettingUserFromHTTPSession(userDTO, true);
@@ -1166,7 +1165,8 @@ public class CIFEXServiceImplTest
                 {
                     allowing(requestContextProvider).getHttpServletRequest();
                     will(returnValue(httpServletRequest));
-                    allowing(httpSession).getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
+                    allowing(httpSession)
+                            .getAttribute(CIFEXServiceImpl.SESSION_ATTRIBUTE_USER_NAME);
                     will(returnValue(userDTO));
 
                     if (createFlag)
@@ -1278,31 +1278,40 @@ public class CIFEXServiceImplTest
 
         return new Object[][]
             {
-                // admin can change everything
-                    { adminChanger, adminChanger, adminChanger, true },
-                    { adminChanger, adminRegistrant, adminRegistrant, true },
-                    { adminChanger, alice, alice, true },
-                    { adminChanger, tempRegisteredByAlice, tempRegisteredByAlice, true },
+                        // admin can change everything
+                        { adminChanger, adminChanger, adminChanger, true },
+                        { adminChanger, adminRegistrant, adminRegistrant, true },
+                        { adminChanger, alice, alice, true },
+                        { adminChanger, tempRegisteredByAlice, tempRegisteredByAlice, true },
 
-                    // permanent user can change
-                    { alice, alice, alice, true }, // herself
-                        { alice, tempRegisteredByAlice, tempRegisteredByAlice, true }, // temp registered by her
-                        
-                    // permanent user cannot change
-                    { alice, adminRegistrant, adminRegistrant, false }, // admin
+                        // permanent user can change
+                        { alice, alice, alice, true }, // herself
+                        { alice, tempRegisteredByAlice, tempRegisteredByAlice, true }, // temp
+                                                                                       // registered
+                                                                                       // by her
+
+                        // permanent user cannot change
+                        { alice, adminRegistrant, adminRegistrant, false }, // admin
                         { alice, adminChanger, adminChanger, false },
-                        { alice, permNotRegisteredByAlice, permNotRegisteredByAlice, false }, // other perm
+                        { alice, permNotRegisteredByAlice, permNotRegisteredByAlice, false }, // other
+                                                                                              // perm
                         { alice, permRegisteredByAlice, permRegisteredByAlice, false },
-                        { alice, tempNotRegisteredByAlice, tempNotRegisteredByAlice, false }, // temp not registered by him
+                        { alice, tempNotRegisteredByAlice, tempNotRegisteredByAlice, false }, // temp
+                                                                                              // not
+                                                                                              // registered
+                                                                                              // by
+                                                                                              // him
                         { alice, alice, aliceWannabeAdmin, false }, // herself to admin
                         { alice, alice, aliceTemp, false }, // herself to temp
 
                         // temporary user cannot change anything
-                    { tempRegisteredByAlice, adminChanger, adminChanger, false },
-                    { tempRegisteredByAlice, adminRegistrant, adminRegistrant, false },
-                    { tempRegisteredByAlice, alice, alice, false },
-                    { tempRegisteredByAlice, tempRegisteredByAlice, tempRegisteredByAlice, false },
-                    { tempRegisteredByAlice, tempNotRegisteredByAlice, tempNotRegisteredByAlice, false } };
+                        { tempRegisteredByAlice, adminChanger, adminChanger, false },
+                        { tempRegisteredByAlice, adminRegistrant, adminRegistrant, false },
+                        { tempRegisteredByAlice, alice, alice, false },
+                        { tempRegisteredByAlice, tempRegisteredByAlice, tempRegisteredByAlice,
+                                false },
+                        { tempRegisteredByAlice, tempNotRegisteredByAlice,
+                                tempNotRegisteredByAlice, false } };
     }
 
     final static UserDTO createUser(final boolean permanent, final boolean admin,

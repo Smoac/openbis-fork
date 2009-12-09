@@ -135,13 +135,13 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
 
         final String fileName;
 
-        final String fileId;
+        final long fileId;
 
-        ShowUsersFileSharedWithAsyncCallback(final String name, final String idStr)
+        ShowUsersFileSharedWithAsyncCallback(final String name, final long id)
         {
             super(viewContext);
             this.fileName = name;
-            this.fileId = idStr;
+            this.fileId = id;
         }
 
         public final void onSuccess(final List<UserInfoDTO> result)
@@ -160,7 +160,7 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         int rowIndex = be.getRowIndex();
         int colindex = be.getColIndex();
         final ModelData record = grid.getStore().getAt(rowIndex);
-        final String idStr = "" + record.get(AbstractFileGridModel.ID);
+        final long id = record.get(AbstractFileGridModel.ID);
         final String name = record.get(AbstractFileGridModel.NAME);
         final String dataIndex = grid.getColumnModel().getDataIndex(colindex);
         if (dataIndex.equals(AbstractFileGridModel.ACTION))
@@ -185,11 +185,11 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
                             {
                                 if (adminView)
                                 {
-                                    viewContext.getCifexService().deleteFile(idStr,
+                                    viewContext.getCifexService().deleteFile(id,
                                             new AdminDeleteFileAsyncCallback(gridWidget));
                                 } else
                                 {
-                                    viewContext.getCifexService().deleteFile(idStr,
+                                    viewContext.getCifexService().deleteFile(id,
                                             new DeleteUploadedFileAsyncCallback(gridWidget));
                                 }
 
@@ -201,14 +201,14 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
             // Renew
             if (Constants.RENEW_ID.equals(targetId))
             {
-                viewContext.getCifexService().updateFileExpiration(idStr,
+                viewContext.getCifexService().updateFileExpiration(id,
                         createUpdateFilesCallback(gridWidget, viewContext));
             }
             // Shared
             if (Constants.SHARED_ID.equals(targetId))
             {
-                viewContext.getCifexService().listUsersFileSharedWith(idStr,
-                        new ShowUsersFileSharedWithAsyncCallback(name, idStr));
+                viewContext.getCifexService().listUsersFileSharedWith(id,
+                        new ShowUsersFileSharedWithAsyncCallback(name, id));
             }
         }
     }

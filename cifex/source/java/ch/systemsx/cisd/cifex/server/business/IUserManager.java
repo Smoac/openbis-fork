@@ -82,12 +82,14 @@ public interface IUserManager
      * Creates the specified <var>user</var> in the database. The password and the registrator need
      * already be set if this is desired.
      * <p>
-     * As a side effect the unqiue ID of <code>user</code> will be set.
+     * As a side effect the unique ID of <code>user</code> will be set.
      * 
+     * @param registratorOrNull The user who registers this user or <code>null</code> if this user
+     *            gets created by an automatic process.
      * @throws UserFailureException If a user with that id already exists in the database
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void createUser(UserDTO user) throws UserFailureException;
+    public void createUser(UserDTO user, UserDTO registratorOrNull) throws UserFailureException;
 
     /**
      * Creates the specified user in the database and sends an email to the new user with the
@@ -123,7 +125,8 @@ public interface IUserManager
 
     /**
      * Updates the fields of the specified user, providing the old user for comparison. Compared to
-     * {@link #updateUser(UserDTO, Password, UserDTO)}, this avoids getting the old user from the database.
+     * {@link #updateUser(UserDTO, Password, UserDTO)}, this avoids getting the old user from the
+     * database.
      * 
      * @throws UserFailureException If the <var>user</var> was not found in the database.
      * @throws IllegalArgumentException If the <var>user</var> is regular in the database and now

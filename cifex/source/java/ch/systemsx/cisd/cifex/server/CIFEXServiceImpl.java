@@ -97,7 +97,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         return hasExternalAuthenticationService() && user.isExternallyAuthenticated() == false;
     }
-    
+
     private final UserDTO privGetCurrentUser() throws InvalidSessionException
     {
         final HttpSession session = getSession(false);
@@ -282,8 +282,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(UserInfoDTO.class, users, null);
     }
 
-    public void createUser(final UserInfoDTO user, final String password,
-            final String comment)
+    public void createUser(final UserInfoDTO user, final String password, final String comment)
             throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException, UserFailureException
     {
@@ -371,14 +370,21 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         final UserDTO currentUser = privGetCurrentUser();
         if (currentUser.isPermanent() == false)
         {
+            operationLog.warn(String.format(
+                    "Insufficient privileges: temporary user %s tried to create a user (%s).",
+                    currentUser.getUserCode(), user.getUserCode()));
             throw new InsufficientPrivilegesException(
-                    "Method 'tryToCreateUser': insufficient privileges for "
-                            + describeUser(currentUser) + ".");
+                    "Method 'createUser': insufficient privileges for " + describeUser(currentUser)
+                            + ".");
         } else if (currentUser.isAdmin() == false && (user.isPermanent() || user.isAdmin()))
         {
+            operationLog.warn(String.format(
+                    "Insufficient privileges: non-admin user %s tried to create a%s user (%s).",
+                    currentUser.getUserCode(), user.isAdmin() ? "n admin" : " permanent", user
+                            .getUserCode()));
             throw new InsufficientPrivilegesException(
-                    "Method 'tryToCreateUser': insufficient privileges for "
-                            + describeUser(currentUser) + ".");
+                    "Method 'createUser': insufficient privileges for " + describeUser(currentUser)
+                            + ".");
         }
     }
 
@@ -429,13 +435,12 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
-    public void deleteFile(final String idStr) throws InvalidSessionException,
+    public void deleteFile(final long id) throws InvalidSessionException,
             InsufficientPrivilegesException, FileNotFoundException
     {
         final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
-        final FileInformation fileInfo =
-                fileManager.getFileInformationFilestoreUnimportant(Long.parseLong(idStr));
+        final FileInformation fileInfo = fileManager.getFileInformationFilestoreUnimportant(id);
         if (fileInfo.isFileAvailable() == false)
         {
             throw new FileNotFoundException(fileInfo.getErrorMessage());
@@ -664,34 +669,32 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(UserInfoDTO.class, users, null);
     }
 
-    public void updateFileExpiration(final String idStr) throws InvalidSessionException,
+    public void updateFileExpiration(final long fileId) throws InvalidSessionException,
             FileNotFoundException
     {
         final IFileManager fileManager = domainModel.getFileManager();
-        final long fileId = Long.parseLong(idStr);
         final FileInformation fileInformation = fileManager.getFileInformation(fileId);
         if (fileInformation.isFileAvailable() == false)
         {
             throw new FileNotFoundException(fileInformation.getErrorMessage());
         }
-        fileManager.updateFileExpiration(fileId);
+        fileManager.updateFileExpiration(fileId, privGetCurrentUser());
     }
 
-    public List<UserInfoDTO> listUsersFileSharedWith(final String idStr)
+    public List<UserInfoDTO> listUsersFileSharedWith(final long fileId)
             throws InvalidSessionException
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
 
-        final List<UserDTO> users = userManager.listUsersFileSharedWith(Long.parseLong(idStr));
+        final List<UserDTO> users = userManager.listUsersFileSharedWith(fileId);
 
         return BeanUtils.createBeanList(UserInfoDTO.class, users, null);
     }
 
-    public void deleteSharingLink(final String idStr, final String userCode)
+    public void deleteSharingLink(final long fileId, final String userCode)
             throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
     {
-        final long fileId = Long.parseLong(idStr);
         final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
         final FileInformation fileInfo = fileManager.getFileInformationFilestoreUnimportant(fileId);
@@ -708,13 +711,13 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
     }
 
-    public void createSharingLink(final String idStr, final String userIdentifiers)
+    public void createSharingLink(final long fileId, final String userIdentifiers)
             throws UserFailureException, InvalidSessionException, InsufficientPrivilegesException,
             FileNotFoundException
     {
         final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
-        final FileInformation fileInfo = fileManager.getFileInformation(Long.parseLong(idStr));
+        final FileInformation fileInfo = fileManager.getFileInformation(fileId);
         if (fileInfo.isFileAvailable() == false)
         {
             throw new FileNotFoundException(fileInfo.getErrorMessage());

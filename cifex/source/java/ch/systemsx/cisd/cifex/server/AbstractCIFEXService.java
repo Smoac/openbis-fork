@@ -220,7 +220,7 @@ abstract public class AbstractCIFEXService
         if (userManager.isDatabaseEmpty())
         {
             final UserDTO userDTO = createAdminUserDTO(userCode, plainPassword);
-            userManager.createUser(userDTO);
+            userManager.createUser(userDTO, null);
             return finishLogin(userDTO, doUserActionLog);
         }
         UserDTO userDTOOrNull = userManager.tryFindUserByCodeFillRegistrator(userCode);
@@ -343,7 +343,7 @@ abstract public class AbstractCIFEXService
             }
             try
             {
-                userManager.createUser(userDTO);
+                userManager.createUser(userDTO, null);
             } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
             {
                 operationLog.error(ex.getMessage(), ex);

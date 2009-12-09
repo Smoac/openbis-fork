@@ -112,6 +112,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         fileStore = workingDirectory;
         businessContext = new BusinessContext();
         businessContext.setFileRetention(DEFAULT_FILE_RETENTION);
+        businessContext.setMaxFileRetention(DEFAULT_FILE_RETENTION);
         businessContext.setFileStore(fileStore);
         businessContext.setPasswordGenerator(new PasswordGenerator()
             {
@@ -722,52 +723,64 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             throws FileNotFoundException
     {
         final UserDTO user = userAlice;
-        user.setFileRetention(fileRetention);
-        final String filePath = imageFile.getPath();
-        final String comment = "This is a test comment for a test file";
-        final File inputFile = createRealFile(filePath + "_user");
-        final InputStream inputStream = new FileInputStream(inputFile);
-        File filePathIfFileNotExisted = new File(fileStore, filePath);
-        File expectedFilePath;
-        if (fileAlreadyExists == false)
+        user.setMaxFileRetention(fileRetention);
+        if (fileRetention != null)
         {
-            filePathIfFileNotExisted = createRealFile(filePath);
-            assertTrue(filePathIfFileNotExisted.exists());
-            expectedFilePath =
-                    FileUtilities.createNextNumberedFile(new File(fileStore, filePath), null);
-            assertFalse(expectedFilePath.compareTo(filePathIfFileNotExisted) == 0);
-
-        } else
-        {
-            filePathIfFileNotExisted.delete();
-            assertFalse(filePathIfFileNotExisted.exists());
-            expectedFilePath = filePathIfFileNotExisted;
+            businessContext.setFileRetention(fileRetention);
         }
-        assertFalse(expectedFilePath.exists());
-        context.checking(new Expectations()
+        try
+        {
+            final String filePath = imageFile.getPath();
+            final String comment = "This is a test comment for a test file";
+            final File inputFile = createRealFile(filePath + "_user");
+            final InputStream inputStream = new FileInputStream(inputFile);
+            File filePathIfFileNotExisted = new File(fileStore, filePath);
+            File expectedFilePath;
+            if (fileAlreadyExists == false)
             {
+                filePathIfFileNotExisted = createRealFile(filePath);
+                assertTrue(filePathIfFileNotExisted.exists());
+                expectedFilePath =
+                        FileUtilities.createNextNumberedFile(new File(fileStore, filePath), null);
+                assertFalse(expectedFilePath.compareTo(filePathIfFileNotExisted) == 0);
+    
+            } else
+            {
+                filePathIfFileNotExisted.delete();
+                assertFalse(filePathIfFileNotExisted.exists());
+                expectedFilePath = filePathIfFileNotExisted;
+            }
+            assertFalse(expectedFilePath.exists());
+            context.checking(new Expectations()
                 {
-                    one(fileDAO).createFile((FileDTO) this.with(new IsInstanceOf(FileDTO.class)));
-
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(4711L));
-                }
-            });
-        final FileDTO createdFileDTO =
-                fileManager.saveFile(user, imageFile.getName(), comment,
-                        imageFile.getContentType(), inputStream);
-        final File createdFile = new File(fileStore, createdFileDTO.getPath());
-        assertTrue(createdFile.exists());
-        assertEquals(expectedFilePath.getPath(), createdFile.getPath());
-        assertEquals(imageFile.getContentType(), createdFileDTO.getContentType());
-        assertEquals(imageFile.getOwnerId(), createdFileDTO.getOwnerId());
-        assertEquals(imageFile.getSharingUsers(), createdFileDTO.getSharingUsers());
-        assertEquals(imageFile.getName(), createdFileDTO.getName());
-        assertEquals(comment, createdFileDTO.getComment());
-        assertEquals(inputFile.length(), createdFileDTO.getSize().longValue());
-        final long expectedExpirationDate = calculateFileRetention(fileRetention) * 86400000L + 4711;
-        assertEquals(expectedExpirationDate, createdFileDTO.getExpirationDate().getTime());
-        context.assertIsSatisfied();
+                    {
+                        one(fileDAO).createFile((FileDTO) this.with(new IsInstanceOf(FileDTO.class)));
+    
+                        one(timeProvider).getTimeInMilliseconds();
+                        will(returnValue(4711L));
+                    }
+                });
+            final FileDTO createdFileDTO =
+                    fileManager.saveFile(user, imageFile.getName(), comment,
+                            imageFile.getContentType(), inputStream);
+            final File createdFile = new File(fileStore, createdFileDTO.getPath());
+            assertTrue(createdFile.exists());
+            assertEquals(expectedFilePath.getPath(), createdFile.getPath());
+            assertEquals(imageFile.getContentType(), createdFileDTO.getContentType());
+            assertEquals(imageFile.getOwnerId(), createdFileDTO.getOwnerId());
+            assertEquals(imageFile.getSharingUsers(), createdFileDTO.getSharingUsers());
+            assertEquals(imageFile.getName(), createdFileDTO.getName());
+            assertEquals(comment, createdFileDTO.getComment());
+            assertEquals(inputFile.length(), createdFileDTO.getSize().longValue());
+            final long expectedExpirationDate =
+                    calculateFileRetention(fileRetention) * 86400000L + 4711;
+            assertEquals(expectedExpirationDate, createdFileDTO.getExpirationDate().getTime());
+            
+            context.assertIsSatisfied();
+        } finally
+        {
+            user.setMaxFileRetention(null);
+        }
     }
 
     @SuppressWarnings("unused")
@@ -783,43 +796,62 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     @Test(dataProvider = "fileRetentions")
     public void testUpdateFileExpiration(final Integer fileRetention)
     {
-        context.checking(new Expectations()
-            {
+        if (fileRetention != null)
+        {
+            businessContext.setFileRetention(fileRetention);
+            userAlice.setMaxFileRetention(fileRetention);
+        }
+        try
+        {
+            context.checking(new Expectations()
                 {
-                    one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
-                    FileDTO file = new FileDTO(42L);
-                    UserDTO userDTO = new UserDTO();
-                    userDTO.setID(file.getOwnerId());
-                    userDTO.setFileRetention(fileRetention);
-                    file.setOwner(userDTO);
-                    will(returnValue(file));
-
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(4711L));
-
-                    one(fileDAO).updateFile(with(new BaseMatcher<FileDTO>()
-                        {
-                            public void describeTo(Description description)
+                    {
+                        one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
+                        FileDTO file = new FileDTO(42L);
+                        UserDTO userDTO = new UserDTO();
+                        userDTO.setID(file.getOwnerId());
+                        file.setOwner(userDTO);
+                        will(returnValue(file));
+    
+                        one(timeProvider).getTimeInMilliseconds();
+                        will(returnValue(4711L));
+    
+                        one(fileDAO).updateFile(with(new BaseMatcher<FileDTO>()
                             {
-                            }
-
-                            public boolean matches(Object item)
-                            {
-                                if (item instanceof FileDTO == false)
+                                public void describeTo(Description description)
                                 {
-                                    return false;
+                                    description.appendText("file with specific expiration date");
                                 }
-                                FileDTO fileDTO = (FileDTO) item;
-                                int r = calculateFileRetention(fileRetention);
-                                return fileDTO.getExpirationDate().getTime() == r * 86400000L + 4711;
-                            }
-                        }));
-                }
-            });
-
-        fileManager.updateFileExpiration(DEFAULT_FILE_ID);
-
-        context.assertIsSatisfied();
+    
+                                public boolean matches(Object item)
+                                {
+                                    if (item instanceof FileDTO == false)
+                                    {
+                                        return false;
+                                    }
+                                    FileDTO fileDTO = (FileDTO) item;
+                                    final int retentionDays = calculateFileRetention(fileRetention);
+                                    final long retentionMillis = retentionDays * 86400000L + 4711;
+                                    if (fileDTO.getExpirationDate().getTime() != retentionMillis)
+                                    {
+                                        System.err.printf("FileDTO has wrong expiration date, "
+                                                + "expected: %d, found: %d\n", retentionMillis, fileDTO
+                                                .getExpirationDate().getTime());
+                                    }
+                                    return fileDTO.getExpirationDate().getTime() == retentionMillis;
+                                }
+                            }));
+                    }
+                });
+    
+            fileManager.updateFileExpiration(DEFAULT_FILE_ID, userAlice);
+    
+            context.assertIsSatisfied();
+        } finally
+        {
+            businessContext.setFileRetention(DEFAULT_FILE_RETENTION);
+            userAlice.setMaxFileRetention(null);
+        }
     }
 
     @Test
