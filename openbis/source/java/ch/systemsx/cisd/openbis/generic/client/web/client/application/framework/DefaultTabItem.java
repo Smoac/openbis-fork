@@ -161,12 +161,6 @@ public class DefaultTabItem implements ITabItem
             action = HelpPageIdentifier.HelpPageAction.valueOf(actionString);
         }
 
-        // DEBUG
-        if (domain == null || action == null)
-        {
-            System.out.println("DEBUG " + title + "(" + titleCapitalized + ")");
-        }
-
         return new HelpPageIdentifier(domain, action);
     }
 
