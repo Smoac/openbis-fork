@@ -144,9 +144,9 @@ function assert_correct_content_of_plate_3VCP1_in_store {
     local standard_dir=$raw_data_set/data/standard
     assert_dir_exists $standard_dir
     assert_same_inode $original_data_set/TIFF/blabla_3VCP1_K13_8_w460.tif \
-                      $standard_dir/channel1/row11/column13/row3_column2.tiff
+                      $standard_dir/channel1/row11/column13/row1_column2.tiff
     assert_same_inode $original_data_set/TIFF/blabla_3VCP1_M03_2_w530.tif \
-                      $standard_dir/channel2/row13/column3/row1_column2.tiff
+                      $standard_dir/channel2/row13/column3/row3_column2.tiff
                         
     echo == check metadata
     local metadata_dir=$raw_data_set/metadata
