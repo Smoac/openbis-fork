@@ -268,7 +268,7 @@ var common = {
   SAMPLE_MENU_BROWSE: "Browse",
   SAMPLE_MENU_NEW: "New",
   SAMPLE_MENU_IMPORT: "Import",
-  SAMPLE_MENU_MASS_UPDATE: "Mass Update",
+  SAMPLE_MENU_MASS_UPDATE: "Batch Update",
   SAMPLE_MENU_TYPES: "Types",
   
   menu_project: "Project",
