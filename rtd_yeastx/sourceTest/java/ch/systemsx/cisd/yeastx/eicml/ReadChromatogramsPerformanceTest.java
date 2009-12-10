@@ -22,6 +22,7 @@ import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.TransactionQuery;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.yeastx.db.AbstractDBTest;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
 
 /**
@@ -34,7 +35,7 @@ public class ReadChromatogramsPerformanceTest
 
     public static void main(String[] args) throws SQLException
     {
-        final DatabaseConfigurationContext context = DBUtils.createDefaultDBContext();
+        final DatabaseConfigurationContext context =  AbstractDBTest.createDefaultDBContext();
         DBUtils.init(context);
         TransactionQuery transaction = null;
         long start = System.currentTimeMillis();

@@ -46,9 +46,21 @@ public abstract class AbstractDBTest
         datasource = getDatabaseContext().getDataSource();
     }
 
+    public static DatabaseConfigurationContext createDefaultDBContext()
+    {
+        final DatabaseConfigurationContext context = new DatabaseConfigurationContext();
+        context.setDatabaseEngineCode("postgresql");
+        context.setBasicDatabaseName("metabol");
+        context.setReadOnlyGroup("metabol_readonly");
+        context.setReadWriteGroup("metabol_readwrite");
+        context.setDatabaseKind("dev");
+        context.setScriptFolder("source/sql");
+        return context;
+    }
+
     private static DatabaseConfigurationContext getDatabaseContext()
     {
-        final DatabaseConfigurationContext context = DBUtils.createDefaultDBContext();
+        final DatabaseConfigurationContext context = createDefaultDBContext();
         context.setDatabaseKind("dbtest");
         context.setCreateFromScratch(true);
         return context;

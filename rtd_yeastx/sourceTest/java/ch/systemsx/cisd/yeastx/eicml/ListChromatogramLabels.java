@@ -23,11 +23,12 @@ import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.TransactionQuery;
 
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.yeastx.db.AbstractDBTest;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
 
 /**
  * A method for listing all chromatogram labels of all runs.
- *
+ * 
  * @author Bernd Rinn
  */
 public class ListChromatogramLabels
@@ -35,12 +36,13 @@ public class ListChromatogramLabels
 
     public static void main(String[] args) throws SQLException
     {
-        final DatabaseConfigurationContext context = DBUtils.createDefaultDBContext();
+        final DatabaseConfigurationContext context = AbstractDBTest.createDefaultDBContext();
         DBUtils.init(context);
         TransactionQuery transaction = null;
         try
         {
-            final IEICMSRunDAO dao = QueryTool.getQuery(context.getDataSource(), IEICMSRunDAO.class);
+            final IEICMSRunDAO dao =
+                    QueryTool.getQuery(context.getDataSource(), IEICMSRunDAO.class);
             transaction = dao;
             if (args.length > 0)
             {
@@ -51,7 +53,7 @@ public class ListChromatogramLabels
                     {
                         rawFile += ".RAW";
                     }
-                    listChromatogramsForRuns(dao, dao.getMsRunsForRawDataFile(rawFile)); 
+                    listChromatogramsForRuns(dao, dao.getMsRunsForRawDataFile(rawFile));
                 }
             } else
             {
@@ -63,7 +65,8 @@ public class ListChromatogramLabels
         }
     }
 
-    private static void listChromatogramsForRuns(final IEICMSRunDAO dao, DataIterator<EICMSRunDTO> runs)
+    private static void listChromatogramsForRuns(final IEICMSRunDAO dao,
+            DataIterator<EICMSRunDTO> runs)
     {
         for (EICMSRunDTO run : runs)
         {

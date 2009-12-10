@@ -26,7 +26,6 @@ import javax.sql.DataSource;
 import org.apache.commons.io.FilenameUtils;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.etlserver.IDataSetUploader;
@@ -74,9 +73,7 @@ public class ML2DatabaseUploader implements IDataSetUploader
     {
         final Properties dbProps =
                 ExtendedProperties.getSubset(properties, DATABASE_PROPERTIES_PREFIX, true);
-        final DatabaseConfigurationContext dbContext =
-                (dbProps.isEmpty() ? DBUtils.createDefaultDBContext() : BeanUtils.createBean(
-                        DatabaseConfigurationContext.class, dbProps));
+        final DatabaseConfigurationContext dbContext = DBUtils.createDBContext(dbProps);
         DBUtils.init(dbContext);
         DataSource dataSource = dbContext.getDataSource();
         this.eicML2Database = new EICML2Database(dataSource);

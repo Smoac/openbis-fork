@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.yeastx.db;
 
+import java.util.Properties;
+
 import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.TransactionQuery;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.utilities.BeanUtils;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
@@ -38,15 +42,18 @@ public class DBUtils
         QueryTool.getTypeMap().put(float[].class, new FloatArrayMapper());
     }
 
-    public static DatabaseConfigurationContext createDefaultDBContext()
+    public static DatabaseConfigurationContext createDBContext(Properties dbProps)
     {
-        final DatabaseConfigurationContext context = new DatabaseConfigurationContext();
-        context.setDatabaseEngineCode("postgresql");
-        context.setBasicDatabaseName("metabol");
-        context.setReadOnlyGroup("metabol_readonly");
-        context.setReadWriteGroup("metabol_readwrite");
-        context.setDatabaseKind("dev");
-        context.setScriptFolder("source/sql");
+        DatabaseConfigurationContext context =
+                BeanUtils.createBean(DatabaseConfigurationContext.class, dbProps);
+        if (context.getBasicDatabaseName() == null)
+        {
+            throw new EnvironmentFailureException("db basic name not specified in " + dbProps);
+        }
+        if (context.getDatabaseEngineCode() == null)
+        {
+            throw new EnvironmentFailureException("db engine code not specified in " + dbProps);
+        }
         return context;
     }
 
