@@ -32,6 +32,8 @@ public class MultilineVarcharField extends TextArea
 
     private static final int DEFAULT_LINES = 5;
 
+    private static final int EM_TO_PIXEL = 16;
+
     /** Constructor for default sized field (5 lines). */
     public MultilineVarcharField(final String label, final boolean mandatory)
     {
@@ -51,7 +53,9 @@ public class MultilineVarcharField extends TextArea
 
     public void setHeightInLines(int lines)
     {
-        setHeight(lines * DEFAULT_LINE_HEIGHT + "em");
+        // WORKAROUND: GXT does not correctly interpret heights set in em's. Switch to pixels.
+        // setHeight(lines * DEFAULT_LINE_HEIGHT + "em");
+        setHeight((int) (lines * DEFAULT_LINE_HEIGHT * EM_TO_PIXEL));
     }
 
 }
