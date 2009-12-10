@@ -238,7 +238,8 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         assertEquals(1, result.size());
         final BatchRegistrationResult batchRegistrationResult = result.get(0);
         assertEquals(fileName, batchRegistrationResult.getFileName());
-        assertEquals("1 sample(s) found and registered.", batchRegistrationResult.getMessage());
+        assertEquals("Registration of 1 sample(s) is complete.", batchRegistrationResult
+                .getMessage());
         context.assertIsSatisfied();
     }
 
