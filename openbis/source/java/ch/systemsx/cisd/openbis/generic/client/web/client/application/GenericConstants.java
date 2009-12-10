@@ -107,6 +107,8 @@ public final class GenericConstants
 
     public static final String WITH_EXPERIMENTS = "with_experiments";
 
+    public static final String BATCH_OPERATION_KIND = "batch_operation_kind";
+
     public static final String CODES_TEXTAREA_REGEX = "\n|\r\n|, *";
 
 }

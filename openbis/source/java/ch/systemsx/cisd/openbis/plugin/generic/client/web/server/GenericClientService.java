@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentUpdateResult;
@@ -78,7 +79,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.NewMaterialParserObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser.BatchSamplesOperation;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser.BatchSamplesOperationKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.SampleUploadSectionsParser.SampleCodeGenerator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
@@ -163,8 +163,7 @@ public final class GenericClientService extends AbstractClientService implements
     {
         BatchSamplesOperation info =
                 parseSamples(sampleType, sessionKey, defaultGroupIdentifier,
-                        defaultGroupIdentifier != null, true,
-                        BatchSamplesOperationKind.REGISTRATION);
+                        defaultGroupIdentifier != null, true, BatchOperationKind.REGISTRATION);
         try
         {
             final String sessionToken = getSessionToken();
@@ -182,8 +181,7 @@ public final class GenericClientService extends AbstractClientService implements
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         BatchSamplesOperation info =
-                parseSamples(sampleType, sessionKey, null, false, true,
-                        BatchSamplesOperationKind.UPDATE);
+                parseSamples(sampleType, sessionKey, null, false, true, BatchOperationKind.UPDATE);
         try
         {
             final String sessionToken = getSessionToken();
@@ -268,7 +266,7 @@ public final class GenericClientService extends AbstractClientService implements
                     parseSamples(experiment.getSampleType(), samplesSessionKey,
                             new GroupIdentifier(identifier.getDatabaseInstanceCode(), identifier
                                     .getGroupCode()).toString(), experiment.isGenerateCodes(),
-                            false, BatchSamplesOperationKind.REGISTRATION);
+                            false, BatchOperationKind.REGISTRATION);
             experiment.setNewSamples(result.getSamples());
             experiment.setSamples(result.getCodes());
         }
@@ -285,7 +283,7 @@ public final class GenericClientService extends AbstractClientService implements
     private BatchSamplesOperation parseSamples(final SampleType sampleType,
             final String sessionKey, String defaultGroupIdentifier,
             final boolean isAutoGenerateCodes, final boolean allowExperiments,
-            BatchSamplesOperationKind operationKind)
+            BatchOperationKind operationKind)
     {
         HttpSession httpSession = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
@@ -454,7 +452,7 @@ public final class GenericClientService extends AbstractClientService implements
                     parseSamples(updates.getSampleType(), updates.getSamplesSessionKey(),
                             new GroupIdentifier(newProject.getDatabaseInstanceCode(), newProject
                                     .getGroupCode()).toString(), updates.isGenerateCodes(), false,
-                            BatchSamplesOperationKind.REGISTRATION);
+                            BatchOperationKind.REGISTRATION);
             updates.setNewSamples(info.getSamples());
             updates.setSampleCodes(info.getCodes());
         }

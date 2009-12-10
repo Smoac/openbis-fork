@@ -25,12 +25,13 @@ public final class UpdatedSample extends NewSample
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-	// TODO 2009-08-12, Piotr Buczek: modify and use in template
     public static final String SAMPLE_UPDATE_TEMPLATE_COMMENT =
-            "# The \"container\" and \"parent\" columns are optional, only one should be specified. They should contain a sample identifier, e.g. /GROUP/SAMPLE_1\n"
-                    + "# If \"container\" sample is provided, the registered sample will become a \"component\" of it.\n"
-                    + "# If \"parent\" sample is provided, the registered sample will become a \"child\" of it.\n"
-                    + "# The \"experiment\" column is optional, cannot be specified for shared samples and should contain experiment identifier, e.g. /GROUP/PROJECT/EXP_1\n";
+            "# All columns except \"identifier\" can be removed from the file.\n"
+                    + "# If a column is removed from the file corresponding values of updated samples will be preserved.\n"
+                    + "# If a value in a column is empty for a certain sample, the corresponding property data of the sample will be cleared\n"
+                    + "# (in particular, a sample can become detached from an experiment, container or parent sample this way).\n"
+                    + "# The \"container\" and \"parent\" columns (if not removed) should contain sample identifiers, e.g. /GROUP/SAMPLE_1\n"
+                    + "# The \"experiment\" column (if not removed) should contain experiment identifier, e.g. /GROUP/PROJECT/EXP_1\n";
 
     private SampleBatchUpdateDetails batchUpdateDetails;
 

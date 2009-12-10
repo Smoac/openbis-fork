@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -183,7 +184,7 @@ public final class GenericMaterialBatchRegistrationForm extends AbstractRegistra
                 public void handleEvent(BaseEvent be)
                 {
                     WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.MATERIAL,
-                            materialType, false, false));
+                            materialType, false, false, BatchOperationKind.REGISTRATION));
                 }
             });
         return result;

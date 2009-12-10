@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -118,6 +119,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
@@ -1416,7 +1418,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
-            boolean autoGenerate, boolean withExperiments)
+            boolean autoGenerate, boolean withExperiments, BatchOperationKind operationKind)
     {
         List<EntityTypePE> types = new ArrayList<EntityTypePE>();
         if (entityKind.equals(EntityKind.SAMPLE) && SampleType.isDefinedInFileSampleTypeCode(type))
@@ -1433,7 +1435,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         {
             String section =
                     createTemplateForType(entityKind, autoGenerate, entityType, firstSection,
-                            withExperiments);
+                            withExperiments, operationKind);
             if (types.size() != 1)
             {
                 section =
@@ -1451,7 +1453,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
     }
 
     private String createTemplateForType(EntityKind entityKind, boolean autoGenerate,
-            EntityTypePE entityType, boolean addComments, boolean withExperiments)
+            EntityTypePE entityType, boolean addComments, boolean withExperiments,
+            BatchOperationKind operationKind)
     {
         List<String> columns = new ArrayList<String>();
         switch (entityKind)
@@ -1493,7 +1496,16 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
         }
         if (entityKind.equals(EntityKind.SAMPLE) && addComments)
         {
-            sb.insert(0, NewSample.SAMPLE_REGISTRATION_TEMPLATE_COMMENT);
+
+            switch (operationKind)
+            {
+                case REGISTRATION:
+                    sb.insert(0, NewSample.SAMPLE_REGISTRATION_TEMPLATE_COMMENT);
+                    break;
+                case UPDATE:
+                    sb.insert(0, UpdatedSample.SAMPLE_UPDATE_TEMPLATE_COMMENT);
+                    break;
+            }
         }
         return sb.toString();
     }

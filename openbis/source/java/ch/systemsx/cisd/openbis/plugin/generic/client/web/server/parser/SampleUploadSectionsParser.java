@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.client.web.server.BisTabFileLoader;
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -47,23 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
  */
 public class SampleUploadSectionsParser
 {
-
-    public static enum BatchSamplesOperationKind
-    {
-        REGISTRATION("registered"), UPDATE("updated");
-
-        private String operationName;
-
-        BatchSamplesOperationKind(String operationName)
-        {
-            this.operationName = operationName;
-        }
-
-        public Object getOperationName()
-        {
-            return operationName;
-        }
-    }
 
     public static class BatchSamplesOperation
     {
@@ -118,7 +102,7 @@ public class SampleUploadSectionsParser
     public static BatchSamplesOperation prepareSamples(final SampleType sampleType,
             final UploadedFilesBean uploadedFiles, String defaultGroupIdentifier,
             final SampleCodeGenerator sampleCodeGeneratorOrNull, final boolean allowExperiments,
-            BatchSamplesOperationKind operationKind)
+            BatchOperationKind operationKind)
     {
         final List<NewSamplesWithTypes> newSamples = new ArrayList<NewSamplesWithTypes>();
         boolean isAutoGenerateCodes = (sampleCodeGeneratorOrNull != null);
@@ -145,7 +129,7 @@ public class SampleUploadSectionsParser
 
     private static BisTabFileLoader<NewSample> createSampleLoader(final SampleType sampleType,
             final boolean isAutoGenerateCodes, final boolean allowExperiments,
-            final BatchSamplesOperationKind operationKind)
+            final BatchOperationKind operationKind)
     {
         final BisTabFileLoader<NewSample> tabFileLoader =
                 new BisTabFileLoader<NewSample>(new IParserObjectFactoryFactory<NewSample>()
@@ -259,7 +243,7 @@ public class SampleUploadSectionsParser
     private static List<BatchRegistrationResult> loadSamplesFromFiles(
             UploadedFilesBean uploadedFiles, SampleType sampleType, boolean isAutoGenerateCodes,
             final List<NewSamplesWithTypes> newSamples, boolean allowExperiments,
-            BatchSamplesOperationKind operationKind)
+            BatchOperationKind operationKind)
     {
 
         final List<BatchRegistrationResult> results =
@@ -298,8 +282,8 @@ public class SampleUploadSectionsParser
                 }
             }
             results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                    .format("%d sample(s) found and %s.", sampleCounter, operationKind
-                            .getOperationName())));
+                    .format(" %s of %d sample(s) is complete.", operationKind.getDescription(),
+                            sampleCounter)));
         }
         return results;
     }

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
@@ -52,11 +53,14 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
         final boolean withExperiments =
                 withExperimentsParameter != null && Boolean.parseBoolean(withExperimentsParameter) ? true
                         : false;
+        final String operationKindParameter =
+                request.getParameter(GenericConstants.BATCH_OPERATION_KIND);
+        final BatchOperationKind operationKind = BatchOperationKind.valueOf(operationKindParameter);
         if (StringUtils.isNotBlank(kind) && StringUtils.isNotBlank(type))
         {
             String fileContent =
                     service.getTemplate(EntityKind.valueOf(kind), type, Boolean
-                            .parseBoolean(autoGenerate), withExperiments);
+                            .parseBoolean(autoGenerate), withExperiments, operationKind);
             byte[] value = fileContent.getBytes();
             String fileName = kind + "-" + type + "-template.tsv";
             return new FileContent(value, fileName);

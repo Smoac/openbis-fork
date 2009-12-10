@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.Ba
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -256,7 +257,8 @@ public final class GenericSampleBatchRegistrationForm extends AbstractRegistrati
                 public void handleEvent(BaseEvent be)
                 {
                     WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,
-                            sampleType, generateCodesCheckbox.getValue(), true));
+                            sampleType, generateCodesCheckbox.getValue(), true,
+                            BatchOperationKind.REGISTRATION));
                 }
             });
         return result;

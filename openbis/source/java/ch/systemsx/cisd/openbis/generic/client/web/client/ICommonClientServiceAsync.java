@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -568,10 +569,11 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<IEntityInformationHolder> callback);
 
     /**
-     * @see ICommonClientService#getTemplate(EntityKind, String, boolean,boolean)
+     * @see ICommonClientService#getTemplate(EntityKind, String, boolean,boolean,BatchOperationKind)
      */
     public void getTemplate(EntityKind kind, String type, boolean autoGenerate,
-            boolean withExperiments, AsyncCallback<String> callback);
+            boolean withExperiments, BatchOperationKind operationKind,
+            AsyncCallback<String> callback);
 
     /**
      * @see ICommonClientService#updateFileFormatType(AbstractType type)

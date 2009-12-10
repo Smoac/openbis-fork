@@ -52,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -819,12 +820,12 @@ public interface ICommonServer extends IServer
             EntityKind entityKind, String permId);
 
     /**
-     * Returns file template available during registration of entity of given type.
+     * Returns file template available during batch operation of entity of given type.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public String getTemplateColumns(String sessionToken, EntityKind kind, String type,
-            boolean autoGenerate, boolean withExperiments);
+            boolean autoGenerate, boolean withExperiments, BatchOperationKind operationKind);
 
     /**
      * Updates file format type.

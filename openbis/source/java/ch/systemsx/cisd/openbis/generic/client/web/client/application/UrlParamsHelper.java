@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureE
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
@@ -185,7 +186,7 @@ public final class UrlParamsHelper
     }
 
     public static final String createTemplateURL(EntityKind kind, EntityType type,
-            boolean withCodes, boolean withExperiments)
+            boolean withCodes, boolean withExperiments, BatchOperationKind operationKind)
     {
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(GenericConstants.TEMPLATE_SERVLET_NAME);
@@ -194,6 +195,8 @@ public final class UrlParamsHelper
                 .getCode());
         methodWithParameters.addParameter(GenericConstants.AUTO_GENERATE, withCodes);
         methodWithParameters.addParameter(GenericConstants.WITH_EXPERIMENTS, withExperiments);
+        methodWithParameters.addParameter(GenericConstants.BATCH_OPERATION_KIND, operationKind
+                .name());
         return methodWithParameters.toString();
     }
 

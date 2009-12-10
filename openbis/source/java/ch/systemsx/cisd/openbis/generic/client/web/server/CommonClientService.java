@@ -81,6 +81,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -1822,13 +1823,13 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     public String getTemplate(EntityKind entityKind, String type, boolean autoGenerate,
-            boolean withExperiments)
+            boolean withExperiments, BatchOperationKind operationKind)
     {
         try
         {
             String sessionToken = getSessionToken();
             return commonServer.getTemplateColumns(sessionToken, entityKind, type, autoGenerate,
-                    withExperiments);
+                    withExperiments, operationKind);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

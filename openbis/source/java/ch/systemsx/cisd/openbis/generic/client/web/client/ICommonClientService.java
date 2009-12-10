@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -660,10 +661,10 @@ public interface ICommonClientService extends IClientService
             String identifier) throws UserFailureException;
 
     /**
-     * Returns example file format of new entities.
+     * Returns example file format for batch operation on entities.
      */
     public String getTemplate(EntityKind kind, String type, boolean autoGenerate,
-            boolean withExperiments) throws UserFailureException;
+            boolean withExperiments, BatchOperationKind operationKind) throws UserFailureException;
 
     /**
      * Updates the file format.

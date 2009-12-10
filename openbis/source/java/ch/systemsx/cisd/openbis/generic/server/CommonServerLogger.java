@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -640,11 +641,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     public String getTemplateColumns(String sessionToken, EntityKind entityKind, String type,
-            boolean autoGenerate, boolean withExperiments)
+            boolean autoGenerate, boolean withExperiments, BatchOperationKind operationKind)
     {
         logAccess(sessionToken, "get_template_columns",
-                "ENTITY_KIND(%s) ENTITY_TYPE(%s) AUTO_GENERATE(%s) WITH_EXP(%s)", entityKind, type,
-                autoGenerate, withExperiments);
+                "ENTITY_KIND(%s) ENTITY_TYPE(%s) AUTO_GENERATE(%s) WITH_EXP(%s) OPERATION(%s)",
+                entityKind, type, autoGenerate, withExperiments, operationKind.getDescription());
         return null;
     }
 

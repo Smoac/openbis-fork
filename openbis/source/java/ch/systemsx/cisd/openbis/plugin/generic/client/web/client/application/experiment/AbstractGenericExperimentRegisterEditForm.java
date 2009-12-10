@@ -51,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
@@ -225,7 +226,8 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
                     if (typeSelection.tryGetSelectedSampleType() != null)
                     {
                         WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,
-                                typeSelection.tryGetSelected(), autoGenerate.getValue(), false));
+                                typeSelection.tryGetSelected(), autoGenerate.getValue(), false,
+                                BatchOperationKind.REGISTRATION));
                     } else
                     {
                         MessageBox.alert("Sample type not selected.",
