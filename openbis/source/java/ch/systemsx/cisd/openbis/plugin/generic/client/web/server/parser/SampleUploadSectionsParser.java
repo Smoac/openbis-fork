@@ -282,7 +282,7 @@ public class SampleUploadSectionsParser
                 }
             }
             results.add(new BatchRegistrationResult(multipartFile.getOriginalFilename(), String
-                    .format(" %s of %d sample(s) is complete.", operationKind.getDescription(),
+                    .format("%s of %d sample(s) is complete.", operationKind.getDescription(),
                             sampleCounter)));
         }
         return results;

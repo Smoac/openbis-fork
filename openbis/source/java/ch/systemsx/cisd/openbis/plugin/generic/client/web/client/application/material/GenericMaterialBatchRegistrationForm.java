@@ -153,7 +153,7 @@ public final class GenericMaterialBatchRegistrationForm extends AbstractRegistra
             final StringBuilder builder = new StringBuilder();
             for (final BatchRegistrationResult batchRegistrationResult : result)
             {
-                builder.append("<b>" + batchRegistrationResult.getFileName() + "</b>:");
+                builder.append("<b>" + batchRegistrationResult.getFileName() + "</b>: ");
                 builder.append(batchRegistrationResult.getMessage());
                 builder.append("<br />");
             }
