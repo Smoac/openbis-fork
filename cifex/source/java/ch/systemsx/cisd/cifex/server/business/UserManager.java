@@ -102,11 +102,11 @@ class UserManager extends AbstractManager implements IUserManager
         return user;
     }
 
-    public List<UserDTO> tryFindUserByEmail(final String email)
+    public List<UserDTO> findUserByEmail(final String email)
     {
         assert email != null : "Given Email Adress is null";
 
-        final List<UserDTO> users = daoFactory.getUserDAO().tryFindUserByEmail(email);
+        final List<UserDTO> users = daoFactory.getUserDAO().findUserByEmail(email);
         for (UserDTO user : users)
         {
             fillInDefaultQuotaInformation(user);

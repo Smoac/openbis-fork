@@ -87,8 +87,8 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
                         {
                             public final void onSuccess(final List<FileInfoDTO> res)
                             {
-                                modelBasedGrid.setDataAndRefresh(OwnedFileGridModel.convert(viewContext
-                                        .getMessageResources(), res));
+                                modelBasedGrid.setDataAndRefresh(OwnedFileGridModel.convert(
+                                        viewContext.getMessageResources(), res));
                             }
                         });
         }
@@ -119,8 +119,8 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
                         {
                             public final void onSuccess(final List<AdminFileInfoDTO> res)
                             {
-                                modelBasedGrid.setDataAndRefresh(AdminFileGridModel.convert(viewContext
-                                        .getMessageResources(), res));
+                                modelBasedGrid.setDataAndRefresh(AdminFileGridModel.convert(
+                                        viewContext.getMessageResources(), res));
                             }
                         });
         }
@@ -203,6 +203,17 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
             {
                 viewContext.getCifexService().updateFileExpiration(id,
                         createUpdateFilesCallback(gridWidget, viewContext));
+            }
+            // Edit
+            if (Constants.EDIT_ID.equals(targetId))
+            {
+                // Edit User
+//                viewContext.getCifexService().tryFindFileByUserCode(userCode,
+//                        new FindFileAsyncCallback(viewContext, userGridWidget));
+
+                // FIXME: Introduce new server method to update the file!
+                // viewContext.getCifexService().updateFileExpiration(id,
+                // createUpdateFilesCallback(gridWidget, viewContext));
             }
             // Shared
             if (Constants.SHARED_ID.equals(targetId))

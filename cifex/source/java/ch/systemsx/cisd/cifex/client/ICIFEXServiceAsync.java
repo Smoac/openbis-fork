@@ -69,7 +69,7 @@ public interface ICIFEXServiceAsync extends RemoteService
             final AsyncCallback<UserInfoDTO> callback);
 
     /** Returns a list of users with the given email. */
-    public void tryFindUserByEmail(final String email,
+    public void findUserByEmail(final String email,
             final AsyncCallback<List<UserInfoDTO>> callback);
 
     /**

@@ -150,40 +150,61 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
     {
         private final GridWidget<UserGridModel> grid;
 
-        public FindUserAsyncCallback(final ViewContext context, final GridWidget<UserGridModel> grid)
+        private final String userCode;
+
+        public FindUserAsyncCallback(final ViewContext context,
+                final GridWidget<UserGridModel> grid, final String userCode)
         {
             super(context);
             this.grid = grid;
+            this.userCode = userCode;
         }
 
         //
         // AbstractAsyncCallback
         //
 
-        public final void onSuccess(final UserInfoDTO result)
+        public final void onSuccess(final UserInfoDTO resultOrNull)
         {
-            new EditUserDialog(viewContext, result, grid).show();
+            if (resultOrNull == null)
+            {
+                final IMessageResources messages = viewContext.getMessageResources();
+                MessageBox.alert(messages.getMessageBoxErrorTitle(), messages
+                        .getUserNotFound(userCode), null);
+            }
+            new EditUserDialog(viewContext, resultOrNull, grid).show();
         }
     }
 
     private final class RenewUserAsyncCallback extends AbstractAsyncCallback<UserInfoDTO>
     {
-        final GridWidget<UserGridModel> modelBasedGrid;
+        private final GridWidget<UserGridModel> modelBasedGrid;
+        
+        private final String userCode; 
 
         public RenewUserAsyncCallback(final ViewContext context,
-                final GridWidget<UserGridModel> modelBasedGrid)
+                final GridWidget<UserGridModel> modelBasedGrid, final String userCode)
         {
             super(context);
             this.modelBasedGrid = modelBasedGrid;
+            this.userCode = userCode;
         }
 
         //
         // AbstractAsyncCallback
         //
 
-        public final void onSuccess(final UserInfoDTO result)
+        public final void onSuccess(final UserInfoDTO resultOrNull)
         {
-            final UserInfoDTO user = result;
+            final UserInfoDTO user = resultOrNull;
+            if (resultOrNull == null)
+            {
+                final IMessageResources messages = viewContext.getMessageResources();
+                MessageBox.alert(messages.getMessageBoxErrorTitle(), messages
+                        .getUserNotFound(userCode), null);
+                return;
+            }
+
             assert user.isPermanent() == false : "Regular user can not be renewed.";
 
             final Configuration config = getViewContext().getModel().getConfiguration();
@@ -242,12 +263,12 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
                 }
                 // Edit User
                 viewContext.getCifexService().tryFindUserByUserCode(userCode,
-                        new FindUserAsyncCallback(viewContext, userGridWidget));
+                        new FindUserAsyncCallback(viewContext, userGridWidget, userCode));
             } else if (Constants.RENEW_ID.equals(targetId))
             {
                 // Renew User
                 viewContext.getCifexService().tryFindUserByUserCode(userCode,
-                        new RenewUserAsyncCallback(viewContext, userGridWidget));
+                        new RenewUserAsyncCallback(viewContext, userGridWidget, userCode));
             } else if (Constants.CHANGE_USER_CODE_ID.equals(targetId))
             {
                 // Change users code

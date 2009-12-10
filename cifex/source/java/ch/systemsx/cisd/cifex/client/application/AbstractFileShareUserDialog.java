@@ -200,7 +200,6 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
         Button submitButton = new Button(buttonLabel);
         submitButton.addSelectionListener(getSubmitButtonListener(addUserField));
         form.addButton(submitButton);
-        // form.render();
 
         verticalPanel.add(html);
         verticalPanel.add(form);
@@ -261,7 +260,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                                         .getMessageBoxErrorTitle(),
                                                                 viewContext
                                                                         .getMessageResources()
-                                                                        .getShareSubmitUserNotFound(
+                                                                        .getUserNotFound(
                                                                                 userCode), null);
                                             }
                                         }
@@ -269,7 +268,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                     });
                     } else
                     {
-                        viewContext.getCifexService().tryFindUserByEmail(emailOrCode,
+                        viewContext.getCifexService().findUserByEmail(emailOrCode,
                                 new AbstractAsyncCallback<List<UserInfoDTO>>(viewContext)
                                     {
                                         public void onSuccess(List<UserInfoDTO> result)
@@ -309,9 +308,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                                         newUsers));
                                             }
                                             // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you add
-                                            // a user to
-                                            // the list,
-                                            // all checkboxes are back to checked.
+                                            // a user to the list, all checkboxes are back to checked.
                                             // This needs to cleared the removePersonArray
                                             checkboxChangeAction();
                                         }

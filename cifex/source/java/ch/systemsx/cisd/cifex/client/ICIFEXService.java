@@ -82,7 +82,7 @@ public interface ICIFEXService extends RemoteService
     /**
      * Returns a list with all users, which have the given email address.
      */
-    public List<UserInfoDTO> tryFindUserByEmail(final String email) throws InvalidSessionException;
+    public List<UserInfoDTO> findUserByEmail(final String email) throws InvalidSessionException;
 
     /**
      * Returns a list of users, which where registered by the given user.

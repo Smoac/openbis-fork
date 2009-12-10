@@ -650,11 +650,11 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBean(UserInfoDTO.class, userDTO);
     }
 
-    public List<UserInfoDTO> tryFindUserByEmail(final String email) throws InvalidSessionException
+    public List<UserInfoDTO> findUserByEmail(final String email) throws InvalidSessionException
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
-        final List<UserDTO> users = userManager.tryFindUserByEmail(email);
+        final List<UserDTO> users = userManager.findUserByEmail(email);
         return BeanUtils.createBeanList(UserInfoDTO.class, users);
     }
 

@@ -219,7 +219,7 @@ public final class FileUploadWidget extends LayoutContainer
     private final void tryFindUserByEmail(final String email, final FileShareUploadDialog dialog,
             final List<UserInfoDTO> existingUsers, final List<UserInfoDTO> newUsers)
     {
-        context.getCifexService().tryFindUserByEmail(email,
+        context.getCifexService().findUserByEmail(email,
                 new AbstractAsyncCallback<List<UserInfoDTO>>(context)
                     {
                         public void onSuccess(List<UserInfoDTO> result)

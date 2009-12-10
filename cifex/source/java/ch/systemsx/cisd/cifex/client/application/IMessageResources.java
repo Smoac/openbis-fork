@@ -486,11 +486,16 @@ public interface IMessageResources extends Messages {
 	public String getShareLabel();
 
 	/**
-	 * Returns the error message when a user who should be added to the sharing
-	 * users is not found. *
+	 * Returns the error message when a user with given <var>userCode</var> is not found.
 	 */
-	@Key(value = "share.submit.user.not.found")
-	public String getShareSubmitUserNotFound(String userCode);
+	@Key(value = "user.not.found")
+	public String getUserNotFound(String userCode);
+
+    /**
+     * Returns the error message when a file with given <var>fileName</var> is not found.
+     */
+    @Key(value = "file.not.found")
+    public String getFileNotFound(String fileName);
 
 	/** Returns the label of the submit button of the Dialog */
 	@Key(value = "share.submit.button.label")

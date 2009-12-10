@@ -302,22 +302,16 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         }
     }
 
-    public List<UserDTO> tryFindUserByEmail(final String email) throws DataAccessException
+    public List<UserDTO> findUserByEmail(final String email) throws DataAccessException
     {
         assert StringUtils.isNotBlank(email) : "No email specified!";
 
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
-        try
-        {
-            final List<UserDTO> list =
-                    template.query(SELECT_USERS_WITH_QUOTA_INFO + " where email = ?",
-                            new UserRowMapperWithQuotaInfo(), email);
-            fillInRegistrators(list, this.listUsers());
-            return list;
-        } catch (final EmptyResultDataAccessException e)
-        {
-            return null;
-        }
+        final List<UserDTO> list =
+                template.query(SELECT_USERS_WITH_QUOTA_INFO + " where email = ?",
+                        new UserRowMapperWithQuotaInfo(), email);
+        fillInRegistrators(list, this.listUsers());
+        return list;
     }
 
     /**

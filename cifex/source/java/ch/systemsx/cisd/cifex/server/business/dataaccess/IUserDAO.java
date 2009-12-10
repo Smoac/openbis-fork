@@ -55,7 +55,7 @@ public interface IUserDAO
     /**
      * Returns a list with all users, which have the given email address.
      */
-    public List<UserDTO> tryFindUserByEmail(final String email) throws DataAccessException;
+    public List<UserDTO> findUserByEmail(final String email) throws DataAccessException;
 
     /**
      * Inserts given <code>User</code> into the database.
