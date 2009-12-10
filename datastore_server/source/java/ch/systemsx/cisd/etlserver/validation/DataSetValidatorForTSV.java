@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.io.IOUtils;
@@ -54,9 +55,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 class DataSetValidatorForTSV implements IDataSetValidator
 {
     static final String PATH_PATTERNS_KEY = "path-patterns";
+    static final String EXCLUDE_PATH_PATTERNS_KEY = "exclude-path-patterns";
     static final String COLUMNS_KEY = "columns";
     
     private final List<FileScanner> fileScanners;
+    private final List<FileScanner> excludeFileScanners;
     private final List<ColumnDefinition> unorderedDefinitions;
     private final Map<Integer, ColumnDefinition> orderedDefinitions;
 
@@ -64,13 +67,21 @@ class DataSetValidatorForTSV implements IDataSetValidator
     {
         fileScanners = new ArrayList<FileScanner>();
         String pathPatterns = properties.getProperty(PATH_PATTERNS_KEY, "*");
-        if (pathPatterns != null)
+        StringTokenizer tokenizer = new StringTokenizer(pathPatterns, ",");
+        while (tokenizer.hasMoreTokens())
         {
-            StringTokenizer tokenizer = new StringTokenizer(pathPatterns, ",");
+            String pathPattern = tokenizer.nextToken().trim();
+            fileScanners.add(new FileScanner(pathPattern));
+        }
+        excludeFileScanners = new ArrayList<FileScanner>();
+        String excludePathPatterns = properties.getProperty(EXCLUDE_PATH_PATTERNS_KEY);
+        if (excludePathPatterns != null)
+        {
+            tokenizer = new StringTokenizer(excludePathPatterns, ",");
             while (tokenizer.hasMoreTokens())
             {
                 String pathPattern = tokenizer.nextToken().trim();
-                fileScanners.add(new FileScanner(pathPattern));
+                excludeFileScanners.add(new FileScanner(pathPattern));
             }
         }
         unorderedDefinitions = new ArrayList<ColumnDefinition>();
@@ -108,12 +119,21 @@ class DataSetValidatorForTSV implements IDataSetValidator
     
     public void assertValidDataSet(DataSetType dataSetType, File incomingDataSetFileOrFolder)
     {
+        Set<File> excludedFiles = new HashSet<File>(); 
+        for (FileScanner fileScanner : excludeFileScanners)
+        {
+            excludedFiles.addAll(fileScanner.scan(incomingDataSetFileOrFolder));
+        }
+        
         for (FileScanner fileScanner : fileScanners)
         {
             List<File> files = fileScanner.scan(incomingDataSetFileOrFolder);
             for (File file : files)
             {
-                assertValidFile(file);
+                if (excludedFiles.contains(file) == false)
+                {
+                    assertValidFile(file);
+                }
             }
         }
     }

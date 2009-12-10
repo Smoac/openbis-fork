@@ -124,6 +124,24 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
     }
     
     @Test
+    public void testExcludePathPatterns()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(DataSetValidatorForTSV.EXCLUDE_PATH_PATTERNS_KEY, "*.tsv");
+        properties.setProperty(DataSetValidatorForTSV.COLUMNS_KEY, "c");
+        properties.setProperty("c." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
+        properties.setProperty("c." + EXPECTED_VALUES_KEY, "1");
+        DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
+        
+        FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "a\n1\n");
+        FileUtilities.writeToFile(new File(workingDirectory, "b.tsv"), "b\n2\n");
+        
+        validator.assertValidDataSet(null, workingDirectory);
+        
+        MockValidatorFactory.assertSatisfied();
+    }
+    
+    @Test
     public void testColumnDefinitionCreationErrorMessage()
     {
         Properties properties = new Properties();
