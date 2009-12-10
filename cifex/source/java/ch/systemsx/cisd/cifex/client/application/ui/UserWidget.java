@@ -178,20 +178,7 @@ public abstract class UserWidget extends LayoutContainer
         {
             user.setAdmin(isAdminStatus());
         }
-        if (statusField == null || isTemporaryStatus()
-                || (editUser != null && editUser.isPermanent() == false))
-        {
-            if (expirationDateField != null)
-            {
-                user.setExpirationDate(expirationDateField.getValue());
-            } else
-            {
-                user.setExpirationDate(getInitialExpirationDate());
-            }
-        } else
-        {
-            user.setExpirationDate(null);
-        }
+        user.setExpirationDate(tryGetExpirationDate(userExpires()));
         if (maxFileCountField != null)
         {
             String text = maxFileCountField.getValue();
@@ -254,11 +241,30 @@ public abstract class UserWidget extends LayoutContainer
         return user;
     }
 
+    private boolean userExpires()
+    {
+        // If we have a statusField then the editing user is admin and may freely choose whether the
+        // edited user expires or not.
+        if (statusField != null)
+        {
+            return isTemporaryStatus();
+        }
+        // If we have an editUser and there is _no_ statusField, we keep the status of the editUser.
+        if (editUser != null)
+        {
+            return (editUser.isPermanent() == false);
+        }
+        // If there is _neither_ a statusField _nor_ an editUser, we are in the case where
+        // a regular user creates a new temporary user (use case: Invite).
+        return true;
+    }
+
     private FormColumn createRigthColumn(FormData formData)
     {
         FormColumn right = new FormColumn(formData);
         right.setStyleAttribute("paddingLeft", "10px");
-        if (context.getModel().getUser().isAdmin())
+        final UserInfoDTO currentUser = context.getModel().getUser();
+        if (currentUser.isAdmin())
         {
             right.addField(fileRetentionField = createFileRetention());
             right.addField(userRetentionField = createUserRetention());
@@ -270,16 +276,34 @@ public abstract class UserWidget extends LayoutContainer
         {
             right.addField(statusField = createStatusComboBox());
         }
-        if (addStatusField || context.getModel().getUser().isAdmin() == false)
+        if (currentUser.equals(editUser) == false)
         {
             right.addField(expirationDateField = createExpirationDateField());
         }
-        // For creation we have more space on the right side.
-        if (editUser == null && context.getModel().getUser().isAdmin())
+        // For creation we have more space on the right side, so we put this field to the right
+        // column.
+        if (editUser == null && currentUser.isAdmin())
         {
             right.addField(userIsActiveField = createUserIsActiveCheckbox());
         }
         return right;
+    }
+
+    private Date tryGetExpirationDate(boolean userExpires)
+    {
+        if (userExpires)
+        {
+            if (expirationDateField != null)
+            {
+                return expirationDateField.getValue();
+            } else
+            {
+                return getInitialExpirationDate();
+            }
+        } else
+        {
+            return null;
+        }
     }
 
     private FormColumn createLeftColumn(FormData formData)
@@ -301,7 +325,7 @@ public abstract class UserWidget extends LayoutContainer
             left.addField(maxFileSizeField = createMaxFileSizeField());
             left.addField(maxFileCountField = createMaxFileCountField());
         }
-        // For editing we have more space on the left side.
+        // For editing we have more space on the left side so we put this field to the left column.
         if (editUser != null && editingMyself() == false && context.getModel().getUser().isAdmin())
         {
             left.addField(userIsActiveField = createUserIsActiveCheckbox());
