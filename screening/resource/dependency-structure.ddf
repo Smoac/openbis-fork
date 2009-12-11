@@ -1,0 +1,6 @@
+#show allResults
+
+{root} = ch.systemsx.cisd.openbis
+{screening} = ${root}.plugin.screening
+[private_openbis] = ${root}.* excluding ${root}.dss.generic.shared.* ${root}.generic.shared.*
+
