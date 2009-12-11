@@ -37,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -393,6 +394,7 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
             panel.setHeading("Versions of file '" + fileName + "' from "
                     + attachmentHolder.getAttachmentHolderKind().name().toLowerCase() + " '"
                     + attachmentHolder.getCode() + "'");
+            panel.setLayout(new FitLayout());
             final ListStore<AttachmentVersionModel> attachmentStore =
                     new ListStore<AttachmentVersionModel>();
             attachmentStore.add(AttachmentVersionModel.convert(oldVersions));
