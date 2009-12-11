@@ -12,9 +12,10 @@ export SCU=bs-dsvr28-openbis-scu.ethz.ch
 export BASYSBIO=bs-dsvr10.ethz.ch
 
 # Currently there are three different types of server specific zips we distinguish
-export ZIPS="openBIS-server-S*.zip  datastore_server-S*.zip" 
+export ZIPS="openBIS-server-S*.zip  datastore_server-S*.zip"
 export ZIPS_PHOSPHONETX="*phosphonetx*.zip"
 export ZIPS_DSU="openBIS-server-S*.zip datastore_server-dsu*.zip"
+export ZIPS_BASYSBIO="*basysbio*.zip openBIS-server-S*.zip"
 
 # Special plugin
 export DATASTORE_PLUGIN="datastore_server-plugins.jar"
@@ -26,22 +27,26 @@ for i in $ZIPS; do
          echo $LIVERX; scp -p $i $LIVERX:~openbis
          echo $AGRONOMICS; scp -p $i $AGRONOMICS:~openbis
          echo $SCU; scp -p $i $SCU:~openbis
-         echo $BASYSBIO; scp -p $i $BASYSBIO:~openbis
-done     
+done
 
-echo -e "\nCopying to $PHOSPHONETX...\n"  
+echo -e "\nCopying to $PHOSPHONETX...\n"
 for j in $ZIPS_PHOSPHONETX; do
         echo $PHOSPHONETX; scp -p $j $PHOSPHONETX:~openbis
 done
 
-echo -e "\nCopying to $DSU...\n"  
+echo -e "\nCopying to $DSU...\n"
 for k in $ZIPS_DSU; do
         echo $DSU; scp -p $k sbsuser@$DSU:~openbis
 done
 
-echo -e "\nCopying to $DSU...\n"  
+echo -e "\n Copying dss to $BASYSBIO...\n"
+for m in $ZIPS_BASYSBIO; do
+                echo $BASYSBIO; scp -p $m $BASYSBIO:~openbis
+done
+
+echo -e "\nCopying to default dss...\n"
 for l in $DATASTORE_PLUGIN; do
-        echo $BASYSBIO; scp -p $l $BASYSBIO:~openbis
-        echo $AGRONOMICS; scp -p $l $AGRONOMICS:~openbis
-        echo $YEASTX; scp -p $l $YEASTX:~openbis
+        echo $AGRONOMICS; scp -p $l $AGRONOMICS:~openbis/config
+        echo $YEASTX; scp -p $l $YEASTX:~openbis/config
+        echo $BASYSBIO; scp -p $l $BASYSBIO:~openbis/config
 done
