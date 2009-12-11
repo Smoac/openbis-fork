@@ -2,7 +2,7 @@
 # Finishes sprint installation of yeastx software
 # Warning: all changes to this file should be transfered to SVN repository
 
-DSS=sprint/datastore_server
+DSS=~/sprint/datastore_server
 CONFIG_DIR=~/config
 
 
@@ -13,7 +13,7 @@ function copy_or_die {
 		echo Copy $SRC to $DEST
 		cp $SRC $DEST
 	else
-		echo Error: cannot copy $SRC to $DEST, because $SRC does not exist
+			echo -e "\n[ERROR]: cannot copy $SRC to $DEST, because $SRC does not exist"
 		exit 1
 	fi
 }
