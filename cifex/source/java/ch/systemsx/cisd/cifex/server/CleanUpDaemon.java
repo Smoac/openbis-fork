@@ -16,8 +16,11 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.TimerTask;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
@@ -39,7 +42,9 @@ public final class CleanUpDaemon extends TimerTask
 
     private final Stopwatch timer = new Stopwatch();
 
-    final IDomainModel domainModel;
+    private final IDomainModel domainModel;
+
+    private Date dayLastRun;
 
     public CleanUpDaemon(final IDomainModel domainModel)
     {
@@ -63,6 +68,14 @@ public final class CleanUpDaemon extends TimerTask
     @Override
     public final void run()
     {
+        // All expiration dates are in the last milli-second of the old day. Thus we need to do the
+        // expiration check only every day.
+        final Date today = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
+        if (today.equals(dayLastRun))
+        {
+            return;
+        }
+        dayLastRun = today;
         try
         {
             timer.start();

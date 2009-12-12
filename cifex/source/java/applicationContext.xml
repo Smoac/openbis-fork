@@ -101,7 +101,7 @@
                 <constructor-arg ref="user-action-log" />
                 <constructor-arg ref="${external-authentication-service}" />
                 <constructor-arg ref="session-manager" />
-                <constructor-arg value="${cleaning-time-interval}" />    
+                <constructor-arg value="60000" />    
                 <constructor-arg value="${session-timeout}" />    
                 <constructor-arg value="${testing}" />
             </bean>
@@ -174,7 +174,7 @@
             <list>
                 <bean class="org.springframework.scheduling.timer.ScheduledTimerTask">
                     <property name="delay" value="0" />
-                    <property name="period" value="${cleaning-time-interval}" />
+                    <property name="period" value="60000" />
                     <property name="timerTask" ref="clean-up-daemon" />
                 </bean>
             </list>
