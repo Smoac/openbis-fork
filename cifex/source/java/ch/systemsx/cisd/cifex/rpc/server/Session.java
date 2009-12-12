@@ -168,13 +168,19 @@ public final class Session
     }
 
     public final void setRandomAccessFile(RandomAccessFile randomAccessFile, long filePointer,
-            int crc32Value)
+            Integer crc32Value)
     {
         this.randomAccessFile = randomAccessFile;
         oldFilePointer = -1L;
         oldCrc32 = null;
         currentFilePointer = filePointer;
-        currentCrc32 = new CloneableCRC32(crc32Value);
+        if (crc32Value != null)
+        {
+            currentCrc32 = new CloneableCRC32(crc32Value);
+        } else
+        {
+            currentCrc32.reset();
+        }
     }
 
     public final void updateUploadProgress(long filePointer, int runningCrc32Value, byte[] block)
