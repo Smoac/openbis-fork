@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client;
 
+import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -106,8 +107,7 @@ public interface ICIFEXService extends RemoteService
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
      */
-    public void createUser(final UserInfoDTO user, final String password,
-            final String comment)
+    public void createUser(final UserInfoDTO user, final String password, final String comment)
             throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
             InsufficientPrivilegesException;
 
@@ -145,6 +145,14 @@ public interface ICIFEXService extends RemoteService
      */
     public void deleteUser(final String userCode) throws InvalidSessionException,
             InsufficientPrivilegesException, UserNotFoundException;
+
+    /**
+     * Returns the file identified by <var>fileId</var>.
+     * 
+     * @throws IllegalArgumentException If a file with that id doesn't exist.
+     */
+    public FileInfoDTO getFile(final long fileId) throws InvalidSessionException,
+            InsufficientPrivilegesException, IllegalArgumentException;
 
     /**
      * List the files that have been uploaded for the currently logged in user.
@@ -195,12 +203,16 @@ public interface ICIFEXService extends RemoteService
     public FileUploadFeedback getFileUploadFeedback() throws InvalidSessionException;
 
     /**
-     * Update the Expiration Date of the file with the given <var>idStr</var>.
+     * Update the user data of the <var>fileId</var>.
      * 
-     * @throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
+     * @param fileId The id of the file to update.
+     * @param name The new name of the file.
+     * @param commentOrNull The new comment of the file.
+     * @param expirationDate The new expiration date.
      */
-    public void updateFileExpiration(final long id) throws InvalidSessionException,
-            InsufficientPrivilegesException, FileNotFoundException;
+    public void updateFileUserData(final long fileId, final String name,
+            final String commentOrNull, final Date expirationDate) throws InvalidSessionException,
+            InsufficientPrivilegesException;
 
     /**
      * Creates a sharing link between file and users. The user identifyer can either be a email

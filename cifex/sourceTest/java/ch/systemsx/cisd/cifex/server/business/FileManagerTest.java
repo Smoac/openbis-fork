@@ -492,7 +492,6 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     public final void testShareFileWithTwoExistingUser()
     {
         final String url = "https://server/instance";
-        // TODO 2008-06-03, Basil Neff: Extract user generation to local method (fpr all test cases)
         final long requestUserId = 42;
         final String requestUserCode = "requestuser";
         final long firstReceivingUserId = 43;
@@ -743,7 +742,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                 expectedFilePath =
                         FileUtilities.createNextNumberedFile(new File(fileStore, filePath), null);
                 assertFalse(expectedFilePath.compareTo(filePathIfFileNotExisted) == 0);
-    
+
             } else
             {
                 filePathIfFileNotExisted.delete();
@@ -754,15 +753,16 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             context.checking(new Expectations()
                 {
                     {
-                        one(fileDAO).createFile((FileDTO) this.with(new IsInstanceOf(FileDTO.class)));
-    
+                        one(fileDAO).createFile(
+                                (FileDTO) this.with(new IsInstanceOf(FileDTO.class)));
+
                         one(timeProvider).getTimeInMilliseconds();
                         will(returnValue(4711L));
                     }
                 });
             final FileDTO createdFileDTO =
-                    fileManager.saveFile(user, imageFile.getName(), comment,
-                            imageFile.getContentType(), inputStream);
+                    fileManager.saveFile(user, imageFile.getName(), comment, imageFile
+                            .getContentType(), inputStream);
             final File createdFile = new File(fileStore, createdFileDTO.getPath());
             assertTrue(createdFile.exists());
             assertEquals(expectedFilePath.getPath(), createdFile.getPath());
@@ -775,7 +775,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             final long expectedExpirationDate =
                     calculateFileRetention(fileRetention) * 86400000L + 4711;
             assertEquals(expectedExpirationDate, createdFileDTO.getExpirationDate().getTime());
-            
+
             context.assertIsSatisfied();
         } finally
         {
@@ -794,58 +794,35 @@ public class FileManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test(dataProvider = "fileRetentions")
-    public void testUpdateFileExpiration(final Integer fileRetention)
+    public void testUpdateFileUserData(final Integer fileRetention)
     {
         if (fileRetention != null)
         {
             businessContext.setFileRetention(fileRetention);
             userAlice.setMaxFileRetention(fileRetention);
         }
+        final long registrationTime = 4711L;
+        final long retentionTime = 1111L; 
+        final Date registrationDate = new Date(registrationTime);
+        final String newName = "new name";
+        final String newComment = "new comment";
+        final Date newExpirationDate = new Date(registrationTime + retentionTime);
         try
         {
             context.checking(new Expectations()
                 {
                     {
-                        one(fileDAO).tryGetFile(DEFAULT_FILE_ID);
-                        FileDTO file = new FileDTO(42L);
-                        UserDTO userDTO = new UserDTO();
-                        userDTO.setID(file.getOwnerId());
-                        file.setOwner(userDTO);
-                        will(returnValue(file));
-    
-                        one(timeProvider).getTimeInMilliseconds();
-                        will(returnValue(4711L));
-    
-                        one(fileDAO).updateFile(with(new BaseMatcher<FileDTO>()
-                            {
-                                public void describeTo(Description description)
-                                {
-                                    description.appendText("file with specific expiration date");
-                                }
-    
-                                public boolean matches(Object item)
-                                {
-                                    if (item instanceof FileDTO == false)
-                                    {
-                                        return false;
-                                    }
-                                    FileDTO fileDTO = (FileDTO) item;
-                                    final int retentionDays = calculateFileRetention(fileRetention);
-                                    final long retentionMillis = retentionDays * 86400000L + 4711;
-                                    if (fileDTO.getExpirationDate().getTime() != retentionMillis)
-                                    {
-                                        System.err.printf("FileDTO has wrong expiration date, "
-                                                + "expected: %d, found: %d\n", retentionMillis, fileDTO
-                                                .getExpirationDate().getTime());
-                                    }
-                                    return fileDTO.getExpirationDate().getTime() == retentionMillis;
-                                }
-                            }));
+                        one(fileDAO).getFileRegistrationDate(DEFAULT_FILE_ID);
+                        will(returnValue(registrationDate));
+
+                        one(fileDAO).updateFileUserEdit(DEFAULT_FILE_ID, newName, newComment,
+                                newExpirationDate);
                     }
                 });
-    
-            fileManager.updateFileExpiration(DEFAULT_FILE_ID, userAlice);
-    
+
+            fileManager.updateFileUserData(DEFAULT_FILE_ID, newName, newComment, newExpirationDate,
+                    userAlice);
+
             context.assertIsSatisfied();
         } finally
         {

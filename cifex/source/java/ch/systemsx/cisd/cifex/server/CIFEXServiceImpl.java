@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -388,6 +389,20 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
+    public FileInfoDTO getFile(long fileId) throws InvalidSessionException,
+            InsufficientPrivilegesException, IllegalArgumentException
+    {
+        final UserDTO requestUser = privGetCurrentUser();
+        final IFileManager fileManager = domainModel.getFileManager();
+        final FileDTO fileDTO = fileManager.getFile(fileId);
+        if (fileManager.isControlling(requestUser, fileDTO) == false)
+        {
+            throw new InsufficientPrivilegesException("Insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        }
+        return BeanUtils.createBean(FileInfoDTO.class, fileDTO);
+    }
+
     public List<AdminFileInfoDTO> listFiles() throws InvalidSessionException,
             InsufficientPrivilegesException
     {
@@ -669,16 +684,12 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(UserInfoDTO.class, users, null);
     }
 
-    public void updateFileExpiration(final long fileId) throws InvalidSessionException,
-            FileNotFoundException
+    public void updateFileUserData(long fileId, String name, String commentOrNull,
+            Date expirationDate) throws InvalidSessionException, InsufficientPrivilegesException
     {
         final IFileManager fileManager = domainModel.getFileManager();
-        final FileInformation fileInformation = fileManager.getFileInformation(fileId);
-        if (fileInformation.isFileAvailable() == false)
-        {
-            throw new FileNotFoundException(fileInformation.getErrorMessage());
-        }
-        fileManager.updateFileExpiration(fileId, privGetCurrentUser());
+        fileManager.updateFileUserData(fileId, name, commentOrNull, expirationDate,
+                privGetCurrentUser());
     }
 
     public List<UserInfoDTO> listUsersFileSharedWith(final long fileId)
@@ -758,4 +769,5 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             throw new UserFailureException(msg);
         }
     }
+
 }

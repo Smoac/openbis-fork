@@ -72,14 +72,13 @@ public class AdminFileGridModel extends AbstractFileGridModel
         set(CRC32_CHECKSUM, file.getCrc32Str());// String
         set(REGISTRATION_DATE, file.getRegistrationDate());// Date
         set(EXPIRATION_DATE, file.getExpirationDate());// Date
-        set(ACTION, DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
-                Constants.RENEW_ID)
-                + " | "
-                + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
-                        Constants.DELETE_ID)
+        set(ACTION, DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID)
                 + " | "
                 + DOMUtils.createAnchor(messageResources.getActionSharedLabel(),
-                        Constants.SHARED_ID));// String
+                        Constants.SHARED_ID)
+                + " | "
+                + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
+                        Constants.DELETE_ID));// String
     }
 
     public final static List<AbstractFileGridModel> convert(IMessageResources messageResources,

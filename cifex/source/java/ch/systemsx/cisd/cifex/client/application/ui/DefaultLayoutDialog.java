@@ -52,7 +52,7 @@ public class DefaultLayoutDialog extends Dialog
             final int width, final int height, final boolean modal, final boolean closable)
     {
         this.messageResources = messageResources;
-        setTitle(title);
+        setHeading(title);
         setModal(modal);
         setWidth(width);
         setHeight(height);

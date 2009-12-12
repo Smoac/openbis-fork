@@ -90,22 +90,6 @@ public final class UserGridModel extends AbstractUserGridModel
         final String sep = " | ";
         String actionLabel =
                 DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID);
-        // Regular user cannot be renewed.
-        if (user.isPermanent() == false)
-        {
-            actionLabel +=
-                    sep
-                            + DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
-                                    Constants.RENEW_ID);
-        }
-        // An user can not delete itself.
-        if (user.equals(currentUser) == false)
-        {
-            actionLabel +=
-                    sep
-                            + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
-                                    Constants.DELETE_ID);
-        }
         // Change user code
         if (user.equals(currentUser) == false && currentUser.isAdmin()
                 && user.isExternallyAuthenticated() == false
@@ -115,6 +99,14 @@ public final class UserGridModel extends AbstractUserGridModel
                     sep
                             + DOMUtils.createAnchor(messageResources.getActionRenameLabel(),
                                     Constants.CHANGE_USER_CODE_ID);
+        }
+        // An user can not delete itself.
+        if (user.equals(currentUser) == false)
+        {
+            actionLabel +=
+                    sep
+                            + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
+                                    Constants.DELETE_ID);
         }
         return actionLabel;
     }

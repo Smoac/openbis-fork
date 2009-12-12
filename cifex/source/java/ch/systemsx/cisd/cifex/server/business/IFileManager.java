@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
@@ -187,11 +188,17 @@ public interface IFileManager
     public void deleteExpiredFiles();
 
     /**
-     * Update the Expiration Date of the file with the given ID.
-     * @param requestUser TODO
+     * Update the user data of the <var>fileId</var>.
+     * 
+     * @param fileId The id of the file to update.
+     * @param name The new name of the file.
+     * @param commentOrNull The new comment of the file.
+     * @param expirationDate The new expiration date.
+     * @param requestUser The user requesting the update of the file
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void updateFileExpiration(final long fileId, UserDTO requestUser);
+    public void updateFileUserData(final long fileId, final String name,
+            final String commentOrNull, final Date expirationDate, final UserDTO requestUser);
 
     /**
      * Update the file DTO.
@@ -207,6 +214,14 @@ public interface IFileManager
      */
     @LogAnnotation(logCategory = LogCategory.TRACKING)
     public void deleteSharingLink(long fileId, String userCode);
+
+    /**
+     * Returns the file identified by <var>fileId</var>.
+     * 
+     * @throws IllegalArgumentException If a file with that id doesn't exist.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public FileDTO getFile(final long fileId) throws IllegalArgumentException;
 
     /**
      * Returns the file on the file system for the given <var>fileDTO</var>.

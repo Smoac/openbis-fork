@@ -16,6 +16,7 @@ package ch.systemsx.cisd.cifex.server;
  * limitations under the License.
  */
 
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletConfig;
@@ -120,8 +121,7 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsers();
     }
 
-    public void createUser(final UserInfoDTO user, final String password,
-            final String comment)
+    public void createUser(final UserInfoDTO user, final String password, final String comment)
             throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
             InsufficientPrivilegesException
     {
@@ -134,6 +134,12 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     {
         cifexServiceDelegate.deleteUser(code);
 
+    }
+
+    public FileInfoDTO getFile(long fileId) throws InvalidSessionException,
+            InsufficientPrivilegesException, IllegalArgumentException
+    {
+        return cifexServiceDelegate.getFile(fileId);
     }
 
     public void deleteFile(final long id) throws InvalidSessionException,
@@ -199,10 +205,10 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsersRegisteredBy(userCode);
     }
 
-    public void updateFileExpiration(final long id) throws InvalidSessionException,
-            InsufficientPrivilegesException, FileNotFoundException
+    public void updateFileUserData(long fileId, String name, String commentOrNull,
+            Date expirationDate) throws InvalidSessionException, InsufficientPrivilegesException
     {
-        cifexServiceDelegate.updateFileExpiration(id);
+        cifexServiceDelegate.updateFileUserData(fileId, name, commentOrNull, expirationDate);
     }
 
     public List<UserInfoDTO> listUsersFileSharedWith(final long fileId)

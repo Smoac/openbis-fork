@@ -68,7 +68,8 @@ public class FileCommentGridCellListener implements Listener<GridEvent<AbstractF
                         new DefaultLayoutDialog(viewContext.getMessageResources(), messageResources
                                 .getFileCommentTitle(), DefaultLayoutDialog.DEFAULT_WIDTH,
                                 DefaultLayoutDialog.DEFAULT_HEIGHT, true, true);
-                layoutDialog.add(new Html(Format.htmlEncode(comment)));
+                layoutDialog.add(new Html(Format.htmlEncode(comment.replaceAll("<br/>", "\n"))
+                        .replaceAll("\n", "<br/>")));
                 layoutDialog.show();
             }
         }

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client;
 
+import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -69,8 +70,7 @@ public interface ICIFEXServiceAsync extends RemoteService
             final AsyncCallback<UserInfoDTO> callback);
 
     /** Returns a list of users with the given email. */
-    public void findUserByEmail(final String email,
-            final AsyncCallback<List<UserInfoDTO>> callback);
+    public void findUserByEmail(final String email, final AsyncCallback<List<UserInfoDTO>> callback);
 
     /**
      * Creates a new <code>User</code> in Cifex with the given <var>password</var>.
@@ -78,8 +78,8 @@ public interface ICIFEXServiceAsync extends RemoteService
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
      */
-    public void createUser(final UserInfoDTO user, final String password,
-            final String comment, final AsyncCallback<Void> callback);
+    public void createUser(final UserInfoDTO user, final String password, final String comment,
+            final AsyncCallback<Void> callback);
 
     /**
      * Update the fields of the user in the database.
@@ -99,6 +99,13 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Deletes an user given by its <var>userCode</var>.
      */
     public void deleteUser(final String userCode, final AsyncCallback<Void> callback);
+
+    /**
+     * Deals with the file identified by <var>fileId</var>.
+     * 
+     * @throws IllegalArgumentException If a file with that id doesn't exist.
+     */
+    public void getFile(final long fileId, final AsyncCallback<FileInfoDTO> callback);
 
     /**
      * List the files that have been uploaded for the currently logged in user.
@@ -139,9 +146,11 @@ public interface ICIFEXServiceAsync extends RemoteService
     public void getFileUploadFeedback(final AsyncCallback<FileUploadFeedback> callback);
 
     /**
-     * Update the Expiration Date of the file with the given <var>fileId</var>.
+     * Update the user data of the <var>fileId</var>.
      */
-    public void updateFileExpiration(final long fileId, final AsyncCallback<Void> callback);
+    public void updateFileUserData(final long fileId, final String name,
+            final String commentOrNull, final Date expirationDate,
+            final AsyncCallback<Void> callback);
 
     /**
      * List users the file with given <var>fileId</var> has been shared with.

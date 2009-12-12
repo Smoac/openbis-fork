@@ -198,22 +198,12 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
 
                     });
             }
-            // Renew
-            if (Constants.RENEW_ID.equals(targetId))
-            {
-                viewContext.getCifexService().updateFileExpiration(id,
-                        createUpdateFilesCallback(gridWidget, viewContext));
-            }
             // Edit
             if (Constants.EDIT_ID.equals(targetId))
             {
                 // Edit User
-//                viewContext.getCifexService().tryFindFileByUserCode(userCode,
-//                        new FindFileAsyncCallback(viewContext, userGridWidget));
-
-                // FIXME: Introduce new server method to update the file!
-                // viewContext.getCifexService().updateFileExpiration(id,
-                // createUpdateFilesCallback(gridWidget, viewContext));
+                viewContext.getCifexService().getFile(id,
+                        new FindFileAsyncCallback(viewContext, gridWidget));
             }
             // Shared
             if (Constants.SHARED_ID.equals(targetId))
@@ -221,6 +211,28 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
                 viewContext.getCifexService().listUsersFileSharedWith(id,
                         new ShowUsersFileSharedWithAsyncCallback(name, id));
             }
+        }
+    }
+
+    private final class FindFileAsyncCallback extends AbstractAsyncCallback<FileInfoDTO>
+    {
+        private final GridWidget<AbstractFileGridModel> grid;
+
+        public FindFileAsyncCallback(final ViewContext context,
+                final GridWidget<AbstractFileGridModel> grid)
+        {
+            super(context);
+            this.grid = grid;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        public final void onSuccess(final FileInfoDTO resultOrNull)
+        {
+            new EditFileDialog(getViewContext(), resultOrNull, createUpdateFilesCallback(grid,
+                    getViewContext())).show();
         }
     }
 

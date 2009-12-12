@@ -51,14 +51,13 @@ public class OwnedFileGridModel extends AbstractFileGridModel
         set(IS_COMPLETE, Boolean.valueOf(file.isComplete()));// Boolean
         set(REGISTRATION_DATE, file.getRegistrationDate());// Date
         set(EXPIRATION_DATE, file.getExpirationDate());// Date
-        set(ACTION, DOMUtils.createAnchor(messageResources.getActionRenewLabel(),
-                Constants.RENEW_ID)
-                + " | "
-                + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
-                        Constants.DELETE_ID)
+        set(ACTION, DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID)
                 + " | "
                 + DOMUtils.createAnchor(messageResources.getActionSharedLabel(),
-                        Constants.SHARED_ID));// String
+                        Constants.SHARED_ID)
+                + " | "
+                + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
+                        Constants.DELETE_ID));// String
     }
 
     public final static List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)

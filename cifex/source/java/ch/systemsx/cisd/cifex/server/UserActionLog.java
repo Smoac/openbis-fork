@@ -368,7 +368,8 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         final UserDTO registratorOrNull = file.getOwner();
         if (registratorOrNull != null)
         {
-            return registratorOrNull.getUserCode() + "::" + file.getName();
+            return "'" + registratorOrNull.getUserCode() + "::" + file.getName() + "' ("
+                    + file.getID() + ")";
         } else
         {
             return file.getName();
@@ -413,7 +414,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         if (trackingLog.isInfoEnabled())
         {
             trackingLog.info(getUserHostSessionDescription()
-                    + String.format("delete_file '%s': %s", getFileDescription(file),
+                    + String.format("delete_file %s: %s", getFileDescription(file),
                             getSuccessString(success)));
         }
     }
@@ -422,19 +423,20 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
     {
         if (trackingLog.isInfoEnabled())
         {
-            trackingLog.info(String.format("{SYSTEM} delete_file '%s': %s",
-                    getFileDescription(file), getSuccessString(success)));
+            trackingLog.info(String.format("{SYSTEM} delete_file %s: %s", getFileDescription(file),
+                    getSuccessString(success)));
         }
     }
 
-    public void logRenewFile(final FileDTO file, final boolean success)
+    public void logEditFile(long fileId, String newName, Date fileExpirationDateOrNull,
+            boolean success)
     {
         if (trackingLog.isInfoEnabled())
         {
             trackingLog.info(getUserHostSessionDescription()
-                    + String.format("renew_file '%s' until %s: %s", getFileDescription(file),
-                            dateTimeFormat.format(file.getExpirationDate()),
-                            getSuccessString(success)));
+                    + String.format("edit_file '%s' (%d) until %s: %s", newName, fileId,
+                            (fileExpirationDateOrNull == null) ? "UNKNOWN" : dateTimeFormat
+                                    .format(fileExpirationDateOrNull), getSuccessString(success)));
         }
     }
 
@@ -443,7 +445,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         if (accessLog.isInfoEnabled())
         {
             accessLog.info(getUserHostSessionDescription()
-                    + String.format("download_file '%s': %s", getFileDescription(file),
+                    + String.format("download_file %s: %s", getFileDescription(file),
                             getSuccessString(success)));
         }
     }
@@ -453,7 +455,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         if (accessLog.isInfoEnabled())
         {
             accessLog.info(getUserHostSessionDescription()
-                    + String.format("download_file_start '%s': %s", getFileDescription(file),
+                    + String.format("download_file_start %s: %s", getFileDescription(file),
                             getSuccessString(success)));
         }
     }
@@ -463,7 +465,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         if (accessLog.isInfoEnabled())
         {
             accessLog.info(getUserHostSessionDescription()
-                    + String.format("download_file_finished '%s': %s", getFileDescription(file),
+                    + String.format("download_file_finished %s: %s", getFileDescription(file),
                             getSuccessString(success)));
         }
     }
@@ -473,7 +475,7 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
         if (trackingLog.isInfoEnabled())
         {
             trackingLog.info(getUserHostSessionDescription()
-                    + String.format("delete_sharing_link between file '%s' and user '%s': %s",
+                    + String.format("delete_sharing_link between file id %d and user '%s': %s",
                             fileId, userCode, getSuccessString(success)));
         }
 

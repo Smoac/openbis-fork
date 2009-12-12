@@ -128,8 +128,8 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
     {
         assert file != null;
         assert file.getID() != null : "File needs an ID, otherwise it can't be updated";
-        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
 
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         template
                 .update(
                         "update files set name = ?, path = ?, comment = ?, expiration_timestamp = ?, "
@@ -138,6 +138,22 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                                 .abbreviate(file.getComment(), MAX_COMMENT_LENGTH), file
                                 .getExpirationDate(), file.getOwnerId(), file.getContentType(),
                         file.getSize(), file.getCrc32Value(), file.getCompleteSize(), file.getID());
+    }
+
+    /**
+     * Updates the <var>name</var>, the <var>comment</var> and the <var>expirationDate</var> of the
+     * file with given <var>id</var>.
+     */
+    public void updateFileUserEdit(final long id, final String name, String commentOrNull,
+            final Date expirationDate) throws DataAccessException
+    {
+        assert name != null;
+        assert expirationDate != null;
+
+        final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
+        template.update("update files set name = ?, comment = ?, expiration_timestamp = ? "
+                + "where id = ?", name, StringUtils.abbreviate(commentOrNull, MAX_COMMENT_LENGTH),
+                expirationDate, id);
     }
 
     /**

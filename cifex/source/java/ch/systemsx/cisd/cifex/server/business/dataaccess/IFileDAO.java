@@ -48,7 +48,14 @@ public interface IFileDAO
     public void updateFile(final FileDTO file) throws DataAccessException;
 
     /**
-     * Updates the <var>file</var> in the database with the current upload progress.
+     * Updates the <var>name</var>, the <var>comment</var> and the <var>expirationDate</var> of the
+     * file with given <var>id</var>.
+     */
+    public void updateFileUserEdit(final long id, final String name, final String comment,
+            final Date expirationDate) throws DataAccessException;
+
+    /**
+     * Updates the file with given <var>id</var> in the database with the current upload progress.
      */
     public void updateFileUploadProgress(final long id, final long size, final int crc32,
             final Date expirationDate) throws DataAccessException;
@@ -77,7 +84,7 @@ public interface IFileDAO
      * Returns the registration date of the file with given <var>fileId</var>.
      */
     public Date getFileRegistrationDate(final long fileId) throws DataAccessException;
-    
+
     /**
      * Adds a link between the specified file and user.
      */

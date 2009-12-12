@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.Collection;
+import java.util.Date;
 
 import javax.servlet.http.HttpSession;
 
@@ -64,7 +65,8 @@ public class DummyUserActionLog implements IUserActionLog
     {
     }
 
-    public void logRenewFile(final FileDTO file, final boolean success)
+    public void logEditFile(long fileId, String newName, Date fileExpirationDateOrNull,
+            boolean success)
     {
     }
 

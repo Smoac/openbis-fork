@@ -811,32 +811,35 @@ final class FileManager extends AbstractManager implements IFileManager
     }
 
     @Transactional
-    public void updateFileExpiration(final long fileId, UserDTO requestUser)
-            throws IllegalArgumentException
+    public void updateFileUserData(final long fileId, final String name,
+            final String commentOrNull, final Date expirationDate, final UserDTO requestUser)
     {
-        final FileDTO file = getFile(fileId);
+        Date newExpirationDate = null;
         boolean success = false;
         try
         {
-            file.setExpirationDate(calculateNewExpirationDate(file, requestUser));
-            daoFactory.getFileDAO().updateFile(file);
+            newExpirationDate = fixFileExpiration(fileId, expirationDate, requestUser);
+            daoFactory.getFileDAO().updateFileUserEdit(fileId, name, commentOrNull,
+                    newExpirationDate);
             success = true;
         } finally
         {
-            businessContext.getUserActionLog().logRenewFile(file, success);
+            businessContext.getUserActionLog().logEditFile(fileId, name, newExpirationDate,
+                    success);
         }
     }
 
-    private FileDTO getFile(final long fileId) throws IllegalArgumentException
+    @Transactional
+    public FileDTO getFile(final long fileId) throws IllegalArgumentException
     {
-        final FileDTO file = daoFactory.getFileDAO().tryGetFile(fileId);
-        if (file == null)
+        final FileDTO fileOrNull = daoFactory.getFileDAO().tryGetFile(fileId);
+        if (fileOrNull == null)
         {
             final String msg = "No file found for fileId " + fileId + ".";
             operationLog.error(msg);
             throw new IllegalArgumentException(msg);
         }
-        return file;
+        return fileOrNull;
     }
 
     private Date calculateNewExpirationDate(final FileDTO file, final UserDTO requestUser)
@@ -861,24 +864,35 @@ final class FileManager extends AbstractManager implements IFileManager
 
     public void updateFile(final FileDTO file, UserDTO requestUser)
     {
-        checkFileExpiration(file, requestUser);
+        checkAndFixFileExpiration(file, requestUser);
         daoFactory.getFileDAO().updateFile(file);
     }
 
     /** Checks that the new expiration date is in the valid range, otherwise set it to the limit. */
-    private void checkFileExpiration(final FileDTO file, UserDTO requestUser)
+    private void checkAndFixFileExpiration(final FileDTO file, UserDTO requestUser)
+    {
+        file.setExpirationDate(fixFileExpiration(file.getID(), file.getExpirationDate(),
+                requestUser));
+    }
+
+    /** Checks that the new expiration date is in the valid range, otherwise set it to the limit. */
+    private Date fixFileExpiration(final long fileId, final Date proposedExpirationDate,
+            final UserDTO requestUser)
     {
         final Integer maxUserRetentionDaysOrNull = tryGetMaxUserRetentionDays(requestUser);
-        if (maxUserRetentionDaysOrNull != null)
+        if (maxUserRetentionDaysOrNull == null)
         {
-            final Date fileRegistrationDate =
-                    daoFactory.getFileDAO().getFileRegistrationDate(file.getID());
-            final Date maxExpirationDate =
-                    DateUtils.addDays(fileRegistrationDate, maxUserRetentionDaysOrNull);
-            if (file.getExpirationDate().getTime() > maxExpirationDate.getTime())
-            {
-                file.setExpirationDate(maxExpirationDate);
-            }
+            return proposedExpirationDate;
+        }
+        final Date fileRegistrationDate = daoFactory.getFileDAO().getFileRegistrationDate(fileId);
+        final Date maxExpirationDate =
+                DateUtils.addDays(fileRegistrationDate, maxUserRetentionDaysOrNull);
+        if (proposedExpirationDate.getTime() > maxExpirationDate.getTime())
+        {
+            return maxExpirationDate;
+        } else
+        {
+            return proposedExpirationDate;
         }
     }
 

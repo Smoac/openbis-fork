@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
-import java.util.Date;
-
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -28,9 +26,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.datepicker.client.CalendarUtil;
 
-import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
@@ -176,46 +172,6 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
         }
     }
 
-    private final class RenewUserAsyncCallback extends AbstractAsyncCallback<UserInfoDTO>
-    {
-        private final GridWidget<UserGridModel> modelBasedGrid;
-        
-        private final String userCode; 
-
-        public RenewUserAsyncCallback(final ViewContext context,
-                final GridWidget<UserGridModel> modelBasedGrid, final String userCode)
-        {
-            super(context);
-            this.modelBasedGrid = modelBasedGrid;
-            this.userCode = userCode;
-        }
-
-        //
-        // AbstractAsyncCallback
-        //
-
-        public final void onSuccess(final UserInfoDTO resultOrNull)
-        {
-            final UserInfoDTO user = resultOrNull;
-            if (resultOrNull == null)
-            {
-                final IMessageResources messages = viewContext.getMessageResources();
-                MessageBox.alert(messages.getMessageBoxErrorTitle(), messages
-                        .getUserNotFound(userCode), null);
-                return;
-            }
-
-            assert user.isPermanent() == false : "Regular user can not be renewed.";
-
-            final Configuration config = getViewContext().getModel().getConfiguration();
-            final Date newExpirationDate = new Date();
-            CalendarUtil.addDaysToDate(newExpirationDate, config.getUserRetention());
-            user.setExpirationDate(newExpirationDate);
-            viewContext.getCifexService().updateUser(user, null, false,
-                    new UserGridRefresherCallback(viewContext, modelBasedGrid));
-        }
-    }
-
     public void handleEvent(GridEvent<UserGridModel> be)
     {
         final Grid<UserGridModel> grid = userGridWidget.getGrid();
@@ -264,11 +220,6 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
                 // Edit User
                 viewContext.getCifexService().tryFindUserByUserCode(userCode,
                         new FindUserAsyncCallback(viewContext, userGridWidget, userCode));
-            } else if (Constants.RENEW_ID.equals(targetId))
-            {
-                // Renew User
-                viewContext.getCifexService().tryFindUserByUserCode(userCode,
-                        new RenewUserAsyncCallback(viewContext, userGridWidget, userCode));
             } else if (Constants.CHANGE_USER_CODE_ID.equals(targetId))
             {
                 // Change users code

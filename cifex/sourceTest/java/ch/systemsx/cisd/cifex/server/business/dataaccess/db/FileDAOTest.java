@@ -389,6 +389,32 @@ public final class FileDAOTest extends AbstractDAOTest
         assertEqual(sampleFile, file);
     }
 
+    @Transactional
+    @Test(dependsOnGroups =
+        { "file.read" }, groups = "file.update")
+    public final void testUpdateUserDataFile()
+    {
+        final IFileDAO fileDAO = daoFactory.getFileDAO();
+        final FileDTO sampleFile = createSampleFile();
+        fileDAO.createFile(sampleFile);
+
+        assertNotNull(sampleFile.getID());
+        assertEquals(1, fileDAO.listFiles().size());
+
+        final Date newExpirationDate = DateUtils.addMinutes(new Date(), 88);
+        final String newName = "AppendNewName2_" + sampleFile.getName();
+        final String newComment = sampleFile.getComment() + "(2)";
+        fileDAO.updateFileUserEdit(sampleFile.getID(), newName, newComment, newExpirationDate);
+        sampleFile.setExpirationDate(newExpirationDate);
+        sampleFile.setName(newName);
+        sampleFile.setComment(newComment);
+
+        assertEquals(1, fileDAO.listFiles().size());
+        final FileDTO file = fileDAO.listFiles().get(0);
+
+        assertEqual(sampleFile, file);
+    }
+
     //
     // 'delete' group
     //

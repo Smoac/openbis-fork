@@ -190,6 +190,10 @@ public interface IMessageResources extends Messages {
 	@Key(value = "external.authentication.successful")
 	public String getExternalAuthenticationSuccessful();
 
+    /** Returns dialog window title for editing a file. */
+    @Key(value = "editfile.dialog.title")
+    public String getEditFileDialogTitle(final String fileName);
+
 	/** Returns the label of the comment name column. */
 	@Key(value = "file.comment.label")
 	public String getFileCommentLabel();

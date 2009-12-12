@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.Collection;
+import java.util.Date;
 
 import ch.systemsx.cisd.cifex.rpc.server.Session;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
@@ -77,7 +78,8 @@ public interface IUserActionLog extends IActionLog
 
     public void logExpireFile(FileDTO file, boolean success);
 
-    public void logRenewFile(FileDTO file, boolean success);
+    public void logEditFile(long fileId, String newName, Date fileExpirationDateOrNull,
+            boolean success);
 
     public void logDownloadFile(FileDTO file, boolean success);
 
