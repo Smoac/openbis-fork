@@ -53,6 +53,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.utilities.DateTimeUtils;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
 
@@ -773,7 +774,9 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             assertEquals(comment, createdFileDTO.getComment());
             assertEquals(inputFile.length(), createdFileDTO.getSize().longValue());
             final long expectedExpirationDate =
-                    calculateFileRetention(fileRetention) * 86400000L + 4711;
+                    DateTimeUtils.extendUntilEndOfDay(
+                            new Date(calculateFileRetention(fileRetention) * 86400000L + 4711))
+                            .getTime();
             assertEquals(expectedExpirationDate, createdFileDTO.getExpirationDate().getTime());
 
             context.assertIsSatisfied();
@@ -802,7 +805,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
             userAlice.setMaxFileRetention(fileRetention);
         }
         final long registrationTime = 4711L;
-        final long retentionTime = 1111L; 
+        final long retentionTime = 1111L;
         final Date registrationDate = new Date(registrationTime);
         final String newName = "new name";
         final String newComment = "new comment";
@@ -816,7 +819,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
                         will(returnValue(registrationDate));
 
                         one(fileDAO).updateFileUserEdit(DEFAULT_FILE_ID, newName, newComment,
-                                newExpirationDate);
+                                DateTimeUtils.extendUntilEndOfDay(newExpirationDate));
                     }
                 });
 

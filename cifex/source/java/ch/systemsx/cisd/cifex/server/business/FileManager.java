@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import static ch.systemsx.cisd.cifex.server.AbstractFileUploadServlet.MAX_FILENAME_LENGTH;
+import static ch.systemsx.cisd.common.utilities.DateTimeUtils.extendUntilEndOfDay;
+import static ch.systemsx.cisd.cifex.server.util.ExpirationUtilities.fixExpiration;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -824,8 +826,8 @@ final class FileManager extends AbstractManager implements IFileManager
             success = true;
         } finally
         {
-            businessContext.getUserActionLog().logEditFile(fileId, name, newExpirationDate,
-                    success);
+            businessContext.getUserActionLog()
+                    .logEditFile(fileId, name, newExpirationDate, success);
         }
     }
 
@@ -844,7 +846,7 @@ final class FileManager extends AbstractManager implements IFileManager
 
     private Date calculateNewExpirationDate(final FileDTO file, final UserDTO requestUser)
     {
-        final Integer maxUserRetentionDaysOrNull = tryGetMaxUserRetentionDays(requestUser);
+        final Integer maxUserRetentionDaysOrNull = tryGetMaxFileRetentionDays(requestUser);
         final int fileRetentionDays = businessContext.getFileRetention();
         final Date now = new Date(timeProvider.getTimeInMilliseconds());
         final Date newExpirationDate = DateUtils.addDays(now, fileRetentionDays);
@@ -856,10 +858,10 @@ final class FileManager extends AbstractManager implements IFileManager
                     DateUtils.addDays(registrationDate, maxUserRetentionDaysOrNull);
             if (newExpirationDate.getTime() > maxExpirationDate.getTime())
             {
-                return maxExpirationDate;
+                return extendUntilEndOfDay(maxExpirationDate);
             }
         }
-        return newExpirationDate;
+        return extendUntilEndOfDay(newExpirationDate);
     }
 
     public void updateFile(final FileDTO file, UserDTO requestUser)
@@ -879,32 +881,30 @@ final class FileManager extends AbstractManager implements IFileManager
     private Date fixFileExpiration(final long fileId, final Date proposedExpirationDate,
             final UserDTO requestUser)
     {
-        final Integer maxUserRetentionDaysOrNull = tryGetMaxUserRetentionDays(requestUser);
-        if (maxUserRetentionDaysOrNull == null)
-        {
-            return proposedExpirationDate;
-        }
-        final Date fileRegistrationDate = daoFactory.getFileDAO().getFileRegistrationDate(fileId);
-        final Date maxExpirationDate =
-                DateUtils.addDays(fileRegistrationDate, maxUserRetentionDaysOrNull);
-        if (proposedExpirationDate.getTime() > maxExpirationDate.getTime())
-        {
-            return maxExpirationDate;
-        } else
-        {
-            return proposedExpirationDate;
-        }
+        final Integer maxRetentionDaysOrNull = tryGetMaxFileRetentionDays(requestUser);
+        // Note: If no limit for the retention time applies then the registration date is not
+        // required to compute the expiration date.
+        final Date registrationDateOrNull =
+                (maxRetentionDaysOrNull == null) ? null : daoFactory.getFileDAO()
+                        .getFileRegistrationDate(fileId);
+        return fixExpiration(proposedExpirationDate, registrationDateOrNull, maxRetentionDaysOrNull);
     }
 
-    private Integer tryGetMaxUserRetentionDays(final UserDTO requestUser)
+    private Integer tryGetMaxFileRetentionDays(final UserDTO requestUserOrNull)
     {
-        if (requestUser.isAdmin())
+        if (requestUserOrNull == null)
         {
-            return null;
+            return businessContext.getMaxFileRetention();
         } else
         {
-            return (requestUser.getMaxFileRetention() == null) ? businessContext
-                    .getMaxFileRetention() : requestUser.getMaxFileRetention();
+            if (requestUserOrNull.isAdmin())
+            {
+                return null;
+            } else
+            {
+                return (requestUserOrNull.getMaxFileRetention() == null) ? businessContext
+                        .getMaxFileRetention() : requestUserOrNull.getMaxFileRetention();
+            }
         }
     }
 

@@ -16,11 +16,12 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import static ch.systemsx.cisd.cifex.server.util.ExpirationUtilities.fixExpiration;
+
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
@@ -122,7 +123,7 @@ class UserManager extends AbstractManager implements IUserManager
         try
         {
             // Check that the new expiration date is in the valid range.
-            checkUserExpiration(null, user, registratorOrNull);
+            checkAndFixUserExpiration(null, user, registratorOrNull);
             final IUserBO userBO = boFactory.createUserBO();
             userBO.define(user);
             userBO.save();
@@ -331,7 +332,7 @@ class UserManager extends AbstractManager implements IUserManager
             userToUpdate.setQuotaGroupId(existingUser.getQuotaGroupId());
 
             // Check that the new expiration date is in the valid range.
-            checkUserExpiration(existingUser, userToUpdate, requestUserOrNull);
+            checkAndFixUserExpiration(existingUser, userToUpdate, requestUserOrNull);
 
             // Password, update it if it has been provided.
             if (Password.isEmpty(passwordOrNull) == false)
@@ -370,25 +371,23 @@ class UserManager extends AbstractManager implements IUserManager
 
     }
 
-    private void checkUserExpiration(UserDTO oldUserOrNull, final UserDTO userToUpdate,
+    private void checkAndFixUserExpiration(UserDTO oldUserOrNull, final UserDTO userToUpdate,
             final UserDTO requestUserOrNull)
     {
         if (userToUpdate.isPermanent() == false)
         {
-            final Integer maxUserRetentionDaysOrNull =
-                    tryGetMaxUserRetentionDays(requestUserOrNull);
-            if (maxUserRetentionDaysOrNull != null)
-            {
-                final Date registrationDate =
-                        (oldUserOrNull == null) ? new Date() : oldUserOrNull.getRegistrationDate();
-                final Date maxExpirationDate =
-                        DateUtils.addDays(registrationDate, maxUserRetentionDaysOrNull);
-                if (userToUpdate.getExpirationDate().getTime() > maxExpirationDate.getTime())
-                {
-                    userToUpdate.setExpirationDate(maxExpirationDate);
-                }
-            }
+            final Date registrationDate = getRegistrationDate(oldUserOrNull);
+            final Integer maxRetentionDaysOrNull = tryGetMaxUserRetentionDays(requestUserOrNull);
+            final Date expirationDate =
+                    fixExpiration(userToUpdate.getExpirationDate(), registrationDate,
+                            maxRetentionDaysOrNull);
+            userToUpdate.setExpirationDate(expirationDate);
         }
+    }
+
+    private Date getRegistrationDate(UserDTO userOrNull)
+    {
+        return (userOrNull == null) ? new Date() : userOrNull.getRegistrationDate();
     }
 
     private Integer tryGetMaxUserRetentionDays(final UserDTO requestUserOrNull)
