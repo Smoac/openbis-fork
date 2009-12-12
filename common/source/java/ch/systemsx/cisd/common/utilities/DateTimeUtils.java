@@ -91,5 +91,15 @@ public final class DateTimeUtils
     {
         return value == 1 ? value + " " + unit : value + " " + unit + "s"; 
     }
+    
+    /**
+     * Extends the given <var>date</var> until the end of the day.
+     */
+    public static Date extendUntilEndOfDay(Date date)
+    {
+        return DateUtils.addMilliseconds(DateUtils.addDays(DateUtils.truncate(date,
+                Calendar.DAY_OF_MONTH), 1), -1);
+    }
+
 
 }

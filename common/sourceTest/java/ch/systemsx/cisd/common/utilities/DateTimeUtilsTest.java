@@ -16,11 +16,16 @@
 
 package ch.systemsx.cisd.common.utilities;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 /**
- * 
+ * Test cases for the {@link DateTimeUtils}.
  *
  * @author Franz-Josef Elmer
  */
@@ -41,4 +46,19 @@ public class DateTimeUtilsTest extends AssertJUnit
         assertEquals("1 hour and 1 minute", DateTimeUtils.renderDuration(61 * 1000 * 60));
         assertEquals("2 hours and 3 minutes", DateTimeUtils.renderDuration(123 * 1000 * 60));
     }
+
+    @Test
+    public void testExtendUntilEndOfDay() throws ParseException
+    {
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date d = df.parse("2009-12-12 14:39:55");
+        assertEquals("2009-12-12 23:59:59", df.format(DateTimeUtils.extendUntilEndOfDay(d)));
+        
+        d = df.parse("2009-12-31 00:00:00");
+        assertEquals("2009-12-31 23:59:59", df.format(DateTimeUtils.extendUntilEndOfDay(d)));
+
+        d = df.parse("2010-01-01 23:59:59");
+        assertEquals("2010-01-01 23:59:59", df.format(DateTimeUtils.extendUntilEndOfDay(d)));
+    }
+    
 }
