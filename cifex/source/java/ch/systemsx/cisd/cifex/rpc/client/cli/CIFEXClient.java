@@ -25,8 +25,6 @@ import javax.net.ssl.SSLHandshakeException;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.varia.NullAppender;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.RemoteConnectFailureException;
 
@@ -49,19 +47,18 @@ import ch.systemsx.cisd.common.utilities.SystemExit;
 public class CIFEXClient
 {
 
+    static
+    {
+        // Disable any logging output.
+        System.setProperty("org.apache.commons.logging.Log",
+                "org.apache.commons.logging.impl.NoOpLog");
+    }
+    
     @Private
     static IExitHandler exitHandler = SystemExit.SYSTEM_EXIT;
 
     /** Creates the set of available <code>ICommand</code> implementations. */
     private final static Map<String, ICommand> commands = createCommands();
-
-    /** Initializes the client. */
-    private final static void init()
-    {
-        // Disable any logging output. This can also be realized using following statement:
-        // Logger.getRootLogger().setLevel(Level.OFF);
-        BasicConfigurator.configure(new NullAppender());
-    }
 
     private final static void printUsage()
     {
@@ -92,7 +89,6 @@ public class CIFEXClient
 
     public static void main(final String[] args) throws Exception
     {
-        init();
         if (args.length == 1 && "--version".equals(args[0]))
         {
             printVersion();

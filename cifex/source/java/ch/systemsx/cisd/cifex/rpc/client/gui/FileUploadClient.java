@@ -65,6 +65,13 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
  */
 public class FileUploadClient
 {
+    static
+    {
+        // Disable any logging output.
+        System.setProperty("org.apache.commons.logging.Log",
+                "org.apache.commons.logging.impl.NoOpLog");
+    }
+    
     private static final String TITLE = "CIFEX Uploader";
 
     private static final String REMOVE_FROM_TABLE_MENU_ITEM = "Remove selected files from table";

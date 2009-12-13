@@ -67,6 +67,13 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
  */
 public class FileDownloadClient
 {
+    static
+    {
+        // Disable any logging output.
+        System.setProperty("org.apache.commons.logging.Log",
+                "org.apache.commons.logging.impl.NoOpLog");
+    }
+    
     private static final String TITLE = "CIFEX Downloader";
 
     /**
