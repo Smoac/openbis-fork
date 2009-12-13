@@ -31,7 +31,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -50,12 +50,16 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
 
     private final GridWidget<AbstractFileGridModel> gridWidget;
 
+    private final IQuotaInformationUpdater quotaUpdaterOrNull;
+
     FileActionGridCellListener(final boolean adminView, final ViewContext viewContext,
-            GridWidget<AbstractFileGridModel> gridWidget)
+            final GridWidget<AbstractFileGridModel> gridWidget,
+            final IQuotaInformationUpdater quotaUpdaterOrNull)
     {
         this.adminView = adminView;
         this.viewContext = viewContext;
         this.gridWidget = gridWidget;
+        this.quotaUpdaterOrNull = quotaUpdaterOrNull;
     }
 
     //
@@ -83,12 +87,16 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         {
             assert adminView == false;
             viewContext.getCifexService().listOwnedFiles(
-                    new AbstractAsyncCallback<List<FileInfoDTO>>(viewContext)
+                    new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(viewContext)
                         {
-                            public final void onSuccess(final List<FileInfoDTO> res)
+                            public final void onSuccess(final List<OwnerFileInfoDTO> res)
                             {
                                 modelBasedGrid.setDataAndRefresh(OwnedFileGridModel.convert(
                                         viewContext.getMessageResources(), res));
+                                if (quotaUpdaterOrNull != null)
+                                {
+                                    quotaUpdaterOrNull.triggerUpdate();
+                                }
                             }
                         });
         }
@@ -115,9 +123,9 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         {
             assert adminView;
             viewContext.getCifexService().listFiles(
-                    new AbstractAsyncCallback<List<AdminFileInfoDTO>>(viewContext)
+                    new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(viewContext)
                         {
-                            public final void onSuccess(final List<AdminFileInfoDTO> res)
+                            public final void onSuccess(final List<OwnerFileInfoDTO> res)
                             {
                                 modelBasedGrid.setDataAndRefresh(AdminFileGridModel.convert(
                                         viewContext.getMessageResources(), res));

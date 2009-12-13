@@ -26,7 +26,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 
 /**
  * A <code>AbstractFileGridModel</code> extension for (directly or indirectly) owned files.
@@ -37,7 +37,7 @@ public class OwnedFileGridModel extends AbstractFileGridModel
 {
     private static final long serialVersionUID = Constants.VERSION;
 
-    public OwnedFileGridModel(IMessageResources messageResources, FileInfoDTO file)
+    public OwnedFileGridModel(IMessageResources messageResources, OwnerFileInfoDTO file)
     {
 
         super(messageResources);
@@ -45,6 +45,7 @@ public class OwnedFileGridModel extends AbstractFileGridModel
         set(NAME, file.getName());// String
         set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
         set(OWNER, UserRenderer.createUserAnchor(file.getOwner()));// String
+        set(SHARED_WITH, UserRenderer.createUserAnchor(file.getSharingUsers()));// String
         set(CONTENT_TYPE, file.getContentType());// String
         set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
         set(COMPLETE_SIZE, new Double(file.getCompleteSize()));// Double
@@ -67,6 +68,7 @@ public class OwnedFileGridModel extends AbstractFileGridModel
         configs.add(createNameColumnConfig(messageResources));
         configs.add(createCommentColumnConfig(messageResources));
         configs.add(createOwnerColumnConfig(messageResources));
+        configs.add(createSharedWithColumnConfig(messageResources));
         configs.add(createContentTypeColumnConfig(messageResources));
         configs.add(createSizeColumnConfig(messageResources));
         configs.add(createCompleteSizeColumnConfig(messageResources));
@@ -78,11 +80,11 @@ public class OwnedFileGridModel extends AbstractFileGridModel
     }
 
     public final static List<AbstractFileGridModel> convert(IMessageResources messageResources,
-            final List<FileInfoDTO> filters)
+            final List<OwnerFileInfoDTO> filters)
     {
         final List<AbstractFileGridModel> result = new ArrayList<AbstractFileGridModel>();
 
-        for (final FileInfoDTO filter : filters)
+        for (final OwnerFileInfoDTO filter : filters)
         {
             result.add(new OwnedFileGridModel(messageResources, filter));
         }

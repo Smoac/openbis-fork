@@ -22,7 +22,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RemoteService;
 
-import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -55,6 +55,12 @@ public interface ICIFEXServiceAsync extends RemoteService
      * Returns the currently logged user if this user is already authenticated.
      */
     public void getCurrentUser(final AsyncCallback<UserInfoDTO> callback);
+
+    /**
+     * Returns the currently logged in user (if a user is authenticated), refreshing its quota
+     * information.
+     */
+    public void refreshQuotaInformationOfCurrentUser(final AsyncCallback<UserInfoDTO> callback);
 
     /**
      * Returns a list of <code>User</code>s.
@@ -115,12 +121,12 @@ public interface ICIFEXServiceAsync extends RemoteService
     /**
      * List the files directly or indirectly owned by the currently logged user.
      */
-    public void listOwnedFiles(final AsyncCallback<List<FileInfoDTO>> fileAsyncCallback);
+    public void listOwnedFiles(final AsyncCallback<List<OwnerFileInfoDTO>> fileAsyncCallback);
 
     /**
      * List all files (only for admins).
      */
-    public void listFiles(final AsyncCallback<List<AdminFileInfoDTO>> fileAsyncCallback);
+    public void listFiles(final AsyncCallback<List<OwnerFileInfoDTO>> fileAsyncCallback);
 
     /**
      * Deletes file given by its <code>id</code>.

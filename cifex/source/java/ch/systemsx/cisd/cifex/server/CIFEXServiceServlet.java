@@ -35,7 +35,7 @@ import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
-import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -88,6 +88,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.getCurrentUser();
     }
 
+    public UserInfoDTO refreshQuotaInformationOfCurrentUser() throws InvalidSessionException
+    {
+        return cifexServiceDelegate.refreshQuotaInformationOfCurrentUser();
+    }
+
     public final UserInfoDTO tryLogin(final String user, final String password)
             throws UserFailureException, EnvironmentFailureException
     {
@@ -104,12 +109,12 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listDownloadFiles();
     }
 
-    public List<FileInfoDTO> listOwnedFiles() throws InvalidSessionException
+    public List<OwnerFileInfoDTO> listOwnedFiles() throws InvalidSessionException
     {
         return cifexServiceDelegate.listOwnedFiles();
     }
 
-    public List<AdminFileInfoDTO> listFiles() throws InvalidSessionException,
+    public List<OwnerFileInfoDTO> listFiles() throws InvalidSessionException,
             InsufficientPrivilegesException
     {
         return cifexServiceDelegate.listFiles();

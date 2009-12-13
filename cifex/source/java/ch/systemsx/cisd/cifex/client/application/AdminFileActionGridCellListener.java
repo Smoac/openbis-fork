@@ -31,7 +31,7 @@ public class AdminFileActionGridCellListener extends FileActionGridCellListener
     AdminFileActionGridCellListener(ViewContext viewContext,
             GridWidget<AbstractFileGridModel> gridWidget)
     {
-        super(true, viewContext, gridWidget);
+        super(true, viewContext, gridWidget, null);
     }
 
     @Override

@@ -183,7 +183,17 @@ final class FileManager extends AbstractManager implements IFileManager
     @Transactional
     public final List<FileDTO> listOwnedFiles(final long userId)
     {
-        return daoFactory.getFileDAO().listDirectlyAndIndirectlyOwnedFiles(userId);
+        final List<FileDTO> list =
+                daoFactory.getFileDAO().listDirectlyAndIndirectlyOwnedFiles(userId);
+        final Map<Long, String> idToCodeMap = new HashMap<Long, String>();
+        for (FileDTO file : list)
+        {
+            for (UserDTO user : file.getSharingUsers())
+            {
+                user.setUserCode(getUserCodeForId(idToCodeMap, user.getID()));
+            }
+        }
+        return list;
     }
 
     @Transactional

@@ -251,6 +251,15 @@ final public class FileDAO extends AbstractDAO implements IFileDAO
                                 + "left join users u2 on u1.user_id_registrator = u2.id "
                                 + "where u1.id = ? or u2.id = ?", FILE_WITH_OWNER_ROW_MAPPER,
                         userId, userId);
+        for (FileDTO file : list)
+        {
+            final List<UserDTO> sharingUsers = listSharingUsers(file.getID());
+            if (sharingUsers.size() > 0)
+            {
+                file.setSharingUsers(sharingUsers);
+            }
+
+        }
         return list;
     }
 

@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.shared.basic.dto;
+package ch.systemsx.cisd.cifex.client.application;
 
 /**
- * A client <i>DTO</i> which describes a file with additional admin information.
+ * An interface for initiating an update of the quota information.
  *
  * @author Bernd Rinn
  */
-public final class AdminFileInfoDTO extends FileInfoDTO
+public interface IQuotaInformationUpdater
 {
 
-    private static final long serialVersionUID = 1L;
-    
-    private BasicUserInfoDTO[] sharingUsers;
-    
-    public BasicUserInfoDTO[] getSharingUsers()
-    {
-        return sharingUsers;
-    }
-
-    public void setSharingUsers(final BasicUserInfoDTO[] sharingUsers)
-    {
-        this.sharingUsers = sharingUsers;
-    }
-    
+    /**
+     * Get the most current information about the quota of the current user from the server.
+     */
+    public void triggerUpdate();
 }

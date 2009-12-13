@@ -29,7 +29,7 @@ import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.grid.GridUtils;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
-import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -53,7 +53,7 @@ final class AdminMainPage extends AbstractMainPage
 
         LayoutContainer listFilesPanel = createContainer();
         GridWidget<AbstractFileGridModel> filesGrid =
-                createFileTable(new AdminFileInfoDTO[0], context);
+                createFileTable(new OwnerFileInfoDTO[0], context);
         addTitlePart(listFilesPanel, context.getMessageResources().getFilesPartTitle());
         listFilesPanel.add(filesGrid.getWidget());
 
@@ -82,7 +82,7 @@ final class AdminMainPage extends AbstractMainPage
     }
 
     private static final GridWidget<AbstractFileGridModel> createFileTable(
-            final AdminFileInfoDTO[] files, ViewContext context)
+            final OwnerFileInfoDTO[] files, ViewContext context)
     {
         List<AbstractFileGridModel> modelData =
                 AdminFileGridModel.convert(context.getMessageResources(), Arrays.asList(files));
@@ -149,7 +149,7 @@ final class AdminMainPage extends AbstractMainPage
      * on success.
      */
     private static final class FileAdminAsyncCallback extends
-            AbstractAsyncCallback<List<AdminFileInfoDTO>>
+            AbstractAsyncCallback<List<OwnerFileInfoDTO>>
     {
 
         private final ViewContext context;
@@ -163,7 +163,7 @@ final class AdminMainPage extends AbstractMainPage
             this.filesGrid = filesGrid;
         }
 
-        public final void onSuccess(final List<AdminFileInfoDTO> result)
+        public final void onSuccess(final List<OwnerFileInfoDTO> result)
         {
             filesGrid.setDataAndRefresh(AdminFileGridModel.convert(context.getMessageResources(),
                     result));

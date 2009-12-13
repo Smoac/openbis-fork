@@ -14,25 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.application;
-
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+package ch.systemsx.cisd.cifex.shared.basic.dto;
 
 /**
- * The page where files available for download are shown.
- * 
- * @author Chandrasekhar Ramakrishnan
+ * A client <i>DTO</i> which describes a file with additional information for the owner / admin.
+ *
+ * @author Bernd Rinn
  */
-final class InboxPage extends AbstractFileListPage {
+public final class OwnerFileInfoDTO extends FileInfoDTO
+{
 
-	InboxPage(final ViewContext context) {
-		super(context);
-	}
+    private static final long serialVersionUID = 1L;
+    
+    private BasicUserInfoDTO[] sharingUsers;
+    
+    public BasicUserInfoDTO[] getSharingUsers()
+    {
+        return sharingUsers;
+    }
 
-	@Override
-	protected final LayoutContainer createMainPanel() {
-		final LayoutContainer contentPanel = new LayoutContainer();
-		createListFilesGrid(contentPanel, DOWNLOAD, context, null);
-		return contentPanel;
-	}
+    public void setSharingUsers(final BasicUserInfoDTO[] sharingUsers)
+    {
+        this.sharingUsers = sharingUsers;
+    }
+    
 }

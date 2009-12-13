@@ -53,8 +53,7 @@ public interface IPageController
     /**
      * Instantiates <code>AdminPage</code> and adds it to the <code>RootPanel</code>.
      * <p>
-     * Calling this method creates an {@link AdminMainPage} for <i>administrators</i> and a
-     * {@link MainPage} for <i>regular</i> or <i>temporary</i> users.
+     * Calling this method creates an {@link AdminMainPage} for <i>administrators</i>.
      * </p>
      */
     public void createAdminPage();

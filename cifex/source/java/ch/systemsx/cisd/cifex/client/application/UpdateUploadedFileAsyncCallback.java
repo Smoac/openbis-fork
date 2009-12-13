@@ -21,7 +21,7 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
-import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 
 /**
  * An {@link AsyncCallback} that updates the list of files after a file has been updated.
@@ -45,9 +45,9 @@ class UpdateUploadedFileAsyncCallback extends AbstractAsyncCallback<Void>
     {
 
         viewContext.getCifexService().listOwnedFiles(
-                new AbstractAsyncCallback<List<FileInfoDTO>>(viewContext)
+                new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(viewContext)
                     {
-                        public final void onSuccess(final List<FileInfoDTO> res)
+                        public final void onSuccess(final List<OwnerFileInfoDTO> res)
                         {
                             modelBasedGrid.setDataAndRefresh(OwnedFileGridModel.convert(viewContext
                                     .getMessageResources(), res));

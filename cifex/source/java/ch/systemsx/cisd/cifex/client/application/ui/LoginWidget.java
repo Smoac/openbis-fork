@@ -173,9 +173,12 @@ public class LoginWidget extends VerticalPanel
         final Model model = context.getModel();
         model.setUser(user);
         if (FileDownloadHelper.startFileDownload(model))
+        {
             context.getPageController().createInboxPage();
-        else
+        } else
+        {
             context.getPageController().createSharePage();
+        }
     }
 
     public final TextField<String> getUserField()

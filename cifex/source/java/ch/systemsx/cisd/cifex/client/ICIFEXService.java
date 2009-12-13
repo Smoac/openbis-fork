@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
-import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -60,12 +60,20 @@ public interface ICIFEXService extends RemoteService
     public Configuration getConfiguration() throws InvalidSessionException;
 
     /**
-     * Returns the currently logged user if this user is already authenticated.
+     * Returns the currently logged in user if this user is already authenticated.
      * 
-     * @return the currently logged user.
+     * @return The currently logged in user.
      * @throws InvalidSessionException if user not logged in.
      */
     public UserInfoDTO getCurrentUser() throws InvalidSessionException;
+
+    /**
+     * Returns the currently logged in user (if a user is authenticated), refreshing its quota
+     * information.
+     * 
+     * @return The currently logged in user with current quota information.
+     */
+    public UserInfoDTO refreshQuotaInformationOfCurrentUser() throws InvalidSessionException;
 
     /**
      * Returns a list of <code>User</code>s.
@@ -168,12 +176,12 @@ public interface ICIFEXService extends RemoteService
      * Never returns <code>null</code> but could return an empty array.
      * </p>
      */
-    public List<FileInfoDTO> listOwnedFiles() throws InvalidSessionException;
+    public List<OwnerFileInfoDTO> listOwnedFiles() throws InvalidSessionException;
 
     /**
      * List all files (only for admins).
      */
-    public List<AdminFileInfoDTO> listFiles() throws InvalidSessionException,
+    public List<OwnerFileInfoDTO> listFiles() throws InvalidSessionException,
             InsufficientPrivilegesException;
 
     /**

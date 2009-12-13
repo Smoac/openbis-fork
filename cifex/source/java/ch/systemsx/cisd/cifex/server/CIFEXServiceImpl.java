@@ -49,7 +49,7 @@ import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
-import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
@@ -79,10 +79,6 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, CIFEXServiceImpl.class);
-
-    private final static boolean DOWNLOAD = true;
-
-    private final static boolean UPLOAD = false;
 
     public CIFEXServiceImpl(final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
@@ -175,6 +171,14 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     public final UserInfoDTO getCurrentUser() throws InvalidSessionException
     {
         return BeanUtils.createBean(UserInfoDTO.class, privGetCurrentUser());
+    }
+
+    public UserInfoDTO refreshQuotaInformationOfCurrentUser() throws InvalidSessionException
+    {
+        final IUserManager userManager = domainModel.getUserManager();
+        final UserDTO currentUser = privGetCurrentUser();
+        userManager.refreshQuotaInformation(currentUser);
+        return BeanUtils.createBean(UserInfoDTO.class, currentUser);
     }
 
     public final UserInfoDTO trySwitchToExternalAuthentication(final String userCode,
@@ -403,37 +407,26 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBean(FileInfoDTO.class, fileDTO);
     }
 
-    public List<AdminFileInfoDTO> listFiles() throws InvalidSessionException,
+    public List<OwnerFileInfoDTO> listFiles() throws InvalidSessionException,
             InsufficientPrivilegesException
     {
         checkAdmin("listFiles");
         final List<FileDTO> files = domainModel.getFileManager().listFiles();
-        return BeanUtils.createBeanList(AdminFileInfoDTO.class, files, null);
+        return BeanUtils.createBeanList(OwnerFileInfoDTO.class, files, null);
     }
 
     public final List<FileInfoDTO> listDownloadFiles() throws InvalidSessionException
     {
-        return listFiles(DOWNLOAD);
+        final UserDTO user = privGetCurrentUser();
+        final List<FileDTO> files = domainModel.getFileManager().listDownloadFiles(user.getID());
+        return BeanUtils.createBeanList(FileInfoDTO.class, files, null);
     }
 
-    public final List<FileInfoDTO> listOwnedFiles() throws InvalidSessionException
-    {
-        return listFiles(UPLOAD);
-    }
-
-    private final List<FileInfoDTO> listFiles(final boolean showDownload)
-            throws InvalidSessionException
+    public final List<OwnerFileInfoDTO> listOwnedFiles() throws InvalidSessionException
     {
         final UserDTO user = privGetCurrentUser();
-        final List<FileDTO> files;
-        if (showDownload)
-        {
-            files = domainModel.getFileManager().listDownloadFiles(user.getID());
-        } else
-        {
-            files = domainModel.getFileManager().listOwnedFiles(user.getID());
-        }
-        return BeanUtils.createBeanList(FileInfoDTO.class, files, null);
+        final List<FileDTO> files = domainModel.getFileManager().listOwnedFiles(user.getID());
+        return BeanUtils.createBeanList(OwnerFileInfoDTO.class, files, null);
     }
 
     public void deleteUser(final String code) throws InvalidSessionException,

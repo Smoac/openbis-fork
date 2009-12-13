@@ -19,7 +19,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 
-
 /**
  * FileActionGridCellListener for non-admin grids.
  * 
@@ -29,9 +28,10 @@ public class UploadedFileActionGridCellListener extends FileActionGridCellListen
 {
 
     UploadedFileActionGridCellListener(ViewContext viewContext,
-            GridWidget<AbstractFileGridModel> gridWidget)
+            GridWidget<AbstractFileGridModel> gridWidget,
+            final IQuotaInformationUpdater quotaUpdaterOrNull)
     {
-        super(false, viewContext, gridWidget);
+        super(false, viewContext, gridWidget, quotaUpdaterOrNull);
     }
 
     @Override

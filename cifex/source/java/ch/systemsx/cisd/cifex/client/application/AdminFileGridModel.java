@@ -26,7 +26,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.cifex.shared.basic.dto.AdminFileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 
 /**
  * A <code>AbstractFileGridModel</code> extension for files in the administration.
@@ -45,6 +45,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         configs.add(createCommentColumnConfig(messageResources));
         configs.add(createOwnerColumnConfig(messageResources));
         configs.add(createRegistratorColumnConfig(messageResources));
+        configs.add(createSharedWithColumnConfig(messageResources));
         configs.add(createContentTypeColumnConfig(messageResources));
         configs.add(createSizeColumnConfig(messageResources));
         configs.add(createCompleteSizeColumnConfig(messageResources));
@@ -56,7 +57,7 @@ public class AdminFileGridModel extends AbstractFileGridModel
         return configs;
     }
 
-    public AdminFileGridModel(IMessageResources messageResources, AdminFileInfoDTO file)
+    public AdminFileGridModel(IMessageResources messageResources, OwnerFileInfoDTO file)
     {
         super(messageResources);
         set(ID, file.getID());// long
@@ -82,11 +83,11 @@ public class AdminFileGridModel extends AbstractFileGridModel
     }
 
     public final static List<AbstractFileGridModel> convert(IMessageResources messageResources,
-            final List<AdminFileInfoDTO> filters)
+            final List<OwnerFileInfoDTO> filters)
     {
         final List<AbstractFileGridModel> result = new ArrayList<AbstractFileGridModel>();
 
-        for (final AdminFileInfoDTO filter : filters)
+        for (final OwnerFileInfoDTO filter : filters)
         {
             result.add(new AdminFileGridModel(messageResources, filter));
         }
