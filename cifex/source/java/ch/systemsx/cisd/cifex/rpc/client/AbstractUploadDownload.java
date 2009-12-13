@@ -37,11 +37,13 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
  */
 public abstract class AbstractUploadDownload implements ICIFEXOperation
 {
-    protected static final int BLOCK_SIZE = 8 * 1024 * 1024;
+    protected static final int DEFAULT_BLOCK_SIZE = 8 * 1024 * 1024;
 
     protected static final int MAX_RETRIES = 600;
 
     private static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L;
+    
+    protected final int blockSize;
 
     protected final ICIFEXRPCService service;
 
@@ -58,8 +60,17 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
      */
     public AbstractUploadDownload(ICIFEXRPCService service, String sessionID)
     {
+        this(service, sessionID, DEFAULT_BLOCK_SIZE);
+    }
+     
+   /**
+     * Creates an instance for the specified service and session ID.
+     */
+    public AbstractUploadDownload(ICIFEXRPCService service, String sessionID, int blockSize)
+    {
         this.service = service;
         this.sessionID = sessionID;
+        this.blockSize = blockSize;
         checkService();
     }
 
@@ -104,12 +115,12 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
         long filePointer = 0L;
         while (filePointer < maxSize)
         {
-            final int blockSize = (int) Math.min(maxSize - filePointer, BLOCK_SIZE);
-            final byte[] bytes = new byte[blockSize];
+            final int actualBlockSize = (int) Math.min(maxSize - filePointer, DEFAULT_BLOCK_SIZE);
+            final byte[] bytes = new byte[actualBlockSize];
             fileProvider.seek(filePointer);
-            fileProvider.readFully(bytes, 0, blockSize);
+            fileProvider.readFully(bytes, 0, actualBlockSize);
             checksum.update(bytes);
-            filePointer += blockSize;
+            filePointer += actualBlockSize;
         }
         return (int) checksum.getValue();
     }

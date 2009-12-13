@@ -46,6 +46,14 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
     }
 
     /**
+     * Creates an instance for the specified service and session ID.
+     */
+    public Downloader(ICIFEXRPCService service, String sessionID, int blockSize)
+    {
+        super(service, sessionID, blockSize);
+    }
+
+    /**
      * Adds a listener for progress events.
      */
     public void addProgressListener(IProgressListener listener)
@@ -87,16 +95,16 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                 fireProgressEvent(filePointer, fileSize);
                 while (filePointer < fileSize)
                 {
-                    final int blockSize =
-                            (int) Math.min(fileInfo.getSize() - filePointer, BLOCK_SIZE);
-                    downloadAndStoreBlock(fileProvider, filePointer, blockSize, crc32);
+                    final int actualBlockSize =
+                            (int) Math.min(fileInfo.getSize() - filePointer, blockSize);
+                    downloadAndStoreBlock(fileProvider, filePointer, actualBlockSize, crc32);
                     if (cancelled.get())
                     {
                         service.finish(sessionID, false);
                         fireFinishedEvent(false);
                         return;
                     }
-                    filePointer += blockSize;
+                    filePointer += actualBlockSize;
                     fireProgressEvent(filePointer, fileSize);
                 }
                 final int crc32Value = (int) crc32.getValue();
@@ -129,7 +137,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
     }
 
     private void downloadAndStoreBlock(final RandomAccessFileProvider fileProvider,
-            long filePointer, final int blockSize, final CRC32 crc32) throws IOException
+            long filePointer, final int currentBlockSize, final CRC32 crc32) throws IOException
     {
         RemoteAccessException lastExceptionOrNull = null;
         for (int i = 0; i < MAX_RETRIES; ++i)
@@ -140,7 +148,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             }
             try
             {
-                byte[] block = service.downloadBlock(sessionID, filePointer, blockSize);
+                byte[] block = service.downloadBlock(sessionID, filePointer, currentBlockSize);
                 crc32.update(block);
                 fileProvider.getRandomAccessFile().seek(filePointer);
                 fileProvider.getRandomAccessFile().write(block);

@@ -51,6 +51,14 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     }
 
     /**
+     * Creates an instance for the specified service and session ID.
+     */
+    public Uploader(ICIFEXRPCService service, String sessionID, int blockSize)
+    {
+        super(service, sessionID, blockSize);
+    }
+
+    /**
      * Adds a listener for upload events.
      */
     public void addProgressListener(final IUploadProgressListener uploadListener)
@@ -151,16 +159,16 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                         fireProgressEvent(filePointer, fileSize);
                         while (filePointer < fileSize)
                         {
-                            final int blockSize =
-                                    (int) Math.min(fileSize - filePointer, BLOCK_SIZE);
-                            uploadNextBlock(fileProvider, filePointer, blockSize, crc32);
+                            final int actualBlockSize =
+                                    (int) Math.min(fileSize - filePointer, blockSize);
+                            uploadNextBlock(fileProvider, filePointer, actualBlockSize, crc32);
                             if (cancelled.get())
                             {
                                 service.finish(sessionID, false);
                                 fireFinishedEvent(false);
                                 return;
                             }
-                            filePointer += blockSize;
+                            filePointer += actualBlockSize;
                             fireProgressEvent(filePointer, fileSize);
                         }
                     } finally
@@ -222,13 +230,13 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     }
 
     private void uploadNextBlock(final RandomAccessFileProvider fileProvider,
-            final long filePointer, final int blockSize, final CRC32 crc32) throws IOException,
+            final long filePointer, final int currentBlockSize, final CRC32 crc32) throws IOException,
             EnvironmentFailureException
     {
         final RandomAccessFile randomAccessFile = fileProvider.getRandomAccessFile();
-        final byte[] bytes = new byte[blockSize];
+        final byte[] bytes = new byte[currentBlockSize];
         randomAccessFile.seek(filePointer);
-        randomAccessFile.readFully(bytes, 0, blockSize);
+        randomAccessFile.readFully(bytes, 0, currentBlockSize);
         crc32.update(bytes);
         final int runningCrc32Value = (int) crc32.getValue();
         RemoteAccessException lastExceptionOrNull = null;
