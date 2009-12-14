@@ -26,8 +26,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Stores the lines of a tsv file. 
- *
+ * Stores the lines of a tsv file.
+ * 
  * @author Bernd Rinn
  */
 public class DatasetFileLines
@@ -36,11 +36,15 @@ public class DatasetFileLines
 
     private final List<String[]> dataLines;
 
+    private final String separator;
+
     private final File file;
-    
-    public DatasetFileLines(File file, DatasetDescription dataset, List<String> lines)
+
+    public DatasetFileLines(File file, DatasetDescription dataset, List<String> lines,
+            String separator)
     {
         this.file = file;
+        this.separator = separator;
         if (lines.size() < 2)
         {
             throw UserFailureException.fromTemplate(
@@ -66,7 +70,7 @@ public class DatasetFileLines
     /** splits line with '\t' and strips quotes from every token */
     private String[] parseLine(String line)
     {
-        String[] tokens = line.split("\t");
+        String[] tokens = line.split(separator);
         return StringUtils.stripAll(tokens, "'\"");
     }
 

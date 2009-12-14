@@ -43,7 +43,7 @@ public class MergedRowDataReportingPlugin extends AbstractDataMergingReportingPl
 
     public MergedRowDataReportingPlugin(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot);
+        super(properties, storeRoot, "\t");
     }
 
     public TableModel createReport(List<DatasetDescription> datasets)

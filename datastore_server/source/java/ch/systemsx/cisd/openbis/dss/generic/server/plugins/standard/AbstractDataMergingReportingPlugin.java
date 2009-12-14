@@ -57,7 +57,10 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
 
     private final String includePatternOrNull;
 
-    protected AbstractDataMergingReportingPlugin(Properties properties, File storeRoot)
+    private final String separator;
+
+    protected AbstractDataMergingReportingPlugin(Properties properties, File storeRoot,
+            String separator)
     {
         super(properties, storeRoot);
         final String excludePatternOrNull = properties.getProperty(FILE_EXCLUDE_PATTERN);
@@ -69,6 +72,7 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
             this.excludePattern = excludePatternOrNull;
         }
         this.includePatternOrNull = properties.getProperty(FILE_INCLUDE_PATTERN);
+        this.separator = separator;
     }
 
     protected String[] getHeaderTitles(DatasetDescription dataset)
@@ -182,7 +186,7 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
         assert reader != null : "Unspecified reader";
 
         final List<String> lines = IOUtils.readLines(reader);
-        return new DatasetFileLines(file, dataset, lines);
+        return new DatasetFileLines(file, dataset, lines, separator);
     }
 
     protected boolean isFileExcluded(File file)
