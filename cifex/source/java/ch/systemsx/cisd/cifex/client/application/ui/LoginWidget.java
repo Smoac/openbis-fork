@@ -194,6 +194,7 @@ public class LoginWidget extends VerticalPanel
     private final static FormPanel createFormPanel()
     {
         final FormPanel formPanel = new FormPanel();
+        // This style draws a strange-looking and unnecessary border.
         // formPanel.setStyleName("cifex-login-widget");
         formPanel.setBodyBorder(false);
         formPanel.setBorders(false);
