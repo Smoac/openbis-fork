@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
@@ -279,6 +280,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             authenticate();
             return primTryGetSampleWithExperiment(sampleIdentifier);
+        }
+    }
+
+    synchronized public SampleType getSampleType(String sampleTypeCode) throws UserFailureException
+    {
+        checkSessionToken();
+        try
+        {
+            return service.getSampleType(sessionToken, sampleTypeCode);
+        } catch (InvalidSessionException ex)
+        {
+            authenticate();
+            return service.getSampleType(sessionToken, sampleTypeCode);
         }
     }
 
