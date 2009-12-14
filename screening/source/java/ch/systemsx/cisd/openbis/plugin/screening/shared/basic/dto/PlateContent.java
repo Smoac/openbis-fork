@@ -20,6 +20,8 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+
 /**
  * Describes the whole plate - images and metadata of each non-empty well.
  * 
@@ -27,9 +29,13 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class PlateContent implements IsSerializable
 {
+    private Sample plate;
+
     private List<WellMetadata> wells;
 
     private PlateImages imagesOrNull;
+
+    private DatasetReference imageAnalysisDatasetOrNull;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -37,10 +43,13 @@ public class PlateContent implements IsSerializable
     {
     }
 
-    public PlateContent(List<WellMetadata> wells, PlateImages imagesOrNull)
+    public PlateContent(Sample plate, List<WellMetadata> wells, PlateImages imagesOrNull,
+            DatasetReference imageAnalysisDatasetOrNull)
     {
+        this.plate = plate;
         this.wells = wells;
         this.imagesOrNull = imagesOrNull;
+        this.imageAnalysisDatasetOrNull = imageAnalysisDatasetOrNull;
     }
 
     public List<WellMetadata> getWells()
@@ -52,6 +61,16 @@ public class PlateContent implements IsSerializable
     public PlateImages tryGetImages()
     {
         return imagesOrNull;
+    }
+
+    public DatasetReference tryGetImageAnalysisDataset()
+    {
+        return imageAnalysisDatasetOrNull;
+    }
+
+    public Sample getPlate()
+    {
+        return plate;
     }
 
     public int getRowsNum()

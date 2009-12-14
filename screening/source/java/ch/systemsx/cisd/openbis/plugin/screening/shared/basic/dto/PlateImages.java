@@ -27,7 +27,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class PlateImages implements IsSerializable
 {
-    private String datasetCode;
+    private DatasetReference dataset;
 
     private String downloadUrl;
 
@@ -41,10 +41,10 @@ public class PlateImages implements IsSerializable
     {
     }
 
-    public PlateImages(String datasetCode, String downloadUrl, List<PlateImage> images,
-            PlateImageParameters imageParameters)
+    public PlateImages(DatasetReference dataset, String downloadUrl,
+            List<PlateImage> images, PlateImageParameters imageParameters)
     {
-        this.datasetCode = datasetCode;
+        this.dataset = dataset;
         this.downloadUrl = downloadUrl;
         this.images = images;
         this.imageParameters = imageParameters;
@@ -57,7 +57,12 @@ public class PlateImages implements IsSerializable
 
     public String getDatasetCode()
     {
-        return datasetCode;
+        return dataset.getCode();
+    }
+
+    public String getDatastoreCode()
+    {
+        return dataset.getDatastoreCode();
     }
 
     public List<PlateImage> getImages()

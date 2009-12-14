@@ -52,8 +52,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -68,17 +70,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 public final class ScreeningServer extends AbstractServer<IScreeningServer> implements
         IScreeningServer
 {
-    // name of the property which stores material (gene) inhibited by the material stored in a well
-    private static final String INHIBITOR_PROPERTY_CODE = "INHIBITOR_OF";
-
-    // type of the dataset which stores plate images, there should be at most one
-    private static final String IMAGE_DATASET_TYPE = "HCS_IMAGE";
-
-    // id of the DSS screening reporting plugin to get the images of the plate
-    private static final String PLATE_VIEWER_REPORT_KEY = "plate-image-reporter";
-
-    // id of the DSS screening reporting plugin to get the images parameters
-    private static final String PLATE_IMAGE_PARAMS_REPORT_KEY = "plate-image-params-reporter";
 
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
@@ -147,31 +138,57 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         Session session = getSession(sessionToken);
         ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
         IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
+        IExternalDataTable externalDataTable =
+                businessObjectFactory.createExternalDataTable(session);
 
-        PlateImages images = tryLoadImages(plateId, session);
-        List<Sample> wells = loadWells(plateId, sampleLister, materialLister);
+        Sample plate = loadPlate(plateId, session);
+        List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
 
-        return createPlateContent(wells, images);
+        PlateImages images = tryLoadImages(datasets, externalDataTable);
+        List<WellMetadata> wells = loadWells(plateId, sampleLister, materialLister);
+        DatasetReference imageAnalysisDataset = tryFindImageAnalysisDataset(datasets);
+
+        return new PlateContent(plate, wells, images, imageAnalysisDataset);
     }
 
-    private List<Sample> loadWells(TechId plateId, ISampleLister sampleLister,
+    private Sample loadPlate(TechId plateId, Session session)
+    {
+        ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+        sampleBO.loadDataByTechId(plateId);
+        SamplePE sample = sampleBO.getSample();
+        return SampleTranslator.translate(sample, session.getBaseIndexURL());
+    }
+
+    private DatasetReference tryFindImageAnalysisDataset(List<ExternalDataPE> datasets)
+    {
+        ExternalDataPE dataset =
+                tryFindDataset(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
+        if (dataset != null)
+        {
+            return new DatasetReference(dataset.getCode(), dataset.getDataStore().getCode());
+        } else
+        {
+            return null;
+        }
+    }
+
+    private List<WellMetadata> loadWells(TechId plateId, ISampleLister sampleLister,
             IMaterialLister materialLister)
     {
         List<Sample> wells = sampleLister.list(createSamplesForContainerCriteria(plateId));
         List<Material> containedMaterials = getReferencedMaterials(wells);
         materialLister.enrichWithProperties(containedMaterials);
-        List<Material> genes = getInhibitedMaterials(containedMaterials, INHIBITOR_PROPERTY_CODE);
+        List<Material> genes =
+                getInhibitedMaterials(containedMaterials,
+                        ScreeningConstants.INHIBITOR_PROPERTY_CODE);
         materialLister.enrichWithProperties(genes);
-        return wells;
+        return createWells(wells);
     }
 
-    private PlateImages tryLoadImages(TechId plateId, Session session)
+    private PlateImages tryLoadImages(List<ExternalDataPE> datasets,
+            IExternalDataTable externalDataTable)
     {
-        IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.loadBySampleTechId(plateId);
-        List<ExternalDataPE> externalData = externalDataTable.getExternalData();
-        ExternalDataPE dataset = tryFindDataset(externalData, IMAGE_DATASET_TYPE);
+        ExternalDataPE dataset = tryFindDataset(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
         if (dataset != null)
         {
             return loadImages(externalDataTable, dataset);
@@ -181,6 +198,13 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         }
     }
 
+    private List<ExternalDataPE> loadDatasets(TechId plateId, IExternalDataTable externalDataTable)
+    {
+        externalDataTable.loadBySampleTechId(plateId);
+        List<ExternalDataPE> externalData = externalDataTable.getExternalData();
+        return externalData;
+    }
+
     private PlateImages loadImages(IExternalDataTable externalDataTable, ExternalDataPE dataset)
     {
         DataStorePE dataStore = dataset.getDataStore();
@@ -188,14 +212,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         List<String> datasets = Arrays.asList(datasetCode);
         String datastoreCode = dataStore.getCode();
         TableModel plateReport =
-                externalDataTable.createReportFromDatasets(PLATE_VIEWER_REPORT_KEY, datastoreCode,
-                        datasets);
+                externalDataTable.createReportFromDatasets(
+                        ScreeningConstants.PLATE_VIEWER_REPORT_KEY, datastoreCode, datasets);
         TableModel imageParamsReport =
-                externalDataTable.createReportFromDatasets(PLATE_IMAGE_PARAMS_REPORT_KEY,
-                        datastoreCode, datasets);
+                externalDataTable.createReportFromDatasets(
+                        ScreeningConstants.PLATE_IMAGE_PARAMS_REPORT_KEY, datastoreCode, datasets);
 
-        return PlateImage.createImages(datasetCode, dataStore.getDownloadUrl(), plateReport,
-                imageParamsReport);
+        return PlateImage.createImages(new DatasetReference(datasetCode, datastoreCode), dataStore
+                .getDownloadUrl(), plateReport, imageParamsReport);
     }
 
     private static ExternalDataPE tryFindDataset(List<ExternalDataPE> datasets, String datasetType)
@@ -208,13 +232,6 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             }
         }
         return null;
-    }
-
-    private static PlateContent createPlateContent(List<Sample> wellSamples,
-            PlateImages imagesOrNull)
-    {
-        List<WellMetadata> wells = createWells(wellSamples);
-        return new PlateContent(wells, imagesOrNull);
     }
 
     private static List<WellMetadata> createWells(List<Sample> wellSamples)
@@ -244,7 +261,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     private static Material tryFindInhibitedMaterial(Material content)
     {
         IEntityProperty property =
-                tryFindProperty(content.getProperties(), INHIBITOR_PROPERTY_CODE);
+                tryFindProperty(content.getProperties(), ScreeningConstants.INHIBITOR_PROPERTY_CODE);
         if (property != null)
         {
             Material material = property.getMaterial();

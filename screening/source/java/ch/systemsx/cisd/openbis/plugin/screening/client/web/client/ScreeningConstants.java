@@ -17,12 +17,34 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
 /**
- * Useful constants for screening plugin.
+ * Constants which are specific for screening. Hre soem assumptions are made about:
+ * <ul>
+ * <li>initial database content (metadata) of each screening module</li>
+ * <li>mandatory part of datastore server configuration</li>
+ * </ul>
  * 
  * @author Tomasz Pylak
  */
 public class ScreeningConstants
 {
+    // name of the property which stores material (gene) inhibited by the material stored in a well
+    public static final String INHIBITOR_PROPERTY_CODE = "INHIBITOR_OF";
+
+    // type of the dataset which stores plate images, there should be at most one
+    public static final String IMAGE_DATASET_TYPE = "HCS_IMAGE";
+
+    // type of the dataset which stores image analysis data, there should be at most one
+    public static final String IMAGE_ANALYSIS_DATASET_TYPE = "HCS_IMAGE_ANALYSIS_DATA";
+
+    // id of the DSS screening reporting plugin to get the images of the plate
+    public static final String PLATE_VIEWER_REPORT_KEY = "plate-image-reporter";
+
+    // id of the DSS screening reporting plugin to get the images parameters
+    public static final String PLATE_IMAGE_PARAMS_REPORT_KEY = "plate-image-params-reporter";
+
+    // id of the DSS screening reporting plugin to get the images of the plate
+    public static final String PLATE_IMAGE_ANALYSIS_REPORT_KEY = "plate-image-analysis-merger";
+
     public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
 
     public static final String WELL_PLUGIN_TYPE_CODE = "WELL";

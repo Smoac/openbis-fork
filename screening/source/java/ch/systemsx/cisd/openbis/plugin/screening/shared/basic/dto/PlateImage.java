@@ -48,11 +48,13 @@ public class PlateImage implements IsSerializable
 
     // ----------
 
-    /** @param plateReport report of a screening plugun with images for the whole plate */
-    public static final PlateImages createImages(String datasetCode, String downloadUrl,
+    /**
+     * @param plateReport report of a screening plugun with images for the whole plate
+     */
+    public static final PlateImages createImages(DatasetReference dataset, String downloadUrl,
             TableModel plateReport, TableModel imageParamsReport)
     {
-        return new PlateImages(datasetCode, downloadUrl, createImageList(plateReport),
+        return new PlateImages(dataset, downloadUrl, createImageList(plateReport),
                 createImageParams(imageParamsReport));
     }
 

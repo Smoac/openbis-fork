@@ -17,16 +17,20 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.plateviewer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
@@ -38,9 +42,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -56,13 +66,13 @@ public class PlateLayoutSection extends SingleSectionPanel
 {
     private static final String CONTROL_MATERIAL_TYPE = "CONTROL";
 
-    public static final String ID_SUFFIX = "PlateLayoutViewer";
+    public static final String ID_SUFFIX = "PlateLayoutSection";
 
     public PlateLayoutSection(IViewContext<IScreeningClientServiceAsync> viewContext,
             TechId sampleId)
     {
         super("Plate Layout");
-        add(new Text("Loading..."));
+        add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
         viewContext.getService().getPlateContent(sampleId, createDisplayPlateCallback(viewContext));
         setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
     }
@@ -76,18 +86,72 @@ public class PlateLayoutSection extends SingleSectionPanel
                 {
                     removeAll();
                     setLayout(new RowLayout());
-
-                    LayoutContainer container = new LayoutContainer();
-                    container.add(renderWellsMatrix(plateContent, viewContext));
-                    container.add(renderWellsLegend());
-
                     setScrollMode(Scroll.AUTO);
-                    RowData layoutData = new RowData();
-                    layoutData.setMargins(new Margins(10));
-                    add(container, layoutData);
+
+                    renderPlate(plateContent, viewContext);
+                    addImageAnalysisButton(plateContent, viewContext);
+
                     layout();
                 }
             };
+    }
+
+    private void addImageAnalysisButton(final PlateContent plateContent,
+            final IViewContext<?> viewContext)
+    {
+        Component analysisPanel;
+        final DatasetReference dataset = plateContent.tryGetImageAnalysisDataset();
+        if (dataset != null)
+        {
+            Button generateButton =
+                    new Button("Show Image Analysis Results", new SelectionListener<ButtonEvent>()
+                        {
+                            @Override
+                            public void componentSelected(ButtonEvent ce)
+                            {
+                                generateImageAnalysisReport(viewContext, dataset, plateContent);
+                            }
+                        });
+            analysisPanel = generateButton;
+        } else
+        {
+            analysisPanel = new Text("No image analysis data are available.");
+        }
+        add(analysisPanel, createMarginLayoutData());
+    }
+
+    private void generateImageAnalysisReport(IViewContext<?> viewContext, DatasetReference dataset,
+            PlateContent plateContent)
+    {
+        DatastoreServiceDescription service = createImageAnalysisReporter(dataset, plateContent);
+        DisplayedOrSelectedDatasetCriteria criteria =
+                DisplayedOrSelectedDatasetCriteria.createSelectedItems(Arrays.asList(dataset
+                        .getCode()));
+        DataSetReportGenerator.generate(service, criteria, viewContext.getCommonViewContext());
+    }
+
+    private DatastoreServiceDescription createImageAnalysisReporter(DatasetReference dataset,
+            PlateContent plateContent)
+    {
+        String reportLabel = "Image Analysis of " + plateContent.getPlate().getCode();
+        return new DatastoreServiceDescription(ScreeningConstants.PLATE_IMAGE_ANALYSIS_REPORT_KEY,
+                reportLabel, new String[] {}, dataset.getDatastoreCode());
+    }
+
+    private void renderPlate(PlateContent plateContent, IViewContext<?> viewContext)
+    {
+        LayoutContainer container = new LayoutContainer();
+        container.add(renderWellsMatrix(plateContent, viewContext));
+        container.add(renderWellsLegend());
+
+        add(container, createMarginLayoutData());
+    }
+
+    private RowData createMarginLayoutData()
+    {
+        RowData layoutData = new RowData();
+        layoutData.setMargins(new Margins(10));
+        return layoutData;
     }
 
     private LayoutContainer renderWellsLegend()
