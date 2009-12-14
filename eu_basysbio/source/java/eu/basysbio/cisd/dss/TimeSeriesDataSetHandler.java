@@ -67,6 +67,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
 {
+    static final String UPLOADER_EMAIL_KEY = "UPLOADER_EMAIL";
+
     static final String DATA_SET_TYPE = "TIME_SERIES";
 
     static final String DATA_FILE_TYPE = ".data.txt";
@@ -368,7 +370,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         TableBuilder builder = new TableBuilder("property", "value");
         if (userEmail != null)
         {
-            builder.addRow("UPLOADER_EMAIL", userEmail);
+            builder.addRow(UPLOADER_EMAIL_KEY, userEmail);
         }
         builder.addRow("TECHNICAL_REPLICATE_CODE", dataColumnHeader.technicalReplicateCode);
         builder.addRow("CEL_LOC", dataColumnHeader.celLoc);
