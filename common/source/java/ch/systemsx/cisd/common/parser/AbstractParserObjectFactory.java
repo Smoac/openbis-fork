@@ -173,6 +173,14 @@ public abstract class AbstractParserObjectFactory<E> implements IParserObjectFac
     }
 
     /**
+     * @returns whether column with specified name is available in the parsed file
+     */
+    protected boolean isColumnAvailable(String columnName)
+    {
+        return tryGetPropertyModel(columnName) != null;
+    }
+
+    /**
      * Returns the unmatched properties.
      */
     protected final Set<String> getUnmatchedProperties()
