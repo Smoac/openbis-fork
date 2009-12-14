@@ -23,6 +23,7 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -31,29 +32,36 @@ import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyTermColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
@@ -133,6 +141,18 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
             });
         addButton(addButton);
 
+        Button batchUpdateButton =
+                new Button(viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_BUTTON));
+        batchUpdateButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    createUpdateTermsDialog().show();
+                }
+            });
+        addButton(batchUpdateButton);
+
         Button editButton =
                 createSelectedItemButton(viewContext.getMessage(Dict.EDIT_VOCABULARY_TERM_BUTTON),
                         new ISelectedEntityInvoker<BaseEntityModel<VocabularyTermWithStats>>()
@@ -165,6 +185,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         {
             String tooltip = viewContext.getMessage(Dict.TOOLTIP_VOCABULARY_MANAGED_INTERNALLY);
             disableButton(addButton, tooltip);
+            disableButton(batchUpdateButton, tooltip);
             disableButton(editButton, tooltip);
             disableButton(deleteButton, tooltip);
         } else
@@ -334,6 +355,94 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
         viewContext.getService().prepareExportVocabularyTerms(exportCriteria, callback);
     }
 
+    private Window createUpdateTermsDialog()
+    {
+        final String title = viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_TITLE);
+
+        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
+            {
+
+                public static final String ID =
+                        GenericConstants.ID_PREFIX + "vocabulary-content-edit_" + "form";
+
+                protected final String termsSessionKey;
+
+                private final static int LABEL_WIDTH = 100;
+
+                private final static int FIELD_WIDTH = 350;
+
+                {
+                    termsSessionKey = ID + +vocabulary.getId();
+
+                    form.setLabelWidth(LABEL_WIDTH);
+                    form.setFieldWidth(FIELD_WIDTH);
+                    form.setAction(GenericConstants.createServicePath("upload"));
+                    form.setEncoding(Encoding.MULTIPART);
+                    form.setMethod(Method.POST);
+                    form.add(AbstractRegistrationForm.createHiddenField(
+                            AbstractRegistrationForm.SESSION_KEYS_NUMBER, "1"));
+                    form.add(AbstractRegistrationForm.createHiddenSessionField(termsSessionKey, 0));
+                    setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
+
+                    addField(createImportFileField());
+
+                    form.addListener(Events.Submit, new FormPanelListener(new InfoBox())
+                        {
+                            @Override
+                            protected void onSuccessfullUpload()
+                            {
+
+                                viewContext.getService().updateVocabularyTerms(termsSessionKey,
+                                        TechId.create(vocabulary),
+                                        new AbstractAsyncCallback<Void>(viewContext)
+                                            {
+
+                                                @Override
+                                                protected void process(Void result)
+                                                {
+                                                    postRegistrationCallback.execute();
+                                                    hide();
+                                                }
+                                            });
+                            }
+
+                            @Override
+                            protected void setUploadEnabled()
+                            {
+                            }
+                        });
+
+                    saveButton.removeAllListeners();
+                    saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+                        {
+                            @Override
+                            public final void componentSelected(final ButtonEvent ce)
+                            {
+                                if (form.isValid())
+                                {
+                                    form.submit();
+                                }
+                            }
+                        });
+                }
+
+                private FileUploadField createImportFileField()
+                {
+                    BasicFileFieldManager fileManager =
+                            new BasicFileFieldManager(termsSessionKey, 1, "File");
+                    fileManager.setMandatory();
+                    return fileManager.getFields().get(0);
+                }
+
+                @Override
+                protected void register(AsyncCallback<Void> registrationCallback)
+                {
+
+                }
+
+            };
+    }
+
     private Window createAddNewTermsDialog()
     {
         final String title = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_TITLE);
@@ -431,10 +540,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
                     DatabaseModificationKind.edit(ObjectKind.SAMPLE),
                     DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    // TODO 2009-12-07, Piotr Buczek: remove when bulk update is moved to term grid
-                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
-                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM), };
+                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT) };
     }
 
     private void deleteTerms()

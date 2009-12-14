@@ -19,23 +19,18 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabu
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
@@ -46,18 +41,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.VocabularyColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.vocabulary.VocabularyRegistrationFieldSet.CommonVocabularyRegistrationAndEditionFieldsFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -135,25 +127,6 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                             } else
                             {
                                 createEditEntityDialog(vocabulary).show();
-                            }
-                        }
-
-                    }));
-
-        addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT_CONTENT),
-                new ISelectedEntityInvoker<BaseEntityModel<Vocabulary>>()
-                    {
-
-                        public void invoke(BaseEntityModel<Vocabulary> selectedItem)
-                        {
-                            Vocabulary vocabulary = selectedItem.getBaseObject();
-                            if (vocabulary.isManagedInternally())
-                            {
-                                String errorMsg = "Internally managed vocabulary cannot be edited.";
-                                MessageBox.alert("Error", errorMsg, null);
-                            } else
-                            {
-                                createEditContentDialog(vocabulary).show();
                             }
                         }
 
@@ -333,93 +306,6 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
                 {
                     return StringEscapeUtils.unescapeHtml(vocabulary.getCode());
                 }
-            };
-    }
-
-    private Component createEditContentDialog(final Vocabulary vocabulary)
-    {
-        String title = viewContext.getMessage(Dict.EDIT_CONTENT_TITLE, vocabulary.getCode());
-        return new AbstractRegistrationDialog(viewContext, title, postEditionCallback)
-            {
-
-                public static final String ID =
-                        GenericConstants.ID_PREFIX + "vocabulary-content-edit_" + "form";
-
-                protected final String termsSessionKey;
-
-                private final static int LABEL_WIDTH = 100;
-
-                private final static int FIELD_WIDTH = 350;
-
-                {
-                    termsSessionKey = ID + +vocabulary.getId();
-
-                    form.setLabelWidth(LABEL_WIDTH);
-                    form.setFieldWidth(FIELD_WIDTH);
-                    form.setAction(GenericConstants.createServicePath("upload"));
-                    form.setEncoding(Encoding.MULTIPART);
-                    form.setMethod(Method.POST);
-                    form.add(AbstractRegistrationForm.createHiddenField(
-                            AbstractRegistrationForm.SESSION_KEYS_NUMBER, "1"));
-                    form.add(AbstractRegistrationForm.createHiddenSessionField(termsSessionKey, 0));
-                    setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
-
-                    addField(createImportFileField());
-
-                    form.addListener(Events.Submit, new FormPanelListener(new InfoBox())
-                        {
-                            @Override
-                            protected void onSuccessfullUpload()
-                            {
-
-                                viewContext.getService().updateVocabularyTerms(termsSessionKey,
-                                        vocabulary.getId(),
-                                        new AbstractAsyncCallback<Void>(viewContext)
-                                            {
-
-                                                @Override
-                                                protected void process(Void result)
-                                                {
-                                                    postEditionCallback.execute();
-                                                    hide();
-                                                }
-                                            });
-                            }
-
-                            @Override
-                            protected void setUploadEnabled()
-                            {
-                            }
-                        });
-
-                    saveButton.removeAllListeners();
-                    saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-                        {
-                            @Override
-                            public final void componentSelected(final ButtonEvent ce)
-                            {
-                                if (form.isValid())
-                                {
-                                    form.submit();
-                                }
-                            }
-                        });
-                }
-
-                private FileUploadField createImportFileField()
-                {
-                    BasicFileFieldManager fileManager =
-                            new BasicFileFieldManager(termsSessionKey, 1, "File");
-                    fileManager.setMandatory();
-                    return fileManager.getFields().get(0);
-                }
-
-                @Override
-                protected void register(AsyncCallback<Void> registrationCallback)
-                {
-
-                }
-
             };
     }
 

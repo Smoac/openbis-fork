@@ -358,6 +358,8 @@ var common = {
  add_vocabulary_terms_button: "Add Terms",
  add_vocabulary_terms_title: "Add Terms",
  add_vocabulary_terms_ok_button: "OK",
+ update_vocabulary_terms_button: "Update Terms",
+ update_vocabulary_terms_title: "Update Terms",
  vocabulary_terms_validation_message: "Term '{0}' already exists.", 
  delete_vocabulary_terms_button: "Delete/Replace Terms",
  delete_vocabulary_terms_invalid_title: "Invalid Deletion",

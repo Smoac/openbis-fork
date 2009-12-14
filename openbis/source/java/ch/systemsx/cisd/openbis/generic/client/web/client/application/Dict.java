@@ -573,6 +573,10 @@ public abstract class Dict
 
     public static final String ADD_VOCABULARY_TERMS_OK_BUTTON = "add_vocabulary_terms_ok_button";
 
+    public static final String UPDATE_VOCABULARY_TERMS_BUTTON = "update_vocabulary_terms_button";
+
+    public static final String UPDATE_VOCABULARY_TERMS_TITLE = "update_vocabulary_terms_title";
+
     public static final String VOCABULARY_TERMS_VALIDATION_MESSAGE =
             "vocabulary_terms_validation_message";
 
@@ -834,10 +838,6 @@ public abstract class Dict
     public static final String INSERT_COLUMNS = "insert_columns";
 
     public static final String OPENBIS_LOGO_TITLE = "openbis_logo_title";
-
-    public static final String BUTTON_EDIT_CONTENT = "button_edit_content";
-
-    public static final String EDIT_CONTENT_TITLE = "edit_content_title";
 
     // ----- end generic ------------------
 }

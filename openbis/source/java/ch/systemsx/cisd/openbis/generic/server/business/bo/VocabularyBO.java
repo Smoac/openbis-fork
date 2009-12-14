@@ -42,7 +42,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IVocabularyUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
@@ -383,19 +385,21 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
                     UPDATING_CONTENT_OF_INTERNALLY_MANAGED_VOCABULARIES_IS_NOT_ALLOWED);
         }
         checkAllTermsPresent(vocabularyPE.getTerms(), terms);
-        Map<String, VocabularyTerm> newTermsMap = prepareUpdateMap(terms);
+        Map<String, UpdatedVocabularyTerm> newTermsMap = prepareUpdateMap(terms);
         updateExistingTermsAndRemoveFromMap(newTermsMap);
         addNewTerms(newTermsMap);
     }
 
-    private Map<String, VocabularyTerm> prepareUpdateMap(List<VocabularyTerm> terms)
+    private Map<String, UpdatedVocabularyTerm> prepareUpdateMap(List<VocabularyTerm> terms)
     {
         // additionally check if all terms are present only once
-        Map<String, VocabularyTerm> newTermsMap = new HashMap<String, VocabularyTerm>();
+        Map<String, UpdatedVocabularyTerm> newTermsMap =
+                new HashMap<String, UpdatedVocabularyTerm>();
         Set<String> multipliedCodes = new LinkedHashSet<String>(); // keep order
         for (VocabularyTerm v : terms)
         {
-            VocabularyTerm previousTermOrNull = newTermsMap.put(v.getCode(), v);
+            UpdatedVocabularyTerm previousTermOrNull =
+                    newTermsMap.put(v.getCode(), (UpdatedVocabularyTerm) v);
             if (previousTermOrNull != null)
             {
                 multipliedCodes.add(v.getCode());
@@ -409,20 +413,27 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
         return newTermsMap;
     }
 
-    private void updateExistingTermsAndRemoveFromMap(Map<String, VocabularyTerm> newTermsMap)
+    private void updateExistingTermsAndRemoveFromMap(Map<String, UpdatedVocabularyTerm> newTermsMap)
     {
         for (VocabularyTermPE oldTerm : vocabularyPE.getTerms())
         {
             String code = oldTerm.getCode();
-            VocabularyTerm update = newTermsMap.get(code);
-            oldTerm.setDescription(update.getDescription());
-            oldTerm.setLabel(update.getLabel());
-            oldTerm.setOrdinal(update.getOrdinal());
+            UpdatedVocabularyTerm update = newTermsMap.get(code);
+            VocabularyTermBatchUpdateDetails batchUpdateDetails = update.getBatchUpdateDetails();
+            if (batchUpdateDetails.isDescriptionUpdateRequested())
+            {
+                oldTerm.setDescription(update.getDescription());
+            }
+            if (batchUpdateDetails.isLabelUpdateRequested())
+            {
+                oldTerm.setLabel(update.getLabel());
+            }
+            oldTerm.setOrdinal(update.getOrdinal()); // ordinal is always updated
             newTermsMap.remove(code);
         }
     }
 
-    private void addNewTerms(Map<String, VocabularyTerm> newTermsMap)
+    private void addNewTerms(Map<String, UpdatedVocabularyTerm> newTermsMap)
     {
         for (VocabularyTerm newTerm : newTermsMap.values())
         {

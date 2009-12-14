@@ -23,10 +23,16 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
  * 
  * @author Izabela Adamczyk
  */
-public final class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
+public class VocabularyTerm extends CodeWithRegistration<Vocabulary> implements
         IVocabularyTermUpdates
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    public static final String CODE = "code";
+
+    public static final String LABEL = "label";
+
+    public static final String DESCRIPTION = "description";
 
     private Long id;
 
@@ -53,13 +59,13 @@ public final class VocabularyTerm extends CodeWithRegistration<Vocabulary> imple
     }
 
     @Override
-    @BeanProperty(label = "code", optional = false)
+    @BeanProperty(label = CODE, optional = false)
     public void setCode(String code)
     {
         super.setCode(code);
     }
 
-    @BeanProperty(label = "label", optional = true)
+    @BeanProperty(label = LABEL, optional = true)
     public void setLabel(String label)
     {
         this.label = label;
@@ -70,7 +76,7 @@ public final class VocabularyTerm extends CodeWithRegistration<Vocabulary> imple
         return label;
     }
 
-    @BeanProperty(label = "description", optional = true)
+    @BeanProperty(label = DESCRIPTION, optional = true)
     public void setDescription(String description)
     {
         this.description = description;

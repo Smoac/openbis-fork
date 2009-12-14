@@ -127,8 +127,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -1090,7 +1092,10 @@ public final class CommonClientService extends AbstractClientService implements
             final String sessionToken = getSessionToken();
             if (vocabulary.isUploadedFromFile())
             {
-                extendVocabularyWithUploadedData(vocabulary, termsSessionKey);
+                List<VocabularyTerm> extractedTerms =
+                        extractVocabularyTermsFromUploadedData(termsSessionKey,
+                                BatchOperationKind.REGISTRATION);
+                vocabulary.setTerms(extractedTerms);
             }
             commonServer.registerVocabulary(sessionToken, vocabulary);
         } catch (final UserFailureException e)
@@ -1114,19 +1119,23 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    private final void extendVocabularyWithUploadedData(NewVocabulary vocabulary, String sessionKey)
+    private final List<VocabularyTerm> extractVocabularyTermsFromUploadedData(String sessionKey,
+            BatchOperationKind operationKind)
     {
         VocabularyTermsExtractor extractor =
-                new VocabularyTermsExtractor().prepareTerms(sessionKey);
-        vocabulary.setTerms(extractor.getTerms());
+                new VocabularyTermsExtractor(operationKind).prepareTerms(sessionKey);
+        return extractor.getTerms();
     }
 
     private class VocabularyTermsExtractor
     {
         private List<VocabularyTerm> terms;
 
-        private VocabularyTermsExtractor()
+        private BatchOperationKind operationKind;
+
+        private VocabularyTermsExtractor(BatchOperationKind operationKind)
         {
+            this.operationKind = operationKind;
         }
 
         public List<VocabularyTerm> getTerms()
@@ -1175,7 +1184,17 @@ public final class CommonClientService extends AbstractClientService implements
                                             final IPropertyMapper propertyMapper)
                                             throws ParserException
                                     {
-                                        return new VocabularyTermObjectFactory(propertyMapper);
+                                        switch (operationKind)
+                                        {
+                                            case REGISTRATION:
+                                                return new VocabularyTermObjectFactory(
+                                                        propertyMapper);
+                                            case UPDATE:
+                                                return new UpdatedVocabularyTermObjectFactory(
+                                                        propertyMapper);
+                                        }
+                                        throw new UnsupportedOperationException(operationKind
+                                                + " is not supported");
                                     }
                                 }, false);
             return tabFileLoader;
@@ -1187,6 +1206,34 @@ public final class CommonClientService extends AbstractClientService implements
             protected VocabularyTermObjectFactory(IPropertyMapper propertyMapper)
             {
                 super(VocabularyTerm.class, propertyMapper);
+            }
+
+        }
+
+        private class UpdatedVocabularyTermObjectFactory extends
+                AbstractParserObjectFactory<VocabularyTerm>
+        {
+
+            private final VocabularyTermBatchUpdateDetails batchUpdateDetails;
+
+            protected UpdatedVocabularyTermObjectFactory(IPropertyMapper propertyMapper)
+            {
+                super(VocabularyTerm.class, propertyMapper);
+                this.batchUpdateDetails = createBatchUpdateDetails();
+            }
+
+            private VocabularyTermBatchUpdateDetails createBatchUpdateDetails()
+            {
+                boolean updateLabel = isColumnAvailable(UpdatedVocabularyTerm.LABEL);
+                boolean updateDescription = isColumnAvailable(UpdatedVocabularyTerm.DESCRIPTION);
+                return new VocabularyTermBatchUpdateDetails(updateLabel, updateDescription);
+            }
+
+            @Override
+            public VocabularyTerm createObject(String[] lineTokens) throws ParserException
+            {
+                final VocabularyTerm vocabularyTerm = super.createObject(lineTokens);
+                return new UpdatedVocabularyTerm(vocabularyTerm, batchUpdateDetails);
             }
         }
 
@@ -2310,17 +2357,17 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void updateVocabularyTerms(String termsSessionKey, Long vocabularyId)
+    public void updateVocabularyTerms(String termsSessionKey, TechId vocabularyId)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         assert vocabularyId != null : "Unspecified vocabulary.";
         try
         {
             final String sessionToken = getSessionToken();
-            TechId techId = new TechId(vocabularyId);
-            VocabularyTermsExtractor extractor =
-                    new VocabularyTermsExtractor().prepareTerms(termsSessionKey);
-            commonServer.updateVocabularyTerms(sessionToken, techId, extractor.getTerms());
+            List<VocabularyTerm> extractedTerms =
+                    extractVocabularyTermsFromUploadedData(termsSessionKey,
+                            BatchOperationKind.UPDATE);
+            commonServer.updateVocabularyTerms(sessionToken, vocabularyId, extractedTerms);
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

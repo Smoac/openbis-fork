@@ -403,8 +403,8 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateVocabularyTerm(final IVocabularyTermUpdates updates,
             final AsyncCallback<Void> asyncCallback);
 
-    /** @see ICommonClientService#updateVocabularyTerms(String,Long) */
-    public void updateVocabularyTerms(final String termsSessionKey, Long vocabularyId,
+    /** @see ICommonClientService#updateVocabularyTerms(String,TechId) */
+    public void updateVocabularyTerms(final String termsSessionKey, TechId vocabularyId,
             final AsyncCallback<Void> asyncCallback);
 
     /** @see ICommonClientService#deleteVocabularyTerms(TechId, List, List) */

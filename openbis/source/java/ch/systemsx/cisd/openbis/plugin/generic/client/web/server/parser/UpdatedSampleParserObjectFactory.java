@@ -49,11 +49,6 @@ final class UpdatedSampleParserObjectFactory extends NewSampleParserObjectFactor
                 getUnmatchedProperties());
     }
 
-    private boolean isColumnAvailable(String columnName)
-    {
-        return tryGetPropertyModel(columnName) != null;
-    }
-
     //
     // AbstractParserObjectFactory
     //

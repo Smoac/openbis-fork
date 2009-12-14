@@ -470,7 +470,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Updates vocabulary terms.
      */
-    public void updateVocabularyTerms(final String termsSessionKey, Long vocabularyId)
+    public void updateVocabularyTerms(final String termsSessionKey, TechId vocabularyId)
             throws UserFailureException;
 
     /**
