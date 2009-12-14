@@ -183,7 +183,7 @@ public class DataSetDeletionMaintenanceTask implements IMaintenanceTask
                 updateSynchronizationDate(lastSeenEventId, deletedDataSets);
                 connection.commit();
                 operationLog.info("Synchronization task took "
-                        + ((System.currentTimeMillis() - t0 + 500) / 100) + " seconds.");
+                        + ((System.currentTimeMillis() - t0 + 500) / 1000) + " seconds.");
                 connection.setAutoCommit(autoCommit);
             }
             connection.close();
