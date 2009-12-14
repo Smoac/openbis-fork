@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
@@ -119,6 +120,13 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         return null;
     }
 
+    public SampleType getSampleType(String sessionToken, String sampleTypeCode)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "get_sample_type", "SAMPLE_TYPE(%s)", sampleTypeCode);
+        return null;
+    }
+
     public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
@@ -164,4 +172,5 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                         + lastSeenDeletionEventIdOrNull));
         return null;
     }
+
 }
