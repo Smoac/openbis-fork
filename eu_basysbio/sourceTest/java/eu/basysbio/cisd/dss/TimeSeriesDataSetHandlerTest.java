@@ -164,12 +164,13 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
         properties.setProperty(TRANSLATION_KEY + "a", "Alpha");
         TimeSeriesDataSetHandler handler = new TimeSeriesDataSetHandler(properties, service);
-        
         File file = createDataExample();
+        DataSetInformation dataSetInformation = createDataSetInformation("BLABLA");
+        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "exp1"));
 
         try
         {
-            handler.handle(file, createDataSetInformation("BLABLA"));
+            handler.handle(file, dataSetInformation);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -201,6 +202,33 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
             assertEquals("Data set should be registered for an experiment and not for a sample.", ex.getMessage());
         }
         
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testWrongExperiment() throws IOException
+    {
+        Properties properties = new Properties();
+        properties.setProperty(TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox.getAbsolutePath());
+        properties.setProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
+        properties.setProperty(TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS");
+        properties.setProperty(TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
+        TimeSeriesDataSetHandler handler = new TimeSeriesDataSetHandler(properties, service);
+        File file = createDataExample();
+        DataSetInformation dataSetInformation =
+                createDataSetInformation(TimeSeriesDataSetHandler.DATA_SET_TYPE);
+        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "exp1"));
+
+        try
+        {
+            handler.handle(file, dataSetInformation);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("Data should be uploaded for experiment 'GM_BR_B1' instead of 'EXP1'.", ex
+                    .getMessage());
+        }
+
         context.assertIsSatisfied();
     }
 
@@ -266,7 +294,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
             });
         
         DataSetInformation dataSetInformation = createDataSetInformation(TimeSeriesDataSetHandler.DATA_SET_TYPE);
-        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "exp1"));
+        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
         handler.handle(file, dataSetInformation);
         
         File dataSet = new File(dropBox, DATA_SET_EX_200);

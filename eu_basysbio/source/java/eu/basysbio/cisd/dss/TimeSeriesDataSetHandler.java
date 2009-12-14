@@ -25,8 +25,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
@@ -208,6 +210,12 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
 
     public void handle(File originalData, DataSetInformation dataSetInformation)
     {
+        ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
+        if (experimentIdentifier == null)
+        {
+            throw new UserFailureException(
+                    "Data set should be registered for an experiment and not for a sample.");
+        }
         DataSetType dataSetType = dataSetInformation.getDataSetType();
         if (dataSetType == null || dataSetType.getCode().equals(DATA_SET_TYPE) == false)
         {
@@ -257,6 +265,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
                     commonColumns.add(column);
                 }
             }
+            assertExperiment(dataSetInformation, dataColumns);
             for (Column dataColumn : dataColumns)
             {
                 createDataSet(commonColumns, dataColumn, dataSetInformation);
@@ -270,6 +279,38 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         } finally
         {
             IOUtils.closeQuietly(reader);
+        }
+    }
+
+    private void assertExperiment(DataSetInformation dataSetInformation, List<Column> dataColumns)
+    {
+        String code = dataSetInformation.getExperimentIdentifier().getExperimentCode();
+        Set<String> invalidExperimentCodes = new LinkedHashSet<String>();
+        Set<String> experimentCodes = new LinkedHashSet<String>();
+        for (Column dataColumn : dataColumns)
+        {
+            DataColumnHeader dataColumnHeader =
+                    new DataColumnHeader(dataColumn.getHeader(), experimentCodeFormat,
+                            sampleCodeFormat);
+            String experimentCode = dataColumnHeader.createExperimentCode();
+            experimentCodes.add(experimentCode);
+            if (code.equalsIgnoreCase(experimentCode) == false)
+            {
+                invalidExperimentCodes.add(experimentCode);
+            }
+        }
+        if (invalidExperimentCodes.isEmpty() == false)
+        {
+            if (experimentCodes.size() == 1 && invalidExperimentCodes.size() == 1)
+            {
+                throw new UserFailureException("Data should be uploaded for experiment '"
+                        + invalidExperimentCodes.iterator().next() + "' instead of '" + code
+                        + "'.");
+            } else
+            {
+                throw new UserFailureException(
+                        "Data columns found for more than one experiment: " + experimentCodes);
+            }
         }
     }
 
@@ -311,7 +352,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         List<Column> columns = new ArrayList<Column>(commonColumns);
         columns.add(dataColumn);
         writeAsTSVFile(dataFile, columns);
-        writeDataSetProperties(dataSetFolder, dataColumnHeader);
+        writeDataSetProperties(dataSetFolder, dataColumnHeader, dataSetInformation.tryGetUploadingUserEmail());
         File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + dataSetFolderName);
         success = getFileOperations().createNewFile(markerFile);
         if (success == false)
@@ -321,10 +362,14 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         }
     }
 
-    private void writeDataSetProperties(File dataSetFolder, DataColumnHeader dataColumnHeader)
+    private void writeDataSetProperties(File dataSetFolder, DataColumnHeader dataColumnHeader, String userEmail)
     {
         File dataSetPropertiesFile = new File(dataSetFolder, dataSetPropertiesFileName);
         TableBuilder builder = new TableBuilder("property", "value");
+        if (userEmail != null)
+        {
+            builder.addRow("UPLOADER_EMAIL", userEmail);
+        }
         builder.addRow("TECHNICAL_REPLICATE_CODE", dataColumnHeader.technicalReplicateCode);
         builder.addRow("CEL_LOC", dataColumnHeader.celLoc);
         builder.addRow("VALUE_TYPE", dataColumnHeader.valueType);
