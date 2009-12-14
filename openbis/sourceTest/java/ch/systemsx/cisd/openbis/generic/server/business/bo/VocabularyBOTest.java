@@ -33,7 +33,9 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
@@ -533,10 +535,11 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabulary.setTerms(Arrays.asList(createTermPE(RED), createTermPE(commonCode),
                 createTermPE(WHITE)));
         VocabularyBO bo = createVocabularyBO(vocabulary);
+        VocabularyTermBatchUpdateDetails details = new VocabularyTermBatchUpdateDetails(true, true);
         boolean exceptionThrown = false;
         try
         {
-            bo.updateTerms(Arrays.asList(createTerm(commonCode)));
+            bo.updateTerms(convertToUpdatedTerms(Arrays.asList(createTerm(commonCode)), details));
         } catch (UserFailureException ex)
         {
             exceptionThrown = true;
@@ -576,8 +579,9 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabulary.setManagedInternally(false);
         vocabulary.setTerms(Arrays.asList(createTermPE(RED, 1)));
         VocabularyBO bo = createVocabularyBO(vocabulary);
-        bo.updateTerms(Arrays.asList(createTerm(RED, 1), createTerm(WHITE, 2),
-                createTerm(YELLOW, 3)));
+        VocabularyTermBatchUpdateDetails details = new VocabularyTermBatchUpdateDetails(true, true);
+        bo.updateTerms(convertToUpdatedTerms(Arrays.asList(createTerm(RED, 1),
+                createTerm(WHITE, 2), createTerm(YELLOW, 3)), details));
         List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
 
         assertEquals(RED, sorted.get(0).getCode());
@@ -593,8 +597,9 @@ public final class VocabularyBOTest extends AbstractBOTest
         vocabulary.setTerms(Arrays.asList(createTermPE(RED, 1), createTermPE(WHITE, 2),
                 createTermPE(YELLOW, 3)));
         VocabularyBO bo = createVocabularyBO(vocabulary);
-        bo.updateTerms(Arrays.asList(createTerm(WHITE, 1), createTerm(YELLOW, 2),
-                createTerm(RED, 3)));
+        VocabularyTermBatchUpdateDetails details = new VocabularyTermBatchUpdateDetails(true, true);
+        bo.updateTerms(convertToUpdatedTerms(Arrays.asList(createTerm(WHITE, 1), createTerm(YELLOW,
+                2), createTerm(RED, 3)), details));
         List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
 
         assertEquals(WHITE, sorted.get(0).getCode());
@@ -605,13 +610,16 @@ public final class VocabularyBOTest extends AbstractBOTest
     @Test
     public void testUpdateTermsChangeLabel() throws Exception
     {
+        // change label but leave description untouched
         VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.setManagedInternally(false);
-        vocabulary.setTerms(Arrays.asList(createTermPEWithLabel(RED, LABEL_A, 1),
-                createTermPEWithLabel(WHITE, LABEL_B, 2)));
+        vocabulary.setTerms(Arrays.asList(createTermPEWithLabelAndDescription(RED, LABEL_A, DESC_A,
+                1), createTermPEWithLabelAndDescription(WHITE, LABEL_B, DESC_B, 2)));
         VocabularyBO bo = createVocabularyBO(vocabulary);
-        bo.updateTerms(Arrays.asList(createTermWithLabel(RED, LABEL_C, 1), createTermWithLabel(
-                WHITE, LABEL_D, 2)));
+        VocabularyTermBatchUpdateDetails details =
+                new VocabularyTermBatchUpdateDetails(true, false);
+        bo.updateTerms(convertToUpdatedTerms(Arrays.asList(createTermWithLabel(RED, LABEL_C, 1),
+                createTermWithLabel(WHITE, LABEL_D, 2)), details));
         List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
 
         assertEquals(RED, sorted.get(0).getCode());
@@ -619,18 +627,24 @@ public final class VocabularyBOTest extends AbstractBOTest
 
         assertEquals(LABEL_C, sorted.get(0).getLabel());
         assertEquals(LABEL_D, sorted.get(1).getLabel());
+        assertEquals(DESC_A, sorted.get(0).getDescription());
+        assertEquals(DESC_B, sorted.get(1).getDescription());
     }
 
     @Test
     public void testUpdateTermsChangeDescription() throws Exception
     {
+        // change description but leave label untouched
         VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.setManagedInternally(false);
-        vocabulary.setTerms(Arrays.asList(createTermPEWithDesc(RED, DESC_A, 1),
-                createTermPEWithDesc(WHITE, DESC_B, 1)));
+        vocabulary.setTerms(Arrays.asList(createTermPEWithLabelAndDescription(RED, LABEL_A, DESC_A,
+                1), createTermPEWithLabelAndDescription(WHITE, LABEL_B, DESC_B, 2)));
         VocabularyBO bo = createVocabularyBO(vocabulary);
-        bo.updateTerms(Arrays.asList(createTermWithDescription(RED, DESC_C, 1),
-                createTermWithDescription(WHITE, DESC_D, 2)));
+        VocabularyTermBatchUpdateDetails details =
+                new VocabularyTermBatchUpdateDetails(false, true);
+        bo.updateTerms(convertToUpdatedTerms(Arrays.asList(
+                createTermWithDescription(RED, DESC_C, 1), createTermWithDescription(WHITE, DESC_D,
+                        2)), details));
         List<VocabularyTermPE> sorted = sortByOrdinal(bo.getVocabulary().getTerms());
 
         assertEquals(RED, sorted.get(0).getCode());
@@ -638,6 +652,8 @@ public final class VocabularyBOTest extends AbstractBOTest
 
         assertEquals(DESC_C, sorted.get(0).getDescription());
         assertEquals(DESC_D, sorted.get(1).getDescription());
+        assertEquals(LABEL_A, sorted.get(0).getLabel());
+        assertEquals(LABEL_B, sorted.get(1).getLabel());
     }
 
     private VocabularyTerm createTermWithDescription(String code, String desc, int ordinal)
@@ -654,17 +670,12 @@ public final class VocabularyBOTest extends AbstractBOTest
         return term;
     }
 
-    private VocabularyTermPE createTermPEWithLabel(String code, String label, int ordinal)
+    private VocabularyTermPE createTermPEWithLabelAndDescription(String code, String label,
+            String description, int ordinal)
     {
         VocabularyTermPE term = createTermPE(code, ordinal);
         term.setLabel(label);
-        return term;
-    }
-
-    private VocabularyTermPE createTermPEWithDesc(String code, String desc, int ordinal)
-    {
-        VocabularyTermPE term = createTermPE(code, ordinal);
-        term.setDescription(desc);
+        term.setDescription(description);
         return term;
     }
 
@@ -700,6 +711,17 @@ public final class VocabularyBOTest extends AbstractBOTest
         VocabularyTerm vocabularyTerm = new VocabularyTerm();
         vocabularyTerm.setCode(code);
         return vocabularyTerm;
+    }
+
+    private List<VocabularyTerm> convertToUpdatedTerms(List<VocabularyTerm> terms,
+            VocabularyTermBatchUpdateDetails batchUpdateDetails)
+    {
+        List<VocabularyTerm> converted = new ArrayList<VocabularyTerm>();
+        for (VocabularyTerm term : terms)
+        {
+            converted.add(new UpdatedVocabularyTerm(term, batchUpdateDetails));
+        }
+        return converted;
     }
 
     private VocabularyTerm createTerm(String code, int ordinal)

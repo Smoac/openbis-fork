@@ -85,6 +85,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKin
  */
 public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTermWithStats>
 {
+
+    private static final int LABEL_WIDTH = 100;
+
+    private static final int FIELD_WIDTH = 350;
+
     private static final int FIELD_WIDTH_IN_REPLACEMENT_DIALOG = 200;
 
     private static final int LABEL_WIDTH_IN_REPLACEMENT_DIALOG = 200;
@@ -212,6 +217,10 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 private final VocabularyTermSelectionWidget termSelectionWidget;
 
                 {
+                    form.setLabelWidth(LABEL_WIDTH);
+                    form.setFieldWidth(FIELD_WIDTH);
+                    this.setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
+
                     boolean mandatory = false;
 
                     labelField = createTextField(viewContext.getMessage(Dict.LABEL), mandatory);
@@ -222,7 +231,6 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     descriptionField = createDescriptionField(viewContext, mandatory);
                     descriptionField.setValue(StringEscapeUtils.unescapeHtml(description));
                     addField(descriptionField);
-
                     // if vocabulary term cannot be choosen from list there is no need to edit order
                     if (vocabulary.isChosenFromList())
                     {
@@ -263,8 +271,8 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     }
                     boolean mandatory = false;
                     VocabularyTermSelectionWidget result =
-                            new VocabularyTermSelectionWidget(getId() + term, "Position after",
-                                    mandatory, allTerms, previousTermCodeOrNull);
+                            new VocabularyTermSelectionWidget(getId() + "_edit_pos",
+                                    "Position after", mandatory, allTerms, previousTermCodeOrNull);
                     result.setEmptyText("empty value == beginning");
                     return result;
                 }
@@ -367,22 +375,18 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
 
                 protected final String termsSessionKey;
 
-                private final static int LABEL_WIDTH = 100;
-
-                private final static int FIELD_WIDTH = 350;
-
                 {
                     termsSessionKey = ID + +vocabulary.getId();
 
                     form.setLabelWidth(LABEL_WIDTH);
                     form.setFieldWidth(FIELD_WIDTH);
+                    this.setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
                     form.setAction(GenericConstants.createServicePath("upload"));
                     form.setEncoding(Encoding.MULTIPART);
                     form.setMethod(Method.POST);
                     form.add(AbstractRegistrationForm.createHiddenField(
                             AbstractRegistrationForm.SESSION_KEYS_NUMBER, "1"));
                     form.add(AbstractRegistrationForm.createHiddenSessionField(termsSessionKey, 0));
-                    setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
 
                     addField(createImportFileField());
 
@@ -454,6 +458,10 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 private final TextArea newTermCodesArea;
 
                 {
+                    form.setLabelWidth(LABEL_WIDTH);
+                    form.setFieldWidth(FIELD_WIDTH);
+                    this.setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
+
                     newTermCodesArea = createNewTermCodesArea();
                     addField(newTermCodesArea);
 
@@ -495,7 +503,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                                     : null;
                     boolean mandatory = false;
                     VocabularyTermSelectionWidget result =
-                            new VocabularyTermSelectionWidget(getId() + "_add_terms",
+                            new VocabularyTermSelectionWidget(getId() + "_add_pos",
                                     "Position after", mandatory, allTerms, lastTermCodeOrNull);
                     result.setEmptyText("empty value == beginning");
                     return result;
