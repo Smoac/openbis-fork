@@ -32,7 +32,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.ProgressBar;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Radio;
@@ -43,15 +42,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
@@ -59,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -166,10 +159,7 @@ public class DataSetComputeMenu extends TextToolItem
                             createCriteria(selectedAndDisplayedItems, computeOnSelected);
                     if (pluginTaskKind == DataStoreServiceKind.QUERIES)
                     {
-                        ReportDisplayCallback callback =
-                                new ReportDisplayCallback(viewContext, service);
-                        viewContext.getService().createReportFromDatasets(service, criteria,
-                                callback);
+                        DataSetReportGenerator.generate(service, criteria, viewContext);
                     } else
                     {
                         viewContext.getService().processDatasets(service, criteria,
@@ -177,25 +167,6 @@ public class DataSetComputeMenu extends TextToolItem
                     }
                 }
             };
-    }
-
-    private static Dialog createAndShowProgressBar()
-    {
-        ProgressBar progressBar = new ProgressBar();
-        progressBar.auto();
-
-        Dialog dialog = new Dialog();
-        String title = "Generating the report...";
-        dialog.setTitle(title);
-
-        dialog.add(progressBar);
-        dialog.setButtons("");
-        dialog.setAutoHeight(true);
-        dialog.setClosable(false);
-        dialog.addText(title);
-        dialog.setResizable(false);
-        dialog.show();
-        return dialog;
     }
 
     private static DisplayedOrSelectedDatasetCriteria createCriteria(
@@ -215,55 +186,6 @@ public class DataSetComputeMenu extends TextToolItem
         public final void process(final Void result)
         {
             MessageBox.info("Processing", "Processing has been scheduled successfully.", null);
-        }
-    }
-
-    private static final class ReportDisplayCallback extends
-            AbstractAsyncCallback<TableModelReference>
-    {
-        private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-        private final Dialog progressBar;
-
-        private final DatastoreServiceDescription service;
-
-        public ReportDisplayCallback(IViewContext<ICommonClientServiceAsync> viewContext,
-                DatastoreServiceDescription service)
-        {
-            super(viewContext);
-            this.viewContext = viewContext;
-            this.progressBar = createAndShowProgressBar();
-            this.service = service;
-        }
-
-        @Override
-        protected void process(final TableModelReference tableModelReference)
-        {
-            progressBar.hide();
-            final ITabItemFactory tabFactory = new ITabItemFactory()
-                {
-                    public ITabItem create()
-                    {
-                        IDisposableComponent component =
-                                DataSetReporterGrid.create(viewContext, tableModelReference,
-                                        service);
-                        String reportTitle = service.getLabel();
-                        return DefaultTabItem.create(reportTitle, component, viewContext);
-                    }
-
-                    public String getId()
-                    {
-                        return DataSetReporterGrid.createId(tableModelReference.getResultSetKey());
-                    }
-                };
-            DispatcherHelper.dispatchNaviEvent(tabFactory);
-        }
-
-        @Override
-        public void finishOnFailure(Throwable caught)
-        {
-            progressBar.hide();
-            super.finishOnFailure(caught);
         }
     }
 

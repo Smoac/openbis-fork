@@ -269,7 +269,9 @@ public abstract class AbstractExternalDataGrid
         {
             if (selected)
             {
-                return DisplayedOrSelectedDatasetCriteria.createSelectedItems(getSelectedItems());
+                List<ExternalData> items = getSelectedItems();
+                List<String> datasetCodes = ExternalData.extractCodes(items);
+                return DisplayedOrSelectedDatasetCriteria.createSelectedItems(datasetCodes);
             } else
             {
                 return DisplayedOrSelectedDatasetCriteria
