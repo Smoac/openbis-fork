@@ -63,7 +63,7 @@ public class PlateStyleSetter
         widget.setHeight(WELL_WIDGET_SIZE);
     }
 
-    private static void setPointerCursor(Component widget)
+    public static void setPointerCursor(Component widget)
     {
         widget.setStyleAttribute("cursor", "pointer");
     }

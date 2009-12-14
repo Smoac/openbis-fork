@@ -1,15 +1,8 @@
 // screening dictionary
 var screening = {
 
-	//
-	// Module
-	//
-	
-	STATISTICS: "Statistics",
-		
-	module_menu_title: "Screening",
-	statistics_tab_header: "Statistics",
-
+  GENE_LIBRARY_URL: "http://www.genecards.org/cgi-bin/carddisp.pl?gene={0}",
+  
   //
   // Sample Viewer
   //

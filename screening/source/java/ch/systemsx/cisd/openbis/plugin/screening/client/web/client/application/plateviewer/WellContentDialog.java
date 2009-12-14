@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -43,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
@@ -173,6 +175,9 @@ public class WellContentDialog
                 {
                     container.add(new Text("Inhibited gene: "), cellLayout);
                     container.add(createEntityLink(gene));
+
+                    container.add(new Text("Gene details: "), cellLayout);
+                    container.add(createEntityExternalLink(gene));
                 }
             }
         } else
@@ -180,6 +185,12 @@ public class WellContentDialog
             container.add(new Text("No metadata available."));
         }
         return container;
+    }
+
+    private Widget createEntityExternalLink(Material gene)
+    {
+        String url = viewContext.getMessage(Dict.GENE_LIBRARY_URL, gene.getCode());
+        return new Html(LinkRenderer.renderAsLinkWithAnchor("gene database", url, true));
     }
 
     private Widget createEntityLink(IEntityInformationHolder entity)
@@ -201,7 +212,7 @@ public class WellContentDialog
         LayoutContainer container = new LayoutContainer(new TableLayout(tileColsNum));
         for (int i = 1; i <= tileRowsNum * tileColsNum; i++)
         {
-            Widget tileContent;
+            Component tileContent;
             String imagePath = wellData.tryGetImagePath(channel, i);
             if (imagePath != null)
             {
@@ -212,6 +223,7 @@ public class WellContentDialog
                         SimpleDatastoreImageRenderer.createDatastoreImageUrl(imagePath,
                                 TILE_IMG_WIDTH, TILE_IMG_HEIGHT, downloadUrl, sessionId);
                 tileContent = new Html(imageURL);
+                PlateStyleSetter.setPointerCursor(tileContent);
             } else
             {
                 tileContent = new Text("No image.");

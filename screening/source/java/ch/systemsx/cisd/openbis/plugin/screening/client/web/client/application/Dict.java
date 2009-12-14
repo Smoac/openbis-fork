@@ -24,9 +24,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
  */
 public final class Dict extends ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict
 {
-    public static final String MODULE_MENU_TITLE = "module_menu_title";
-
-    public static final String STATISTICS_SCREENING_TAB_HEADER = "statistics_tab_header";
+    public static final String GENE_LIBRARY_URL = "GENE_LIBRARY_URL";
 
     private Dict()
     {
