@@ -40,8 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
  */
 public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCommand
 {
-    private static final String INTERNAL_PROPERTY_PREFIX = "$";
-
     private final String entityTypeCode;
 
     private final String propertyTypeCode;
@@ -92,8 +90,7 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
         final Widget widget =
                 GWTTestUtil.getWidgetWithID(widgetId
                         + PropertyTypeAssignmentForm.DEFAULT_VALUE_ID_PART
-                        + isInternalNamespace(selectedPropertyTypeCode)
-                        + getSimpleCode(selectedPropertyTypeCode));
+                        + GWTUtils.escapeToFormId(selectedPropertyTypeCode));
         assertTrue(widget instanceof Field<?>);
         if (defaultValue != null)
         {
@@ -153,24 +150,6 @@ public final class FillPropertyTypeAssignmentForm extends AbstractDefaultTestCom
     private void clickSaveButton()
     {
         GWTTestUtil.clickButtonWithID(widgetId + PropertyTypeAssignmentForm.SAVE_BUTTON_ID_SUFFIX);
-    }
-
-    private String getSimpleCode(String code)
-    {
-        String result;
-        if (isInternalNamespace(code))
-        {
-            result = code.substring(INTERNAL_PROPERTY_PREFIX.length());
-        } else
-        {
-            result = code;
-        }
-        return PropertyTypeAssignmentForm.replaceSpecialPropertyFieldIdChars(result);
-    }
-
-    private boolean isInternalNamespace(String code)
-    {
-        return code.startsWith(INTERNAL_PROPERTY_PREFIX);
     }
 
 }

@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -388,16 +389,6 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         }
     }
 
-    /**
-     * Replaces '.' which has special meaning in GXT (but can occur in our property type codes) with
-     * a '*' which should not occur in our property field codes in other cases as it is not a valid
-     * code char.
-     */
-    public static String replaceSpecialPropertyFieldIdChars(String propertyTypeCode)
-    {
-        return propertyTypeCode.replace('.', '*');
-    }
-
     private void updatePropertyTypeRelatedFields()
     {
         hidePropertyTypeRelatedFields();
@@ -405,8 +396,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
         if (propertyType != null)
         {
             String fieldId =
-                    createChildId(DEFAULT_VALUE_ID_PART + propertyType.isInternalNamespace()
-                            + replaceSpecialPropertyFieldIdChars(propertyType.getSimpleCode()));
+                    createChildId(DEFAULT_VALUE_ID_PART
+                            + GWTUtils.escapeToFormId(propertyType.getSimpleCode()));
             DatabaseModificationAwareField<?> fieldHolder =
                     PropertyFieldFactory.createField(propertyType, false, viewContext
                             .getMessage(Dict.DEFAULT_VALUE), fieldId, null, viewContext);
