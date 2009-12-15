@@ -147,10 +147,23 @@ public final class GWTTestUtil
         GWTUtils.setSelectedItem(selector, modelPropertyToSelectBy, value);
     }
 
-    /** sets value of property field (handles both simple and comboBox fields) */
+    /**
+     * sets value of a property field with id specified by given {@link PropertyField} (handles both
+     * simple and comboBox fields)
+     */
     public final static void setPropertyFieldValue(PropertyField property)
     {
-        final Widget widget = GWTTestUtil.getWidgetWithID(property.getPropertyFieldId());
+        setPropertyFieldValue("", property);
+    }
+
+    /**
+     * sets value of a property field with id specified by given {@link PropertyField} and
+     * <var>formIdPrefix</var> (handles both simple and comboBox fields)
+     */
+    public final static void setPropertyFieldValue(String formIdPrefix, PropertyField property)
+    {
+        final Widget widget =
+                GWTTestUtil.getWidgetWithID(formIdPrefix + property.getPropertyFieldId());
         if (widget instanceof ComboBox<?>)
         {
             GWTUtils.setSelectedItem((ComboBox<?>) widget, ModelDataPropertyNames.CODE, property

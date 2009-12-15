@@ -70,7 +70,7 @@ public final class FillDataSetEditForm extends AbstractDefaultTestCommand
         String simpleId = formId.substring(GenericDataSetEditForm.ID_PREFIX.length());
         for (final PropertyField property : properties)
         {
-            GWTTestUtil.setPropertyFieldValue(property);
+            GWTTestUtil.setPropertyFieldValue(formId, property);
         }
         if (modifiedParentsOrNull != null)
         {

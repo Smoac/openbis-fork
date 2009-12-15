@@ -75,7 +75,7 @@ public final class FillExperimentEditForm extends AbstractDefaultTestCommand
         String simpleId = formId.substring(GenericExperimentEditForm.ID_PREFIX.length());
         for (final PropertyField property : properties)
         {
-            GWTTestUtil.setPropertyFieldValue(property);
+            GWTTestUtil.setPropertyFieldValue(formId, property);
         }
         if (newProjectOrNull != null)
         {
