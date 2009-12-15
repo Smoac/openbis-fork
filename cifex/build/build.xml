@@ -7,8 +7,8 @@
 	<property name="original.dist.server" value="${original.dist}/server" />
 	<property name="original.dist.client" value="${original.dist}/client" />
 
-	<property name="gwt.lib" value="${lib}/gwt1.7" />
-	<property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
+	<property name="gwt.lib" value="${lib}/gwt2.0" />
+	<property name="gwt.dev.lib" value="${gwt.lib}/gwt-dev.jar" />
 	<property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
 	<property name="gxt.lib" value="${lib}/gxt2.1/gxt.jar" />
 
@@ -388,7 +388,7 @@
 		<copy file="${lib}/gxt2.1/gxt.jar" todir="${gwt.war.web-inf.lib}"/>	
 		<copy file="${lib}/cglib/cglib-nodep.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${lib}/hibernate-search/jms.jar" todir="${gwt.war.web-inf.lib}"/>
-		<copy file="${gwt.lib}/mac/gwt-dev-mac.jar" todir="${gwt.war.web-inf.lib}"/>
+		<copy file="${gwt.lib}/gwt-dev.jar" todir="${gwt.war.web-inf.lib}"/>
 		<copy file="${dist}/${jar.file.name}" todir="${gwt.war.web-inf.lib}" />
 		<delete failonerror="true" dir="../${ant.project.name}/.gwt-cache" />
 		<delete file="${gwt.war.web-inf}/gwt.xml" />
