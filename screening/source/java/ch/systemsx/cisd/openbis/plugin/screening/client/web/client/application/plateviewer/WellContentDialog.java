@@ -115,8 +115,8 @@ public class WellContentDialog
             dialogHeight = TILE_IMG_HEIGHT * tileRowsNum + 160;
         } else
         {
-            dialogWidth = 500;
-            dialogHeight = 130;
+            dialogWidth = 250;
+            dialogHeight = 160;
         }
         String title = "Well Content: " + wellData.getWellSubcode();
         showWellContentDialog(container, dialogWidth, dialogHeight, title);
