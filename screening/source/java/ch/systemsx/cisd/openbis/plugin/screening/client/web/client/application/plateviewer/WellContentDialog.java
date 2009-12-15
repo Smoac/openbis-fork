@@ -196,7 +196,7 @@ public class WellContentDialog
     private Widget createEntityLink(IEntityInformationHolder entity)
     {
         final ClickHandler listener = new OpenEntityDetailsTabClickListener(entity, viewContext);
-        return LinkRenderer.getLinkWidget(entity.getIdentifier(), listener);
+        return LinkRenderer.getLinkWidget(entity.getCode(), listener);
     }
 
     private WellContentDialog(WellData wellData, PlateContent plateContent,
