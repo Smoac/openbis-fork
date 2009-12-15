@@ -19,9 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -91,14 +89,7 @@ public final class FillExperimentRegistrationForm extends AbstractDefaultTestCom
 
         for (final PropertyField property : properties)
         {
-            final Widget widget = GWTTestUtil.getWidgetWithID(property.getPropertyFieldId());
-            if (widget instanceof Field<?>)
-            {
-                ((Field<?>) widget).setRawValue(property.getPropertyFieldValue());
-            } else
-            {
-                throw new IllegalStateException("Wrong widget type");
-            }
+            GWTTestUtil.setPropertyFieldValue(property);
         }
         GWTTestUtil.clickButtonWithID(FORM_ID + AbstractRegistrationForm.SAVE_BUTTON);
     }

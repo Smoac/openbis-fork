@@ -54,9 +54,11 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.BrowserGridPagingToolBar;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertyField;
 
 /**
  * Useful static methods for testing.
@@ -143,6 +145,23 @@ public final class GWTTestUtil
     {
         final ComboBox<?> selector = (ComboBox<?>) GWTTestUtil.getWidgetWithID(selectionWidgetId);
         GWTUtils.setSelectedItem(selector, modelPropertyToSelectBy, value);
+    }
+
+    /** sets value of property field (handles both simple and comboBox fields) */
+    public final static void setPropertyFieldValue(PropertyField property)
+    {
+        final Widget widget = GWTTestUtil.getWidgetWithID(property.getPropertyFieldId());
+        if (widget instanceof ComboBox<?>)
+        {
+            GWTUtils.setSelectedItem((ComboBox<?>) widget, ModelDataPropertyNames.CODE, property
+                    .getPropertyFieldValue());
+        } else if (widget instanceof Field<?>)
+        {
+            ((Field<?>) widget).setRawValue(property.getPropertyFieldValue());
+        } else
+        {
+            throw new IllegalStateException("Wrong widget type");
+        }
     }
 
     /**
