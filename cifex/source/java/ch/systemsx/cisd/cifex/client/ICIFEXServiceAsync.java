@@ -20,11 +20,10 @@ import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.rpc.RemoteService;
 
-import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -33,7 +32,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  * @see ICIFEXService
  * @author Christian Ribeaud
  */
-public interface ICIFEXServiceAsync extends RemoteService
+public interface ICIFEXServiceAsync
 {
     /**
      * Authenticates given <code>user</code> with given <code>password</code>.
