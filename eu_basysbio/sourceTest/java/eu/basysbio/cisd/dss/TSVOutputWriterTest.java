@@ -37,12 +37,26 @@ import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
 public class TSVOutputWriterTest extends AssertJUnit
 {
     @Test
-    public void test()
+    public void testIgnoringEmptyLines()
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         TSVOutputWriter writer = new TSVOutputWriter(new OutputStreamAdapter(outputStream));
         String content = "a\tb\n11\t12\n\n";
         TabSeparatedValueTable table = new TabSeparatedValueTable(new StringReader(content), content, true);
+        List<Column> columns = table.getColumns();
+        
+        writer.write(columns);
+        
+        assertEquals("a\tb" + LINE_SEPARATOR + "11\t12" + LINE_SEPARATOR, outputStream.toString());
+    }
+    
+    @Test
+    public void testWithEmptyLines()
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        TSVOutputWriter writer = new TSVOutputWriter(new OutputStreamAdapter(outputStream));
+        String content = "a\tb\n11\t12\n\n";
+        TabSeparatedValueTable table = new TabSeparatedValueTable(new StringReader(content), content, false);
         List<Column> columns = table.getColumns();
         
         writer.write(columns);
