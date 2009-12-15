@@ -34,11 +34,13 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -365,7 +367,8 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
 
     private Window createUpdateTermsDialog()
     {
-        final String title = viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_TITLE);
+        final String title =
+                viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_TITLE, vocabulary.getCode());
 
         return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
             {
@@ -376,10 +379,10 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 protected final String termsSessionKey;
 
                 {
-                    termsSessionKey = ID + +vocabulary.getId();
+                    termsSessionKey = ID + vocabulary.getId();
 
-                    form.setLabelWidth(LABEL_WIDTH);
-                    form.setFieldWidth(FIELD_WIDTH);
+                    form.setLabelWidth(LABEL_WIDTH - 50);
+                    form.setFieldWidth(FIELD_WIDTH + 50);
                     this.setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
                     form.setAction(GenericConstants.createServicePath("upload"));
                     form.setEncoding(Encoding.MULTIPART);
@@ -388,6 +391,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                             AbstractRegistrationForm.SESSION_KEYS_NUMBER, "1"));
                     form.add(AbstractRegistrationForm.createHiddenSessionField(termsSessionKey, 0));
 
+                    insert(createMessageField(), 0);
                     addField(createImportFileField());
 
                     form.addListener(Events.Submit, new FormPanelListener(new InfoBox())
@@ -436,6 +440,21 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                             new BasicFileFieldManager(termsSessionKey, 1, "File");
                     fileManager.setMandatory();
                     return fileManager.getFields().get(0);
+                }
+
+                private Widget createMessageField()
+                {
+                    final LabelField messageField = new LabelField();
+                    messageField.setStyleAttribute("margin-left", "5px");
+                    final String fileFormat =
+                            viewContext.getMessage(Dict.VOCABULARY_TERMS_FILE_FORMAT);
+                    final String exportMsg =
+                            viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_MESSAGE_2);
+                    final String msgText =
+                            viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_MESSAGE,
+                                    fileFormat, exportMsg);
+                    messageField.setText(msgText);
+                    return messageField;
                 }
 
                 @Override

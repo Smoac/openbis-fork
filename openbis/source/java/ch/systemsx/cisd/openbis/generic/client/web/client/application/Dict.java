@@ -577,6 +577,11 @@ public abstract class Dict
 
     public static final String UPDATE_VOCABULARY_TERMS_TITLE = "update_vocabulary_terms_title";
 
+    public static final String UPDATE_VOCABULARY_TERMS_MESSAGE = "update_vocabulary_terms_message";
+
+    public static final String UPDATE_VOCABULARY_TERMS_MESSAGE_2 =
+            "update_vocabulary_terms_message_2";
+
     public static final String VOCABULARY_TERMS_VALIDATION_MESSAGE =
             "vocabulary_terms_validation_message";
 
