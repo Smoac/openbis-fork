@@ -43,7 +43,7 @@ public class MergedRowDataReportingPlugin extends AbstractDataMergingReportingPl
 
     public MergedRowDataReportingPlugin(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot, "\t");
+        super(properties, storeRoot);
     }
 
     public TableModel createReport(List<DatasetDescription> datasets)
@@ -72,7 +72,7 @@ public class MergedRowDataReportingPlugin extends AbstractDataMergingReportingPl
                                     .getDatasetCode(), StringUtils.join(lines.getHeaderTokens(),
                                     "\t"));
                 }
-                addDataRows(builder, dataset, lines.getDataLines());
+                addDataRows(builder, dataset, lines, false);
             }
         }
 

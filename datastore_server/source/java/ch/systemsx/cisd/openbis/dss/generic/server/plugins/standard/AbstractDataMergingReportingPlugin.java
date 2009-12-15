@@ -59,6 +59,11 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
 
     private final String separator;
 
+    protected AbstractDataMergingReportingPlugin(Properties properties, File storeRoot)
+    {
+        this(properties, storeRoot, "\t");
+    }
+
     protected AbstractDataMergingReportingPlugin(Properties properties, File storeRoot,
             String separator)
     {
@@ -82,21 +87,30 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
         return lines.getHeaderTokens();
     }
 
+    /**
+     * @param addFileNameColumn if true the second column will contain file name from which the row
+     *            was generated
+     */
     protected static void addDataRows(SimpleTableModelBuilder builder, DatasetDescription dataset,
-            List<String[]> dataLines)
+            DatasetFileLines lines, boolean addFileNameColumn)
     {
         String datasetCode = dataset.getDatasetCode();
-        for (String[] dataTokens : dataLines)
+        String fileNameOrNull = addFileNameColumn ? lines.getFile().getName() : null;
+        for (String[] dataTokens : lines.getDataLines())
         {
-            addDataRow(builder, datasetCode, dataTokens);
+            addDataRow(builder, datasetCode, dataTokens, fileNameOrNull);
         }
     }
 
     protected static void addDataRow(SimpleTableModelBuilder builder, String datasetCode,
-            String[] dataTokens)
+            String[] dataTokens, String fileNameOrNull)
     {
         List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
         row.add(new StringTableCell(datasetCode));
+        if (fileNameOrNull != null)
+        {
+            row.add(new StringTableCell(fileNameOrNull));
+        }
         for (String token : dataTokens)
         {
             row.add(new StringTableCell(token));

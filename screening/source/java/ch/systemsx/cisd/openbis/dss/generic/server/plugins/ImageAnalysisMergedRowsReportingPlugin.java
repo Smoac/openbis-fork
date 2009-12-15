@@ -105,6 +105,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDataMergingR
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         builder.addHeader("Data Set Code");
+        builder.addHeader("Plate");
         if (datasets.isEmpty() == false)
         {
             final DatasetDescription firstDataset = datasets.get(0);
@@ -127,7 +128,7 @@ public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDataMergingR
                                     .getDatasetCode(), StringUtils.join(lines.getHeaderTokens(),
                                     "\t"));
                 }
-                addDataRows(builder, dataset, lines.getDataLines());
+                addDataRows(builder, dataset, lines, true);
             }
         }
         return builder.getTableModel();

@@ -54,7 +54,7 @@ public class MergedColumnDataReportingPlugin extends AbstractDataMergingReportin
 
     public MergedColumnDataReportingPlugin(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot, "\t");
+        super(properties, storeRoot);
         final String rowIdColumnHeaderOrNull = properties.getProperty(ROW_ID_COLUMN_HEADER);
         rowIdentifierColumnHeader =
                 (rowIdColumnHeaderOrNull == null) ? "id" : rowIdColumnHeaderOrNull;
