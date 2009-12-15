@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import static ch.systemsx.cisd.cifex.client.application.WidgetFactory.getLinkWidget;
+
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -30,8 +32,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.Hyperlink;
-import com.google.gwt.user.client.ui.InlineHyperlink;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
@@ -63,8 +64,8 @@ public class HelpPage extends AbstractMainPage
         final IMessageResources messageResources = context.getMessageResources();
         final Html contactAdministrator =
                 new Html(createContactAdministrator(configuration, messageResources));
-        final Hyperlink disclaimerLink = createDisclaimerLink(messageResources);
-        final Hyperlink documentationLink = createDocumentationLink(messageResources);
+        final Widget disclaimerLink = createDisclaimerLink(messageResources);
+        final Widget documentationLink = createDocumentationLink(messageResources);
         container.add(documentationLink);
         container.add(disclaimerLink);
         container.add(contactAdministrator);
@@ -73,7 +74,7 @@ public class HelpPage extends AbstractMainPage
         return container;
     }
 
-    private final Hyperlink createDisclaimerLink(final IMessageResources messageResources)
+    private final Widget createDisclaimerLink(final IMessageResources messageResources)
     {
         return getLinkWidget(messageResources.getFooterDisclaimerLinkLabel(), new ClickHandler()
             {
@@ -92,31 +93,7 @@ public class HelpPage extends AbstractMainPage
             });
     }
 
-    public static Hyperlink getInlineLinkWidget(final String text, final ClickHandler handler)
-    {
-        Hyperlink link = new InlineHyperlink();
-        link.setText(text);
-        link.setStyleName("cifex-a");
-        if (handler != null)
-        {
-            link.addClickHandler(handler);
-        }
-        return link;
-    }
-
-    public static Hyperlink getLinkWidget(final String text, final ClickHandler handler)
-    {
-        Hyperlink link = new Hyperlink();
-        link.setText(text);
-        link.setStyleName("cifex-a");
-        if (handler != null)
-        {
-            link.addClickHandler(handler);
-        }
-        return link;
-    }
-
-    private final Hyperlink createDocumentationLink(final IMessageResources messageResources)
+    private final Widget createDocumentationLink(final IMessageResources messageResources)
     {
         return getLinkWidget(messageResources.getFooterDocumentationLinkLabel(), new ClickHandler()
             {

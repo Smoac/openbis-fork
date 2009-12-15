@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import static ch.systemsx.cisd.cifex.client.application.WidgetFactory.getLinkWidget;
+
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -28,8 +30,7 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.Hyperlink;
-import com.google.gwt.user.client.ui.InlineHyperlink;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
@@ -51,9 +52,9 @@ final class FooterPanel extends HorizontalPanel
 
     private final ViewContext viewContext;
 
-    private final Hyperlink disclaimerLink;
+    private final Widget disclaimerLink;
 
-    private final Hyperlink documentationLink;
+    private final Widget documentationLink;
 
     FooterPanel(final ViewContext context)
     {
@@ -87,7 +88,7 @@ final class FooterPanel extends HorizontalPanel
         return new Html("&nbsp;-&nbsp;");
     }
 
-    private final Hyperlink createDisclaimerLink(final IMessageResources messageResources)
+    private final Widget createDisclaimerLink(final IMessageResources messageResources)
     {
         return getLinkWidget(messageResources.getFooterDisclaimerLinkLabel(), new ClickHandler()
             {
@@ -106,19 +107,7 @@ final class FooterPanel extends HorizontalPanel
             });
     }
 
-    public static Hyperlink getLinkWidget(final String text, final ClickHandler handler)
-    {
-        Hyperlink link = new InlineHyperlink();
-        link.setText(text);
-        link.setStyleName("cifex-a");
-        if (handler != null)
-        {
-            link.addClickHandler(handler);
-        }
-        return link;
-    }
-
-    private final Hyperlink createDocumentationLink(final IMessageResources messageResources)
+    private final Widget createDocumentationLink(final IMessageResources messageResources)
     {
         return getLinkWidget(messageResources.getFooterDocumentationLinkLabel(), new ClickHandler()
             {
