@@ -54,7 +54,7 @@ final class PageController implements IPageController, IHistoryController
     // IPageController
     //
 
-    public final void createLoginPage()
+    public final void showLoginPage()
     {
         clearRootPanel();
         final LoginPage loginPage = new LoginPage(viewContext);
@@ -62,7 +62,7 @@ final class PageController implements IPageController, IHistoryController
         RootPanel.get().add(loginPage);
     }
 
-    public final void createAdminPage()
+    public final void showAdminPage()
     {
         clearRootPanel();
         final AbstractMainPage mainPage = new AdminMainPage(viewContext);
@@ -70,7 +70,7 @@ final class PageController implements IPageController, IHistoryController
         RootPanel.get().add(mainPage);
     }
 
-    public final void createInboxPage()
+    public final void showInboxPage()
     {
         clearRootPanel();
         final InboxPage inboxPage = new InboxPage(viewContext);
@@ -78,7 +78,7 @@ final class PageController implements IPageController, IHistoryController
         RootPanel.get().add(inboxPage);
     }
 
-    public final void createSharePage()
+    public final void showSharePage()
     {
         clearRootPanel();
         final SharePage sharePage = new SharePage(viewContext);
@@ -86,7 +86,7 @@ final class PageController implements IPageController, IHistoryController
         RootPanel.get().add(sharePage);
     }
 
-    public final void createInvitePage()
+    public final void showInvitePage()
     {
         clearRootPanel();
         final InvitePage invitePage = new InvitePage(viewContext);
@@ -94,7 +94,7 @@ final class PageController implements IPageController, IHistoryController
         RootPanel.get().add(invitePage);
     }
 
-    public final void createHelpPage()
+    public final void showHelpPage()
     {
         clearRootPanel();
         final HelpPage helpPage = new HelpPage(viewContext);
@@ -102,7 +102,7 @@ final class PageController implements IPageController, IHistoryController
         RootPanel.get().add(helpPage);
     }
 
-    public final void createEditCurrentUserPage()
+    public final void showEditCurrentUserPage()
     {
         clearRootPanel();
         final EditCurrentUserPage editUserPage = new EditCurrentUserPage(viewContext);
@@ -113,35 +113,35 @@ final class PageController implements IPageController, IHistoryController
     /**
      * Creates the given Page to the root panel. If the page is not known, it creates the main page.
      */
-    public final void createPage(final Page page)
+    public final void showPage(final Page page)
     {
         if (page == Page.ADMIN_PAGE)
         {
-            createAdminPage();
+            showAdminPage();
         } else if (page == Page.EDIT_PROFILE)
         {
-            createEditCurrentUserPage();
+            showEditCurrentUserPage();
         } else if (page == Page.LOGIN_PAGE)
         {
-            createLoginPage();
+            showLoginPage();
         } else if (page == Page.EXTERNAL_AUTHENTICATION)
         {
             createExternalAuthenticationPage();
         } else if (page == Page.INBOX_PAGE)
         {
-            createInboxPage();
+            showInboxPage();
         } else if (page == Page.SHARE_PAGE)
         {
-            createSharePage();
+            showSharePage();
         } else if (page == Page.INVITE_PAGE)
         {
-            createInvitePage();
+            showInvitePage();
         } else if (page == Page.HELP_PAGE)
         {
-            createHelpPage();
+            showHelpPage();
         } else
         {
-            createSharePage();
+            showSharePage();
         }
     }
 

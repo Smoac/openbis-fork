@@ -213,7 +213,7 @@ abstract class AbstractMainPage extends Viewport
             {
                 public void onClick(ClickEvent event)
                 {
-                    context.getPageController().createEditCurrentUserPage();
+                    context.getPageController().showEditCurrentUserPage();
                 }
             });
         return html;
@@ -231,7 +231,7 @@ abstract class AbstractMainPage extends Viewport
                 {
                     context.getCifexService().logout(AsyncCallbackAdapter.EMPTY_ASYNC_CALLBACK);
                     context.getModel().getUrlParams().clear();
-                    context.getPageController().createLoginPage();
+                    context.getPageController().showLoginPage();
                 }
             });
         return html;
@@ -246,7 +246,7 @@ abstract class AbstractMainPage extends Viewport
             {
                 public void onClick(ClickEvent event)
                 {
-                    context.getPageController().createHelpPage();
+                    context.getPageController().showHelpPage();
                 }
             });
         return html;
@@ -367,7 +367,7 @@ abstract class AbstractMainPage extends Viewport
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    context.getPageController().createInboxPage();
+                    context.getPageController().showInboxPage();
                 }
             });
         return editProfileButton;
@@ -383,7 +383,7 @@ abstract class AbstractMainPage extends Viewport
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    context.getPageController().createSharePage();
+                    context.getPageController().showSharePage();
                 }
             });
         return shareButton;
@@ -399,7 +399,7 @@ abstract class AbstractMainPage extends Viewport
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    context.getPageController().createInvitePage();
+                    context.getPageController().showInvitePage();
                 }
             });
         return inviteButton;
@@ -434,7 +434,7 @@ abstract class AbstractMainPage extends Viewport
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    context.getPageController().createAdminPage();
+                    context.getPageController().showAdminPage();
                 }
             });
         return adminViewButton;

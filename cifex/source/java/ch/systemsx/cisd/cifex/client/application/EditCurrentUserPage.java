@@ -60,7 +60,7 @@ final class EditCurrentUserPage extends AbstractMainPage
                                     context.getHistoryController();
                             final Page previousPage = historyController.getPreviousPage();
                             assert previousPage != null : "Undefined previous page.";
-                            pageController.createPage(previousPage);
+                            pageController.showPage(previousPage);
                         }
                     };
         editUserPanel.add(editUserWidget);

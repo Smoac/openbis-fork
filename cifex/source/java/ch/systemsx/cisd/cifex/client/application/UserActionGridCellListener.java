@@ -214,7 +214,7 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
             {
                 if (userCode.equals(viewContext.getModel().getUser().getUserCode()))
                 {
-                    viewContext.getPageController().createEditCurrentUserPage();
+                    viewContext.getPageController().showEditCurrentUserPage();
                     return;
                 }
                 // Edit User

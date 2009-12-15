@@ -53,7 +53,7 @@ final class FileUploadFeedbackCallback extends
 	}
 
 	private final void refreshMainPage() {
-		getViewContext().getPageController().createSharePage();
+		getViewContext().getPageController().showSharePage();
 	}
 
 	private final String createUpdateMessage(final FileUploadFeedback feedback) {

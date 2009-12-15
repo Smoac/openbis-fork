@@ -121,12 +121,12 @@ public final class CIFEXEntryPoint implements EntryPoint
                                     final Model model = viewContext.getModel();
                                     model.setUser(res);
                                     if (FileDownloadHelper.startFileDownload(model))
-                                        pageController.createInboxPage();
+                                        pageController.showInboxPage();
                                     else
-                                        pageController.createSharePage();
+                                        pageController.showSharePage();
                                 } else
                                 {
-                                    pageController.createLoginPage();
+                                    pageController.showLoginPage();
                                 }
                             }
 
@@ -134,7 +134,7 @@ public final class CIFEXEntryPoint implements EntryPoint
                             {
                                 if (caught instanceof InvalidSessionException)
                                 {
-                                    viewContext.getPageController().createLoginPage();
+                                    viewContext.getPageController().showLoginPage();
                                 }
                             }
                         });

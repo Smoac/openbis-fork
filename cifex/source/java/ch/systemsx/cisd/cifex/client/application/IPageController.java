@@ -28,27 +28,27 @@ public interface IPageController
     /**
      * Instantiates <code>LoginPage</code> and adds it to the <code>RootPanel</code>.
      */
-    public void createLoginPage();
+    public void showLoginPage();
 
     /**
      * Instantiates <code>InboxPage</code> and adds it to the <code>RootPanel</code>.
      */
-    public void createInboxPage();
+    public void showInboxPage();
 
     /**
      * Instantiates <code>SharePage</code> and adds it to the <code>RootPanel</code>.
      */
-    public void createSharePage();
+    public void showSharePage();
 
     /**
      * Instantiates <code>InvitePage</code> and adds it to the <code>RootPanel</code>.
      */
-    public void createInvitePage();
+    public void showInvitePage();
 
     /**
      * Instantiates <code>InvitePage</code> and adds it to the <code>RootPanel</code>.
      */
-    public void createHelpPage();
+    public void showHelpPage();
 
     /**
      * Instantiates <code>AdminPage</code> and adds it to the <code>RootPanel</code>.
@@ -56,16 +56,16 @@ public interface IPageController
      * Calling this method creates an {@link AdminMainPage} for <i>administrators</i>.
      * </p>
      */
-    public void createAdminPage();
+    public void showAdminPage();
 
     /**
      * Instantiates <code>UpdateUserPage</code> with the given User fields and adds it to the
      * <code>RootPanel</code>.
      */
-    public void createEditCurrentUserPage();
+    public void showEditCurrentUserPage();
 
     /** Creates page specified by given <var>page</var>. */
-    public void createPage(final Page page);
+    public void showPage(final Page page);
 
     /**
      * Instantiates <code>ExternalAuthenticationPage</code> and adds it to the

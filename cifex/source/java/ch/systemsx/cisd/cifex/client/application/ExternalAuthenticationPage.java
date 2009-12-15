@@ -172,6 +172,6 @@ final class ExternalAuthenticationPage extends AbstractMainPage
         final IHistoryController historyController = context.getHistoryController();
         final Page previousPage = historyController.getPreviousPage();
         assert previousPage != null : "Undefined previous page.";
-        pageController.createPage(previousPage);
+        pageController.showPage(previousPage);
     }
 }

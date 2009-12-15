@@ -99,7 +99,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
                                 {
                                     associatedDialogOrNull.hide();
                                 }
-                                context.getPageController().createLoginPage();
+                                context.getPageController().showLoginPage();
                             }
                         }
                     });

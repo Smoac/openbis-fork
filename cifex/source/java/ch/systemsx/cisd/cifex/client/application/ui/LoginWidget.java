@@ -174,10 +174,10 @@ public class LoginWidget extends VerticalPanel
         model.setUser(user);
         if (FileDownloadHelper.startFileDownload(model))
         {
-            context.getPageController().createInboxPage();
+            context.getPageController().showInboxPage();
         } else
         {
-            context.getPageController().createSharePage();
+            context.getPageController().showSharePage();
         }
     }
 
