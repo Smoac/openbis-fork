@@ -18,21 +18,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 
 public final class ExperimentIdentifier implements IsSerializable
 {
     private String identifier;
-    private TechId techID;
 
     public static ExperimentIdentifier createIdentifier(Experiment entity)
     {
-        ExperimentIdentifier identifier = new ExperimentIdentifier();
-        identifier.setIdentifier(entity.getIdentifier());
-        TechId tid = new TechId(entity.getId());
-        identifier.setTechID(tid);
-        return identifier;
+        return new ExperimentIdentifier(entity.getIdentifier());
     }
 
     public ExperimentIdentifier(String identifier)
@@ -40,6 +34,8 @@ public final class ExperimentIdentifier implements IsSerializable
         this.identifier = identifier;
     }
 
+    // GWT only
+    @SuppressWarnings("unused")
     private ExperimentIdentifier()
     {
     }
@@ -49,26 +45,10 @@ public final class ExperimentIdentifier implements IsSerializable
         return identifier;
     }
 
-    public void setIdentifier(String identifier)
-    {
-        this.identifier = identifier;
-    }
-
-    public final TechId getTechID()
-    {
-        return techID;
-    }
-
-    public final void setTechID(TechId techID)
-    {
-        this.techID = techID;
-    }
-
     @Override
     public String toString()
     {
-        return "Experiment[" + identifier + ", " + techID + "]";
+        return "Experiment[" + identifier + "]";
     }
 
-    
 }
