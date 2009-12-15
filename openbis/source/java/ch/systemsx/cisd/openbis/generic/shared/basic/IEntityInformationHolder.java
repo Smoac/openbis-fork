@@ -18,10 +18,10 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 
 /**
- * An entity with identifier, {@link EntityType} and {@link EntityKind} .
+ * A unique pointer to an entity (see {@link EntityKind} for different kinds of entities).<br>
+ * Specifies entity technical id, code, type code and {@link EntityKind} .
  * 
  * @author Piotr Buczek
  */

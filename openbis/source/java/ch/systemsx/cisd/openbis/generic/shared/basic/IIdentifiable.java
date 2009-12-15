@@ -17,16 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 /**
- * Read-only interface for beans witch provide a code, a business identifier as a string and a
- * unique technical ID. The business identifier ({@link IIdentifierHolder}) is used only for titles
- * of grids (not tabs, where we use codes) so it could be removed if we decide that we don't need
- * these titles any more.
+ * Read-only interface for beans witch provide a code and a unique technical ID.
  * 
  * @see ICodeProvider
- * @see IIdentifierHolder
  * @see IIdHolder
  * @author Piotr Buczek
  */
-public interface IIdentifiable extends IIdentifierHolder, IIdHolder, ICodeProvider
+public interface IIdentifiable extends IIdHolder, ICodeProvider
 {
 }

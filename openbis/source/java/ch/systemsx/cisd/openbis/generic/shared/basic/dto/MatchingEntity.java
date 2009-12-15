@@ -142,18 +142,6 @@ public final class MatchingEntity implements IsSerializable, IEntityInformationH
         final MatchingEntity entity = this;
         return new IIdentifiable()
             {
-                public String getIdentifier()
-                {
-                    if (entity.getEntityKind() == EntityKind.MATERIAL)
-                    {
-                        return new MaterialIdentifier(entity.getIdentifier(), entity
-                                .getEntityType().getCode()).print();
-                    } else
-                    {
-                        return entity.getIdentifier();
-                    }
-                }
-
                 public Long getId()
                 {
                     return entity.getId();

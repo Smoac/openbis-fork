@@ -51,8 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 /**
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractViewer<D extends IEntityInformationHolder>
-        extends ContentPanel
+public abstract class AbstractViewer<D extends IEntityInformationHolder> extends ContentPanel
 {
 
     public static final String ID_EDIT_SUFFIX = "_edit";
@@ -204,7 +203,8 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder>
 
     private String getOriginalDataDescription()
     {
-        return originalData.getEntityKind().getDescription() + " " + originalData.getIdentifier();
+        return originalData.getEntityKind().getDescription() + " " + originalData.getCode() + "("
+                + originalData.getEntityType().getCode() + ")";
     }
 
     protected final static BorderLayoutData createLeftBorderLayoutData()

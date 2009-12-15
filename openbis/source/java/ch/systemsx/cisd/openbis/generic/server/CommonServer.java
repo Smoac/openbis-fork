@@ -1330,8 +1330,7 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 EntityHelper.createEntityType(kind, entityOrNull.getEntityType().getCode());
         final String code = entityOrNull.getCode();
         final Long id = HibernateUtils.getId(entityOrNull);
-        final String identifier = entityOrNull.getIdentifier();
-        return new BasicEntityInformationHolder(kind, entityType, identifier, code, id);
+        return new BasicEntityInformationHolder(kind, entityType, code, id);
     }
 
     public String generateCode(String sessionToken, String prefix)

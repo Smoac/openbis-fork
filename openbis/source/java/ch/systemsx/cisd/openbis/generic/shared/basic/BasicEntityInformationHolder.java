@@ -38,8 +38,6 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
 
     private EntityType entityType;
 
-    private String identifier;
-
     private String code;
 
     private Long id;
@@ -50,12 +48,11 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
         // needed for serialization purposes
     }
 
-    public BasicEntityInformationHolder(EntityKind entityKind, EntityType entityType,
-            String identifier, String code, Long id)
+    public BasicEntityInformationHolder(EntityKind entityKind, EntityType entityType, String code,
+            Long id)
     {
         this.entityKind = entityKind;
         this.entityType = entityType;
-        this.identifier = identifier;
         this.code = code;
         this.id = id;
     }
@@ -68,11 +65,6 @@ public class BasicEntityInformationHolder implements IEntityInformationHolder, I
     public EntityType getEntityType()
     {
         return entityType;
-    }
-
-    public String getIdentifier()
-    {
-        return identifier;
     }
 
     public String getCode()
