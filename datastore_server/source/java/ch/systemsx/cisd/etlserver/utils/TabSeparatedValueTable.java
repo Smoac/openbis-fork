@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.utils;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -33,7 +34,66 @@ import org.apache.commons.lang.StringUtils;
  */
 public class TabSeparatedValueTable
 {
-    private final LineIterator lineIterator;
+    private static final class RowLineIterator implements Iterator<String>
+    {
+        private final LineIterator lineIterator;
+        private final boolean ignoreEmptyLines;
+        
+        private String currentLine;
+
+        RowLineIterator(LineIterator lineIterator, boolean ignoreEmptyLines)
+        {
+            this.lineIterator = lineIterator;
+            this.ignoreEmptyLines = ignoreEmptyLines;
+            
+        }
+        public boolean hasNext()
+        {
+            if (currentLine == null)
+            {
+                currentLine = getNextLine();
+            }
+            return currentLine != null;
+        }
+
+        public String next()
+        {
+            if (currentLine == null)
+            {
+                currentLine = getNextLine();
+            }
+            try
+            {
+                return currentLine;
+            } finally
+            {
+                currentLine = null;
+            }
+        }
+
+        public void remove()
+        {
+            throw new UnsupportedOperationException();
+        }
+        
+        private String getNextLine()
+        {
+            while (true)
+            {
+                if (lineIterator.hasNext() == false)
+                {
+                    return null;
+                }
+                String line = lineIterator.nextLine();
+                if (ignoreEmptyLines == false || line == null || StringUtils.isNotBlank(line))
+                {
+                    return line;
+                }
+            }
+        }
+    }
+    
+    private final RowLineIterator rowLineIterator;
     private final List<String> headers;
 
     /**
@@ -43,16 +103,16 @@ public class TabSeparatedValueTable
      * @param reader Reader pointing to the header line of the table.
      * @param nameOfReadingSource Source (usually file name) from which the table will be read. This
      *            is used for error messages only.
-     * @throws IllegalArgumentException if there is not at least a header line.
+     * @param ignoreEmptyLines If <code>true</code> lines with only white spaces will be ignored.
      */
-    public TabSeparatedValueTable(Reader reader, String nameOfReadingSource)
+    public TabSeparatedValueTable(Reader reader, String nameOfReadingSource, boolean ignoreEmptyLines)
     {
-        lineIterator = IOUtils.lineIterator(reader);
-        if (lineIterator.hasNext() == false)
+        rowLineIterator = new RowLineIterator(IOUtils.lineIterator(reader), ignoreEmptyLines);
+        if (rowLineIterator.hasNext() == false)
         {
             throw new IllegalArgumentException("Empty file '" + nameOfReadingSource + "'.");
         }
-        headers = getRowCells(lineIterator.nextLine().trim());
+        headers = getRowCells(rowLineIterator.next().trim());
     }
     
     /**
@@ -84,7 +144,7 @@ public class TabSeparatedValueTable
      */
     public boolean hasMoreRows()
     {
-        return lineIterator.hasNext();
+        return rowLineIterator.hasNext();
     }
     
     /**
@@ -95,19 +155,17 @@ public class TabSeparatedValueTable
      */
     public List<String> tryToGetNextRow()
     {
-        try
-        {
-            List<String> row = getRowCells(lineIterator.nextLine());
-            for (int i = row.size(); i < headers.size(); i++)
-            {
-                row.add("");
-            }
-            return row;
-        } catch (NoSuchElementException ex)
+        String line = rowLineIterator.next();
+        if (line == null)
         {
             return null;
         }
-
+        List<String> row = getRowCells(line);
+        for (int i = row.size(); i < headers.size(); i++)
+        {
+            row.add("");
+        }
+        return row;
     }
     
     private List<String> getRowCells(String line)

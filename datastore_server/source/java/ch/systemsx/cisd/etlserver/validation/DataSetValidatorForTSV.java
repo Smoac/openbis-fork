@@ -35,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.utils.FileScanner;
 import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
@@ -56,16 +57,19 @@ class DataSetValidatorForTSV implements IDataSetValidator
 {
     static final String PATH_PATTERNS_KEY = "path-patterns";
     static final String EXCLUDE_PATH_PATTERNS_KEY = "exclude-path-patterns";
+    static final String IGNORE_EMPTY_LINES_KEY = "ignore-empty-lines";
     static final String COLUMNS_KEY = "columns";
     
     private final List<FileScanner> fileScanners;
     private final List<FileScanner> excludeFileScanners;
     private final List<ColumnDefinition> unorderedDefinitions;
     private final Map<Integer, ColumnDefinition> orderedDefinitions;
+    private final boolean ignoreEmptyLines;
 
     DataSetValidatorForTSV(Properties properties)
     {
         fileScanners = new ArrayList<FileScanner>();
+        ignoreEmptyLines = PropertyUtils.getBoolean(properties, IGNORE_EMPTY_LINES_KEY, true);
         String pathPatterns = properties.getProperty(PATH_PATTERNS_KEY, "*");
         StringTokenizer tokenizer = new StringTokenizer(pathPatterns, ",");
         while (tokenizer.hasMoreTokens())
@@ -148,7 +152,8 @@ class DataSetValidatorForTSV implements IDataSetValidator
         try
         {
             reader = new FileReader(file);
-            TabSeparatedValueTable table = new TabSeparatedValueTable(reader, file.toString());
+            TabSeparatedValueTable table =
+                    new TabSeparatedValueTable(reader, file.toString(), ignoreEmptyLines);
             List<String> headers = table.getHeaders();
             assertUniqueHeaders(headers);
             ColumnDefinition[] definitions = findColumnDefinitions(headers);

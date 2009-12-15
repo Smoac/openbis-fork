@@ -34,7 +34,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     {
         try
         {
-            new TabSeparatedValueTable(new StringReader(""), "source");
+            new TabSeparatedValueTable(new StringReader(""), "source", false);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex)
         {
@@ -46,7 +46,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     public void testNoColumnsNoRows()
     {
         StringReader source = new StringReader("\n");
-        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "");
+        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", false);
         assertEquals("[]", table.getHeaders().toString());
         assertEquals(false, table.hasMoreRows());
         assertEquals(null, table.tryToGetNextRow());
@@ -57,7 +57,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     public void testNoColumnsSeveralRows()
     {
         StringReader source = new StringReader("\n\n\n");
-        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "");
+        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", false);
         assertEquals("[]", table.getHeaders().toString());
         assertEquals(true, table.hasMoreRows());
         assertEquals("[]", table.tryToGetNextRow().toString());
@@ -70,7 +70,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     public void testGetHeaders()
     {
         StringReader source = new StringReader("alpha\tbeta");
-        List<String> headers = new TabSeparatedValueTable(source, "").getHeaders();
+        List<String> headers = new TabSeparatedValueTable(source, "", false).getHeaders();
         assertEquals("[alpha, beta]", headers.toString());
     }
     
@@ -78,7 +78,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     public void testRowIterationForNoRows()
     {
         StringReader source = new StringReader("alpha\tbeta");
-        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "");
+        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", false);
         
         assertEquals(false, table.hasMoreRows());
         assertEquals(null, table.tryToGetNextRow());
@@ -88,7 +88,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     public void testRowIterationSomeRows()
     {
         StringReader source = new StringReader("alpha\tbeta\n11\t12\n\t22\n31\n\n");
-        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "");
+        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", false);
         
         assertEquals(true, table.hasMoreRows());
         assertEquals("[11, 12]", table.tryToGetNextRow().toString());
@@ -106,7 +106,7 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     public void testGetColumns()
     {
         StringReader source = new StringReader("alpha\tbeta\n11\t12\n\t22\n31\n\n");
-        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "");
+        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", false);
         List<Column> columns = table.getColumns();
 
         assertEquals(2, columns.size());
@@ -121,8 +121,8 @@ public class TabSeparatedValueTableTest extends AssertJUnit
     @Test
     public void testGetColumnsCombinedWithIterator()
     {
-        StringReader source = new StringReader("alpha\tbeta\n11\t12\n\t22\n31\n\n");
-        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "");
+        StringReader source = new StringReader("alpha\tbeta\n11\t12\n\t\t\n\t22\n31\n\n");
+        TabSeparatedValueTable table = new TabSeparatedValueTable(source, "", true);
         assertEquals(true, table.hasMoreRows());
         assertEquals("[11, 12]", table.tryToGetNextRow().toString());
         
@@ -130,9 +130,9 @@ public class TabSeparatedValueTableTest extends AssertJUnit
         
         assertEquals(2, columns.size());
         assertEquals("alpha", columns.get(0).getHeader());
-        assertEquals("[, 31, ]", columns.get(0).getValues().toString());
+        assertEquals("[, 31]", columns.get(0).getValues().toString());
         assertEquals("beta", columns.get(1).getHeader());
-        assertEquals("[22, , ]", columns.get(1).getValues().toString());
+        assertEquals("[22, ]", columns.get(1).getValues().toString());
         assertEquals(false, table.hasMoreRows());
         assertEquals(null, table.tryToGetNextRow());
     }
