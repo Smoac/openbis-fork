@@ -238,6 +238,7 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
     {
         Properties properties = new Properties();
         properties.setProperty(DataSetValidatorForTSV.PATH_PATTERNS_KEY, "*");
+        properties.setProperty(DataSetValidatorForTSV.IGNORE_EMPTY_LINES_KEY, "no");
         properties.setProperty(DataSetValidatorForTSV.COLUMNS_KEY, "c1");
         properties.setProperty("c1." + ColumnDefinition.HEADER_PATTERN_KEY, "Name");
         properties.setProperty("c1." + ColumnDefinition.ORDER_KEY, "1");
