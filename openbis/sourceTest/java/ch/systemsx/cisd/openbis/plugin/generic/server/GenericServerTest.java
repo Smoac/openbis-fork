@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -50,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -112,40 +110,6 @@ public final class GenericServerTest extends AbstractServerTestCase
         genericBusinessObjectFactory = context.mock(IGenericBusinessObjectFactory.class);
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
-    }
-
-    @Test
-    public final void testGetSampleInfo()
-    {
-        prepareGetSession();
-        final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
-        final SamplePE samplePE = CommonTestUtils.createSample();
-        final SampleParentWithDerivedDTO sampleGenerationDTO = new SampleParentWithDerivedDTO();
-        sampleGenerationDTO.setParent(samplePE);
-        context.checking(new Expectations()
-            {
-                {
-                    one(genericBusinessObjectFactory).createSampleBO(SESSION);
-                    will(returnValue(sampleBO));
-
-                    one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
-
-                    one(sampleBO).enrichWithAttachments();
-                    one(sampleBO).enrichWithPropertyTypes();
-
-                    one(sampleBO).getSample();
-                    will(returnValue(samplePE));
-
-                    one(sampleTypeSlaveServerPlugin).getSampleInfo(SESSION, samplePE);
-                    will(returnValue(sampleGenerationDTO));
-                }
-            });
-
-        final SampleParentWithDerived sampleGeneration =
-                createServer().getSampleInfo(SESSION_TOKEN, sampleIdentifier);
-        assertEquals(samplePE.getCode(), sampleGeneration.getParent().getCode());
-        assertEquals(0, sampleGeneration.getDerived().length);
-        context.assertIsSatisfied();
     }
 
     @Test

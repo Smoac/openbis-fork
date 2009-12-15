@@ -16,11 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
+import java.util.List;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -42,7 +47,20 @@ public interface IScreeningClientService extends IClientService
             throws UserFailureException;
 
     /**
+     * For given {@link TechId} returns corresponding {@link Material}.
+     */
+    public Material getMaterialInfo(final TechId materialId) throws UserFailureException;
+
+    /**
      * Fetches information about wells on a plate and their content.
      */
     public PlateContent getPlateContent(TechId sampleId) throws UserFailureException;
+
+    /**
+     * @return well locations which belong to a parent plate connected to a specified experiment.
+     *         Each well will have a material property (e.g. oligo), which is connected through
+     *         another material property to a material (e.g. gene) with a specified id.
+     */
+    public List<WellLocation> getPlateLocations(TechId geneMaterialId,
+            ExperimentIdentifier experimentIdentifier) throws UserFailureException;
 }

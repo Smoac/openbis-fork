@@ -16,28 +16,65 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared;
 
+import java.util.List;
+
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.systemsx.cisd.openbis.generic.shared.IPluginCommonServer;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * The <i>screening</i> server.
  * 
  * @author Tomasz Pylak
  */
-public interface IScreeningServer extends IPluginCommonServer
+public interface IScreeningServer extends IServer
 {
     /**
      * Returns plate content.
      */
-    @Transactional
+    @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public PlateContent getPlateContent(String sessionToken,
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId);
+
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<WellLocation> getPlateLocations(
+            String sessionToken,
+            TechId geneMaterialId,
+            @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier);
+
+    /**
+     * For given {@link TechId} returns the {@link Sample} and its derived (child) samples.
+     * 
+     * @return never <code>null</code>.
+     * @throws UserFailureException if given <var>sessionToken</var> is invalid or whether sample
+     *             uniquely identified by given <var>sampleId</var> does not exist.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public SampleParentWithDerived getSampleInfo(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId)
+            throws UserFailureException;
+
+    /**
+     * For given {@link TechId} returns the corresponding {@link Material}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public Material getMaterialInfo(String sessionToken, TechId materialId);
+
 }

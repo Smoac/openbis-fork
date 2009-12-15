@@ -16,12 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -35,6 +40,16 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
     public void getSampleGenerationInfo(final TechId sampleId,
             final AsyncCallback<SampleParentWithDerived> callback);
 
+    /** @see IScreeningClientService#getMaterialInfo */
+    public void getMaterialInfo(TechId materialId, AsyncCallback<Material> materialInfoCallback);
+
     /** @see IScreeningClientService#getPlateContent(TechId) */
     public void getPlateContent(TechId sampleId, final AsyncCallback<PlateContent> callback);
+
+    /**
+     * @see IScreeningClientService#getPlateLocations(TechId,
+     *      ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier)
+     */
+    public void getPlateLocations(TechId geneMaterialId, ExperimentIdentifier experimentIdentifier,
+            AsyncCallback<List<WellLocation>> callback);
 }

@@ -16,22 +16,28 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * The {@link IScreeningClientService} implementation.
@@ -84,6 +90,18 @@ public final class ScreeningClientService extends AbstractClientService implemen
         }
     }
 
+    public final Material getMaterialInfo(final TechId materialId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        try
+        {
+            return server.getMaterialInfo(getSessionToken(), materialId);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public PlateContent getPlateContent(TechId plateId) throws UserFailureException
     {
         try
@@ -93,6 +111,26 @@ public final class ScreeningClientService extends AbstractClientService implemen
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    public List<WellLocation> getPlateLocations(TechId geneMaterialId,
+            ExperimentIdentifier experimentIdentifier) throws UserFailureException
+    {
+        try
+        {
+            return server.getPlateLocations(getSessionToken(), geneMaterialId,
+                    parseExperimentIdentifier(experimentIdentifier));
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
+    private static ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier parseExperimentIdentifier(
+            ExperimentIdentifier experimentIdentifier)
+    {
+        return new ExperimentIdentifierFactory(experimentIdentifier.getIdentifier())
+                .createIdentifier();
     }
 
 }

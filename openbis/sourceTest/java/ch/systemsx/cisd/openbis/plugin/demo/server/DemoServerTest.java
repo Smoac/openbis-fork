@@ -16,19 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.demo.server;
 
-import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.plugin.demo.shared.IDemoServer;
 
 /**
@@ -44,7 +37,8 @@ public final class DemoServerTest extends AbstractServerTestCase
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
 
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
-    
+
+    @SuppressWarnings("unused")
     private final IDemoServer createServer()
     {
         return new DemoServer(sessionManager, daoFactory, demoBusinessObjectFactory,
@@ -63,36 +57,5 @@ public final class DemoServerTest extends AbstractServerTestCase
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         demoBusinessObjectFactory = context.mock(IDemoBusinessObjectFactory.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
-    }
-
-    @Test
-    public final void testGetSampleInfo()
-    {
-        prepareGetSession();
-        final SampleIdentifier sampleIdentifier = CommonTestUtils.createSampleIdentifier();
-        final SamplePE samplePE = CommonTestUtils.createSample();
-        final SampleParentWithDerivedDTO sampleGenerationDTO = new SampleParentWithDerivedDTO();
-        sampleGenerationDTO.setParent(samplePE);
-        context.checking(new Expectations()
-            {
-                {
-                    one(demoBusinessObjectFactory).createSampleBO(SESSION);
-                    will(returnValue(sampleBO));
-
-                    one(sampleBO).loadBySampleIdentifier(sampleIdentifier);
-
-                    one(sampleBO).getSample();
-                    will(returnValue(samplePE));
-
-                    one(sampleTypeSlaveServerPlugin).getSampleInfo(SESSION, samplePE);
-                    will(returnValue(sampleGenerationDTO));
-                }
-            });
-
-        final SampleParentWithDerived sampleGeneration =
-                createServer().getSampleInfo(SESSION_TOKEN, sampleIdentifier);
-        assertEquals(samplePE.getCode(), sampleGeneration.getParent().getCode());
-        assertEquals(0, sampleGeneration.getDerived().length);
-        context.assertIsSatisfied();
     }
 }

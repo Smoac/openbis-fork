@@ -48,4 +48,8 @@ public class ScreeningConstants
     public static final String PLATE_PLUGIN_TYPE_CODE = "PLATE";
 
     public static final String WELL_PLUGIN_TYPE_CODE = "WELL";
+
+    // code of the gene material type
+    public static final String GENE_PLUGIN_TYPE_CODE = "GENE";
+
 }

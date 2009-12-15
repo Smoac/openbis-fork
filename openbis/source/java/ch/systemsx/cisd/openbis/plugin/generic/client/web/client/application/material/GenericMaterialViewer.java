@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -41,31 +42,39 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Piotr Buczek
  */
-public final class GenericMaterialViewer extends AbstractViewer<Material> implements
+abstract public class GenericMaterialViewer extends AbstractViewer<Material> implements
         IDatabaseModificationObserver
 {
     private static final String PREFIX = "generic-material-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    abstract protected void getMaterialInfo(final AsyncCallback<Material> materialInfoCallback);
 
-    private final TechId materialId;
+    private final IViewContext<?> viewContext;
+
+    protected final TechId materialId;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext, final TechId materialId)
     {
-        GenericMaterialViewer viewer = new GenericMaterialViewer(viewContext, materialId);
+        GenericMaterialViewer viewer = new GenericMaterialViewer(viewContext, materialId)
+            {
+                @Override
+                protected void getMaterialInfo(AsyncCallback<Material> materialInfoCallback)
+                {
+                    viewContext.getService().getMaterialInfo(materialId, materialInfoCallback);
+                }
+            };
+        viewer.reloadData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
-    private GenericMaterialViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
-            final TechId materialId)
+    protected GenericMaterialViewer(final IViewContext<?> viewContext, final TechId materialId)
     {
         super(viewContext, createId(materialId));
         this.materialId = materialId;
         this.viewContext = viewContext;
-        reloadData();
     }
 
     public static String createId(final TechId materialId)
@@ -83,24 +92,19 @@ public final class GenericMaterialViewer extends AbstractViewer<Material> implem
      */
     protected void reloadData()
     {
-        viewContext.getService().getMaterialInfo(materialId,
-                new MaterialInfoCallback(viewContext, this));
+        getMaterialInfo(new MaterialInfoCallback(viewContext, this));
     }
 
     private static final class MaterialInfoCallback extends AbstractAsyncCallback<Material>
     {
         private final GenericMaterialViewer genericMaterialViewer;
 
-        private MaterialInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
-                final GenericMaterialViewer genericSampleViewer)
+        private MaterialInfoCallback(final IViewContext<?> viewContext,
+                final GenericMaterialViewer viewer)
         {
             super(viewContext);
-            this.genericMaterialViewer = genericSampleViewer;
+            this.genericMaterialViewer = viewer;
         }
-
-        //
-        // AbstractAsyncCallback
-        //
 
         /**
          * Sets the {@link Material} for this <var>generic</var> material viewer.
