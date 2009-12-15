@@ -42,7 +42,7 @@ public class TSVOutputWriterTest extends AssertJUnit
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         TSVOutputWriter writer = new TSVOutputWriter(new OutputStreamAdapter(outputStream));
         String content = "a\tb\n11\t12\n\n";
-        TabSeparatedValueTable table = new TabSeparatedValueTable(new StringReader(content), content);
+        TabSeparatedValueTable table = new TabSeparatedValueTable(new StringReader(content), content, true);
         List<Column> columns = table.getColumns();
         
         writer.write(columns);

@@ -85,6 +85,8 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     static final String SAMPLE_TYPE_CODE_KEY = "sample-type-code";
     static final String DEFAULT_SAMPLE_TYPE_CODE = "TIME_POINT";
     
+    static final String IGNORE_EMPTY_LINES_KEY = "ignore-empty-lines";
+    
     static final String TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY = "time-point-data-set-drop-box-path";
     
     static final String TIME_POINT_DATA_SET_FILE_NAME_SEPARATOR_KEY = "time-point-data-set-file-name-separator";
@@ -179,11 +181,14 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
 
     private final String timePointDataSetFileSeparator;
 
+    private final boolean ignoreEmptyLines;
+
     TimeSeriesDataSetHandler(Properties properties, IEncapsulatedOpenBISService service)
     {
         super(FileOperations.getInstance());
         this.service = service;
         sampleTypeCode = properties.getProperty(SAMPLE_TYPE_CODE_KEY, DEFAULT_SAMPLE_TYPE_CODE);
+        ignoreEmptyLines = PropertyUtils.getBoolean(properties, IGNORE_EMPTY_LINES_KEY, true);
         experimentCodeFormat =
                 new MessageFormat(properties.getProperty(EXPERIMENT_CODE_TEMPLATE_KEY,
                         DEFAULT_EXPERIMENT_CODE_TEMPLATE));
@@ -252,7 +257,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         {
             reader = new FileReader(tsvFile);
             String fileName = tsvFile.toString();
-            TabSeparatedValueTable table = new TabSeparatedValueTable(reader, fileName);
+            TabSeparatedValueTable table = new TabSeparatedValueTable(reader, fileName, ignoreEmptyLines);
             List<Column> columns = table.getColumns();
             List<Column> commonColumns = new ArrayList<Column>();
             List<Column> dataColumns = new ArrayList<Column>();
