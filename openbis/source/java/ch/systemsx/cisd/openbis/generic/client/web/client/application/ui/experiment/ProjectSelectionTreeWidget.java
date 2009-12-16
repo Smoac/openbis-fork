@@ -22,20 +22,33 @@ import java.util.TreeSet;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
@@ -68,6 +81,10 @@ public final class ProjectSelectionTreeWidget extends TreePanel<ModelData> imple
         switchOffFolderIcons();
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         refreshTree();
+
+        final Menu contextMenu = createContextMenu();
+        setContextMenu(contextMenu);
+
         getSelectionModel().addSelectionChangedListener(new SelectionChangedListener<ModelData>()
             {
                 @Override
@@ -76,13 +93,63 @@ public final class ProjectSelectionTreeWidget extends TreePanel<ModelData> imple
                     ModelData selected = se.getSelectedItem();
                     if (selected != null && isLeaf(selected))
                     {
+                        contextMenu.enable(); // context menu is enabled for projects
                         selectedProjectOrNull =
                                 (Project) selected.get(ModelDataPropertyNames.OBJECT);
                         getSelectionChangedListener().handleEvent(null);
+                    } else
+                    {
+                        contextMenu.disable(); // context menu is disabled for groups
                     }
-
                 }
             });
+
+    }
+
+    private Menu createContextMenu()
+    {
+        final Menu contextMenu = new Menu();
+        final MenuItem details = new MenuItem("details");
+        details.addSelectionListener(new SelectionListener<MenuEvent>()
+            {
+                @Override
+                public void componentSelected(MenuEvent ce)
+                {
+                    // show project detail view if project context menu was selected
+                    if (selectedProjectOrNull != null)
+                    {
+                        showProjectDetailsView(selectedProjectOrNull);
+                    }
+                }
+            });
+        contextMenu.add(details);
+        return contextMenu;
+    }
+
+    private void showProjectDetailsView(final Project project)
+    {
+        ITabItemFactory tabFactory;
+        final TechId projectId = TechId.create(project);
+        tabFactory = new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    final DatabaseModificationAwareComponent viewer =
+                            ProjectViewer.create(viewContext.getCommonViewContext(), projectId);
+                    return DefaultTabItem.create(getViewerTitle(), viewer, viewContext, false);
+                }
+
+                public String getId()
+                {
+                    return ProjectViewer.createId(projectId);
+                }
+
+                private String getViewerTitle()
+                {
+                    return AbstractViewer.getTitle(viewContext, Dict.PROJECT, project);
+                }
+            };
+        DispatcherHelper.dispatchNaviEvent(tabFactory);
     }
 
     private void switchOffFolderIcons()
