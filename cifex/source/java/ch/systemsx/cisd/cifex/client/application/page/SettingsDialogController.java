@@ -31,7 +31,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public final class SettingsDialogController extends DialogController
+public final class SettingsDialogController extends AbstractDialogController
 {
     private static final int SETTINGS_DIALOG_WIDTH = 720;
 

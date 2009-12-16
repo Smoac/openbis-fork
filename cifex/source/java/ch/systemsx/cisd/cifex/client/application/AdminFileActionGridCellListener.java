@@ -28,7 +28,7 @@ import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 public class AdminFileActionGridCellListener extends FileActionGridCellListener
 {
 
-    AdminFileActionGridCellListener(ViewContext viewContext,
+    public AdminFileActionGridCellListener(ViewContext viewContext,
             GridWidget<AbstractFileGridModel> gridWidget)
     {
         super(true, viewContext, gridWidget, null);

@@ -25,14 +25,14 @@ import ch.systemsx.cisd.cifex.client.application.ViewContext;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public abstract class DialogController
+abstract class AbstractDialogController
 {
 
     protected final ViewContext context;
 
     protected final String panelTitle;
 
-    protected DialogController(final ViewContext context, final String panelTitle)
+    protected AbstractDialogController(final ViewContext context, final String panelTitle)
     {
         super();
         this.context = context;

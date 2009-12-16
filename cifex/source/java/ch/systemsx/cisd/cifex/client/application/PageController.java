@@ -18,6 +18,11 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.ui.RootPanel;
 
+import ch.systemsx.cisd.cifex.client.application.page.MainPage;
+import ch.systemsx.cisd.cifex.client.application.page.MainPageTabPanel;
+import ch.systemsx.cisd.cifex.client.application.page.HelpDialogController;
+import ch.systemsx.cisd.cifex.client.application.page.SettingsDialogController;
+
 /**
  * Controller for creating pages.
  * 
@@ -30,6 +35,13 @@ final class PageController implements IPageController, IHistoryController
     private Page currentPage;
 
     private Page previousPage;
+
+    private MainPageTabPanel tabPanel;
+
+    private MainPage mainPage;
+
+    // Keeps track of whether or not the main page is visible
+    private boolean isMainPageShowing;
 
     final void setViewContext(final ViewContext viewContext)
     {
@@ -48,6 +60,23 @@ final class PageController implements IPageController, IHistoryController
     {
         final RootPanel rootPanel = RootPanel.get();
         rootPanel.clear();
+        isMainPageShowing = false;
+    }
+
+    /**
+     * Makes sure the main page is visible.
+     */
+    private final void showMainPage()
+    {
+        if (isMainPageShowing)
+            return;
+
+        clearRootPanel();
+        tabPanel = new MainPageTabPanel(viewContext);
+        mainPage = new MainPage(viewContext, tabPanel);
+        mainPage.setVisible(true);
+        isMainPageShowing = true;
+        RootPanel.get().add(mainPage);
     }
 
     //
@@ -65,49 +94,68 @@ final class PageController implements IPageController, IHistoryController
     public final void showAdminPage()
     {
         clearRootPanel();
-        final AbstractMainPage mainPage = new AdminMainPage(viewContext);
+        final AbstractMainPage adminPage = new AdminMainPage(viewContext);
         setCurrentPage(Page.ADMIN_PAGE);
-        RootPanel.get().add(mainPage);
+        RootPanel.get().add(adminPage);
     }
 
     public final void showInboxPage()
     {
-        clearRootPanel();
-        final InboxPage inboxPage = new InboxPage(viewContext);
+        // clearRootPanel();
+        // final InboxPage inboxPage = new InboxPage(viewContext);
+        // setCurrentPage(Page.INBOX_PAGE);
+        // RootPanel.get().add(inboxPage);
+        showMainPage();
+        tabPanel.showTab(MainPageTabPanel.Tab.INBOX_TAB);
         setCurrentPage(Page.INBOX_PAGE);
-        RootPanel.get().add(inboxPage);
     }
 
     public final void showSharePage()
     {
-        clearRootPanel();
-        final SharePage sharePage = new SharePage(viewContext);
+        // clearRootPanel();
+        // final SharePage sharePage = new SharePage(viewContext);
+        // setCurrentPage(Page.SHARE_PAGE);
+        // RootPanel.get().add(sharePage);
+        showMainPage();
+        tabPanel.showTab(MainPageTabPanel.Tab.SHARE_TAB);
         setCurrentPage(Page.SHARE_PAGE);
-        RootPanel.get().add(sharePage);
     }
 
     public final void showInvitePage()
     {
-        clearRootPanel();
-        final InvitePage invitePage = new InvitePage(viewContext);
+        // clearRootPanel();
+        // final InvitePage invitePage = new InvitePage(viewContext);
+        // setCurrentPage(Page.INVITE_PAGE);
+        // RootPanel.get().add(invitePage);
+        showMainPage();
+        tabPanel.showTab(MainPageTabPanel.Tab.INVITE_TAB);
         setCurrentPage(Page.INVITE_PAGE);
-        RootPanel.get().add(invitePage);
     }
 
     public final void showHelpPage()
     {
-        clearRootPanel();
-        final HelpPage helpPage = new HelpPage(viewContext);
-        setCurrentPage(Page.HELP_PAGE);
-        RootPanel.get().add(helpPage);
+        // clearRootPanel();
+        // final HelpPage helpPage = new HelpPage(viewContext);
+        // setCurrentPage(Page.HELP_PAGE);
+        // RootPanel.get().add(helpPage);
+        HelpDialogController helpDialog = new HelpDialogController(viewContext);
+        helpDialog.getDialog().show();
     }
 
     public final void showEditCurrentUserPage()
     {
+        // clearRootPanel();
+        // final EditCurrentUserPage editUserPage = new EditCurrentUserPage(viewContext);
+        // setCurrentPage(Page.EDIT_PROFILE);
+        // RootPanel.get().add(editUserPage);
+        SettingsDialogController settingsDialog = new SettingsDialogController(viewContext);
+        settingsDialog.getDialog().show();
+    }
+
+    public final void refreshMainPage()
+    {
         clearRootPanel();
-        final EditCurrentUserPage editUserPage = new EditCurrentUserPage(viewContext);
-        setCurrentPage(Page.EDIT_PROFILE);
-        RootPanel.get().add(editUserPage);
+        showMainPage();
     }
 
     /**
@@ -118,9 +166,6 @@ final class PageController implements IPageController, IHistoryController
         if (page == Page.ADMIN_PAGE)
         {
             showAdminPage();
-        } else if (page == Page.EDIT_PROFILE)
-        {
-            showEditCurrentUserPage();
         } else if (page == Page.LOGIN_PAGE)
         {
             showLoginPage();
@@ -136,9 +181,6 @@ final class PageController implements IPageController, IHistoryController
         } else if (page == Page.INVITE_PAGE)
         {
             showInvitePage();
-        } else if (page == Page.HELP_PAGE)
-        {
-            showHelpPage();
         } else
         {
             showSharePage();

@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -35,6 +36,8 @@ public final class MainPageTabPanel extends SimplePanel
 
     private final InviteTabController inviteTab;
 
+    private final AdminTabController adminTabOrNull;
+
     private final ViewContext context;
 
     /**
@@ -42,7 +45,7 @@ public final class MainPageTabPanel extends SimplePanel
      */
     public static enum Tab
     {
-        SHARE_TAB, INBOX_TAB, INVITE_TAB
+        SHARE_TAB, INBOX_TAB, INVITE_TAB, ADMIN_TAB
     }
 
     public MainPageTabPanel(ViewContext context)
@@ -52,6 +55,11 @@ public final class MainPageTabPanel extends SimplePanel
         shareTab = new ShareTabController(this.context);
         inboxTab = new InboxTabController(this.context);
         inviteTab = new InviteTabController(this.context);
+
+        // Only create an admin tab if the user can access it
+        final UserInfoDTO user = context.getModel().getUser();
+        adminTabOrNull = (user.isAdmin()) ? new AdminTabController(this.context) : null;
+
         initializePanel();
         setWidget(tabPanel);
     }
@@ -69,6 +77,8 @@ public final class MainPageTabPanel extends SimplePanel
             case SHARE_TAB:
                 tabPanel.selectTab(0);
                 break;
+            case ADMIN_TAB:
+                tabPanel.selectTab(3);
         }
     }
 
@@ -81,6 +91,12 @@ public final class MainPageTabPanel extends SimplePanel
         tabPanel.add(shareTab.getWidget(), context.getMessageResources().getShareViewLinkLabel());
         tabPanel.add(inboxTab.getWidget(), context.getMessageResources().getInboxViewLinkLabel());
         tabPanel.add(inviteTab.getWidget(), context.getMessageResources().getInviteViewLinkLabel());
+
+        if (context.getModel().getUser().isAdmin() && adminTabOrNull != null)
+        {
+            tabPanel.add(adminTabOrNull.getWidget(), context.getMessageResources()
+                    .getAdminViewLinkLabel());
+        }
 
         // Select an initial tab
         tabPanel.selectTab(0);

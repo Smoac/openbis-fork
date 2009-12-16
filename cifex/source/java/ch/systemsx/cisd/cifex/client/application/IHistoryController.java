@@ -61,18 +61,14 @@ public interface IHistoryController
 
         public final static Page INVITE_PAGE = new Page();
 
-        public final static Page HELP_PAGE = new Page();
-
         public final static Page LOGIN_PAGE = new Page();
-
-        public final static Page EDIT_PROFILE = new Page();
 
         public static final Page EXTERNAL_AUTHENTICATION = new Page();
 
         public final static Page[] ALL_PAGES =
                 new Page[]
-                    { ADMIN_PAGE, INBOX_PAGE, SHARE_PAGE, INVITE_PAGE, HELP_PAGE, LOGIN_PAGE,
-                            EDIT_PROFILE, EXTERNAL_AUTHENTICATION };
+                    { ADMIN_PAGE, INBOX_PAGE, SHARE_PAGE, INVITE_PAGE, LOGIN_PAGE,
+                            EXTERNAL_AUTHENTICATION };
 
         private Page()
         {

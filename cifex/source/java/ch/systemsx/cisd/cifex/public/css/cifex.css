@@ -1,6 +1,10 @@
-body,div,td {
+body, div, td, table td, select {
     font-family: verdana, tahoma, helvetica;
     font-size: 11px;
+}
+
+.cifex-main-page {
+		margin: 10px;
 }
 
 .cifex-heading {

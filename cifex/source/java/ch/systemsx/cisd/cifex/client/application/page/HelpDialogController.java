@@ -30,7 +30,7 @@ import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class HelpDialogController extends DialogController
+public class HelpDialogController extends AbstractDialogController
 {
     /**
      * @param context

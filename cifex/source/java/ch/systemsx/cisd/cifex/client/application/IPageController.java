@@ -26,45 +26,43 @@ import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 public interface IPageController
 {
     /**
-     * Instantiates <code>LoginPage</code> and adds it to the <code>RootPanel</code>.
+     * Show the login page
      */
     public void showLoginPage();
 
     /**
-     * Instantiates <code>InboxPage</code> and adds it to the <code>RootPanel</code>.
+     * Make the inbox tab visible
      */
     public void showInboxPage();
 
     /**
-     * Instantiates <code>SharePage</code> and adds it to the <code>RootPanel</code>.
+     * Make the share tab visible
      */
     public void showSharePage();
 
     /**
-     * Instantiates <code>InvitePage</code> and adds it to the <code>RootPanel</code>.
+     * Make the invite tab visible
      */
     public void showInvitePage();
 
     /**
-     * Instantiates <code>InvitePage</code> and adds it to the <code>RootPanel</code>.
+     * Show the help page (a dialog window)
      */
     public void showHelpPage();
 
     /**
-     * Instantiates <code>AdminPage</code> and adds it to the <code>RootPanel</code>.
-     * <p>
-     * Calling this method creates an {@link AdminMainPage} for <i>administrators</i>.
-     * </p>
+     * Make the admin tab visible
      */
     public void showAdminPage();
 
     /**
-     * Instantiates <code>UpdateUserPage</code> with the given User fields and adds it to the
-     * <code>RootPanel</code>.
+     * Show the edit user page (a dialog window)
      */
     public void showEditCurrentUserPage();
 
-    /** Creates page specified by given <var>page</var>. */
+    /**
+     * Creates page specified by given <var>page</var>.
+     */
     public void showPage(final Page page);
 
     /**
@@ -72,5 +70,11 @@ public interface IPageController
      * <code>RootPanel</code>.
      */
     public void createExternalAuthenticationPage();
+
+    /**
+     * Refreshes the main page -- this is sometimes necessary after changes have rendered the
+     * information on the main page stale.
+     */
+    public void refreshMainPage();
 
 }

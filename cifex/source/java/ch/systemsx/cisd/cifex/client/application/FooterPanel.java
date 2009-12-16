@@ -52,24 +52,20 @@ final class FooterPanel extends HorizontalPanel
 
     private final ViewContext viewContext;
 
-    private final Widget disclaimerLink;
-
-    private final Widget documentationLink;
-
     FooterPanel(final ViewContext context)
     {
         final Configuration configuration = context.getModel().getConfiguration();
         assert configuration != null : "Must not be null reached this point.";
         this.viewContext = context;
         final IMessageResources messageResources = context.getMessageResources();
-        final Html poweredBy = new Html(messageResources.getFooterPoweredBy());
-        final Html applicationDescription =
+        final Widget poweredBy = new Html(messageResources.getFooterPoweredBy());
+        final Widget applicationDescription =
                 new Html(messageResources.getFooterApplicationDescription());
-        final Html contactAdministrator =
+        final Widget contactAdministrator =
                 new Html(createContactAdministrator(configuration, messageResources));
-        final Html version = new Html(createVersionDiv(configuration));
-        disclaimerLink = createDisclaimerLink(messageResources);
-        documentationLink = createDocumentationLink(messageResources);
+        final Widget version = new Html(createVersionDiv(configuration));
+        final Widget disclaimerLink = createDisclaimerLink(messageResources);
+        final Widget documentationLink = createDocumentationLink(messageResources);
         add(poweredBy);
         add(createSeparator());
         add(applicationDescription);
