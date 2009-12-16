@@ -376,7 +376,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         }
     }
 
-    private Long createSampleIfNecessary(String sampleCode, int timePoint, Experiment experiment)
+    private long createSampleIfNecessary(String sampleCode, int timePoint, Experiment experiment)
     {
         ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(new TechId(experiment.getId()));
         List<Sample> samples = service.listSamples(criteria);

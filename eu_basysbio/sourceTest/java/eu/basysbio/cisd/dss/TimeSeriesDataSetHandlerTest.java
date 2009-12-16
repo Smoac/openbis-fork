@@ -26,8 +26,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.BaseMatcher;
@@ -52,13 +55,16 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
@@ -163,6 +169,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
         properties.setProperty(TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
         properties.setProperty(TRANSLATION_KEY + "a", "Alpha");
+        prepareDataSetPropertiesValidator("Alpha", "B");
         TimeSeriesDataSetHandler handler = new TimeSeriesDataSetHandler(properties, service);
         File file = createDataExample();
         DataSetInformation dataSetInformation = createDataSetInformation("BLABLA");
@@ -189,6 +196,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
         properties.setProperty(TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
         properties.setProperty(TRANSLATION_KEY + "a", "Alpha");
+        prepareDataSetPropertiesValidator("Alpha", "B");
         TimeSeriesDataSetHandler handler = new TimeSeriesDataSetHandler(properties, service);
         
         File file = createDataExample();
@@ -213,6 +221,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
         properties.setProperty(TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS");
         properties.setProperty(TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
+        prepareDataSetPropertiesValidator("METABOLITE_LCMS");
         TimeSeriesDataSetHandler handler = new TimeSeriesDataSetHandler(properties, service);
         File file = createDataExample();
         DataSetInformation dataSetInformation =
@@ -240,6 +249,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         properties.setProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
         properties.setProperty(TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS, b");
         properties.setProperty(TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
+        prepareDataSetPropertiesValidator("METABOLITE_LCMS", "B");
         TimeSeriesDataSetHandler handler = new TimeSeriesDataSetHandler(properties, service);
         File file = createDataExample();
         context.checking(new Expectations()
@@ -267,7 +277,11 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                                 return false;
                             }
                         }));
-                    will(returnValue(Arrays.<Sample> asList(createSample(SAMPLE_EX_200))));
+                    Sample sample200 = createSample(SAMPLE_EX_200);
+                    will(returnValue(Arrays.<Sample> asList(sample200)));
+                    
+                    one(service).listDataSetsBySampleID(sample200.getId(), true);
+                    will(returnValue(Arrays.asList()));
 
                     final NewSample sample = createNewSample(SAMPLE_EX_7200);
                     one(service).registerSample(with(new BaseMatcher<NewSample>()
@@ -290,6 +304,10 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                                 description.appendValue(sample);
                             }
                         }));
+                    will(returnValue(1234l));
+                    
+                    one(service).listDataSetsBySampleID(1234l, true);
+                    will(returnValue(Arrays.asList()));
                 }
             });
         
@@ -307,18 +325,14 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         assertEquals(3, data.size());
         File dataSetPropertiesFile = new File(dataSet, DATA_SET_PROPERTIES_FILE);
         List<String> dataSetProperties = FileUtilities.loadToStringList(dataSetPropertiesFile);
-        assertEquals("property\tvalue", dataSetProperties.get(0));
-        assertEquals("TECHNICAL_REPLICATE_CODE\tT1", dataSetProperties.get(1));
-        assertEquals("CEL_LOC\tCE", dataSetProperties.get(2));
-        assertEquals("VALUE_TYPE\tValue[mM]", dataSetProperties.get(3));
-        assertEquals("SCALE\tLog10", dataSetProperties.get(4));
-        assertEquals("BI_ID\tNB", dataSetProperties.get(5));
-        assertEquals("CG\tNC", dataSetProperties.get(6));
-        assertEquals("TIME_SERIES_DATA_SET_TYPE\tMetaboliteLCMS", dataSetProperties.get(7));
-        assertEquals(8, dataSetProperties.size());
+        Collections.sort(dataSetProperties);
+        assertEquals(
+                "[BI_ID\tNB, CEL_LOC\tCE, CG\tNC, SCALE\tLOG10, TECHNICAL_REPLICATE_CODE\tT1, "
+                        + "TIME_SERIES_DATA_SET_TYPE\tMetaboliteLCMS, VALUE_TYPE\tValue[mM], "
+                        + "property\tvalue]", dataSetProperties.toString());
         File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + DATA_SET_EX_200);
         assertEquals(true, markerFile.exists());
-        
+
         dataSet = new File(dropBox, DATA_SET_EX_7200);
         assertEquals(true, dataSet.isDirectory());
         dataFile = new File(dataSet, "B" + DATA_FILE_TYPE);
@@ -329,19 +343,60 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         assertEquals(3, data.size());
         dataSetPropertiesFile = new File(dataSet, DATA_SET_PROPERTIES_FILE);
         dataSetProperties = FileUtilities.loadToStringList(dataSetPropertiesFile);
-        assertEquals("property\tvalue", dataSetProperties.get(0));
-        assertEquals("TECHNICAL_REPLICATE_CODE\tT2", dataSetProperties.get(1));
-        assertEquals("CEL_LOC\tCE", dataSetProperties.get(2));
-        assertEquals("VALUE_TYPE\tValue[mM]", dataSetProperties.get(3));
-        assertEquals("SCALE\tLIN", dataSetProperties.get(4));
-        assertEquals("BI_ID\tNB", dataSetProperties.get(5));
-        assertEquals("CG\tNC", dataSetProperties.get(6));
-        assertEquals("TIME_SERIES_DATA_SET_TYPE\tb", dataSetProperties.get(7));
-        assertEquals(8, dataSetProperties.size());
+        Collections.sort(dataSetProperties);
+        assertEquals(
+                "[BI_ID\tNB, CEL_LOC\tCE, CG\tNC, SCALE\tLIN, TECHNICAL_REPLICATE_CODE\tT2, "
+                        + "TIME_SERIES_DATA_SET_TYPE\tb, VALUE_TYPE\tValue[mM], "
+                        + "property\tvalue]", dataSetProperties.toString());
         markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + DATA_SET_EX_7200);
         assertEquals(true, markerFile.exists());
         
         context.assertIsSatisfied();
+    }
+    
+    private void prepareDataSetPropertiesValidator(final String... dataSetTypes)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    for (String dataSetTypeCode : dataSetTypes)
+                    {
+                        one(service).getDataSetType(dataSetTypeCode);
+                        DataSetTypeWithVocabularyTerms type = new DataSetTypeWithVocabularyTerms();
+                        type.setCode(dataSetTypeCode);
+                        for (TimePointPropertyType timePointPropertyType : TimePointPropertyType.values())
+                        {
+                            PropertyTypeWithVocabulary propertyType = new PropertyTypeWithVocabulary();
+                            propertyType.setCode(timePointPropertyType.toString());
+                            if (timePointPropertyType.isVocabulary())
+                            {
+                                propertyType.setTerms(createTerms("CE", "LIN", "LOG10"));
+                                
+                            }
+                            type.addPropertyType(propertyType);
+
+                        }
+                        will(returnValue(type));
+                    }
+                }
+                
+                private Set<VocabularyTerm> createTerms(String...terms)
+                {
+                    LinkedHashSet<VocabularyTerm> set = new LinkedHashSet<VocabularyTerm>();
+                    for (String term : terms)
+                    {
+                        set.add(createTerm(term));
+                    }
+                    return set;
+                }
+                
+                private VocabularyTerm createTerm(String code)
+                {
+                    VocabularyTerm vocabularyTerm = new VocabularyTerm();
+                    vocabularyTerm.setCode(code);
+                    return vocabularyTerm;
+                }
+            });
     }
 
     private File createDataExample()
@@ -410,6 +465,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     private NewSample createNewSample(String sampleCode)
     {
         NewSample sample = new NewSample();
+        sample.setContainerIdentifier(sampleCode);
         sample.setIdentifier(GROUP_CODE + "/" + sampleCode);
         return sample;
     }
@@ -418,6 +474,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     {
         Sample sample = new Sample();
         sample.setCode(sampleCode);
+        sample.setId(new Long(sampleCode.length()));
         return sample;
     }
     

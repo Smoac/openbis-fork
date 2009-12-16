@@ -64,6 +64,10 @@ class DataSetPropertiesValidator
     void assertValidFor(String dataSetType, TimePointPropertyType key, String value)
     {
         Map<String, PropertyTypeWithVocabulary> map = dataSetType2PropertyTypeMap.get(dataSetType);
+        if (map == null)
+        {
+            throw new IllegalArgumentException("Unknown data set type: " + dataSetType);
+        }
         PropertyTypeWithVocabulary propertyType = map.get(key.toString());
         if (propertyType.isVocabulary())
         {
