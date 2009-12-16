@@ -50,6 +50,7 @@ public class WidgetFactory
     public static Anchor createClickableHTMLWidget(String title, String tooltip)
     {
         Anchor html = new Anchor(title);
+        html.setStyleName("cifex-a");
         html.setTitle(tooltip);
         return html;
     }
