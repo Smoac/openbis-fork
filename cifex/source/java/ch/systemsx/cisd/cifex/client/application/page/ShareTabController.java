@@ -35,7 +35,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class ShareTabController extends AbstractCIFEXTabController
+class ShareTabController extends AbstractMainPageTabController
 {
 
     public ShareTabController(ViewContext context)

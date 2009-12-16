@@ -71,8 +71,8 @@ final class OwnerFileAsyncCallback extends AbstractAsyncCallback<List<OwnerFileI
         {
             widget = createNoFilesLabel(messageResources);
         }
-        final LayoutContainer verticalPanel = AbstractCIFEXTabController.createContainer();
-        AbstractCIFEXTabController.addTitlePart(verticalPanel, createFileGridTitle());
+        final LayoutContainer verticalPanel = AbstractMainPageTabController.createContainer();
+        AbstractMainPageTabController.addTitlePart(verticalPanel, createFileGridTitle());
         verticalPanel.add(widget);
 
         contentPanel.add(verticalPanel);

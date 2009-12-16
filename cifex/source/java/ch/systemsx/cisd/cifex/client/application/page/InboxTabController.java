@@ -24,7 +24,7 @@ import ch.systemsx.cisd.cifex.client.application.ViewContext;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-class InboxTabController extends AbstractCIFEXTabController
+class InboxTabController extends AbstractMainPageTabController
 {
 
     public InboxTabController(ViewContext context)

@@ -26,6 +26,8 @@ import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 
 /**
+ * A pop-up dialog showing help information.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
 public class HelpDialogController extends DialogController

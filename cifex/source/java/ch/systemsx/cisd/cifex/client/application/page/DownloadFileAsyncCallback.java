@@ -67,8 +67,8 @@ final class DownloadFileAsyncCallback extends AbstractAsyncCallback<List<FileInf
         {
             widget = createNoFilesLabel(messageResources);
         }
-        final LayoutContainer verticalPanel = AbstractCIFEXTabController.createContainer();
-        AbstractCIFEXTabController.addTitlePart(verticalPanel, createFileGridTitle());
+        final LayoutContainer verticalPanel = AbstractMainPageTabController.createContainer();
+        AbstractMainPageTabController.addTitlePart(verticalPanel, createFileGridTitle());
         verticalPanel.add(widget);
 
         addWebStartDownloadClientLink(messageResources, verticalPanel);
@@ -80,7 +80,7 @@ final class DownloadFileAsyncCallback extends AbstractAsyncCallback<List<FileInf
     private void addWebStartDownloadClientLink(IMessageResources messageResources,
             final LayoutContainer verticalPanel)
     {
-        AbstractCIFEXTabController.addTitlePart(verticalPanel, messageResources
+        AbstractMainPageTabController.addTitlePart(verticalPanel, messageResources
                 .getDownloadFilesPartTitleGreater2GB());
         String webStartLink = messageResources.getDownloadFilesHelpJavaDownloaderLink();
         String webStartTitle = messageResources.getDownloadFilesHelpJavaDownloaderTitle();

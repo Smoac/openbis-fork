@@ -34,7 +34,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-final class InviteTabController extends AbstractCIFEXTabController
+final class InviteTabController extends AbstractMainPageTabController
 {
     InviteTabController(final ViewContext context)
     {

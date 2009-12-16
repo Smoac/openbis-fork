@@ -31,11 +31,11 @@ import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-abstract class AbstractCIFEXTabController
+abstract class AbstractMainPageTabController
 {
     protected final ViewContext context;
 
-    public AbstractCIFEXTabController(final ViewContext context)
+    public AbstractMainPageTabController(final ViewContext context)
     {
         this.context = context;
     }

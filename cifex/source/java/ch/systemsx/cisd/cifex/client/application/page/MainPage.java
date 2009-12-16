@@ -18,11 +18,8 @@ package ch.systemsx.cisd.cifex.client.application.page;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
@@ -79,13 +76,6 @@ public final class MainPage extends LazyPanel
         vPanel.add(createHeaderWidget());
         vPanel.add(tabPanel);
         return vPanel;
-    }
-
-    protected static final void addTitlePart(LayoutContainer container, final String text)
-    {
-        final Html html = new Html(text);
-        html.setStyleName("cifex-heading");
-        container.add(html, new FlowData(new Margins(3, 0, 0, 0)));
     }
 
     private Widget createHeaderWidget()
@@ -224,26 +214,7 @@ public final class MainPage extends LazyPanel
                 }
             });
         return html;
-//        final IMessageResources messageResources = context.getMessageResources();
-//        Anchor html =
-//                clickableHTMLWidget(messageResources.getHelpPageLinkLabel(), messageResources
-//                        .getHelpPageTooltipLabel());
-//        html.addClickHandler(new ClickHandler()
-//            {
-//                public void onClick(ClickEvent event)
-//                {
-//                    try
-//                    {
-//                        new RequestBuilder(RequestBuilder.GET, "documentation.html").sendRequest(
-//                                null, new HTMLRequestCallback(messageResources
-//                                        .getHelpPageTooltipLabel()));
-//                    } catch (final RequestException ex)
-//                    {
-//                        showErrorMessage(ex);
-//                    }
-//                }
-//            });
-//        return html;
+
     }
 
     private Widget createFAQWidget()
@@ -297,13 +268,6 @@ public final class MainPage extends LazyPanel
     private Anchor clickableHTMLWidget(String title, String tooltip)
     {
         return WidgetFactory.createClickableHTMLWidget(title, tooltip);
-    }
-
-    static LayoutContainer createContainer()
-    {
-        final LayoutContainer container = new LayoutContainer();
-        container.setWidth("100%");
-        return container;
     }
 
     /**
