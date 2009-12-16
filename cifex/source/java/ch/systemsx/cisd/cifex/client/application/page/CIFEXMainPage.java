@@ -44,7 +44,6 @@ import ch.systemsx.cisd.cifex.client.application.AsyncCallbackAdapter;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.WidgetFactory;
-import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
@@ -69,13 +68,14 @@ public final class CIFEXMainPage extends LazyPanel
         this.context = context;
         this.tabPanel = tabPanel;
         vPanel = new VerticalPanel();
-        setStyleName("cifex-main-page");
+        // setStyleName("cifex-main-page");
     }
 
     @Override
     protected Widget createWidget()
     {
         vPanel.setWidth("100%");
+        vPanel.setSpacing(10);
         vPanel.add(createHeaderWidget());
         vPanel.add(tabPanel);
         return vPanel;
@@ -224,6 +224,26 @@ public final class CIFEXMainPage extends LazyPanel
                 }
             });
         return html;
+//        final IMessageResources messageResources = context.getMessageResources();
+//        Anchor html =
+//                clickableHTMLWidget(messageResources.getHelpPageLinkLabel(), messageResources
+//                        .getHelpPageTooltipLabel());
+//        html.addClickHandler(new ClickHandler()
+//            {
+//                public void onClick(ClickEvent event)
+//                {
+//                    try
+//                    {
+//                        new RequestBuilder(RequestBuilder.GET, "documentation.html").sendRequest(
+//                                null, new HTMLRequestCallback(messageResources
+//                                        .getHelpPageTooltipLabel()));
+//                    } catch (final RequestException ex)
+//                    {
+//                        showErrorMessage(ex);
+//                    }
+//                }
+//            });
+//        return html;
     }
 
     private Widget createFAQWidget()
@@ -284,23 +304,6 @@ public final class CIFEXMainPage extends LazyPanel
         final LayoutContainer container = new LayoutContainer();
         container.setWidth("100%");
         return container;
-    }
-
-    protected static final LayoutContainer createUserPanel(final boolean allowPermanentUsers,
-            ViewContext context)
-    {
-        LayoutContainer createUserPanel = createContainer();
-        if (allowPermanentUsers)
-        {
-            addTitlePart(createUserPanel, context.getMessageResources().getAdminCreateUserLabel());
-        } else
-        {
-            addTitlePart(createUserPanel, context.getMessageResources().getCreateUserLabel());
-        }
-        final CreateUserWidget createUserWidget =
-                new CreateUserWidget(context, allowPermanentUsers);
-        createUserPanel.add(createUserWidget);
-        return createUserPanel;
     }
 
     /**
