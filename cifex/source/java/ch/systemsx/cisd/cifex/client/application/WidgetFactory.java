@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-class WidgetFactory
+public class WidgetFactory
 {
     /**
      * Create an anchor (link) displaying the given text and invoking the provided handler when
@@ -35,7 +35,7 @@ class WidgetFactory
      * @param handler The click handler to invoke when the link is clicked
      * @return A new widget.
      */
-    static Widget getLinkWidget(final String text, final ClickHandler handler)
+    public static Widget getLinkWidget(final String text, final ClickHandler handler)
     {
         Anchor link = new Anchor();
         link.setText(text);
@@ -45,5 +45,12 @@ class WidgetFactory
             link.addClickHandler(handler);
         }
         return link;
+    }
+
+    public static Anchor createClickableHTMLWidget(String title, String tooltip)
+    {
+        Anchor html = new Anchor(title);
+        html.setTitle(tooltip);
+        return html;
     }
 }

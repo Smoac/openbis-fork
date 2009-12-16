@@ -36,7 +36,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 public final class FileDownloadGridCellListener implements Listener<GridEvent<ModelData>>
 {
 
-    FileDownloadGridCellListener()
+    public FileDownloadGridCellListener()
     {
     }
 

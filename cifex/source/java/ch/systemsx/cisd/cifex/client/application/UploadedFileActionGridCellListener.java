@@ -27,7 +27,7 @@ import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 public class UploadedFileActionGridCellListener extends FileActionGridCellListener
 {
 
-    UploadedFileActionGridCellListener(ViewContext viewContext,
+    public UploadedFileActionGridCellListener(ViewContext viewContext,
             GridWidget<AbstractFileGridModel> gridWidget,
             final IQuotaInformationUpdater quotaUpdaterOrNull)
     {
