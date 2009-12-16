@@ -25,9 +25,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class DatasetReference implements IsSerializable
 {
-    private String code;
+    private String datasetCode;
 
     private String datastoreCode;
+
+    private String downloadUrl;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -35,20 +37,26 @@ public class DatasetReference implements IsSerializable
     {
     }
 
-    public DatasetReference(String code, String datastoreCode)
+    public DatasetReference(String code, String datastoreCode, String downloadUrl)
     {
-        this.code = code;
+        this.datasetCode = code;
         this.datastoreCode = datastoreCode;
+        this.downloadUrl = downloadUrl;
     }
 
     public String getCode()
     {
-        return code;
+        return datasetCode;
     }
 
     public String getDatastoreCode()
     {
         return datastoreCode;
+    }
+
+    public String getDownloadUrl()
+    {
+        return downloadUrl;
     }
 
 }

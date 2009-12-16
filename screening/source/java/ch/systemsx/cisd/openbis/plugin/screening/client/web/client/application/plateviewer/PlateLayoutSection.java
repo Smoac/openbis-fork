@@ -52,8 +52,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningCons
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImage;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImage;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -293,7 +293,7 @@ public class PlateLayoutSection extends SingleSectionPanel
             {
                 public void handleEvent(BaseEvent ce)
                 {
-                    WellContentDialog.show(wellData, plateContent, viewContext);
+                    WellContentDialog.showContentDialog(wellData, viewContext);
                 }
             });
         widget.sinkEvents(Events.OnMouseDown.getEventCode());
@@ -371,7 +371,7 @@ public class PlateLayoutSection extends SingleSectionPanel
     {
         WellData[][] matrix =
                 new WellData[plateContent.getRowsNum() + 1][plateContent.getColsNum() + 1];
-        PlateImages plateImages = plateContent.tryGetImages();
+        TileImages plateImages = plateContent.tryGetImages();
         if (plateImages != null)
         {
             addImagePaths(plateContent, matrix, plateImages.getImages());
@@ -391,7 +391,7 @@ public class PlateLayoutSection extends SingleSectionPanel
             WellData wellData = matrix[row][col];
             if (wellData == null)
             {
-                wellData = new WellData(plateContent);
+                wellData = WellData.create(plateContent);
                 matrix[row][col] = wellData;
             }
             wellData.setMetadata(well);
@@ -399,16 +399,16 @@ public class PlateLayoutSection extends SingleSectionPanel
     }
 
     private static void addImagePaths(PlateContent plateContent, WellData[][] matrix,
-            List<PlateImage> imagesList)
+            List<TileImage> imagesList)
     {
-        for (PlateImage image : imagesList)
+        for (TileImage image : imagesList)
         {
             int row = image.getRow();
             int col = image.getColumn();
             WellData wellData = matrix[row][col];
             if (wellData == null)
             {
-                wellData = new WellData(plateContent);
+                wellData = WellData.create(plateContent);
                 matrix[row][col] = wellData;
             }
             wellData.addImage(image);

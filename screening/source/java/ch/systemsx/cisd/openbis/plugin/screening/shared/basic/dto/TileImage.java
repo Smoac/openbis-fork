@@ -19,73 +19,74 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Describes geometry of the plate and well.
+ * Image of one tile in one channel.
  * 
  * @author Tomasz Pylak
  */
-public class PlateImageParameters implements IsSerializable
+public class TileImage implements IsSerializable
 {
-    // dataset code for which plate parameters are valid
     private String datasetCode;
 
-    private int rowsNum;
+    private String imagePath;
 
-    private int colsNum;
+    private int row;
 
-    private int tileRowsNum;
+    private int column;
 
-    private int tileColsNum;
+    private int tile;
 
-    private int channelsNum;
+    private int channel;
 
-    public int getRowsNum()
+    public String getImagePath()
     {
-        return rowsNum;
+        return imagePath;
     }
 
-    public void setRowsNum(int rowsNum)
+    public void setImagePath(String imagePath)
     {
-        this.rowsNum = rowsNum;
+        this.imagePath = imagePath;
     }
 
-    public int getColsNum()
+    public int getRow()
     {
-        return colsNum;
+        return row;
     }
 
-    public void setColsNum(int colsNum)
+    public void setRow(int row)
     {
-        this.colsNum = colsNum;
+        this.row = row;
     }
 
-    public int getTileRowsNum()
+    public int getColumn()
     {
-        return tileRowsNum;
+        return column;
     }
 
-    public void setTileRowsNum(int tileRowsNum)
+    public void setColumn(int column)
     {
-        this.tileRowsNum = tileRowsNum;
+        this.column = column;
     }
 
-    public int getTileColsNum()
+    /** numbered from 1 */
+    public int getTile()
     {
-        return tileColsNum;
+        return tile;
     }
 
-    public void setTileColsNum(int tileColsNum)
+    public void setTile(int tile)
     {
-        this.tileColsNum = tileColsNum;
+        this.tile = tile;
     }
 
-    public int getChannelsNum()
+    /** numbered from 1 */
+    public int getChannel()
     {
-        return channelsNum;
+        return channel;
     }
 
-    public void setChannelsNum(int channelsNum)
+    public void setChannel(int channel)
     {
-        this.channelsNum = channelsNum;
+        this.channel = channel;
     }
 
     public String getDatasetCode()

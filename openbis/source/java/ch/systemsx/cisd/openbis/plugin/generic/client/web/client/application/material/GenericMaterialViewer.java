@@ -16,25 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
-import java.util.Set;
-
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
@@ -42,101 +33,49 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Piotr Buczek
  */
-abstract public class GenericMaterialViewer extends AbstractViewer<Material> implements
-        IDatabaseModificationObserver
+public class GenericMaterialViewer extends AbstractViewer<Material>
 {
     private static final String PREFIX = "generic-material-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 
-    abstract protected void getMaterialInfo(final AsyncCallback<Material> materialInfoCallback);
-
-    private final IViewContext<?> viewContext;
-
-    protected final TechId materialId;
-
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext, final TechId materialId)
     {
-        GenericMaterialViewer viewer = new GenericMaterialViewer(viewContext, materialId)
-            {
-                @Override
-                protected void getMaterialInfo(AsyncCallback<Material> materialInfoCallback)
-                {
-                    viewContext.getService().getMaterialInfo(materialId, materialInfoCallback);
-                }
-            };
-        viewer.reloadData();
-        return new DatabaseModificationAwareComponent(viewer, viewer);
+
+        final GenericMaterialViewer viewer = new GenericMaterialViewer(viewContext, materialId);
+        MaterialPropertiesComponent propsComp =
+                new MaterialPropertiesComponent(viewContext, materialId, -1, -1)
+                    {
+                        @Override
+                        protected void getMaterialInfo(
+                                final AsyncCallback<Material> materialInfoCallback)
+                        {
+                            AbstractAsyncCallback<Material> callback =
+                                    new AbstractAsyncCallback<Material>(viewContext)
+                                        {
+                                            @Override
+                                            protected void process(Material result)
+                                            {
+                                                viewer.updateOriginalData(result);
+                                                materialInfoCallback.onSuccess(result);
+                                            }
+                                        };
+                            viewContext.getService().getMaterialInfo(materialId, callback);
+                        }
+                    };
+        viewer.add(propsComp);
+        return new DatabaseModificationAwareComponent(viewer, propsComp);
     }
 
     protected GenericMaterialViewer(final IViewContext<?> viewContext, final TechId materialId)
     {
         super(viewContext, createId(materialId));
-        this.materialId = materialId;
-        this.viewContext = viewContext;
+        setScrollMode(Scroll.AUTO);
     }
 
     public static String createId(final TechId materialId)
     {
         return ID_PREFIX + materialId;
     }
-
-    private static void addSection(final LayoutContainer lc, final Widget w)
-    {
-        lc.add(w, new RowData(-1, -1, new Margins(5)));
-    }
-
-    /**
-     * Load the material information.
-     */
-    protected void reloadData()
-    {
-        getMaterialInfo(new MaterialInfoCallback(viewContext, this));
-    }
-
-    private static final class MaterialInfoCallback extends AbstractAsyncCallback<Material>
-    {
-        private final GenericMaterialViewer genericMaterialViewer;
-
-        private MaterialInfoCallback(final IViewContext<?> viewContext,
-                final GenericMaterialViewer viewer)
-        {
-            super(viewContext);
-            this.genericMaterialViewer = viewer;
-        }
-
-        /**
-         * Sets the {@link Material} for this <var>generic</var> material viewer.
-         * <p>
-         * This method triggers the whole <i>GUI</i> construction.
-         * </p>
-         */
-        @Override
-        protected final void process(final Material result)
-        {
-            genericMaterialViewer.updateOriginalData(result);
-            genericMaterialViewer.removeAll();
-            genericMaterialViewer.setScrollMode(Scroll.AUTO);
-            addSection(genericMaterialViewer, new MaterialPropertiesSection(result, viewContext));
-            genericMaterialViewer.layout();
-        }
-
-    }
-
-    public DatabaseModificationKind[] getRelevantModifications()
-    {
-        return new DatabaseModificationKind[]
-            { DatabaseModificationKind.edit(ObjectKind.MATERIAL),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
-                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM) };
-    }
-
-    public void update(Set<DatabaseModificationKind> observedModifications)
-    {
-        reloadData(); // reloads everything
-    }
-
 }

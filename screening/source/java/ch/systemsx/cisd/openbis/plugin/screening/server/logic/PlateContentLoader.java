@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -40,8 +39,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningCons
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImage;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImage;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -76,7 +76,7 @@ public class PlateContentLoader
         Sample plate = loadPlate(plateId);
         List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
 
-        PlateImages images = tryLoadImages(datasets, externalDataTable);
+        TileImages images = tryLoadImages(datasets, externalDataTable);
         List<WellMetadata> wells = loadWells(plateId);
         DatasetReference imageAnalysisDataset = tryFindImageAnalysisDataset(datasets);
 
@@ -97,7 +97,9 @@ public class PlateContentLoader
                 tryFindDataset(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
         if (dataset != null)
         {
-            return new DatasetReference(dataset.getCode(), dataset.getDataStore().getCode());
+            DataStorePE dataStore = dataset.getDataStore();
+            return new DatasetReference(dataset.getCode(), dataStore.getCode(), dataStore
+                    .getDownloadUrl());
         } else
         {
             return null;
@@ -119,7 +121,7 @@ public class PlateContentLoader
         return createWells(wells);
     }
 
-    private PlateImages tryLoadImages(List<ExternalDataPE> datasets,
+    private TileImages tryLoadImages(List<ExternalDataPE> datasets,
             IExternalDataTable externalDataTable)
     {
         ExternalDataPE dataset = tryFindDataset(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
@@ -132,28 +134,27 @@ public class PlateContentLoader
         }
     }
 
-    private List<ExternalDataPE> loadDatasets(TechId plateId, IExternalDataTable externalDataTable)
+    protected static List<ExternalDataPE> loadDatasets(TechId plateId,
+            IExternalDataTable externalDataTable)
     {
         externalDataTable.loadBySampleTechId(plateId);
         List<ExternalDataPE> externalData = externalDataTable.getExternalData();
         return externalData;
     }
 
-    private PlateImages loadImages(IExternalDataTable externalDataTable, ExternalDataPE dataset)
+    private TileImages loadImages(IExternalDataTable externalDataTable, ExternalDataPE dataset)
     {
         DataStorePE dataStore = dataset.getDataStore();
         String datasetCode = dataset.getCode();
         List<String> datasets = Arrays.asList(datasetCode);
         String datastoreCode = dataStore.getCode();
-        TableModel plateReport =
-                externalDataTable.createReportFromDatasets(
-                        ScreeningConstants.PLATE_VIEWER_REPORT_KEY, datastoreCode, datasets);
-        TableModel imageParamsReport =
-                externalDataTable.createReportFromDatasets(
-                        ScreeningConstants.PLATE_IMAGE_PARAMS_REPORT_KEY, datastoreCode, datasets);
+        List<TileImage> plateReport =
+                DatasetLoader.loadImages(datasets, datastoreCode, externalDataTable);
+        List<PlateImageParameters> imageParamsReports =
+                DatasetLoader.loadImageParameters(datasets, datastoreCode, externalDataTable);
 
-        return PlateImage.createImages(new DatasetReference(datasetCode, datastoreCode), dataStore
-                .getDownloadUrl(), plateReport, imageParamsReport);
+        return TileImages.create(new DatasetReference(datasetCode, datastoreCode, dataStore
+                .getDownloadUrl()), plateReport, imageParamsReports.get(0));
     }
 
     private static ExternalDataPE tryFindDataset(List<ExternalDataPE> datasets, String datasetType)

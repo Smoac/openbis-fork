@@ -69,7 +69,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
             ExperimentIdentifier experimentIdentifier)
     {
         logTracking(sessionToken, "getPlateLocations",
-                "geneMaterialId(%d) experimentIdentifier(%s)", geneMaterialId.getId(),
+                "geneMaterialId(%s) experimentIdentifier(%s)", geneMaterialId.getId(),
                 experimentIdentifier);
         return null;
     }

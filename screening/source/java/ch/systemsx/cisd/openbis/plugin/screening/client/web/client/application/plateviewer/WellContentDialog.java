@@ -45,9 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -57,40 +55,54 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  */
 public class WellContentDialog
 {
-    private static final int TILE_IMG_WIDTH = 200;
-
-    private static final int TILE_IMG_HEIGHT = 120;
-
-    private final WellData wellData;
-
-    private final PlateContent plateContent;
+    private final WellMetadata metadataOrNull;
 
     private final IViewContext<?> viewContext;
 
-    public static void show(final WellData wellData, final PlateContent plateContent,
-            final IViewContext<?> viewContext)
+    public static void showContentDialog(final WellData wellData, final IViewContext<?> viewContext)
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
 
-        final WellContentDialog viewer = new WellContentDialog(wellData, plateContent, viewContext);
-        LayoutContainer descriptionContainer = viewer.createContentDescription();
+        final WellContentDialog contentDialog =
+                new WellContentDialog(wellData.tryGetMetadata(), viewContext);
+        LayoutContainer descriptionContainer = contentDialog.createContentDescription();
         container.add(descriptionContainer);
 
         int dialogWidth;
         int dialogHeight;
-        PlateImages images = plateContent.tryGetImages();
+
+        final WellImages images = wellData.tryGetImages();
         if (images != null)
         {
-            PlateImageParameters imageParameters = images.getImageParameters();
-            final int tileRowsNum = imageParameters.getTileRowsNum();
-            final int tileColsNum = imageParameters.getTileColsNum();
-            int channelsNum = imageParameters.getChannelsNum();
+            int imgW = 200;
+            int imgH = 120;
+            LayoutContainer imageViewer = createImageViewer(images, viewContext, imgW, imgH);
+            container.add(imageViewer);
 
-            final List<String> channelNames = createChannelsDescriptions(channelsNum);
+            dialogWidth = imgW * images.getTileColsNum();
+            dialogHeight = imgH * images.getTileRowsNum() + 160;
+        } else
+        {
+            dialogWidth = 250;
+            dialogHeight = 160;
+        }
+        String title = "Well Content: " + wellData.getWellSubcode();
+        showWellContentDialog(container, dialogWidth, dialogHeight, title);
+    }
+
+    public static LayoutContainer createImageViewer(final WellImages images,
+            final IViewContext<?> viewContext, final int imageWidth, final int imageHeight)
+    {
+        final LayoutContainer container = new LayoutContainer();
+        container.setLayout(new RowLayout());
+
+        int channelsNum = images.getChannelsNum();
+
+        final List<String> channelNames = createChannelsDescriptions(channelsNum);
+        if (channelsNum > 1)
+        {
             ComboBox<SimpleComboValue<String>> channelChooser = createChannelChooser(channelNames);
-            descriptionContainer.add(new Text("Channel:"));
-            descriptionContainer.add(channelChooser);
             channelChooser
                     .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
                         {
@@ -101,25 +113,17 @@ public class WellContentDialog
                                 String value = se.getSelectedItem().getValue();
                                 int channel = channelNames.indexOf(value) + 1;
                                 LayoutContainer wellsGrid =
-                                        viewer.createWellsGrid(tileRowsNum, tileColsNum, channel);
-                                int lastItemIx = container.getItemCount() - 1;
-                                container.remove(container.getWidget(lastItemIx));
-                                container.insert(wellsGrid, lastItemIx);
-                                container.layout();
+                                        createWellsGrid(images, channel, viewContext, imageWidth,
+                                                imageHeight);
+                                GuiUtils.replaceLastItem(container, wellsGrid);
                             }
                         });
-            LayoutContainer wellsGrid = viewer.createWellsGrid(tileRowsNum, tileColsNum, 1);
-            container.add(wellsGrid);
-
-            dialogWidth = TILE_IMG_WIDTH * tileColsNum;
-            dialogHeight = TILE_IMG_HEIGHT * tileRowsNum + 160;
-        } else
-        {
-            dialogWidth = 250;
-            dialogHeight = 160;
+            container.add(GuiUtils.withLabel(channelChooser, "Channel:"));
         }
-        String title = "Well Content: " + wellData.getWellSubcode();
-        showWellContentDialog(container, dialogWidth, dialogHeight, title);
+        LayoutContainer wellsGrid =
+                createWellsGrid(images, 1, viewContext, imageWidth, imageHeight);
+        container.add(wellsGrid);
+        return container;
     }
 
     private static ComboBox<SimpleComboValue<String>> createChannelChooser(List<String> channelNames)
@@ -158,19 +162,18 @@ public class WellContentDialog
         container.setLayout(tableLayout);
         TableData cellLayout = new TableData();
         cellLayout.setMargin(2);
-        WellMetadata metadata = wellData.tryGetMetadata();
-        if (metadata != null)
+        if (metadataOrNull != null)
         {
             container.add(new Text("Well: "), cellLayout);
-            container.add(createEntityLink(metadata.getWellSample()));
+            container.add(createEntityLink(metadataOrNull.getWellSample()));
 
-            Material content = metadata.tryGetContent();
+            Material content = metadataOrNull.tryGetContent();
             if (content != null)
             {
                 container.add(new Text("Content: "), cellLayout);
                 container.add(createEntityLink(content));
 
-                Material gene = metadata.tryGetGene();
+                Material gene = metadataOrNull.tryGetGene();
                 if (gene != null)
                 {
                     container.add(new Text("Inhibited gene: "), cellLayout);
@@ -199,35 +202,32 @@ public class WellContentDialog
         return LinkRenderer.getLinkWidget(entity.getCode(), listener);
     }
 
-    private WellContentDialog(WellData wellData, PlateContent plateContent,
-            IViewContext<?> viewContext)
+    private WellContentDialog(WellMetadata metadataOrNull, IViewContext<?> viewContext)
     {
-        this.wellData = wellData;
-        this.plateContent = plateContent;
+        this.metadataOrNull = metadataOrNull;
         this.viewContext = viewContext;
     }
 
-    private LayoutContainer createWellsGrid(int tileRowsNum, int tileColsNum, int channel)
+    private static LayoutContainer createWellsGrid(WellImages images, int channel,
+            IViewContext<?> viewContext, int imageWidth, int imageHeight)
     {
-        LayoutContainer container = new LayoutContainer(new TableLayout(tileColsNum));
-        for (int i = 1; i <= tileRowsNum * tileColsNum; i++)
+        LayoutContainer container = new LayoutContainer(new TableLayout(images.getTileColsNum()));
+        for (int i = 1; i <= images.getTileRowsNum() * images.getTileColsNum(); i++)
         {
             Component tileContent;
-            String imagePath = wellData.tryGetImagePath(channel, i);
+            String imagePath = images.tryGetImagePath(channel, i);
             if (imagePath != null)
             {
-                // if we have a path, then download URL should be also available
-                String downloadUrl = plateContent.tryGetImages().getDownloadUrl();
                 String sessionId = getSessionId(viewContext);
                 String imageURL =
-                        SimpleDatastoreImageRenderer.createDatastoreImageUrl(imagePath,
-                                TILE_IMG_WIDTH, TILE_IMG_HEIGHT, downloadUrl, sessionId);
+                        SimpleDatastoreImageRenderer.createDatastoreImageUrl(imagePath, imageWidth,
+                                imageHeight, images.getDownloadUrl(), sessionId);
                 tileContent = new Html(imageURL);
                 PlateStyleSetter.setPointerCursor(tileContent);
             } else
             {
                 tileContent = new Text("No image.");
-                tileContent.setPixelSize(TILE_IMG_WIDTH, TILE_IMG_HEIGHT);
+                tileContent.setPixelSize(imageWidth, imageHeight);
             }
             container.add(tileContent);
         }

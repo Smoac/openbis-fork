@@ -21,38 +21,41 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Describes images in one dataset and the way to fetch them.
+ * Describes images in one dataset and URLs to them.
  * 
  * @author Tomasz Pylak
  */
-public class PlateImages implements IsSerializable
+public class TileImages implements IsSerializable
 {
+    public static final TileImages create(DatasetReference dataset, List<TileImage> plateImages,
+            PlateImageParameters imageParams)
+    {
+        return new TileImages(dataset, plateImages, imageParams);
+    }
+
     private DatasetReference dataset;
 
-    private String downloadUrl;
-
-    private List<PlateImage> images;
+    private List<TileImage> images;
 
     private PlateImageParameters imageParameters;
 
     // GWT only
     @SuppressWarnings("unused")
-    private PlateImages()
+    private TileImages()
     {
     }
 
-    public PlateImages(DatasetReference dataset, String downloadUrl,
-            List<PlateImage> images, PlateImageParameters imageParameters)
+    public TileImages(DatasetReference dataset, List<TileImage> images,
+            PlateImageParameters imageParameters)
     {
         this.dataset = dataset;
-        this.downloadUrl = downloadUrl;
         this.images = images;
         this.imageParameters = imageParameters;
     }
 
     public String getDownloadUrl()
     {
-        return downloadUrl;
+        return dataset.getDownloadUrl();
     }
 
     public String getDatasetCode()
@@ -65,7 +68,7 @@ public class PlateImages implements IsSerializable
         return dataset.getDatastoreCode();
     }
 
-    public List<PlateImage> getImages()
+    public List<TileImage> getImages()
     {
         return images;
     }

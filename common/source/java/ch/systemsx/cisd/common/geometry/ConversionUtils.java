@@ -42,6 +42,7 @@ public class ConversionUtils
      * 
      * @throws IllegalArgumentException if the location is not a valid one.
      */
+    // TODO 2009-12-16, Tomasz Pylak: x means rows, y means column, it's counterintuitive 
     public static Point parseSpreadsheetLocation(String spreadsheetLocation)
     {
         if (spreadsheetLocation == null || spreadsheetLocation.length() == 0)

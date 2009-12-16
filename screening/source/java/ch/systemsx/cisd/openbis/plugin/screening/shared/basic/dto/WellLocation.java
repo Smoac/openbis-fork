@@ -31,6 +31,9 @@ public class WellLocation implements IsSerializable
 
     private EntityReference materialContent;
 
+    // contains only images for this well
+    private TileImages imagesOrNull;
+
     // GWT only
     @SuppressWarnings("unused")
     private WellLocation()
@@ -57,5 +60,15 @@ public class WellLocation implements IsSerializable
     public EntityReference getMaterialContent()
     {
         return materialContent;
+    }
+
+    public TileImages tryGetImages()
+    {
+        return imagesOrNull;
+    }
+
+    public void setImages(TileImages images)
+    {
+        this.imagesOrNull = images;
     }
 }

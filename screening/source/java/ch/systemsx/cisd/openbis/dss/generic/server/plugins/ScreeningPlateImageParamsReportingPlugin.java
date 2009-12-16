@@ -31,9 +31,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPlugi
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 
 /**
  * Reporting plugin which shows parameters of the images acquired for a plate dataset.
@@ -43,6 +43,22 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImagePara
 public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastorePlugin implements
         IReportingPluginTask
 {
+    // -------- column headers used in a DSS service to describe images for a plate ------
+
+    private static final String DATASET = "Dataset";
+
+    private static final String ROWS = "Rows";
+
+    private static final String COLUMNS = "Columns";
+
+    private static final String TILE_ROWS_NUM = "Tile rows";
+
+    private static final String TILE_COLS_NUM = "Tile columns";
+
+    private static final String CHANNELS_NUM = "Number of channels";
+
+    // ----------
+
     private static final long serialVersionUID = 1L;
 
     public ScreeningPlateImageParamsReportingPlugin(Properties properties, File storeRoot)
@@ -68,11 +84,12 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
     private void addReportHeaders(SimpleTableModelBuilder builder)
     {
         // Note: we rely on that column order at the openBIS server side!
-        builder.addHeader(PlateImageParameters.ROWS);
-        builder.addHeader(PlateImageParameters.COLUMNS);
-        builder.addHeader(PlateImageParameters.TILE_ROWS_NUM);
-        builder.addHeader(PlateImageParameters.TILE_COLS_NUM);
-        builder.addHeader(PlateImageParameters.CHANNELS_NUM);
+        builder.addHeader(DATASET);
+        builder.addHeader(ROWS);
+        builder.addHeader(COLUMNS);
+        builder.addHeader(TILE_ROWS_NUM);
+        builder.addHeader(TILE_COLS_NUM);
+        builder.addHeader(CHANNELS_NUM);
     }
 
     private void addReportRows(SimpleTableModelBuilder builder, DatasetDescription dataset,
@@ -82,10 +99,16 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
         Geometry wellGeometry = imageAccessor.getWellGeometry();
         int channels = imageAccessor.getChannelCount();
         List<ISerializableComparable> row =
-                Arrays.<ISerializableComparable> asList(asNum(plateGeometry.getRows()),
-                        asNum(plateGeometry.getColumns()), asNum(wellGeometry.getRows()),
-                        asNum(wellGeometry.getColumns()), asNum(channels));
+                Arrays.<ISerializableComparable> asList(asText(dataset.getDatasetCode()),
+                        asNum(plateGeometry.getRows()), asNum(plateGeometry.getColumns()),
+                        asNum(wellGeometry.getRows()), asNum(wellGeometry.getColumns()),
+                        asNum(channels));
         builder.addRow(row);
+    }
+
+    private static ISerializableComparable asText(String text)
+    {
+        return new StringTableCell(text);
     }
 
     private static ISerializableComparable asNum(int num)

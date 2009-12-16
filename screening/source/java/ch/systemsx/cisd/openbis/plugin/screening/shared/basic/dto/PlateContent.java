@@ -33,7 +33,7 @@ public class PlateContent implements IsSerializable
 
     private List<WellMetadata> wells;
 
-    private PlateImages imagesOrNull;
+    private TileImages imagesOrNull;
 
     private DatasetReference imageAnalysisDatasetOrNull;
 
@@ -43,7 +43,7 @@ public class PlateContent implements IsSerializable
     {
     }
 
-    public PlateContent(Sample plate, List<WellMetadata> wells, PlateImages imagesOrNull,
+    public PlateContent(Sample plate, List<WellMetadata> wells, TileImages imagesOrNull,
             DatasetReference imageAnalysisDatasetOrNull)
     {
         this.plate = plate;
@@ -58,7 +58,7 @@ public class PlateContent implements IsSerializable
     }
 
     /** can be null */
-    public PlateImages tryGetImages()
+    public TileImages tryGetImages()
     {
         return imagesOrNull;
     }

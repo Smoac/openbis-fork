@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImage;
 
 /**
  * Reporting plugin which shows all images in wells of a plate dataset.
@@ -50,6 +49,22 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImage;
 public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin implements
         IReportingPluginTask
 {
+    // -------- column headers used to describe images for a plate ------
+
+    private static final String IMAGE = "Thumbnail";
+
+    private static final String CHANNEL = "Channel";
+
+    private static final String TILE = "Tile";
+
+    private static final String COLUMN = "Column";
+
+    private static final String ROW = "Row";
+
+    private static final String DATASET_CODE = "Dataset Code";
+
+    // ----------
+
     private static final long serialVersionUID = 1L;
 
     public ScreeningImageReportingPlugin(Properties properties, File storeRoot)
@@ -75,12 +90,12 @@ public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin imple
     private void addReportHeaders(SimpleTableModelBuilder builder)
     {
         // Note: we rely on that column order at the openBIS server side!
-        builder.addHeader(PlateImage.DATASET_CODE);
-        builder.addHeader(PlateImage.ROW);
-        builder.addHeader(PlateImage.COLUMN);
-        builder.addHeader(PlateImage.TILE);
-        builder.addHeader(PlateImage.CHANNEL);
-        builder.addHeader(PlateImage.IMAGE);
+        builder.addHeader(DATASET_CODE);
+        builder.addHeader(ROW);
+        builder.addHeader(COLUMN);
+        builder.addHeader(TILE);
+        builder.addHeader(CHANNEL);
+        builder.addHeader(IMAGE);
     }
 
     private void addReportRows(SimpleTableModelBuilder builder, DatasetDescription dataset,
