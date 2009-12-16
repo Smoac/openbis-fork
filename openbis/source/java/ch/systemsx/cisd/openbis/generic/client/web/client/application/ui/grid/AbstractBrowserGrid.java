@@ -390,7 +390,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         final LayoutContainer subContainer = new LayoutContainer();
         subContainer.setLayout(new RowLayout(Orientation.HORIZONTAL));
-        subContainer.add(tree, new RowData(200, 1));
+        subContainer.add(tree, new RowData(250, 1));
         subContainer.add(this, new RowData(1, 1));
         container.add(subContainer, new RowData(1, 1));
 
