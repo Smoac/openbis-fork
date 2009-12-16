@@ -16,7 +16,8 @@
 
 package eu.basysbio.cisd.dss;
 
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -39,7 +40,7 @@ class DataSetTypeTranslator
     private static final Logger operationLog =
         LogFactory.getLogger(LogCategory.OPERATION, DataSetTypeTranslator.class);
     
-    private final Map<String, String> map = new HashMap<String, String>();
+    private final Map<String, String> map = new LinkedHashMap<String, String>();
 
     DataSetTypeTranslator(Properties properties)
     {
@@ -66,5 +67,10 @@ class DataSetTypeTranslator
             throw new UserFailureException("Unknown data set type: " + type);
         }
         return translatedType;
+    }
+    
+    Collection<String> getTranslatedDataSetTypes()
+    {
+        return map.values();
     }
 }

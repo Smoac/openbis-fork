@@ -40,7 +40,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.
  */
 public class DataColumnHeaderValidator implements IColumnHeaderValidator
 {
-    static final String SEPARATOR = "::";
     static final String ELEMENTS_KEY = "elements";
     static final String TYPE_KEY = "type";
     static final String TYPE_VOCABULARY = "vocabulary";
@@ -204,10 +203,10 @@ public class DataColumnHeaderValidator implements IColumnHeaderValidator
     
     public Result validateHeader(String header)
     {
-        String[] elements = header.split(SEPARATOR);
+        String[] elements = header.split(DataColumnHeader.SEPARATOR);
         if (elements.length < elementValidators.size())
         {
-            return Result.failure(elementValidators.size() + " elements separated by '" + SEPARATOR
+            return Result.failure(elementValidators.size() + " elements separated by '" + DataColumnHeader.SEPARATOR
                     + "' expected instead of only " + elements.length + ".");
         }
         for (int i = 0, n = Math.min(elements.length, elementValidators.size()); i < n; i++)

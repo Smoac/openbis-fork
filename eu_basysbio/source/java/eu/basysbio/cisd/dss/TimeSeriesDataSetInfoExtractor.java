@@ -49,7 +49,7 @@ public class TimeSeriesDataSetInfoExtractor implements IDataSetInfoExtractor
         String email = info.tryGetUploadingUserEmail();
         if (email != null)
         {
-            info.getDataSetProperties().add(new NewProperty(TimeSeriesDataSetHandler.UPLOADER_EMAIL_KEY, email));
+            info.getDataSetProperties().add(new NewProperty(TimePointPropertyType.UPLOADER_EMAIL.toString(), email));
         }
         return info;
     }
