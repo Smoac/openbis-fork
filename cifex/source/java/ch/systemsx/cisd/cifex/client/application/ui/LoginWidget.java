@@ -43,6 +43,10 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 public class LoginWidget extends VerticalPanel
 {
 
+    private static final String PASSWORD_NAME_AND_ID = "password";
+
+    private static final String USERNAME_NAME_AND_ID = "username";
+
     private final ViewContext context;
 
     private final TextField<String> userField;
@@ -103,6 +107,8 @@ public class LoginWidget extends VerticalPanel
         field.setFieldLabel(context.getMessageResources().getLoginUserLabel());
         field.setAllowBlank(false);
         field.setValidateOnBlur(true);
+        field.setName(USERNAME_NAME_AND_ID);
+        field.setId(USERNAME_NAME_AND_ID);
         addEnterKeyListener(field, context);
         return field;
     }
@@ -134,6 +140,8 @@ public class LoginWidget extends VerticalPanel
         field.setFieldLabel(context.getMessageResources().getLoginPasswordLabel());
         field.setAllowBlank(false);
         field.setValidateOnBlur(true);
+        field.setName(PASSWORD_NAME_AND_ID);
+        field.setId(PASSWORD_NAME_AND_ID);
         addEnterKeyListener(field, context);
         return field;
     }
