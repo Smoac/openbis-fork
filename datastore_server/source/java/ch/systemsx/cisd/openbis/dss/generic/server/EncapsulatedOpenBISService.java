@@ -31,6 +31,8 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvi
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -196,9 +198,9 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.tryGetSampleWithExperiment(sessionToken, sampleIdentifier);
     }
 
-    private void primRegisterSample(NewSample newSample)
+    private long primRegisterSample(NewSample newSample)
     {
-        service.registerSample(sessionToken, newSample);
+        return service.registerSample(sessionToken, newSample);
     }
 
     private final void primRegisterDataSet(final DataSetInformation dataSetInformation,
@@ -295,19 +297,47 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             return service.getSampleType(sessionToken, sampleTypeCode);
         }
     }
+    
+    synchronized public DataSetTypeWithVocabularyTerms getDataSetType(String dataSetTypeCode)
+    {
+        checkSessionToken();
+        try
+        {
+            return service.getDataSetType(sessionToken, dataSetTypeCode);
+        } catch (InvalidSessionException ex)
+        {
+            authenticate();
+            return service.getDataSetType(sessionToken, dataSetTypeCode);
+        }
+    }
 
-    synchronized public void registerSample(NewSample newSample) throws UserFailureException
+    synchronized public List<ExternalData> listDataSetsBySampleID(long sampleID,
+            boolean showOnlyDirectlyConnected)
+    {
+        checkSessionToken();
+        TechId id = new TechId(sampleID);
+        try
+        {
+            return service.listDataSetsBySampleID(sessionToken, id, showOnlyDirectlyConnected);
+        } catch (InvalidSessionException ex)
+        {
+            authenticate();
+            return service.listDataSetsBySampleID(sessionToken, id, showOnlyDirectlyConnected);
+        }
+    }    
+
+    synchronized public long registerSample(NewSample newSample) throws UserFailureException
     {
         assert newSample != null : "Unspecified sample.";
 
         checkSessionToken();
         try
         {
-            primRegisterSample(newSample);
+            return primRegisterSample(newSample);
         } catch (final InvalidSessionException ex)
         {
             authenticate();
-            primRegisterSample(newSample);
+            return primRegisterSample(newSample);
         }
     }
 

@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -56,12 +57,12 @@ public interface IEncapsulatedOpenBISService
      */
     public Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
             throws UserFailureException;
-    
+
     /**
      * Gets all sample in accordance to the specified criteria.
      */
     public List<Sample> listSamples(final ListSampleCriteria criteria) throws UserFailureException;
-    
+
     /**
      * Gets a sample with the specified identifier. Sample is enriched with properties and the
      * experiment with properties.
@@ -77,10 +78,27 @@ public interface IEncapsulatedOpenBISService
     public SampleType getSampleType(String sampleTypeCode) throws UserFailureException;
 
     /**
-     * Registers the specified sample.
+     * Returns the data set type together with assigned property types for the specified data set
+     * type code.
      */
-    public void registerSample(final NewSample newSample) throws UserFailureException;
+    public DataSetTypeWithVocabularyTerms getDataSetType(String dataSetTypeCode);
+
+    /**
+     * Lists all data sets of the specified sample ID.
+     * 
+     * @param showOnlyDirectlyConnected If <code>true</code> only directly connected data sets are
+     *            returned.
+     */
+    public List<ExternalData> listDataSetsBySampleID(long sampleID,
+            boolean showOnlyDirectlyConnected) throws UserFailureException;
     
+    /**
+     * Registers the specified sample.
+     * 
+     * @return the technical ID of the new sample
+     */
+    public long registerSample(final NewSample newSample) throws UserFailureException;
+
     /**
      * Registers the specified data.
      * <p>
