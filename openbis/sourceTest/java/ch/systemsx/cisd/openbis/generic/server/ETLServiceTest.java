@@ -448,6 +448,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testRegisterSample()
     {
         prepareGetSession();
+        final long id = 123456789L;
         final NewSample sample = new NewSample();
         context.checking(new Expectations()
             {
@@ -457,11 +458,14 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(sampleBO).define(sample);
                     one(sampleBO).save();
-
+                    one(sampleBO).getSample();
+                    SamplePE samplePE = new SamplePE();
+                    samplePE.setId(id);
+                    will(returnValue(samplePE));
                 }
             });
 
-        createService().registerSample(SESSION_TOKEN, sample);
+        assertEquals(id, createService().registerSample(SESSION_TOKEN, sample));
 
         context.assertIsSatisfied();
     }
