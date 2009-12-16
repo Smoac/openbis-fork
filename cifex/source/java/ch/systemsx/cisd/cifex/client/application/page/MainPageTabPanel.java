@@ -24,7 +24,7 @@ import ch.systemsx.cisd.cifex.client.application.ViewContext;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class CIFEXTabPanel extends SimplePanel
+public final class MainPageTabPanel extends SimplePanel
 {
 
     private final DecoratedTabPanel tabPanel;
@@ -45,7 +45,7 @@ public class CIFEXTabPanel extends SimplePanel
         SHARE_TAB, INBOX_TAB, INVITE_TAB
     }
 
-    public CIFEXTabPanel(ViewContext context)
+    public MainPageTabPanel(ViewContext context)
     {
         this.context = context;
         tabPanel = new DecoratedTabPanel();

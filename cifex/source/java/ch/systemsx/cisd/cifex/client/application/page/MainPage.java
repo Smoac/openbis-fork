@@ -53,16 +53,16 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public final class CIFEXMainPage extends LazyPanel
+public final class MainPage extends LazyPanel
 {
 
     private final ViewContext context;
 
     private final VerticalPanel vPanel;
 
-    private final CIFEXTabPanel tabPanel;
+    private final MainPageTabPanel tabPanel;
 
-    public CIFEXMainPage(final ViewContext context, CIFEXTabPanel tabPanel)
+    public MainPage(final ViewContext context, MainPageTabPanel tabPanel)
     {
         super();
         this.context = context;

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
@@ -27,22 +28,18 @@ import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public class HelpDialogController
+public class HelpDialogController extends DialogController
 {
-    final ViewContext context;
-
-    final String panelTitle;
-
     /**
      * @param context
      */
     public HelpDialogController(final ViewContext context)
     {
-        this.context = context;
-        this.panelTitle = this.context.getMessageResources().getHelpPageTooltipLabel();
+        super(context, context.getMessageResources().getHelpPageTooltipLabel());
     }
 
-    public DefaultLayoutDialog getDialog()
+    @Override
+    public Dialog getDialog()
     {
         final DefaultLayoutDialog layoutDialog =
                 new DefaultLayoutDialog(context.getMessageResources(), this.panelTitle,
@@ -90,7 +87,7 @@ public class HelpDialogController
     {
         Element anchor = DOMUtils.createBasicAnchorElement();
         DOM.setElementAttribute(anchor, "target", "_blank");
-        DOM.setElementAttribute(anchor, "href", "url");
+        DOM.setElementAttribute(anchor, "href", url);
         DOM.setInnerText(anchor, text);
         appendBlock(sb, DOM.toString(anchor));
     }
