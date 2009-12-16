@@ -193,7 +193,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         setToolBarButtonsEnabled(false);
     }
 
-    private void setToolBarButtonsEnabled(boolean enabled)
+    protected void setToolBarButtonsEnabled(boolean enabled)
     {
         for (Button button : toolBarButtons)
         {
@@ -203,8 +203,8 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
 
     private String getOriginalDataDescription()
     {
-        return originalData.getEntityKind().getDescription() + " " + originalData.getCode() + "("
-                + originalData.getEntityType().getCode() + ")";
+        return originalData.getEntityKind().getDescription() + " " + originalData.getCode() + " ["
+                + originalData.getEntityType().getCode() + "]";
     }
 
     protected final static BorderLayoutData createLeftBorderLayoutData()

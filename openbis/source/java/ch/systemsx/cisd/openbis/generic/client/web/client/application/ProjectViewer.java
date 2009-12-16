@@ -16,25 +16,36 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import java.util.Set;
+
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project.ProjectListDeletionConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
  * Presents details of the project.
  * 
  * @author Izabela Adamczyk
+ * @author Piotr Buczek
  */
-public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder>
+public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder> implements
+        IDatabaseModificationObserver
 {
     private static final String PREFIX = "project-viewer_";
 
@@ -47,29 +58,39 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
     // cannot use 'originalData' because Project does not implement IEntityInformationHolder
     private Project originalProject;
 
-    private final CompositeDatabaseModificationObserver modificationObserver;
-
     public static DatabaseModificationAwareComponent create(
             final IViewContext<ICommonClientServiceAsync> viewContext, final TechId projectId)
     {
         ProjectViewer viewer = new ProjectViewer(viewContext, projectId);
-        return new DatabaseModificationAwareComponent(viewer, viewer.modificationObserver);
+        return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
     private ProjectViewer(final IViewContext<ICommonClientServiceAsync> viewContext,
             final TechId projectId)
     {
         super(viewContext, createId(projectId));
-        setLayout(new BorderLayout());
         this.projectId = projectId;
-        this.modificationObserver = new CompositeDatabaseModificationObserver();
         this.viewContext = viewContext;
+        setLayout(new BorderLayout());
+        extendToolBar();
         reloadAllData();
+    }
+
+    private void extendToolBar()
+    {
+        addToolBarButton(createDeleteButton(new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    new ProjectListDeletionConfirmationDialog(viewContext, originalProject,
+                            createDeletionCallback()).show();
+                }
+            }));
     }
 
     private void reloadAllData()
     {
-        reloadData(new ProjectInfoCallback(viewContext, this, modificationObserver));
+        reloadData(new ProjectInfoCallback(viewContext, this));
     }
 
     public static String createId(final TechId projectId)
@@ -94,15 +115,11 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
     {
         private final ProjectViewer viewer;
 
-        private final CompositeDatabaseModificationObserver modificationObserver;
-
         private ProjectInfoCallback(final IViewContext<ICommonClientServiceAsync> viewContext,
-                final ProjectViewer viewer,
-                final CompositeDatabaseModificationObserver modificationObserver)
+                final ProjectViewer viewer)
         {
             super(viewContext);
             this.viewer = viewer;
-            this.modificationObserver = modificationObserver;
         }
 
         @Override
@@ -110,25 +127,54 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
         {
             viewer.updateOriginalProject(result);
             viewer.removeAll();
-            viewer.setScrollMode(Scroll.AUTO);
-            AttachmentVersionsSection<Project> attachmentsSection =
-                    viewer.createAttachmentsSection(result);
-            viewer.add(attachmentsSection, createBorderLayoutData(LayoutRegion.NORTH));
-            modificationObserver.addObserver(attachmentsSection.getDatabaseModificationObserver());
+            // Top panel
+            final Component topPanel = viewer.createTopPanel(result);
+            viewer.add(topPanel, BorderLayoutDataFactory.create(LayoutRegion.NORTH, 150));
+            // Central panel
+            final Component centerPanel = viewer.createCenterPanel(result);
+            viewer.add(centerPanel, BorderLayoutDataFactory.create(LayoutRegion.CENTER));
+
             viewer.layout();
+        }
+
+        @Override
+        public void finishOnFailure(Throwable caught)
+        {
+            viewer.setupRemovedEntityView();
         }
     }
 
     private void updateOriginalProject(Project result)
     {
         this.originalProject = result;
-        editButton.enable();
-        updateTitle();
+        updateTitle(getOriginalDataDescription());
+        setToolBarButtonsEnabled(true);
     }
 
-    private void updateTitle()
+    @Override
+    public void setupRemovedEntityView()
     {
-        updateTitle(viewContext.getMessage(Dict.PROJECT) + " " + originalProject.getIdentifier());
+        removeAll();
+        updateTitle(getOriginalDataDescription() + " does not exist any more.");
+        setToolBarButtonsEnabled(false);
+    }
+
+    public Component createCenterPanel(Project result)
+    {
+        final ContentPanel panel = createAttachmentsSection(result);
+        return panel;
+    }
+
+    public Component createTopPanel(Project result)
+    {
+        final ContentPanel panel = new ProjectPropertiesPanel(result, viewContext);
+        panel.setScrollMode(Scroll.AUTOY);
+        return panel;
+    }
+
+    private String getOriginalDataDescription()
+    {
+        return viewContext.getMessage(Dict.PROJECT) + " " + originalProject.getIdentifier();
     }
 
     @Override
@@ -136,5 +182,15 @@ public final class ProjectViewer extends AbstractViewer<IEntityInformationHolder
     {
         assert originalProject != null;
         ProjectGrid.showEntityViewer(originalProject, true, viewContext);
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        reloadAllData();
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return DatabaseModificationKind.any(ObjectKind.PROJECT);
     }
 }

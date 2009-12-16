@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.project;
 
+import java.util.Collections;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -41,6 +42,13 @@ public final class ProjectListDeletionConfirmationDialog extends
         super(viewContext, data);
         this.viewContext = viewContext;
         this.callback = callback;
+    }
+
+    public ProjectListDeletionConfirmationDialog(
+            IViewContext<ICommonClientServiceAsync> viewContext, Project project,
+            AbstractAsyncCallback<Void> callback)
+    {
+        this(viewContext, Collections.singletonList(project), callback);
     }
 
     @Override
