@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SimpleDataSetHelper;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
@@ -40,6 +42,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -51,10 +55,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
@@ -69,6 +75,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
@@ -77,26 +85,24 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class ETLService extends AbstractServer<IETLService> implements IETLService
+public class ETLService extends AbstractCommonServer<IETLService> implements IETLService
 {
     private final IDAOFactory daoFactory;
-
-    private final ICommonBusinessObjectFactory boFactory;
 
     private final IDataStoreServiceFactory dssFactory;
 
     public ETLService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory)
     {
-        super(sessionManager, daoFactory);
+        super(sessionManager, daoFactory, boFactory);
         this.daoFactory = daoFactory;
-        this.boFactory = boFactory;
         this.dssFactory = dssFactory;
     }
 
@@ -284,7 +290,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     public List<Sample> listSamples(String sessionToken, ListSampleCriteria criteria)
     {
         final Session session = getSession(sessionToken);
-        final ISampleLister sampleLister = boFactory.createSampleLister(session);
+        final ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
         return sampleLister.list(new ListOrSearchSampleCriteria(criteria));
     }
 
@@ -314,13 +320,13 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
     private ExperimentPE tryToLoadExperimentByIdentifier(final Session session,
             ExperimentIdentifier experimentIdentifier)
     {
-        final IExperimentBO experimentBO = boFactory.createExperimentBO(session);
+        final IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
         return experimentBO.tryFindByExperimentIdentifier(experimentIdentifier);
     }
 
     private SamplePE tryLoadSample(final Session session, SampleIdentifier sampleIdentifier)
     {
-        final ISampleBO sampleBO = boFactory.createSampleBO(session);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.tryToLoadBySampleIdentifier(sampleIdentifier);
         final SamplePE sample = sampleBO.tryToGetSample();
         return sample;
@@ -350,6 +356,49 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         return SampleTypeTranslator.translate(sampleType, null);
     }
 
+    public DataSetTypeWithVocabularyTerms getDataSetType(String sessionToken, String dataSetTypeCode)
+            throws UserFailureException
+    {
+        checkSession(sessionToken);
+        
+        IDataSetTypeDAO dataSetTypeDAO = getDAOFactory().getDataSetTypeDAO();
+        DataSetTypePE dataSetType = dataSetTypeDAO.tryToFindDataSetTypeByCode(dataSetTypeCode);
+        if (dataSetType == null)
+        {
+            throw new UserFailureException("No data set type found with code '" + dataSetTypeCode + "'.");
+        }
+        DataSetTypeWithVocabularyTerms result = new DataSetTypeWithVocabularyTerms();
+        result.setCode(dataSetType.getCode());
+        Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes = dataSetType.getDataSetTypePropertyTypes();
+        HibernateUtils.initialize(dataSetTypePropertyTypes);
+        for (DataSetTypePropertyTypePE dataSetTypePropertyTypePE : dataSetTypePropertyTypes)
+        {
+            PropertyTypePE propertyTypePE = dataSetTypePropertyTypePE.getPropertyType();
+            PropertyTypeWithVocabulary propertyType = new PropertyTypeWithVocabulary();
+            propertyType.setCode(propertyTypePE.getCode());
+            VocabularyPE vocabulary = propertyTypePE.getVocabulary();
+            if (vocabulary != null)
+            {
+                Set<VocabularyTermPE> terms = vocabulary.getTerms();
+                HibernateUtils.initialize(terms);
+                propertyType.setTerms(VocabularyTermTranslator.translateTerms(terms));
+            }
+            result.addPropertyType(propertyType);
+        }
+        return result;
+    }
+    
+    public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
+            final TechId sampleId, final boolean showOnlyDirectlyConnected)
+    {
+        final Session session = getSession(sessionToken);
+        final IDatasetLister datasetLister = createDatasetLister(session);
+        final List<ExternalData> datasets =
+                datasetLister.listBySampleTechId(sampleId, showOnlyDirectlyConnected);
+        Collections.sort(datasets);
+        return datasets;
+    }
+
     public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
@@ -357,7 +406,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert sampleIdentifier != null : "Unspecified sample identifier.";
 
         final Session session = getSession(sessionToken);
-        final ISampleBO sampleBO = boFactory.createSampleBO(session);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
         SamplePE sample = sampleBO.getSample();
         if (sample == null)
@@ -375,16 +424,17 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
                 new HashMap<PropertyTypePE, PropertyType>());
     }
 
-    public void registerSample(String sessionToken, NewSample newSample)
+    public long registerSample(String sessionToken, NewSample newSample)
             throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
         assert newSample != null : "Unspecified new sample.";
 
         final Session session = getSession(sessionToken);
-        final ISampleBO sampleBO = boFactory.createSampleBO(session);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.define(newSample);
         sampleBO.save();
+        return sampleBO.getSample().getId();
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
@@ -404,10 +454,10 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             throw new UserFailureException("Data set can not be registered because experiment '"
                     + experiment.getIdentifier() + "' is invalid.");
         }
-        final ISampleBO sampleBO = boFactory.createSampleBO(session);
+        final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(sampleIdentifier);
         final SamplePE cellPlate = sampleBO.getSample();
-        final IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
+        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
         SourceType sourceType =
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
         externalDataBO.define(externalData, cellPlate, sourceType);
@@ -429,7 +479,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
             throw new UserFailureException("Data set can not be registered because experiment '"
                     + experiment.getIdentifier() + "' is invalid.");
         }
-        final IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
+        final IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
         SourceType sourceType =
                 externalData.isMeasured() ? SourceType.MEASUREMENT : SourceType.DERIVED;
         externalDataBO.define(externalData, experiment, sourceType);
@@ -446,7 +496,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
 
         Session session = getSession(sessionToken); // assert authenticated
 
-        IExternalDataBO externalDataBO = boFactory.createExternalDataBO(session);
+        IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
         externalDataBO.loadByCode(dataSetCode);
         externalDataBO.enrichWithParentsAndExperiment();
         return ExternalDataTranslator.translate(externalDataBO.getExternalData(),
@@ -460,7 +510,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         assert criteria != null : "Unspecified criteria.";
 
         Session session = getSession(sessionToken);
-        ISampleTable sampleTable = boFactory.createSampleTable(session);
+        ISampleTable sampleTable = businessObjectFactory.createSampleTable(session);
         sampleTable.loadSamplesByCriteria(criteria);
         return SampleTranslator.translate(sampleTable.getSamples(), "");
     }
@@ -475,7 +525,7 @@ public class ETLService extends AbstractServer<IETLService> implements IETLServi
         {
             throw new UserFailureException(String.format("Unknown data store '%s'", dataStoreCode));
         }
-        IExternalDataTable dataSetTable = boFactory.createExternalDataTable(session);
+        IExternalDataTable dataSetTable = businessObjectFactory.createExternalDataTable(session);
         dataSetTable.loadByDataStore(dataStore);
         return SimpleDataSetHelper.translate(dataSetTable.getExternalData());
     }

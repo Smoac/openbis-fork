@@ -20,6 +20,8 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -79,11 +81,12 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                         .getProcessingServiceDescriptions());
     }
 
-    public void registerSample(String sessionToken, NewSample newSample)
+    public long registerSample(String sessionToken, NewSample newSample)
             throws UserFailureException
     {
         logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
                 .getSampleType(), newSample.getIdentifier());
+        return 0;
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
@@ -124,6 +127,19 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
             throws UserFailureException
     {
         logAccess(sessionToken, "get_sample_type", "SAMPLE_TYPE(%s)", sampleTypeCode);
+        return null;
+    }
+
+    public DataSetTypeWithVocabularyTerms getDataSetType(String sessionToken, String dataSetTypeCode)
+    {
+        logAccess(sessionToken, "get_data_set_type", "DATA_SET_TYPE(%s)", dataSetTypeCode);
+        return null;
+    }
+
+    public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
+            final TechId sampleId, final boolean showOnlyDirectlyConnected)
+    {
+        logAccess(sessionToken, "list_data_sets_by_sample_id", "SAMPLE_ID(%s)", sampleId);
         return null;
     }
 

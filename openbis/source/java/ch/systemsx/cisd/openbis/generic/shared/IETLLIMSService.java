@@ -30,6 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampl
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSamplesByPropertyPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -105,6 +108,26 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
+     * Returns the data set type together with assigned property types for specified data set type
+     * code.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public DataSetTypeWithVocabularyTerms getDataSetType(String sessionToken, String dataSetTypeCode)
+            throws UserFailureException;
+    
+    /**
+     * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
+     * 
+     * @return a sorted list of {@link ExternalData}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) final TechId sampleId,
+            final boolean showOnlyDirectlyConnected) throws UserFailureException;
+
+    /**
      * Lists samples using given configuration.
      * 
      * @return a sorted list of {@link Sample}.
@@ -133,10 +156,12 @@ public interface IETLLIMSService extends IServer, ISessionProvider
 
     /**
      * Registers a new sample.
+     * 
+     * @return the technical ID of the new sample.
      */
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
-    public void registerSample(final String sessionToken,
+    public long registerSample(final String sessionToken,
             @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample)
             throws UserFailureException;
 

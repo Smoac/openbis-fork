@@ -179,11 +179,9 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTr
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
-public final class CommonServer extends AbstractServer<ICommonServer> implements ICommonServer
+public final class CommonServer extends AbstractCommonServer<ICommonServer> implements ICommonServer
 {
     private final IAuthenticationService authenticationService;
-
-    private final ICommonBusinessObjectFactory businessObjectFactory;
 
     private final LastModificationState lastModificationState;
 
@@ -192,9 +190,8 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
             final ICommonBusinessObjectFactory businessObjectFactory,
             LastModificationState lastModificationState)
     {
-        super(sessionManager, daoFactory);
+        super(sessionManager, daoFactory, businessObjectFactory);
         this.authenticationService = authenticationService;
-        this.businessObjectFactory = businessObjectFactory;
         this.lastModificationState = lastModificationState;
     }
 
@@ -458,11 +455,6 @@ public final class CommonServer extends AbstractServer<ICommonServer> implements
                 datasetLister.listBySampleTechId(sampleId, showOnlyDirectlyConnected);
         Collections.sort(datasets);
         return datasets;
-    }
-
-    private IDatasetLister createDatasetLister(Session session)
-    {
-        return businessObjectFactory.createDatasetLister(session, getDataStoreBaseURL());
     }
 
     public final List<ExternalData> listExperimentExternalData(final String sessionToken,
