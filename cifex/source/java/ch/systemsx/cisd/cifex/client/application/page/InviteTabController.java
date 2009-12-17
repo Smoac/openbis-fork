@@ -26,6 +26,7 @@ import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.GridUtils;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
@@ -44,7 +45,7 @@ final class InviteTabController extends AbstractMainPageTabController
     @Override
     protected final Widget getWidget()
     {
-        final LayoutContainer contentPanel = new LayoutContainer();
+        final LayoutContainer contentPanel = createOutermostWidgetContainer();
         Model model = context.getModel();
         final UserInfoDTO user = model.getUser();
         LayoutContainer createUserPanel = createUserPanel(user.isAdmin(), context);
@@ -56,6 +57,11 @@ final class InviteTabController extends AbstractMainPageTabController
         }
         contentPanel.add(listCreatedUserPanel);
         return contentPanel;
+    }
+
+    protected void onShow()
+    {
+        context.getPageController().setCurrentPage(Page.INVITE_PAGE);
     }
 
     static private void createListCreatedUserPanel(LayoutContainer listCreatedUserPanel,
@@ -103,5 +109,11 @@ final class InviteTabController extends AbstractMainPageTabController
                 listCreatedUserPanel.layout();
             }
         }
+    }
+    
+    @Override
+    protected Page getPageIdentifier()
+    {
+        return Page.INVITE_PAGE;
     }
 }

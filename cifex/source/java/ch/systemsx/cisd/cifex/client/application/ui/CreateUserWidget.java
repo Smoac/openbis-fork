@@ -104,7 +104,7 @@ public class CreateUserWidget extends UserWidget
 
         public final void onSuccess(final Void result)
         {
-            context.getPageController().showAdminPage();
+            context.getPageController().refreshMainPage();
         }
     }
 }

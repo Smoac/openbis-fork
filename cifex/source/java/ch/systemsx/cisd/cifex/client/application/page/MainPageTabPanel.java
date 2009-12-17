@@ -78,13 +78,14 @@ public final class MainPageTabPanel extends SimplePanel
                 tabPanel.selectTab(0);
                 break;
             case ADMIN_TAB:
-                tabPanel.selectTab(3);
+                if (adminTabOrNull != null)
+                    tabPanel.selectTab(3);
+                break;
         }
     }
 
     private final void initializePanel()
     {
-        tabPanel.setWidth("100%");
         tabPanel.setAnimationEnabled(true);
 
         // Add the tabs
@@ -100,7 +101,7 @@ public final class MainPageTabPanel extends SimplePanel
 
         // Select an initial tab
         tabPanel.selectTab(0);
-        // tabPanel.ensureDebugId("cwTabPanel");
+        tabPanel.ensureDebugId("cifex-tabpanel");
     }
 
 }

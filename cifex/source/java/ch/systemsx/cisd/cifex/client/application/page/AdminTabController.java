@@ -32,6 +32,7 @@ import ch.systemsx.cisd.cifex.client.application.AdminFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.FileCommentGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.FileDownloadGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.grid.GridUtils;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
@@ -56,7 +57,7 @@ class AdminTabController extends AbstractMainPageTabController
     @Override
     protected Widget getWidget()
     {
-        final LayoutContainer mainPanel = new LayoutContainer();
+        final LayoutContainer mainPanel = createOutermostWidgetContainer();
         LayoutContainer createUserPanel = createUserPanel(true, context);
 
         LayoutContainer listFilesPanel = createContainer();
@@ -176,6 +177,12 @@ class AdminTabController extends AbstractMainPageTabController
             filesGrid.setDataAndRefresh(AdminFileGridModel.convert(context.getMessageResources(),
                     result));
         }
+    }
+
+    @Override
+    protected Page getPageIdentifier()
+    {
+        return Page.ADMIN_PAGE;
     }
 
 }

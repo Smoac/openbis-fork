@@ -345,8 +345,8 @@ public abstract class UserWidget extends LayoutContainer
 
         LayoutContainer main = new LayoutContainer();
         main.setLayout(new ColumnLayout());
-        main.add(createLeftColumn(formData), new ColumnData(.5));
-        main.add(createRigthColumn(formData), new ColumnData(.5));
+        main.add(createLeftColumn(formData), new ColumnData(300));
+        main.add(createRigthColumn(formData), new ColumnData(300));
 
         formPanel.add(main);
 

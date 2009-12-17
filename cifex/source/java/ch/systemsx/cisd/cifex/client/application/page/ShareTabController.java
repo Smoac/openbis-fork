@@ -26,6 +26,7 @@ import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -46,7 +47,7 @@ class ShareTabController extends AbstractMainPageTabController
     @Override
     protected Widget getWidget()
     {
-        final LayoutContainer contentPanel = new LayoutContainer();
+        final LayoutContainer contentPanel = createOutermostWidgetContainer();
         final HTML explanationWidget = new HTML(createExplanationText());
         final IQuotaInformationUpdater quotaInformationUpdater =
                 new QuotaInformationUpdater(explanationWidget);
@@ -122,7 +123,6 @@ class ShareTabController extends AbstractMainPageTabController
             context.getCifexService().refreshQuotaInformationOfCurrentUser(
                     new QuotaInfoRefreshAsyncCallBack(explanationWidget));
         }
-
     }
 
     private final class QuotaInfoRefreshAsyncCallBack extends AbstractAsyncCallback<UserInfoDTO>
@@ -144,6 +144,12 @@ class ShareTabController extends AbstractMainPageTabController
                 explanationWidget.setHTML(createExplanationText());
             }
         }
+    }
+
+    @Override
+    protected Page getPageIdentifier()
+    {
+        return Page.SHARE_PAGE;
     }
 
 }

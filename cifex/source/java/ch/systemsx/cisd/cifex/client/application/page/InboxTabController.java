@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -35,10 +36,15 @@ class InboxTabController extends AbstractMainPageTabController
     @Override
     protected Widget getWidget()
     {
-        final LayoutContainer contentPanel = new LayoutContainer();
+        final LayoutContainer contentPanel = createOutermostWidgetContainer();
         FileListingTabHelper.createListFilesGrid(contentPanel, FileListingTabHelper.DOWNLOAD,
                 context, null);
         return contentPanel;
     }
-
+    
+    @Override
+    protected Page getPageIdentifier()
+    {
+        return Page.INBOX_PAGE;
+    }
 }

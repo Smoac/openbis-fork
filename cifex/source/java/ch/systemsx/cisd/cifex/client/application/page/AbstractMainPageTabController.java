@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -23,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
 
 /**
@@ -44,6 +48,30 @@ abstract class AbstractMainPageTabController
      * The method that subclasses need to implement
      */
     protected abstract Widget getWidget();
+
+    /**
+     * Used to create breadcrumbs, so the pageContext knows where in the interface the user is.
+     */
+    protected abstract Page getPageIdentifier();
+
+    /**
+     * Create a container for the widget. Subclasses should call this for their layout container,
+     * since a listener is automatically added to the container which informs the page context about
+     * tab changes.
+     */
+    protected LayoutContainer createOutermostWidgetContainer()
+    {
+        LayoutContainer container = new LayoutContainer();
+        container.addListener(Events.Show, new Listener<ComponentEvent>()
+            {
+
+                public void handleEvent(ComponentEvent be)
+                {
+                    context.getPageController().setCurrentPage(getPageIdentifier());
+                }
+            });
+        return container;
+    }
 
     protected static final LayoutContainer createContainer()
     {
