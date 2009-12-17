@@ -255,7 +255,6 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         SampleIdentifier identifier = SampleIdentifierFactory.parse(flowLaneSample.getIdentifier());
         IEntityProperty[] properties = service.getPropertiesOfTopSampleRegisteredFor(identifier);
         File dropBox = null;
-        String externalSampleName = null;
         for (IEntityProperty property : properties)
         {
             PropertyType propertyType = property.getPropertyType();
@@ -266,10 +265,6 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             {
                 dropBox = transferDropBoxes.get(value);
             }
-            if (code.equals(EXTERNAL_SAMPLE_NAME_KEY))
-            {
-                externalSampleName = value;
-            }
         }
         if (srfInfo.isEmpty() == false)
         {
@@ -279,10 +274,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                 builder.append(line).append('\n');
             }
         }
-        String metaFileName =
-                flowLaneSample.getCode()
-                        + (externalSampleName == null ? "" : "_" + externalSampleName)
-                        + META_DATA_FILE_TYPE;
+        String metaFileName = flowLaneSample.getCode() + META_DATA_FILE_TYPE;
         metaFileName = asFileName(metaFileName);
         FileUtilities.writeToFile(new File(flowLaneDataSet, metaFileName), builder.toString());
         if (dropBox != null)
