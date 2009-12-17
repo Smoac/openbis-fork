@@ -82,7 +82,6 @@ final class PageController implements IPageController, IHistoryController
     //
     // IPageController
     //
-
     public final void showLoginPage()
     {
         clearRootPanel();
@@ -93,18 +92,13 @@ final class PageController implements IPageController, IHistoryController
 
     public final void showAdminPage()
     {
-        clearRootPanel();
-        final AbstractMainPage adminPage = new AdminMainPage(viewContext);
+        showMainPage();
+        tabPanel.showTab(MainPageTabPanel.Tab.ADMIN_TAB);
         setCurrentPage(Page.ADMIN_PAGE);
-        RootPanel.get().add(adminPage);
     }
 
     public final void showInboxPage()
     {
-        // clearRootPanel();
-        // final InboxPage inboxPage = new InboxPage(viewContext);
-        // setCurrentPage(Page.INBOX_PAGE);
-        // RootPanel.get().add(inboxPage);
         showMainPage();
         tabPanel.showTab(MainPageTabPanel.Tab.INBOX_TAB);
         setCurrentPage(Page.INBOX_PAGE);
@@ -112,10 +106,6 @@ final class PageController implements IPageController, IHistoryController
 
     public final void showSharePage()
     {
-        // clearRootPanel();
-        // final SharePage sharePage = new SharePage(viewContext);
-        // setCurrentPage(Page.SHARE_PAGE);
-        // RootPanel.get().add(sharePage);
         showMainPage();
         tabPanel.showTab(MainPageTabPanel.Tab.SHARE_TAB);
         setCurrentPage(Page.SHARE_PAGE);
@@ -123,10 +113,6 @@ final class PageController implements IPageController, IHistoryController
 
     public final void showInvitePage()
     {
-        // clearRootPanel();
-        // final InvitePage invitePage = new InvitePage(viewContext);
-        // setCurrentPage(Page.INVITE_PAGE);
-        // RootPanel.get().add(invitePage);
         showMainPage();
         tabPanel.showTab(MainPageTabPanel.Tab.INVITE_TAB);
         setCurrentPage(Page.INVITE_PAGE);
@@ -134,20 +120,12 @@ final class PageController implements IPageController, IHistoryController
 
     public final void showHelpPage()
     {
-        // clearRootPanel();
-        // final HelpPage helpPage = new HelpPage(viewContext);
-        // setCurrentPage(Page.HELP_PAGE);
-        // RootPanel.get().add(helpPage);
         HelpDialogController helpDialog = new HelpDialogController(viewContext);
         helpDialog.getDialog().show();
     }
 
     public final void showEditCurrentUserPage()
     {
-        // clearRootPanel();
-        // final EditCurrentUserPage editUserPage = new EditCurrentUserPage(viewContext);
-        // setCurrentPage(Page.EDIT_PROFILE);
-        // RootPanel.get().add(editUserPage);
         SettingsDialogController settingsDialog = new SettingsDialogController(viewContext);
         settingsDialog.getDialog().show();
     }
@@ -155,7 +133,7 @@ final class PageController implements IPageController, IHistoryController
     public final void refreshMainPage()
     {
         clearRootPanel();
-        showMainPage();
+        showPage(currentPage);
     }
 
     /**

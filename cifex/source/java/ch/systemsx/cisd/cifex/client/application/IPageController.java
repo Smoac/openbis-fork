@@ -77,4 +77,9 @@ public interface IPageController
      */
     public void refreshMainPage();
 
+    /**
+     * Sets the current page -- this is used to inform the page controller about tab changes.
+     */
+    public void setCurrentPage(Page invitePage);
+
 }
