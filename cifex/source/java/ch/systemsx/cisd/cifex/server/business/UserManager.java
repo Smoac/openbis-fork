@@ -331,6 +331,24 @@ class UserManager extends AbstractManager implements IUserManager
             userToUpdate.setID(existingUser.getID());
             userToUpdate.setQuotaGroupId(existingUser.getQuotaGroupId());
 
+            if (userToUpdate.isExternallyAuthenticated() != existingUser
+                    .isExternallyAuthenticated())
+            {
+                // If there has been a change to the user's external authentication state, apply the
+                // consenquences
+                if (userToUpdate.isExternallyAuthenticated())
+                {
+                    userToUpdate.setExternallyAuthenticated(true);
+                    userToUpdate.setExpirationDate(null);
+                    userToUpdate.setRegistrator(null);
+                } else
+                {
+                    userToUpdate.setExternallyAuthenticated(false);
+                    userToUpdate.setExpirationDate(null);
+                    userToUpdate.setRegistrator(requestUserOrNull);
+                }
+            }
+
             // Check that the new expiration date is in the valid range.
             checkAndFixUserExpiration(existingUser, userToUpdate, requestUserOrNull);
 
@@ -368,7 +386,6 @@ class UserManager extends AbstractManager implements IUserManager
         {
             businessContext.getUserActionLog().logUpdateUser(existingUser, userToUpdate, success);
         }
-
     }
 
     private void checkAndFixUserExpiration(UserDTO oldUserOrNull, final UserDTO userToUpdate,

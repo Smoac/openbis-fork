@@ -165,7 +165,10 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
     public final Configuration getConfiguration() throws InvalidSessionException
     {
-        return BeanUtils.createBean(Configuration.class, domainModel.getBusinessContext());
+        final Configuration configuration =
+                BeanUtils.createBean(Configuration.class, domainModel.getBusinessContext());
+        configuration.setSystemHasExternalAuthentication(hasExternalAuthenticationService());
+        return configuration;
     }
 
     public final UserInfoDTO getCurrentUser() throws InvalidSessionException

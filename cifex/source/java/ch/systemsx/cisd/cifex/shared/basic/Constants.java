@@ -35,6 +35,9 @@ public final class Constants
 
     /** The <code>id</code> attribute value for delete action. */
     public static final String DELETE_ID = "delete";
+    
+    /** The <code>id</code> attribute value for switch to external authentication action. */
+    public static final String EXTERNAL_AUTHENTICATION_ID = "external_authentication";
 
     /** The <code>id</code> attribute value for 'shared' action. */
     public static final String SHARED_ID = "shared";

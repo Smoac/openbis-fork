@@ -29,9 +29,9 @@ public class Configuration implements IsSerializable
 {
 
     private int fileRetention;
-    
+
     private int userRetention;
-    
+
     private int maxFileRetention;
 
     private int maxUserRetention;
@@ -43,6 +43,8 @@ public class Configuration implements IsSerializable
     private String administratorEmail;
 
     private String systemVersion;
+
+    private Boolean systemHasExternalAuthentication;
 
     public final int getFileRetention()
     {
@@ -122,6 +124,16 @@ public class Configuration implements IsSerializable
     public final void setSystemVersion(final String systemVersion)
     {
         this.systemVersion = systemVersion;
+    }
+
+    public Boolean getSystemHasExternalAuthentication()
+    {
+        return systemHasExternalAuthentication;
+    }
+
+    public void setSystemHasExternalAuthentication(Boolean systemHasExternalAuthentication)
+    {
+        this.systemHasExternalAuthentication = systemHasExternalAuthentication;
     }
 
 }

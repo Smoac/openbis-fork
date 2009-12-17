@@ -233,6 +233,53 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    @Test
+    public final void testDoNotChangeUserIsExternallyAuthenticated()
+    {
+        final UserDTO oldUserToUpdate = userAlice; 
+        final UserDTO userToUpdate = FileManagerTest.createSampleUserDTO(1L, "alice@users.com");
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).isMainUserOfQuotaGroup(userToUpdate);
+                    will(returnValue(true));
+                    one(userDAO).updateUser(userToUpdate);
+                    one(businessContext).getUserActionLog();
+                    will(returnValue(new DummyUserActionLog()));
+                }
+            });
+        userManager.updateUser(oldUserToUpdate, userToUpdate, null, oldUserToUpdate.getRegistrator());
+        assertEquals(oldUserToUpdate.isExternallyAuthenticated(), userToUpdate.isExternallyAuthenticated());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public final void testChangeUserIsExternallyAuthenticated()
+    {
+        final UserDTO oldUserToUpdate = userAlice; 
+        final UserDTO userToUpdate = FileManagerTest.createSampleUserDTO(1L, "alice@users.com");
+        userToUpdate.setExternallyAuthenticated(true);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).isMainUserOfQuotaGroup(userToUpdate);
+                    will(returnValue(true));
+                    one(userDAO).updateUser(userToUpdate);
+                    one(businessContext).getUserActionLog();
+                    will(returnValue(new DummyUserActionLog()));
+                }
+            });
+        userManager.updateUser(oldUserToUpdate, userToUpdate, null, oldUserToUpdate.getRegistrator());
+        assertEquals(!oldUserToUpdate.isExternallyAuthenticated(), userToUpdate.isExternallyAuthenticated());
+        context.assertIsSatisfied();
+    }
+
     @Test(expectedExceptions = UserFailureException.class)
     public final void changeUserCodeOfNonexistenUser()
     {

@@ -96,6 +96,8 @@ public abstract class UserWidget extends LayoutContainer
 
     protected CheckBox userIsActiveField;
 
+    protected CheckBox userIsExternallyAuthenticatedField;
+
     protected TextField<String> maxFileSizeField;
 
     protected TextField<String> maxFileCountField;
@@ -238,6 +240,10 @@ public abstract class UserWidget extends LayoutContainer
                 user.setCustomMaxUserRetention(true);
             }
         }
+        if (userIsExternallyAuthenticatedField != null)
+        {
+            user.setExternallyAuthenticated(userIsExternallyAuthenticatedField.getValue());
+        }
         return user;
     }
 
@@ -320,15 +326,26 @@ public abstract class UserWidget extends LayoutContainer
         {
             left.addField(sendUpdateInformation = createSendUserInformationCheckbox());
         }
-        if (context.getModel().getUser().isAdmin())
+
+        final UserInfoDTO currentUser = context.getModel().getUser();
+        if (currentUser.isAdmin())
         {
             left.addField(maxFileSizeField = createMaxFileSizeField());
             left.addField(maxFileCountField = createMaxFileCountField());
         }
         // For editing we have more space on the left side so we put this field to the left column.
-        if (editUser != null && editingMyself() == false && context.getModel().getUser().isAdmin())
+        if (editUser != null && editingMyself() == false && currentUser.isAdmin())
         {
             left.addField(userIsActiveField = createUserIsActiveCheckbox());
+        }
+
+        // Admins can switch the external authentication state
+        // TODO: only make available if the system has external authentication
+        // context.getModel().getConfiguration().getSystemHasExternalAuthentication()
+        if (editUser != null && editingMyself() == false && currentUser.isAdmin())
+        {
+            left.addField(userIsExternallyAuthenticatedField =
+                    createUserIsExternallyAuthenticatedCheckbox());
         }
         return left;
     }
@@ -706,6 +723,20 @@ public abstract class UserWidget extends LayoutContainer
         }
         checkBox.setName("user-is-active");
         checkBox.setFieldLabel(getMessageResources().getUserActiveLabel());
+        checkBox.setWidth(FIELD_WIDTH);
+        return checkBox;
+    }
+
+    private final CheckBox createUserIsExternallyAuthenticatedCheckbox()
+    {
+        CheckBox checkBox = new CheckBox();
+        checkBox.setBoxLabel(""); // WORKAROUND to align check box to left
+
+        checkBox.setValue(editUser.isExternallyAuthenticated());
+
+        checkBox.setName(Constants.EXTERNAL_AUTHENTICATION_ID);
+        checkBox.setId(Constants.EXTERNAL_AUTHENTICATION_ID);
+        checkBox.setFieldLabel(getMessageResources().getExternalAuthenticationLabel());
         checkBox.setWidth(FIELD_WIDTH);
         return checkBox;
     }
