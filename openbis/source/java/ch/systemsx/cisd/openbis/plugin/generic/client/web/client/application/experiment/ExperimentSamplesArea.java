@@ -18,10 +18,9 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.form.TextArea;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -32,15 +31,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  * 
  * @author Tomasz Pylak
  */
-final class ExperimentSamplesArea extends TextArea
+final class ExperimentSamplesArea extends MultilineVarcharField
 {
 
     public static final String ID_SUFFIX_SAMPLES = "_samples";
 
     public ExperimentSamplesArea(IMessageProvider messageProvider, String idPrefix)
     {
-        super();
-        setHeight("10em");
+        super("", false);
         setLabelSeparator("");
         setEmptyText(messageProvider.getMessage(Dict.SAMPLES_LIST));
         setId(createId(idPrefix));

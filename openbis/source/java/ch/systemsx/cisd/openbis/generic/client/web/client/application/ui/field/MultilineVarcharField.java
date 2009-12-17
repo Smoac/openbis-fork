@@ -27,12 +27,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
  */
 public class MultilineVarcharField extends TextArea
 {
+    private static final double DEFAULT_LINE_HEIGHT = 1.6; // in em
 
-    private static final double DEFAULT_LINE_HEIGHT = 1.6;
+    private static final int EM_TO_PIXEL = 10;
 
     private static final int DEFAULT_LINES = 5;
-
-    private static final int EM_TO_PIXEL = 16;
 
     /** Constructor for default sized field (5 lines). */
     public MultilineVarcharField(final String label, final boolean mandatory)
@@ -47,11 +46,10 @@ public class MultilineVarcharField extends TextArea
         this.setValidateOnBlur(true);
         this.setAutoValidate(true);
         FieldUtil.setMandatoryFlag(this, mandatory);
-
-        this.setHeightInLines(lines);
+        setHeightInLines(lines);
     }
 
-    public void setHeightInLines(int lines)
+    private void setHeightInLines(int lines)
     {
         // WORKAROUND: GXT does not correctly interpret heights set in em's. Switch to pixels.
         // setHeight(lines * DEFAULT_LINE_HEIGHT + "em");
