@@ -160,7 +160,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
             IValidator[] validators = new IValidator[definitions.length];
             for (int i = 0; i < validators.length; i++)
             {
-                validators[i] = definitions[i].createValidator();
+                validators[i] = definitions[i].createValidator(headers.get(i));
             }
             int lineNumber = 1;
             while (table.hasMoreRows())

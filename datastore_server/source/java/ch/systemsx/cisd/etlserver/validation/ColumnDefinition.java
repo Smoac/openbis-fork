@@ -77,13 +77,19 @@ class ColumnDefinition
                     ClassUtils.create(IColumnHeaderValidator.class, headerValidatorName,
                             headerValidatorProperties);
         }
+        IValidatorFactory factory = createValidatorFactory(properties);
+        return new ColumnDefinition(name, headerValidator, factory, mandatory, order,
+                canDefineMultipleColumns);
+    }
+
+    static IValidatorFactory createValidatorFactory(Properties properties)
+    {
         String validatorFactoryName =
                 properties.getProperty(VALUE_VALIDATOR_KEY, DefaultValueValidatorFactory.class
                         .getName());
         IValidatorFactory factory =
                 ClassUtils.create(IValidatorFactory.class, validatorFactoryName, properties);
-        return new ColumnDefinition(name, headerValidator, factory, mandatory, order,
-                canDefineMultipleColumns);
+        return factory;
     }
 
     private ColumnDefinition(String name, IColumnHeaderValidator headerValidator,
@@ -134,8 +140,8 @@ class ColumnDefinition
         return headerValidator.validateHeader(header);
     }
 
-    IValidator createValidator()
+    IValidator createValidator(String header)
     {
-        return valueValidatorFactory.createValidator();
+        return valueValidatorFactory.createValidator(header);
     }
 }

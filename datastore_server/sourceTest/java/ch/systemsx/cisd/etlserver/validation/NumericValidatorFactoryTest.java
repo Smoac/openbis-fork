@@ -127,7 +127,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
     public void testInvalidNumber()
     {
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(new Properties());
-        IValidator validator = validatorFactory.createValidator();
+        IValidator validator = validatorFactory.createValidator("blabla");
         
         assertNotANumber(validator, "abc");
         assertNotANumber(validator, " -0-");
@@ -137,7 +137,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
     public void testEmptyValue()
     {
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(new Properties());
-        IValidator validator = validatorFactory.createValidator();
+        IValidator validator = validatorFactory.createValidator("blabla");
 
         assertFailingOnBlankValue(validator, null);
         assertFailingOnBlankValue(validator, "");
@@ -151,7 +151,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
         properties.setProperty(NumericValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "true");
         properties.setProperty(NumericValidatorFactory.VALUE_RANGE_KEY, "(0,1]");
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(properties);
-        IValidator validator = validatorFactory.createValidator();
+        IValidator validator = validatorFactory.createValidator("blabla");
 
         validator.assertValid(null);
         validator.assertValid("");
@@ -169,7 +169,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
         properties.setProperty(NumericValidatorFactory.EMPTY_VALUE_SYNONYMS_KEY, "-, N/A");
         properties.setProperty(NumericValidatorFactory.VALUE_RANGE_KEY, "(0,1]");
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(properties);
-        IValidator validator = validatorFactory.createValidator();
+        IValidator validator = validatorFactory.createValidator("blabla");
         
         validator.assertValid(null);
         validator.assertValid("");
@@ -185,7 +185,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
     public void testNoRange()
     {
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(new Properties());
-        IValidator validator = validatorFactory.createValidator();
+        IValidator validator = validatorFactory.createValidator("blabla");
         
         validator.assertValid("-Infinity");
         validator.assertValid("-1");
@@ -226,7 +226,7 @@ public class NumericValidatorFactoryTest extends AssertJUnit
         Properties properties = new Properties();
         properties.setProperty(NumericValidatorFactory.VALUE_RANGE_KEY, range);
         NumericValidatorFactory validatorFactory = new NumericValidatorFactory(properties);
-        return validatorFactory.createValidator();
+        return validatorFactory.createValidator("blabla");
     }
     
     private void assertFailingOnBlankValue(IValidator validator, String value)

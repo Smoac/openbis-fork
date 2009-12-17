@@ -34,7 +34,7 @@ public class UniqueValidatorFactoryTest extends AssertJUnit
     public void testNoPattern()
     {
         UniqueValidatorFactory factory = new UniqueValidatorFactory(new Properties());
-        IValidator validator = factory.createValidator();
+        IValidator validator = factory.createValidator("blabla");
         
         validator.assertValid("a");
         validator.assertValid("b");
@@ -54,7 +54,7 @@ public class UniqueValidatorFactoryTest extends AssertJUnit
         Properties properties = new Properties();
         properties.setProperty(StringValidatorFactory.VALUE_PATTERN_KEY, "a[0-9]*");
         UniqueValidatorFactory factory = new UniqueValidatorFactory(properties);
-        IValidator validator = factory.createValidator();
+        IValidator validator = factory.createValidator("blabla");
         
         validator.assertValid("a");
         validator.assertValid("a1");
@@ -74,11 +74,11 @@ public class UniqueValidatorFactoryTest extends AssertJUnit
     public void testCreateValidatorReturnsFreshValidator()
     {
         UniqueValidatorFactory factory = new UniqueValidatorFactory(new Properties());
-        IValidator validator = factory.createValidator();
+        IValidator validator = factory.createValidator("blabla");
         
         validator.assertValid("a");
         
-        validator = factory.createValidator();
+        validator = factory.createValidator("blabla");
         
         validator.assertValid("a");
     }

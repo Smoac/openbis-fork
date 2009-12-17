@@ -89,9 +89,9 @@ public class DefaultValueValidatorFactory implements IValidatorFactory
         factory = valueType.createFactory(properties);
     }
 
-    public IValidator createValidator()
+    public IValidator createValidator(String header)
     {
-        return factory.createValidator();
+        return factory.createValidator(header);
     }
 
 }

@@ -93,7 +93,7 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
             validator = new MockValidator(properties);
         }
 
-        public IValidator createValidator()
+        public IValidator createValidator(String header)
         {
             return validator;
         }

@@ -36,14 +36,14 @@ class UniqueValidatorFactory implements IValidatorFactory
         String regex = properties.getProperty(StringValidatorFactory.VALUE_PATTERN_KEY);
         if (regex == null)
         {
-            validator = AnyValidatorFactory.INSTANCE.createValidator();
+            validator = AnyValidatorFactory.INSTANCE.createValidator(null);
         } else
         {
             validator = new RegExBasedValidator(regex);
         }
     }
 
-    public IValidator createValidator()
+    public IValidator createValidator(String header)
     {
         return new IValidator()
             {

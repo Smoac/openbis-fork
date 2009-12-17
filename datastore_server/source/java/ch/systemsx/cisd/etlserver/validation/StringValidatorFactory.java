@@ -38,7 +38,7 @@ class StringValidatorFactory extends AbstractValidatorFactory
         validator = new RegExBasedValidator(allowEmptyValues, emptyValueSynonyms, regex);
     }
     
-    public IValidator createValidator()
+    public IValidator createValidator(String header)
     {
         return validator;
     }

@@ -152,7 +152,7 @@ class NumericValidatorFactory extends AbstractValidatorFactory
         validator = new NumericValidator(allowEmptyValues, emptyValueSynonyms, rangeOrNull);
     }
 
-    public IValidator createValidator()
+    public IValidator createValidator(String header)
     {
         return validator;
     }

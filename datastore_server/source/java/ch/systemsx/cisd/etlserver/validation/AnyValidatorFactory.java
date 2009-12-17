@@ -32,7 +32,7 @@ final class AnyValidatorFactory implements IValidatorFactory
     {
     }
     
-    public IValidator createValidator()
+    public IValidator createValidator(String header)
     {
         return VALIDATOR;
     }

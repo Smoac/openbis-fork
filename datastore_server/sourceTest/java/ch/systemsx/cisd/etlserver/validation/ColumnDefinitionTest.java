@@ -40,7 +40,7 @@ public class ColumnDefinitionTest extends AssertJUnit
     {
         ColumnDefinition definition = ColumnDefinition.create("col", new Properties());
 
-        IValidator validator = definition.createValidator();
+        IValidator validator = definition.createValidator("blabla");
         validator.assertValid(null);
         validator.assertValid("");
         validator.assertValid("abc");
@@ -97,7 +97,7 @@ public class ColumnDefinitionTest extends AssertJUnit
         props.setProperty(ColumnDefinition.ORDER_KEY, "1");
         ColumnDefinition definition = ColumnDefinition.create("col", props);
 
-        IValidator validator = definition.createValidator();
+        IValidator validator = definition.createValidator("blabla");
         validator.assertValid(null);
         validator.assertValid("");
         validator.assertValid("abc");
@@ -120,7 +120,7 @@ public class ColumnDefinitionTest extends AssertJUnit
         ColumnDefinition definition = ColumnDefinition.create("col", props);
 
         // We did not specify anything about the value -- these should all pass
-        IValidator valueValidator = definition.createValidator();
+        IValidator valueValidator = definition.createValidator("blabla");
         valueValidator.assertValid(null);
         valueValidator.assertValid("");
         valueValidator.assertValid("abc");
@@ -164,7 +164,7 @@ public class ColumnDefinitionTest extends AssertJUnit
         ColumnDefinition definition = ColumnDefinition.create("col", props);
 
         // We did not specify anything about the value -- these should all pass
-        IValidator valueValidator = definition.createValidator();
+        IValidator valueValidator = definition.createValidator("blabla");
         valueValidator.assertValid(null);
         valueValidator.assertValid("");
         valueValidator.assertValid("abc");
@@ -282,7 +282,7 @@ public class ColumnDefinitionTest extends AssertJUnit
         props.setProperty(DefaultValueValidatorFactory.VALUE_TYPE_KEY, "numeric");
         ColumnDefinition definition = ColumnDefinition.create("col", props);
 
-        IValidator valueValidator = definition.createValidator();
+        IValidator valueValidator = definition.createValidator("blabla");
         try
         {
             valueValidator.assertValid(null);
@@ -340,7 +340,7 @@ public class ColumnDefinitionTest extends AssertJUnit
         props.setProperty(DefaultValueValidatorFactory.VALUE_TYPE_KEY, "string");
         props.setProperty(StringValidatorFactory.VALUE_PATTERN_KEY, "[0-9]+");
         definition = ColumnDefinition.create("col", props);
-        valueValidator = definition.createValidator();
+        valueValidator = definition.createValidator("blabla");
         try
         {
             valueValidator.assertValid(null);
@@ -387,7 +387,7 @@ public class ColumnDefinitionTest extends AssertJUnit
         props.setProperty(StringValidatorFactory.VALUE_PATTERN_KEY, ".+ :.*");
         props.setProperty(AbstractValidatorFactory.ALLOW_EMPTY_VALUES_KEY, "true");
         definition = ColumnDefinition.create("col", props);
-        valueValidator = definition.createValidator();
+        valueValidator = definition.createValidator("blabla");
 
         try
         {
