@@ -28,11 +28,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil.SectionProperties;
 
 /**
- * 
+ * Collection of {@link IValidatorFactory} instances. Which one is used will be selected by a
+ * regular expression the column header matches.
  *
  * @author Franz-Josef Elmer
  */
-public class HeaderBasedValueValidatorFactory implements IValidatorFactory, IColumnHeaderValidator
+public class HeaderBasedValueValidatorFactory implements IValidatorFactory
 {
     private static final class HeaderPatternAndFactory 
     {
@@ -47,8 +48,9 @@ public class HeaderBasedValueValidatorFactory implements IValidatorFactory, ICol
         }
     }
 
-    private static final String HEADER_PATTERN_KEY = "header-pattern";
-    private static final String HEADER_TYPES_KEY = "header-types";
+    static final String HEADER_PATTERN_KEY = "header-pattern";
+    
+    static final String HEADER_TYPES_KEY = "header-types";
     
     private final List<HeaderPatternAndFactory> factories = new ArrayList<HeaderPatternAndFactory>();
     private final String headerMessage;
@@ -78,18 +80,6 @@ public class HeaderBasedValueValidatorFactory implements IValidatorFactory, ICol
         headerMessage = builder.toString();
     }
     
-    public Result validateHeader(String header)
-    {
-        for (HeaderPatternAndFactory factory : factories)
-        {
-            if (factory.pattern.matcher(header).matches())
-            {
-                return Result.OK;
-            }
-        }
-        return Result.failure("Does not match: " + headerMessage);
-    }
-    
     public IValidator createValidator(String columnHeader)
     {
         for (HeaderPatternAndFactory factory : factories)
@@ -99,7 +89,7 @@ public class HeaderBasedValueValidatorFactory implements IValidatorFactory, ICol
                 return factory.factory.createValidator(columnHeader);
             }
         }
-        throw new UserFailureException("No value validatory found for header '" + columnHeader
+        throw new UserFailureException("No value validator found for header '" + columnHeader
                 + "': " + headerMessage);
     }
 
