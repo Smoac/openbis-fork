@@ -63,7 +63,7 @@ public class HeaderBasedValueValidatorFactory implements IValidatorFactory, ICol
             String key = sectionProperties.getKey();
             Properties props = sectionProperties.getProperties();
             String pattern = PropertyUtils.getMandatoryProperty(props, HEADER_PATTERN_KEY);
-            builder.append('\n').append("Regular expression header of type '").append(key);
+            builder.append('\n').append("Regular expression for headers of type '").append(key);
             builder.append("' have to match: ").append(pattern);
             try
             {
