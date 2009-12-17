@@ -224,7 +224,8 @@ class DataSetValidatorForTSV implements IDataSetValidator
         {
             if (definitions[i] == null)
             {
-                definitions[i] = getDefinition(remainingDefinitions, columnHeaders, i);
+                ColumnDefinition orderedColumDefinitionOrNull = orderedDefinitions.get(i + 1);
+                definitions[i] = getDefinition(remainingDefinitions, orderedColumDefinitionOrNull, columnHeaders, i);
             }
         }
         String list = createListOfMissingColumns(remainingDefinitions);
@@ -290,7 +291,7 @@ class DataSetValidatorForTSV implements IDataSetValidator
     }
 
     private ColumnDefinition getDefinition(List<ColumnDefinition> definitions,
-            List<String> columnHeaders, int i)
+            ColumnDefinition orderedColumDefinitionOrNull, List<String> columnHeaders, int i)
     {
         String columnHeader = columnHeaders.get(i);
         StringBuilder builder = new StringBuilder();
@@ -307,12 +308,25 @@ class DataSetValidatorForTSV implements IDataSetValidator
                 return columnDefinition;
             } else
             {
-                builder.append("\nColumn Definition '").append(columnDefinition.getName());
-                builder.append("' does not match: Reason: ").append(result);
+                addMessage(builder, columnDefinition, result);
+            }
+        }
+        if (orderedColumDefinitionOrNull != null)
+        {
+            Result result = orderedColumDefinitionOrNull.validateHeader(columnHeader);
+            if (result.isValid() == false)
+            {
+                addMessage(builder, orderedColumDefinitionOrNull, result);
             }
         }
         throw new UserFailureException("No column definition matches the header of the " + (i + 1)
                 + ". column: " + columnHeader + builder);
+    }
+
+    private void addMessage(StringBuilder builder, ColumnDefinition columnDefinition, Result result)
+    {
+        builder.append("\nColumn Definition '").append(columnDefinition.getName());
+        builder.append("' does not match: Reason: ").append(result);
     }
 
 }

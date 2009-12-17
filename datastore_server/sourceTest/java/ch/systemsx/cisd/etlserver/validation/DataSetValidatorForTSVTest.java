@@ -204,6 +204,45 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
     }
     
     @Test
+    public void testNoColumnDefinitionFound2()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(DataSetValidatorForTSV.PATH_PATTERNS_KEY, "*");
+        properties.setProperty(DataSetValidatorForTSV.COLUMNS_KEY, "id, a, b, c");
+        properties.setProperty("id." + ColumnDefinition.HEADER_PATTERN_KEY, "ID");
+        properties.setProperty("id." + ColumnDefinition.MANDATORY_KEY, "true");
+        properties.setProperty("id." + ColumnDefinition.ORDER_KEY, "1");
+        properties.setProperty("id." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
+        properties.setProperty("a." + ColumnDefinition.HEADER_PATTERN_KEY, "A");
+        properties.setProperty("a." + ColumnDefinition.ORDER_KEY, "2");
+        properties.setProperty("a." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
+        properties.setProperty("b." + ColumnDefinition.HEADER_PATTERN_KEY, "B");
+        properties.setProperty("b." + ColumnDefinition.ORDER_KEY, "3");
+        properties.setProperty("b." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
+        properties.setProperty("c." + ColumnDefinition.HEADER_PATTERN_KEY, "C[0-9]*");
+        properties.setProperty("c." + ColumnDefinition.CAN_DEFINE_MULTIPLE_COLUMNS_KEY, "true");
+        properties.setProperty("c." + ColumnDefinition.VALUE_VALIDATOR_KEY, MOCK_FACTORY);
+        DataSetValidatorForTSV validator = new DataSetValidatorForTSV(properties);
+        
+        FileUtilities.writeToFile(new File(workingDirectory, "a.txt"), "ID\ta\tC1\n");
+        
+        try
+        {
+            validator.assertValidDataSet(null, workingDirectory);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("No column definition matches the header of the 2. column: a\n"
+                    + "Column Definition 'c' does not match: Reason: "
+                    + "Does not match the following regular expression: C[0-9]*\n"
+                    + "Column Definition 'a' does not match: Reason: "
+                    + "Does not match the following regular expression: A", ex.getMessage());
+        }
+        
+        MockValidatorFactory.assertSatisfied();
+    }
+    
+    @Test
     public void testMissingMandatoryColumn()
     {
         Properties properties = new Properties();
@@ -443,7 +482,9 @@ public class DataSetValidatorForTSVTest extends AbstractFileSystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("No column definition matches the header of the 1. column: ID", ex.getMessage());
+            assertEquals("No column definition matches the header of the 1. column: ID\n"
+                    + "Column Definition 'c1' does not match: Reason: "
+                    + "Does not match the following regular expression: Name", ex.getMessage());
         }
         
         MockValidatorFactory.assertSatisfied();
