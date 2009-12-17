@@ -16,29 +16,15 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import com.google.gwt.user.client.ui.DecoratedTabPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
-import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
-
 /**
+ * Abstract superclass that defines the interface for tab panels.
+ * 
  * @author Chandrasekhar Ramakrishnan
  */
-public final class MainPageTabPanel extends SimplePanel
+public abstract class MainPageTabPanel extends SimplePanel
 {
-
-    private final DecoratedTabPanel tabPanel;
-
-    private final ShareTabController shareTab;
-
-    private final InboxTabController inboxTab;
-
-    private final InviteTabController inviteTab;
-
-    private final AdminTabController adminTabOrNull;
-
-    private final ViewContext context;
 
     /**
      * An enum for the various tabs of the tab panel
@@ -48,60 +34,11 @@ public final class MainPageTabPanel extends SimplePanel
         SHARE_TAB, INBOX_TAB, INVITE_TAB, ADMIN_TAB
     }
 
-    public MainPageTabPanel(ViewContext context)
+    public MainPageTabPanel()
     {
-        this.context = context;
-        tabPanel = new DecoratedTabPanel();
-        shareTab = new ShareTabController(this.context);
-        inboxTab = new InboxTabController(this.context);
-        inviteTab = new InviteTabController(this.context);
-
-        // Only create an admin tab if the user can access it
-        final UserInfoDTO user = context.getModel().getUser();
-        adminTabOrNull = (user.isAdmin()) ? new AdminTabController(this.context) : null;
-
-        initializePanel();
-        setWidget(tabPanel);
+        super();
     }
 
-    public void showTab(Tab tab)
-    {
-        switch (tab)
-        {
-            case INBOX_TAB:
-                tabPanel.selectTab(1);
-                break;
-            case INVITE_TAB:
-                tabPanel.selectTab(2);
-                break;
-            case SHARE_TAB:
-                tabPanel.selectTab(0);
-                break;
-            case ADMIN_TAB:
-                if (adminTabOrNull != null)
-                    tabPanel.selectTab(3);
-                break;
-        }
-    }
-
-    private final void initializePanel()
-    {
-        tabPanel.setAnimationEnabled(true);
-
-        // Add the tabs
-        tabPanel.add(shareTab.getWidget(), context.getMessageResources().getShareViewLinkLabel());
-        tabPanel.add(inboxTab.getWidget(), context.getMessageResources().getInboxViewLinkLabel());
-        tabPanel.add(inviteTab.getWidget(), context.getMessageResources().getInviteViewLinkLabel());
-
-        if (context.getModel().getUser().isAdmin() && adminTabOrNull != null)
-        {
-            tabPanel.add(adminTabOrNull.getWidget(), context.getMessageResources()
-                    .getAdminViewLinkLabel());
-        }
-
-        // Select an initial tab
-        tabPanel.selectTab(0);
-        tabPanel.ensureDebugId("cifex-tabpanel");
-    }
+    public abstract void showTab(Tab tab);
 
 }

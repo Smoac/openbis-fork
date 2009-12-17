@@ -17,9 +17,14 @@
 package ch.systemsx.cisd.cifex.client.application.page;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Viewport;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
@@ -33,8 +38,6 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.InlineHTML;
-import com.google.gwt.user.client.ui.LazyPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AsyncCallbackAdapter;
@@ -50,32 +53,28 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
-public final class MainPage extends LazyPanel
+public final class MainPageGXT extends Viewport
 {
 
     private final ViewContext context;
 
-    private final VerticalPanel vPanel;
-
     private final MainPageTabPanel tabPanel;
 
-    public MainPage(final ViewContext context, MainPageTabPanel tabPanel)
+    public MainPageGXT(final ViewContext context, MainPageTabPanel tabPanel)
     {
         super();
+        setLayout(new BorderLayout());
         this.context = context;
         this.tabPanel = tabPanel;
-        vPanel = new VerticalPanel();
-        // setStyleName("cifex-main-page");
-    }
 
-    @Override
-    protected Widget createWidget()
-    {
-        vPanel.setWidth("100%");
-        vPanel.setSpacing(10);
-        vPanel.add(createHeaderWidget());
-        vPanel.add(tabPanel);
-        return vPanel;
+        BorderLayoutData headerLayoutData = new BorderLayoutData(LayoutRegion.NORTH, 50);
+        headerLayoutData.setMargins(new Margins(10));
+        add(createHeaderWidget(), headerLayoutData);
+        
+        BorderLayoutData centerLayoutData = new BorderLayoutData(LayoutRegion.CENTER);
+        centerLayoutData.setMargins(new Margins(0, 10, 0, 10));
+        add(this.tabPanel, centerLayoutData);
+
     }
 
     private Widget createHeaderWidget()

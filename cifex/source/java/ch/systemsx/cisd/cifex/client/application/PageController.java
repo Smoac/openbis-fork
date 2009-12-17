@@ -17,10 +17,14 @@
 package ch.systemsx.cisd.cifex.client.application;
 
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.cifex.client.application.page.MainPage;
-import ch.systemsx.cisd.cifex.client.application.page.MainPageTabPanel;
 import ch.systemsx.cisd.cifex.client.application.page.HelpDialogController;
+import ch.systemsx.cisd.cifex.client.application.page.MainPageGWT;
+import ch.systemsx.cisd.cifex.client.application.page.MainPageGXT;
+import ch.systemsx.cisd.cifex.client.application.page.MainPageTabPanel;
+import ch.systemsx.cisd.cifex.client.application.page.MainPageTabPanelGWT;
+import ch.systemsx.cisd.cifex.client.application.page.MainPageTabPanelGXT;
 import ch.systemsx.cisd.cifex.client.application.page.SettingsDialogController;
 
 /**
@@ -38,10 +42,15 @@ final class PageController implements IPageController, IHistoryController
 
     private MainPageTabPanel tabPanel;
 
-    private MainPage mainPage;
+    private Widget mainPage;
 
     // Keeps track of whether or not the main page is visible
     private boolean isMainPageShowing;
+
+    /**
+     * Configuration option as to which GUI toolkit should be used for the tabs, GWT or GXT.
+     */
+    private static boolean USE_GWT_TABS = false;
 
     final void setViewContext(final ViewContext viewContext)
     {
@@ -72,9 +81,16 @@ final class PageController implements IPageController, IHistoryController
             return;
 
         clearRootPanel();
-        tabPanel = new MainPageTabPanel(viewContext);
-        mainPage = new MainPage(viewContext, tabPanel);
-        mainPage.setVisible(true);
+        if (USE_GWT_TABS)
+        {
+            tabPanel = new MainPageTabPanelGWT(viewContext);
+            mainPage = new MainPageGWT(viewContext, tabPanel);
+            mainPage.setVisible(true);
+        } else
+        {
+            tabPanel = new MainPageTabPanelGXT(viewContext);
+            mainPage = new MainPageGXT(viewContext, tabPanel);
+        }
         isMainPageShowing = true;
         RootPanel.get().add(mainPage);
     }
