@@ -58,9 +58,9 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
 
     private final TabItem inboxTabItem;
 
-    private final InviteTabController inviteTab;
+    private final InviteTabController inviteTabOrNull;
 
-    private final TabItem inviteTabItem;
+    private final TabItem inviteTabItemOrNull;
 
     private final AdminTabController adminTabOrNull;
 
@@ -72,19 +72,31 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
     {
         this.context = context;
         tabPanel = new TabPanel();
+
+        // The Share tab and Inbox tab are always shown
         shareTab = new ShareTabController(this.context);
         inboxTab = new InboxTabController(this.context);
-        inviteTab = new InviteTabController(this.context);
 
         shareTabItem =
                 createTabItem(context.getMessageResources().getShareViewLinkLabel(), shareTab);
         inboxTabItem =
                 createTabItem(context.getMessageResources().getInboxViewLinkLabel(), inboxTab);
-        inviteTabItem =
-                createTabItem(context.getMessageResources().getInviteViewLinkLabel(), inviteTab);
+
+        // Only create the invite tab if the user is permanent
+        final UserInfoDTO user = context.getModel().getUser();
+        if (user.isPermanent())
+        {
+            inviteTabOrNull = new InviteTabController(this.context);
+            inviteTabItemOrNull =
+                    createTabItem(context.getMessageResources().getInviteViewLinkLabel(),
+                            inviteTabOrNull);
+        } else
+        {
+            inviteTabOrNull = null;
+            inviteTabItemOrNull = null;
+        }
 
         // Only create an admin tab if the user can access it
-        final UserInfoDTO user = context.getModel().getUser();
         if (user.isAdmin())
         {
             adminTabOrNull = new AdminTabController(this.context);
@@ -111,13 +123,14 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
                 tabPanel.setSelection(inboxTabItem);
                 break;
             case INVITE_TAB:
-                tabPanel.setSelection(inviteTabItem);
+                if (inviteTabItemOrNull != null)
+                    tabPanel.setSelection(inviteTabItemOrNull);
                 break;
             case SHARE_TAB:
                 tabPanel.setSelection(shareTabItem);
                 break;
             case ADMIN_TAB:
-                if (adminTabOrNull != null)
+                if (adminTabItemOrNull != null)
                     tabPanel.setSelection(adminTabItemOrNull);
                 break;
         }
@@ -128,12 +141,12 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
         // Add the tabs
         tabPanel.add(shareTabItem);
         tabPanel.add(inboxTabItem);
-        tabPanel.add(inviteTabItem);
-
+        
+        if (context.getModel().getUser().isPermanent() && inviteTabItemOrNull != null)
+            tabPanel.add(inviteTabItemOrNull);
+        
         if (context.getModel().getUser().isAdmin() && adminTabOrNull != null)
-        {
             tabPanel.add(adminTabItemOrNull);
-        }
 
         // Select an initial tab
         tabPanel.setSelection(shareTabItem);

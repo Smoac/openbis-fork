@@ -33,7 +33,7 @@ public final class MainPageTabPanelGWT extends MainPageTabPanel
 
     private final InboxTabController inboxTab;
 
-    private final InviteTabController inviteTab;
+    private final InviteTabController inviteTabOrNull;
 
     private final AdminTabController adminTabOrNull;
 
@@ -43,12 +43,15 @@ public final class MainPageTabPanelGWT extends MainPageTabPanel
     {
         this.context = context;
         tabPanel = new DecoratedTabPanel();
+        // Always create a share tab and an inbox tab
         shareTab = new ShareTabController(this.context);
         inboxTab = new InboxTabController(this.context);
-        inviteTab = new InviteTabController(this.context);
+
+        final UserInfoDTO user = context.getModel().getUser();
+        // Only permanent users can invite other users
+        inviteTabOrNull = (user.isPermanent()) ? new InviteTabController(this.context) : null;
 
         // Only create an admin tab if the user can access it
-        final UserInfoDTO user = context.getModel().getUser();
         adminTabOrNull = (user.isAdmin()) ? new AdminTabController(this.context) : null;
 
         initializePanel();
@@ -64,7 +67,8 @@ public final class MainPageTabPanelGWT extends MainPageTabPanel
                 tabPanel.selectTab(1);
                 break;
             case INVITE_TAB:
-                tabPanel.selectTab(2);
+                if (inviteTabOrNull != null)
+                    tabPanel.selectTab(2);
                 break;
             case SHARE_TAB:
                 tabPanel.selectTab(0);
@@ -83,7 +87,10 @@ public final class MainPageTabPanelGWT extends MainPageTabPanel
         // Add the tabs
         tabPanel.add(shareTab.getWidget(), context.getMessageResources().getShareViewLinkLabel());
         tabPanel.add(inboxTab.getWidget(), context.getMessageResources().getInboxViewLinkLabel());
-        tabPanel.add(inviteTab.getWidget(), context.getMessageResources().getInviteViewLinkLabel());
+
+        if (context.getModel().getUser().isPermanent() && inviteTabOrNull != null)
+            tabPanel.add(inviteTabOrNull.getWidget(), context.getMessageResources()
+                    .getInviteViewLinkLabel());
 
         if (context.getModel().getUser().isAdmin() && adminTabOrNull != null)
         {
@@ -95,5 +102,4 @@ public final class MainPageTabPanelGWT extends MainPageTabPanel
         tabPanel.selectTab(0);
         tabPanel.ensureDebugId("cifex-tabpanel");
     }
-
 }
