@@ -339,10 +339,10 @@ public abstract class UserWidget extends LayoutContainer
             left.addField(userIsActiveField = createUserIsActiveCheckbox());
         }
 
-        // Admins can switch the external authentication state
-        // TODO: only make available if the system has external authentication
-        // context.getModel().getConfiguration().getSystemHasExternalAuthentication()
-        if (editUser != null && editingMyself() == false && currentUser.isAdmin())
+        // Admins can switch the external authentication state, though only if there is external
+        // authentication available.
+        if (editUser != null && editingMyself() == false && currentUser.isAdmin()
+                && context.getModel().getConfiguration().getSystemHasExternalAuthentication())
         {
             left.addField(userIsExternallyAuthenticatedField =
                     createUserIsExternallyAuthenticatedCheckbox());
