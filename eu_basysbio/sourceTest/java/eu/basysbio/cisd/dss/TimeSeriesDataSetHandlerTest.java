@@ -56,12 +56,15 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -242,6 +245,49 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testDataSetAlreadyExists()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox.getAbsolutePath());
+        properties.setProperty(DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
+        properties.setProperty(TRANSLATION_KEY + DATA_SET_TYPES_KEY, "b");
+        prepareDataSetPropertiesValidator("B");
+        TimeSeriesDataSetHandler handler = new TimeSeriesDataSetHandler(properties, service);
+        File file = createDataExample();
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryToGetExperiment(new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
+                    will(returnValue(createExperiment("GM_BR_B1")));
+                    
+                    one(service).listSamples(with(any(ListSampleCriteria.class)));
+                    Sample sample200 = createSample(SAMPLE_EX_200);
+                    will(returnValue(Arrays.<Sample> asList(sample200)));
+                    
+                    one(service).listDataSetsBySampleID(sample200.getId(), true);
+                    will(returnValue(Arrays.asList(createData("ds0", "T0"), createData("ds1", "T1"))));
+                }
+                
+            });
+        
+        DataSetInformation dataSetInformation = createDataSetInformation(TimeSeriesDataSetHandler.DATA_SET_TYPE);
+        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
+        try
+        {
+            handler.handle(file, dataSetInformation);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals(
+                    "For data column 'GM::BR::B1::200::EX::T1::CE::MetaboliteLCMS::Value[mM]::Log10::NB::NC' "
+                            + "the data set 'ds1' has already been registered.", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    
+    @Test
     public void test()
     {
         Properties properties = new Properties();
@@ -253,63 +299,63 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         TimeSeriesDataSetHandler handler = new TimeSeriesDataSetHandler(properties, service);
         File file = createDataExample();
         context.checking(new Expectations()
+        {
             {
-                {
-                    exactly(2).of(service).tryToGetExperiment(new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
-                    will(returnValue(createExperiment("GM_BR_B1")));
-                    
-                    exactly(2).of(service).listSamples(with(new BaseMatcher<ListSampleCriteria>()
+                exactly(2).of(service).tryToGetExperiment(new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
+                will(returnValue(createExperiment("GM_BR_B1")));
+                
+                exactly(2).of(service).listSamples(with(new BaseMatcher<ListSampleCriteria>()
                         {
-                            private TechId experimentId;
-
-                            public void describeTo(Description description)
-                            {
-                                description.appendText("Experiment ID: expected: " + EXP_ID + ", actual: " + experimentId);
-                            }
-                            
-                            public boolean matches(Object item)
-                            {
-                                if (item instanceof ListSampleCriteria)
-                                {
-                                    experimentId = ((ListSampleCriteria) item).getExperimentId();
-                                    return experimentId.getId().equals(EXP_ID);
-                                }
-                                return false;
-                            }
-                        }));
-                    Sample sample200 = createSample(SAMPLE_EX_200);
-                    will(returnValue(Arrays.<Sample> asList(sample200)));
+                    private TechId experimentId;
                     
-                    one(service).listDataSetsBySampleID(sample200.getId(), true);
-                    will(returnValue(Arrays.asList()));
-
-                    final NewSample sample = createNewSample(SAMPLE_EX_7200);
-                    one(service).registerSample(with(new BaseMatcher<NewSample>()
+                    public void describeTo(Description description)
+                    {
+                        description.appendText("Experiment ID: expected: " + EXP_ID + ", actual: " + experimentId);
+                    }
+                    
+                    public boolean matches(Object item)
+                    {
+                        if (item instanceof ListSampleCriteria)
                         {
-                            public boolean matches(Object item)
-                            {
-                                if (sample.equals(item))
-                                {
-                                    IEntityProperty[] p = ((NewSample) item).getProperties();
-                                    assertEquals(1, p.length);
-                                    assertEquals("7200", p[0].getValue());
-                                    assertEquals("TIME_POINT", p[0].getPropertyType().getCode());
-                                    return true;
-                                }
-                                return false;
-                            }
-
-                            public void describeTo(Description description)
-                            {
-                                description.appendValue(sample);
-                            }
+                            experimentId = ((ListSampleCriteria) item).getExperimentId();
+                            return experimentId.getId().equals(EXP_ID);
+                        }
+                        return false;
+                    }
                         }));
-                    will(returnValue(1234l));
+                Sample sample200 = createSample(SAMPLE_EX_200);
+                will(returnValue(Arrays.<Sample> asList(sample200)));
+                
+                one(service).listDataSetsBySampleID(sample200.getId(), true);
+                will(returnValue(Arrays.asList()));
+                
+                final NewSample sample = createNewSample(SAMPLE_EX_7200);
+                one(service).registerSample(with(new BaseMatcher<NewSample>()
+                        {
+                    public boolean matches(Object item)
+                    {
+                        if (sample.equals(item))
+                        {
+                            IEntityProperty[] p = ((NewSample) item).getProperties();
+                            assertEquals(1, p.length);
+                            assertEquals("7200", p[0].getValue());
+                            assertEquals("TIME_POINT", p[0].getPropertyType().getCode());
+                            return true;
+                        }
+                        return false;
+                    }
                     
-                    one(service).listDataSetsBySampleID(1234l, true);
-                    will(returnValue(Arrays.asList()));
-                }
-            });
+                    public void describeTo(Description description)
+                    {
+                        description.appendValue(sample);
+                    }
+                        }));
+                will(returnValue(1234l));
+                
+                one(service).listDataSetsBySampleID(1234l, true);
+                will(returnValue(Arrays.asList()));
+            }
+        });
         
         DataSetInformation dataSetInformation = createDataSetInformation(TimeSeriesDataSetHandler.DATA_SET_TYPE);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
@@ -328,11 +374,11 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         Collections.sort(dataSetProperties);
         assertEquals(
                 "[BI_ID\tNB, CEL_LOC\tCE, CG\tNC, SCALE\tLOG10, TECHNICAL_REPLICATE_CODE\tT1, "
-                        + "TIME_SERIES_DATA_SET_TYPE\tMetaboliteLCMS, VALUE_TYPE\tValue[mM], "
-                        + "property\tvalue]", dataSetProperties.toString());
+                + "TIME_SERIES_DATA_SET_TYPE\tMetaboliteLCMS, VALUE_TYPE\tValue[mM], "
+                + "property\tvalue]", dataSetProperties.toString());
         File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + DATA_SET_EX_200);
         assertEquals(true, markerFile.exists());
-
+        
         dataSet = new File(dropBox, DATA_SET_EX_7200);
         assertEquals(true, dataSet.isDirectory());
         dataFile = new File(dataSet, "B" + DATA_FILE_TYPE);
@@ -346,8 +392,8 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         Collections.sort(dataSetProperties);
         assertEquals(
                 "[BI_ID\tNB, CEL_LOC\tCE, CG\tNC, SCALE\tLIN, TECHNICAL_REPLICATE_CODE\tT2, "
-                        + "TIME_SERIES_DATA_SET_TYPE\tb, VALUE_TYPE\tValue[mM], "
-                        + "property\tvalue]", dataSetProperties.toString());
+                + "TIME_SERIES_DATA_SET_TYPE\tb, VALUE_TYPE\tValue[mM], "
+                + "property\tvalue]", dataSetProperties.toString());
         markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + DATA_SET_EX_7200);
         assertEquals(true, markerFile.exists());
         
@@ -487,4 +533,33 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         return dataSetInformation;
     }
 
+    private ExternalData createData(String code, String technicalReplicateCode)
+    {
+        ExternalData externalData = new ExternalData();
+        externalData.setCode(code);
+        EntityProperty tr = createProperty(TimePointPropertyType.TECHNICAL_REPLICATE_CODE, technicalReplicateCode);
+        EntityProperty biID = createProperty(TimePointPropertyType.BI_ID, "NB");
+        EntityProperty cg = createProperty(TimePointPropertyType.CG, "NC");
+        EntityProperty vt = createProperty(TimePointPropertyType.VALUE_TYPE, "Value[mM]");
+        EntityProperty scale = createProperty(TimePointPropertyType.SCALE, "LOG10");
+        EntityProperty celLoc = createProperty(TimePointPropertyType.CEL_LOC, "CE");
+        EntityProperty t = createProperty(TimePointPropertyType.TIME_SERIES_DATA_SET_TYPE, "MetaboliteLCMS");
+        externalData.setDataSetProperties(Arrays.<IEntityProperty>asList(tr, biID, cg, vt, scale, celLoc, t));
+        return externalData;
+    }
+    
+    private EntityProperty createProperty(TimePointPropertyType type, String value)
+    {
+        return createProperty(type.toString(), value);
+    }
+    
+    private EntityProperty createProperty(String code, String value)
+    {
+        EntityProperty entityProperty = new EntityProperty();
+        PropertyType propertyType = new PropertyType();
+        propertyType.setCode(code);
+        entityProperty.setPropertyType(propertyType);
+        entityProperty.setValue(value);
+        return entityProperty;
+    }
 }
