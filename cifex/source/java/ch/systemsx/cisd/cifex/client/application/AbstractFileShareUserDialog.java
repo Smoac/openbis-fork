@@ -37,6 +37,7 @@ import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
+import ch.systemsx.cisd.cifex.client.application.page.AbstractMainPageTabController;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -132,7 +133,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 
     protected final Widget createContentWidget()
     {
-        final LayoutContainer panel = AbstractMainPage.createContainer();
+        final LayoutContainer panel = AbstractMainPageTabController.createContainer();
         insertExistingUserGrid(panel);
         insertNewUserGrid(panel);
         insertAddUserForm(panel);

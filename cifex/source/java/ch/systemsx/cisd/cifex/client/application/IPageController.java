@@ -66,12 +66,6 @@ public interface IPageController
     public void showPage(final Page page);
 
     /**
-     * Instantiates <code>ExternalAuthenticationPage</code> and adds it to the
-     * <code>RootPanel</code>.
-     */
-    public void createExternalAuthenticationPage();
-
-    /**
      * Refreshes the main page -- this is sometimes necessary after changes have rendered the
      * information on the main page stale.
      */

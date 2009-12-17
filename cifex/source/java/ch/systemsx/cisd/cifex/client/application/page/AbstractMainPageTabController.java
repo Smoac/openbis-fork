@@ -35,7 +35,7 @@ import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-abstract class AbstractMainPageTabController
+public abstract class AbstractMainPageTabController
 {
     protected final ViewContext context;
 
@@ -73,14 +73,14 @@ abstract class AbstractMainPageTabController
         return container;
     }
 
-    protected static final LayoutContainer createContainer()
+    public static final LayoutContainer createContainer()
     {
         final LayoutContainer container = new LayoutContainer();
         container.setWidth("100%");
         return container;
     }
 
-    protected static final void addTitlePart(LayoutContainer container, final String text)
+    public static final void addTitlePart(LayoutContainer container, final String text)
     {
         final Html html = new Html(text);
         html.setStyleName("cifex-heading");

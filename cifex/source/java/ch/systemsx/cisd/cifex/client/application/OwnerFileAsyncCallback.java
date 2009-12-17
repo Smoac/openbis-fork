@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.page.AbstractMainPageTabController;
 import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 
 final class OwnerFileAsyncCallback extends AbstractAsyncCallback<List<OwnerFileInfoDTO>>
@@ -62,8 +63,8 @@ final class OwnerFileAsyncCallback extends AbstractAsyncCallback<List<OwnerFileI
         {
             widget = createNoFilesLabel(messageResources);
         }
-        final LayoutContainer verticalPanel = AbstractFileListPage.createContainer();
-        AbstractFileListPage.addTitlePart(verticalPanel, createFileGridTitle());
+        final LayoutContainer verticalPanel = AbstractMainPageTabController.createContainer();
+        AbstractMainPageTabController.addTitlePart(verticalPanel, createFileGridTitle());
         verticalPanel.add(widget);
 
         contentPanel.add(verticalPanel);

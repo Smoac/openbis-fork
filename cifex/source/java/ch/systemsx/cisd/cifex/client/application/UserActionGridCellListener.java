@@ -37,7 +37,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 /**
  * The <code>GridCellListenerAdapter</code> for users grid.
  * <p>
- * This is used on {@link AdminMainPage}.
+ * This is used on AdminTabController.
  * </p>
  * 
  * @author Christian Ribeaud

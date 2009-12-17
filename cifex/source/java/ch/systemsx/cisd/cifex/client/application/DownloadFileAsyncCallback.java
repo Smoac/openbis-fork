@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.page.AbstractMainPageTabController;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
@@ -59,8 +60,8 @@ final class DownloadFileAsyncCallback extends AbstractAsyncCallback<List<FileInf
         {
             widget = createNoFilesLabel(messageResources);
         }
-        final LayoutContainer verticalPanel = AbstractFileListPage.createContainer();
-        AbstractFileListPage.addTitlePart(verticalPanel, createFileGridTitle());
+        final LayoutContainer verticalPanel = AbstractMainPageTabController.createContainer();
+        AbstractMainPageTabController.addTitlePart(verticalPanel, createFileGridTitle());
         verticalPanel.add(widget);
 
         addWebStartDownloadClientLink(messageResources, verticalPanel);
@@ -72,7 +73,7 @@ final class DownloadFileAsyncCallback extends AbstractAsyncCallback<List<FileInf
     private void addWebStartDownloadClientLink(IMessageResources messageResources,
             final LayoutContainer verticalPanel)
     {
-        AbstractFileListPage.addTitlePart(verticalPanel, messageResources
+        AbstractMainPageTabController.addTitlePart(verticalPanel, messageResources
                 .getDownloadFilesPartTitleGreater2GB());
         String webStartLink = messageResources.getDownloadFilesHelpJavaDownloaderLink();
         String webStartTitle = messageResources.getDownloadFilesHelpJavaDownloaderTitle();
