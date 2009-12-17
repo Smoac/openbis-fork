@@ -263,13 +263,10 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         File[] transferedFiles = transferDropBox.listFiles();
         assertEquals(1, transferedFiles.length);
-        String sampleName =
-                SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING + "2";
+        String sampleName = SAMPLE_CODE + "_2";
         assertEquals("G2_" + sampleName, transferedFiles[0].getName());
         File metaFile = getFile(transferedFiles[0], FlowLaneFeeder.META_DATA_FILE_TYPE);
-        String myFileName =
-                asFileName(sampleName + "_" + EXTERNAL_SAMPLE_NAME
-                        + FlowLaneFeeder.META_DATA_FILE_TYPE);
+        String myFileName = asFileName(sampleName + FlowLaneFeeder.META_DATA_FILE_TYPE);
         assertEquals(myFileName, metaFile.getName());
         assertHardLinkOnSameFile(originalFlowLane2, getFile(transferedFiles[0], "2.srf"));
 
@@ -306,12 +303,11 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         File[] transferedFiles = transferDropBox.listFiles();
         assertEquals(1, transferedFiles.length);
-        String sampleName =
-                SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING + "2";
+        String sampleName = SAMPLE_CODE + "_2";
         assertEquals("G2_" + sampleName, transferedFiles[0].getName());
         File metaFile = getFile(transferedFiles[0], FlowLaneFeeder.META_DATA_FILE_TYPE);
-        assertEquals(asFileName(sampleName + "_" + EXTERNAL_SAMPLE_NAME
-                + FlowLaneFeeder.META_DATA_FILE_TYPE), metaFile.getName());
+        assertEquals(asFileName(sampleName + FlowLaneFeeder.META_DATA_FILE_TYPE), metaFile
+                .getName());
         List<String> metaData = FileUtilities.loadToStringList(metaFile);
         String lastLine = metaData.remove(metaData.size() - 1);
         assertEquals("[Parent\tnull, Code\tfc:2, Contact Person Email\tab@c.de, "
@@ -460,9 +456,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     private void checkFlowLaneDataSet(File originalFlowLane, String flowLaneNumber)
     {
         File dropBox = new File(workingDirectory, DROP_BOX_PREFIX + flowLaneNumber);
-        String flowLaneSampleCode =
-                SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING
-                        + flowLaneNumber;
+        String flowLaneSampleCode = SAMPLE_CODE + "_" + flowLaneNumber;
         String fileName =
                 "G" + flowLaneNumber + FlowLaneFeeder.DEFAULT_ENTITY_SEPARATOR + flowLaneSampleCode;
         File ds = new File(dropBox, fileName);
@@ -473,9 +467,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         assertEquals(FileUtilities.loadToString(originalFlowLane), FileUtilities
                 .loadToString(flowLane));
         assertHardLinkOnSameFile(originalFlowLane, flowLane);
-        String metaDataFileName =
-                flowLaneSampleCode + (flowLaneNumber.equals("2") ? "_" + EXTERNAL_SAMPLE_NAME : "")
-                        + FlowLaneFeeder.META_DATA_FILE_TYPE;
+        String metaDataFileName = flowLaneSampleCode + FlowLaneFeeder.META_DATA_FILE_TYPE;
         metaDataFileName = asFileName(metaDataFileName);
         assertEquals(true, new File(ds, metaDataFileName).exists());
         assertEquals(true, new File(dropBox, Constants.IS_FINISHED_PREFIX + fileName).exists());
@@ -492,8 +484,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     private Sample createFlowLaneSample(int flowLaneNumber)
     {
         Sample sample = new Sample();
-        sample.setCode(SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING
-                + flowLaneNumber);
+        sample.setCode(SAMPLE_CODE + ":" + flowLaneNumber);
         Group group = new Group();
         group.setCode("G" + flowLaneNumber);
         sample.setGroup(group);
@@ -502,8 +493,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         Person registrator = new Person();
         registrator.setEmail("ab@c.de");
         sample.setRegistrator(registrator);
-        sample.setIdentifier(SAMPLE_CODE + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING
-                + flowLaneNumber);
+        sample.setIdentifier(SAMPLE_CODE + ":" + flowLaneNumber);
         return sample;
     }
 

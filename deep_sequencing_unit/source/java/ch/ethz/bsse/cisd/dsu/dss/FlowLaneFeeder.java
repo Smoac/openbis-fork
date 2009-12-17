@@ -160,7 +160,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             File dropBox = createDropBoxFile(flowLane);
             String fileName =
                     flowLaneSample.getGroup().getCode() + entitySepaparator + flowcellID
-                            + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING + flowLane;
+                            + entitySepaparator + flowLane;
             File flowLaneDataSet = new File(dropBox, fileName);
             if (flowLaneDataSet.exists())
             {
