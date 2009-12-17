@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
@@ -90,6 +91,9 @@ public class LoginWidget extends VerticalPanel
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
+                    // Need the sumbit so Firefox knows that it can remember the password
+                    // information.
+                    formPanel.submit();
                     doLogin(context);
                 }
             });
@@ -210,6 +214,7 @@ public class LoginWidget extends VerticalPanel
         formPanel.setFieldWidth(130);
         formPanel.setWidth(250);
         formPanel.setButtonAlign(HorizontalAlignment.RIGHT);
+        formPanel.setMethod(Method.POST);
         return formPanel;
     }
 
