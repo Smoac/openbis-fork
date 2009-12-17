@@ -33,9 +33,11 @@
 package ch.systemsx.cisd.cifex.client.application.page;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -75,14 +77,11 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
         inviteTab = new InviteTabController(this.context);
 
         shareTabItem =
-                createTabItem(context.getMessageResources().getShareViewLinkLabel(), shareTab
-                        .getWidget());
+                createTabItem(context.getMessageResources().getShareViewLinkLabel(), shareTab);
         inboxTabItem =
-                createTabItem(context.getMessageResources().getInboxViewLinkLabel(), inboxTab
-                        .getWidget());
+                createTabItem(context.getMessageResources().getInboxViewLinkLabel(), inboxTab);
         inviteTabItem =
-                createTabItem(context.getMessageResources().getInviteViewLinkLabel(), inviteTab
-                        .getWidget());
+                createTabItem(context.getMessageResources().getInviteViewLinkLabel(), inviteTab);
 
         // Only create an admin tab if the user can access it
         final UserInfoDTO user = context.getModel().getUser();
@@ -91,7 +90,7 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
             adminTabOrNull = new AdminTabController(this.context);
             adminTabItemOrNull =
                     createTabItem(context.getMessageResources().getAdminViewLinkLabel(),
-                            adminTabOrNull.getWidget());
+                            adminTabOrNull);
         } else
         {
             adminTabOrNull = null;
@@ -141,13 +140,22 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
         tabPanel.ensureDebugId("cifex-tabpanel");
     }
 
-    private TabItem createTabItem(String name, Widget widget)
+    private TabItem createTabItem(String name, final AbstractMainPageTabController tabController)
     {
         final TabItem tabItem = new TabItem(name);
         tabItem.setClosable(false);
-        tabItem.add(widget);
+        tabItem.add(tabController.getWidget());
         tabItem.setScrollMode(Scroll.AUTO);
         tabItem.setSize("100%", "100%");
+        tabItem.addListener(Events.Select, new Listener<TabPanelEvent>()
+            {
+
+                public void handleEvent(TabPanelEvent be)
+                {
+                    context.getPageController().setCurrentPage(tabController.getPageIdentifier());
+
+                }
+            });
         return tabItem;
     }
 }

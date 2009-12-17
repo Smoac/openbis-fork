@@ -54,7 +54,7 @@ public final class SettingsDialogController extends AbstractDialogController
                         {
                             // Now we can hide the dialog
                             dialog.hide();
-                            
+
                             // Force a refresh of the entire UI
                             context.getPageController().refreshMainPage();
                         }
@@ -80,21 +80,25 @@ public final class SettingsDialogController extends AbstractDialogController
         dialog.setHeight(DefaultLayoutDialog.DEFAULT_HEIGHT);
         dialog.setClosable(true);
         dialog.setScrollMode(Scroll.AUTO);
-        dialog.setButtons(Dialog.OKCANCEL);
+        dialog.setButtons(Dialog.CLOSE);
 
         // Add handlers for the OK and Cancel buttons
-
-        Button okButton = dialog.getButtonById(Dialog.OK);
+        // Add the OK button
+        final Button okButton = new Button(editUserWidget.getSubmitButtonLabel());
+        okButton.setId(Dialog.OK);
         okButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
+
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
                     editUserWidget.submitForm();
                 }
             });
+        dialog.addButton(okButton);
 
-        Button cancelButton = dialog.getButtonById(Dialog.CANCEL);
+        Button cancelButton = dialog.getButtonById(Dialog.CLOSE);
+        cancelButton.setText(context.getMessageResources().getDialogCloseButtonLabel());
         cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
