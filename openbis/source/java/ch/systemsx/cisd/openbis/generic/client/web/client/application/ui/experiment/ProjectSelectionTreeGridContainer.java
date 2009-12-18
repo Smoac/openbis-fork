@@ -430,6 +430,29 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
             return project.getCode() + " (" + project.getGroup().getCode() + ")";
         }
 
+        // equals is needed because of weird TreeGrid implementation in GXT
+        // to be able to selection of previously selected project after refresh of the tree
+        // #selectByIdentifierIfPossible()
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj == this)
+            {
+                return true;
+            }
+            if (obj instanceof ProjectItemModel == false)
+            {
+                return false;
+            }
+            final ProjectItemModel that = (ProjectItemModel) obj;
+            return this.getIdentifier().equals(that.getIdentifier());
+        }
+
+        private String getIdentifier()
+        {
+            return get(ModelDataPropertyNames.PROJECT_IDENTIFIER);
+        }
+
     }
 
     private static class GroupItemModel extends BaseModelDataWithCode
