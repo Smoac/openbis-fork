@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -89,7 +91,11 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     private SelectionChangedListener<?> selectionChangedListener;
 
+    private Widget selectedProjectLinkOrNull;
+
     private final TreeGrid<ModelData> tree;
+
+    private final Map<Project, Widget> projectLinks = new HashMap<Project, Widget>();
 
     public ProjectSelectionTreeGridContainer(final IViewContext<?> viewContext)
     {
@@ -133,12 +139,24 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                         @Override
                         public void selectionChanged(SelectionChangedEvent<ModelData> se)
                         {
+                            if (selectedProjectLinkOrNull != null)
+                            {
+                                selectedProjectLinkOrNull.setVisible(false);
+                                selectedProjectLinkOrNull = null;
+                            }
+
                             ModelData selected = se.getSelectedItem();
+
                             if (selected != null && tree.isLeaf(selected))
                             {
                                 selectedProjectOrNull =
                                         (Project) selected.get(ModelDataPropertyNames.OBJECT);
                                 getSelectionChangedListener().handleEvent(null);
+                                selectedProjectLinkOrNull = projectLinks.get(selectedProjectOrNull);
+                                if (selectedProjectLinkOrNull != null)
+                                {
+                                    selectedProjectLinkOrNull.setVisible(true);
+                                }
                             }
                         }
                     });
@@ -196,8 +214,10 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                     detailsLink.setTitle(viewContext
                             .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP));
                     detailsLink.removeStyleName("inline");
+                    projectLinks.put(project, detailsLink);
 
-                    final FlowPanel panel = new FlowPanelWithLinkAppearingOnMouseOver(detailsLink);
+                    final FlowPanel panel =
+                            new FlowPanelWithLinkAppearingOnMouseOver(project, detailsLink);
                     panel.setTitle(project.getDescription());
                     panel.add(new InlineHTML(project.getCode() + " "));
                     panel.add(detailsLink);
@@ -207,14 +227,25 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                 class FlowPanelWithLinkAppearingOnMouseOver extends FlowPanel
                 {
 
+                    private final Project project;
+
                     private final Widget link;
 
-                    public FlowPanelWithLinkAppearingOnMouseOver(Widget link)
+                    public FlowPanelWithLinkAppearingOnMouseOver(Project project, Widget link)
                     {
                         super();
+                        this.project = project;
                         this.link = link;
                         sinkEvents(Event.ONMOUSEOVER | Event.ONMOUSEOUT);
-                        link.setVisible(false);
+                        if (isProjectSelected() == false)
+                        {
+                            link.setVisible(false);
+                        }
+                    }
+
+                    private boolean isProjectSelected()
+                    {
+                        return project.equals(selectedProjectOrNull);
                     }
 
                     @Override
@@ -236,7 +267,10 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                                     return;
                                 }
                                 // this is the only part different from FlowPanel
-                                link.setVisible(DOM.eventGetType(event) == Event.ONMOUSEOVER);
+                                if (isProjectSelected() == false)
+                                {
+                                    link.setVisible(DOM.eventGetType(event) == Event.ONMOUSEOVER);
+                                }
                                 //
                                 break;
                         }
@@ -296,6 +330,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
     private void clearTree()
     {
+        projectLinks.clear();
         tree.getStore().removeAll();
     }
 
