@@ -227,6 +227,18 @@ public abstract class Dict
 
     public static final String EXPERIMENT_TYPE = "experiment_type";
 
+    public static final String PROJECT_SELECTOR_TITLE = "project_selector_title";
+
+    public static final String PROJECT_SELECTOR_TOOLTIP = "project_selector_tooltip";
+
+    public static final String PROJECT_SELECTOR_CODE_COLUMN = "project_selector_code_column";
+
+    public static final String PROJECT_SELECTOR_DETAILS_LINK_LABEL =
+            "project_selector_details_link_label";
+
+    public static final String PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP =
+            "project_selector_details_link_tooltip";
+
     //
     // Dataset Browser
     //

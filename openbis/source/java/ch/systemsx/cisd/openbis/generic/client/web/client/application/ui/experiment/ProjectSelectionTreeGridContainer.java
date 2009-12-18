@@ -102,7 +102,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
         ContentPanel cp = new ContentPanel();
         cp.setBodyBorder(false);
-        cp.setHeading("Project Selection");
+        cp.setHeading(viewContext.getMessage(Dict.PROJECT_SELECTOR_TITLE));
         cp.setLayout(new FitLayout());
         cp.add(tree);
         add(cp);
@@ -121,9 +121,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         treeGrid.getTreeView().setForceFit(true);
         treeGrid.getTreeView().setSortingEnabled(false);
         treeGrid.getTreeView().setRowHeight(32);
-        treeGrid
-                .setTitle("- Click on a row with project code to select it.\n"
-                        + "- If Group/Project description is available it will show up in a tooltip when you mouse over their codes.");
+        treeGrid.setTitle(viewContext.getMessage(Dict.PROJECT_SELECTOR_TOOLTIP));
         // switchOffFolderIcons
         treeGrid.getStyle().setNodeCloseIcon(null);
         treeGrid.getStyle().setNodeOpenIcon(null);
@@ -150,7 +148,9 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     private ColumnConfig createCodeColumn()
     {
         final ColumnConfig columnConfig =
-                new ColumnConfig(ModelDataPropertyNames.CODE, "Group/Project Code", 1);
+                new ColumnConfig(ModelDataPropertyNames.CODE, viewContext
+                        .getMessage(Dict.PROJECT_SELECTOR_CODE_COLUMN), 1);
+
         columnConfig.setRenderer(new WidgetTreeGridCellRenderer<ModelData>()
             {
                 @Override
@@ -182,16 +182,19 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                     final Project project = (Project) model.get(ModelDataPropertyNames.OBJECT);
 
                     final Widget detailsLink =
-                            LinkRenderer.getLinkWidget("(details)", new ClickHandler()
-                                {
+                            LinkRenderer.getLinkWidget(viewContext
+                                    .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_LABEL),
+                                    new ClickHandler()
+                                        {
 
-                                    public void onClick(ClickEvent event)
-                                    {
-                                        showProjectDetailsView(project);
-                                    }
+                                            public void onClick(ClickEvent event)
+                                            {
+                                                showProjectDetailsView(project);
+                                            }
 
-                                });
-                    detailsLink.setTitle("Click on the link to show project details in a viewer.");
+                                        });
+                    detailsLink.setTitle(viewContext
+                            .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP));
                     detailsLink.removeStyleName("inline");
 
                     final FlowPanel panel = new FlowPanelWithLinkAppearingOnMouseOver(detailsLink);
