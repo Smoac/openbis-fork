@@ -21,9 +21,9 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.ListBox;
@@ -125,25 +125,38 @@ public final class GWTUtils
     /**
      * Selects given <var>value</var> of given <var>tree</var>.
      */
-    public final static void setSelectedItem(final TreePanel<ModelData> tree,
-            final String property, final String value)
+    public final static void setSelectedItem(final TreeGrid<ModelData> tree, final String property,
+            final String value)
     {
-        ModelData model = tryFindModel(tree, property, value);
+        ModelData model = tryFindModel(tree.getTreeStore().getAllItems(), property, value);
         if (model != null)
         {
             tree.getSelectionModel().select(model, false);
         }
     }
 
-    /** @return specified item from the tree if it's found, null otherwise */
-    public final static ModelData tryFindModel(final TreePanel<ModelData> tree,
+    /**
+     * Selects given <var>value</var> of given <var>tree</var>.
+     */
+    public final static void setSelectedItem(final TreePanel<ModelData> tree,
             final String property, final String value)
     {
-        assert tree != null : "Unspecified tree.";
+        ModelData model = tryFindModel(tree.getStore().getAllItems(), property, value);
+        if (model != null)
+        {
+            tree.getSelectionModel().select(model, false);
+        }
+    }
+
+    /** @return specified model from the list if it's found, null otherwise */
+    public final static ModelData tryFindModel(final List<ModelData> models, final String property,
+            final String value)
+    {
+        assert models != null : "Unspecified models.";
         assert property != null : "Unspecified model property.";
         assert value != null : "Unspecified model property value.";
-        TreeStore<ModelData> items = tree.getStore();
-        for (ModelData model : items.getAllItems())
+
+        for (ModelData model : models)
         {
             if (model != null)
             {

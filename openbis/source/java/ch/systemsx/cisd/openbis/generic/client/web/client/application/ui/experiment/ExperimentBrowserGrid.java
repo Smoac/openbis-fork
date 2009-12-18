@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
@@ -88,8 +87,8 @@ public class ExperimentBrowserGrid extends
     public static DisposableEntityChooser<Experiment> createChooser(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final ProjectSelectionTreeWidget tree = new ProjectSelectionTreeWidget(viewContext);
-        final SingleSectionPanel treeSection = new ProjectSelectionSection(tree);
+        final ProjectSelectionTreeGridContainer tree =
+                new ProjectSelectionTreeGridContainer(viewContext);
         final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, tree);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar)
             {
@@ -100,20 +99,20 @@ public class ExperimentBrowserGrid extends
                 }
             };
         browserGrid.addGridRefreshListener(toolbar);
-        return browserGrid.asDisposableWithToolbarAndTree(toolbar, treeSection);
+        return browserGrid.asDisposableWithToolbarAndTree(toolbar, tree);
     }
 
     /** Create a grid with the toolbar and a tree. */
     public static DisposableEntityChooser<Experiment> create(
             final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        final ProjectSelectionTreeWidget tree = new ProjectSelectionTreeWidget(viewContext);
-        final SingleSectionPanel treeSection = new ProjectSelectionSection(tree);
+        final ProjectSelectionTreeGridContainer tree =
+                new ProjectSelectionTreeGridContainer(viewContext);
         final ExperimentBrowserToolbar toolbar = new ExperimentBrowserToolbar(viewContext, tree);
         final ExperimentBrowserGrid browserGrid = new ExperimentBrowserGrid(viewContext, toolbar);
         browserGrid.addGridRefreshListener(toolbar);
         browserGrid.extendBottomToolbar();
-        return browserGrid.asDisposableWithToolbarAndTree(toolbar, treeSection);
+        return browserGrid.asDisposableWithToolbarAndTree(toolbar, tree);
     }
 
     private final ICriteriaProvider<ListExperimentsCriteria> criteriaProvider;

@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment;
 
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ExperimentTypeModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
@@ -46,11 +48,12 @@ public class ListExperiments extends AbstractDefaultTestCommand
     // AbstractDefaultTestCommand
     //
 
+    @SuppressWarnings("unchecked")
     public void execute()
     {
-        final ProjectSelectionTreeWidget projectSelector =
-                (ProjectSelectionTreeWidget) GWTTestUtil
-                        .getWidgetWithID(ProjectSelectionTreeWidget.ID);
+        final TreeGrid<ModelData> projectSelector =
+                (TreeGrid<ModelData>) GWTTestUtil
+                        .getWidgetWithID(ProjectSelectionTreeGridContainer.ID);
 
         final ComboBox<ExperimentTypeModel> experimentTypeSelector =
                 (ExperimentTypeSelectionWidget) GWTTestUtil
@@ -62,7 +65,8 @@ public class ListExperiments extends AbstractDefaultTestCommand
         GWTUtils.unselect(experimentTypeSelector);
 
         GWTUtils.setSelectedItem(projectSelector,
-                ProjectSelectionTreeWidget.PROJECT_WITH_GROUP_CODE, projectCodeOrNull);
+                ProjectSelectionTreeGridContainer.PROJECT_WITH_GROUP_CODE, projectCodeOrNull);
+
         GWTUtils.setSelectedItem(experimentTypeSelector, ModelDataPropertyNames.CODE,
                 experimentTypeNameOrNull);
     }
