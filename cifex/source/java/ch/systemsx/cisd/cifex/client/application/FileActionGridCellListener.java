@@ -140,23 +140,27 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
     private final class ShowUsersFileSharedWithAsyncCallback extends
             AbstractAsyncCallback<List<UserInfoDTO>>
     {
+        private final GridWidget<AbstractFileGridModel> grid;
 
         final String fileName;
 
         final long fileId;
 
-        ShowUsersFileSharedWithAsyncCallback(final String name, final long id)
+        ShowUsersFileSharedWithAsyncCallback(final String name, final long id,
+                final GridWidget<AbstractFileGridModel> grid)
         {
             super(viewContext);
             this.fileName = name;
             this.fileId = id;
+            this.grid = grid;
         }
 
         public final void onSuccess(final List<UserInfoDTO> result)
         {
             final List<UserInfoDTO> users = result;
             final FileShareUpdateUserDialog dialog =
-                    new FileShareUpdateUserDialog(viewContext, users, fileName, fileId);
+                    new FileShareUpdateUserDialog(viewContext, users, fileName, fileId,
+                            createUpdateFilesCallback(grid, getViewContext()));
             dialog.show();
 
         }
@@ -211,22 +215,22 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
             {
                 // Edit User
                 viewContext.getCifexService().getFile(id,
-                        new FindFileAsyncCallback(viewContext, gridWidget));
+                        new EditFileAsyncCallback(viewContext, gridWidget));
             }
             // Shared
             if (Constants.SHARED_ID.equals(targetId))
             {
                 viewContext.getCifexService().listUsersFileSharedWith(id,
-                        new ShowUsersFileSharedWithAsyncCallback(name, id));
+                        new ShowUsersFileSharedWithAsyncCallback(name, id, gridWidget));
             }
         }
     }
 
-    private final class FindFileAsyncCallback extends AbstractAsyncCallback<FileInfoDTO>
+    private final class EditFileAsyncCallback extends AbstractAsyncCallback<FileInfoDTO>
     {
         private final GridWidget<AbstractFileGridModel> grid;
 
-        public FindFileAsyncCallback(final ViewContext context,
+        public EditFileAsyncCallback(final ViewContext context,
                 final GridWidget<AbstractFileGridModel> grid)
         {
             super(context);

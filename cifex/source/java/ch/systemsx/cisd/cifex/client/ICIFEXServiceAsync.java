@@ -163,13 +163,12 @@ public interface ICIFEXServiceAsync
     public void listUsersFileSharedWith(long fileId,
             AsyncCallback<List<UserInfoDTO>> showUsersFileSharedWithAsyncCallback);
 
-    /** Revokes user with given userCode access to file with fileId. */
-    public void deleteSharingLink(long fileId, String userCode, AsyncCallback<Void> callback);
-
     /**
-     * Creates a sharing link between file and users.
+     * Updates the sharing links for file <var>fileId</var>, adding the users in
+     * <var>usersToAdd</var> and removing the users in <var>usersToRemove</var>.
      */
-    public void createSharingLink(long fileId, String emailsOfUsers, AsyncCallback<Void> callback);
+    public void updateSharingLinks(long fileId, List<String> usersToAdd,
+            List<String> usersToRemove, AsyncCallback<Void> callback);
 
     /**
      * Try to change user type from internally authenticated to externally authenticated.

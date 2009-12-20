@@ -139,12 +139,12 @@ public interface ICIFEXService extends RemoteService
             EnvironmentFailureException;
 
     /**
-     * Revokes user with given userCode access to file with fileId.
-     * 
-     * @throws InvalidSessionException, InsufficientPrivilegesException
+     * Updates the sharing links for file <var>fileId</var>, adding the users in
+     * <var>usersToAdd</var> and removing the users in <var>usersToRemove</var>.
      */
-    public void deleteSharingLink(long file, String userCode) throws InvalidSessionException,
-            InsufficientPrivilegesException, FileNotFoundException;
+    public void updateSharingLinks(long fileId, List<String> usersToAdd, List<String> usersToRemove)
+            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
+            UserFailureException;
 
     /**
      * Tries to delete the user given by its user <var>userCode</var>.
@@ -221,14 +221,6 @@ public interface ICIFEXService extends RemoteService
     public void updateFileUserData(final long fileId, final String name,
             final String commentOrNull, final Date expirationDate) throws InvalidSessionException,
             InsufficientPrivilegesException;
-
-    /**
-     * Creates a sharing link between file and users. The user identifyer can either be a email
-     * addess (which can be ambiguous) or a usercode (specified with the prefix 'id:')
-     */
-    public void createSharingLink(final long fileId, final String userIdentifier)
-            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
-            UserFailureException;
 
     /**
      * Try to change user type from internally authenticated to externally authenticated.

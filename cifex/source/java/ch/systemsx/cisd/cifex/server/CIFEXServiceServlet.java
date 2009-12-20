@@ -222,19 +222,11 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsersFileSharedWith(fileId);
     }
 
-    public void deleteSharingLink(final long file, final String userCode)
-            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
+    public void updateSharingLinks(long fileId, List<String> usersToAdd, List<String> usersToRemove)
+            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
+            UserFailureException
     {
-        cifexServiceDelegate.deleteSharingLink(file, userCode);
-
-    }
-
-    public void createSharingLink(final long fileId, final String emailsOfUsers)
-            throws UserFailureException, InvalidSessionException, InsufficientPrivilegesException,
-            FileNotFoundException
-    {
-
-        cifexServiceDelegate.createSharingLink(fileId, emailsOfUsers);
+        cifexServiceDelegate.updateSharingLinks(fileId, usersToAdd, usersToRemove);
     }
 
     public void changeUserCode(final String before, final String after)

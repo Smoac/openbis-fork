@@ -22,6 +22,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.cifex.client.application.model.FileShareUserGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
@@ -39,29 +40,34 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
 
     private final List<String> usersToRemove = new ArrayList<String>();
 
+    private final AsyncCallback<Void> refreshCallback;
+
     private final long fileId;
 
     public FileShareUpdateUserDialog(final ViewContext context,
             final List<UserInfoDTO> existingUsers, final List<UserInfoDTO> newUsers,
-            final String name, final long fileId)
+            final String name, final long fileId, final AsyncCallback<Void> refreshCallback)
     {
         super(context, existingUsers, newUsers, name);
         initialSharingUsers = new ArrayList<UserInfoDTO>(existingUsers);
+        this.refreshCallback = refreshCallback;
         createUpdateButton();
         this.fileId = fileId;
     }
 
     public FileShareUpdateUserDialog(final ViewContext context, List<UserInfoDTO> existingUsers,
-            String name, long fileId)
+            String name, long fileId, final AsyncCallback<Void> refreshCallback)
     {
-        this(context, existingUsers, new ArrayList<UserInfoDTO>(), name, fileId);
+        this(context, existingUsers, new ArrayList<UserInfoDTO>(), name, fileId, refreshCallback);
     }
 
     public FileShareUpdateUserDialog(final ViewContext context, final UserInfoDTO[] existingUsers,
-            final UserInfoDTO[] newUsers, final String name, final long fileId)
+            final UserInfoDTO[] newUsers, final String name, final long fileId,
+            final AsyncCallback<Void> refreshCallback)
     {
         super(context, existingUsers, newUsers, name);
         initialSharingUsers = getArrayList(existingUsers);
+        this.refreshCallback = refreshCallback;
         createUpdateButton();
         this.fileId = fileId;
     }
@@ -153,32 +159,8 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
                 @Override
                 public void componentSelected(ButtonEvent ce)
                 {
-                    for (int i = 0; i < usersToRemove.size(); i++)
-                    {
-                        viewContext.getCifexService().deleteSharingLink(fileId,
-                                usersToRemove.get(i), new AbstractAsyncCallback<Void>(viewContext)
-                                    {
-
-                                        public void onSuccess(Void result)
-                                        {
-                                            // Do nothing, everything went fine.
-                                        }
-
-                                    });
-                    }
-                    for (int i = 0; i < usersToAdd.size(); i++)
-                    {
-                        viewContext.getCifexService().createSharingLink(fileId, usersToAdd.get(i),
-                                new AbstractAsyncCallback<Void>(viewContext)
-                                    {
-
-                                        public void onSuccess(Void result)
-                                        {
-                                            // Do nothing, everything went fine.
-                                        }
-
-                                    });
-                    }
+                    viewContext.getCifexService().updateSharingLinks(fileId, usersToAdd,
+                            usersToRemove, refreshCallback);
                     hide();
                 }
             });

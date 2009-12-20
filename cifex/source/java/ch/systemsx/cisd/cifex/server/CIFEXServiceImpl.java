@@ -699,7 +699,21 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(UserInfoDTO.class, users, null);
     }
 
-    public void deleteSharingLink(final long fileId, final String userCode)
+    public void updateSharingLinks(long fileId, List<String> usersToAdd, List<String> usersToRemove)
+            throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
+            UserFailureException
+    {
+        for (String user : usersToAdd)
+        {
+            createSharingLink(fileId, user);
+        }
+        for (String user : usersToRemove)
+        {
+            deleteSharingLink(fileId, user);
+        }
+    }
+
+    private void deleteSharingLink(final long fileId, final String userCode)
             throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException
     {
         final UserDTO requestUser = privGetCurrentUser();
@@ -718,7 +732,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
     }
 
-    public void createSharingLink(final long fileId, final String userIdentifiers)
+    private void createSharingLink(final long fileId, final String userIdentifiers)
             throws UserFailureException, InvalidSessionException, InsufficientPrivilegesException,
             FileNotFoundException
     {
