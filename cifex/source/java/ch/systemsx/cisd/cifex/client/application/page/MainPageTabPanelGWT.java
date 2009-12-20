@@ -48,8 +48,14 @@ public final class MainPageTabPanelGWT extends MainPageTabPanel
         inboxTab = new InboxTabController(this.context);
 
         final UserInfoDTO user = context.getModel().getUser();
-        // Only permanent users can invite other users
-        inviteTabOrNull = (user.isPermanent()) ? new InviteTabController(this.context) : null;
+        // Only create the invite tab if the user is permanent and not an administrator
+        if (user.isPermanent() && user.isAdmin() == false)
+        {
+            inviteTabOrNull = new InviteTabController(this.context);
+        } else
+        {
+            inviteTabOrNull = null;
+        }
 
         // Only create an admin tab if the user can access it
         adminTabOrNull = (user.isAdmin()) ? new AdminTabController(this.context) : null;

@@ -50,7 +50,7 @@ final class PageController implements IPageController, IHistoryController
     /**
      * Configuration option as to which GUI toolkit should be used for the tabs, GWT or GXT.
      */
-    private static boolean USE_GWT_TABS = false;
+    private static final boolean USE_GWT_TABS = false;
 
     final void setViewContext(final ViewContext viewContext)
     {

@@ -82,9 +82,9 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
         inboxTabItem =
                 createTabItem(context.getMessageResources().getInboxViewLinkLabel(), inboxTab);
 
-        // Only create the invite tab if the user is permanent
+        // Only create the invite tab if the user is permanent and not an administrator
         final UserInfoDTO user = context.getModel().getUser();
-        if (user.isPermanent())
+        if (user.isPermanent() && user.isAdmin() == false)
         {
             inviteTabOrNull = new InviteTabController(this.context);
             inviteTabItemOrNull =
