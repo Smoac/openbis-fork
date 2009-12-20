@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.utils;
 
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
@@ -36,6 +38,18 @@ public final class WidgetUtils
     public final static void showMessage(final Message message,
             final IMessageResources messageResources)
     {
+        showMessage(message, messageResources, null);
+    }
+
+    /**
+     * Shows the specified method.
+     * 
+     * @param messageResources Message resources used for getting message box title.
+     */
+    public final static void showMessage(final Message message,
+            final IMessageResources messageResources,
+            final Listener<MessageBoxEvent> eventListenerOrNull)
+    {
         final String type = message.getType();
         String title;
         if (Message.INFO.equals(type))
@@ -48,7 +62,7 @@ public final class WidgetUtils
         {
             title = messageResources.getMessageBoxErrorTitle();
         }
-        MessageBox.alert(title, message.getMessageText(), null);
+        MessageBox.alert(title, message.getMessageText(), eventListenerOrNull);
     }
 
     private WidgetUtils()

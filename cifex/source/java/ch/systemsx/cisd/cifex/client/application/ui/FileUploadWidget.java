@@ -345,7 +345,7 @@ public final class FileUploadWidget extends LayoutContainer
                         {
                             formPanel.submit();
                             context.getCifexService().getFileUploadFeedback(
-                                    new FileUploadFeedbackCallback(context));
+                                    new FileUploadFeedbackCallback(context, submitButton));
                         }
 
                         @Override

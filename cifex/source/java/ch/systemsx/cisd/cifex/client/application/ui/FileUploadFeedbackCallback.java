@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
@@ -41,19 +44,25 @@ final class FileUploadFeedbackCallback extends
 	 * {@link MessageBox#progress(String, String)}).
 	 */
 	private MessageBox messageBox;
+	
+	/**
+	 * The "submit" button to re-enable.
+	 */
+	private Button submitButton;
 
-	FileUploadFeedbackCallback(final ViewContext context) {
-		this(context, null);
+	FileUploadFeedbackCallback(final ViewContext context, Button submitButton) {
+		this(context, null, submitButton);
 	}
 
 	private FileUploadFeedbackCallback(final ViewContext context,
-			final MessageBox initialized) {
+			final MessageBox initialized, Button submitButton) {
 		super(context);
 		this.messageBox = initialized;
+        this.submitButton = submitButton;
 	}
 
 	private final void refreshMainPage() {
-		getViewContext().getPageController().showSharePage();
+        getViewContext().getPageController().refreshMainPage();
 	}
 
 	private final String createUpdateMessage(final FileUploadFeedback feedback) {
@@ -83,10 +92,12 @@ final class FileUploadFeedbackCallback extends
 
 	@Override
 	public final void onFailure(final Throwable caught) {
-		// refresh causes message box with failure message disappear so it needs
-		// to be done first
-		refreshMainPage();
+        if (messageBox != null)
+        {
+            messageBox.close();
+        }
 		super.onFailure(caught);
+        submitButton.enable();
 	}
 
 	public final void onSuccess(final FileUploadFeedback result) {
@@ -95,15 +106,23 @@ final class FileUploadFeedbackCallback extends
 				.getMessageResources();
 		final Message message = feedback.getMessage();
 		if (message != null) {
-			// refresh causes message box with failure message disappear so it
-			// needs to be done first
-			refreshMainPage();
-			WidgetUtils.showMessage(message, messageResources);
+	        if (messageBox != null)
+	        {
+	            messageBox.close();
+	        }
+			WidgetUtils.showMessage(message, messageResources, new Listener<MessageBoxEvent>()
+                {
+                    public void handleEvent(MessageBoxEvent be)
+                    {
+                        submitButton.enable();
+                    }
+                });
 			return;
 		}
 		if (feedback.isFinished()) {
 			messageBox.close();
 			refreshMainPage();
+	        submitButton.enable();
 			return;
 		}
 		if (messageBox == null) {
@@ -116,6 +135,6 @@ final class FileUploadFeedbackCallback extends
 			messageBox.updateText(createUpdateMessage(feedback));
 		}
 		getViewContext().getCifexService().getFileUploadFeedback(
-				new FileUploadFeedbackCallback(getViewContext(), messageBox));
+				new FileUploadFeedbackCallback(getViewContext(), messageBox, submitButton));
 	}
 }
