@@ -37,6 +37,10 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
  */
 public abstract class AbstractUploadDownload implements ICIFEXOperation
 {
+    protected static final int PROGRESS_REPORT_BLOCK_SIZE = 128 * 1024; // 128kB
+
+    protected static final int PROGRESS_UPDATE_MIN_INTERVAL_MILLIS = 1 * 1000; // 1 second 
+    
     protected static final int DEFAULT_BLOCK_SIZE = 8 * 1024 * 1024;
 
     protected static final int MAX_RETRIES = 600;

@@ -113,18 +113,22 @@ public class CIFEXClient
             exitHandler.exit(1);
         } catch (final UserFailureException ex)
         {
+            System.err.println();
             System.err.println(ex.getMessage() + " (user fault)");
             exitHandler.exit(1);
         } catch (final EnvironmentFailureException ex)
         {
+            System.err.println();
             System.err.println(ex.getMessage() + " (environment failure)");
             exitHandler.exit(1);
         } catch (final RemoteConnectFailureException ex)
         {
+            System.err.println();
             System.err.println("Remote server cannot be reached (environment failure)");
             exitHandler.exit(1);
         } catch (final RemoteAccessException ex)
         {
+            System.err.println();
             final Throwable cause = ex.getCause();
             if (cause != null)
             {
@@ -160,6 +164,7 @@ public class CIFEXClient
             exitHandler.exit(1);
         } catch (final Exception e)
         {
+            System.err.println();
             e.printStackTrace();
             exitHandler.exit(1);
         }

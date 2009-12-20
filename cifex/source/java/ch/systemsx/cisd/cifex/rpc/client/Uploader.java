@@ -18,18 +18,21 @@ package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.CRC32;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
+import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream;
+import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.ChecksumHandling;
+import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.IWriteProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
@@ -45,7 +48,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     /**
      * Creates an instance for the specified service and session ID.
      */
-    public Uploader(ICIFEXRPCService service, String sessionID)
+    public Uploader(ICIFEXRPCService service, String sessionID, int dummyBlockSize)
     {
         super(service, sessionID);
     }
@@ -53,9 +56,9 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     /**
      * Creates an instance for the specified service and session ID.
      */
-    public Uploader(ICIFEXRPCService service, String sessionID, int blockSize)
+    public Uploader(ICIFEXRPCService service, String sessionID)
     {
-        super(service, sessionID, blockSize);
+        super(service, sessionID);
     }
 
     /**
@@ -128,66 +131,38 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         {
             inProgress.set(true);
             List<Long> fileIds = new ArrayList<Long>(files.size());
+            RemoteAccessException lastExceptionOrNull = null;
             for (File file : files)
             {
-                try
+                for (int i = 0; i < MAX_RETRIES; ++i)
                 {
-                    final RandomAccessFileProvider fileProvider =
-                            new RandomAccessFileProvider(file, "r");
-                    final long fileSize = file.length();
-                    final FilePreregistrationDTO fileSpecs =
-                            new FilePreregistrationDTO(file.getCanonicalPath(), fileSize);
-                    final CRC32 crc32 = new CRC32();
-                    final FileInfoDTO fileInfoForResumeOrNull =
-                            tryGetFileInfoForResumeUpload(fileProvider, fileSpecs, crc32);
+                    if (cancelled.get())
+                    {
+                        fireFinishedEvent(false);
+                        return;
+                    }
                     try
                     {
-                        fireStartedEvent(file, fileSize);
-                        long filePointer;
-                        final long fileId;
-                        if (fileInfoForResumeOrNull != null)
+                        uploadFile(file, comment, fileIds);
+                        lastExceptionOrNull = null;
+                        break;
+                    } catch (RemoteAccessException ex)
+                    {
+                        if (cancelled.get())
                         {
-                            fileId = fileInfoForResumeOrNull.getID();
-                            filePointer = fileInfoForResumeOrNull.getSize();
-                            service.resumeUploading(sessionID, fileId);
-                        } else
-                        {
-                            fileId = service.startUploading(sessionID, fileSpecs, comment);
-                            filePointer = 0L;
+                            fireFinishedEvent(false);
+                            return;
                         }
-                        fileIds.add(fileId);
-                        fireProgressEvent(filePointer, fileSize);
-                        while (filePointer < fileSize)
-                        {
-                            final int actualBlockSize =
-                                    (int) Math.min(fileSize - filePointer, blockSize);
-                            uploadNextBlock(fileProvider, filePointer, actualBlockSize, crc32);
-                            if (cancelled.get())
-                            {
-                                service.finish(sessionID, false);
-                                fireFinishedEvent(false);
-                                return;
-                            }
-                            filePointer += actualBlockSize;
-                            fireProgressEvent(filePointer, fileSize);
-                        }
-                    } finally
-                    {
-                        fileProvider.closeFile();
+                        lastExceptionOrNull = ex;
+                        fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName() + ": "
+                                + ex.getMessage() + ", will retry upload soon...");
+                        sleepAfterFailure();
                     }
-                    fireUploadedEvent();
-                    service.finish(sessionID, true);
-                } catch (Throwable th1)
-                {
-                    try
-                    {
-                        service.finish(sessionID, false);
-                    } catch (Throwable th2)
-                    {
-                        // Nothing we can do here.
-                    }
-                    throw CheckedExceptionTunnel.wrapIfNecessary(th1);
                 }
+            }
+            if (lastExceptionOrNull != null)
+            {
+                throw lastExceptionOrNull;
             }
             if (recipientsOrNull != null && recipientsOrNull.trim().length() > 0)
             {
@@ -196,6 +171,11 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
             fireFinishedEvent(true);
         } catch (Throwable th2)
         {
+            if (th2 instanceof InterruptedExceptionUnchecked)
+            {
+                fireFinishedEvent(false);
+                return;
+            }
             fireExceptionEvent(th2 instanceof Exception ? CheckedExceptionTunnel
                     .unwrapIfNecessary((Exception) th2) : th2);
             fireFinishedEvent(false);
@@ -207,62 +187,86 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         }
     }
 
-    private FileInfoDTO tryGetFileInfoForResumeUpload(final RandomAccessFileProvider fileProvider,
-            final FilePreregistrationDTO fileSpecs, final CRC32 crc32) throws IOException
+    private void uploadFile(File file, String comment, List<Long> fileIds) throws IOException
+    {
+        final long fileSize = file.length();
+        final FilePreregistrationDTO fileSpecs =
+                new FilePreregistrationDTO(file.getCanonicalPath(), fileSize);
+        ResumingAndChecksummingInputStream contentStream = null;
+        try
+        {
+            fireStartedEvent(file, fileSize);
+            contentStream =
+                    new ResumingAndChecksummingInputStream(file,
+                            PROGRESS_REPORT_BLOCK_SIZE, new IWriteProgressListener()
+                                {
+                                    long lastUpdated = System.currentTimeMillis();
+
+                                    public void update(long bytesRead, int crc32Value)
+                                    {
+                                        if (cancelled.get())
+                                        {
+                                            throw new InterruptedExceptionUnchecked();
+                                        }
+                                        final long now = System.currentTimeMillis();
+                                        if (now - lastUpdated > PROGRESS_UPDATE_MIN_INTERVAL_MILLIS
+                                                || bytesRead == fileSize)
+                                        {
+                                            fireProgressEvent(bytesRead, fileSize);
+                                            lastUpdated = now;
+                                        }
+                                    }
+                                }, ChecksumHandling.COMPUTE_AND_APPEND);
+            final FileInfoDTO resumeFileInfoOrNull =
+                    tryGetFileInfoForResumeUpload(contentStream, fileSpecs);
+            final long fileId;
+            if (resumeFileInfoOrNull != null)
+            {
+                fireProgressEvent(resumeFileInfoOrNull.getSize(), fileSize);
+                service.resumeUpload(sessionID, resumeFileInfoOrNull.getID(),
+                        resumeFileInfoOrNull.getSize(), comment, contentStream);
+                fileId = resumeFileInfoOrNull.getID();
+            } else
+            {
+                fireProgressEvent(0L, fileSize);
+                fileId = service.upload(sessionID, fileSpecs, comment, contentStream);
+            }
+            fileIds.add(fileId);
+            if (fileSize != file.length())
+            {
+                // File size has changed during upload
+                service.deleteFile(sessionID, fileId);
+                throw EnvironmentFailureException.fromTemplate(
+                        "File size has changed during upload [expected: %d, found: %d]",
+                        fileSize, file.length());
+            }
+        } finally
+        {
+            IOUtils.closeQuietly(contentStream);
+        }
+        fireUploadedEvent();
+    }
+
+    private FileInfoDTO tryGetFileInfoForResumeUpload(
+            final ResumingAndChecksummingInputStream contentStream,
+            final FilePreregistrationDTO fileSpecs) throws IOException
     {
         final FileInfoDTO uploadCandidateOrNull =
                 service.tryGetUploadResumeCandidate(sessionID, fileSpecs);
-        if (uploadCandidateOrNull != null)
+        if (uploadCandidateOrNull != null
+                && uploadCandidateOrNull.getSize() <= contentStream.getLength())
         {
             // Verify the checksum of the candidate
-            final int runningCrc32Value =
-                    calculateCRC32(fileProvider.getRandomAccessFile(), crc32, uploadCandidateOrNull
-                            .getSize());
-            if (runningCrc32Value == uploadCandidateOrNull.getCrc32Value())
+            contentStream.setStartPos(uploadCandidateOrNull.getSize());
+            if (contentStream.getCrc32Value() == uploadCandidateOrNull.getCrc32Value())
             {
                 return uploadCandidateOrNull;
             } else
             {
-                crc32.reset();
+                contentStream.setStartPos(0L);
             }
         }
         return null;
-    }
-
-    private void uploadNextBlock(final RandomAccessFileProvider fileProvider,
-            final long filePointer, final int currentBlockSize, final CRC32 crc32) throws IOException,
-            EnvironmentFailureException
-    {
-        final RandomAccessFile randomAccessFile = fileProvider.getRandomAccessFile();
-        final byte[] bytes = new byte[currentBlockSize];
-        randomAccessFile.seek(filePointer);
-        randomAccessFile.readFully(bytes, 0, currentBlockSize);
-        crc32.update(bytes);
-        final int runningCrc32Value = (int) crc32.getValue();
-        RemoteAccessException lastExceptionOrNull = null;
-        for (int i = 0; i < MAX_RETRIES; ++i)
-        {
-            if (cancelled.get())
-            {
-                return;
-            }
-            try
-            {
-                service.uploadBlock(sessionID, filePointer, runningCrc32Value, bytes);
-                lastExceptionOrNull = null;
-                break;
-            } catch (RemoteAccessException ex)
-            {
-                lastExceptionOrNull = ex;
-                fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName() + ": "
-                        + ex.getMessage() + ", will retry upload soon...");
-                sleepAfterFailure();
-            }
-        }
-        if (lastExceptionOrNull != null)
-        {
-            throw lastExceptionOrNull;
-        }
     }
 
     private void fireUploadedEvent()

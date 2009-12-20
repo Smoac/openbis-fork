@@ -95,7 +95,10 @@ public interface IFileManager
     public FileContent getFileContent(final FileDTO fileDTO) throws IllegalStateException;
 
     /**
-     * Saves the data of the specified input stream which comes from a file with the specified name.
+     * Saves the data in the specified input stream to the file system and create a link in the
+     * database with the given <var>fileName</var>.
+     * <p>
+     * This method will either succeed completely or not save anything.
      * 
      * @param user The owner of the file.
      * @param fileName The name of the file. May contain the full path.
@@ -107,6 +110,45 @@ public interface IFileManager
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public FileDTO saveFile(final UserDTO user, final String fileName, String comment,
             final String contentType, final InputStream inputStream);
+
+    /**
+     * Saves the data in the specified input stream to the file system and create a link in the
+     * database with the given <var>fileName</var> and <var>fileSize</var>.
+     * <p>
+     * This method can succeed partially, that is: leave a file in the data base and data store that
+     * can be used for resuming the save process.
+     * 
+     * @param user The owner of the file.
+     * @param fileName The name of the file. May contain the full path.
+     * @param comment The comment that the uploader has provided.
+     * @param contentType Content type passed by the browser or <code>null</code> if not defined.
+     * @param size The size of the content of the stream.
+     * @param inputStream Input stream of file content.
+     * @return file DTO with id.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public FileDTO saveFile(final UserDTO user, final String fileName, String comment,
+            final String contentType, final long size, final InputStream inputStream);
+
+    /**
+     * Resumes saving the data in the specified input stream to the file system and create a link in
+     * the database with the given <var>fileName</var> and <var>fileSize</var>.
+     * <p>
+     * This method can succeed partially, that is it can save data and then be interrupted, in which
+     * case it can be called subsequently until the whole file has been uploaded.
+     * 
+     * @param user The owner of the file.
+     * @param fileDTO The link of the file in the database.
+     * @param file The file in the data store.
+     * @param comment The comment that the uploader has provided.
+     * @param startPos The start position of the resume. Must be smaller than
+     *            <code>fileDTO.getSize()</code> or else an {@link IllegalArgumentException} will be
+     *            thrown.
+     * @param inputStream Input stream of file content.
+     */
+    public void resumeSaveFile(final UserDTO user, final FileDTO fileDTO, final File file,
+            final String comment, final long startPos, final InputStream inputStream)
+            throws IllegalArgumentException;
 
     /**
      * Registers specified file for the specified user and sends an e-mail to all specified

@@ -17,15 +17,18 @@
 package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.zip.CRC32;
+import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.CRCCheckumMismatchException;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
+import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingOutputStream;
+import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingOutputStream.IWriteProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
@@ -76,57 +79,88 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
         try
         {
             inProgress.set(true);
-            final FileInfoDTO fileInfo = service.startDownloading(sessionID, fileID);
+            final FileInfoDTO fileInfo = service.getFileInfo(sessionID, fileID);
+            InputStream input = null;
             final File directory =
                     directoryToDownloadOrNull != null ? directoryToDownloadOrNull : new File(".");
             final String fileName = fileNameOrNull != null ? fileNameOrNull : fileInfo.getName();
             final File file = new File(directory, fileName);
             final long fileSize = fileInfo.getSize();
-            final CRC32 crc32 = new CRC32();
             fireStartedEvent(file, fileSize);
-            final RandomAccessFileProvider fileProvider = new RandomAccessFileProvider(file, "rw");
-            try
+            RemoteAccessException lastExceptionOrNull = null;
+            for (int i = 0; i < MAX_RETRIES; ++i)
             {
-                long filePointer = fileProvider.getRandomAccessFile().length();
-                if (filePointer > 0)
+                if (cancelled.get())
                 {
-                    calculateCRC32(fileProvider.getRandomAccessFile(), crc32, filePointer);
+                    return;
                 }
-                fireProgressEvent(filePointer, fileSize);
-                while (filePointer < fileSize)
+                try
                 {
-                    final int actualBlockSize =
-                            (int) Math.min(fileInfo.getSize() - filePointer, blockSize);
-                    downloadAndStoreBlock(fileProvider, filePointer, actualBlockSize, crc32);
+                    ResumingAndChecksummingOutputStream output = null;
+                    final long clientFileSize = file.length();
+                    try
+                    {
+                        input = service.download(sessionID, fileID, clientFileSize);
+                        output =
+                                new ResumingAndChecksummingOutputStream(file, PROGRESS_REPORT_BLOCK_SIZE,
+                                        new IWriteProgressListener()
+                                            {
+                                                long lastUpdated = System.currentTimeMillis();
+        
+                                                public void update(long bytesWritten, int crc32Value)
+                                                {
+                                                    if (cancelled.get())
+                                                    {
+                                                        throw new InterruptedExceptionUnchecked();
+                                                    }
+                                                    final long now = System.currentTimeMillis();
+                                                    if (now - lastUpdated > PROGRESS_UPDATE_MIN_INTERVAL_MILLIS
+                                                            || bytesWritten == fileSize)
+                                                    {
+                                                        fireProgressEvent(bytesWritten, fileSize);
+                                                        lastUpdated = now;
+                                                    }
+                                                }
+                                            }, clientFileSize);
+                        IOUtils.copyLarge(input, output);
+                        final int crc32Value = output.getCrc32Value();
+                        if (fileInfo.getCrc32Value() != null && crc32Value != fileInfo.getCrc32Value())
+                        {
+                            throw new CRCCheckumMismatchException(fileInfo.getName(), crc32Value, fileInfo
+                                    .getCrc32Value());
+                        }
+                    } finally
+                    {
+                        IOUtils.closeQuietly(input);
+                        if (output != null)
+                        {
+                            output.close();
+                        }
+                    }
+                    lastExceptionOrNull = null;
+                    break;
+                } catch (RemoteAccessException ex)
+                {
                     if (cancelled.get())
                     {
-                        service.finish(sessionID, false);
-                        fireFinishedEvent(false);
                         return;
                     }
-                    filePointer += actualBlockSize;
-                    fireProgressEvent(filePointer, fileSize);
+                    lastExceptionOrNull = ex;
+                    fireWarningEvent("Error during download: " + ex.getClass().getSimpleName() + ": "
+                            + ex.getMessage() + ", will retry download soon...");
+                    sleepAfterFailure();
                 }
-                final int crc32Value = (int) crc32.getValue();
-                if (fileInfo.getCrc32Value() != null && crc32Value != fileInfo.getCrc32Value())
-                {
-                    throw new CRCCheckumMismatchException(fileInfo.getName(), crc32Value, fileInfo
-                            .getCrc32Value());
-                }
-                service.finish(sessionID, true);
-                fireFinishedEvent(true);
-            } finally
-            {
-                fileProvider.closeFile();
             }
+            if (lastExceptionOrNull != null)
+            {
+                throw lastExceptionOrNull;
+            }
+            fireFinishedEvent(true);
         } catch (Throwable th)
         {
-            try
+            if (th instanceof InterruptedExceptionUnchecked)
             {
-                service.finish(sessionID, false);
-            } catch (Throwable th2)
-            {
-                // Nothing we can do here.
+                return;
             }
             fireFinishedEvent(false);
             throw CheckedExceptionTunnel.wrapIfNecessary(th);
@@ -136,35 +170,4 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
         }
     }
 
-    private void downloadAndStoreBlock(final RandomAccessFileProvider fileProvider,
-            long filePointer, final int currentBlockSize, final CRC32 crc32) throws IOException
-    {
-        RemoteAccessException lastExceptionOrNull = null;
-        for (int i = 0; i < MAX_RETRIES; ++i)
-        {
-            if (cancelled.get())
-            {
-                return;
-            }
-            try
-            {
-                byte[] block = service.downloadBlock(sessionID, filePointer, currentBlockSize);
-                crc32.update(block);
-                fileProvider.getRandomAccessFile().seek(filePointer);
-                fileProvider.getRandomAccessFile().write(block);
-                lastExceptionOrNull = null;
-                break;
-            } catch (RemoteAccessException ex)
-            {
-                lastExceptionOrNull = ex;
-                fireWarningEvent("Error during download: " + ex.getClass().getSimpleName() + ": "
-                        + ex.getMessage() + ", will retry download soon...");
-                sleepAfterFailure();
-            }
-        }
-        if (lastExceptionOrNull != null)
-        {
-            throw lastExceptionOrNull;
-        }
-    }
 }

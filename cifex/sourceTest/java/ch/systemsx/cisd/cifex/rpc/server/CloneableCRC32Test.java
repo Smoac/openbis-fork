@@ -20,6 +20,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.cifex.rpc.io.CloneableCRC32;
+
 /**
  * Basic tests for checksum resuming. 
  *

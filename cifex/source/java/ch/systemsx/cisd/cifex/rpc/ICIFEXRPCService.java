@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.rpc;
 
+import java.io.InputStream;
 import java.util.List;
 
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
@@ -36,7 +37,7 @@ public interface ICIFEXRPCService
     //
 
     /** The version of this service interface. */
-    public static final int VERSION = 3;
+    public static final int VERSION = 4;
 
     /** Returns the version of the server side interface. */
     public int getVersion();
@@ -74,17 +75,6 @@ public interface ICIFEXRPCService
      */
     public void checkSession(String sessionID) throws InvalidSessionException;
 
-    /**
-     * Finishes the specified operation (that is the current upload or download). The parameter
-     * <var>successful</var> is used for logging purposes and has no consequences otherwise. The
-     * session itself is still valid after calling this method and can be used to initiate another
-     * operation.
-     * 
-     * @param successful Flag indicating whether the uploading was successful or not.
-     * @throws InvalidSessionException if there is no session with specified session ID.
-     */
-    public void finish(String sessionID, boolean successful) throws InvalidSessionException;
-
     //
     // Info
     //
@@ -95,46 +85,37 @@ public interface ICIFEXRPCService
     public FileInfoDTO[] listDownloadFiles(String sessionID) throws InvalidSessionException,
             EnvironmentFailureException;
 
+    /**
+     * Returns the information about the file with <var>fileID</var>.
+     * 
+     * @return The {@link FileInfoDTO} containing the information about the file.
+     * @throws InvalidSessionException if there is no session with specified session ID.
+     * @throws IOExceptionUnchecked if the file with that <var>fileID</var> cannot be found.
+     */
+    public FileInfoDTO getFileInfo(String sessionID, long fileID)
+            throws InvalidSessionException, IOExceptionUnchecked;
+
     //
     // Upload
     //
 
     /**
-     * Starts uploading the given file.
+     * Upload the file described in <var>file></var> and given by <var>contentStream</var>.
      * 
      * @return The id of the file in the database.
      * @throws InvalidSessionException if there is no session with specified session ID.
      */
-    public long startUploading(String sessionID, FilePreregistrationDTO file, String comment)
-            throws InvalidSessionException;
+    public long upload(String sessionID, FilePreregistrationDTO file, String comment,
+            InputStream contentStream) throws InvalidSessionException;
 
     /**
-     * Resume uploading the given filen with id <var>fileId</var>.
+     * Resume the upload the file with given <var>fileId</var> at <var>startPosition</var>. If
+     * provided, the new <var>comment</var> will be set in the database.
      * 
      * @throws InvalidSessionException if there is no session with specified session ID.
      */
-    public void resumeUploading(String sessionID, long fileId) throws InvalidSessionException;
-
-    /**
-     * Uploads a data block for the specified upload session.
-     * 
-     * @param filePointer The pointer of the block within the file. Can be either the same one as
-     *            the last time or the next one. All other <var>filePointer</var> values are
-     *            considered an error.
-     * @param runningCrc32Value The value of the CRC32 checksum of all data blocks uploaded up to
-     *            now, including the current <var>block</var> ("running CRC32 checksum")
-     * @param block Block of data bytes.
-     * @throws IllegalStateException if no upload is in progress.
-     * @throws InvalidSessionException if there is no session with specified session ID.
-     * @throws IOExceptionUnchecked if an I/O error occurred during the upload.
-     * @throws FileSizeExceededException if the upload exceed the maximally allowed file size.
-     * @throws IllegalStateException if
-     *             {@link #startUploading(String, FilePreregistrationDTO, String)} hasn't been
-     *             called before.
-     */
-    public void uploadBlock(String sessionID, long filePointer, int runningCrc32Value, byte[] block)
-            throws InvalidSessionException, IOExceptionUnchecked, FileSizeExceededException,
-            IllegalStateException;
+    public void resumeUpload(String sessionID, long fileId, long startPosition, String comment,
+            InputStream contentStream) throws InvalidSessionException;
 
     /**
      * Returns the candidate for resuming an upload process if any is available on the server, or
@@ -154,30 +135,27 @@ public interface ICIFEXRPCService
     public void shareFiles(String sessionID, List<Long> fileIDs, String recipients);
 
     //
+    // Deletion
+    //
+
+    /**
+     * Deletes the file with given <var>fileId</var> on the server.
+     */
+    public void deleteFile(String sessionID, long fileId) throws InvalidSessionException;
+
+    //
     // Download
     //
 
     /**
-     * Start downloading the file with <var>fileID</var>.
+     * Download the file with <var>fileID</var>, starting from position <var>startPosition</var> in
+     * file. Read the content of the file from the returned {@link InputStream}.
      * 
-     * @return The {@link FileInfoDTO} containing the information about the file to download.
+     * @return The {@link InputStream} delivering the content of the file.
      * @throws InvalidSessionException if there is no session with specified session ID.
      * @throws IOExceptionUnchecked if the file with that <var>fileID</var> cannot be found.
      */
-    public FileInfoDTO startDownloading(String sessionID, long fileID)
+    public InputStream download(String sessionID, long fileID, long startPosition)
             throws InvalidSessionException, IOExceptionUnchecked;
-
-    /**
-     * Download a block of size <var>blockSize</var> from the file currently under download,
-     * starting from <var>filePointer</var>. Note that {@link #startDownloading(String, long)} needs
-     * to have been called before.
-     * 
-     * @throws InvalidSessionException if there is no session with specified session ID.
-     * @throws IOExceptionUnchecked if an I/O error occurred during the download.
-     * @throws IllegalStateException if {@link #startDownloading(String, long)} hasn't been called
-     *             before.
-     */
-    public byte[] downloadBlock(String sessionID, long filePointer, int blockSize)
-            throws InvalidSessionException, IOExceptionUnchecked, IllegalStateException;
 
 }

@@ -168,8 +168,7 @@ abstract class AbstractCommand implements ICommand
 
                 public void exceptionOccured(Throwable throwable)
                 {
-                    System.out.println();
-                    throwable.printStackTrace();
+                    // Reporting handled in CIFEXClient
                 }
 
             });

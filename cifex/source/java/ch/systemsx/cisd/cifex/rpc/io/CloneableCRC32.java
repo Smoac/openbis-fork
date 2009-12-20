@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.rpc.server;
+package ch.systemsx.cisd.cifex.rpc.io;
 
 import java.lang.reflect.Field;
 import java.util.zip.CRC32;

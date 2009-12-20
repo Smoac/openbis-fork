@@ -39,7 +39,8 @@ import org.apache.commons.lang.time.DateUtils;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.remoting.httpinvoker.CommonsHttpInvokerRequestExecutor;
-import org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean;
+
+import com.marathon.util.spring.StreamSupportingHttpInvokerProxyFactoryBean;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
@@ -143,14 +144,12 @@ public final class RPCServiceFactory
         {
             setUpKeyStore(serviceURL);
         }
-        final HttpInvokerProxyFactoryBean httpInvokerProxy = new HttpInvokerProxyFactoryBean();
+        final StreamSupportingHttpInvokerProxyFactoryBean httpInvokerProxy =
+                new StreamSupportingHttpInvokerProxyFactoryBean();
         httpInvokerProxy.setServiceUrl(serviceURL);
         httpInvokerProxy.setServiceInterface(ICIFEXRPCService.class);
-        final CommonsHttpInvokerRequestExecutor httpInvokerRequestExecutor =
-                new CommonsHttpInvokerRequestExecutor();
-        httpInvokerRequestExecutor.setReadTimeout((int) DateUtils.MILLIS_PER_MINUTE
-                * SERVER_TIMEOUT_MIN);
-        httpInvokerProxy.setHttpInvokerRequestExecutor(httpInvokerRequestExecutor);
+        ((CommonsHttpInvokerRequestExecutor) httpInvokerProxy.getHttpInvokerRequestExecutor())
+                .setReadTimeout((int) DateUtils.MILLIS_PER_MINUTE * SERVER_TIMEOUT_MIN);
         httpInvokerProxy.afterPropertiesSet();
         return (ICIFEXRPCService) httpInvokerProxy.getObject();
     }

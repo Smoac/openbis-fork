@@ -52,5 +52,7 @@
 	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-search/jms.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/server-common"/>
+	<classpathentry kind="lib" path="/libraries/commons-httpclient/commons-httpclient.jar" sourcepath="/libraries/commons-httpclient/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/commons-logging/commons-logging.jar" sourcepath="/libraries/commons-logging/src.zip"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>

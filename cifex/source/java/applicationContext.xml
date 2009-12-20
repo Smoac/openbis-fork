@@ -77,7 +77,7 @@
         // RPC Service
     -->
 
-    <bean id="rpc-service-exporter" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter">
+    <bean id="rpc-service-exporter" class="com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter">
         <property name="service" ref="rpc-service" />
         <property name="serviceInterface" value="ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService" />
     </bean>
