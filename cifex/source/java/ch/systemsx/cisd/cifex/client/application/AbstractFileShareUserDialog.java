@@ -51,7 +51,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
 {
-    private static final int DIALOG_HEIGHT = 630;
+    private static final int DIALOG_HEIGHT = 680;
 
     private static final int DIALOG_WIDTH = 980;
 
