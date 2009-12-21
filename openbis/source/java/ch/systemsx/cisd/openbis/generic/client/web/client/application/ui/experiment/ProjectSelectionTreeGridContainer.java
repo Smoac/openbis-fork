@@ -126,7 +126,6 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         treeGrid.setAutoExpandColumn(ModelDataPropertyNames.CODE);
         treeGrid.getTreeView().setForceFit(true);
         treeGrid.getTreeView().setSortingEnabled(false);
-        treeGrid.getTreeView().setRowHeight(32);
         treeGrid.setTitle(viewContext.getMessage(Dict.PROJECT_SELECTOR_TOOLTIP));
         // switchOffFolderIcons
         treeGrid.getStyle().setNodeCloseIcon(null);
@@ -213,7 +212,6 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                                         });
                     detailsLink.setTitle(viewContext
                             .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP));
-                    detailsLink.removeStyleName("inline");
                     projectLinks.put(project, detailsLink);
 
                     final FlowPanel panel =
