@@ -19,7 +19,6 @@ fi
 FULL_VER=S$VER.$SUBVER
 SPRINT_SERVER=sprint-openbis.ethz.ch
 CISD_SERVER=cisd-vesuvio.ethz.ch
-DEMO_SERVER=cisd-openbis.ethz.ch
 SPRINT_INSTALL_SCRIPT=sprint_install.sh
 
 svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/build_resources/trunk build_resources
@@ -37,11 +36,9 @@ scp *.zip $CISD_SERVER:$SPRINT_DIR
 echo "chmod g+w -R $SPRINT_DIR" | ssh -T $CISD_SERVER
 
 echo Copying new openBIS components to \'$SPRINT_SERVER\'...
-scp openBIS-server-*.zip $SPRINT_SERVER:.
-scp datastore_server-*.zip $SPRINT_SERVER:.
-echo Copying new openBIS components to \'$DEMO_SERVER\'...
-scp openBIS-server-*.zip $DEMO_SERVER:.
-scp datastore_server-*.zip $DEMO_SERVER:.
+scp openBIS-server-S*.zip $SPRINT_SERVER:.
+scp datastore_server-S*.zip $SPRINT_SERVER:.
+scp *.zip $SPRINT_SERVER:~/sprint_builds
 rm -f *.zip
 
 # If sprint install script is present and executable, run it!
