@@ -259,7 +259,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                             case Event.ONMOUSEOUT:
                                 // Only fire the mouse out event if it's leaving this
                                 // widget.
-                                Element related = event.getRelatedTarget();
+                                Element related = event != null ? event.getRelatedTarget() : null;
                                 if (related != null && getElement().isOrHasChild(related))
                                 {
                                     return;
@@ -277,6 +277,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                 }
 
             });
+        columnConfig.setMenuDisabled(true);
+        columnConfig.setSortable(true);
         return columnConfig;
     }
 
