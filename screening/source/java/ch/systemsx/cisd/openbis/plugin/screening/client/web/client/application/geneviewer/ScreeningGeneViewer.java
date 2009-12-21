@@ -113,6 +113,7 @@ public class ScreeningGeneViewer extends AbstractViewer<Material>
         container.add(GuiUtils.withLabel(experimentChooser.getField(), "Experiment:"));
         container.add(new Text(
                 "Choose an experiment to find wells where this gene has been suppressed."));
+        container.setScrollMode(Scroll.AUTO);
         return container;
     }
 
@@ -137,7 +138,6 @@ public class ScreeningGeneViewer extends AbstractViewer<Material>
     private Widget createGeneLocationPanel(List<WellLocation> wellLocations)
     {
         LayoutContainer container = new LayoutContainer();
-        container.setScrollMode(Scroll.AUTO);
         container.setLayout(new TableLayout(3));
         TableData cellLayout = new TableData();
         cellLayout.setPadding(20);
