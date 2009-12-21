@@ -156,7 +156,7 @@ var common = {
   experiment_type: "Experiment Type",
   project_selector_title: "Project Selection",
   project_selector_tooltip: "No description available. \nClick on a row with project code to select it.",
-  project_selector_code_column: "Group/Project Code",
+  project_selector_code_column: "Group / Project",
   project_selector_details_link_label: "(?)",
   project_selector_details_link_tooltip: "Click on the link to see project details.",
   
