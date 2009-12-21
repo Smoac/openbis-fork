@@ -46,6 +46,12 @@ public interface IUserDAO
     public UserDTO getUserById(final long id) throws DataAccessException;
 
     /**
+     * Returns <code>true</code> if and only if the user with given <var>id</var> has currently
+     * files to download.
+     */
+    public boolean hasUserFilesForDownload(final long id);
+
+    /**
      * Returns the user code for the given <var>id</var>.
      * 
      * @return <code>null</code>, if no user with that <var>id</var> exists.

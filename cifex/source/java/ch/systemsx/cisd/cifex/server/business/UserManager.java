@@ -506,6 +506,12 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
+    public boolean hasUserFilesForDownload(UserDTO user)
+    {
+        return daoFactory.getUserDAO().hasUserFilesForDownload(user.getID());
+    }
+
+    @Transactional
     public void changeUserCode(final String before, final String after) throws UserFailureException
     {
         if (StringUtils.isBlank(before) || StringUtils.isBlank(after))

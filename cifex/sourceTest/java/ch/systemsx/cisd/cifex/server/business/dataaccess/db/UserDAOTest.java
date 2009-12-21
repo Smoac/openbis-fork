@@ -245,6 +245,7 @@ public final class UserDAOTest extends AbstractDAOTest
     {
         final IUserDAO userDAO = daoFactory.getUserDAO();
         final UserDTO user = userDAO.getUserById(testTemporaryUser.getID());
+        assertFalse(userDAO.hasUserFilesForDownload(user.getID()));
         checkUser(testTemporaryUser, user);
         // Fake some changed quota values
         user.setMaxFileRetention(17);
@@ -252,7 +253,7 @@ public final class UserDAOTest extends AbstractDAOTest
         user.setCurrentFileSize(103);
         user.setMaxFileCountPerQuotaGroup(22);
         user.setMaxFileSizePerQuotaGroupInMB(1L);
-        // No restore those values from the database and check.
+        // Now restore those values from the database and check.
         userDAO.refreshQuotaInformation(user);
         checkUser(testTemporaryUser, user);
     }

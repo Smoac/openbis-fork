@@ -317,6 +317,8 @@ public final class FileDAOTest extends AbstractDAOTest
         fileDAO.createFile(newFile);
         /* Existing user id */
         List<FileDTO> filesToDownload = fileDAO.listDownloadFiles(user.getID());
+        assertEquals(filesToDownload.isEmpty() == false, daoFactory.getUserDAO()
+                .hasUserFilesForDownload(user.getID()));
         boolean newFileInDownloadList = false;
         for (final FileDTO f : filesToDownload)
         {
@@ -327,6 +329,7 @@ public final class FileDAOTest extends AbstractDAOTest
         }
         assertFalse(newFileInDownloadList);
         fileDAO.createSharingLink(newFile.getID(), user.getID());
+        assertTrue(daoFactory.getUserDAO().hasUserFilesForDownload(user.getID()));
         filesToDownload = fileDAO.listDownloadFiles(user.getID());
         for (final FileDTO f : filesToDownload)
         {

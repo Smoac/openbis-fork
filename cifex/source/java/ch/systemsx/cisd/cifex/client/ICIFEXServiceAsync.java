@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
@@ -38,7 +39,7 @@ public interface ICIFEXServiceAsync
      * Authenticates given <code>user</code> with given <code>password</code>.
      */
     public void tryLogin(final String userCode, final String password,
-            final AsyncCallback<UserInfoDTO> callback);
+            final AsyncCallback<CurrentUserInfoDTO> callback);
 
     /**
      * Logout the current user.
@@ -53,7 +54,7 @@ public interface ICIFEXServiceAsync
     /**
      * Returns the currently logged user if this user is already authenticated.
      */
-    public void getCurrentUser(final AsyncCallback<UserInfoDTO> callback);
+    public void getCurrentUser(final AsyncCallback<CurrentUserInfoDTO> callback);
 
     /**
      * Returns the currently logged in user (if a user is authenticated), refreshing its quota

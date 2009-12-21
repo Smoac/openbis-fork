@@ -23,7 +23,7 @@ import java.util.Date;
  * 
  * @author Christian Ribeaud
  */
-public final class UserInfoDTO extends BasicUserInfoDTO
+public class UserInfoDTO extends BasicUserInfoDTO
 {
     private static final long serialVersionUID = 1L;
 

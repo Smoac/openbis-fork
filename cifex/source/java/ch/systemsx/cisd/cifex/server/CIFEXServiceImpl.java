@@ -49,6 +49,7 @@ import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
+import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
@@ -146,7 +147,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     // ICifexService
     //
 
-    public final UserInfoDTO tryLogin(final String userCode, final String plainPassword)
+    public final CurrentUserInfoDTO tryLogin(final String userCode, final String plainPassword)
             throws EnvironmentFailureException
     {
         try
@@ -155,8 +156,13 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             if (userDTOOrNull == null)
             {
                 ConcurrencyUtilities.sleep(DELAY_AFTER_FAILED_LOGIN_MILLIS);
+                return null;
             }
-            return BeanUtils.createBean(UserInfoDTO.class, userDTOOrNull);
+            final CurrentUserInfoDTO currentUser =
+                    BeanUtils.createBean(CurrentUserInfoDTO.class, userDTOOrNull);
+            currentUser.setHasFilesForDownload(domainModel.getUserManager()
+                    .hasUserFilesForDownload(userDTOOrNull));
+            return currentUser;
         } catch (ch.systemsx.cisd.common.exceptions.EnvironmentFailureException ex)
         {
             throw new EnvironmentFailureException(ex.getMessage());
@@ -171,9 +177,13 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return configuration;
     }
 
-    public final UserInfoDTO getCurrentUser() throws InvalidSessionException
+    public final CurrentUserInfoDTO getCurrentUser() throws InvalidSessionException
     {
-        return BeanUtils.createBean(UserInfoDTO.class, privGetCurrentUser());
+        final UserDTO user = privGetCurrentUser();
+        final CurrentUserInfoDTO currentUser = BeanUtils.createBean(CurrentUserInfoDTO.class, user);
+        currentUser.setHasFilesForDownload(domainModel.getUserManager().hasUserFilesForDownload(
+                user));
+        return currentUser;
     }
 
     public UserInfoDTO refreshQuotaInformationOfCurrentUser() throws InvalidSessionException

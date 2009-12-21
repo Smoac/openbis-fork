@@ -35,6 +35,7 @@ import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
+import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
@@ -83,7 +84,7 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.getConfiguration();
     }
 
-    public final UserInfoDTO getCurrentUser() throws InvalidSessionException
+    public final CurrentUserInfoDTO getCurrentUser() throws InvalidSessionException
     {
         return cifexServiceDelegate.getCurrentUser();
     }

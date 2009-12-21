@@ -30,7 +30,7 @@ import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.application.ui.FileDownloadHelper;
 import ch.systemsx.cisd.cifex.client.application.utils.GWTUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 
 /**
  * Entry point of <i>GWT</i> <i>CIFEX</i>.
@@ -105,22 +105,23 @@ public final class CIFEXEntryPoint implements EntryPoint
                 public final void onSuccess(final Configuration result)
                 {
                     viewContext.getModel().setConfiguration(result);
-                    cifexService.getCurrentUser(new AsyncCallback<UserInfoDTO>()
+                    cifexService.getCurrentUser(new AsyncCallback<CurrentUserInfoDTO>()
                         {
 
                             //
                             // AsyncCallback
                             //
 
-                            public final void onSuccess(final UserInfoDTO res)
+                            public final void onSuccess(final CurrentUserInfoDTO currentUser)
                             {
                                 final IPageController pageController =
                                         viewContext.getPageController();
-                                if (res != null)
+                                if (currentUser != null)
                                 {
                                     final Model model = viewContext.getModel();
-                                    model.setUser(res);
-                                    if (FileDownloadHelper.startFileDownload(model))
+                                    model.setUser(currentUser);
+                                    if (FileDownloadHelper.startFileDownload(model)
+                                            || currentUser.hasFilesForDownload())
                                         pageController.showInboxPage();
                                     else
                                         pageController.showSharePage();

@@ -79,6 +79,13 @@ public interface IUserManager
     public void refreshQuotaInformation(UserDTO user);
 
     /**
+     * Returns <code>true</code> if and only if the <var>user</var> has currently some files to
+     * download.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
+    public boolean hasUserFilesForDownload(UserDTO user);
+
+    /**
      * Creates the specified <var>user</var> in the database. The password and the registrator need
      * already be set if this is desired.
      * <p>

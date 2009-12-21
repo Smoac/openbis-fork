@@ -33,7 +33,7 @@ import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexDict;
-import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 
 /**
  * A <code>Form</code> extension that is the login panel we use to login to the <i>openBIS</i>
@@ -180,11 +180,11 @@ public class LoginWidget extends VerticalPanel
      * By default this method does nothing.
      * </p>
      */
-    protected void loginSuccessful(final UserInfoDTO user)
+    protected void loginSuccessful(final CurrentUserInfoDTO currentUser)
     {
         final Model model = context.getModel();
-        model.setUser(user);
-        if (FileDownloadHelper.startFileDownload(model))
+        model.setUser(currentUser);
+        if (FileDownloadHelper.startFileDownload(model) || currentUser.hasFilesForDownload())
         {
             context.getPageController().showInboxPage();
         } else
@@ -222,7 +222,7 @@ public class LoginWidget extends VerticalPanel
     // Helper classes
     //
 
-    private final class LoginAsyncCallBack extends AbstractAsyncCallback<UserInfoDTO>
+    private final class LoginAsyncCallBack extends AbstractAsyncCallback<CurrentUserInfoDTO>
     {
 
         LoginAsyncCallBack()
@@ -237,7 +237,7 @@ public class LoginWidget extends VerticalPanel
             getButton().enable();
         }
 
-        public final void onSuccess(final UserInfoDTO result)
+        public final void onSuccess(final CurrentUserInfoDTO result)
         {
             if (result != null)
             {

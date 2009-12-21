@@ -23,6 +23,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
+import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
@@ -65,7 +66,7 @@ public interface ICIFEXService extends RemoteService
      * @return The currently logged in user.
      * @throws InvalidSessionException if user not logged in.
      */
-    public UserInfoDTO getCurrentUser() throws InvalidSessionException;
+    public CurrentUserInfoDTO getCurrentUser() throws InvalidSessionException;
 
     /**
      * Returns the currently logged in user (if a user is authenticated), refreshing its quota

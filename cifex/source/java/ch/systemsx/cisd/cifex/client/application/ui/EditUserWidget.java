@@ -22,6 +22,7 @@ import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -124,9 +125,9 @@ public class EditUserWidget extends UserWidget
             if (user.getUserCode().equals(userCodeField.getValue()))
             {
                 context.getCifexService().getCurrentUser(
-                        new AbstractAsyncCallback<UserInfoDTO>(context)
+                        new AbstractAsyncCallback<CurrentUserInfoDTO>(context)
                             {
-                                public void onSuccess(UserInfoDTO u)
+                                public void onSuccess(CurrentUserInfoDTO u)
                                 {
                                     context.getModel().setUser(u);
                                     finishEditing();

@@ -348,6 +348,12 @@ final class UserDAO extends AbstractDAO implements IUserDAO
                 new QuotaRowMapper(user), user.getQuotaGroupId());
     }
 
+    public boolean hasUserFilesForDownload(long id)
+    {
+        return getSimpleJdbcTemplate().queryForList(
+                "select id from file_shares where user_id = ? limit 1", id).isEmpty() == false;
+    }
+
     public void createUser(final UserDTO user) throws DataAccessException
     {
         assert user != null : "Given user can not be null.";
