@@ -155,10 +155,10 @@ var common = {
   
   experiment_type: "Experiment Type",
   project_selector_title: "Project Selection",
-  project_selector_tooltip: "- Click on a row with project code to select it.\n- If Group/Project description is available it will show up in a tooltip when you mouse over their codes.",
+  project_selector_tooltip: "No description available. \nClick on a row with project code to select it.",
   project_selector_code_column: "Group/Project Code",
-  project_selector_details_link_label: "(details)",
-  project_selector_details_link_tooltip: "Click on the link to show project details in a viewer.",
+  project_selector_details_link_label: "(?)",
+  project_selector_details_link_tooltip: "Click on the link to see project details.",
   
   
   //
