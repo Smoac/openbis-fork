@@ -179,10 +179,15 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
     public final CurrentUserInfoDTO getCurrentUser() throws InvalidSessionException
     {
-        final UserDTO user = privGetCurrentUser();
-        final CurrentUserInfoDTO currentUser = BeanUtils.createBean(CurrentUserInfoDTO.class, user);
+        final UserDTO userOrNull = privGetCurrentUser();
+        if (userOrNull == null)
+        {
+            return null;
+        }
+        final CurrentUserInfoDTO currentUser =
+                BeanUtils.createBean(CurrentUserInfoDTO.class, userOrNull);
         currentUser.setHasFilesForDownload(domainModel.getUserManager().hasUserFilesForDownload(
-                user));
+                userOrNull));
         return currentUser;
     }
 

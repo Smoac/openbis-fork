@@ -147,7 +147,13 @@ public class CIFEXServiceImplTest
         userDTO.setUserCode(code);
         userDTO.setEmail(email);
         prepareForGettingUserFromHTTPSession(userDTO, false);
-
+        context.checking(new Expectations()
+            {
+                {
+                    one(userManager).hasUserFilesForDownload(userDTO);
+                    will(returnValue(false));
+                }
+            });
         final ICIFEXService service = createService(null);
         assertEquals(code, service.getCurrentUser().getUserCode());
         assertEquals(email.toLowerCase(), userDTO.getEmail());
@@ -190,7 +196,7 @@ public class CIFEXServiceImplTest
         userDTO.setUserFullName("user");
         userDTO.setEmail("user@users.org");
         userDTO.setPasswordHash(new Password(password).createPasswordHash());
-        prepareForFindUser(userDTO.getUserCode(), userDTO);
+        prepareForFindUserWithFailedAuthorization(userDTO.getUserCode(), userDTO);
 
         final CIFEXServiceImpl service = createService(new NullAuthenticationService());
         final UserInfoDTO user = service.tryLogin(userDTO.getUserCode(), "blabla");
@@ -214,6 +220,10 @@ public class CIFEXServiceImplTest
             {
                 {
                     one(userManager).createUser(userDTO, null);
+                    final UserDTO dbUserDTO = BeanUtils.createBean(UserDTO.class, userDTO);
+                    dbUserDTO.setPassword(null);
+                    one(userManager).hasUserFilesForDownload(dbUserDTO);
+                    will(returnValue(false));
                 }
             });
         prepareForGettingUserFromHTTPSession(userDTO, true);
@@ -274,28 +284,30 @@ public class CIFEXServiceImplTest
     public void testChangeUserCodeByNoAdmin() throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException
     {
-        final String before = "before";
-        final String after = "after";
-        final UserDTO userDTO = new UserDTO();
-        final String email = "Email";
-        userDTO.setUserCode(after);
-        userDTO.setEmail(email);
-        userDTO.setAdmin(false);
-        prepareForGettingUserFromHTTPSession(userDTO, false);
+        try
+        {
+            final String before = "before";
+            final String after = "after";
+            final UserDTO userDTO = new UserDTO();
+            final String email = "Email";
+            userDTO.setUserCode(after);
+            userDTO.setEmail(email);
+            userDTO.setAdmin(false);
+            prepareForGettingUserFromHTTPSession(userDTO, false);
 
-        context.checking(new Expectations()
-            {
+            context.checking(new Expectations()
                 {
-                    one(domainModel).getUserManager();
-                    will(returnValue(userManager));
-
-                    one(userManager).tryFindUserByCode(before);
-                    will(returnValue(userDTO));
-                }
-            });
-        final CIFEXServiceImpl service = createService(null);
-        service.changeUserCode(before, after);
-        context.assertIsSatisfied();
+                    {
+                        one(userManager).tryFindUserByCode(before);
+                        will(returnValue(userDTO));
+                    }
+                });
+            final CIFEXServiceImpl service = createService(null);
+            service.changeUserCode(before, after);
+        } finally
+        {
+            context.assertIsSatisfied();
+        }
     }
 
     @Test
@@ -316,9 +328,6 @@ public class CIFEXServiceImplTest
                 {
                     one(authenticationService).check();
 
-                    one(domainModel).getUserManager();
-                    will(returnValue(userManager));
-
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
 
@@ -328,9 +337,6 @@ public class CIFEXServiceImplTest
                             new Principal(userToCreate.getUserCode(), "First", "Last",
                                     "email@dot.com");
                     will(returnValue(principal));
-
-                    one(domainModel).getUserManager();
-                    will(returnValue(userManager));
 
                     one(userManager).tryFindUserByCode(userToCreate.getUserCode());
                     will(returnValue(null));
@@ -385,9 +391,6 @@ public class CIFEXServiceImplTest
                 {
                     one(authenticationService).check();
 
-                    one(domainModel).getUserManager();
-                    will(returnValue(userManager));
-
                     one(authenticationService).authenticateApplication();
                     will(returnValue(APPLICATION_TOKEN_EXAMPLE));
 
@@ -428,9 +431,6 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
-                    one(domainModel).getUserManager();
-                    will(returnValue(userManager));
-
                     prepareForBasicURL(this);
 
                     one(userManager).createUserAndSendEmail(
@@ -448,91 +448,91 @@ public class CIFEXServiceImplTest
     public void testChangeUserCodeByAdminToHimself() throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException
     {
-        final String before = "before";
-        final String after = "after";
-        final UserDTO userDTO = new UserDTO();
-        final String email = "Email";
-        userDTO.setUserCode(before);
-        userDTO.setEmail(email);
-        userDTO.setAdmin(true);
-        prepareForGettingUserFromHTTPSession(userDTO, false);
+        try
+        {
+            final String before = "before";
+            final String after = "after";
+            final UserDTO userDTO = new UserDTO();
+            final String email = "Email";
+            userDTO.setUserCode(before);
+            userDTO.setEmail(email);
+            userDTO.setAdmin(true);
+            prepareForGettingUserFromHTTPSession(userDTO, false);
 
-        context.checking(new Expectations()
-            {
+            context.checking(new Expectations()
                 {
-                    one(domainModel).getUserManager();
-                    will(returnValue(userManager));
-
-                    one(userManager).tryFindUserByCode(before);
-                    will(returnValue(userDTO));
-                }
-            });
-        final CIFEXServiceImpl service = createService(null);
-        service.changeUserCode(before, after);
-        context.assertIsSatisfied();
+                    {
+                        one(userManager).tryFindUserByCode(before);
+                        will(returnValue(userDTO));
+                    }
+                });
+            final CIFEXServiceImpl service = createService(null);
+            service.changeUserCode(before, after);
+        } finally
+        {
+            context.assertIsSatisfied();
+        }
     }
 
     @Test(expectedExceptions = InsufficientPrivilegesException.class)
     public void testChangeUserCodeByAdminForExternalUser() throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException
     {
-        final String before = "before";
-        final String after = "after";
-        final UserDTO userDTO = new UserDTO();
-        final String email = "Email";
-        userDTO.setUserCode("Admin");
-        userDTO.setEmail(email);
-        userDTO.setAdmin(true);
+        try
+        {
+            final String before = "before";
+            final String after = "after";
+            final UserDTO userDTO = new UserDTO();
+            final String email = "Email";
+            userDTO.setUserCode("Admin");
+            userDTO.setEmail(email);
+            userDTO.setAdmin(true);
 
-        final UserDTO userToChange = new UserDTO();
-        userToChange.setUserCode(before);
-        userToChange.setEmail(email);
-        userToChange.setExternallyAuthenticated(true);
-        prepareForGettingUserFromHTTPSession(userDTO, false);
+            final UserDTO userToChange = new UserDTO();
+            userToChange.setUserCode(before);
+            userToChange.setEmail(email);
+            userToChange.setExternallyAuthenticated(true);
+            prepareForGettingUserFromHTTPSession(userDTO, false);
 
-        context.checking(new Expectations()
-            {
+            context.checking(new Expectations()
                 {
-                    one(domainModel).getUserManager();
-                    will(returnValue(userManager));
-
-                    one(userManager).tryFindUserByCode(before);
-                    will(returnValue(userToChange));
-                }
-            });
-        final CIFEXServiceImpl service = createService(null);
-        service.changeUserCode(before, after);
-        context.assertIsSatisfied();
+                    {
+                        one(userManager).tryFindUserByCode(before);
+                        will(returnValue(userToChange));
+                    }
+                });
+            final CIFEXServiceImpl service = createService(null);
+            service.changeUserCode(before, after);
+        } finally
+        {
+            context.assertIsSatisfied();
+        }
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testChangeUserCodeByAdminIllegalCode() throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException
     {
-        final String before = "before";
-        final String after = "af ter";
-        final UserDTO userDTO = new UserDTO();
-        final String email = "Email";
-        userDTO.setUserCode("Admin");
-        userDTO.setEmail(email);
-        userDTO.setAdmin(true);
+        try
+        {
+            final String before = "before";
+            final String after = "af ter";
+            final UserDTO userDTO = new UserDTO();
+            final String email = "Email";
+            userDTO.setUserCode("Admin");
+            userDTO.setEmail(email);
+            userDTO.setAdmin(true);
 
-        final UserDTO userToChange = new UserDTO();
-        userToChange.setUserCode(before);
-        userToChange.setEmail(email);
-        prepareForGettingUserFromHTTPSession(userDTO, false);
-
-        context.checking(new Expectations()
-            {
-                {
-                    one(domainModel).getUserManager();
-                    will(returnValue(userManager));
-
-                }
-            });
-        final CIFEXServiceImpl service = createService(null);
-        service.changeUserCode(before, after);
-        context.assertIsSatisfied();
+            final UserDTO userToChange = new UserDTO();
+            userToChange.setUserCode(before);
+            userToChange.setEmail(email);
+            prepareForGettingUserFromHTTPSession(userDTO, false);
+            final CIFEXServiceImpl service = createService(null);
+            service.changeUserCode(before, after);
+        } finally
+        {
+            context.assertIsSatisfied();
+        }
     }
 
     @Test
@@ -725,7 +725,7 @@ public class CIFEXServiceImplTest
             {
                 {
                     one(authenticationService).check();
-                    one(domainModel).getUserManager();
+                    allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).tryFindUserByCode(DEFAULT_USER_CODE);
                     will(returnValue(null));
@@ -755,7 +755,7 @@ public class CIFEXServiceImplTest
             {
                 {
                     one(authenticationService).check();
-                    one(domainModel).getUserManager();
+                    allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).tryFindUserByCode(DEFAULT_USER_CODE);
                     will(returnValue(userDTO));
@@ -784,7 +784,7 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
-                    one(domainModel).getUserManager();
+                    allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).tryFindUserByCode(DEFAULT_USER_CODE);
                     will(returnValue(userDTO));
@@ -1059,6 +1059,8 @@ public class CIFEXServiceImplTest
                     final UserDTO createdUserDTO = BeanUtils.createBean(UserDTO.class, userDTO);
                     createdUserDTO.setPasswordHash(null);
                     one(userManager).createUser(createdUserDTO, null);
+                    one(userManager).hasUserFilesForDownload(createdUserDTO);
+                    will(returnValue(false));
                 }
             });
         prepareForGettingUserFromHTTPSession(userDTO, true);
@@ -1094,7 +1096,7 @@ public class CIFEXServiceImplTest
             {
                 {
                     one(authenticationService).check();
-                    one(domainModel).getUserManager();
+                    allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
 
                     one(userManager).isDatabaseEmpty();
@@ -1177,6 +1179,9 @@ public class CIFEXServiceImplTest
                     allowing(httpServletRequest).getSession(false);
                     will(returnValue(httpSession));
 
+                    allowing(domainModel).getUserManager();
+                    will(returnValue(userManager));
+
                     if (createFlag)
                     {
                         one(httpSession).setMaxInactiveInterval(60);
@@ -1223,10 +1228,16 @@ public class CIFEXServiceImplTest
 
     private void prepareForFindUser(final String code, final UserDTO userDTO)
     {
-        prepareForFindUser(code, userDTO, false);
+        prepareForFindUser(code, userDTO, false, false);
     }
 
-    private void prepareForFindUser(final String code, final UserDTO userDTO, final boolean dbEmpty)
+    private void prepareForFindUserWithFailedAuthorization(final String code, final UserDTO userDTO)
+    {
+        prepareForFindUser(code, userDTO, false, true);
+    }
+
+    private void prepareForFindUser(final String code, final UserDTO userDTO,
+            final boolean dbEmpty, final boolean authorizedFails)
     {
         prepareForDBEmptyCheck(dbEmpty);
         context.checking(new Expectations()
@@ -1252,6 +1263,11 @@ public class CIFEXServiceImplTest
                         dbUserDTO = userDTO;
                     }
                     will(returnValue(dbUserDTO));
+                    if (dbUserDTO != null && authorizedFails == false)
+                    {
+                        one(userManager).hasUserFilesForDownload(dbUserDTO);
+                        will(returnValue(false));
+                    }
                 }
             });
     }
@@ -1287,20 +1303,20 @@ public class CIFEXServiceImplTest
                         // permanent user can change
                         { alice, alice, alice, true }, // herself
                         { alice, tempRegisteredByAlice, tempRegisteredByAlice, true }, // temp
-                                                                                       // registered
-                                                                                       // by her
+                        // registered
+                        // by her
 
                         // permanent user cannot change
                         { alice, adminRegistrant, adminRegistrant, false }, // admin
                         { alice, adminChanger, adminChanger, false },
                         { alice, permNotRegisteredByAlice, permNotRegisteredByAlice, false }, // other
-                                                                                              // perm
+                        // perm
                         { alice, permRegisteredByAlice, permRegisteredByAlice, false },
                         { alice, tempNotRegisteredByAlice, tempNotRegisteredByAlice, false }, // temp
-                                                                                              // not
-                                                                                              // registered
-                                                                                              // by
-                                                                                              // him
+                        // not
+                        // registered
+                        // by
+                        // him
                         { alice, alice, aliceWannabeAdmin, false }, // herself to admin
                         { alice, alice, aliceTemp, false }, // herself to temp
 
@@ -1403,6 +1419,7 @@ public class CIFEXServiceImplTest
         oldUserToUpdate.setActive(false);
         CIFEXServiceImpl.checkUpdateOfUserIsAllowed(oldUserToUpdate, userToUpdate, currentUser,
                 userManager);
+        context.assertIsSatisfied();
     }
 
     @Test(expectedExceptions = InsufficientPrivilegesException.class)
@@ -1421,6 +1438,7 @@ public class CIFEXServiceImplTest
         oldUserToUpdate.setActive(false);
         CIFEXServiceImpl.checkUpdateOfUserIsAllowed(oldUserToUpdate, userToUpdate, currentUser,
                 userManager);
+        context.assertIsSatisfied();
     }
 
 }
