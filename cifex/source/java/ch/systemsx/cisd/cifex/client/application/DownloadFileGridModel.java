@@ -45,6 +45,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         set(CONTENT_TYPE, file.getContentType());// String
         set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
         set(OWNER, UserRenderer.createUserAnchor(file.getOwner()));// String
+        set(CRC32_CHECKSUM, file.getCrc32Str());// String
         set(REGISTRATION_DATE, file.getRegistrationDate());// Date
         set(EXPIRATION_DATE, file.getExpirationDate());// Date
     }
@@ -58,6 +59,7 @@ public class DownloadFileGridModel extends AbstractFileGridModel
         configs.add(createContentTypeColumnConfig(messageResources));
         configs.add(createSizeColumnConfig(messageResources));
         configs.add(createOwnerColumnConfig(messageResources));
+        configs.add(createCRC32ChecksumColumnConfig(messageResources));
         configs.add(createRegistrationDateColumnConfig(messageResources));
         configs.add(createExpirationDateColumnConfig(messageResources));
         return configs;

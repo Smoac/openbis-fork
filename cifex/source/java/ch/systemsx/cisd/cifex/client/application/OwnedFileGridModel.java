@@ -50,6 +50,7 @@ public class OwnedFileGridModel extends AbstractFileGridModel
         set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
         set(COMPLETE_SIZE, new Double(file.getCompleteSize()));// Double
         set(IS_COMPLETE, Boolean.valueOf(file.isComplete()));// Boolean
+        set(CRC32_CHECKSUM, file.getCrc32Str());// String
         set(REGISTRATION_DATE, file.getRegistrationDate());// Date
         set(EXPIRATION_DATE, file.getExpirationDate());// Date
         set(ACTION, DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID)
@@ -73,6 +74,7 @@ public class OwnedFileGridModel extends AbstractFileGridModel
         configs.add(createSizeColumnConfig(messageResources));
         configs.add(createCompleteSizeColumnConfig(messageResources));
         configs.add(createIsCompleteColumnConfig(messageResources));
+        configs.add(createCRC32ChecksumColumnConfig(messageResources));
         configs.add(createRegistrationDateColumnConfig(messageResources));
         configs.add(createExpirationDateColumnConfig(messageResources));
         configs.add(createActionColumnConfig(messageResources));
