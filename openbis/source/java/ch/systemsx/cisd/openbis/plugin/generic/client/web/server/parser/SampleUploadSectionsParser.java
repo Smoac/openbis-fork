@@ -57,8 +57,6 @@ public class SampleUploadSectionsParser
 
         private final String[] sampleCodes;
 
-        private Object operationDetailsOrNull;
-
         public BatchSamplesOperation(List<NewSamplesWithTypes> samples,
                 List<BatchRegistrationResult> resultList, String[] sampleCodes)
         {
@@ -80,16 +78,6 @@ public class SampleUploadSectionsParser
         public String[] getCodes()
         {
             return sampleCodes;
-        }
-
-        public Object getOperationDetailsOrNull()
-        {
-            return operationDetailsOrNull;
-        }
-
-        public void setOperationDetailsOrNull(Object operationDetailsOrNull)
-        {
-            this.operationDetailsOrNull = operationDetailsOrNull;
         }
     }
 
