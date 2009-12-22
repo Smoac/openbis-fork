@@ -12,8 +12,8 @@
 	login and password, were can I get it from?</a></li>
 	<li><a href='#FAQ-3'>I don't have the link to the file to
 	download anymore. Where can I get it from?</a></li>
-	<li><a href='#FAQ-4'>How can I set the password of temporary
-	users I created?</a></li>
+	<li><a href='#FAQ-4'>How can I set the password of a temporary
+	user that I have created?</a></li>
 	<li><a href='#FAQ-5'>How can I change a list of users with
 	whom my file has been shared?</a></li>
 	<li><a href='#FAQ-6'>I want to share confidential files, what
@@ -21,15 +21,18 @@
 	<li><a href='#FAQ-7'>A user with this email address already
 	exists, but it is not the one I want to share the file with!</a></li>
 	<li><a href='#FAQ-8'>I'm trying to log in using my
-	LDAP/University/other external account, but the system does not let me
+	LDAP/University/other external account, but the system does not allow me
 	in.</a></li>
 	<li><a href='#FAQ-9'>I already have a CIFEX account, but would
 	like to use the same password that I use for LDAP/University/other
 	external account.</a></li>
-	<li><a href='#FAQ-10'>How to upload files larger than 2
+	<li><a href='#FAQ-10'>How to upload and download files larger than 2
 	Gigabytes?</a></li>
 	<li><a href='#FAQ-11'>How to upload and download files from
 	the command line?</a></li>
+	<li><a href='#FAQ-12'>Is there a way to resume a long upload 
+	or download if it gets interrupted, e.g. due to a network failure?
+	</a></li>
 </ul>
 
 <h2><a name="FAQ-1"></a>I forgot my password, how can I receive a
@@ -68,8 +71,8 @@ files which are available for you to download.</p>
 look on the FAQ entry "I have not received the mail with my login and
 password. Were can I get it from?"</p>
 
-<h2><a name="FAQ-4"></a>How can I set the password of temporary
-users I created?</h2>
+<h2><a name="FAQ-4"></a>How can I set the password of a temporary
+user that I have created?</h2>
 
 <p>In the <b>Share</b> view you have a list of users you have
 created. In the last column is a link with the value edit, which opens a
@@ -88,13 +91,23 @@ of the <b>Share</b> view.</p>
 <h2><a name="FAQ-6"></a>I want to share confidential files, what do
 I need to consider?</h2>
 
-<p>Email addresses are not guaranteed to be unique in CIFEX, which
-means that in principle two or more CIFEX user accounts could share the
-same email address. This doesn't make sense but a malicious user of the
-system could change the email address of his CIFEX account to the email
-address of someone you want to share a file with. If you use such a
-non-unique email address on file upload, all of the users sharing the
-email address would get access to the file.</p>
+<p><em>For strictly confidential files, it is recommended that you apply strong 
+encryption to the files before uploading them to the CIFEX server! Make sure 
+only the valid recipient of the file knows the encryption key.</em></p>
+
+<p><u>Hint:</u> You may want to have a look at software like 
+<a href="http://gnupg.org/">GNU Privacy Guard</a> or 
+<a href="http://www.truecrypt.org/">TrueCrypt</a> for 
+this purpose.</p>
+
+<p>In general it should be noted that email addresses are not guaranteed to 
+be unique in CIFEX, which means that in principle two or more CIFEX user 
+accounts could share the same email address. This usually doesn't make sense 
+but it can happen either by mistake or a malicious user of the system could 
+change the email address of his CIFEX account to the email address of someone 
+you want to share a file with. If you use such a non-unique email address on
+file upload, all of the users sharing the email address would get access to 
+the file!</p>
 
 <p>If you want to share your file only with one of the users that
 has assigned the given email address, you can specify the user name in
@@ -110,11 +123,11 @@ users connected to the email addresses you entered will be displayed.
 You can add more users or select only those you want to share the file
 with.</p>
 
-<p>Note that the person who registered an account is able to change
-it's password and this way may get access to the files shared with it.
-Check if the registrator is a person you trust. Should this not be the
-case, you'd better create a new temporary CIFEX account for your
-colleague and use that new account to share your files with.</p>
+<p>Note that the user who created a temporary account is able to access
+all files uploaded by this account. Check if the creator is a person 
+you trust. Should this not be the case, you'd better create a new temporary 
+CIFEX account for your colleague yourself and use that new account to share 
+your files.</p>
 
 <h2><a name="FAQ-7"></a>A user with this email address already
 exists, but it is not the one I want to share the file with!</h2>
@@ -128,7 +141,7 @@ upload field with the prefix 'id:' or just enter the email address and
 do 'Validate Users' and only select the temporary user you created.</p>
 
 <h2><a name="FAQ-8"></a>I'm trying to log in using my
-LDAP/University/other external account, but the system does not let me
+LDAP/University/other external account, but the system does not allow me
 in.</h2>
 
 <p>In certain configurations CIFEX allows logging in using an <i>"external
@@ -137,27 +150,29 @@ authentication"</i> system (like LDAP) as well as using the <i>"internal
 for temporary accounts). Not being able to log in using external
 username and password indicates that your account has been used to
 create a temporary CIFEX user account. In this case, please contact the
-administrator of your CIFEX installation.</p>
+administrator of your CIFEX server.</p>
 
 <h2><a name="FAQ-9"></a>I already have a CIFEX account, but would
 like to use the same password that I use for LDAP/University/other
 external account.</h2>
 
-<p>Just log in with your temporary password, click <i>"External
-authentication"</i> option and type your password as stored in the external
-authentication system.</p>
+<p>Ask the CIFEX server administrator to switch the server to use 
+the external authentication source for the server and to switch 
+your account to <i>"External authentication"</i>.</p>
 
-<h2><a name="FAQ-10"></a>How to upload files larger than 2
+<h2><a name="FAQ-10"></a>How to upload and download files larger than 2
 Gigabytes?</h2>
 
-<p>Some web browsers only support uploading files smaller then 2 GB.
-In order to share larger files, CIFEX provides a small Java Web
-Start&#153; application. To use this application, just click on the link
-in the section <b>Upload Files with CIFEX Uploader</b> of the <b>Share</b>
-view. As a prerequisite, a Java&#153; Runtime Environment 5 (or higher)
-has to be installed on your computer.</p>
+<p>Web browsers only support uploading files smaller then 2 GB. For some web 
+browsers this limit applies also for downloads. In order to share larger files, 
+CIFEX provides two small Java Web Start&#153; applications, one for upload and 
+one for download. To use these applications, just click on the link in the section 
+<b>Upload Files with CIFEX Uploader</b> of the <b>Share</b> view or <b>Download Files 
+with CIFEX Downloader</b> of the <b>Inbox</b> view, respectively. As a prerequisite, 
+a Java&#153; Runtime Environment 5 (or higher) has to be installed on your 
+computer.</p>
 
-<p><u>Remark:</u> You do not need to specify the recipients when you
+<p><u>Hint:</u> You do not need to specify the recipients when you
 upload files with this application. They can be specified after
 uploading by clicking on the corresponding link <b>Edit sharing</b> in
 the table of uploaded files.</p>
@@ -167,6 +182,25 @@ command line?</h2>
 
 <p>Download the CIFEX command line client from the section <b>Upload
 Files with CIFEX Uploader</b> of the <b>Share</b> view This client supports
-uploading and downloading of files.
+uploading and downloading of files. It is particularly handy when uploading 
+files from a server or downloading them to a server that does not hava a 
+window manager running.</p>
+
+<p><u>Hint:</u> You may want to have a look at a terminal multiplexer like 
+<a href="http://www.gnu.org/software/screen/">GNU Screen</a> when triggering 
+a long-running upload and download on a server and want to disconnect while 
+the process is still running.</p>
+
+<h2><a name="FAQ-12"></a>Is there a way to resume a long upload 
+or download if it gets interrupted, e.g. due to a network failure?</h2>
+
+<p>Resuming an upload or download that got interrupted by a network or 
+computer failure is only possible when using the Java Web Start&#153; 
+based CIFEX Uploader or CIFEX Downloader, or the CIFEX command line client. 
+In this case the resume happens automatically. There is no resume 
+capability for browser-based uploads or downloads due to principal 
+limitations of how browsers can interact with your local file system. 
+For a download, you need to make sure to set the download location of the 
+download to the same directory that you used for the first download attempt.</p>
 </body>
 </html>
