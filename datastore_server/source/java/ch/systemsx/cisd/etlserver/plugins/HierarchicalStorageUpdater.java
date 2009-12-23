@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -155,7 +154,7 @@ public class HierarchicalStorageUpdater implements IMaintenanceTask
         {
             File toDelete = new File(pathToDelete);
             File parent = toDelete.getParentFile();
-            FileUtilities.deleteRecursively(toDelete);
+            deleteWithSymbolicLinks(toDelete);
             while (parent != null
                     && parent.getAbsolutePath().equals(hierarchyRoot.getAbsolutePath()) == false)
             {
@@ -170,6 +169,17 @@ public class HierarchicalStorageUpdater implements IMaintenanceTask
                 }
             }
         }
+    }
+
+    private static void deleteWithSymbolicLinks(File toDeleteParent)
+    {
+        for (File file : toDeleteParent.listFiles())
+        {
+            // all these files should be symbolic links to a dataset directory.
+            // We cannot delete recursively here, it would remove the original files.
+            file.delete();
+        }
+        toDeleteParent.delete();
     }
 
     /**
