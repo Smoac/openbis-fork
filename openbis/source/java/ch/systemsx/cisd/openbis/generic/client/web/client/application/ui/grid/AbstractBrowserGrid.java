@@ -871,11 +871,22 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             {
                 public void execute()
                 {
+                    // N. B. -- The order in which things are refreshed and configured is
+                    // significant
+
                     pagingToolbar.disableExportButton();
                     pagingToolbar.updateDefaultConfigButton(false);
-                    filterToolbar.refreshAndReset();
+
+                    // Need to reset filter fields *before* refreshing the gridso the list can be correctly
+                    // retrieved
+                    filterToolbar.resetFilterFields();
+
                     // export and config buttons are enabled when ListEntitiesCallback is complete
                     refresh();
+
+                    // Need to refresh the filter toolbar *after* refreshing the grid, because it has
+                    // a dependency on information from the grid that gets updated with the refesh
+                    filterToolbar.refresh();
                 }
             };
     }

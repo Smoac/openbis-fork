@@ -258,7 +258,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     }
 
     @SuppressWarnings("unchecked")
-    private void resetFilterFields()
+    public void resetFilterFields()
     {
         for (Component field : filterContainer.getItems())
         {
