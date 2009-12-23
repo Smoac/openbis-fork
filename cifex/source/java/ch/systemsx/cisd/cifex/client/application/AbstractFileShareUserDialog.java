@@ -250,10 +250,6 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                                         existingUsers,
                                                                         existingUserGrid.getGrid()
                                                                                 .getStore()));
-                                                // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you
-                                                // add a user to the list,
-                                                // all checkboxes are back to checked.
-                                                // This needs to cleared the removePersonArray
                                                 checkboxChangeAction();
                                             } else
                                             {
@@ -310,10 +306,6 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                                                 .getGrid()
                                                                                 .getStore()));
                                             }
-                                            // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you add
-                                            // a user to the list, all checkboxes are back to
-                                            // checked.
-                                            // This needs to cleared the removePersonArray
                                             checkboxChangeAction();
                                         }
 
