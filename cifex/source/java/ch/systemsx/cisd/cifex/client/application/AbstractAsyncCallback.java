@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
+import com.google.gwt.user.client.rpc.StatusCodeException;
 
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
@@ -71,7 +72,13 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         {
             if (StringUtils.isBlank(caught.getMessage()))
             {
-                msg = messageResources.getInvocationExceptionMessage();
+                if (caught instanceof StatusCodeException
+                        || (((StatusCodeException) caught).getStatusCode() == 0))
+                {
+                    msg =
+                            "StatusCodeException with status code 0 -- Are you in Mozilla working offline? If so, turn off 'Work Offline' mode.";
+                } else
+                    msg = messageResources.getInvocationExceptionMessage();
             } else
             {
                 msg = caught.getMessage();
