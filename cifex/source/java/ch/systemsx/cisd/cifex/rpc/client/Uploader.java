@@ -154,8 +154,8 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                             return;
                         }
                         lastExceptionOrNull = ex;
-                        fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName() + ": "
-                                + ex.getMessage() + ", will retry upload soon...");
+                        fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName()
+                                + ": " + ex.getMessage() + ", will retry upload soon...");
                         sleepAfterFailure();
                     }
                 }
@@ -197,8 +197,8 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         {
             fireStartedEvent(file, fileSize);
             contentStream =
-                    new ResumingAndChecksummingInputStream(file,
-                            PROGRESS_REPORT_BLOCK_SIZE, new IWriteProgressListener()
+                    new ResumingAndChecksummingInputStream(file, PROGRESS_REPORT_BLOCK_SIZE,
+                            new IWriteProgressListener()
                                 {
                                     long lastUpdated = System.currentTimeMillis();
 
@@ -223,8 +223,8 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
             if (resumeFileInfoOrNull != null)
             {
                 fireProgressEvent(resumeFileInfoOrNull.getSize(), fileSize);
-                service.resumeUpload(sessionID, resumeFileInfoOrNull.getID(),
-                        resumeFileInfoOrNull.getSize(), comment, contentStream);
+                service.resumeUpload(sessionID, resumeFileInfoOrNull.getID(), resumeFileInfoOrNull
+                        .getSize(), comment, contentStream);
                 fileId = resumeFileInfoOrNull.getID();
             } else
             {
@@ -237,8 +237,8 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                 // File size has changed during upload
                 service.deleteFile(sessionID, fileId);
                 throw EnvironmentFailureException.fromTemplate(
-                        "File size has changed during upload [expected: %d, found: %d]",
-                        fileSize, file.length());
+                        "File size has changed during upload [expected: %d, found: %d]", fileSize,
+                        file.length());
             }
         } finally
         {
@@ -273,7 +273,13 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     {
         for (IProgressListener listener : listeners)
         {
-            ((IUploadProgressListener) listener).fileUploaded();
+            try
+            {
+                ((IUploadProgressListener) listener).fileUploaded();
+            } catch (Throwable th)
+            {
+                th.printStackTrace();
+            }
         }
     }
 
@@ -281,7 +287,13 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     {
         for (IProgressListener listener : listeners)
         {
-            ((IUploadProgressListener) listener).reset();
+            try
+            {
+                ((IUploadProgressListener) listener).reset();
+            } catch (Throwable th)
+            {
+                th.printStackTrace();
+            }
         }
     }
 

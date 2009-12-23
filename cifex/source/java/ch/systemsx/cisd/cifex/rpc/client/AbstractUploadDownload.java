@@ -39,14 +39,14 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
 {
     protected static final int PROGRESS_REPORT_BLOCK_SIZE = 128 * 1024; // 128kB
 
-    protected static final int PROGRESS_UPDATE_MIN_INTERVAL_MILLIS = 1 * 1000; // 1 second 
-    
+    protected static final int PROGRESS_UPDATE_MIN_INTERVAL_MILLIS = 1 * 1000; // 1 second
+
     protected static final int DEFAULT_BLOCK_SIZE = 8 * 1024 * 1024;
 
     protected static final int MAX_RETRIES = 600;
 
     private static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L;
-    
+
     protected final int blockSize;
 
     protected final ICIFEXRPCService service;
@@ -66,8 +66,8 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     {
         this(service, sessionID, DEFAULT_BLOCK_SIZE);
     }
-     
-   /**
+
+    /**
      * Creates an instance for the specified service and session ID.
      */
     public AbstractUploadDownload(ICIFEXRPCService service, String sessionID, int blockSize)
@@ -133,7 +133,13 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     {
         for (IProgressListener listener : listeners)
         {
-            listener.start(file, fileSize);
+            try
+            {
+                listener.start(file, fileSize);
+            } catch (Throwable th)
+            {
+                th.printStackTrace();
+            }
         }
     }
 
@@ -142,7 +148,13 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
         int percentage = (int) ((numberOfBytes * 100) / Math.max(1, fileSize));
         for (IProgressListener listener : listeners)
         {
-            listener.reportProgress(percentage, numberOfBytes);
+            try
+            {
+                listener.reportProgress(percentage, numberOfBytes);
+            } catch (Throwable th)
+            {
+                th.printStackTrace();
+            }
         }
     }
 
@@ -150,7 +162,13 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     {
         for (IProgressListener listener : listeners)
         {
-            listener.finished(successful);
+            try
+            {
+                listener.finished(successful);
+            } catch (Throwable th)
+            {
+                th.printStackTrace();
+            }
         }
     }
 
@@ -158,7 +176,13 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     {
         for (IProgressListener listener : listeners)
         {
-            listener.exceptionOccured(throwable);
+            try
+            {
+                listener.exceptionOccured(throwable);
+            } catch (Throwable th)
+            {
+                th.printStackTrace();
+            }
         }
     }
 
@@ -166,7 +190,13 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     {
         for (IProgressListener listener : listeners)
         {
-            listener.warningOccured(warningMessage);
+            try
+            {
+                listener.warningOccured(warningMessage);
+            } catch (Throwable th)
+            {
+                th.printStackTrace();
+            }
         }
     }
 
