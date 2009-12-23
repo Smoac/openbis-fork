@@ -43,7 +43,7 @@ public final class EditUserDialog extends DefaultLayoutDialog
             final GridWidget<UserGridModel> userGrid)
     {
         super(context.getMessageResources(), context.getMessageResources().getEditUserDialogTitle(
-                user.getUserCode()), UserWidget.TOTAL_WIDTH + 30, 320);
+                user.getUserCode()), UserWidget.TOTAL_WIDTH + 30, getHeight(context));
         editUserWidget =
                 new EditUserWidget(context, context.getModel().getUser().isAdmin(), user, false)
                     {
@@ -58,7 +58,16 @@ public final class EditUserDialog extends DefaultLayoutDialog
         createUpdateButton();
     }
 
-    private final void createUpdateButton()
+    private static int getHeight(final ViewContext context)
+    {
+        // If the system has external authentication the dialog has one more field and needs to be
+        // higher.
+        final boolean hasExternalAuthentication =
+                context.getModel().getConfiguration().getSystemHasExternalAuthentication();
+        return hasExternalAuthentication ? 330 : 320;
+    }
+
+    private void createUpdateButton()
     {
         final Button button = new Button(editUserWidget.getSubmitButtonLabel());
         button.addSelectionListener(new SelectionListener<ButtonEvent>()
