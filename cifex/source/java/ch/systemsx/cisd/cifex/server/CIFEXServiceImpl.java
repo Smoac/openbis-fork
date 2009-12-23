@@ -317,6 +317,11 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         {
             return;
         }
+        if (StringUtils.isBlank(user.getEmail()))
+        {
+            throw new UserFailureException(
+                    "No email address but user not found in external authentication service!");
+        }
 
         final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
         try
