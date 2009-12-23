@@ -138,7 +138,8 @@ abstract class AbstractCommand implements ICommand
         }
     }
 
-    protected void addConsoleProgressListener(final IProgressListenerHolder downloader)
+    protected void addConsoleProgressListener(final IProgressListenerHolder downloader,
+            final boolean noProgressFeedback)
     {
         downloader.addProgressListener(new IProgressListener()
             {
@@ -152,7 +153,11 @@ abstract class AbstractCommand implements ICommand
 
                 public void reportProgress(int percentage, long numberOfBytes)
                 {
-                    System.out.print("\r" + percentage + "% (" + numberOfBytes + "/" + size + ")");
+                    if (noProgressFeedback == false)
+                    {
+                        System.out.print("\r" + percentage + "% (" + numberOfBytes + "/" + size
+                                + ")");
+                    }
                 }
 
                 public void finished(boolean successful)

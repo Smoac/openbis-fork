@@ -50,6 +50,9 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
 
         @Option(name = "n", longName = "name", metaVar = "FILE", usage = "File name to use for the downloaded file (instead of the one stored in CIFEX).")
         private String name;
+        
+        @Option(name = "q", longName = "quiet", usage = "Suppress progress reporting.")
+        private boolean quiet;
 
         private long fileID;
 
@@ -85,6 +88,11 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
         public String getName()
         {
             return name;
+        }
+
+        public boolean beQuiet()
+        {
+            return quiet;
         }
 
         public long getFileID()
@@ -124,7 +132,7 @@ public class FileDownloadCommand extends AbstractCommandWithSessionToken
             throws UserFailureException, EnvironmentFailureException
     {
         final ICIFEXDownloader downloader = cifex.createDownloader(sessionToken);
-        addConsoleProgressListener(downloader);
+        addConsoleProgressListener(downloader, getParameters().beQuiet());
         downloader.download(getParameters().getFileID(), getParameters().getDirectory(),
                 getParameters().getName());
         return 0;

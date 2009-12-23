@@ -50,6 +50,9 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
         @Option(name = "r", longName = "recipients", metaVar = "STRING", usage = "Comma separated list of recipients.")
         private String recipients;
 
+        @Option(name = "q", longName = "quiet", usage = "Suppress progress reporting.")
+        private boolean quiet;
+
         private File file;
 
         public Parameters(String[] args)
@@ -77,6 +80,11 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
         File getFile()
         {
             return file;
+        }
+
+        public boolean beQuiet()
+        {
+            return quiet;
         }
 
     }
@@ -111,7 +119,7 @@ public class FileUploadCommand extends AbstractCommandWithSessionToken
             throws UserFailureException, EnvironmentFailureException
     {
         final ICIFEXUploader uploader = cifex.createUploader(sessionToken);
-        addConsoleProgressListener(uploader);
+        addConsoleProgressListener(uploader, getParameters().beQuiet());
         uploader.upload(Collections.singletonList(getParameters().getFile()), getParameters()
                 .getRecipients(), getParameters().getComment());
         return 0;
