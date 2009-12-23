@@ -30,6 +30,8 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
+ * The dialog for editing file sharing used for the "Edit Sharing" action in the file grid.
+ * 
  * @author Basil Neff
  */
 public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
@@ -104,8 +106,8 @@ public class FileShareUpdateUserDialog extends AbstractFileShareUserDialog
                 {
                     usersToRemove.remove(userIdentifier);
                 }
-                // If the user is not initialy sharing the file and not yet on the list,
-                // add him to the list
+                // If the user is not along the users the file was initially sharing with not yet 
+                // on the list of users to add, add him now
                 if (initialSharingUsers.contains(tmpUser) == false
                         && usersToAdd.contains(userIdentifierWithPrefix) == false)
                 {

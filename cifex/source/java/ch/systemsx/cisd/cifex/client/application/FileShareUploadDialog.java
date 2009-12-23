@@ -25,6 +25,8 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
+ * The dialog for editing file sharing used for the "File upload" widget.
+ * 
  * @author Basil Neff
  */
 public class FileShareUploadDialog extends AbstractFileShareUserDialog

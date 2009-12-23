@@ -74,12 +74,12 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
     }
 
     public AbstractFileShareUserDialog(final ViewContext context,
-            final List<UserInfoDTO> existingUsers, final List<UserInfoDTO> newUsers,
+            final List<UserInfoDTO> oldSharingUsers, final List<UserInfoDTO> newUsers,
             final String name)
     {
         super(context.getMessageResources(), context.getMessageResources()
                 .getFileSharingTitle(name), DIALOG_WIDTH, DIALOG_HEIGHT);
-        this.existingUsers = existingUsers;
+        this.existingUsers = oldSharingUsers;
         this.newUsers = newUsers;
         this.viewContext = context;
         this.existingUserGrid = createUserGrid(this.existingUsers);
@@ -100,9 +100,9 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
     public void refresh()
     {
         newUserGrid.setDataAndRefresh(FileShareUserGridModel.convert(messageResources, viewContext
-                .getModel().getUser(), newUsers));
+                .getModel().getUser(), newUsers, null));
         existingUserGrid.setDataAndRefresh(FileShareUserGridModel.convert(messageResources,
-                viewContext.getModel().getUser(), existingUsers));
+                viewContext.getModel().getUser(), existingUsers, null));
     }
 
     static ArrayList<UserInfoDTO> getArrayList(UserInfoDTO[] users)
@@ -153,7 +153,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
     {
         List<FileShareUserGridModel> data =
                 FileShareUserGridModel.convert(messageResources, viewContext.getModel().getUser(),
-                        users);
+                        users, null);
         List<ColumnConfig> columnConfigs =
                 FileShareUserGridModel.getColumnConfigs(messageResources);
         List<AbstractFilterField<FileShareUserGridModel>> filterItems =
@@ -247,7 +247,9 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                                 .convert(messageResources,
                                                                         viewContext.getModel()
                                                                                 .getUser(),
-                                                                        existingUsers));
+                                                                        existingUsers,
+                                                                        existingUserGrid.getGrid()
+                                                                                .getStore()));
                                                 // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you
                                                 // add a user to the list,
                                                 // all checkboxes are back to checked.
@@ -255,14 +257,10 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                 checkboxChangeAction();
                                             } else
                                             {
-                                                MessageBox
-                                                        .alert(
-                                                                viewContext.getMessageResources()
-                                                                        .getMessageBoxErrorTitle(),
-                                                                viewContext
-                                                                        .getMessageResources()
-                                                                        .getUserNotFound(
-                                                                                userCode), null);
+                                                MessageBox.alert(viewContext.getMessageResources()
+                                                        .getMessageBoxErrorTitle(), viewContext
+                                                        .getMessageResources().getUserNotFound(
+                                                                userCode), null);
                                             }
                                         }
 
@@ -291,7 +289,9 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                                 .convert(messageResources,
                                                                         viewContext.getModel()
                                                                                 .getUser(),
-                                                                        existingUsers));
+                                                                        existingUsers,
+                                                                        existingUserGrid.getGrid()
+                                                                                .getStore()));
                                             } else
                                             {
 
@@ -306,10 +306,13 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                                                                 .convert(messageResources,
                                                                         viewContext.getModel()
                                                                                 .getUser(),
-                                                                        newUsers));
+                                                                        newUsers, newUserGrid
+                                                                                .getGrid()
+                                                                                .getStore()));
                                             }
                                             // TODO 2008-06-03, Basil Neff: Bug CFX-103: If you add
-                                            // a user to the list, all checkboxes are back to checked.
+                                            // a user to the list, all checkboxes are back to
+                                            // checked.
                                             // This needs to cleared the removePersonArray
                                             checkboxChangeAction();
                                         }

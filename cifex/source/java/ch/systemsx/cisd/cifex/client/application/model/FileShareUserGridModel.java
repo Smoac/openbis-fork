@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.cifex.client.application.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -27,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -37,15 +40,16 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public final class FileShareUserGridModel extends AbstractUserGridModel
 {
+    private static final String ID_PREFIX = "id:";
+
     private static final long serialVersionUID = Constants.VERSION;
 
     public static final String SHARE_FILE = "shareFile";
 
     public FileShareUserGridModel(final IMessageResources messageResources,
-            final UserInfoDTO currentUser, UserInfoDTO user)
+            final UserInfoDTO currentUser, final UserInfoDTO user, final boolean checkedUser)
     {
         super(messageResources, currentUser);
-        boolean checkedUser = true;
         String registratorAnchor = null;
         if (user.getRegistrator() != null)
         {
@@ -61,16 +65,44 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
     }
 
     public final static List<FileShareUserGridModel> convert(IMessageResources messageResources,
-            final UserInfoDTO currentUser, final List<UserInfoDTO> users)
+            final UserInfoDTO currentUser, final List<UserInfoDTO> users,
+            final ListStore<FileShareUserGridModel> storeOrNull)
     {
         if (users == null)
         {
             return null;
         }
-        final List<FileShareUserGridModel> result = new ArrayList<FileShareUserGridModel>();
-        for (final UserInfoDTO filter : users)
+        final Map<String, Boolean> checkStatusMap = new HashMap<String, Boolean>();
+        if (storeOrNull != null)
         {
-            result.add(new FileShareUserGridModel(messageResources, currentUser, filter));
+            for (int i = 0; i < storeOrNull.getCount(); ++i)
+            {
+                final FileShareUserGridModel m = storeOrNull.getAt(i);
+                final Boolean checkedUser = m.get(FileShareUserGridModel.SHARE_FILE);
+                final String userCode = m.get(FileShareUserGridModel.USER_CODE);
+                if (userCode != null)
+                {
+                    checkStatusMap.put(ID_PREFIX + userCode, checkedUser);
+                }
+                checkStatusMap.put((String) m.get(FileShareUserGridModel.USER_EMAIL), checkedUser);
+            }
+        }
+
+        final List<FileShareUserGridModel> result = new ArrayList<FileShareUserGridModel>();
+        for (final UserInfoDTO user : users)
+        {
+            final String userCodeOrNull = user.getUserCode();
+            Boolean checkedUserValue =
+                    StringUtils.isBlank(userCodeOrNull) ? null : checkStatusMap.get(ID_PREFIX
+                            + userCodeOrNull);
+            if (checkedUserValue == null)
+            {
+                checkedUserValue = checkStatusMap.get(user.getEmail());
+            }
+            final boolean checkedUser = (Boolean.FALSE.equals(checkedUserValue) == false);
+            result
+                    .add(new FileShareUserGridModel(messageResources, currentUser, user,
+                            checkedUser));
         }
         return result;
     }
