@@ -701,7 +701,6 @@ final class FileManager extends AbstractManager implements IFileManager
         }
         final Set<UserDTO> allUsers = new HashSet<UserDTO>();
         final List<String> invalidEmailAdresses = new ArrayList<String>();
-        setRegistrator(requestUser, files);
         boolean success = false;
         RuntimeException firstExceptionOrNull = null;
         try
@@ -735,14 +734,6 @@ final class FileManager extends AbstractManager implements IFileManager
         {
             businessContext.getUserActionLog().logShareFiles(files, allUsers, userIdentifiers,
                     invalidEmailAdresses, success);
-        }
-    }
-
-    private void setRegistrator(final UserDTO requestUser, final Collection<FileDTO> files)
-    {
-        for (FileDTO file : files)
-        {
-            file.setOwner(requestUser);
         }
     }
 
