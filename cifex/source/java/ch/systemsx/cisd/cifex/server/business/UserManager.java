@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import static ch.systemsx.cisd.cifex.server.util.ExpirationUtilities.fixExpiration;
-
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -122,10 +119,8 @@ class UserManager extends AbstractManager implements IUserManager
         boolean success = false;
         try
         {
-            // Check that the new expiration date is in the valid range.
-            checkAndFixUserExpiration(null, user, registratorOrNull);
             final IUserBO userBO = boFactory.createUserBO();
-            userBO.define(user);
+            userBO.defineForCreate(user, registratorOrNull, false);
             userBO.save();
             success = true;
         } catch (final DataIntegrityViolationException ex)
@@ -148,7 +143,6 @@ class UserManager extends AbstractManager implements IUserManager
     {
         final String finalPassword = getFinalPassword(password);
         user.setPassword(new Password(finalPassword));
-        user.setRegistrator(registrator);
         createUser(user, registrator);
         sendEmailToNewUser(user, registrator, comment, basicURL, finalPassword);
     }
@@ -322,120 +316,16 @@ class UserManager extends AbstractManager implements IUserManager
         UserDTO existingUser = null;
         try
         {
-            final IUserDAO userDAO = daoFactory.getUserDAO();
-            // Get old user entry
-            existingUser =
-                    oldUserToUpdateOrNull != null ? oldUserToUpdateOrNull : getUserByCode(userDAO,
-                            userToUpdate.getUserCode());
-
-            userToUpdate.setID(existingUser.getID());
-            userToUpdate.setQuotaGroupId(existingUser.getQuotaGroupId());
-
-            if (userToUpdate.isExternallyAuthenticated() != existingUser
-                    .isExternallyAuthenticated())
-            {
-                // If there has been a change to the user's external authentication state, apply the
-                // consenquences
-                if (userToUpdate.isExternallyAuthenticated())
-                {
-                    userToUpdate.setExternallyAuthenticated(true);
-                    userToUpdate.setExpirationDate(null);
-                    userToUpdate.setRegistrator(null);
-                } else
-                {
-                    userToUpdate.setExternallyAuthenticated(false);
-                    userToUpdate.setExpirationDate(null);
-                    userToUpdate.setRegistrator(requestUserOrNull);
-                }
-            }
-
-            // Check that the new expiration date is in the valid range.
-            checkAndFixUserExpiration(existingUser, userToUpdate, requestUserOrNull);
-
-            // Password, update it if it has been provided.
-            if (Password.isEmpty(passwordOrNull) == false)
-            {
-                userToUpdate.setPassword(passwordOrNull);
-            }
-
-            // Permanent users are always the main user of the quota group that they are in.
-            // If that is not the case (e.g. when a temporary user switches to external
-            // authentication), then we give the user a quota group of its own here.
-            if ((userToUpdate.isAdmin() || userToUpdate.isPermanent())
-                    && userDAO.isMainUserOfQuotaGroup(userToUpdate) == false)
-            {
-                // The trigger UPDATE_ACCOUNTING_ON_UPDATE_USER() will create and set a new quota
-                // group if we set it to null here.
-                userToUpdate.setQuotaGroupId(null);
-            }
-
-            // If we switch a temporary user to permanent and the registrator of the user is no
-            // administrator, make the current request user the new registrator.
-            // Same is true when the user doesn't yet have a registrator.
-            if ((oldUserToUpdateOrNull != null && oldUserToUpdateOrNull.isPermanent() == false
-                    && userToUpdate.isPermanent() && userToUpdate.getRegistrator() != null && userToUpdate
-                    .getRegistrator().isAdmin() == false)
-                    || userToUpdate.getRegistrator() == null)
-            {
-                userToUpdate.setRegistrator(requestUserOrNull);
-            }
-
-            userDAO.updateUser(userToUpdate);
+            final IUserBO userBO = boFactory.createUserBO();
+            userBO.defineForUpdate(oldUserToUpdateOrNull, userToUpdate, passwordOrNull,
+                    requestUserOrNull);
+            existingUser = userBO.getOldUser();
+            userBO.save();
             success = true;
         } finally
         {
             businessContext.getUserActionLog().logUpdateUser(existingUser, userToUpdate, success);
         }
-    }
-
-    private void checkAndFixUserExpiration(UserDTO oldUserOrNull, final UserDTO userToUpdate,
-            final UserDTO requestUserOrNull)
-    {
-        if (userToUpdate.isPermanent() == false)
-        {
-            final Date registrationDate = getRegistrationDate(oldUserOrNull);
-            final Integer maxRetentionDaysOrNull = tryGetMaxUserRetentionDays(requestUserOrNull);
-            final Date expirationDate =
-                    fixExpiration(userToUpdate.getExpirationDate(), registrationDate,
-                            maxRetentionDaysOrNull);
-            userToUpdate.setExpirationDate(expirationDate);
-        }
-    }
-
-    private Date getRegistrationDate(UserDTO userOrNull)
-    {
-        return (userOrNull == null) ? new Date() : userOrNull.getRegistrationDate();
-    }
-
-    private Integer tryGetMaxUserRetentionDays(final UserDTO requestUserOrNull)
-    {
-        if (requestUserOrNull == null)
-        {
-            return businessContext.getMaxUserRetention();
-        } else
-        {
-            if (requestUserOrNull.isAdmin())
-            {
-                return null;
-            }
-            return (requestUserOrNull.getMaxUserRetention() == null) ? businessContext
-                    .getMaxUserRetention() : requestUserOrNull.getMaxUserRetention();
-        }
-    }
-
-    private static UserDTO getUserByCode(final IUserDAO userDAO, final String userCode)
-            throws UserFailureException
-    {
-        assert userCode != null;
-
-        final UserDTO existingUser = userDAO.tryFindUserByCode(userCode);
-        if (existingUser == null)
-        {
-            final String msg = String.format("User '%s' does not exist in the database.", userCode);
-            throw new UserFailureException(msg);
-        }
-        assert userCode.equals(existingUser.getUserCode()) : "Mismatch in user code";
-        return existingUser;
     }
 
     @Transactional

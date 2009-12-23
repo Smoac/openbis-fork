@@ -917,7 +917,7 @@ public class FileManagerTest extends AbstractFileSystemTestCase
         return fileRetention == null ? DEFAULT_FILE_RETENTION : fileRetention.intValue();
     }
 
-    final static UserDTO createSampleUserDTO(final long id, final String email)
+    final static UserDTO createSampleUserDTO(final Long id, final String email)
     {
         final UserDTO user = new UserDTO();
         user.setID(id);

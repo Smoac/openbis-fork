@@ -34,25 +34,32 @@ public class ExpirationUtilities
      * Checks that the new expiration date is in the valid range, otherwise sets it to the limit of
      * what is allowed ('fixes it').
      * 
-     * @param proposedExpirationDate The expiration date the user would like to set.
+     * @param proposedExpirationDateOrNull The expiration date the user would like to set, or
+     *            <code>null</code>, if the default should be used.
      * @param registrationDateOrNull The date when the entity to compute the expiration date for was
      *            registered or <code>null</code>. If <code>null</code>, the current date will be
      *            used as registration date.
      * @param maxRetentionDaysOrNull The maximal days of retention for the entity to compute the
      *            expiration date for or <code>null</code>. If <code>null</code>, no limit applies.
+     * @param defaultRetentionDays The default number of days of retention.
      * @return The new expiration date of the entity
      */
-    public static Date fixExpiration(final Date proposedExpirationDate,
-            final Date registrationDateOrNull, final Integer maxRetentionDaysOrNull)
+    public static Date fixExpiration(final Date proposedExpirationDateOrNull,
+            final Date registrationDateOrNull, final Integer maxRetentionDaysOrNull,
+            final int defaultRetentionDays)
     {
-        assert proposedExpirationDate != null;
+        assert defaultRetentionDays >= 0;
+        
+        final Date registrationDate =
+                (registrationDateOrNull == null) ? new Date() : registrationDateOrNull;
+        final Date proposedExpirationDate =
+                (proposedExpirationDateOrNull == null) ? DateUtils.addDays(registrationDate,
+                        defaultRetentionDays) : proposedExpirationDateOrNull;
 
         if (maxRetentionDaysOrNull == null)
         {
             return extendUntilEndOfDay(proposedExpirationDate);
         }
-        final Date registrationDate =
-                (registrationDateOrNull == null) ? new Date() : registrationDateOrNull;
         final Date maxExpirationDate = DateUtils.addDays(registrationDate, maxRetentionDaysOrNull);
         if (proposedExpirationDate.getTime() > maxExpirationDate.getTime())
         {

@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 
 /**
  * Test cases for {@link ExpirationUtilities}.
- *
+ * 
  * @author Bernd Rinn
  */
 public class ExpirationUtilitiesTest
@@ -40,13 +40,28 @@ public class ExpirationUtilitiesTest
 
         final Date rd = df.parse("2009-12-09 11:23:15");
         Date d = df.parse("2009-12-12 14:39:55");
-        assertEquals("2009-12-12 23:59:59", df.format(ExpirationUtilities.fixExpiration(d, null, null)));
+        assertEquals("2009-12-12 23:59:59", df.format(ExpirationUtilities.fixExpiration(d, null,
+                null, 0)));
 
         d = df.parse("2009-12-12 14:39:55");
-        assertEquals("2009-12-12 23:59:59", df.format(ExpirationUtilities.fixExpiration(d, rd, 10)));
-        assertEquals("2009-12-12 23:59:59", df.format(ExpirationUtilities.fixExpiration(d, rd, 3)));
-        assertEquals("2009-12-11 23:59:59", df.format(ExpirationUtilities.fixExpiration(d, rd, 2)));
-        assertEquals("2009-12-10 23:59:59", df.format(ExpirationUtilities.fixExpiration(d, rd, 1)));
+        assertEquals("2009-12-12 23:59:59", df.format(ExpirationUtilities.fixExpiration(d, rd, 10,
+                0)));
+        assertEquals("2009-12-12 23:59:59", df.format(ExpirationUtilities
+                .fixExpiration(d, rd, 3, 0)));
+        assertEquals("2009-12-11 23:59:59", df.format(ExpirationUtilities
+                .fixExpiration(d, rd, 2, 0)));
+        assertEquals("2009-12-10 23:59:59", df.format(ExpirationUtilities
+                .fixExpiration(d, rd, 1, 0)));
     }
-    
+
+    @Test
+    public void testFixExpirationDefault() throws ParseException
+    {
+        final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        final Date rd = df.parse("2009-12-09 11:23:15");
+        assertEquals("2009-12-10 23:59:59", df.format(ExpirationUtilities.fixExpiration(null, rd,
+                null, 1)));
+    }
+
 }

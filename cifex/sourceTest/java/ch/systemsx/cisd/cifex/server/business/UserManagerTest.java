@@ -28,8 +28,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
+import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
-import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
@@ -55,9 +55,9 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     private IBusinessContext businessContext;
 
-    private IUserBO userBO;
-
     private UserDTO userAlice;
+
+    private UserDTO newUserAlice;
 
     private IUserSessionInvalidator userSessionInvalidator;
 
@@ -67,10 +67,10 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     {
         context = new Mockery();
         userAlice = FileManagerTest.createSampleUserDTO(1L, "alice@users.com");
+        newUserAlice = FileManagerTest.createSampleUserDTO(null, "alice@users.com");
         daoFactory = context.mock(IDAOFactory.class);
         userDAO = context.mock(IUserDAO.class);
-        boFactory = context.mock(IBusinessObjectFactory.class);
-        userBO = context.mock(IUserBO.class);
+        boFactory = new BusinessObjectFactory(daoFactory, businessContext);
         businessContext = context.mock(IBusinessContext.class);
         userSessionInvalidator = context.mock(IUserSessionInvalidator.class);
         userManager = new UserManager(daoFactory, boFactory, businessContext);
@@ -87,19 +87,18 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     @Test
     public void testCreateUser()
     {
-        final UserDTO user = userAlice;
+        final UserDTO user = newUserAlice;
         context.checking(new Expectations()
             {
                 {
-                    allowing(boFactory).createUserBO();
-                    will(returnValue(userBO));
+                    one(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).createUser(newUserAlice);
                     allowing(businessContext).getUserActionLog();
                     will(returnValue(new DummyUserActionLog()));
-                    one(userBO).define(user);
-                    one(userBO).save();
                 }
             });
-        userManager.createUser(user, user.getRegistrator());
+        userManager.createUser(user, null);
         context.assertIsSatisfied();
     }
 
@@ -236,7 +235,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     @Test
     public final void testDoNotChangeUserIsExternallyAuthenticated()
     {
-        final UserDTO oldUserToUpdate = userAlice; 
+        final UserDTO oldUserToUpdate = userAlice;
         final UserDTO userToUpdate = FileManagerTest.createSampleUserDTO(1L, "alice@users.com");
 
         context.checking(new Expectations()
@@ -251,15 +250,17 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(new DummyUserActionLog()));
                 }
             });
-        userManager.updateUser(oldUserToUpdate, userToUpdate, null, oldUserToUpdate.getRegistrator());
-        assertEquals(oldUserToUpdate.isExternallyAuthenticated(), userToUpdate.isExternallyAuthenticated());
+        userManager.updateUser(oldUserToUpdate, userToUpdate, null, oldUserToUpdate
+                .getRegistrator());
+        assertEquals(oldUserToUpdate.isExternallyAuthenticated(), userToUpdate
+                .isExternallyAuthenticated());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public final void testChangeUserIsExternallyAuthenticated()
     {
-        final UserDTO oldUserToUpdate = userAlice; 
+        final UserDTO oldUserToUpdate = userAlice;
         final UserDTO userToUpdate = FileManagerTest.createSampleUserDTO(1L, "alice@users.com");
         userToUpdate.setExternallyAuthenticated(true);
 
@@ -275,8 +276,10 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(new DummyUserActionLog()));
                 }
             });
-        userManager.updateUser(oldUserToUpdate, userToUpdate, null, oldUserToUpdate.getRegistrator());
-        assertEquals(!oldUserToUpdate.isExternallyAuthenticated(), userToUpdate.isExternallyAuthenticated());
+        userManager.updateUser(oldUserToUpdate, userToUpdate, null, oldUserToUpdate
+                .getRegistrator());
+        assertEquals(oldUserToUpdate.isExternallyAuthenticated() == false, userToUpdate
+                .isExternallyAuthenticated());
         context.assertIsSatisfied();
     }
 

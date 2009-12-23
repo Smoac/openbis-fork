@@ -936,7 +936,7 @@ final class FileManager extends AbstractManager implements IFileManager
             user.setPassword(new Password(password));
             user.setRegistrator(requestUser);
             final IUserBO userBO = boFactory.createUserBO();
-            userBO.define(user);
+            userBO.defineForCreate(user, requestUser, true);
             userBO.save();
             return user;
         } else
@@ -1061,7 +1061,8 @@ final class FileManager extends AbstractManager implements IFileManager
         final Date registrationDateOrNull =
                 (maxRetentionDaysOrNull == null) ? null : daoFactory.getFileDAO()
                         .getFileRegistrationDate(fileId);
-        return fixExpiration(proposedExpirationDate, registrationDateOrNull, maxRetentionDaysOrNull);
+        return fixExpiration(proposedExpirationDate, registrationDateOrNull,
+                maxRetentionDaysOrNull, businessContext.getFileRetention());
     }
 
     private Integer tryGetMaxFileRetentionDays(final UserDTO requestUserOrNull)
