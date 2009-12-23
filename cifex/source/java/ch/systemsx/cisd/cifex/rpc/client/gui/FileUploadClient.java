@@ -43,6 +43,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -222,13 +223,19 @@ public class FileUploadClient
 
                 private String lastWarningMessage;
 
-                public void warningOccured(String warningMessage)
+                public void warningOccured(final String warningMessage)
                 {
                     if (warningMessage.equals(lastWarningMessage) == false)
                     {
                         lastWarningMessage = warningMessage;
-                        JOptionPane.showMessageDialog(frame, warningMessage, "Warning",
-                                JOptionPane.WARNING_MESSAGE);
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                JOptionPane.showMessageDialog(frame, warningMessage, "Warning",
+                                        JOptionPane.WARNING_MESSAGE);
+                            }
+                        });
                     }
                 }
 

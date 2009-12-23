@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -391,13 +392,19 @@ public class FileDownloadClient
 
                 private String lastWarningMessage;
 
-                public void warningOccured(String warningMessage)
+                public void warningOccured(final String warningMessage)
                 {
                     if (warningMessage.equals(lastWarningMessage) == false)
                     {
                         lastWarningMessage = warningMessage;
-                        JOptionPane.showMessageDialog(frame, warningMessage, "Warning",
-                                JOptionPane.WARNING_MESSAGE);
+                        SwingUtilities.invokeLater(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    JOptionPane.showMessageDialog(frame, warningMessage, "Warning",
+                                            JOptionPane.WARNING_MESSAGE);
+                                }
+                            });
                     }
                 }
 

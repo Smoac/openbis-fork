@@ -102,11 +102,11 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                     {
                         input = service.download(sessionID, fileID, clientFileSize);
                         output =
-                                new ResumingAndChecksummingOutputStream(file, PROGRESS_REPORT_BLOCK_SIZE,
-                                        new IWriteProgressListener()
+                                new ResumingAndChecksummingOutputStream(file,
+                                        PROGRESS_REPORT_BLOCK_SIZE, new IWriteProgressListener()
                                             {
                                                 long lastUpdated = System.currentTimeMillis();
-        
+
                                                 public void update(long bytesWritten, int crc32Value)
                                                 {
                                                     if (cancelled.get())
@@ -124,10 +124,11 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                                             }, clientFileSize);
                         IOUtils.copyLarge(input, output);
                         final int crc32Value = output.getCrc32Value();
-                        if (fileInfo.getCrc32Value() != null && crc32Value != fileInfo.getCrc32Value())
+                        if (fileInfo.getCrc32Value() != null
+                                && crc32Value != fileInfo.getCrc32Value())
                         {
-                            throw new CRCCheckumMismatchException(fileInfo.getName(), crc32Value, fileInfo
-                                    .getCrc32Value());
+                            throw new CRCCheckumMismatchException(fileInfo.getName(), crc32Value,
+                                    fileInfo.getCrc32Value());
                         }
                     } finally
                     {
@@ -146,8 +147,15 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                         return;
                     }
                     lastExceptionOrNull = ex;
-                    fireWarningEvent("Error during download: " + ex.getClass().getSimpleName() + ": "
-                            + ex.getMessage() + ", will retry download soon...");
+                    if (ex.getMessage() != null)
+                    {
+                        fireWarningEvent("Error during download: " + ex.getClass().getSimpleName()
+                                + ": '" + ex.getMessage() + "', will retry download soon...");
+                    } else
+                    {
+                        fireWarningEvent("Error during download: " + ex.getClass().getSimpleName()
+                                + ", will retry download soon...");
+                    }
                     sleepAfterFailure();
                 }
             }

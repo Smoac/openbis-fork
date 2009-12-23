@@ -154,8 +154,15 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                             return;
                         }
                         lastExceptionOrNull = ex;
-                        fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName()
-                                + ": " + ex.getMessage() + ", will retry upload soon...");
+                        if (ex.getMessage() != null)
+                        {
+                            fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName()
+                                    + ": '" + ex.getMessage() + "', will retry download soon...");
+                        } else
+                        {
+                            fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName()
+                                    + ", will retry download soon...");
+                        }
                         sleepAfterFailure();
                     }
                 }
