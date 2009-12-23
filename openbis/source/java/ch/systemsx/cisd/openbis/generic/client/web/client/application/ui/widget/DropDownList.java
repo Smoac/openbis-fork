@@ -143,6 +143,14 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                 {
                     super.filter(property, null);
                 }
+
+                @Override
+                public void add(List<? extends M> models)
+                {
+                    clearFilters();
+                    super.add(models);
+                    applyFilters(comboBox.getDisplayField());
+                }
             };
         newStore.addFilter(filter);
         return newStore;
