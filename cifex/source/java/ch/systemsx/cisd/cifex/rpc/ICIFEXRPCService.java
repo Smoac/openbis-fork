@@ -86,6 +86,12 @@ public interface ICIFEXRPCService
             EnvironmentFailureException;
 
     /**
+     * Provides the list of files owned by the user of this session.
+     */
+    public FileInfoDTO[] listOwnedFiles(String sessionID) throws InvalidSessionException,
+            EnvironmentFailureException;
+
+    /**
      * Returns the information about the file with <var>fileID</var>.
      * 
      * @return The {@link FileInfoDTO} containing the information about the file.

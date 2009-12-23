@@ -231,6 +231,52 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         return BeanUtils.createBeanArray(FileInfoDTO.class, files);
     }
 
+    public FileInfoDTO[] listOwnedFiles(String sessionID) throws InvalidSessionException,
+            EnvironmentFailureException
+    {
+        final Session session = sessionManager.getSession(sessionID);
+        final List<FileDTO> files =
+                domainModel.getFileManager().listOwnedFiles(session.getUser().getID());
+        return BeanUtils.createBeanArray(FileInfoDTO.class, files);
+    }
+
+    public FileInfoDTO getFileInfo(String sessionID, long fileID) throws InvalidSessionException,
+            IOExceptionUnchecked
+    {
+        logInvocation(sessionID, "Download file id=" + fileID);
+        boolean success = false;
+        FileDTO file = new FileDTO();
+        file.setName("id:" + fileID);
+        try
+        {
+            final Session session = sessionManager.getSession(sessionID);
+            final FileInformation fileInfo = fileManager.getFileInformation(fileID);
+            if (fileInfo.isFileAvailable() == false)
+            {
+                throw new IOExceptionUnchecked(new IOException(fileInfo.getErrorMessage()));
+            }
+            file = fileInfo.getFileDTO();
+            if (fileManager.isAllowedAccess(session.getUser(), file) == false)
+            {
+                // Note: we send back the exact same error message as for a file that cannot be
+                // found.
+                // We do not want to give information out on whether the file exists or not.
+                throw new IOExceptionUnchecked(new IOException(Constants
+                        .getErrorMessageForFileNotFound(fileID)));
+            }
+            final FileInfoDTO fileInfoDTO =
+                    BeanUtils.createBean(FileInfoDTO.class, fileInfo.getFileDTO());
+            success = true;
+            return fileInfoDTO;
+        } finally
+        {
+            if (userBehaviorLogOrNull != null)
+            {
+                userBehaviorLogOrNull.logDownloadFileStart(file, success);
+            }
+        }
+    }
+
     //
     // Upload
     //
@@ -429,8 +475,13 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         assert sessionID != null;
 
         logInvocation(sessionID, "Delete file id=" + fileId);
-        final FileDTO file =
-                fileManager.getFileInformationFilestoreUnimportant(fileId).getFileDTO();
+        final FileInformation fileInfo = fileManager.getFileInformationFilestoreUnimportant(fileId);
+        if (fileInfo.isFileAvailable() == false)
+        {
+            throw UserFailureException.fromTemplate(
+                    "File with id %d does not exist on the server.", fileId);
+        }
+        final FileDTO file = fileInfo.getFileDTO();
         boolean success = false;
         try
         {
@@ -450,43 +501,6 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         } finally
         {
             userBehaviorLogOrNull.logDeleteFile(file, success);
-        }
-    }
-
-    public FileInfoDTO getFileInfo(String sessionID, long fileID) throws InvalidSessionException,
-            IOExceptionUnchecked
-    {
-        logInvocation(sessionID, "Download file id=" + fileID);
-        boolean success = false;
-        FileDTO file = new FileDTO();
-        file.setName("id:" + fileID);
-        try
-        {
-            final Session session = sessionManager.getSession(sessionID);
-            final FileInformation fileInfo = fileManager.getFileInformation(fileID);
-            if (fileInfo.isFileAvailable() == false)
-            {
-                throw new IOExceptionUnchecked(new IOException(fileInfo.getErrorMessage()));
-            }
-            file = fileInfo.getFileDTO();
-            if (fileManager.isAllowedAccess(session.getUser(), file) == false)
-            {
-                // Note: we send back the exact same error message as for a file that cannot be
-                // found.
-                // We do not want to give information out on whether the file exists or not.
-                throw new IOExceptionUnchecked(new IOException(Constants
-                        .getErrorMessageForFileNotFound(fileID)));
-            }
-            final FileInfoDTO fileInfoDTO =
-                    BeanUtils.createBean(FileInfoDTO.class, fileInfo.getFileDTO());
-            success = true;
-            return fileInfoDTO;
-        } finally
-        {
-            if (userBehaviorLogOrNull != null)
-            {
-                userBehaviorLogOrNull.logDownloadFileStart(file, success);
-            }
         }
     }
 

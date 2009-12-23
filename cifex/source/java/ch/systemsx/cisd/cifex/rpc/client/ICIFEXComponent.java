@@ -20,10 +20,11 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * The CIFEX component API. 
- *
+ * The CIFEX component API.
+ * 
  * @author Bernd Rinn
  */
 public interface ICIFEXComponent
@@ -58,13 +59,22 @@ public interface ICIFEXComponent
             EnvironmentFailureException;
 
     /**
+     * Provides the list of files owned by the user of this session.
+     */
+    public FileInfoDTO[] listOwnedFiles(String sessionID) throws InvalidSessionException,
+            EnvironmentFailureException;
+
+    public void deleteFile(final String sessionID, final long fileId)
+            throws InvalidSessionException, UserFailureException;
+
+    /**
      * Creates a new file downloader for the given session.
      */
     public ICIFEXDownloader createDownloader(String sessionID);
-    
+
     /**
      * Creates a new file uploader for the given session.
      */
     public ICIFEXUploader createUploader(String sessionID);
-    
+
 }

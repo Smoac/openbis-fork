@@ -21,22 +21,23 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * The implementation of {@link ICIFEXComponent}.
- *
+ * 
  * @author Bernd Rinn
  */
 class CIFEXComponent implements ICIFEXComponent
 {
 
     private final ICIFEXRPCService service;
-    
+
     CIFEXComponent(ICIFEXRPCService service)
     {
         this.service = service;
     }
-    
+
     public ICIFEXDownloader createDownloader(final String sessionID)
     {
         return new Downloader(service, sessionID);
@@ -47,23 +48,36 @@ class CIFEXComponent implements ICIFEXComponent
         return new Uploader(service, sessionID);
     }
 
-    public FileInfoDTO[] listDownloadFiles(String sessionID) throws InvalidSessionException,
+    public void deleteFile(final String sessionID, final long fileId)
+            throws InvalidSessionException, UserFailureException
+    {
+        service.deleteFile(sessionID, fileId);
+    }
+
+    public FileInfoDTO[] listDownloadFiles(final String sessionID) throws InvalidSessionException,
             EnvironmentFailureException
     {
         return service.listDownloadFiles(sessionID);
     }
 
-    public String login(String user, String password) throws AuthorizationFailureException
+    public FileInfoDTO[] listOwnedFiles(final String sessionID) throws InvalidSessionException,
+            EnvironmentFailureException
+    {
+        return service.listOwnedFiles(sessionID);
+    }
+
+    public String login(final String user, final String password)
+            throws AuthorizationFailureException
     {
         return service.login(user, password);
     }
 
-    public void logout(String sessionID)
+    public void logout(final String sessionID)
     {
         service.logout(sessionID);
     }
 
-    public void checkSession(String sessionID) throws InvalidSessionException
+    public void checkSession(final String sessionID) throws InvalidSessionException
     {
         service.checkSession(sessionID);
     }

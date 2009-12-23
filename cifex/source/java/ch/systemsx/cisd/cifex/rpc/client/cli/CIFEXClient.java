@@ -114,7 +114,7 @@ public class CIFEXClient
         } catch (final UserFailureException ex)
         {
             System.err.println();
-            System.err.println(ex.getMessage() + " (user fault)");
+            System.err.println(ex.getMessage());
             exitHandler.exit(1);
         } catch (final EnvironmentFailureException ex)
         {
@@ -183,8 +183,10 @@ public class CIFEXClient
         registerCommand(map, LoginCommand.getInstance());
         registerCommand(map, LogoutCommand.getInstance());
         registerCommand(map, ListDownloadFilesCommand.getInstance());
+        registerCommand(map, ListOwnedFilesCommand.getInstance());
         registerCommand(map, FileDownloadCommand.getInstance());
         registerCommand(map, FileUploadCommand.getInstance());
+        registerCommand(map, FileDeletionCommand.getInstance());
         registerCommand(map, ComputeCRC32Checksum.getInstance());
         return map;
     }
