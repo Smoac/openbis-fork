@@ -122,9 +122,11 @@ public final class CIFEXEntryPoint implements EntryPoint
                                     model.setUser(currentUser);
                                     if (FileDownloadHelper.startFileDownload(model)
                                             || currentUser.hasFilesForDownload())
+                                    {
                                         pageController.showInboxPage();
-                                    else
+                                    } else {
                                         pageController.showSharePage();
+                                    }
                                 } else
                                 {
                                     pageController.showLoginPage();
