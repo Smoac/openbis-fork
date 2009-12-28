@@ -34,7 +34,6 @@ import com.extjs.gxt.ui.client.widget.button.SplitButton;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -83,7 +82,6 @@ public class GridWidget<M extends ModelData>
         this.filterFields = filterFields;
         this.grid = createGrid(columnConfigs);
         this.toolBar = createFilterAndPagingToolbar(messageResources);
-        toolBar.setAutoWidth(true);
 
         refreshStore();
     }
@@ -127,10 +125,8 @@ public class GridWidget<M extends ModelData>
         final ContentPanel container = new ContentPanel();
         container.setHeaderVisible(false);
         container.setLayout(new RowLayout());
-        container.add(grid, new RowData(1, -1));
-        container.add(toolBar, new RowData(1, -1));
-        toolBar.setAutoWidth(true);
-        container.setBottomComponent(toolBar);
+        container.add(grid);
+        container.add(toolBar);
         return container;
     }
 
