@@ -480,10 +480,10 @@ public abstract class UserWidget extends LayoutContainer
                 createTextField(getMessageResources().getUserEmailLabel());
         textField
                 .setValidator(CifexValidator.getEmailFieldValidator(context.getMessageResources()));
-        // Allow a blank email field if and only if we are in creation mode and the system has an
-        // external authentication service.
+        // Allow a blank email field if and only if the request user is an admin, it is a user 
+        // creation mode and the system has an external authentication service.
         final boolean allowBlankEmail =
-                (editUser == null)
+                (editUser == null) && context.getModel().getUser().isAdmin()
                         && context.getModel().getConfiguration()
                                 .getSystemHasExternalAuthentication();
         textField.setAllowBlank(allowBlankEmail);
