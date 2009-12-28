@@ -53,8 +53,8 @@ class ShareTabController extends AbstractMainPageTabController
                 new QuotaInformationUpdater(explanationWidget);
         quotaInformationUpdater.triggerUpdate();
         contentPanel.add(createUploadPart(explanationWidget));
-        FileListingTabHelper.createListFilesGrid(contentPanel, FileListingTabHelper.UPLOAD,
-                context, quotaInformationUpdater);
+        FileListingTabHelper.createListOwnedFilesGrid(context, contentPanel,
+                quotaInformationUpdater);
         return contentPanel;
     }
 
@@ -65,7 +65,7 @@ class ShareTabController extends AbstractMainPageTabController
         final UserInfoDTO user = model.getUser();
         final boolean isPermanent = user.isPermanent();
         final StringBuilder notesText = new StringBuilder();
-        notesText.append(messageResources.getUploadFilesHelpUpload(FileListingTabHelper
+        notesText.append(messageResources.getSharedFilesHelpUpload(FileListingTabHelper
                 .getMaxFileSize(user.getMaxFileSizePerQuotaGroupInMB()), FileListingTabHelper
                 .getCurrentFileSizeInMB(user.getCurrentFileSize()), FileListingTabHelper
                 .getMaxFileCount(user.getMaxFileCountPerQuotaGroup()), user.getCurrentFileCount()));

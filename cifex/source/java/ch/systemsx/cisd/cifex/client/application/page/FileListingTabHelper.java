@@ -16,12 +16,33 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.google.gwt.i18n.client.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.ui.HTML;
+
+import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.cifex.client.application.AbstractFileGridModel;
+import ch.systemsx.cisd.cifex.client.application.DownloadFileGridModel;
+import ch.systemsx.cisd.cifex.client.application.FileCommentGridCellListener;
+import ch.systemsx.cisd.cifex.client.application.FileDownloadGridCellListener;
+import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
+import ch.systemsx.cisd.cifex.client.application.OwnedFileGridModel;
+import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
+import ch.systemsx.cisd.cifex.client.application.UploadedFileActionGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 
 /**
  * A class with some methods that are useful for tabs that show lists of files.
@@ -31,13 +52,9 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
 class FileListingTabHelper
 {
 
-    protected static final boolean DOWNLOAD = true;
-
-    protected static final boolean UPLOAD = false;
-
     private static final long MB = 1024 * 1024;
 
-    protected static final String getMaxFileSize(final Long maxFileSizeInMBOrNull)
+    static final String getMaxFileSize(final Long maxFileSizeInMBOrNull)
     {
         if (maxFileSizeInMBOrNull == null)
         {
@@ -48,7 +65,7 @@ class FileListingTabHelper
         }
     }
 
-    protected static final String getMaxFileCount(final Integer maxFileCountOrNull)
+    static final String getMaxFileCount(final Integer maxFileCountOrNull)
     {
         if (maxFileCountOrNull == null)
         {
@@ -59,27 +76,94 @@ class FileListingTabHelper
         }
     }
 
-    protected static final String getCurrentFileSizeInMB(final long currentFileSize)
+    static final String getCurrentFileSizeInMB(final long currentFileSize)
     {
         NumberFormat fmt = NumberFormat.getDecimalFormat();
         return fmt.format((double) currentFileSize / MB) + " MB";
     }
 
-    protected static void createListFilesGrid(final LayoutContainer contentPanel,
-            final boolean showDownload, ViewContext context,
-            IQuotaInformationUpdater quotaUpdaterOrNull)
+    static void createListDownloadFilesGrid(final LayoutContainer contentPanel,
+            ViewContext context, IQuotaInformationUpdater quotaUpdaterOrNull)
     {
-        if (showDownload)
-        {
-            final DownloadFileAsyncCallback callback =
-                    new DownloadFileAsyncCallback(context, contentPanel);
-            context.getCifexService().listDownloadFiles(callback);
-        } else
-        {
-            final OwnerFileAsyncCallback callback =
-                    new OwnerFileAsyncCallback(context, contentPanel, quotaUpdaterOrNull);
-            context.getCifexService().listOwnedFiles(callback);
-        }
+        final IMessageResources messageResources = context.getMessageResources();
+        final List<ColumnConfig> columnConfigs =
+                DownloadFileGridModel.getColumnConfigs(messageResources);
+        final List<AbstractFilterField<AbstractFileGridModel>> filterItems =
+                AbstractFileGridModel.createFilterItems(messageResources, columnConfigs);
+
+        final GridWidget<AbstractFileGridModel> gridWidget =
+                GridWidget.create(columnConfigs, new ArrayList<AbstractFileGridModel>(),
+                        filterItems, messageResources);
+        final Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
+        grid.getView().setEmptyText(messageResources.getDownloadFilesLoading());
+
+        grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
+        grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
+        final LayoutContainer verticalPanel = AbstractMainPageTabController.createContainer();
+        AbstractMainPageTabController.addTitlePart(verticalPanel, messageResources
+                .getDownloadFilesPartTitle());
+        verticalPanel.add(gridWidget.getWidget());
+
+        addWebStartDownloadClientLink(messageResources, verticalPanel);
+
+        contentPanel.add(verticalPanel);
+        contentPanel.layout();
+
+        context.getCifexService().listDownloadFiles(
+                new AbstractAsyncCallback<List<FileInfoDTO>>(context)
+                    {
+                        public void onSuccess(List<FileInfoDTO> result)
+                        {
+                            grid.getView().setEmptyText(messageResources.getDownloadFilesEmpty());
+                            gridWidget.setDataAndRefresh(DownloadFileGridModel.convert(
+                                    messageResources, result));
+                        }
+                    });
     }
 
+    private static void addWebStartDownloadClientLink(IMessageResources messageResources,
+            final LayoutContainer verticalPanel)
+    {
+        AbstractMainPageTabController.addTitlePart(verticalPanel, messageResources
+                .getDownloadFilesPartTitleGreater2GB());
+        String webStartLink = messageResources.getDownloadFilesHelpJavaDownloaderLink();
+        String webStartTitle = messageResources.getDownloadFilesHelpJavaDownloaderTitle();
+        String anchorWebstart =
+                DOMUtils.createAnchor(webStartTitle, webStartLink,
+                        ServletPathConstants.FILE2GB_DOWNLOAD_SERVLET_NAME, null, null, false);
+        verticalPanel.add(new HTML(messageResources
+                .getDownloadFilesHelpJavaDownload(anchorWebstart)));
+    }
+
+    static void createListOwnedFilesGrid(ViewContext context, final LayoutContainer contentPanel,
+            IQuotaInformationUpdater quotaUpdaterOrNull)
+    {
+        final IMessageResources messageResources = context.getMessageResources();
+        final List<ColumnConfig> columnConfigs =
+                OwnedFileGridModel.getColumnConfigs(messageResources);
+        final List<AbstractFilterField<AbstractFileGridModel>> filterItems =
+                AbstractFileGridModel.createFilterItems(messageResources, columnConfigs);
+
+        final GridWidget<AbstractFileGridModel> gridWidget =
+                GridWidget.create(columnConfigs, new ArrayList<AbstractFileGridModel>(),
+                        filterItems, messageResources);
+        final Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
+        grid.getView().setEmptyText(messageResources.getSharedFilesLoading());
+
+        grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
+        grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
+        grid.addListener(Events.CellClick, new UploadedFileActionGridCellListener(context,
+                gridWidget, quotaUpdaterOrNull));
+        contentPanel.add(gridWidget.getWidget());
+        context.getCifexService().listOwnedFiles(
+                new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(context)
+                    {
+                        public void onSuccess(List<OwnerFileInfoDTO> result)
+                        {
+                            grid.getView().setEmptyText(messageResources.getSharedFilesEmpty());
+                            gridWidget.setDataAndRefresh(OwnedFileGridModel.convert(
+                                    messageResources, result));
+                        }
+                    });
+    }
 }

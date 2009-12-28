@@ -103,6 +103,10 @@ public interface IMessageResources extends Messages {
 	@Key(value = "dialog.closebutton.label")
 	public String getDialogCloseButtonLabel();
 
+    /** Returns the message text for downloadable files being loaded. */
+    @Key(value = "downloadfiles.loading")
+    public String getDownloadFilesLoading();
+
 	/** Returns the message text for no file to download. */
 	@Key(value = "downloadfiles.empty")
 	public String getDownloadFilesEmpty();
@@ -517,17 +521,21 @@ public interface IMessageResources extends Messages {
 	@Key(value = "unknown.label")
 	public String getUnknownLabel();
 
+    /** Returns the message text for shared files being loaded. */
+    @Key(value = "uploadedfiles.loading")
+    public String getSharedFilesLoading();
+
 	/** Returns the message text for no file uploaded. */
 	@Key(value = "uploadedfiles.empty")
-	public String getUploadedFilesEmpty();
+	public String getSharedFilesEmpty();
 
 	/** Returns the uploaded files part title. */
 	@Key(value = "uploadedfiles.part.title")
-	public String getUploadedFilesPartTitle();
+	public String getSharedFilesPartTitle();
 
 	/** Returns the help text for uploading files section upload. */
 	@Key(value = "uploadfiles.help.upload")
-	public String getUploadFilesHelpUpload(String maxFileSizePerQuotaGroup,
+	public String getSharedFilesHelpUpload(String maxFileSizePerQuotaGroup,
 			String currentFileSize, String maxFileCountPerQuotaGroup,
 			int currentFileCount);
 

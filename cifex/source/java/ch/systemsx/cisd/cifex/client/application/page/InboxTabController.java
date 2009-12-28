@@ -37,8 +37,8 @@ class InboxTabController extends AbstractMainPageTabController
     protected Widget getWidget()
     {
         final LayoutContainer contentPanel = createOutermostWidgetContainer();
-        FileListingTabHelper.createListFilesGrid(contentPanel, FileListingTabHelper.DOWNLOAD,
-                context, null);
+        FileListingTabHelper.createListDownloadFilesGrid(contentPanel, context,
+                null);
         return contentPanel;
     }
     
