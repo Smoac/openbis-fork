@@ -171,6 +171,8 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             {
                 return;
             }
+            fireExceptionEvent(th instanceof Exception ? CheckedExceptionTunnel
+                    .unwrapIfNecessary((Exception) th) : th);
             fireFinishedEvent(false);
             throw CheckedExceptionTunnel.wrapIfNecessary(th);
         } finally

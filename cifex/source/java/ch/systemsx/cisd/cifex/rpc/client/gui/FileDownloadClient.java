@@ -378,16 +378,22 @@ public class FileDownloadClient
 
                 public void exceptionOccured(Throwable throwable)
                 {
-                    String message;
+                    final String message;
                     if (throwable instanceof UserFailureException)
                     {
                         message = throwable.getMessage();
                     } else
                     {
-                        message = "FATAL ERROR: " + throwable;
+                        message = "ERROR: " + throwable;
                     }
-                    JOptionPane.showMessageDialog(frame, message, "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        public void run()
+                        {
+                            JOptionPane.showMessageDialog(frame, message, "Error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+                    });
                 }
 
                 private String lastWarningMessage;
