@@ -53,6 +53,8 @@ class FileListingTabHelper
 {
 
     private static final long MB = 1024 * 1024;
+    
+    private static final NumberFormat FILE_SIZE_FORMAT = NumberFormat.getFormat("#.#");
 
     static final String getMaxFileSize(final Long maxFileSizeInMBOrNull)
     {
@@ -78,8 +80,7 @@ class FileListingTabHelper
 
     static final String getCurrentFileSizeInMB(final long currentFileSize)
     {
-        NumberFormat fmt = NumberFormat.getDecimalFormat();
-        return fmt.format((double) currentFileSize / MB) + " MB";
+        return FILE_SIZE_FORMAT.format((double) currentFileSize / MB) + " MB";
     }
 
     static void createListDownloadFilesGrid(final LayoutContainer contentPanel,
@@ -118,6 +119,13 @@ class FileListingTabHelper
                             gridWidget.setDataAndRefresh(DownloadFileGridModel.convert(
                                     messageResources, result));
                         }
+
+                        @Override
+                        public void onFailure(Throwable caught)
+                        {
+                            grid.getView().setEmptyText(messageResources.getDownloadFilesEmpty());
+                            super.onFailure(caught);
+                        }
                     });
     }
 
@@ -154,6 +162,8 @@ class FileListingTabHelper
         grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
         grid.addListener(Events.CellClick, new UploadedFileActionGridCellListener(context,
                 gridWidget, quotaUpdaterOrNull));
+        AbstractMainPageTabController.addTitlePart(contentPanel, messageResources
+                .getSharedFilesPartTitle());
         contentPanel.add(gridWidget.getWidget());
         context.getCifexService().listOwnedFiles(
                 new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(context)
@@ -163,6 +173,13 @@ class FileListingTabHelper
                             grid.getView().setEmptyText(messageResources.getSharedFilesEmpty());
                             gridWidget.setDataAndRefresh(OwnedFileGridModel.convert(
                                     messageResources, result));
+                        }
+
+                        @Override
+                        public void onFailure(Throwable caught)
+                        {
+                            grid.getView().setEmptyText(messageResources.getSharedFilesEmpty());
+                            super.onFailure(caught);
                         }
                     });
     }

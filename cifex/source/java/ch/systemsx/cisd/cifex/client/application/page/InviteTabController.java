@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.Events;
@@ -23,7 +24,6 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
@@ -67,50 +67,47 @@ final class InviteTabController extends AbstractMainPageTabController
     static private void createListCreatedUserPanel(LayoutContainer listCreatedUserPanel,
             ViewContext context)
     {
+        final GridWidget<UserGridModel> gridWidget =
+                GridUtils.createUserGrid(new ArrayList<UserInfoDTO>(), context);
+        gridWidget.getGrid().getView()
+                .setEmptyText(context.getMessageResources().getUsersLoading());
+        // Delete user function
+        gridWidget.getGrid().addListener(Events.CellClick,
+                new UserActionGridCellListener(context, null, gridWidget));
+        addTitlePart(listCreatedUserPanel, context.getMessageResources().getOwnUserTitle());
+        listCreatedUserPanel.add(gridWidget.getWidget());
         context.getCifexService().listUsersRegisteredBy(context.getModel().getUser().getUserCode(),
-                new CreatedUserAsyncCallback(listCreatedUserPanel, context));
+                new CreatedUserAsyncCallback(context, gridWidget));
     }
 
     private static final class CreatedUserAsyncCallback extends
             AbstractAsyncCallback<List<UserInfoDTO>>
     {
 
-        private final LayoutContainer listCreatedUserPanel;
+        private final GridWidget<UserGridModel> userGrid;
 
-        private final ViewContext context;
-
-        CreatedUserAsyncCallback(LayoutContainer listCreatedUserPanel, ViewContext context)
+        CreatedUserAsyncCallback(ViewContext context, GridWidget<UserGridModel> userGrid)
         {
             super(context);
-            this.listCreatedUserPanel = listCreatedUserPanel;
-            this.context = context;
-        }
-
-        private Widget createUserTable(final List<UserInfoDTO> users)
-        {
-            GridWidget<UserGridModel> gridWidget = GridUtils.createUserGrid(users, context);
-            // Delete user function
-            gridWidget.getGrid().addListener(Events.CellClick,
-                    new UserActionGridCellListener(context, null, gridWidget));
-            return gridWidget.getWidget();
-        }
-
-        private IMessageResources getMessageResources()
-        {
-            return context.getMessageResources();
+            this.userGrid = userGrid;
         }
 
         public final void onSuccess(final List<UserInfoDTO> result)
         {
-            if (result.size() > 0)
-            {
-                addTitlePart(listCreatedUserPanel, getMessageResources().getOwnUserTitle());
-                listCreatedUserPanel.add(createUserTable(result));
-                listCreatedUserPanel.layout();
-            }
+            userGrid.getGrid().getView().setEmptyText(
+                    getViewContext().getMessageResources().getUsersEmpty());
+            userGrid.setDataAndRefresh(UserGridModel.convert(getViewContext(), result));
+        }
+
+        @Override
+        public void onFailure(Throwable caught)
+        {
+            userGrid.getGrid().getView().setEmptyText(
+                    getViewContext().getMessageResources().getUsersEmpty());
+            super.onFailure(caught);
         }
     }
-    
+
     @Override
     protected Page getPageIdentifier()
     {

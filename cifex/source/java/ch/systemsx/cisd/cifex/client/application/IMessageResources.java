@@ -270,9 +270,17 @@ public interface IMessageResources extends Messages {
     @Key(value = "file.crc32_checksum.label")
     public String getCRC32ChecksumLabel();
 
-	/** Returns the label of the file upload part of the page. */
+	/** Returns the label of the files part of the admin page. */
 	@Key(value = "files.part.title")
 	public String getFilesPartTitle();
+	
+    /** Returns the message text for files being loaded. */
+	@Key(value = "files.loading")
+	public String getFilesLoading();
+	
+    /** Returns the message text for no file uploaded. */
+    @Key(value = "files.empty")
+    public String getFilesEmpty();
 
 	/** Returns the file upload submit button label. */
 	@Key(value = "fileupload.button.label")
@@ -633,6 +641,14 @@ public interface IMessageResources extends Messages {
 	/** Returns the User List part title. */
 	@Key(value = "userlist.part.title")
 	public String getUsersPartTitle();
+
+    /** Returns the message that users are being loaded. */
+    @Key(value = "userlist.loading")
+    public String getUsersLoading();
+
+    /** Returns the message that the users list is empty. */
+    @Key(value = "userlist.empty")
+    public String getUsersEmpty();
 
 	/** Returns user status label. */
 	@Key(value = "user.status.label")
