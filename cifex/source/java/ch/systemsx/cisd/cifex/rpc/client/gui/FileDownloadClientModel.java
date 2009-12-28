@@ -18,9 +18,13 @@ package ch.systemsx.cisd.cifex.rpc.client.gui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.table.AbstractTableModel;
 
+import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo.STATUS;
@@ -39,6 +43,10 @@ public class FileDownloadClientModel extends AbstractTableModel
 
     private static final long serialVersionUID = 1L;
 
+    private static ExecutorService executor =
+            new NamingThreadPoolExecutor("File download", 1, 1, 0, TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<Runnable>()).daemonize();
+
     private final ICIFEXComponent cifex;
 
     private final String sessionId;
@@ -52,16 +60,13 @@ public class FileDownloadClientModel extends AbstractTableModel
 
     private FileDownloadInfo currentlyDownloadingFile;
 
-    private ArrayList<FileDownloadOperation> queuedDownloads =
-            new ArrayList<FileDownloadOperation>();
-
     private File downloadDirectory;
 
     // Constants for column order
     static final int FILE_DETAILS_COLUMN = 0;
 
     static final int SENDER_COLUMN = 1;
-    
+
     static final int COMMENT_COLUMN = 2;
 
     static final int SENT_DATE_COLUMN = 3;
@@ -290,7 +295,7 @@ public class FileDownloadClientModel extends AbstractTableModel
             case FILE_DETAILS_COLUMN:
                 return "File";
             case SENDER_COLUMN:
-                return "From";               
+                return "From";
             case COMMENT_COLUMN:
                 return "Comment";
             case SENT_DATE_COLUMN:
@@ -311,7 +316,7 @@ public class FileDownloadClientModel extends AbstractTableModel
             case FILE_DETAILS_COLUMN:
                 return fileDownloadInfo.fileInfoDTO;
             case SENDER_COLUMN:
-                return fileDownloadInfo.fileInfoDTO.getOwner();                
+                return fileDownloadInfo.fileInfoDTO.getOwner();
             case COMMENT_COLUMN:
                 return fileDownloadInfo.fileInfoDTO.getComment();
             case SENT_DATE_COLUMN:
@@ -371,35 +376,12 @@ public class FileDownloadClientModel extends AbstractTableModel
     /**
      * Start a file download in a separate thread.
      */
-    private synchronized void queueDownloadOfFile(FileDownloadInfo fileDownloadInfo)
+    private void queueDownloadOfFile(FileDownloadInfo fileDownloadInfo)
     {
         fileDownloadInfo.setStatus(STATUS.QUEUED);
         FileDownloadOperation op =
                 new FileDownloadOperation(this, fileDownloadInfo, downloadDirectory);
-        queuedDownloads.add(op);
-        processQueuedDownloads();
+        executor.submit(op);
     }
 
-    /**
-     * The file download operation finished -- cleanup
-     */
-    synchronized void finishedDownloadingFile(FileDownloadOperation op)
-    {
-        queuedDownloads.remove(op);
-        processQueuedDownloads();
-    }
-
-    /**
-     * If the queue is non-empty, start the first waiting download.
-     */
-    private synchronized void processQueuedDownloads()
-    {
-        // Nothing to do
-        if (queuedDownloads.size() < 1)
-            return;
-
-        // Get the first element from the queue and start it
-        FileDownloadOperation op = queuedDownloads.get(0);
-        op.start();
-    }
 }

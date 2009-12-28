@@ -27,15 +27,13 @@ import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloa
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class FileDownloadOperation implements Runnable
+final class FileDownloadOperation implements Runnable
 {
     private final FileDownloadClientModel tableModel;
 
     private final FileDownloadInfo fileDownloadInfo;
 
     private final File downloadDirectory;
-
-    private final Thread thread;
 
     FileDownloadOperation(FileDownloadClientModel model, FileDownloadInfo info,
             File downloadDirectory)
@@ -44,18 +42,11 @@ public class FileDownloadOperation implements Runnable
         this.tableModel = model;
         this.fileDownloadInfo = info;
         this.downloadDirectory = downloadDirectory;
-        this.thread = new Thread(this);
     }
 
     public void run()
     {
         tableModel.getDownloader().download(fileDownloadInfo.getFileInfoDTO().getID(),
                 downloadDirectory, null);
-        tableModel.finishedDownloadingFile(this);
-    }
-
-    public void start()
-    {
-        thread.start();
     }
 }
