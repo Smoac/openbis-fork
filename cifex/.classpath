@@ -34,21 +34,21 @@
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base-test.jar"/>
 	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
 	<classpathentry kind="lib" path="/libraries/cisd-args4j/cisd-args4j.jar" sourcepath="/libraries/cisd-args4j/cisd-args4j-src.zip"/>
-  <classpathentry kind="lib" path="/libraries/gwt2.0/gwt-servlet.jar">
-    <attributes>
-      <attribute name="javadoc_location" value="jar:platform:/resource/libraries/gwt2.0/gwt-javadoc.jar!/"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="lib" path="/libraries/gwt2.0/gwt-user.jar">
-    <attributes>
-      <attribute name="javadoc_location" value="jar:platform:/resource/libraries/gwt2.0/gwt-javadoc.jar!/"/>
-    </attributes>
-  </classpathentry>
-  <classpathentry kind="lib" path="/libraries/gxt2.1/gxt.jar">
-    <attributes>
-      <attribute name="javadoc_location" value="jar:platform:/resource/libraries/gxt2.1/gxt-api.zip!/"/>
-    </attributes>
-  </classpathentry>
+	<classpathentry kind="lib" path="/libraries/gwt2.0/gwt-servlet.jar" sourcepath="/libraries/gwt2.0/gwt-user.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/gwt2.0/gwt-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/libraries/gwt2.0/gwt-user.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/gwt2.0/gwt-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/libraries/gxt2.1/gxt.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/gxt2.1/gxt-api.zip!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/hibernate-search/jms.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/server-common"/>
