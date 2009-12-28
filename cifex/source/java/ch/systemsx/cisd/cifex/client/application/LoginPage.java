@@ -47,7 +47,9 @@ final class LoginPage extends VerticalPanel
         this.viewContext = viewContext;
         setSpacing(CELL_SPACING);
         setWidth("100%");
-        this.setHeight("100%");
+        // WORKAROUND: avoid having a horizontal scrollbar on the login page in Safari by setting 
+        // the height to 97% rather than 100%
+        setHeight("97%");
         setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
         final LoginWidget loginWidget = createLoginWidget();
         // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this
