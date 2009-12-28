@@ -127,6 +127,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                         if (fileInfo.getCrc32Value() != null
                                 && crc32Value != fileInfo.getCrc32Value())
                         {
+                            file.delete();
                             throw new CRCCheckumMismatchException(fileInfo.getName(), crc32Value,
                                     fileInfo.getCrc32Value());
                         }
