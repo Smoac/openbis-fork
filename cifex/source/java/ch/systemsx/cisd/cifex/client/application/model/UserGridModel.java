@@ -59,14 +59,14 @@ public final class UserGridModel extends AbstractUserGridModel
 
     }
 
-    public final static List<UserGridModel> convert(ViewContext messageResources,
-            final List<UserInfoDTO> filters)
+    public final static List<UserGridModel> convert(ViewContext context,
+            final List<UserInfoDTO> users)
     {
         final List<UserGridModel> result = new ArrayList<UserGridModel>();
 
-        for (final UserInfoDTO filter : filters)
+        for (final UserInfoDTO user : users)
         {
-            result.add(new UserGridModel(messageResources, filter));
+            result.add(new UserGridModel(context, user));
         }
 
         return result;
