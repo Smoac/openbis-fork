@@ -31,6 +31,11 @@ public class BasicUserInfoDTO implements IsSerializable, Serializable
     private static final long serialVersionUID = 1L;
 
     /**
+     * Unique identifier of the user in the database.
+     */
+    private long id;
+
+    /**
      * Unique identifier of the user.
      * <p>
      * We are sure that this key is unique and never <code>null</code>. If no <code>userCode</code>
@@ -54,6 +59,16 @@ public class BasicUserInfoDTO implements IsSerializable, Serializable
      * </p>
      */
     private String email;
+
+    public void setID(long id)
+    {
+        this.id = id;
+    }
+
+    public long getID()
+    {
+        return id;
+    }
 
     public String getUserCode()
     {

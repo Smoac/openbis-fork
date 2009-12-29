@@ -33,9 +33,11 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
  * 
  * @author Franz-Josef Elmer
  */
-public abstract class AbstractDataGridModel extends BaseModelData
+public abstract class AbstractDataGridModel extends BaseModelData implements IModelDataWithID
 {
     private static final long serialVersionUID = Constants.VERSION;
+
+    public static final String ID = "id";
 
     protected final IMessageResources messageResources;
 
@@ -49,6 +51,14 @@ public abstract class AbstractDataGridModel extends BaseModelData
     {
         final ColumnConfig columnConfig = createColumnConfig(code, title, width);
         columnConfig.setSortable(true);
+        return columnConfig;
+    }
+
+    protected final static ColumnConfig createIdColumnConfig()
+    {
+        final ColumnConfig columnConfig = createSortableColumnConfig(ID, "Id", 20);
+        columnConfig.setHidden(true);
+        columnConfig.setFixed(true);
         return columnConfig;
     }
 

@@ -14,52 +14,46 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.application;
+package ch.systemsx.cisd.cifex.client.application.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
+import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
-import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.FileUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
+import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 
 /**
- * A <code>AbstractFileGridModel</code> extension for (directly or indirectly) owned files.
+ * A <code>AbstractFileGridModel</code> extension for downloaded files.
  * 
  * @author Izabela Adamczyk
  */
-public class OwnedFileGridModel extends AbstractFileGridModel
+public class DownloadFileGridModel extends AbstractFileGridModel
 {
     private static final long serialVersionUID = Constants.VERSION;
 
-    public OwnedFileGridModel(IMessageResources messageResources, OwnerFileInfoDTO file)
+    public DownloadFileGridModel(IMessageResources messageResources, FileInfoDTO file)
     {
-
         super(messageResources);
         set(ID, file.getID());// long
         set(NAME, file.getName());// String
         set(COMMENT, CommentRenderer.createCommentAnchor(file));// String
-        set(OWNER, UserRenderer.createUserAnchor(file.getOwner()));// String
-        set(SHARED_WITH, UserRenderer.createUserAnchor(file.getSharingUsers()));// String
         set(CONTENT_TYPE, file.getContentType());// String
         set(SIZE, FileUtils.tryToGetFileSize(file));// Integer
-        set(COMPLETE_SIZE, new Double(file.getCompleteSize()));// Double
-        set(IS_COMPLETE, Boolean.valueOf(file.isComplete()));// Boolean
+        set(OWNER, UserRenderer.createUserAnchor(file.getOwner()));// String
         set(CRC32_CHECKSUM, file.getCrc32Str());// String
         set(REGISTRATION_DATE, file.getRegistrationDate());// Date
         set(EXPIRATION_DATE, file.getExpirationDate());// Date
-        set(ACTION, DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID)
-                + " | "
-                + DOMUtils.createAnchor(messageResources.getActionSharedLabel(),
-                        Constants.SHARED_ID)
-                + " | "
-                + DOMUtils.createAnchor(messageResources.getActionDeleteLabel(),
-                        Constants.DELETE_ID));// String
+    }
+
+    public long getID()
+    {
+        return get(ID);
     }
 
     public final static List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
@@ -68,29 +62,25 @@ public class OwnedFileGridModel extends AbstractFileGridModel
         configs.add(createIdColumnConfig());
         configs.add(createNameColumnConfig(messageResources));
         configs.add(createCommentColumnConfig(messageResources));
-        configs.add(createOwnerColumnConfig(messageResources));
-        configs.add(createSharedWithColumnConfig(messageResources));
         configs.add(createContentTypeColumnConfig(messageResources));
         configs.add(createSizeColumnConfig(messageResources));
-        configs.add(createCompleteSizeColumnConfig(messageResources));
-        configs.add(createIsCompleteColumnConfig(messageResources));
+        configs.add(createOwnerColumnConfig(messageResources));
         configs.add(createCRC32ChecksumColumnConfig(messageResources));
         configs.add(createRegistrationDateColumnConfig(messageResources));
         configs.add(createExpirationDateColumnConfig(messageResources));
-        configs.add(createActionColumnConfig(messageResources));
         return configs;
     }
 
     public final static List<AbstractFileGridModel> convert(IMessageResources messageResources,
-            final List<OwnerFileInfoDTO> filters)
+            final List<FileInfoDTO> files)
     {
         final List<AbstractFileGridModel> result = new ArrayList<AbstractFileGridModel>();
 
-        for (final OwnerFileInfoDTO filter : filters)
+        for (final FileInfoDTO file : files)
         {
-            result.add(new OwnedFileGridModel(messageResources, filter));
+            result.add(new DownloadFileGridModel(messageResources, file));
         }
+
         return result;
     }
-
 }

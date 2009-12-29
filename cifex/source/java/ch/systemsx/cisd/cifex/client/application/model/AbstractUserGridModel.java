@@ -53,10 +53,6 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
 
     public static final String ACTION = "action";
 
-    public static final String FILE_ID = "fileId";
-
-    public static final String FILE_NAME = "fileName";
-
     public static <M extends ModelData> List<AbstractFilterField<M>> createFilterItems(
             IMessageResources messageResources, List<ColumnConfig> columnConfigs)
     {

@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -27,6 +29,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.CreateUserWidget;
 
 /**
@@ -39,9 +43,13 @@ public abstract class AbstractMainPageTabController
 {
     protected final ViewContext context;
 
-    public AbstractMainPageTabController(final ViewContext context)
+    protected final List<GridWidget<AbstractFileGridModel>> fileGridWidgets;
+
+    public AbstractMainPageTabController(final ViewContext context,
+            final List<GridWidget<AbstractFileGridModel>> fileGridWidgets)
     {
         this.context = context;
+        this.fileGridWidgets = fileGridWidgets;
     }
 
     /**

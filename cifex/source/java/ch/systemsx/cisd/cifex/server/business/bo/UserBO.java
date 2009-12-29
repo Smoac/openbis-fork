@@ -51,7 +51,6 @@ class UserBO extends AbstractBusinessObject implements IUserBO
     public void defineForCreate(UserDTO user, UserDTO requestUserOrNull, boolean forceTemporaryUser)
     {
         assert user != null : "Given user can not be null.";
-        assert user.getID() == null : "User ID is set, this will be done from the UserDAO.";
 
         user.setRegistrator(requestUserOrNull);
 

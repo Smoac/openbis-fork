@@ -32,6 +32,9 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -40,6 +43,8 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -67,15 +72,18 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
     private final TabItem adminTabItemOrNull;
 
     private final ViewContext context;
+    
+    private final List<GridWidget<AbstractFileGridModel>> fileGridWidgets;
 
     public MainPageTabPanelGXT(ViewContext context)
     {
         this.context = context;
+        fileGridWidgets = new ArrayList<GridWidget<AbstractFileGridModel>>(3);
         tabPanel = new TabPanel();
 
         // The Share tab and Inbox tab are always shown
-        shareTab = new ShareTabController(this.context);
-        inboxTab = new InboxTabController(this.context);
+        shareTab = new ShareTabController(this.context, fileGridWidgets);
+        inboxTab = new InboxTabController(this.context, fileGridWidgets);
 
         shareTabItem =
                 createTabItem(context.getMessageResources().getShareViewLinkLabel(), shareTab);
@@ -86,7 +94,7 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
         final UserInfoDTO user = context.getModel().getUser();
         if (user.isPermanent() && user.isAdmin() == false)
         {
-            inviteTabOrNull = new InviteTabController(this.context);
+            inviteTabOrNull = new InviteTabController(this.context, fileGridWidgets);
             inviteTabItemOrNull =
                     createTabItem(context.getMessageResources().getInviteViewLinkLabel(),
                             inviteTabOrNull);
@@ -99,7 +107,7 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
         // Only create an admin tab if the user can access it
         if (user.isAdmin())
         {
-            adminTabOrNull = new AdminTabController(this.context);
+            adminTabOrNull = new AdminTabController(this.context, fileGridWidgets);
             adminTabItemOrNull =
                     createTabItem(context.getMessageResources().getAdminViewLinkLabel(),
                             adminTabOrNull);

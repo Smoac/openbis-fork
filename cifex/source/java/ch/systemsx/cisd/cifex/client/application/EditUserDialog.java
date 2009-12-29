@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
+import ch.systemsx.cisd.cifex.client.application.page.UserGridRefresherCallback;
 import ch.systemsx.cisd.cifex.client.application.ui.DefaultLayoutDialog;
 import ch.systemsx.cisd.cifex.client.application.ui.EditUserWidget;
 import ch.systemsx.cisd.cifex.client.application.ui.UserWidget;

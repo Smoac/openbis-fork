@@ -29,6 +29,7 @@ import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.GridUtils;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -37,9 +38,10 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 final class InviteTabController extends AbstractMainPageTabController
 {
-    InviteTabController(final ViewContext context)
+    InviteTabController(final ViewContext context,
+            final List<GridWidget<AbstractFileGridModel>> fileGridWidgets)
     {
-        super(context);
+        super(context, fileGridWidgets);
     }
 
     @Override

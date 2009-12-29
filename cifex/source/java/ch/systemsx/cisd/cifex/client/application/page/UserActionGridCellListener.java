@@ -28,12 +28,12 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.EditUserDialog;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -42,7 +42,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 /**
  * The <code>GridCellListenerAdapter</code> for users grid.
  * <p>
- * This is used on {@link InviteTabController}.
+ * This is used on AdminTabController.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -76,7 +76,7 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
         return fullName;
     }
 
-    // w
+    //
     // Helper classes
     //
 
@@ -177,6 +177,30 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
         }
     }
 
+    private final class DeleteUserAsyncCallback extends AbstractAsyncCallback<Void>
+    {
+        private final GridWidget<UserGridModel> grid;
+
+        private final long id;
+
+        public DeleteUserAsyncCallback(final ViewContext context,
+                final GridWidget<UserGridModel> grid, final long id)
+        {
+            super(context);
+            this.grid = grid;
+            this.id = id;
+        }
+
+        //
+        // AbstractAsyncCallback
+        //
+
+        public final void onSuccess(final Void dummy)
+        {
+            grid.removeItem(id);
+        }
+    }
+
     public void handleEvent(GridEvent<UserGridModel> be)
     {
         final Grid<UserGridModel> grid = userGridWidget.getGrid();
@@ -188,6 +212,7 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
         if (grid.getColumnModel().getDataIndex(colIndex).equals(UserGridModel.ACTION))
         {
             final UserGridModel model = grid.getStore().getAt(rowIndex);
+            final long userId = model.get(UserGridModel.ID);
             final String userCode = model.get(UserGridModel.USER_CODE);
             final String userDescription = getUserDescription(model);
             final EventTarget element = e.getEventTarget();
@@ -210,8 +235,10 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
                         {
                             if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))
                             {
-                                viewContext.getCifexService().deleteUser(userCode,
-                                        new UserGridRefresherCallback(viewContext, userGridWidget));
+                                viewContext.getCifexService().deleteUser(
+                                        userCode,
+                                        new DeleteUserAsyncCallback(viewContext, userGridWidget,
+                                                userId));
                             }
                         }
                     });

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.application;
+package ch.systemsx.cisd.cifex.client.application.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
+import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ui.CommentRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
@@ -93,5 +94,10 @@ public class AdminFileGridModel extends AbstractFileGridModel
         }
 
         return result;
+    }
+
+    public long getID()
+    {
+        return get(ID);
     }
 }

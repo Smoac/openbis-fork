@@ -49,6 +49,7 @@ public final class UserGridModel extends AbstractUserGridModel
         {
             registratorAnchor = UserRenderer.createUserAnchor(user.getRegistrator());
         }
+        set(ID, user.getID());// long
         set(USER_CODE, user.getUserCode());// String
         set(USER_EMAIL, user.getEmail());// String
         set(FULL_NAME, user.getUserFullName());// String
@@ -57,6 +58,11 @@ public final class UserGridModel extends AbstractUserGridModel
         set(REGISTRATOR, (registratorAnchor));// String
         set(ACTION, listActionsForUser(user));// String
 
+    }
+
+    public long getID()
+    {
+        return get(ID);
     }
 
     public final static List<UserGridModel> convert(ViewContext context,
@@ -75,6 +81,7 @@ public final class UserGridModel extends AbstractUserGridModel
     static public final List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        configs.add(createIdColumnConfig());
         configs.add(createUserCodeColumnConfig(messageResources));
         configs.add(createUserEmailColumnConfig(messageResources));
         configs.add(createFullNameColumnConfig(messageResources));

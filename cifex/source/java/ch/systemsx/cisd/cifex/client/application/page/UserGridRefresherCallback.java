@@ -30,12 +30,12 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  * 
  * @author Christian Ribeaud
  */
-final class UserGridRefresherCallback extends AbstractAsyncCallback<Void>
+public final class UserGridRefresherCallback extends AbstractAsyncCallback<Void>
 {
 
     private final GridWidget<UserGridModel> userGrid;
 
-    UserGridRefresherCallback(final ViewContext context, final GridWidget<UserGridModel> userGrid)
+    public UserGridRefresherCallback(final ViewContext context, final GridWidget<UserGridModel> userGrid)
     {
         super(context);
         this.userGrid = userGrid;

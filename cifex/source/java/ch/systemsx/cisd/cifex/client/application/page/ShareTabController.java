@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -27,6 +29,8 @@ import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -39,9 +43,10 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 class ShareTabController extends AbstractMainPageTabController
 {
 
-    public ShareTabController(ViewContext context)
+    public ShareTabController(ViewContext context,
+            final List<GridWidget<AbstractFileGridModel>> fileGridWidgets)
     {
-        super(context);
+        super(context, fileGridWidgets);
     }
 
     @Override
@@ -53,7 +58,7 @@ class ShareTabController extends AbstractMainPageTabController
                 new QuotaInformationUpdater(explanationWidget);
         quotaInformationUpdater.triggerUpdate();
         contentPanel.add(createUploadPart(explanationWidget));
-        FileListingTabHelper.createListOwnedFilesGrid(context, contentPanel,
+        FileListingTabHelper.createListOwnedFilesGrid(context, contentPanel, fileGridWidgets,
                 quotaInformationUpdater);
         return contentPanel;
     }

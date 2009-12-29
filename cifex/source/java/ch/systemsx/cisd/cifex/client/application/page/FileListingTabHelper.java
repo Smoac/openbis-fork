@@ -27,18 +27,17 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.HTML;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.AbstractFileGridModel;
-import ch.systemsx.cisd.cifex.client.application.DownloadFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.FileCommentGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.FileDownloadGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
-import ch.systemsx.cisd.cifex.client.application.OwnedFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
-import ch.systemsx.cisd.cifex.client.application.UploadedFileActionGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
+import ch.systemsx.cisd.cifex.client.application.model.DownloadFileGridModel;
+import ch.systemsx.cisd.cifex.client.application.model.OwnedFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
@@ -53,7 +52,7 @@ class FileListingTabHelper
 {
 
     private static final long MB = 1024 * 1024;
-    
+
     private static final NumberFormat FILE_SIZE_FORMAT = NumberFormat.getFormat("#.#");
 
     static final String getMaxFileSize(final Long maxFileSizeInMBOrNull)
@@ -84,7 +83,8 @@ class FileListingTabHelper
     }
 
     static void createListDownloadFilesGrid(final LayoutContainer contentPanel,
-            ViewContext context, IQuotaInformationUpdater quotaUpdaterOrNull)
+            ViewContext context, final List<GridWidget<AbstractFileGridModel>> fileGridWidgets,
+            IQuotaInformationUpdater quotaUpdaterOrNull)
     {
         final IMessageResources messageResources = context.getMessageResources();
         final List<ColumnConfig> columnConfigs =
@@ -98,8 +98,11 @@ class FileListingTabHelper
         final Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
         grid.getView().setEmptyText(messageResources.getDownloadFilesLoading());
 
+        fileGridWidgets.add(gridWidget);
+
         grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
         grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
+
         final LayoutContainer verticalPanel = AbstractMainPageTabController.createContainer();
         AbstractMainPageTabController.addTitlePart(verticalPanel, messageResources
                 .getDownloadFilesPartTitle());
@@ -144,6 +147,7 @@ class FileListingTabHelper
     }
 
     static void createListOwnedFilesGrid(ViewContext context, final LayoutContainer contentPanel,
+            final List<GridWidget<AbstractFileGridModel>> fileGridWidgets,
             IQuotaInformationUpdater quotaUpdaterOrNull)
     {
         final IMessageResources messageResources = context.getMessageResources();
@@ -158,10 +162,12 @@ class FileListingTabHelper
         final Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
         grid.getView().setEmptyText(messageResources.getSharedFilesLoading());
 
+        fileGridWidgets.add(gridWidget);
+
         grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
         grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
         grid.addListener(Events.CellClick, new UploadedFileActionGridCellListener(context,
-                gridWidget, quotaUpdaterOrNull));
+                gridWidget, fileGridWidgets, quotaUpdaterOrNull));
         AbstractMainPageTabController.addTitlePart(contentPanel, messageResources
                 .getSharedFilesPartTitle());
         contentPanel.add(gridWidget.getWidget());

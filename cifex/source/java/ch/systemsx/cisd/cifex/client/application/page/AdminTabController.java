@@ -27,9 +27,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.AbstractFileGridModel;
-import ch.systemsx.cisd.cifex.client.application.AdminFileActionGridCellListener;
-import ch.systemsx.cisd.cifex.client.application.AdminFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.FileCommentGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.FileDownloadGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
@@ -37,6 +34,8 @@ import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.grid.GridUtils;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
+import ch.systemsx.cisd.cifex.client.application.model.AdminFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.UserGridModel;
 import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -50,9 +49,10 @@ class AdminTabController extends AbstractMainPageTabController
     /**
      * @param context
      */
-    public AdminTabController(ViewContext context)
+    public AdminTabController(ViewContext context,
+            final List<GridWidget<AbstractFileGridModel>> fileGridWidgets)
     {
-        super(context);
+        super(context, fileGridWidgets);
     }
 
     @Override
@@ -63,7 +63,7 @@ class AdminTabController extends AbstractMainPageTabController
 
         LayoutContainer listFilesPanel = createContainer();
         GridWidget<AbstractFileGridModel> filesGrid =
-                createFileTable(new OwnerFileInfoDTO[0], context);
+                createFileTable(new OwnerFileInfoDTO[0], context, fileGridWidgets);
         addTitlePart(listFilesPanel, context.getMessageResources().getFilesPartTitle());
         listFilesPanel.add(filesGrid.getWidget());
 
@@ -100,7 +100,7 @@ class AdminTabController extends AbstractMainPageTabController
     }
 
     private static final GridWidget<AbstractFileGridModel> createFileTable(
-            final OwnerFileInfoDTO[] files, ViewContext context)
+            final OwnerFileInfoDTO[] files, ViewContext context, final List<GridWidget<AbstractFileGridModel>> fileGridWidgets)
     {
         List<AbstractFileGridModel> modelData =
                 AdminFileGridModel.convert(context.getMessageResources(), Arrays.asList(files));
@@ -116,10 +116,13 @@ class AdminTabController extends AbstractMainPageTabController
 
         Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
         grid.getView().setEmptyText(context.getMessageResources().getFilesLoading());
+
+        fileGridWidgets.add(gridWidget);
+
         grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
         grid
                 .addListener(Events.CellClick, new AdminFileActionGridCellListener(context,
-                        gridWidget));
+                        gridWidget, fileGridWidgets));
         grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
         return gridWidget;
     }
@@ -144,16 +147,16 @@ class AdminTabController extends AbstractMainPageTabController
 
         public final void onSuccess(final List<UserInfoDTO> result)
         {
-            userGrid.getGrid().getView().setEmptyText(
-                    context.getMessageResources().getUsersEmpty());
+            userGrid.getGrid().getView()
+                    .setEmptyText(context.getMessageResources().getUsersEmpty());
             userGrid.setDataAndRefresh(UserGridModel.convert(context, result));
         }
 
         @Override
         public void onFailure(Throwable caught)
         {
-            userGrid.getGrid().getView().setEmptyText(
-                    context.getMessageResources().getUsersEmpty());
+            userGrid.getGrid().getView()
+                    .setEmptyText(context.getMessageResources().getUsersEmpty());
             super.onFailure(caught);
         }
     }

@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileDownloadHelper;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;

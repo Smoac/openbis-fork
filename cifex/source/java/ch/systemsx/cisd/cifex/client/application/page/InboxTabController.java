@@ -16,11 +16,15 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
+import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -28,20 +32,21 @@ import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 class InboxTabController extends AbstractMainPageTabController
 {
 
-    public InboxTabController(ViewContext context)
+    public InboxTabController(ViewContext context,
+            final List<GridWidget<AbstractFileGridModel>> fileGridWidgets)
     {
-        super(context);
+        super(context, fileGridWidgets);
     }
 
     @Override
     protected Widget getWidget()
     {
         final LayoutContainer contentPanel = createOutermostWidgetContainer();
-        FileListingTabHelper.createListDownloadFilesGrid(contentPanel, context,
+        FileListingTabHelper.createListDownloadFilesGrid(contentPanel, context, fileGridWidgets,
                 null);
         return contentPanel;
     }
-    
+
     @Override
     protected Page getPageIdentifier()
     {

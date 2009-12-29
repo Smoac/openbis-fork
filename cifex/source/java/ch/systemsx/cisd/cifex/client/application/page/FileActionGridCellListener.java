@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.application;
+package ch.systemsx.cisd.cifex.client.application.page;
 
 import java.util.List;
 
@@ -29,9 +29,15 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.cifex.client.application.EditFileDialog;
+import ch.systemsx.cisd.cifex.client.application.FileShareUpdateUserDialog;
+import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
+import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -48,17 +54,21 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
 
     private final boolean adminView;
 
-    private final GridWidget<AbstractFileGridModel> gridWidget;
+    private final GridWidget<AbstractFileGridModel> myFileGridWidget;
+
+    private final List<GridWidget<AbstractFileGridModel>> fileGridWidgets;
 
     private final IQuotaInformationUpdater quotaUpdaterOrNull;
 
     FileActionGridCellListener(final boolean adminView, final ViewContext viewContext,
-            final GridWidget<AbstractFileGridModel> gridWidget,
+            final GridWidget<AbstractFileGridModel> myFileGridWidget,
+            final List<GridWidget<AbstractFileGridModel>> fileGridWidgets,
             final IQuotaInformationUpdater quotaUpdaterOrNull)
     {
         this.adminView = adminView;
         this.viewContext = viewContext;
-        this.gridWidget = gridWidget;
+        this.myFileGridWidget = myFileGridWidget;
+        this.fileGridWidgets = fileGridWidgets;
         this.quotaUpdaterOrNull = quotaUpdaterOrNull;
     }
 
@@ -69,14 +79,14 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
     /**
      * An {@link AsyncCallback} that updates the list of files after a file has been deleted.
      */
-    private final class DeleteUploadedFileAsyncCallback extends AbstractAsyncCallback<Void>
+    private final class DeleteOwnedFileAsyncCallback extends AbstractAsyncCallback<Void>
     {
-        private final GridWidget<AbstractFileGridModel> modelBasedGrid;
+        private final long id;
 
-        DeleteUploadedFileAsyncCallback(final GridWidget<AbstractFileGridModel> modelBasedGrid)
+        DeleteOwnedFileAsyncCallback(final long id)
         {
             super(viewContext);
-            this.modelBasedGrid = modelBasedGrid;
+            this.id = id;
         }
 
         //
@@ -86,19 +96,14 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         public final void onSuccess(final Void result)
         {
             assert adminView == false;
-            viewContext.getCifexService().listOwnedFiles(
-                    new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(viewContext)
-                        {
-                            public final void onSuccess(final List<OwnerFileInfoDTO> res)
-                            {
-                                modelBasedGrid.setDataAndRefresh(OwnedFileGridModel.convert(
-                                        viewContext.getMessageResources(), res));
-                                if (quotaUpdaterOrNull != null)
-                                {
-                                    quotaUpdaterOrNull.triggerUpdate();
-                                }
-                            }
-                        });
+            for (GridWidget<AbstractFileGridModel> widget : fileGridWidgets)
+            {
+                widget.removeItem(id);
+            }
+            if (quotaUpdaterOrNull != null)
+            {
+                quotaUpdaterOrNull.triggerUpdate();
+            }
         }
     }
 
@@ -107,12 +112,12 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
      */
     private final class AdminDeleteFileAsyncCallback extends AbstractAsyncCallback<Void>
     {
-        private final GridWidget<AbstractFileGridModel> modelBasedGrid;
+        private final long id;
 
-        AdminDeleteFileAsyncCallback(final GridWidget<AbstractFileGridModel> grid)
+        AdminDeleteFileAsyncCallback(final long id)
         {
             super(viewContext);
-            this.modelBasedGrid = grid;
+            this.id = id;
         }
 
         //
@@ -122,15 +127,10 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
         public final void onSuccess(final Void result)
         {
             assert adminView;
-            viewContext.getCifexService().listFiles(
-                    new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(viewContext)
-                        {
-                            public final void onSuccess(final List<OwnerFileInfoDTO> res)
-                            {
-                                modelBasedGrid.setDataAndRefresh(AdminFileGridModel.convert(
-                                        viewContext.getMessageResources(), res));
-                            }
-                        });
+            for (GridWidget<AbstractFileGridModel> widget : fileGridWidgets)
+            {
+                widget.removeItem(id);
+            }
         }
     }
 
@@ -168,7 +168,7 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
 
     public void handleEvent(GridEvent<AbstractFileGridModel> be)
     {
-        Grid<AbstractFileGridModel> grid = gridWidget.getGrid();
+        Grid<AbstractFileGridModel> grid = myFileGridWidget.getGrid();
         int rowIndex = be.getRowIndex();
         int colindex = be.getColIndex();
         final ModelData record = grid.getStore().getAt(rowIndex);
@@ -198,11 +198,11 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
                                 if (adminView)
                                 {
                                     viewContext.getCifexService().deleteFile(id,
-                                            new AdminDeleteFileAsyncCallback(gridWidget));
+                                            new AdminDeleteFileAsyncCallback(id));
                                 } else
                                 {
                                     viewContext.getCifexService().deleteFile(id,
-                                            new DeleteUploadedFileAsyncCallback(gridWidget));
+                                            new DeleteOwnedFileAsyncCallback(id));
                                 }
 
                             }
@@ -215,13 +215,13 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
             {
                 // Edit User
                 viewContext.getCifexService().getFile(id,
-                        new EditFileAsyncCallback(viewContext, gridWidget));
+                        new EditFileAsyncCallback(viewContext, myFileGridWidget));
             }
             // Shared
             if (Constants.SHARED_ID.equals(targetId))
             {
                 viewContext.getCifexService().listUsersFileSharedWith(id,
-                        new ShowUsersFileSharedWithAsyncCallback(name, id, gridWidget));
+                        new ShowUsersFileSharedWithAsyncCallback(name, id, myFileGridWidget));
             }
         }
     }

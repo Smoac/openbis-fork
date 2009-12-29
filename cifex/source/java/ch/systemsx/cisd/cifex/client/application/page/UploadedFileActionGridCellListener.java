@@ -13,32 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.cifex.client.application;
+package ch.systemsx.cisd.cifex.client.application.page;
+
+import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
+import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
-
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 
 /**
- * FileActionGridCellListener for admin grids.
+ * FileActionGridCellListener for non-admin grids.
  * 
  * @author Izabela Adamczyk
  */
-public class AdminFileActionGridCellListener extends FileActionGridCellListener
+public class UploadedFileActionGridCellListener extends FileActionGridCellListener
 {
 
-    public AdminFileActionGridCellListener(ViewContext viewContext,
-            GridWidget<AbstractFileGridModel> gridWidget)
+    public UploadedFileActionGridCellListener(final ViewContext viewContext,
+            final GridWidget<AbstractFileGridModel> mainFileGridWidget,
+            final List<GridWidget<AbstractFileGridModel>> fileGridWidgets,
+            final IQuotaInformationUpdater quotaUpdaterOrNull)
     {
-        super(true, viewContext, gridWidget, null);
+        super(false, viewContext, mainFileGridWidget, fileGridWidgets, quotaUpdaterOrNull);
     }
 
     @Override
     protected AsyncCallback<Void> createUpdateFilesCallback(GridWidget<AbstractFileGridModel> grid,
             ViewContext context)
     {
-        return new UpdateAdminFileAsyncCallback(grid, context);
+        return new UpdateUploadedFileAsyncCallback(grid, context);
     }
-
 }

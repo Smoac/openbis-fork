@@ -21,10 +21,10 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.cifex.client.application.AbstractFileGridModel;
-import ch.systemsx.cisd.cifex.client.application.AdminFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
+import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
+import ch.systemsx.cisd.cifex.client.application.model.AdminFileGridModel;
 import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 
 /**

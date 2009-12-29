@@ -55,6 +55,7 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
         {
             registratorAnchor = UserRenderer.createUserAnchor(user.getRegistrator());
         }
+        set(ID, user.getID());// long
         set(SHARE_FILE, new Boolean(checkedUser));// Boolean
         set(USER_CODE, user.getUserCode());// String
         set(USER_EMAIL, user.getEmail());// String
@@ -107,9 +108,15 @@ public final class FileShareUserGridModel extends AbstractUserGridModel
         return result;
     }
 
+    public long getID()
+    {
+        return get(ID);
+    }
+
     static public final List<ColumnConfig> getColumnConfigs(IMessageResources messageResources)
     {
         final List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+        configs.add(createIdColumnConfig());
         configs.add(createShareFileCheckboxColumnConfig(messageResources));
         configs.add(createUserCodeColumnConfig(messageResources));
         configs.add(createUserEmailColumnConfig(messageResources));

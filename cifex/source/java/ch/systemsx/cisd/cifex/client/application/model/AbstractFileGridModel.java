@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.cifex.client.application;
+package ch.systemsx.cisd.cifex.client.application.model;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,8 +22,8 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
+import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
-import ch.systemsx.cisd.cifex.client.application.model.AbstractDataGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.DateRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.FileSizeRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.LinkRenderer;
@@ -39,45 +39,35 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
 {
     private static final long serialVersionUID = Constants.VERSION;
 
-    protected static final String ID = "id";
+    public static final String NAME = "name";
 
-    protected static final String NAME = "name";
+    public static final String COMMENT = "comment";
 
-    protected static final String COMMENT = "comment";
+    public static final String CONTENT_TYPE = "contentType";
 
-    protected static final String CONTENT_TYPE = "contentType";
+    public static final String SIZE = "size";
 
-    protected static final String SIZE = "size";
+    public static final String COMPLETE_SIZE = "completeSize";
 
-    protected static final String COMPLETE_SIZE = "completeSize";
+    public static final String IS_COMPLETE = "isComplete";
 
-    protected static final String IS_COMPLETE = "isComplete";
+    public static final String CRC32_CHECKSUM = "crc32Checksum";
 
-    protected static final String CRC32_CHECKSUM = "crc32Checksum";
+    public static final String EXPIRATION_DATE = "expirationDate";
 
-    protected static final String EXPIRATION_DATE = "expirationDate";
+    public static final String REGISTRATION_DATE = "registrationDate";
 
-    protected static final String REGISTRATION_DATE = "registrationDate";
+    public static final String OWNER = "owner";
 
-    protected static final String OWNER = "owner";
+    public static final String REGISTRATOR = "registrator";
 
-    protected static final String REGISTRATOR = "registrator";
+    public static final String SHARED_WITH = "sharedWith";
 
-    protected static final String SHARED_WITH = "sharedWith";
-
-    protected static final String ACTION = "action";
+    public static final String ACTION = "action";
 
     AbstractFileGridModel(final IMessageResources messageResources)
     {
         super(messageResources);
-    }
-
-    protected final static ColumnConfig createIdColumnConfig()
-    {
-        final ColumnConfig columnConfig = createSortableColumnConfig(ID, "Id", 20);
-        columnConfig.setHidden(true);
-        columnConfig.setFixed(true);
-        return columnConfig;
     }
 
     protected final static ColumnConfig createNameColumnConfig(IMessageResources messageResources)

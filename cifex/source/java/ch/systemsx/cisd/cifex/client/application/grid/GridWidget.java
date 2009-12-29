@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application.grid;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
@@ -41,6 +42,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
+import ch.systemsx.cisd.cifex.client.application.model.IModelDataWithID;
 import ch.systemsx.cisd.cifex.client.application.utils.IDelegatedAction;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
@@ -49,12 +51,12 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
  * 
  * @author Tomasz Pylak
  */
-public class GridWidget<M extends ModelData>
+public class GridWidget<M extends IModelDataWithID>
 {
     private static final int PAGE_SIZE = 50;
 
     /** creates a paged grid with specified columns and filters */
-    public static <M extends ModelData> GridWidget<M> create(List<ColumnConfig> columnConfigs,
+    public static <M extends IModelDataWithID> GridWidget<M> create(List<ColumnConfig> columnConfigs,
             List<M> models, List<AbstractFilterField<M>> filterFields,
             IMessageResources messageResources)
     {
@@ -102,6 +104,41 @@ public class GridWidget<M extends ModelData>
     {
         this.models = models;
         refreshStore();
+    }
+    
+    public boolean removeItem(long id)
+    {
+        boolean removed = false;
+        final Iterator<M> it = models.iterator();
+        while (it.hasNext())
+        {
+            final M item = it.next();
+            if (item.getID() == id)
+            {
+                it.remove();
+                removed = true;
+                break;
+            }
+        }
+        if (removed)
+        {
+            refreshStore();
+        }
+        return removed;
+    }
+    
+    public M tryGetModel(long id)
+    {
+        final Iterator<M> it = models.iterator();
+        while (it.hasNext())
+        {
+            final M item = it.next();
+            if (item.getID() == id)
+            {
+                return item;
+            }
+        }
+        return null; // id not found
     }
 
     // applies filters and refreshes the grid items
