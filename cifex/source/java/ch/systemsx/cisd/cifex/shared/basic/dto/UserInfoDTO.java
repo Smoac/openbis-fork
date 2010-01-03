@@ -254,4 +254,23 @@ public class UserInfoDTO extends BasicUserInfoDTO
         this.customMaxFileCountPerQuotaGroup = customMaxFileCountPerQuotaGroup;
     }
 
+    public void updateFrom(UserInfoDTO updateUser)
+    {
+        super.updateFrom(updateUser);
+        setAdmin(updateUser.isAdmin());
+        setExpirationDate(updateUser.getExpirationDate());
+        setExternallyAuthenticated(updateUser.isExternallyAuthenticated());
+        setMaxFileRetention(updateUser.getMaxFileRetention());
+        setCustomMaxFileRetention(updateUser.isCustomMaxFileRetention());
+        setMaxUserRetention(updateUser.getMaxUserRetention());
+        setCustomMaxUserRetention(updateUser.isCustomMaxUserRetention());
+        setMaxFileSizePerQuotaGroupInMB(updateUser.getMaxFileSizePerQuotaGroupInMB());
+        setCustomMaxFileSizePerQuotaGroup(updateUser.isCustomMaxFileSizePerQuotaGroup());
+        setMaxFileCountPerQuotaGroup(updateUser.getMaxFileCountPerQuotaGroup());
+        setCustomMaxFileCountPerQuotaGroup(updateUser.isCustomMaxFileCountPerQuotaGroup());
+        setActive(updateUser.isActive());
+        setRegistrator(updateUser.getRegistrator());
+        setExpirationDate(updateUser.getExpirationDate());
+    }
+
 }

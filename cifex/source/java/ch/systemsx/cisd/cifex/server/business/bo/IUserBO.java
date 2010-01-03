@@ -52,6 +52,17 @@ public interface IUserBO
             Password passwordOrNull, UserDTO requestUserOrNull);
 
     /**
+     * Returns the user information. This method is only available after calling
+     * {@link #defineForUpdate(UserDTO, UserDTO, Password, UserDTO)} or
+     * {@link #defineForCreate(UserDTO, UserDTO, boolean)}.
+     * 
+     * @throws IllegalStateException If
+     *             {@link #defineForUpdate(UserDTO, UserDTO, Password, UserDTO)} has not been
+     *             called.
+     */
+    public UserDTO getUser() throws IllegalStateException;
+
+    /**
      * Returns the old user information (before the update). This method is only available after
      * calling {@link #defineForUpdate(UserDTO, UserDTO, Password, UserDTO)}.
      * 

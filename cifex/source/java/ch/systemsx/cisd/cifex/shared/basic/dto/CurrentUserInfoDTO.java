@@ -38,4 +38,9 @@ public final class CurrentUserInfoDTO extends UserInfoDTO
         this.hasFilesForDownload = hasFilesForDownload;
     }
     
+    public void updateFrom(CurrentUserInfoDTO updateUser)
+    {
+        super.updateFrom(updateUser);
+        setHasFilesForDownload(updateUser.hasFilesForDownload());
+    }
 }

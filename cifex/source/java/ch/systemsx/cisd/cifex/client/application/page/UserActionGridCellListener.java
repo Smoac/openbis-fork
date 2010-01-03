@@ -236,7 +236,7 @@ final class UserActionGridCellListener implements Listener<GridEvent<UserGridMod
                             if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))
                             {
                                 viewContext.getCifexService().deleteUser(
-                                        userCode,
+                                        userId,
                                         new DeleteUserAsyncCallback(viewContext, userGridWidget,
                                                 userId));
                             }

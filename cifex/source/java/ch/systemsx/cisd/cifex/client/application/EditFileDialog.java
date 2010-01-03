@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.client.application;
 
+import java.util.Date;
+
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -39,10 +41,10 @@ public final class EditFileDialog extends DefaultLayoutDialog
     
     private final EditFileWidget editFileWidget;
     
-    private final AsyncCallback<Void> refreshCallback;
+    private final AsyncCallback<Date> refreshCallback;
 
     public EditFileDialog(final ViewContext context, final FileInfoDTO file,
-            final AsyncCallback<Void> refreshCallback)
+            final AsyncCallback<Date> refreshCallback)
     {
         super(context.getMessageResources(), context.getMessageResources().getEditFileDialogTitle(
                 file.getName()), EditFileWidget.WIDTH + 30, HEIGHT);
@@ -66,11 +68,6 @@ public final class EditFileDialog extends DefaultLayoutDialog
                 }
             });
         addButton(button);
-    }
-
-    protected final String getCloseButtonLabel()
-    {
-        return messageResources.getActionCancelLabel();
     }
 
 }

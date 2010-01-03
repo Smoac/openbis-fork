@@ -988,7 +988,7 @@ final class FileManager extends AbstractManager implements IFileManager
         }
     }
 
-    public void updateFileUserData(final long fileId, final String name,
+    public Date updateFileUserData(final long fileId, final String name,
             final String commentOrNull, final Date expirationDate, final UserDTO requestUser)
     {
         Date newExpirationDate = null;
@@ -999,6 +999,7 @@ final class FileManager extends AbstractManager implements IFileManager
             daoFactory.getFileDAO().updateFileUserEdit(fileId, name, commentOrNull,
                     newExpirationDate);
             success = true;
+            return newExpirationDate;
         } finally
         {
             businessContext.getUserActionLog()

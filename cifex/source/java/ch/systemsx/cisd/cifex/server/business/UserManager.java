@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,22 +83,17 @@ class UserManager extends AbstractManager implements IUserManager
         return userOrNull;
     }
 
-    public UserDTO tryFindUserByCodeFillRegistrator(String code)
+    public UserDTO getUser(final long id)
     {
-        assert code != null : "User Code is null!";
-
-        final UserDTO user = daoFactory.getUserDAO().tryFindUserByCode(code);
-        if (user != null)
+        try
         {
-            if (user.getRegistrator() != null)
-            {
-                final UserDTO registrator =
-                        daoFactory.getUserDAO().getUserById(user.getRegistrator().getID());
-                user.setRegistrator(registrator);
-            }
+            final UserDTO user = daoFactory.getUserDAO().getUserById(id);
             fillInDefaultQuotaInformation(user);
+            return user;
+        } catch (DataAccessException ex)
+        {
+            throw new IllegalArgumentException("User id=" + id + " not found in database.");
         }
-        return user;
     }
 
     public List<UserDTO> findUserByEmail(final String email)
@@ -113,7 +109,7 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final void createUser(final UserDTO user, UserDTO registratorOrNull)
+    public final UserDTO createUser(final UserDTO user, UserDTO registratorOrNull)
             throws UserFailureException
     {
         boolean success = false;
@@ -123,6 +119,7 @@ class UserManager extends AbstractManager implements IUserManager
             userBO.defineForCreate(user, registratorOrNull, false);
             userBO.save();
             success = true;
+            return userBO.getUser();
         } catch (final DataIntegrityViolationException ex)
         {
             final String msg =
@@ -137,14 +134,15 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public void createUserAndSendEmail(final UserDTO user, final String password,
+    public UserDTO createUserAndSendEmail(final UserDTO user, final String password,
             final UserDTO registrator, final String comment, final String basicURL)
             throws UserFailureException, EnvironmentFailureException
     {
         final String finalPassword = getFinalPassword(password);
         user.setPassword(new Password(finalPassword));
-        createUser(user, registrator);
-        sendEmailToNewUser(user, registrator, comment, basicURL, finalPassword);
+        final UserDTO createdUser = createUser(user, registrator);
+        sendEmailToNewUser(createdUser, registrator, comment, basicURL, finalPassword);
+        return createdUser;
     }
 
     private void sendEmailToNewUser(final UserDTO user, final UserDTO registrator,
@@ -254,59 +252,53 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final void deleteUser(final String userCode, final UserDTO requestUser)
-            throws UserFailureException
+    public final void deleteUser(final long id, final UserDTO requestUser)
+            throws IllegalArgumentException
     {
-        assert userCode != null : "userCode is null";
-
-        UserDTO userOrNull = null;
+        UserDTO user = null;
         boolean success = false;
         try
         {
             final IUserDAO userDAO = daoFactory.getUserDAO();
-            userOrNull = userDAO.tryFindUserByCode(userCode);
-            if (userOrNull != null)
+            user = userDAO.getUserById(id);
+            success = userDAO.deleteUser(user, requestUser.getID());
+            if (success)
             {
-                success = userDAO.deleteUser(userOrNull, requestUser.getID());
-                if (success)
+                if (operationLog.isInfoEnabled())
                 {
-                    if (operationLog.isInfoEnabled())
-                    {
-                        operationLog.info("User [" + getUserDescription(userOrNull)
-                                + "] deleted from user database.");
-                    }
-                    businessContext.getUserSessionInvalidator().invalidateSessionWithUser(
-                            userOrNull);
-                } else
-                {
-                    operationLog.warn("Could not delete user [" + getUserDescription(userOrNull)
-                            + "] from user database.");
+                    operationLog.info("User [" + getUserDescription(user)
+                            + "] deleted from user database.");
                 }
+                businessContext.getUserSessionInvalidator().invalidateSessionWithUser(user);
             } else
             {
-                final String msg =
-                        String.format("Could not delete user '%s' (user not found)", userCode);
-                operationLog.warn(msg);
-                throw new UserFailureException(msg);
+                operationLog.warn("Could not delete user [" + getUserDescription(user)
+                        + "] from user database.");
             }
+        } catch (DataAccessException ex)
+        {
+            final String msg =
+                    String.format("Could not delete user id=%s (id not found)", id);
+            operationLog.warn(msg);
+            throw new IllegalArgumentException(msg);
         } finally
         {
-            if (userOrNull != null)
+            if (user != null)
             {
-                businessContext.getUserActionLog().logDeleteUser(userOrNull, success);
+                businessContext.getUserActionLog().logDeleteUser(user, success);
             }
         }
     }
 
     @Transactional
-    public final void updateUser(final UserDTO userToUpdate, final Password passwordOrNull,
+    public final UserDTO updateUser(final UserDTO userToUpdate, final Password passwordOrNull,
             final UserDTO requestUserOrNull) throws UserFailureException, IllegalArgumentException
     {
-        updateUser(null, userToUpdate, passwordOrNull, requestUserOrNull);
+        return updateUser(null, userToUpdate, passwordOrNull, requestUserOrNull);
     }
 
     @Transactional
-    public final void updateUser(final UserDTO oldUserToUpdateOrNull, final UserDTO userToUpdate,
+    public final UserDTO updateUser(final UserDTO oldUserToUpdateOrNull, final UserDTO userToUpdate,
             final Password passwordOrNull, final UserDTO requestUserOrNull)
             throws UserFailureException, IllegalArgumentException
     {
@@ -322,6 +314,7 @@ class UserManager extends AbstractManager implements IUserManager
             existingUser = userBO.getOldUser();
             userBO.save();
             success = true;
+            return userBO.getUser();
         } finally
         {
             businessContext.getUserActionLog().logUpdateUser(existingUser, userToUpdate, success);
@@ -329,12 +322,10 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final List<UserDTO> listUsersRegisteredBy(final String userCode)
+    public final List<UserDTO> listUsersRegisteredBy(final long userId)
     {
-        assert userCode != null : "Unspecified user";
-
         final IUserDAO userDAO = daoFactory.getUserDAO();
-        final List<UserDTO> usersRegisteredBy = userDAO.listUsersRegisteredBy(userCode);
+        final List<UserDTO> usersRegisteredBy = userDAO.listUsersRegisteredBy(userId);
         for (UserDTO user : usersRegisteredBy)
         {
             fillInDefaultQuotaInformation(user);

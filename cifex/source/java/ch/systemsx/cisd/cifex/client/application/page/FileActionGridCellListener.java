@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.client.application.page;
 
+import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -157,9 +158,8 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
 
         public final void onSuccess(final List<UserInfoDTO> result)
         {
-            final List<UserInfoDTO> users = result;
             final FileShareUpdateUserDialog dialog =
-                    new FileShareUpdateUserDialog(viewContext, users, fileName, fileId,
+                    new FileShareUpdateUserDialog(viewContext, result, fileName, fileId,
                             createUpdateFilesCallback(grid, getViewContext()));
             dialog.show();
 
@@ -213,7 +213,7 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
             // Edit
             if (Constants.EDIT_ID.equals(targetId))
             {
-                // Edit User
+                // Edit File
                 viewContext.getCifexService().getFile(id,
                         new EditFileAsyncCallback(viewContext, myFileGridWidget));
             }
@@ -243,8 +243,19 @@ abstract class FileActionGridCellListener implements Listener<GridEvent<Abstract
 
         public final void onSuccess(final FileInfoDTO resultOrNull)
         {
-            new EditFileDialog(getViewContext(), resultOrNull, createUpdateFilesCallback(grid,
-                    getViewContext())).show();
+            new EditFileDialog(getViewContext(), resultOrNull,
+                    createVoidAdapter(createUpdateFilesCallback(grid, getViewContext()))).show();
+        }
+
+        private AsyncCallback<Date> createVoidAdapter(final AsyncCallback<Void> callback)
+        {
+            return new AbstractAsyncCallback<Date>(getViewContext())
+                {
+                    public void onSuccess(Date result)
+                    {
+                        callback.onSuccess(null);
+                    }
+                };
         }
     }
 

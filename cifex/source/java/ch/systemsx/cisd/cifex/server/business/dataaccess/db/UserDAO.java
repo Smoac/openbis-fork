@@ -26,7 +26,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
@@ -205,20 +204,13 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         return list;
     }
 
-    public List<UserDTO> listUsersRegisteredBy(final String userCode) throws DataAccessException
+    public List<UserDTO> listUsersRegisteredBy(final long userId) throws DataAccessException
     {
-        assert userCode != null;
-        final UserDTO registrator = tryFindUserByCode(userCode);
-        if (registrator == null)
-        {
-
-            throw new DataRetrievalFailureException("User '" + userCode + "' does not exist.");
-        }
+        final UserDTO registrator = getUserById(userId);
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         final List<UserDTO> list =
-                template.query(SELECT_USERS_WITH_QUOTA_INFO + " where user_id_registrator ="
-                        + " (select id from users where user_code=?)",
-                        new UserRowMapperWithQuotaInfo(), userCode);
+                template.query(SELECT_USERS_WITH_QUOTA_INFO + " where user_id_registrator = ?",
+                        new UserRowMapperWithQuotaInfo(), userId);
 
         for (final UserDTO user : list)
         {
@@ -233,7 +225,7 @@ final class UserDAO extends AbstractDAO implements IUserDAO
         final Long registratorIdOrNull = tryGetRegistratorId(user);
         if (registratorIdOrNull != null)
         {
-            user.setRegistrator(getUserById(registratorIdOrNull));
+            user.setRegistrator(primGetUserById(registratorIdOrNull));
         }
     }
 
@@ -279,11 +271,17 @@ final class UserDAO extends AbstractDAO implements IUserDAO
 
     public UserDTO getUserById(final long id) throws DataAccessException
     {
+        final UserDTO user = primGetUserById(id);
+        fillInRegistrator(user);
+        return user;
+    }
+
+    private UserDTO primGetUserById(final long id)
+    {
         final SimpleJdbcTemplate template = getSimpleJdbcTemplate();
         final UserDTO user =
                 template.queryForObject(SELECT_USERS_WITH_QUOTA_INFO + " where u.id = ?",
                         new UserRowMapperWithQuotaInfo(), id);
-        fillInRegistrator(user);
         return user;
     }
 

@@ -78,7 +78,7 @@ final class InviteTabController extends AbstractMainPageTabController
                 new UserActionGridCellListener(context, null, gridWidget));
         addTitlePart(listCreatedUserPanel, context.getMessageResources().getOwnUserTitle());
         listCreatedUserPanel.add(gridWidget.getWidget());
-        context.getCifexService().listUsersRegisteredBy(context.getModel().getUser().getUserCode(),
+        context.getCifexService().listUsersOwnedBy(context.getModel().getUser().getID(),
                 new CreatedUserAsyncCallback(context, gridWidget));
     }
 

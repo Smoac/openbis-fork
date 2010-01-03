@@ -67,9 +67,15 @@ public interface ICIFEXServiceAsync
      */
     public void listUsers(final AsyncCallback<List<UserInfoDTO>> callback);
 
-    /** Returns a list of users, which where registered by the given user. */
-    public void listUsersRegisteredBy(final String userCode,
-            final AsyncCallback<List<UserInfoDTO>> callback);
+    /** Returns the list of users that are owned by the given user. */
+    public void listUsersOwnedBy(final long userId, final AsyncCallback<List<UserInfoDTO>> callback);
+
+    /**
+     * Returns the user for the given <var>id</var>.
+     * 
+     * @throws IllegalArgumentException If a user with that id does not exist.
+     */
+    public void getUser(final long id, final AsyncCallback<UserInfoDTO> callback);
 
     /** Gets the user by the userCode. */
     public void tryFindUserByUserCode(final String userCode,
@@ -85,7 +91,7 @@ public interface ICIFEXServiceAsync
      * </p>
      */
     public void createUser(final UserInfoDTO user, final String password, final String comment,
-            final AsyncCallback<Void> callback);
+            final AsyncCallback<UserInfoDTO> callback);
 
     /**
      * Update the fields of the user in the database.
@@ -93,7 +99,7 @@ public interface ICIFEXServiceAsync
      * @param sendUserNotification Should the user receive a mail with the new information?
      */
     public void updateUser(final UserInfoDTO user, final String password,
-            final boolean sendUserNotification, final AsyncCallback<Void> callback);
+            final boolean sendUserNotification, final AsyncCallback<UserInfoDTO> callback);
 
     /**
      * Changes the user code from <var>before</var> to <var>after</var>.
@@ -102,9 +108,9 @@ public interface ICIFEXServiceAsync
             final AsyncCallback<Void> callback);
 
     /**
-     * Deletes an user given by its <var>userCode</var>.
+     * Deletes an user given by its <var>id</var>.
      */
-    public void deleteUser(final String userCode, final AsyncCallback<Void> callback);
+    public void deleteUser(final long id, final AsyncCallback<Void> callback);
 
     /**
      * Deals with the file identified by <var>fileId</var>.
@@ -152,11 +158,12 @@ public interface ICIFEXServiceAsync
     public void getFileUploadFeedback(final AsyncCallback<FileUploadFeedback> callback);
 
     /**
-     * Update the user data of the <var>fileId</var>.
+     * Update the user data of the <var>fileId</var>. The callback will return the expiration date
+     * actually set for the file.
      */
     public void updateFileUserData(final long fileId, final String name,
             final String commentOrNull, final Date expirationDate,
-            final AsyncCallback<Void> callback);
+            final AsyncCallback<Date> callback);
 
     /**
      * List users the file with given <var>fileId</var> has been shared with.

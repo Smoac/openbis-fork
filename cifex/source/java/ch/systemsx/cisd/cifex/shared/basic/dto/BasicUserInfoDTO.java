@@ -100,6 +100,13 @@ public class BasicUserInfoDTO implements IsSerializable, Serializable
         this.userFullName = userFullName;
     }
 
+    public void updateFrom(final BasicUserInfoDTO updateUser)
+    {
+        setUserCode(updateUser.getUserCode());
+        setUserFullName(updateUser.getUserFullName());
+        setEmail(updateUser.getEmail());
+    }
+    
     //
     // Object
     //

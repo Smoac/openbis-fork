@@ -35,25 +35,22 @@ class UpdateUploadedFileAsyncCallback extends AbstractAsyncCallback<Void>
 {
     private final GridWidget<AbstractFileGridModel> modelBasedGrid;
 
-    private final ViewContext viewContext;
-
     UpdateUploadedFileAsyncCallback(final GridWidget<AbstractFileGridModel> modelBasedGrid,
-            final ViewContext viewContext)
+            final ViewContext context)
     {
-        super(viewContext);
-        this.viewContext = viewContext;
+        super(context);
         this.modelBasedGrid = modelBasedGrid;
     }
 
     public final void onSuccess(final Void result)
     {
-
-        viewContext.getCifexService().listOwnedFiles(
-                new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(viewContext)
+        final ViewContext context = getViewContext();
+        context.getCifexService().listOwnedFiles(
+                new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(context)
                     {
                         public final void onSuccess(final List<OwnerFileInfoDTO> res)
                         {
-                            modelBasedGrid.setDataAndRefresh(OwnedFileGridModel.convert(viewContext
+                            modelBasedGrid.setDataAndRefresh(OwnedFileGridModel.convert(context
                                     .getMessageResources(), res));
                         }
                     });

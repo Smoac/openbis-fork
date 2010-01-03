@@ -22,7 +22,6 @@ import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -92,7 +91,7 @@ public class EditUserWidget extends UserWidget
     // Helper classes
     //
 
-    private final class UpdateUserAsyncCallBack extends AbstractAsyncCallback<Void>
+    private final class UpdateUserAsyncCallBack extends AbstractAsyncCallback<UserInfoDTO>
     {
 
         UpdateUserAsyncCallBack()
@@ -114,29 +113,19 @@ public class EditUserWidget extends UserWidget
             }
         }
 
-        public final void onSuccess(final Void result)
+        public final void onSuccess(final UserInfoDTO result)
         {
             if (buttonOrNull != null)
             {
                 buttonOrNull.enable();
             }
-            final UserInfoDTO user = context.getModel().getUser();
+            final UserInfoDTO currentUser = context.getModel().getUser();
             // Update current user, if it was the one who has been changed.
-            if (user.getUserCode().equals(userCodeField.getValue()))
+            if (result.getID() == currentUser.getID())
             {
-                context.getCifexService().getCurrentUser(
-                        new AbstractAsyncCallback<CurrentUserInfoDTO>(context)
-                            {
-                                public void onSuccess(CurrentUserInfoDTO u)
-                                {
-                                    context.getModel().setUser(u);
-                                    finishEditing();
-                                }
-                            });
-            } else
-            {
-                finishEditing();
+                currentUser.updateFrom(result);
             }
+            finishEditing();
         }
     }
 }

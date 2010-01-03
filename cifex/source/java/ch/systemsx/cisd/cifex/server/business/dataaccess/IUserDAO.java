@@ -96,9 +96,9 @@ public interface IUserDAO
 
     /**
      * @return The list of users that have been registered by the user with given
-     *         <var>userCode</var>.
+     *         <var>userId</var>.
      */
-    public List<UserDTO> listUsersRegisteredBy(String userCode);
+    public List<UserDTO> listUsersRegisteredBy(long userId);
 
     /**
      * Returns a list of users the file with given <var>fileId</var> has been shared with.

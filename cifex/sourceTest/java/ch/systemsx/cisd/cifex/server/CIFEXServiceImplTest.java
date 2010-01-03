@@ -651,7 +651,7 @@ public class CIFEXServiceImplTest
                     one(authenticationService).check();
                     one(authenticationService).authenticateApplication();
                     will(returnValue(null));
-                    one(userManager).tryFindUserByCodeFillRegistrator(userCode);
+                    one(userManager).tryFindUserByCode(userCode);
                     will(returnValue(null));
                 }
             });
@@ -681,7 +681,7 @@ public class CIFEXServiceImplTest
         context.checking(new Expectations()
             {
                 {
-                    one(userManager).tryFindUserByCodeFillRegistrator(userName);
+                    one(userManager).tryFindUserByCode(userName);
                     will(returnValue(null));
                 }
             });
@@ -1102,7 +1102,7 @@ public class CIFEXServiceImplTest
                     one(userManager).isDatabaseEmpty();
                     will(returnValue(false));
 
-                    one(userManager).tryFindUserByCodeFillRegistrator(userName);
+                    one(userManager).tryFindUserByCode(userName);
                     will(returnValue(userDTO));
 
                 }
@@ -1249,7 +1249,7 @@ public class CIFEXServiceImplTest
                     will(returnValue("someRemoteHost"));
                     allowing(httpServletRequest).getRemoteAddr();
                     will(returnValue("someRemoteAddress"));
-                    one(userManager).tryFindUserByCodeFillRegistrator(code);
+                    one(userManager).tryFindUserByCode(code);
                     final UserDTO dbUserDTO;
                     if (userDTO != null && Password.isEmpty(userDTO.getPassword()) == false)
                     {
@@ -1282,15 +1282,15 @@ public class CIFEXServiceImplTest
     @DataProvider(name = "currentUserAndUserToUpdate")
     private Object[][] provideAllBooleans()
     {
-        final UserDTO adminRegistrant = createUser(true, true, "admin1", null);
-        final UserDTO adminChanger = createUser(true, true, "admin2", null);
-        final UserDTO alice = createUser(true, false, "alice", adminRegistrant);
-        final UserDTO aliceWannabeAdmin = createUser(true, true, "alice", adminRegistrant);
-        final UserDTO aliceTemp = createUser(false, false, "alice", adminRegistrant);
-        final UserDTO permNotRegisteredByAlice = createUser(true, false, "perm1", adminRegistrant);
-        final UserDTO permRegisteredByAlice = createUser(true, false, "perm2", alice);
-        final UserDTO tempNotRegisteredByAlice = createUser(false, false, "temp1", adminRegistrant);
-        final UserDTO tempRegisteredByAlice = createUser(false, false, "temp2", alice);
+        final UserDTO adminRegistrant = createUser(true, true, 1L, "admin1", null);
+        final UserDTO adminChanger = createUser(true, true, 2L, "admin2", null);
+        final UserDTO alice = createUser(true, false, 3L, "alice", adminRegistrant);
+        final UserDTO aliceWannabeAdmin = createUser(true, true, 4L, "alice", adminRegistrant);
+        final UserDTO aliceTemp = createUser(false, false, 5L, "alice", adminRegistrant);
+        final UserDTO permNotRegisteredByAlice = createUser(true, false, 6L, "perm1", adminRegistrant);
+        final UserDTO permRegisteredByAlice = createUser(true, false, 7L, "perm2", alice);
+        final UserDTO tempNotRegisteredByAlice = createUser(false, false, 8L, "temp1", adminRegistrant);
+        final UserDTO tempRegisteredByAlice = createUser(false, false, 9L, "temp2", alice);
 
         return new Object[][]
             {
@@ -1330,10 +1330,11 @@ public class CIFEXServiceImplTest
                                 tempNotRegisteredByAlice, false } };
     }
 
-    final static UserDTO createUser(final boolean permanent, final boolean admin,
+    final static UserDTO createUser(final boolean permanent, final boolean admin, final long id,
             final String code, final UserDTO registrator)
     {
         final UserDTO user = new UserDTO();
+        user.setID(id);
         user.setUserCode(code);
         user.setAdmin(admin);
         user.setExpirationDate(permanent ? null : DateUtils.addDays(new Date(), 1));
@@ -1363,7 +1364,7 @@ public class CIFEXServiceImplTest
                             && currentUser.isPermanent()
                             && currentUser.getUserCode().equals(userToUpdate.getUserCode()) == false)
                     {
-                        one(userManager).listUsersRegisteredBy(currentUser.getUserCode());
+                        one(userManager).listUsersRegisteredBy(currentUser.getID());
                         if (currentUser.getUserCode().equals(
                                 userToUpdate.getRegistrator().getUserCode()))
                         {

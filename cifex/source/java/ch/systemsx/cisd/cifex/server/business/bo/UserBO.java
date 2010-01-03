@@ -20,12 +20,13 @@ import static ch.systemsx.cisd.cifex.server.util.ExpirationUtilities.fixExpirati
 
 import java.util.Date;
 
+import org.springframework.dao.DataAccessException;
+
 import ch.systemsx.cisd.cifex.server.business.IBusinessContext;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Contains the logic of creating and updating users.
@@ -76,8 +77,8 @@ class UserBO extends AbstractBusinessObject implements IUserBO
         final IUserDAO userDAO = daoFactory.getUserDAO();
         // Get old user entry
         existingUser =
-                (oldUserToUpdateOrNull != null) ? oldUserToUpdateOrNull : getUserByCode(userDAO,
-                        userToUpdate.getUserCode());
+                (oldUserToUpdateOrNull != null) ? oldUserToUpdateOrNull : getUserById(userDAO,
+                        userToUpdate);
 
         userToUpdate.setID(existingUser.getID());
         userToUpdate.setQuotaGroupId(existingUser.getQuotaGroupId());
@@ -134,19 +135,20 @@ class UserBO extends AbstractBusinessObject implements IUserBO
         createUser = false;
     }
 
-    private static UserDTO getUserByCode(final IUserDAO userDAO, final String userCode)
-            throws UserFailureException
+    private static UserDTO getUserById(final IUserDAO userDAO, final UserDTO user)
+            throws IllegalArgumentException
     {
-        assert userCode != null;
+        assert user != null;
 
-        final UserDTO existingUser = userDAO.tryFindUserByCode(userCode);
-        if (existingUser == null)
+        try
         {
-            final String msg = String.format("User '%s' does not exist in the database.", userCode);
-            throw new UserFailureException(msg);
+            return userDAO.getUserById(user.getID());
+        } catch (DataAccessException ex)
+        {
+            final String msg =
+                    String.format("User id=%d does not exist in the database.", user.getID());
+            throw new IllegalArgumentException(msg);
         }
-        assert userCode.equals(existingUser.getUserCode()) : "Mismatch in user code";
-        return existingUser;
     }
 
     private void checkAndFixUserExpiration(UserDTO oldUserOrNull, final UserDTO userToUpdate,
@@ -206,6 +208,11 @@ class UserBO extends AbstractBusinessObject implements IUserBO
             throw new IllegalStateException();
         }
         return existingUser;
+    }
+
+    public UserDTO getUser() throws IllegalStateException
+    {
+        return userDTO;
     }
 
 }

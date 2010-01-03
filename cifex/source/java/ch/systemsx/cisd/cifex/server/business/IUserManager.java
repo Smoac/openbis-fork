@@ -39,20 +39,20 @@ public interface IUserManager
     public boolean isDatabaseEmpty();
 
     /**
+     * Returns the user with the specified <var>id</var>.
+     * 
+     * @return <code>null</code> if a user with the given <var>code</var> is not found.
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
+    public UserDTO getUser(long id);
+
+    /**
      * Returns the user with the specified user code.
      * 
      * @return <code>null</code> if a user with the given <var>code</var> is not found.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
     public UserDTO tryFindUserByCode(String code);
-
-    /**
-     * Returns the user with the specified user code, filling in the registrating user correctly.
-     * 
-     * @return <code>null</code> if a user with the given <var>code</var> is not found.
-     */
-    @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
-    public UserDTO tryFindUserByCodeFillRegistrator(String code);
 
     /**
      * Returns a list with all users, which have the given email address.
@@ -67,10 +67,10 @@ public interface IUserManager
     public List<UserDTO> listUsers();
 
     /**
-     * Returns a list of users, which where registered by the given user.
+     * Returns a list of users which where registered by the given user.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION, logLevel = LogLevel.TRACE)
-    public List<UserDTO> listUsersRegisteredBy(final String userCode);
+    public List<UserDTO> listUsersRegisteredBy(final long userId);
 
     /**
      * Refreshes the quota information for the given <var>user</var>
@@ -96,7 +96,7 @@ public interface IUserManager
      * @throws UserFailureException If a user with that id already exists in the database
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void createUser(UserDTO user, UserDTO registratorOrNull) throws UserFailureException;
+    public UserDTO createUser(UserDTO user, UserDTO registratorOrNull) throws UserFailureException;
 
     /**
      * Creates the specified user in the database and sends an email to the new user with the
@@ -111,7 +111,7 @@ public interface IUserManager
      * @throws EnvironmentFailureException If the email to the new user could not be sent.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void createUserAndSendEmail(UserDTO user, String password, UserDTO registrator,
+    public UserDTO createUserAndSendEmail(UserDTO user, String password, UserDTO registrator,
             String comment, String basicURL) throws UserFailureException,
             EnvironmentFailureException;
 
@@ -124,34 +124,36 @@ public interface IUserManager
     /**
      * Deletes the specified user.
      * 
-     * @throws UserFailureException If the user with the given <var>userCode</var> was not found in
+     * @throws IllegalArgumentException If the user with the given <var>id</var> was not found in
      *             the database.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void deleteUser(String userCode, UserDTO requestUser) throws UserFailureException;
+    public void deleteUser(long id, UserDTO requestUser) throws IllegalArgumentException;
 
     /**
      * Updates the fields of the specified user, providing the old user for comparison. Compared to
      * {@link #updateUser(UserDTO, Password, UserDTO)}, this avoids getting the old user from the
      * database.
      * 
+     * @return The updated user information.
      * @throws UserFailureException If the <var>user</var> was not found in the database.
      * @throws IllegalArgumentException If the <var>user</var> is regular in the database and now
      *             should be set temporary.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void updateUser(UserDTO oldUser, UserDTO user, Password passwordOrNull,
+    public UserDTO updateUser(UserDTO oldUser, UserDTO user, Password passwordOrNull,
             final UserDTO requestUser) throws UserFailureException, IllegalArgumentException;
 
     /**
      * Updates the fields of the specified user.
      * 
+     * @return The updated user information.
      * @throws UserFailureException If the <var>user</var> was not found in the database.
      * @throws IllegalArgumentException If the <var>user</var> is regular in the database and now
      *             should be set temporary.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void updateUser(UserDTO user, Password passwordOrNull, final UserDTO requestUserOrNull)
+    public UserDTO updateUser(UserDTO user, Password passwordOrNull, final UserDTO requestUserOrNull)
             throws UserFailureException, IllegalArgumentException;
 
     /**

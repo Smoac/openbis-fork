@@ -158,20 +158,8 @@ public abstract class UserWidget extends LayoutContainer
         final UserInfoDTO user = new UserInfoDTO();
         if (editUser != null)
         {
-            user.setAdmin(editUser.isAdmin());
-            user.setExpirationDate(editUser.getExpirationDate());
-            user.setExternallyAuthenticated(editUser.isExternallyAuthenticated());
-            user.setMaxFileRetention(editUser.getMaxFileRetention());
-            user.setCustomMaxFileRetention(editUser.isCustomMaxFileRetention());
-            user.setMaxUserRetention(editUser.getMaxUserRetention());
-            user.setCustomMaxUserRetention(editUser.isCustomMaxUserRetention());
-            user.setMaxFileSizePerQuotaGroupInMB(editUser.getMaxFileSizePerQuotaGroupInMB());
-            user.setCustomMaxFileSizePerQuotaGroup(editUser.isCustomMaxFileSizePerQuotaGroup());
-            user.setMaxFileCountPerQuotaGroup(editUser.getMaxFileCountPerQuotaGroup());
-            user.setCustomMaxFileCountPerQuotaGroup(editUser.isCustomMaxFileCountPerQuotaGroup());
-            user.setActive(editUser.isActive());
-            user.setRegistrator(editUser.getRegistrator());
-            user.setExpirationDate(editUser.getExpirationDate());
+            user.setID(editUser.getID());
+            user.updateFrom(editUser);
         }
         user.setEmail(emailField.getValue());
         user.setUserFullName(usernameField.getValue());

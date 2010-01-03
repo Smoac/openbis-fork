@@ -141,7 +141,7 @@ public final class EditFileWidget extends LayoutContainer
         return dateField;
     }
 
-    public void submitForm(final Button button, final AsyncCallback<Void> refreshCallback)
+    public void submitForm(final Button button, final AsyncCallback<Date> refreshCallback)
     {
         final ICIFEXServiceAsync cifexService = context.getCifexService();
         if (formPanel.isValid())

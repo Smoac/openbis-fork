@@ -38,4 +38,9 @@ public final class OwnerFileInfoDTO extends FileInfoDTO
         this.sharingUsers = sharingUsers;
     }
     
+    public void updateFrom(final OwnerFileInfoDTO updateFile)
+    {
+        super.updateFrom(updateFile);
+        setSharingUsers(updateFile.getSharingUsers());
+    }
 }

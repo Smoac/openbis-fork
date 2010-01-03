@@ -107,14 +107,12 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return (UserDTO) session.getAttribute(SESSION_ATTRIBUTE_USER_NAME);
     }
 
-    private void updateCurrentUser(String userID) throws InvalidSessionException
+    private void updateCurrentUser(final UserDTO user) throws InvalidSessionException
     {
-        if (userID.equals(privGetCurrentUser().getUserCode()) == false)
+        if (user.getID().equals(privGetCurrentUser().getID()) == false)
         {
             return;
         }
-        UserDTO user = domainModel.getUserManager().tryFindUserByCode(userID);
-        assert user != null : "Just updated user '" + userID + "' does not exist in database.";
         getSession(false).setAttribute(SESSION_ATTRIBUTE_USER_NAME, user);
     }
 
@@ -305,17 +303,19 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(UserInfoDTO.class, users, null);
     }
 
-    public void createUser(final UserInfoDTO user, final String password, final String comment)
-            throws EnvironmentFailureException, InvalidSessionException,
+    public UserInfoDTO createUser(final UserInfoDTO user, final String password,
+            final String comment) throws EnvironmentFailureException, InvalidSessionException,
             InsufficientPrivilegesException, UserFailureException
     {
         checkCreateUserAllowed(user);
         ensureCodeIsValid(user.getUserCode());
         final IUserManager userManager = domainModel.getUserManager();
 
-        if (couldCreateUserFromExternalAuthenticationService(user))
+        final UserDTO userFromExternalAuthServiceOrNull =
+                tryCreateUserFromExternalAuthenticationService(user);
+        if (userFromExternalAuthServiceOrNull != null)
         {
-            return;
+            return BeanUtils.createBean(UserInfoDTO.class, userFromExternalAuthServiceOrNull);
         }
         if (StringUtils.isBlank(user.getEmail()))
         {
@@ -326,8 +326,10 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         final UserDTO userDTO = BeanUtils.createBean(UserDTO.class, user);
         try
         {
-            userManager.createUserAndSendEmail(userDTO, password, privGetCurrentUser(), comment,
-                    getBasicURL());
+            final UserDTO createdUser =
+                    userManager.createUserAndSendEmail(userDTO, password, privGetCurrentUser(),
+                            comment, getBasicURL());
+            return BeanUtils.createBean(UserInfoDTO.class, createdUser);
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
         {
             throw new UserFailureException(ex.getMessage());
@@ -347,12 +349,12 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         }
     }
 
-    private boolean couldCreateUserFromExternalAuthenticationService(final UserInfoDTO user)
+    private UserDTO tryCreateUserFromExternalAuthenticationService(final UserInfoDTO user)
             throws EnvironmentFailureException
     {
         if (hasExternalAuthenticationService() == false)
         {
-            return false;
+            return null;
         }
         final String applicationToken = externalAuthenticationService.authenticateApplication();
         final String userOrEmail = user.getUserCode();
@@ -367,11 +369,10 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
                 tryGetUserFromExternalService(applicationToken, userOrEmail);
         if (principalOrNull != null)
         {
-            createOrUpdateUserFromExternalAuthenticationService(principalOrNull, user);
-            return true;
+            return createOrUpdateUserFromExternalAuthenticationService(principalOrNull, user);
         } else
         {
-            return false;
+            return null;
         }
     }
 
@@ -422,7 +423,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
         final FileDTO fileDTO = fileManager.getFile(fileId);
-        if (fileManager.isControlling(requestUser, fileDTO) == false)
+        if (fileManager.isAllowedAccess(requestUser, fileDTO) == false)
         {
             throw new InsufficientPrivilegesException("Insufficient privileges for "
                     + describeUser(requestUser) + ".");
@@ -452,14 +453,14 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(OwnerFileInfoDTO.class, files, null);
     }
 
-    public void deleteUser(final String code) throws InvalidSessionException,
+    public void deleteUser(final long id) throws InvalidSessionException,
             InsufficientPrivilegesException, UserNotFoundException
     {
-        final UserDTO user = domainModel.getUserManager().tryFindUserByCode(code);
+        final UserDTO user = domainModel.getUserManager().getUser(id);
         checkUpdateOfUserIsAllowed(user, user);
         try
         {
-            domainModel.getUserManager().deleteUser(code, privGetCurrentUser());
+            domainModel.getUserManager().deleteUser(id, privGetCurrentUser());
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException ex)
         {
             throw new UserNotFoundException(ex.getMessage());
@@ -517,7 +518,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     /**
      * Update the fields of the user in the database.
      */
-    public void updateUser(final UserInfoDTO user, final String plainPassword,
+    public UserInfoDTO updateUser(final UserInfoDTO user, final String plainPassword,
             final boolean sendUpdateInformationToUser) throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException
     {
@@ -525,19 +526,28 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         final IUserManager userManager = domainModel.getUserManager();
         final UserDTO newUserDTO = BeanUtils.createBean(UserDTO.class, user);
         final UserDTO oldUserDTO = userManager.tryFindUserByCode(user.getUserCode());
+        final UserDTO newUserRegistratorOrNull = newUserDTO.getRegistrator();
+        if (newUserRegistratorOrNull != null
+                && (oldUserDTO.getRegistrator().getID().equals(newUserRegistratorOrNull.getID()) || newUserRegistratorOrNull
+                        .getID() == 0))
+        {
+            newUserRegistratorOrNull.setID(null);
+        }
 
         checkUpdateOfUserIsAllowed(oldUserDTO, newUserDTO);
 
-        userManager.updateUser(oldUserDTO, newUserDTO, new Password(plainPassword),
-                privGetCurrentUser());
-        updateCurrentUser(newUserDTO.getUserCode());
+        final UserDTO updatedUser =
+                userManager.updateUser(oldUserDTO, newUserDTO, new Password(plainPassword),
+                        privGetCurrentUser());
+        final UserInfoDTO updatedUserInfo = BeanUtils.createBean(UserInfoDTO.class, updatedUser);
+        updateCurrentUser(updatedUser);
         if (sendUpdateInformationToUser)
         {
             if (StringUtils.isEmpty(user.getEmail()))
             {
                 operationLog.warn(String.format(
                         "Sending email to user '%s' not possible: email address is empty.", user));
-                return;
+                return updatedUserInfo;
             }
             try
             {
@@ -559,6 +569,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
                 throw new EnvironmentFailureException(msg);
             }
         }
+        return updatedUserInfo;
     }
 
     /**
@@ -652,7 +663,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             return;
         }
         final List<UserDTO> usersCreatedByRequestUser =
-                userManager.listUsersRegisteredBy(requestUser.getUserCode());
+                userManager.listUsersRegisteredBy(requestUser.getID());
 
         // Check if the current user is the owner of the user to update.
         for (final UserDTO user : usersCreatedByRequestUser)
@@ -673,6 +684,15 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
                 + describeUser(requestUser) + ".");
     }
 
+    public UserInfoDTO getUser(final long id) throws InvalidSessionException,
+            InsufficientPrivilegesException
+    {
+        final IUserManager userManager = domainModel.getUserManager();
+        final UserDTO userDTO = userManager.getUser(id);
+        checkUpdateOfUserIsAllowed(userDTO, userDTO);
+        return BeanUtils.createBean(UserInfoDTO.class, userDTO);
+    }
+
     public UserInfoDTO tryFindUserByUserCode(final String userCode) throws InvalidSessionException
     {
         privGetCurrentUser();
@@ -689,29 +709,48 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
         return BeanUtils.createBeanList(UserInfoDTO.class, users);
     }
 
-    public List<UserInfoDTO> listUsersRegisteredBy(final String userCode)
-            throws InvalidSessionException
+    public List<UserInfoDTO> listUsersOwnedBy(final long userId) throws InvalidSessionException,
+            InsufficientPrivilegesException
     {
-        privGetCurrentUser();
+        final UserDTO requestUser = privGetCurrentUser();
+        if (requestUser.isAdmin() == false && requestUser.getID() != userId)
+        {
+            throw new InsufficientPrivilegesException("Insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        }
         final IUserManager userManager = domainModel.getUserManager();
 
-        final List<UserDTO> users = userManager.listUsersRegisteredBy(userCode);
+        final List<UserDTO> users = userManager.listUsersRegisteredBy(userId);
 
         return BeanUtils.createBeanList(UserInfoDTO.class, users, null);
     }
 
-    public void updateFileUserData(long fileId, String name, String commentOrNull,
+    public Date updateFileUserData(long fileId, String name, String commentOrNull,
             Date expirationDate) throws InvalidSessionException, InsufficientPrivilegesException
     {
+        final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
-        fileManager.updateFileUserData(fileId, name, commentOrNull, expirationDate,
-                privGetCurrentUser());
+        final FileDTO file = fileManager.getFile(fileId);
+        if (fileManager.isControlling(requestUser, file) == false)
+        {
+            throw new InsufficientPrivilegesException("Insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        }
+        return fileManager.updateFileUserData(fileId, name, commentOrNull, expirationDate,
+                requestUser);
     }
 
     public List<UserInfoDTO> listUsersFileSharedWith(final long fileId)
-            throws InvalidSessionException
+            throws InvalidSessionException, InsufficientPrivilegesException
     {
-        privGetCurrentUser();
+        final UserDTO requestUser = privGetCurrentUser();
+        final IFileManager fileManager = domainModel.getFileManager();
+        final FileDTO file = fileManager.getFile(fileId);
+        if (fileManager.isAllowedAccess(requestUser, file) == false)
+        {
+            throw new InsufficientPrivilegesException("Insufficient privileges for "
+                    + describeUser(requestUser) + ".");
+        }
         final IUserManager userManager = domainModel.getUserManager();
 
         final List<UserDTO> users = userManager.listUsersFileSharedWith(fileId);

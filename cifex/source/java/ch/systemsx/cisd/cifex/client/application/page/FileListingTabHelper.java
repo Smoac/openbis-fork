@@ -83,8 +83,9 @@ class FileListingTabHelper
     }
 
     static void createListDownloadFilesGrid(final LayoutContainer contentPanel,
-            ViewContext context, final List<GridWidget<AbstractFileGridModel>> fileGridWidgets,
-            IQuotaInformationUpdater quotaUpdaterOrNull)
+            final ViewContext context,
+            final List<GridWidget<AbstractFileGridModel>> fileGridWidgets,
+            final IQuotaInformationUpdater quotaUpdaterOrNull)
     {
         final IMessageResources messageResources = context.getMessageResources();
         final List<ColumnConfig> columnConfigs =
@@ -146,9 +147,10 @@ class FileListingTabHelper
                 .getDownloadFilesHelpJavaDownload(anchorWebstart)));
     }
 
-    static void createListOwnedFilesGrid(ViewContext context, final LayoutContainer contentPanel,
+    static void createListOwnedFilesGrid(final ViewContext context,
+            final LayoutContainer contentPanel,
             final List<GridWidget<AbstractFileGridModel>> fileGridWidgets,
-            IQuotaInformationUpdater quotaUpdaterOrNull)
+            final IQuotaInformationUpdater quotaUpdaterOrNull)
     {
         final IMessageResources messageResources = context.getMessageResources();
         final List<ColumnConfig> columnConfigs =

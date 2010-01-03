@@ -84,9 +84,4 @@ public final class EditUserDialog extends DefaultLayoutDialog
         addButton(button);
     }
 
-    protected final String getCloseButtonLabel()
-    {
-        return messageResources.getActionCancelLabel();
-    }
-
 }

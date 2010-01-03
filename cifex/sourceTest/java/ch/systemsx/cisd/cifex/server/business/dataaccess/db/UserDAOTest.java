@@ -265,19 +265,19 @@ public final class UserDAOTest extends AbstractDAOTest
         final IUserDAO userDAO = daoFactory.getUserDAO();
 
         final List<UserDTO> listUsersRegisteredByAdmin =
-                userDAO.listUsersRegisteredBy(testAdminUser.getUserCode());
+                userDAO.listUsersRegisteredBy(testAdminUser.getID());
         assertEquals(1, listUsersRegisteredByAdmin.size());
         UserDTO actual = listUsersRegisteredByAdmin.get(0);
         assertEquals(testPermanentUser.getID(), actual.getID());
 
         final List<UserDTO> listUsersRegisteredByPermanent =
-                userDAO.listUsersRegisteredBy(testPermanentUser.getUserCode());
+                userDAO.listUsersRegisteredBy(testPermanentUser.getID());
         assertEquals(1, listUsersRegisteredByPermanent.size());
         actual = listUsersRegisteredByPermanent.get(0);
         assertEquals(testTemporaryUser.getID(), actual.getID());
 
         final List<UserDTO> listUsersRegisteredByTemporary =
-                userDAO.listUsersRegisteredBy(testTemporaryUser.getUserCode());
+                userDAO.listUsersRegisteredBy(testTemporaryUser.getID());
         assertEquals(0, listUsersRegisteredByTemporary.size());
     }
 

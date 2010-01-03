@@ -212,4 +212,19 @@ public class FileInfoDTO implements IsSerializable, Serializable
         this.comment = comment;
     }
 
+    public void updateFrom(final FileInfoDTO updateFile)
+    {
+        setComment(updateFile.getComment());
+        setCompleteSize(updateFile.getCompleteSize());
+        setContentType(updateFile.getContentType());
+        setCrc32Str(updateFile.getCrc32Str());
+        setCrc32Value(updateFile.getCrc32Value());
+        setExpirationDate(updateFile.getExpirationDate());
+        setName(updateFile.getName());
+        setRegistrationDate(updateFile.getRegistrationDate());
+        setRegistratorCode(updateFile.getRegistratorCode());
+        setSize(updateFile.getSize());
+    }
+    
+
 }

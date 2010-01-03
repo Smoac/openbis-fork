@@ -84,7 +84,7 @@ public class CreateUserWidget extends UserWidget
     // Helper classes
     //
 
-    private final class CreateUserAsyncCallBack extends AbstractAsyncCallback<Void>
+    private final class CreateUserAsyncCallBack extends AbstractAsyncCallback<UserInfoDTO>
     {
 
         CreateUserAsyncCallBack()
@@ -102,7 +102,7 @@ public class CreateUserWidget extends UserWidget
             }
         }
 
-        public final void onSuccess(final Void result)
+        public final void onSuccess(final UserInfoDTO result)
         {
             context.getPageController().refreshMainPage();
         }

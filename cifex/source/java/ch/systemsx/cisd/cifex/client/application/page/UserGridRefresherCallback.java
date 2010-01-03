@@ -35,7 +35,8 @@ public final class UserGridRefresherCallback extends AbstractAsyncCallback<Void>
 
     private final GridWidget<UserGridModel> userGrid;
 
-    public UserGridRefresherCallback(final ViewContext context, final GridWidget<UserGridModel> userGrid)
+    public UserGridRefresherCallback(final ViewContext context,
+            final GridWidget<UserGridModel> userGrid)
     {
         super(context);
         this.userGrid = userGrid;
@@ -55,8 +56,8 @@ public final class UserGridRefresherCallback extends AbstractAsyncCallback<Void>
             viewContext.getCifexService().listUsers(new ListUsersCallback());
         } else
         {
-            viewContext.getCifexService().listUsersRegisteredBy(
-                    viewContext.getModel().getUser().getUserCode(), new ListUsersCallback());
+            viewContext.getCifexService().listUsersOwnedBy(
+                    viewContext.getModel().getUser().getID(), new ListUsersCallback());
         }
     }
 

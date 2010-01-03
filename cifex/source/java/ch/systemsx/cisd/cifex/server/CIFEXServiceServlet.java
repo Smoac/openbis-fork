@@ -127,19 +127,17 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.listUsers();
     }
 
-    public void createUser(final UserInfoDTO user, final String password, final String comment)
-            throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
-            InsufficientPrivilegesException
+    public UserInfoDTO createUser(final UserInfoDTO user, final String password,
+            final String comment) throws EnvironmentFailureException, UserFailureException,
+            InvalidSessionException, InsufficientPrivilegesException
     {
-        cifexServiceDelegate.createUser(user, password, comment);
-
+        return cifexServiceDelegate.createUser(user, password, comment);
     }
 
-    public void deleteUser(final String code) throws InvalidSessionException,
+    public void deleteUser(final long code) throws InvalidSessionException,
             InsufficientPrivilegesException, UserNotFoundException
     {
         cifexServiceDelegate.deleteUser(code);
-
     }
 
     public FileInfoDTO getFile(long fileId) throws InvalidSessionException,
@@ -188,11 +186,17 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         }
     }
 
-    public void updateUser(final UserInfoDTO user, final String password,
+    public UserInfoDTO updateUser(final UserInfoDTO user, final String password,
             final boolean sendUpdateInformationToUser) throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException
     {
-        cifexServiceDelegate.updateUser(user, password, sendUpdateInformationToUser);
+        return cifexServiceDelegate.updateUser(user, password, sendUpdateInformationToUser);
+    }
+
+    public UserInfoDTO getUser(long id) throws InvalidSessionException,
+            InsufficientPrivilegesException
+    {
+        return cifexServiceDelegate.getUser(id);
     }
 
     public UserInfoDTO tryFindUserByUserCode(final String userCode) throws InvalidSessionException
@@ -205,20 +209,20 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
         return cifexServiceDelegate.findUserByEmail(email);
     }
 
-    public List<UserInfoDTO> listUsersRegisteredBy(final String userCode)
-            throws InvalidSessionException
+    public List<UserInfoDTO> listUsersOwnedBy(final long userId) throws InvalidSessionException,
+            InsufficientPrivilegesException
     {
-        return cifexServiceDelegate.listUsersRegisteredBy(userCode);
+        return cifexServiceDelegate.listUsersOwnedBy(userId);
     }
 
-    public void updateFileUserData(long fileId, String name, String commentOrNull,
+    public Date updateFileUserData(long fileId, String name, String commentOrNull,
             Date expirationDate) throws InvalidSessionException, InsufficientPrivilegesException
     {
-        cifexServiceDelegate.updateFileUserData(fileId, name, commentOrNull, expirationDate);
+        return cifexServiceDelegate.updateFileUserData(fileId, name, commentOrNull, expirationDate);
     }
 
     public List<UserInfoDTO> listUsersFileSharedWith(final long fileId)
-            throws InvalidSessionException
+            throws InvalidSessionException, InsufficientPrivilegesException
     {
         return cifexServiceDelegate.listUsersFileSharedWith(fileId);
     }

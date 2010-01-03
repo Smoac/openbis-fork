@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -173,20 +174,21 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
         return new Object[][]
             {
-                { "alice@users.com", getSimpleUser("alice@users.com") },
-                { "alice", getSimpleUser("alice") } };
+                { 1L, "alice@users.com", getSimpleUser(1L, "alice@users.com") },
+                { 2L, "alice", getSimpleUser(2L, "alice") } };
     }
 
-    private static final UserDTO getSimpleUser(final String userCode)
+    private static final UserDTO getSimpleUser(final long id, final String userCode)
     {
         final UserDTO user = new UserDTO();
+        user.setID(id);
         user.setUserCode(userCode);
-        user.setID(1L);
         return user;
     }
 
     @Test(dataProvider = "userCodesAndUsers")
-    public final void testTryToFindUserByCode(final String userCode, final UserDTO user)
+    public final void testTryToFindUserByCode(final long id, final String userCode,
+            final UserDTO user)
     {
         context.checking(new Expectations()
             {
@@ -358,7 +360,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         for (int i = 0; i < numberOfUsers; i++)
         {
             data[i][0] = new ArrayList<UserDTO>(users);
-            users.add(getSimpleUser("user" + i));
+            users.add(getSimpleUser(i + 1, "user" + i));
         }
         return data;
     }
@@ -411,7 +413,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     @Transactional
     @Test(dataProvider = "userCodesAndUsers")
-    public final void testDeleteUser(final String userCode, final UserDTO user)
+    public final void testDeleteUser(final long id, final String userCode, final UserDTO user)
     {
 
         context.checking(new Expectations()
@@ -419,7 +421,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                 {
                     allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
-                    one(userDAO).tryFindUserByCode(userCode);
+                    one(userDAO).getUserById(id);
                     will(returnValue(user));
                     allowing(businessContext).getUserActionLog();
                     will(returnValue(new DummyUserActionLog()));
@@ -434,24 +436,24 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
                 }
             });
-        userManager.deleteUser(userCode, new UserDTO());
+        userManager.deleteUser(id, new UserDTO());
         context.assertIsSatisfied();
     }
 
     @Transactional
-    @Test(expectedExceptions = UserFailureException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public final void testDeleteUserUserNotFound()
     {
-        final String userCode = "nonexistent";
+        final long id = 111L;
         context.checking(new Expectations()
             {
                 {
                     allowing(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
-                    one(userDAO).tryFindUserByCode(userCode);
-                    will(returnValue(null));
+                    one(userDAO).getUserById(id);
+                    will(throwException(new EmptyResultDataAccessException(1)));
                 }
             });
-        userManager.deleteUser(userCode, null);
+        userManager.deleteUser(id, null);
     }
 }

@@ -24,10 +24,6 @@ import com.google.gwt.i18n.client.Messages;
  * @author Christian Ribeaud
  */
 public interface IMessageResources extends Messages {
-	/** Returns the label for canceling action. */
-	@Key(value = "action.cancel.label")
-	public String getActionCancelLabel();
-
 	/** Returns the label for the delete action. */
 	@Key(value = "action.delete.label")
 	public String getActionDeleteLabel();

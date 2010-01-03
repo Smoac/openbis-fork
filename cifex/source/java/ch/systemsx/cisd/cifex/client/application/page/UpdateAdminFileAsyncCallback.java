@@ -35,24 +35,22 @@ class UpdateAdminFileAsyncCallback extends AbstractAsyncCallback<Void>
 {
     private final GridWidget<AbstractFileGridModel> modelBasedGrid;
 
-    private final ViewContext viewContext;
-
     UpdateAdminFileAsyncCallback(final GridWidget<AbstractFileGridModel> modelBasedGrid,
             final ViewContext viewContext)
     {
         super(viewContext);
-        this.viewContext = viewContext;
         this.modelBasedGrid = modelBasedGrid;
     }
 
     public final void onSuccess(final Void result)
     {
-        viewContext.getCifexService().listFiles(
-                new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(viewContext)
+        final ViewContext context = getViewContext();
+        context.getCifexService().listFiles(
+                new AbstractAsyncCallback<List<OwnerFileInfoDTO>>(context)
                     {
                         public final void onSuccess(final List<OwnerFileInfoDTO> res)
                         {
-                            modelBasedGrid.setDataAndRefresh(AdminFileGridModel.convert(viewContext
+                            modelBasedGrid.setDataAndRefresh(AdminFileGridModel.convert(context
                                     .getMessageResources(), res));
                         }
                     });

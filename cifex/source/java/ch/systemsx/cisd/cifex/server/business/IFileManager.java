@@ -235,11 +235,12 @@ public interface IFileManager
      * @param fileId The id of the file to update.
      * @param name The new name of the file.
      * @param commentOrNull The new comment of the file.
-     * @param expirationDate The new expiration date.
+     * @param expirationDate The new (requested) expiration date.
      * @param requestUser The user requesting the update of the file
+     * @return The new expiration date.
      */
     @LogAnnotation(logCategory = LogCategory.OPERATION)
-    public void updateFileUserData(final long fileId, final String name,
+    public Date updateFileUserData(final long fileId, final String name,
             final String commentOrNull, final Date expirationDate, final UserDTO requestUser);
 
     /**

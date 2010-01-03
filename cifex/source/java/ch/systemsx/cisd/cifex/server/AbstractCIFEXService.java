@@ -190,6 +190,7 @@ abstract public class AbstractCIFEXService
         if (fullRegistrator != null)
         {
             final UserDTO strippedRegistrator = new UserDTO();
+            strippedRegistrator.setID(fullRegistrator.getID());
             strippedRegistrator.setUserCode(fullRegistrator.getUserCode());
             strippedRegistrator.setEmail(fullRegistrator.getEmail());
             strippedRegistrator.setUserFullName(fullRegistrator.getUserFullName());
@@ -223,7 +224,7 @@ abstract public class AbstractCIFEXService
             userManager.createUser(userDTO, null);
             return finishLogin(userDTO, doUserActionLog);
         }
-        UserDTO userDTOOrNull = userManager.tryFindUserByCodeFillRegistrator(userCode);
+        UserDTO userDTOOrNull = userManager.tryFindUserByCode(userCode);
         if (userDTOOrNull == null || userDTOOrNull.isExternallyAuthenticated())
         {
             userDTOOrNull = tryExternalAuthenticationServiceLogin(userCode, plainPassword);

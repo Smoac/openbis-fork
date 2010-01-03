@@ -83,9 +83,15 @@ public interface ICIFEXService extends RemoteService
             InsufficientPrivilegesException;
 
     /**
-     * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists.
+     * Returns the user for the given <var>id</var>.
      * 
-     * @throws InvalidSessionException
+     * @throws IllegalArgumentException If a user with that id does not exist.
+     */
+    public UserInfoDTO getUser(final long id) throws InvalidSessionException,
+            InsufficientPrivilegesException;
+
+    /**
+     * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists.
      */
     public UserInfoDTO tryFindUserByUserCode(final String userCode) throws InvalidSessionException;
 
@@ -95,37 +101,34 @@ public interface ICIFEXService extends RemoteService
     public List<UserInfoDTO> findUserByEmail(final String email) throws InvalidSessionException;
 
     /**
-     * Returns a list of users, which where registered by the given user.
-     * 
-     * @throws InvalidSessionException
+     * Returns the list of users that are owned by the given user.
      */
-    public List<UserInfoDTO> listUsersRegisteredBy(final String userCode)
-            throws InvalidSessionException;
+    public List<UserInfoDTO> listUsersOwnedBy(final long userId) throws InvalidSessionException,
+            InsufficientPrivilegesException;
 
     /**
      * Returns users the file with given <var>fileId</var> has been shared with.
-     * 
-     * @throws InvalidSessionException
      */
     public List<UserInfoDTO> listUsersFileSharedWith(final long fileId)
-            throws InvalidSessionException;
+            throws InvalidSessionException, InsufficientPrivilegesException;
 
     /**
-     * Creates a new <code>User</code> in Cifex with the given <var>password</var>.
+     * Creates a new <code>User</code> in Cifex with the given <var>password</var> and returns the
+     * new user.
      * <p>
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
      */
-    public void createUser(final UserInfoDTO user, final String password, final String comment)
-            throws EnvironmentFailureException, UserFailureException, InvalidSessionException,
-            InsufficientPrivilegesException;
+    public UserInfoDTO createUser(final UserInfoDTO user, final String password,
+            final String comment) throws EnvironmentFailureException, UserFailureException,
+            InvalidSessionException, InsufficientPrivilegesException;
 
     /**
-     * Update the fields of the user in the database.
+     * Update the fields of the user in the database and returns the changed user.
      * 
      * @param sendUpdateInformationToUser Inform to user about the changes?
      */
-    public void updateUser(final UserInfoDTO user, final String password,
+    public UserInfoDTO updateUser(final UserInfoDTO user, final String password,
             final boolean sendUpdateInformationToUser) throws InvalidSessionException,
             InsufficientPrivilegesException, EnvironmentFailureException;
 
@@ -148,11 +151,11 @@ public interface ICIFEXService extends RemoteService
             UserFailureException;
 
     /**
-     * Tries to delete the user given by its user <var>userCode</var>.
+     * Tries to delete the user given by its <var>id</var>.
      * 
      * @throws UserNotFoundException if the user with the given <var>userCode</var> was not found.
      */
-    public void deleteUser(final String userCode) throws InvalidSessionException,
+    public void deleteUser(final long id) throws InvalidSessionException,
             InsufficientPrivilegesException, UserNotFoundException;
 
     /**
@@ -217,9 +220,10 @@ public interface ICIFEXService extends RemoteService
      * @param fileId The id of the file to update.
      * @param name The new name of the file.
      * @param commentOrNull The new comment of the file.
-     * @param expirationDate The new expiration date.
+     * @param expirationDate The new (requested) expiration date.
+     * @return The new expiration date.
      */
-    public void updateFileUserData(final long fileId, final String name,
+    public Date updateFileUserData(final long fileId, final String name,
             final String commentOrNull, final Date expirationDate) throws InvalidSessionException,
             InsufficientPrivilegesException;
 
