@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
-import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -38,12 +37,9 @@ public final class UserGridModel extends AbstractUserGridModel
 {
     private static final long serialVersionUID = Constants.VERSION;
 
-    private final ViewContext context;
-
     public UserGridModel(final ViewContext viewContext, UserInfoDTO user)
     {
         super(viewContext.getMessageResources(), viewContext.getModel().getUser());
-        this.context = viewContext;
         String registratorAnchor = null;
         if (user.getRegistrator() != null)
         {
@@ -99,8 +95,7 @@ public final class UserGridModel extends AbstractUserGridModel
                 DOMUtils.createAnchor(messageResources.getActionEditLabel(), Constants.EDIT_ID);
         // Change user code
         if (user.equals(currentUser) == false && currentUser.isAdmin()
-                && user.isExternallyAuthenticated() == false
-                && context.getHistoryController().getCurrentPage() == Page.ADMIN_PAGE)
+                && user.isExternallyAuthenticated() == false)
         {
             actionLabel +=
                     sep
