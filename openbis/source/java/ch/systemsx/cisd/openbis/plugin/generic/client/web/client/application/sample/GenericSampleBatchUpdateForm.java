@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -39,11 +40,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
@@ -70,6 +73,8 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
 
     private final SampleType sampleType;
 
+    private final GroupSelectionWidget groupSelector;
+
     public GenericSampleBatchUpdateForm(final IViewContext<IGenericClientServiceAsync> viewContext,
             final SampleType sampleType)
     {
@@ -80,8 +85,17 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
                 new BasicFileFieldManager(SESSION_KEY, DEFAULT_NUMBER_OF_FILES,
                         FIELD_LABEL_TEMPLATE);
         fileFieldsManager.setMandatory();
+        groupSelector = createGroupField(viewContext.getCommonViewContext(), "" + getId(), true);
         setScrollMode(Scroll.AUTO);
         addUploadFeatures(SESSION_KEY);
+    }
+
+    private final GroupSelectionWidget createGroupField(
+            IViewContext<ICommonClientServiceAsync> context, String idSuffix, boolean addShared)
+    {
+        GroupSelectionWidget field = new GroupSelectionWidget(context, idSuffix, addShared);
+        field.setFieldLabel("Default Group");
+        return field;
     }
 
     @Override
@@ -95,6 +109,7 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
 
     private final void addFormFields()
     {
+        formPanel.add(groupSelector);
         for (FileUploadField attachmentField : fileFieldsManager.getFields())
         {
             formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
@@ -119,7 +134,10 @@ public final class GenericSampleBatchUpdateForm extends AbstractRegistrationForm
 
     protected void save()
     {
-        viewContext.getService().updateSamples(sampleType, SESSION_KEY,
+        final Group selectedGroup = groupSelector.tryGetSelectedGroup();
+        final String defaultGroupIdentifier =
+                selectedGroup != null ? selectedGroup.getIdentifier() : null;
+        viewContext.getService().updateSamples(sampleType, SESSION_KEY, defaultGroupIdentifier,
                 new RegisterSamplesCallback(viewContext));
     }
 

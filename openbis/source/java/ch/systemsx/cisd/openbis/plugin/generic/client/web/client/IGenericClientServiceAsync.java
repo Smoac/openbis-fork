@@ -74,9 +74,10 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             throws UserFailureException;
 
     /**
-     * @see IGenericClientService#updateSamples(SampleType, String)
+     * @see IGenericClientService#updateSamples(SampleType, String, String)
      */
     public void updateSamples(final SampleType sampleType, final String sessionKey,
+            String defaultGroupIdentifier,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws UserFailureException;
 

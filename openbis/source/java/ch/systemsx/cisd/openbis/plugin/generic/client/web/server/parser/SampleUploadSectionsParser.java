@@ -97,8 +97,19 @@ public class SampleUploadSectionsParser
         final List<BatchRegistrationResult> results =
                 loadSamplesFromFiles(uploadedFiles, sampleType, isAutoGenerateCodes, newSamples,
                         allowExperiments, operationKind);
-        generateIdentifiersIfNecessary(defaultGroupIdentifier, sampleCodeGeneratorOrNull,
-                isAutoGenerateCodes, newSamples);
+        if (defaultGroupIdentifier != null)
+        {
+            switch (operationKind)
+            {
+                case REGISTRATION:
+                    generateIdentifiers(defaultGroupIdentifier, sampleCodeGeneratorOrNull,
+                            isAutoGenerateCodes, newSamples);
+                    break;
+                case UPDATE:
+                    fillIdentifiers(defaultGroupIdentifier, newSamples);
+                    break;
+            }
+        }
         return new BatchSamplesOperation(newSamples, results, parseCodes(newSamples));
     }
 
@@ -276,27 +287,43 @@ public class SampleUploadSectionsParser
         return results;
     }
 
-    private static void generateIdentifiersIfNecessary(String defaultGroupIdentifier,
-            SampleCodeGenerator sampleCodeGeneratorOrNull, boolean isAutoGenerateCodes,
-            List<NewSamplesWithTypes> newSamples)
+    private static void generateIdentifiers(String defaultGroupIdentifier,
+            SampleCodeGenerator sampleCodeGenerator, boolean isAutoGenerateCodes,
+            List<NewSamplesWithTypes> newSamplesWithTypes)
     {
-        if (sampleCodeGeneratorOrNull != null)
+        assert sampleCodeGenerator != null;
+        assert isAutoGenerateCodes == true;
+        for (NewSamplesWithTypes st : newSamplesWithTypes)
         {
-            for (NewSamplesWithTypes st : newSamples)
+            final List<NewSample> newSamples = st.getNewSamples();
+            List<String> codes = sampleCodeGenerator.generateCodes(newSamples.size());
+            for (int i = 0; i < newSamples.size(); i++)
             {
-                generateIdentifiers(defaultGroupIdentifier, sampleCodeGeneratorOrNull, st
-                        .getNewSamples());
+                newSamples.get(i).setIdentifier(defaultGroupIdentifier + "/" + codes.get(i));
             }
         }
     }
 
-    private static void generateIdentifiers(String defaultGroupIdentifier,
-            final SampleCodeGenerator sampleCodeGenerator, final List<NewSample> newSamples)
+    private static void fillIdentifiers(String defaultGroupIdentifier,
+            List<NewSamplesWithTypes> newSamplesWithTypes)
     {
-        List<String> codes = sampleCodeGenerator.generateCodes(newSamples.size());
-        for (int i = 0; i < newSamples.size(); i++)
+        for (NewSamplesWithTypes st : newSamplesWithTypes)
         {
-            newSamples.get(i).setIdentifier(defaultGroupIdentifier + "/" + codes.get(i));
+            final List<NewSample> newSamples = st.getNewSamples();
+            for (int i = 0; i < newSamples.size(); i++)
+            {
+                final String identifierFromFile = newSamples.get(i).getIdentifier();
+                // Leave identifier specified in the file if it contains information about group,
+                // otherwise fill default group.
+                if (identifierFromFile.contains("/"))
+                {
+                    continue;
+                } else
+                {
+                    newSamples.get(i).setIdentifier(
+                            defaultGroupIdentifier + "/" + identifierFromFile);
+                }
+            }
         }
     }
 

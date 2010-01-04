@@ -158,7 +158,7 @@ public final class GenericClientService extends AbstractClientService implements
     }
 
     public final List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
-            final String sessionKey, String defaultGroupIdentifier)
+            final String sessionKey, final String defaultGroupIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         BatchSamplesOperation info =
@@ -177,11 +177,12 @@ public final class GenericClientService extends AbstractClientService implements
     }
 
     public final List<BatchRegistrationResult> updateSamples(final SampleType sampleType,
-            final String sessionKey)
+            final String sessionKey, final String defaultGroupIdentifier)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         BatchSamplesOperation info =
-                parseSamples(sampleType, sessionKey, null, false, true, BatchOperationKind.UPDATE);
+                parseSamples(sampleType, sessionKey, defaultGroupIdentifier, false, true,
+                        BatchOperationKind.UPDATE);
         try
         {
             final String sessionToken = getSessionToken();
