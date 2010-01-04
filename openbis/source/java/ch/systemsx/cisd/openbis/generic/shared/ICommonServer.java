@@ -1001,4 +1001,13 @@ public interface ICommonServer extends IServer
     public void updateVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> terms);
 
+    /**
+     * Deletes specified materials.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN)
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
+    public void deleteMaterials(String sessionToken, /* FIXME: add predicate */
+            List<TechId> materialIds, String reason);
+
 }

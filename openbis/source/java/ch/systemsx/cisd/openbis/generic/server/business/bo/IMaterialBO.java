@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -45,5 +46,13 @@ public interface IMaterialBO extends IEntityBusinessObject
      * Changes given material. Currently allowed changes: properties.
      */
     public void update(TechId techId, List<IEntityProperty> properties, Date version);
+
+    /**
+     * Deletes material for specified reason.
+     * 
+     * @param materialId material technical identifier
+     * @throws UserFailureException if material with given technical identifier is not found.
+     */
+    void deleteByTechId(TechId materialId, String reason);
 
 }

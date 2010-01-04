@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeBO;
@@ -1840,6 +1841,22 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         bo.loadDataByTechId(vocabularyId);
         bo.updateTerms(terms);
         bo.save();
+    }
+
+    public void deleteMaterials(String sessionToken, List<TechId> materialIds, String reason)
+    {
+        Session session = getSession(sessionToken);
+        try
+        {
+            IMaterialBO materialBO = businessObjectFactory.createMaterialBO(session);
+            for (TechId id : materialIds)
+            {
+                materialBO.deleteByTechId(id, reason);
+            }
+        } catch (final DataAccessException ex)
+        {
+            throw createUserFailureException(ex);
+        }
     }
 
 }

@@ -2378,7 +2378,15 @@ public final class CommonClientService extends AbstractClientService implements
             String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
-        throw new UserFailureException("Functionality not implemented.");// FIXME: implement
+        try
+        {
+            final String sessionToken = getSessionToken();
+            List<TechId> materialIds = extractTechIds(criteria);
+            commonServer.deleteMaterials(sessionToken, materialIds, reason);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 
 }

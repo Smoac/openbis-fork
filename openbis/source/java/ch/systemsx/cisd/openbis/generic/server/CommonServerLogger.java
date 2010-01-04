@@ -808,4 +808,9 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
                 terms.size(), vocabularyId);
     }
 
+    public void deleteMaterials(String sessionToken, List<TechId> materialIds, String reason)
+    {
+        logTracking(sessionToken, "delete_materials", "IDS(%s) REASON(%s)", materialIds, reason);
+    }
+
 }

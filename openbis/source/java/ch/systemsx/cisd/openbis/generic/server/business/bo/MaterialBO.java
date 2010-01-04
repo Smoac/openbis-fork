@@ -30,10 +30,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
@@ -159,4 +162,35 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
         return material;
     }
 
+    public void deleteByTechId(TechId materialId, String reason)
+    {
+        loadDataByTechId(materialId);
+        try
+        {
+            getMaterialDAO().delete(material);
+            getEventDAO().persist(createDeletionEvent(material, session.tryGetPerson(), reason));
+        } catch (final DataAccessException ex)
+        {
+            throwException(ex, String.format("Material '%s' (%s)", material.getCode(), material
+                    .getMaterialType().getCode()), EntityKind.MATERIAL);
+        }
+    }
+
+    public static EventPE createDeletionEvent(MaterialPE material, PersonPE registrator,
+            String reason)
+    {
+        EventPE event = new EventPE();
+        event.setEventType(EventType.DELETION);
+        event.setEntityType(EntityType.MATERIAL);
+        event.setIdentifier(material.getCode());
+        event.setDescription(getDeletionDescription(material));
+        event.setReason(reason);
+        event.setRegistrator(registrator);
+        return event;
+    }
+
+    private static String getDeletionDescription(MaterialPE material)
+    {
+        return String.format("%s (%s)", material.getCode(), material.getMaterialType().getCode());
+    }
 }
