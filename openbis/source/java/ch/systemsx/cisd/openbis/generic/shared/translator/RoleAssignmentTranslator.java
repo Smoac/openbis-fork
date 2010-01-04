@@ -76,7 +76,13 @@ public final class RoleAssignmentTranslator
                 }
                 break;
             case OBSERVER:
-                code = RoleSetCode.OBSERVER;
+                if (role.getGroup() == null)
+                {
+                    code = RoleSetCode.INSTANCE_ADMIN_OBSERVER;
+                } else
+                {
+                    code = RoleSetCode.OBSERVER;
+                }
                 break;
             case USER:
                 code = RoleSetCode.USER;

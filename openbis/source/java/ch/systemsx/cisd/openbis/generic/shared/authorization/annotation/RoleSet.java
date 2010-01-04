@@ -35,14 +35,16 @@ public enum RoleSet
     NONE(),
 
     INSTANCE_ADMIN(instanceRole(RoleCode.ADMIN)),
-
+    
     GROUP_ADMIN(INSTANCE_ADMIN, groupRole(RoleCode.ADMIN)),
 
     POWER_USER(GROUP_ADMIN, groupRole(RoleCode.POWER_USER)),
 
     USER(POWER_USER, groupRole(RoleCode.USER)),
 
-    OBSERVER(USER, groupRole(RoleCode.OBSERVER)),
+    INSTANCE_ADMIN_OBSERVER(USER, instanceRole(RoleCode.OBSERVER)),
+    
+    OBSERVER(INSTANCE_ADMIN_OBSERVER, groupRole(RoleCode.OBSERVER)),
 
     ETL_SERVER(INSTANCE_ADMIN, groupRole(RoleCode.ETL_SERVER), instanceRole(RoleCode.ETL_SERVER));
 

@@ -24,7 +24,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public enum RoleSetCode implements IsSerializable
 {
     OBSERVER(true), USER(true), POWER_USER(true), GROUP_ETL_SERVER(true), GROUP_ADMIN(true),
-    INSTANCE_ETL_SERVER(false), INSTANCE_ADMIN(false);
+    INSTANCE_ETL_SERVER(false), INSTANCE_ADMIN(false), INSTANCE_ADMIN_OBSERVER(false);
 
     private final boolean groupLevel;
 
