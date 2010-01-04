@@ -734,5 +734,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void updateColumn(IFilterOrColumnUpdates updates,
             AsyncCallback<Void> registrationCallback);
 
+    /** @see ICommonClientService#deleteMaterial(TechId, String) */
+    public void deleteMaterial(TechId create, String value, AsyncCallback<Void> callback);
+
+    /** @see ICommonClientService#deleteMaterials(DisplayedOrSelectedIdHolderCriteria, String) */
+    public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Material> uploadCriteria,
+            String value, AsyncCallback<Void> callback);
+
     // --
 }

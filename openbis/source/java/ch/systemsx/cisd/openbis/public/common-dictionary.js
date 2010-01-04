@@ -518,6 +518,7 @@ only_selected_radio: "selected ({0})",
 data_sets_radio_group_label: "Data Sets",
 experiments_radio_group_label: "Experiments",
 samples_radio_group_label: "Samples",
+materials_radio_group_label: "Materials",
 
 //
 // Filters 

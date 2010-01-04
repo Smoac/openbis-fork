@@ -1131,7 +1131,7 @@ public final class CommonClientService extends AbstractClientService implements
     {
         private List<VocabularyTerm> terms;
 
-        private BatchOperationKind operationKind;
+        private final BatchOperationKind operationKind;
 
         private VocabularyTermsExtractor(BatchOperationKind operationKind)
         {
@@ -2372,6 +2372,18 @@ public final class CommonClientService extends AbstractClientService implements
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
+    }
+
+    public void deleteMaterial(TechId sampleId, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        throw new UserFailureException("Functionality not implemented.");// FIXME: implement
+    }
+
+    public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Sample> criteria, String reason)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        throw new UserFailureException("Functionality not implemented.");// FIXME: implement
     }
 
 }

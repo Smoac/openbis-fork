@@ -856,5 +856,7 @@ public abstract class Dict
 
     public static final String OPENBIS_LOGO_TITLE = "openbis_logo_title";
 
+    public static final String MATERIALS_RADIO_GROUP_LABEL = "materials_radio_group_label";
+
     // ----- end generic ------------------
 }

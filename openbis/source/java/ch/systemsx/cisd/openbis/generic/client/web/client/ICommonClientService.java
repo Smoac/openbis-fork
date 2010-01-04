@@ -830,4 +830,10 @@ public interface ICommonClientService extends IClientService
      */
     public void updateColumn(IFilterOrColumnUpdates updates) throws UserFailureException;
 
+    /** Deletes the specified materials. */
+    public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Sample> criteria, String reason)
+            throws UserFailureException;
+
+    /** Deletes the specified material. */
+    public void deleteMaterial(TechId sampleId, String reason) throws UserFailureException;
 }

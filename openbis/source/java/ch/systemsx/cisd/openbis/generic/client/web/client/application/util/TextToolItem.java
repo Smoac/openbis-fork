@@ -21,7 +21,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
 /**
- * FIXME: temporary solution to fix compiler errors -get rid of it
+ * TODO 2010-01-03, IA: temporary solution to fix compiler errors - to be removed
  * 
  * @author Izabela Adamczyk
  */
@@ -34,9 +34,6 @@ public class TextToolItem extends Button
         addSelectionListener(selectionListener);
     }
 
-    /**
-     * @param message
-     */
     public TextToolItem(String message)
     {
         super(message);

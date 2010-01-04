@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.IsSerializable;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -39,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.sample.CommonSampleColDefKind;
@@ -48,7 +48,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Di
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListExperimentsCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -297,48 +296,14 @@ public class ExperimentBrowserGrid extends
         return EntityKind.EXPERIMENT;
     }
 
-    public final class DisplayedAndSelectedExperiments implements IsSerializable
+    public final class DisplayedAndSelectedExperiments extends
+            DisplayedAndSelectedEntities<Experiment>
     {
-
-        private final TableExportCriteria<Experiment> displayedItemsConfig;
-
-        private final List<Experiment> selectedItems;
-
-        private final int displayedItemsCount;
 
         public DisplayedAndSelectedExperiments(List<Experiment> selectedItems,
                 TableExportCriteria<Experiment> displayedItemsConfig, int displayedItemsCount)
         {
-            this.selectedItems = selectedItems;
-            this.displayedItemsConfig = displayedItemsConfig;
-            this.displayedItemsCount = displayedItemsCount;
-        }
-
-        public List<Experiment> getSelectedItems()
-        {
-            return selectedItems;
-        }
-
-        public int getDisplayedItemsCount()
-        {
-            return displayedItemsCount;
-        }
-
-        public TableExportCriteria<Experiment> getDisplayedItemsConfig()
-        {
-            return displayedItemsConfig;
-        }
-
-        public DisplayedOrSelectedIdHolderCriteria<Experiment> createCriteria(boolean selected)
-        {
-            if (selected)
-            {
-                return DisplayedOrSelectedIdHolderCriteria.createSelectedItems(getSelectedItems());
-            } else
-            {
-                return DisplayedOrSelectedIdHolderCriteria
-                        .createDisplayedItems(getDisplayedItemsConfig());
-            }
+            super(selectedItems, displayedItemsConfig, displayedItemsCount);
         }
 
     }

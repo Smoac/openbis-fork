@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.materi
 import java.util.List;
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
@@ -35,11 +36,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Enti
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.material.CommonMaterialColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractEntityBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.DisposableEntityChooser;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -163,18 +167,38 @@ public class MaterialBrowserGrid extends
         if (detailsAvailable)
         {
             addEntityOperationsLabel();
-
-            String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
-            Button showDetailsButton =
-                    createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
-            pagingToolbar.add(showDetailsButton);
-
-            String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
-            Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
-            pagingToolbar.add(editButton);
-
+            addEntityOperationButtons();
             addEntityOperationsSeparator();
         }
+    }
+
+    private void addEntityOperationButtons()
+    {
+        String showDetailsTitle = viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS);
+        Button showDetailsButton =
+                createSelectedItemButton(showDetailsTitle, asShowEntityInvoker(false));
+        pagingToolbar.add(showDetailsButton);
+
+        String editTitle = viewContext.getMessage(Dict.BUTTON_EDIT);
+        Button editButton = createSelectedItemButton(editTitle, asShowEntityInvoker(true));
+        pagingToolbar.add(editButton);
+
+        final String deleteTitle = viewContext.getMessage(Dict.BUTTON_DELETE);
+        final String deleteAllTitle = deleteTitle + " All";
+        final Button deleteButton = new Button(deleteAllTitle, new AbstractCreateDialogListener()
+            {
+                @Override
+                protected Dialog createDialog(List<Material> materials,
+                        IBrowserGridActionInvoker invoker)
+                {
+                    return new MaterialListDeletionConfirmationDialog(viewContext, materials,
+                            createDeletionCallback(invoker), getDisplayedAndSelectedItemsAction()
+                                    .execute());
+                }
+            });
+        changeButtonTitleOnSelectedItems(deleteButton, deleteAllTitle, deleteTitle);
+        pagingToolbar.add(deleteButton);
+        allowMultipleSelection(); // we allow deletion of multiple materials
     }
 
     private void addGridRefreshListener(MaterialBrowserToolbar toolbar)
@@ -290,5 +314,27 @@ public class MaterialBrowserGrid extends
     protected EntityKind getEntityKind()
     {
         return EntityKind.MATERIAL;
+    }
+
+    public final class DisplayedAndSelectedMaterials extends DisplayedAndSelectedEntities<Material>
+    {
+
+        public DisplayedAndSelectedMaterials(List<Material> selectedItems,
+                TableExportCriteria<Material> displayedItemsConfig, int displayedItemsCount)
+        {
+            super(selectedItems, displayedItemsConfig, displayedItemsCount);
+        }
+    }
+
+    protected final IDelegatedActionWithResult<DisplayedAndSelectedMaterials> getDisplayedAndSelectedItemsAction()
+    {
+        return new IDelegatedActionWithResult<DisplayedAndSelectedMaterials>()
+            {
+                public DisplayedAndSelectedMaterials execute()
+                {
+                    return new DisplayedAndSelectedMaterials(getSelectedBaseObjects(),
+                            createTableExportCriteria(), getTotalCount());
+                }
+            };
     }
 }

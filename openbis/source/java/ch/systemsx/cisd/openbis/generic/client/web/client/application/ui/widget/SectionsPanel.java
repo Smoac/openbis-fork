@@ -284,7 +284,8 @@ public class SectionsPanel extends ContentPanel
         {
             // because of strange ToggleToolItem implementation need to initialize both:
             // - 'pressed' value
-            result.toggle(pressed);// FIXME: get rid of those hacks, as we no longer need
+            result.toggle(pressed);// TODO 2010-01-03, IA: get rid of those hacks, as we no longer
+                                   // need
             // ToggleToolItem
             // - internal button pressed state using 'toggle(boolean)'
             result.toggle(pressed);
