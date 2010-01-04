@@ -2374,13 +2374,8 @@ public final class CommonClientService extends AbstractClientService implements
         }
     }
 
-    public void deleteMaterial(TechId sampleId, String reason)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        throw new UserFailureException("Functionality not implemented.");// FIXME: implement
-    }
-
-    public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Sample> criteria, String reason)
+    public void deleteMaterials(DisplayedOrSelectedIdHolderCriteria<Material> criteria,
+            String reason)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         throw new UserFailureException("Functionality not implemented.");// FIXME: implement

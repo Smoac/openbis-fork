@@ -45,4 +45,5 @@ public interface IMaterialBO extends IEntityBusinessObject
      * Changes given material. Currently allowed changes: properties.
      */
     public void update(TechId techId, List<IEntityProperty> properties, Date version);
+
 }

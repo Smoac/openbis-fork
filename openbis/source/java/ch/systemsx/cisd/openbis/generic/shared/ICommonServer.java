@@ -1000,4 +1000,5 @@ public interface ICommonServer extends IServer
     @DatabaseUpdateModification(value = ObjectKind.VOCABULARY_TERM)
     public void updateVocabularyTerms(String sessionToken, TechId vocabularyId,
             List<VocabularyTerm> terms);
+
 }

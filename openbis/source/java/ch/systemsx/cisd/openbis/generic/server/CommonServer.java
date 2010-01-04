@@ -179,7 +179,8 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.GridCustomExpressionTr
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
-public final class CommonServer extends AbstractCommonServer<ICommonServer> implements ICommonServer
+public final class CommonServer extends AbstractCommonServer<ICommonServer> implements
+        ICommonServer
 {
     private final IAuthenticationService authenticationService;
 
@@ -1840,4 +1841,5 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         bo.updateTerms(terms);
         bo.save();
     }
+
 }

@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.materia
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedIdHolderCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 
@@ -40,9 +39,7 @@ public final class MaterialListDeletionConfirmationDialog extends
 
     private final AbstractAsyncCallback<Void> callback;
 
-    private final DisplayedAndSelectedMaterials selectedAndDisplayedItemsOrNull;
-
-    private final Material singleDataOrNull;
+    private final DisplayedAndSelectedMaterials selectedAndDisplayedItems;
 
     public MaterialListDeletionConfirmationDialog(
             IViewContext<ICommonClientServiceAsync> viewContext, List<Material> data,
@@ -52,35 +49,16 @@ public final class MaterialListDeletionConfirmationDialog extends
         super(viewContext, data, true);
         this.viewContext = viewContext;
         this.callback = callback;
-        this.singleDataOrNull = null;
-        this.selectedAndDisplayedItemsOrNull = selectedAndDisplayedItems;
-    }
-
-    public MaterialListDeletionConfirmationDialog(
-            IViewContext<ICommonClientServiceAsync> viewContext, List<Material> data,
-            AbstractAsyncCallback<Void> callback, Material material)
-    {
-        super(viewContext, data, false);
-        this.viewContext = viewContext;
-        this.callback = callback;
-        this.singleDataOrNull = material;
-        this.selectedAndDisplayedItemsOrNull = null;
+        this.selectedAndDisplayedItems = selectedAndDisplayedItems;
     }
 
     @Override
     protected void executeConfirmedAction()
     {
-        if (selectedAndDisplayedItemsOrNull != null)
-        {
-            final DisplayedOrSelectedIdHolderCriteria<Material> uploadCriteria =
-                    selectedAndDisplayedItemsOrNull.createCriteria(isOnlySelected());
-            viewContext.getCommonService().deleteMaterials(uploadCriteria, reason.getValue(),
-                    callback);
-        } else
-        {
-            viewContext.getCommonService().deleteMaterial(TechId.create(singleDataOrNull),
-                    reason.getValue(), callback);
-        }
+        final DisplayedOrSelectedIdHolderCriteria<Material> uploadCriteria =
+                selectedAndDisplayedItems.createCriteria(isOnlySelected());
+        viewContext.getCommonService().deleteMaterials(uploadCriteria, reason.getValue(), callback);
+
     }
 
     @Override
@@ -95,7 +73,7 @@ public final class MaterialListDeletionConfirmationDialog extends
         return WidgetUtils.createAllOrSelectedRadioGroup(onlySelectedRadioOrNull =
                 WidgetUtils.createRadio(viewContext.getMessage(Dict.ONLY_SELECTED_RADIO, data
                         .size())), WidgetUtils.createRadio(viewContext.getMessage(Dict.ALL_RADIO,
-                selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())), viewContext
+                selectedAndDisplayedItems.getDisplayedItemsCount())), viewContext
                 .getMessage(Dict.MATERIALS_RADIO_GROUP_LABEL), data.size(),
                 createRefreshMessageAction());
     }
