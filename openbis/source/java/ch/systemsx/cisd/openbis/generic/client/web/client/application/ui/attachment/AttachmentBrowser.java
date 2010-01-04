@@ -239,7 +239,8 @@ public class AttachmentBrowser extends AbstractSimpleBrowserGrid<AttachmentVersi
                 private final DescriptionField descriptionField;
                 {
                     descriptionField = createDescriptionField(viewContext);
-                    descriptionField.setValueAndUnescape(current.getDescription());
+                    descriptionField.setValueAndUnescape(StringEscapeUtils.unescapeHtml(current
+                            .getDescription()));
                     addField(descriptionField);
                 }
 

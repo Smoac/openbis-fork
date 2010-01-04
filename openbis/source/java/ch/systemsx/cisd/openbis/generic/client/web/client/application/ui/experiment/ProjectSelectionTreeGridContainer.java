@@ -64,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonH
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
@@ -190,7 +191,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                 {
                     final Group group = (Group) model.get(ModelDataPropertyNames.OBJECT);
                     final Widget result = new InlineHTML(group.getCode());
-                    result.setTitle(group.getDescription());
+                    result.setTitle(StringEscapeUtils.unescapeHtml(group.getDescription()));
                     return result;
                 }
 
@@ -216,7 +217,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
                     final FlowPanel panel =
                             new FlowPanelWithLinkAppearingOnMouseOver(project, detailsLink);
-                    panel.setTitle(project.getDescription());
+                    panel.setTitle(StringEscapeUtils.unescapeHtml(project.getDescription()));
                     panel.add(new InlineHTML(project.getCode() + " "));
                     panel.add(detailsLink);
                     return panel;
@@ -264,7 +265,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                                 {
                                     return;
                                 }
-                                // this is the only part different from FlowPanel
+                                // this is the only part different from Widget
                                 if (isProjectSelected() == false)
                                 {
                                     link.setVisible(DOM.eventGetType(event) == Event.ONMOUSEOVER);
