@@ -51,6 +51,7 @@ import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.concurrent.InactivityMonitor.IDescribingActivitySensor;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UnknownLastChangedException;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
@@ -1500,6 +1501,36 @@ public final class FileUtilities
             fileNames[i++] = file.getName();
         }
         return fileNames;
+    }
+
+    /**
+     * Checks remote connections for specified path copier.
+     */
+    public static void checkPathCopier(IPathCopier copier, String host, String rsyncExecutableOnHostOrNull,
+            String rsyncModuleOrNull, String rsyncPasswordFileOrNull)
+    {
+        if (rsyncModuleOrNull != null)
+        {
+            final boolean connectionOK =
+                    copier.checkRsyncConnectionViaRsyncServer(host, rsyncModuleOrNull,
+                            rsyncPasswordFileOrNull);
+            if (connectionOK == false)
+            {
+                throw ConfigurationFailureException.fromTemplate(
+                        "Connection to rsync module %s::%s failed", host,
+                        rsyncModuleOrNull);
+            }
+        } else
+        {
+            final boolean connectionOK =
+                    copier.checkRsyncConnectionViaSsh(host, rsyncExecutableOnHostOrNull);
+            if (connectionOK == false)
+            {
+                throw ConfigurationFailureException.fromTemplate(
+                        "No good rsync executable found on host '%s'", host);
+            }
+        }
+    
     }
 
 }
