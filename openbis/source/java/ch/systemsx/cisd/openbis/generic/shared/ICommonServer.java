@@ -1007,7 +1007,6 @@ public interface ICommonServer extends IServer
     @Transactional
     @RolesAllowed(RoleSet.INSTANCE_ADMIN)
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
-    public void deleteMaterials(String sessionToken, /* FIXME: add predicate */
-            List<TechId> materialIds, String reason);
+    public void deleteMaterials(String sessionToken, List<TechId> materialIds, String reason);
 
 }
