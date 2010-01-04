@@ -45,8 +45,7 @@ public abstract class AbstractDatastorePlugin implements Serializable
 
         this.storeRoot = storeRoot;
         this.properties = properties;
-        final String subDirectoryOrNull = properties.getProperty(SUB_DIRECTORY_NAME);
-        this.subDirectory = (subDirectoryOrNull != null) ? subDirectoryOrNull : "original";
+        subDirectory = properties.getProperty(SUB_DIRECTORY_NAME, "original");
     }
 
     protected File getDataSubDir(DatasetDescription dataset)
