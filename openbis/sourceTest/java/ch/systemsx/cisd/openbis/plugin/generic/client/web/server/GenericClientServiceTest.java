@@ -244,6 +244,92 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
     }
 
     @Test
+    public final void testUpdateSamples() throws IOException
+    {
+        final UploadedFilesBean uploadedFilesBean = new UploadedFilesBean();
+        final String sessionKey = "uploaded-files";
+
+        final SampleType sampleType = createSampleType("MASTER_PLATE");
+        final String defaultGroupIdentifier = "/G1";
+        final String fileName = "fileName.txt";
+
+        context.checking(new Expectations()
+            {
+                {
+                    prepareGetHttpSession(this);
+                    prepareGetSessionToken(this);
+
+                    allowing(httpSession).getAttribute(sessionKey);
+                    will(returnValue(uploadedFilesBean));
+
+                    allowing(httpSession).removeAttribute(sessionKey);
+
+                    exactly(2).of(multipartFile).getOriginalFilename();
+                    will(returnValue(fileName));
+
+                    one(multipartFile).transferTo(with(any(File.class)));
+                    will(new CustomAction("copy content")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final File target = (File) invocation.getParameter(0);
+                                FileUtilities.writeToFile(target,
+                                        "identifier\tcontainer\tparent\texperiment\tprop1\tprop2\n"
+                                                + "MP1\t/G1/MP2\t\tEXP1\tRED\t\n"
+                                                + "/G2/MP1\t\t/G2/MP2\tEXP2\t\t1");
+                                return null;
+                            }
+                        });
+
+                    one(genericServer).updateSamples(with(equal(SESSION_TOKEN)),
+                            with(newSampleWithTypesList()));
+                    will(new CustomAction("check sample")
+                        {
+
+                            @SuppressWarnings("unchecked")
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                final List<NewSamplesWithTypes> samplesSecions =
+                                        (List<NewSamplesWithTypes>) invocation.getParameter(1);
+                                assertEquals(1, samplesSecions.size());
+                                final NewSamplesWithTypes samples = samplesSecions.get(0);
+                                // Do not compare sampleType, as the update code doesn't check it
+                                assertEquals(2, samples.getNewSamples().size());
+
+                                final NewSample sample1 = samples.getNewSamples().get(0);
+                                assertEquals("/G1/MP1", sample1.getIdentifier());
+                                assertEquals("/G1/MP2", sample1.getContainerIdentifier());
+                                assertEquals(null, sample1.getParentIdentifier());
+                                assertEquals("EXP1", sample1.getExperimentIdentifier());
+                                assertEquals(1, sample1.getProperties().length);
+                                final IEntityProperty prop1 = sample1.getProperties()[0];
+                                assertEquals("RED", prop1.getValue());
+
+                                final NewSample sample2 = samples.getNewSamples().get(1);
+                                assertEquals("/G2/MP1", sample2.getIdentifier());
+                                assertEquals(null, sample2.getContainerIdentifier());
+                                assertEquals("/G2/MP2", sample2.getParentIdentifier());
+                                assertEquals("EXP2", sample2.getExperimentIdentifier());
+                                assertEquals(1, sample2.getProperties().length);
+                                final IEntityProperty prop2 = sample2.getProperties()[0];
+                                assertEquals("1", prop2.getValue());
+
+                                return null;
+                            }
+                        });
+                }
+            });
+        uploadedFilesBean.addMultipartFile(multipartFile);
+        final List<BatchRegistrationResult> result =
+                genericClientService.updateSamples(sampleType, sessionKey, defaultGroupIdentifier);
+        assertEquals(1, result.size());
+        final BatchRegistrationResult batchRegistrationResult = result.get(0);
+        assertEquals(fileName, batchRegistrationResult.getFileName());
+        assertEquals("Update of 2 sample(s) is complete.", batchRegistrationResult.getMessage());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public final void testRegisterExperiment()
     {
         final NewExperiment newExperiment =
