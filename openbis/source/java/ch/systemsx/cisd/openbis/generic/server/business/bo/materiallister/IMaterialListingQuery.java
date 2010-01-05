@@ -21,6 +21,7 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 
+import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
@@ -38,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
  * @author Tomasz Pylak
  */
 @Private
+@Friend(toClasses =
+    { MaterialRecord.class })
 public interface IMaterialListingQuery extends TransactionQuery, IPropertyListingQuery
 {
     public static final int FETCH_SIZE = 1000;

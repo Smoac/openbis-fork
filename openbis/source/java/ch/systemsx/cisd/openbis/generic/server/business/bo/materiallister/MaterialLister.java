@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
  * @author Piotr Buczek
  */
 @Friend(toClasses =
-    { IMaterialListingQuery.class })
+    { MaterialRecord.class, IMaterialListingQuery.class })
 public class MaterialLister implements IMaterialLister
 {
 
