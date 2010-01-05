@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { IMaterialListingQuery.class, MaterialListerDAO.class })
+    { MaterialRecord.class, IMaterialListingQuery.class, MaterialListerDAO.class })
 @Test(groups =
     { "db", "material" })
 public class MaterialListingQueryTest extends AbstractDAOTest
@@ -74,7 +74,7 @@ public class MaterialListingQueryTest extends AbstractDAOTest
         query = materialListerDAO.getQuery();
     }
 
-    private static MaterialListerDAO createMaterialListerDAO(IDAOFactory daoFactory)
+    public static MaterialListerDAO createMaterialListerDAO(IDAOFactory daoFactory)
     {
         IMaterialListingQuery query =
                 EntityListingTestUtils.createQuery(daoFactory, IMaterialListingQuery.class);
