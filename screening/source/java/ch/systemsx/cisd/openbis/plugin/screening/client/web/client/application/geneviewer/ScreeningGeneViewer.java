@@ -142,6 +142,11 @@ public class ScreeningGeneViewer extends AbstractViewer<Material>
 
     private Widget createGeneLocationPanel(List<WellContent> wellLocations)
     {
+        if (wellLocations.size() == 0)
+        {
+            return new Text(
+                    "This gene has not been suppressed in any plate measured in the chosen experiment.");
+        }
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new TableLayout(3));
         TableData cellLayout = new TableData();

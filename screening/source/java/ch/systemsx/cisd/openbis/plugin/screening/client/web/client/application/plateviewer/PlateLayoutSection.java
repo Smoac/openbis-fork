@@ -211,7 +211,7 @@ public class PlateLayoutSection extends SingleSectionPanel
                 if (wellWidget == null)
                 {
                     WellData wellData = wellMatrix[row][col];
-                    if (wellData.tryGetImages() == null)
+                    if (wellData.tryGetImages() == null && wellData.tryGetMetadata() == null)
                     {
                         wellWidget = createEmptyWellWidget();
                     } else

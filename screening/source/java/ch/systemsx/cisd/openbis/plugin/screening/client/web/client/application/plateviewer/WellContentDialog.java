@@ -170,9 +170,6 @@ public class WellContentDialog
             Material content = metadataOrNull.tryGetContent();
             if (content != null)
             {
-                container.add(new Text("Content: "), cellLayout);
-                container.add(createEntityLink(content));
-
                 Material gene = metadataOrNull.tryGetGene();
                 if (gene != null)
                 {
@@ -182,6 +179,9 @@ public class WellContentDialog
                     container.add(new Text("Gene details: "), cellLayout);
                     container.add(createEntityExternalLink(gene));
                 }
+
+                container.add(new Text("Content: "), cellLayout);
+                container.add(createEntityLink(content));
             }
         } else
         {
