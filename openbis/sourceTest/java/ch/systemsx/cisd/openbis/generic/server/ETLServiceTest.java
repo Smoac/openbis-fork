@@ -33,7 +33,6 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
@@ -88,8 +87,6 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IDataStoreService dataStoreService;
 
-    private IDataStoreDAO dataStoreDAO;
-
     @Override
     @BeforeMethod
     public final void setUp()
@@ -98,7 +95,6 @@ public class ETLServiceTest extends AbstractServerTestCase
         boFactory = context.mock(ICommonBusinessObjectFactory.class);
         dssfactory = context.mock(IDataStoreServiceFactory.class);
         dataStoreService = context.mock(IDataStoreService.class);
-        dataStoreDAO = context.mock(IDataStoreDAO.class);
     }
 
     @Test
