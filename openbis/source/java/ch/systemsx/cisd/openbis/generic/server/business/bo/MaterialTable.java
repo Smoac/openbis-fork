@@ -66,17 +66,6 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
         this.dataChanged = dataChanged;
     }
 
-    public final void load(final String materialTypeCode)
-    {
-        checkNotNull(materialTypeCode);
-        final EntityTypePE entityType =
-                getEntityTypeDAO(EntityKind.MATERIAL).tryToFindEntityTypeByCode(materialTypeCode);
-        checkNotNull(materialTypeCode, entityType);
-        materials =
-                getMaterialDAO().listMaterialsWithPropertiesAndInhibitor(
-                        (MaterialTypePE) entityType);
-    }
-
     private void checkNotNull(final String materialTypeCode, final EntityTypePE entityType)
     {
         if (entityType == null)
@@ -132,7 +121,7 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
     private void checkBusinessRules()
     {
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> cache =
-            new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
+                new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         for (MaterialPE m : materials)
         {
             entityPropertiesConverter.checkMandatoryProperties(m.getProperties(), m

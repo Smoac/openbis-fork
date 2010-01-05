@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * Test cases for corresponding {@link MaterialTable} class.
@@ -54,30 +53,6 @@ public final class MaterialTableTest extends AbstractBOTest
     private final MaterialTable createMaterialTable()
     {
         return createMaterialTable(null, false);
-    }
-
-    @Test
-    public void testLoad() throws Exception
-    {
-        final MaterialTypePE materialType = CommonTestUtils.createMaterialType();
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(daoFactory).getEntityTypeDAO(EntityKind.MATERIAL);
-                    will(returnValue(entityTypeDAO));
-
-                    allowing(daoFactory).getMaterialDAO();
-                    will(returnValue(materialDAO));
-
-                    one(entityTypeDAO).tryToFindEntityTypeByCode(materialType.getCode());
-                    will(returnValue(materialType));
-
-                    one(materialDAO).listMaterialsWithPropertiesAndInhibitor(materialType);
-                    will(returnValue(new ArrayList<MaterialPE>()));
-                }
-            });
-        createMaterialTable().load(materialType.getCode());
-        context.assertIsSatisfied();
     }
 
     @Test

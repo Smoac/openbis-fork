@@ -29,13 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
  */
 public interface IMaterialTable
 {
-    /**
-     * Loads all materials of given type.
-     * 
-     * @param materialTypeCodeOrNull the material type code or <code>null</code>.
-     */
-    @Deprecated
-    public void load(String materialTypeCodeOrNull);
 
     /** Returns the loaded {@link MaterialPE}. */
     public List<MaterialPE> getMaterials();
