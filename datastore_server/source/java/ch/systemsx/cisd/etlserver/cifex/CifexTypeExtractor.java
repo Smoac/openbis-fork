@@ -45,13 +45,13 @@ public class CifexTypeExtractor implements ITypeExtractor
 
     public DataSetType getDataSetType(File incomingDataSetPath)
     {
-        return new DataSetType(CifexExtratorHelper.getDataSetUploadInfo(incomingDataSetPath)
+        return new DataSetType(CifexExtractorHelper.getDataSetUploadInfo(incomingDataSetPath)
                 .getDataSetType());
     }
 
     public FileFormatType getFileFormatType(File incomingDataSetPath)
     {
-        return new FileFormatType(CifexExtratorHelper.getDataSetUploadInfo(incomingDataSetPath)
+        return new FileFormatType(CifexExtractorHelper.getDataSetUploadInfo(incomingDataSetPath)
                 .getFileType());
     }
 

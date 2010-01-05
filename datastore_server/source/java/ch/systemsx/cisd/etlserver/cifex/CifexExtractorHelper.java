@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.DataSetUploadInfo.DataSetUp
 /**
  * @author Izabela Adamczyk
  */
-public class CifexExtratorHelper
+public class CifexExtractorHelper
 {
     private static final String COMMENT_KEY = "comment";
 

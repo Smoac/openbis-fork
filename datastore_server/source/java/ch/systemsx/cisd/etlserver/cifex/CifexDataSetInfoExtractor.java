@@ -61,7 +61,7 @@ public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
     {
         assert incomingDataSetPath != null : "Incoming data set path can not be null.";
 
-        DataSetUploadInfo info = CifexExtratorHelper.getDataSetUploadInfo(incomingDataSetPath);
+        DataSetUploadInfo info = CifexExtractorHelper.getDataSetUploadInfo(incomingDataSetPath);
         final DataSetInformation dataSetInformation = new DataSetInformation();
 
         // either sample is specified or experiment (with optional data set parents)
@@ -85,7 +85,7 @@ public class CifexDataSetInfoExtractor implements IDataSetInfoExtractor
             dataSetInformation.setParentDataSetCodes(Arrays.asList(parents));
         }
 
-        dataSetInformation.setUploadingUserEmail(CifexExtratorHelper
+        dataSetInformation.setUploadingUserEmail(CifexExtractorHelper
                 .getUploadingUserEmail(incomingDataSetPath));
         dataSetInformation.setDataSetProperties(extractDataSetProperties(incomingDataSetPath,
                 dataSetPropertiesFileNameOrNull));
