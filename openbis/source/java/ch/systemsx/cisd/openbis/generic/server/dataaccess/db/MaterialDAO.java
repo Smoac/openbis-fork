@@ -54,8 +54,8 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
         super(sessionFactory, databaseInstance, ENTITY_CLASS);
     }
 
-    public List<MaterialPE> listMaterialsWithPropertiesAndInhibitor(
-            final MaterialTypePE materialType) throws DataAccessException
+    public List<MaterialPE> listMaterialsWithProperties(final MaterialTypePE materialType)
+            throws DataAccessException
     {
         assert materialType != null : "Unspecified material type.";
 

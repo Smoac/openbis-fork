@@ -26,6 +26,8 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import junit.framework.Assert;
+
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,8 +38,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingT
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialListingQuery;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.MaterialListerDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -54,17 +54,25 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 public class MaterialListingQueryTest extends AbstractDAOTest
 {
 
+    private static final long BACTERIUM_MATERIAL_TYPE = 6L;
+
+    private static final int NUMBER_OF_BACTERIA = 4;
+
     // ID of the BACTERIA which has ORGANISM property filled
     private static final long MATERIAL_ID_TEST_1 = 34;
 
     private static final long MATERIAL_ID_TEST_2 = 35;
+
+    private Long dbInstanceId;
 
     private IMaterialListingQuery query;
 
     @BeforeClass(alwaysRun = true)
     public void init() throws SQLException
     {
-        query = createMaterialListerDAO(daoFactory).getQuery();
+        MaterialListerDAO materialListerDAO = createMaterialListerDAO(daoFactory);
+        dbInstanceId = materialListerDAO.getDatabaseInstanceId();
+        query = materialListerDAO.getQuery();
     }
 
     private static MaterialListerDAO createMaterialListerDAO(IDAOFactory daoFactory)
@@ -135,6 +143,25 @@ public class MaterialListingQueryTest extends AbstractDAOTest
         PropertyType[] propertyTypes = query.getPropertyTypes();
         ensureEntitiesHaveProperties("organism", propertyTypes, allProperties, 1,
                 MATERIAL_ID_TEST_1);
+    }
+
+    @Test
+    public void testMaterials()
+    {
+        Iterable<MaterialRecord> materials =
+                query.getMaterialsForMaterialType(dbInstanceId, BACTERIUM_MATERIAL_TYPE);
+        int count = 0;
+        for (MaterialRecord materialRecord : materials)
+        {
+            assertEquals(dbInstanceId, materialRecord.dbin_id);
+            assertEquals(BACTERIUM_MATERIAL_TYPE, materialRecord.maty_id);
+            if (count == 0)
+            {
+                Assert.assertEquals("BACTERIUM-X", materialRecord.code);
+            }
+            count++;
+        }
+        assertEquals(NUMBER_OF_BACTERIA, count);
     }
 
 }

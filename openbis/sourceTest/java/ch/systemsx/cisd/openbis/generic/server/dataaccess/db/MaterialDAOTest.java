@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 @Test(groups =
     { "db", "material" })
+@SuppressWarnings("deprecation")
 public final class MaterialDAOTest extends AbstractDAOTest
 {
     private static final String BACTERIUM = "BACTERIUM";
@@ -56,26 +57,13 @@ public final class MaterialDAOTest extends AbstractDAOTest
     final int NUMBER_OF_BACTERIA = 4;
 
     @Test
-    public void testListMaterials() throws Exception
-    {
-        MaterialTypePE type =
-                (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
-                        .tryToFindEntityTypeByCode(BACTERIUM);
-        List<MaterialPE> list =
-                daoFactory.getMaterialDAO().listMaterialsWithPropertiesAndInhibitor(type);
-        Assert.assertEquals(NUMBER_OF_BACTERIA, list.size());
-        Collections.sort(list);
-        Assert.assertEquals(list.get(0).getCode(), "BACTERIUM-X");
-    }
-
-    @Test
     public void testCreateMaterials() throws Exception
     {
         MaterialTypePE type =
                 (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
                         .tryToFindEntityTypeByCode(BACTERIUM);
         List<MaterialPE> bacteria_before =
-                daoFactory.getMaterialDAO().listMaterialsWithPropertiesAndInhibitor(type);
+                daoFactory.getMaterialDAO().listMaterialsWithProperties(type);
         Assert.assertEquals(NUMBER_OF_BACTERIA, bacteria_before.size());
         List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
         newMaterials.add(createMaterial(type, "BRAND_NEW_BACTERIUM_1"));
@@ -83,7 +71,7 @@ public final class MaterialDAOTest extends AbstractDAOTest
         Collections.sort(newMaterials);
         daoFactory.getMaterialDAO().createMaterials(newMaterials);
         List<MaterialPE> bacteria_after =
-                daoFactory.getMaterialDAO().listMaterialsWithPropertiesAndInhibitor(type);
+                daoFactory.getMaterialDAO().listMaterialsWithProperties(type);
         Assert.assertEquals(NUMBER_OF_BACTERIA + newMaterials.size(), bacteria_after.size());
         bacteria_after.removeAll(bacteria_before);
         Collections.sort(bacteria_after);
@@ -112,7 +100,7 @@ public final class MaterialDAOTest extends AbstractDAOTest
                 (MaterialTypePE) daoFactory.getEntityTypeDAO(EntityKind.MATERIAL)
                         .tryToFindEntityTypeByCode(BACTERIUM);
         List<MaterialPE> bacteria_before =
-                daoFactory.getMaterialDAO().listMaterialsWithPropertiesAndInhibitor(type);
+                daoFactory.getMaterialDAO().listMaterialsWithProperties(type);
         String existingBacteriumCode = bacteria_before.get(0).getCode();
         List<MaterialPE> newMaterials = new ArrayList<MaterialPE>();
         newMaterials.add(createMaterial(type, existingBacteriumCode));

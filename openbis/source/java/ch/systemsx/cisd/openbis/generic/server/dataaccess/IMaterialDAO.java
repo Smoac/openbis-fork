@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -31,10 +32,13 @@ public interface IMaterialDAO extends IGenericDAO<MaterialPE>
 {
 
     /**
-     * Lists materials of given type. Fetches also properties and inhibitor.
+     * Lists materials of given type. Fetches also properties.
+     * 
+     * @deprecated Because of performance issues use this method only in tests, otherwise use
+     *             {@link IMaterialLister#list(ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType)}
      */
     @Deprecated
-    public List<MaterialPE> listMaterialsWithPropertiesAndInhibitor(MaterialTypePE type);
+    public List<MaterialPE> listMaterialsWithProperties(MaterialTypePE type);
 
     /** Inserts given {@link MaterialPE}s into the database. */
     public void createMaterials(List<MaterialPE> materials);
