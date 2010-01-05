@@ -53,7 +53,7 @@ public enum AttachmentColDefKind implements IColumnDefinitionKind<AttachmentVers
             }
         }),
 
-    DESCRIPTION(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.DESCRIPTION, 300, true)
+    DESCRIPTION(new AbstractColumnDefinitionKind<AttachmentVersions>(Dict.DESCRIPTION, 300)
         {
             @Override
             public String tryGetValue(AttachmentVersions entity)
