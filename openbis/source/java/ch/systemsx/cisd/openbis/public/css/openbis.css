@@ -221,3 +221,11 @@ body,div,td {
     background-image: url(../images/generate-trigger.gif) !important;
     cursor: pointer;
 }
+
+.cisd-visible {
+	visibility: visible !important;
+}
+
+.cisd-hidden {
+	visibility: hidden !important;
+}

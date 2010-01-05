@@ -81,6 +81,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ex
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridCustomColumnInfo;
@@ -199,6 +200,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private IDataRefreshCallback refreshCallback;
 
+    private LayoutContainer bottomToolbars;
+
     protected AbstractBrowserGrid(final IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
@@ -230,7 +233,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         pagingToolbar.bind(pagingLoader);
         this.filterToolbar =
                 new FilterToolbar<T>(viewContext, gridId, this, createApplyFiltersDelagator());
-        final LayoutContainer bottomToolbars = createBottomToolbars(filterToolbar, pagingToolbar);
+        bottomToolbars = createBottomToolbars(filterToolbar, pagingToolbar);
         this.contentPanel = createEmptyContentPanel();
         contentPanel.add(grid);
         contentPanel.setBottomComponent(bottomToolbars);
@@ -249,6 +252,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         add(contentPanel);
 
         addRefreshDisplaySettingsListener();
+
+        WidgetUtils.setVisibleByStyle(bottomToolbars, false);
+
     }
 
     private void addRefreshDisplaySettingsListener()
@@ -644,6 +650,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             pendingFetchConfigOrNull = null;
             refreshCallback.postRefresh(wasSuccessful);
+            WidgetUtils.setVisibleByStyle(bottomToolbars, true);
         }
 
         @Override
@@ -877,14 +884,16 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     pagingToolbar.disableExportButton();
                     pagingToolbar.updateDefaultConfigButton(false);
 
-                    // Need to reset filter fields *before* refreshing the gridso the list can be correctly
+                    // Need to reset filter fields *before* refreshing the gridso the list can be
+                    // correctly
                     // retrieved
                     filterToolbar.resetFilterFields();
 
                     // export and config buttons are enabled when ListEntitiesCallback is complete
                     refresh();
 
-                    // Need to refresh the filter toolbar *after* refreshing the grid, because it has
+                    // Need to refresh the filter toolbar *after* refreshing the grid, because it
+                    // has
                     // a dependency on information from the grid that gets updated with the refesh
                     filterToolbar.refresh();
                 }
