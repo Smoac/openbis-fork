@@ -1245,12 +1245,10 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(commonBusinessObjectFactory).createMaterialTable(SESSION);
-                    will(returnValue(materialTable));
+                    one(commonBusinessObjectFactory).createMaterialLister(SESSION);
+                    will(returnValue(materialLister));
 
-                    one(materialTable).load(materialType.getCode());
-
-                    one(materialTable).getMaterials();
+                    one(materialLister).list(materialType);
                     will(returnValue(new ArrayList<MaterialTypePE>()));
                 }
             });

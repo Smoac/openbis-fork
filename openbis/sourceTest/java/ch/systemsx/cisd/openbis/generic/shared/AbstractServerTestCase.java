@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IPropertyTypeTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
@@ -120,6 +121,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IMaterialTable materialTable;
 
+    protected IMaterialLister materialLister;
+
     protected IEntityTypeDAO entityTypeDAO;
 
     protected IProjectDAO projectDAO;
@@ -197,6 +200,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         experimentTable = context.mock(IExperimentTable.class);
         propertyTypeTable = context.mock(IPropertyTypeTable.class);
         materialTable = context.mock(IMaterialTable.class);
+        materialLister = context.mock(IMaterialLister.class);
 
         homeDatabaseInstance = CommonTestUtils.createHomeDatabaseInstance();
         context.checking(new Expectations()
