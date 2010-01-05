@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
@@ -28,19 +29,48 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropert
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesHolderResolver;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 
 /**
- * Fast bd operations on material table.
+ * Fast DB operations on material table.
  * 
  * @author Tomasz Pylak
+ * @author Piotr Buczek
  */
 @Friend(toClasses =
     { IMaterialListingQuery.class })
 public class MaterialLister implements IMaterialLister
 {
+
+    //
+    // Input
+    //
+
+    private final long databaseInstanceId;
+
+    private final DatabaseInstance databaseInstance;
+
+    //
+    // Working interfaces
+    //
+
+    private final IMaterialListingQuery query;
+
     private final IEntityPropertiesEnricher propertiesEnricher;
+
+    private SecondaryEntityDAO referencedEntityDAO;
+
+    //
+    // Working data structures
+    //
+
+    private final Long2ObjectMap<Person> persons = new Long2ObjectOpenHashMap<Person>();
+
+    //
 
     public static IMaterialLister create(IDAOFactory daoFactory, String baseIndexURL)
     {
@@ -56,13 +86,107 @@ public class MaterialLister implements IMaterialLister
         IMaterialListingQuery query = dao.getQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
-        return new MaterialLister(propertiesEnricher);
+        return new MaterialLister(dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), query,
+                propertiesEnricher, referencedEntityDAO);
     }
 
     // For unit tests
-    MaterialLister(IEntityPropertiesEnricher propertiesEnricher)
+    MaterialLister(final long databaseInstanceId, DatabaseInstance databaseInstance,
+            final IMaterialListingQuery query, IEntityPropertiesEnricher propertiesEnricher,
+            SecondaryEntityDAO referencedEntityDAO)
     {
+        assert query != null;
+
+        this.databaseInstanceId = databaseInstanceId;
+        this.databaseInstance = databaseInstance;
+        this.query = query;
         this.propertiesEnricher = propertiesEnricher;
+        this.referencedEntityDAO = referencedEntityDAO;
+    }
+
+    //
+    // Listing
+    //
+
+    public List<Material> list(MaterialType materialType)
+    {
+        return enrichMaterials(query.getMaterialsForMaterialType(databaseInstanceId, materialType
+                .getId()), materialType);
+    }
+
+    //
+    // Enriching
+    //
+
+    private List<Material> enrichMaterials(Iterable<MaterialRecord> materials,
+            MaterialType materialType)
+    {
+        List<MaterialRecord> materialRecords = asList(materials);
+        final Long2ObjectMap<Material> materialMap = createMaterials(materialRecords, materialType);
+        enrichWithProperties(materialMap);
+        return asList(materialMap);
+    }
+
+    private Long2ObjectMap<Material> createMaterials(Iterable<MaterialRecord> records,
+            MaterialType materialType)
+    {
+        Long2ObjectMap<Material> materials = new Long2ObjectOpenHashMap<Material>();
+        for (MaterialRecord record : records)
+        {
+            materials.put(record.id, createMaterial(record, materialType));
+        }
+        return materials;
+    }
+
+    private Material createMaterial(MaterialRecord record, MaterialType materialType)
+    {
+        Material material = new Material();
+        material.setId(record.id);
+        material.setCode(escapeHtml(record.code));
+
+        assert record.maty_id == materialType.getId();
+        material.setMaterialType(materialType);
+        assert record.dbin_id == databaseInstanceId;
+        material.setDatabaseInstance(databaseInstance);
+
+        material.setRegistrator(getOrCreateRegistrator(record));
+        material.setRegistrationDate(record.registration_timestamp);
+        material.setProperties(new ArrayList<IEntityProperty>());
+
+        return material;
+    }
+
+    private Person getOrCreateRegistrator(MaterialRecord row)
+    {
+        return getOrCreateRegistrator(row.pers_id_registerer);
+    }
+
+    private Person getOrCreateRegistrator(long personId)
+    {
+        Person registrator = persons.get(personId);
+        if (registrator == null)
+        {
+            registrator = referencedEntityDAO.getPerson(personId);
+            persons.put(personId, registrator);
+        }
+        return registrator;
+    }
+
+    private static <T> List<T> asList(Iterable<T> items)
+    {
+        List<T> result = new ArrayList<T>();
+        for (T item : items)
+        {
+            result.add(item);
+        }
+        return result;
+    }
+
+    private static <T> List<T> asList(Long2ObjectMap<T> items)
+    {
+        List<T> result = new ArrayList<T>();
+        org.apache.commons.collections.CollectionUtils.addAll(result, items.values().iterator());
+        return result;
     }
 
     private void enrichWithProperties(final Long2ObjectMap<Material> resultMap)
@@ -99,4 +223,5 @@ public class MaterialLister implements IMaterialLister
             material.setProperties(new ArrayList<IEntityProperty>());
         }
     }
+
 }

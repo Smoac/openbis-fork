@@ -34,6 +34,7 @@ public interface IMaterialTable
      * 
      * @param materialTypeCodeOrNull the material type code or <code>null</code>.
      */
+    @Deprecated
     public void load(String materialTypeCodeOrNull);
 
     /** Returns the loaded {@link MaterialPE}. */

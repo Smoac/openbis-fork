@@ -33,6 +33,7 @@ public interface IMaterialDAO extends IGenericDAO<MaterialPE>
     /**
      * Lists materials of given type. Fetches also properties and inhibitor.
      */
+    @Deprecated
     public List<MaterialPE> listMaterialsWithPropertiesAndInhibitor(MaterialTypePE type);
 
     /** Inserts given {@link MaterialPE}s into the database. */

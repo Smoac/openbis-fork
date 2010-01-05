@@ -348,7 +348,6 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                         new SampleIdentifier(new GroupIdentifier(experimentIdentifierOrNull
                                 .getDatabaseInstanceCode(), experimentIdentifierOrNull
                                 .getGroupCode()), oldSampleIdentifier.getSampleCode());
-                // TODO 2009-12-08, Piotr Buczek: does it work well with subcodes?
             } else
             {
                 // no experiment - leave sample identifier unchanged

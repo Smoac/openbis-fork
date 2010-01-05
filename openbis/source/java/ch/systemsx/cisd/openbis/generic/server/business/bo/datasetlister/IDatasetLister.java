@@ -33,8 +33,6 @@ public interface IDatasetLister
     /** @return datasets connected to the experiment with the specified id */
     List<ExternalData> listByExperimentTechId(TechId experimentId);
 
-    // TODO 2009-09-10, Piotr Buczek: write tests
-
     /**
      * @return datasets connected to the sample with the specified id
      * @param showOnlyDirectlyConnected whether to return only directly connected datasets, or also

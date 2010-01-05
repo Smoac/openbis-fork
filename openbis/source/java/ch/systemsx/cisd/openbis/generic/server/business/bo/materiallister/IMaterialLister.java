@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 
 /**
  * A class for fast material listing.
@@ -29,4 +30,9 @@ public interface IMaterialLister
 {
     /** fetches and sets all properties of specified materials */
     void enrichWithProperties(List<Material> materials);
+
+    /**
+     * Returns a sorted list of {@link Material}s of given {@link MaterialType}.
+     */
+    public List<Material> list(MaterialType materialType);
 }

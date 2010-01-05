@@ -27,7 +27,19 @@ public class MaterialType extends EntityType
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    private Long id;
+
     private List<MaterialTypePropertyType> materialTypePropertyTypes;
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
 
     @Override
     public List<MaterialTypePropertyType> getAssignedPropertyTypes()
