@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,8 +30,14 @@ import junit.framework.Assert;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMaterialDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -108,4 +119,58 @@ public final class MaterialDAOTest extends AbstractDAOTest
         daoFactory.getMaterialDAO().createMaterials(newMaterials);
     }
 
+    @Test
+    public final void testDeleteWithProperties()
+    {
+        final IMaterialDAO materialDAO = daoFactory.getMaterialDAO();
+
+        // BACTERIUM2 has not been used as a property value
+        MaterialIdentifier identifier = new MaterialIdentifier("BACTERIUM2", "BACTERIUM");
+        final MaterialPE deletedMaterial = materialDAO.tryFindMaterial(identifier);
+        assertNotNull(deletedMaterial);
+        assertFalse(deletedMaterial.getProperties().isEmpty());
+
+        materialDAO.delete(deletedMaterial);
+
+        assertNull(materialDAO.tryFindMaterial(identifier));
+
+        List<EntityTypePropertyTypePE> retrievedPropertyTypes =
+                daoFactory.getEntityPropertyTypeDAO(EntityKind.MATERIAL).listEntityPropertyTypes(
+                        deletedMaterial.getEntityType());
+        for (MaterialPropertyPE property : deletedMaterial.getProperties())
+        {
+            int index = retrievedPropertyTypes.indexOf(property.getEntityTypePropertyType());
+            EntityTypePropertyTypePE retrievedPropertyType = retrievedPropertyTypes.get(index);
+            assertFalse(retrievedPropertyType.getPropertyValues().contains(property));
+        }
+    }
+
+    @Test(expectedExceptions = DataIntegrityViolationException.class)
+    public final void testFailDeleteMaterialUsedAsPropertyValue()
+    {
+        final IMaterialDAO materialDAO = daoFactory.getMaterialDAO();
+
+        String bacteriumX = "BACTERIUM-X";
+        MaterialIdentifier identifier = new MaterialIdentifier(bacteriumX, BACTERIUM);
+        final MaterialPE usedMaterial = materialDAO.tryFindMaterial(identifier);
+        assertNotNull(usedMaterial);
+
+        // Assert that BACTERIUM-X has been used as a property value
+        SamplePE sample =
+                daoFactory.getSampleDAO().tryFindByCodeAndGroup("CP-TEST-1", createGroup("CISD"));
+        assertNotNull(sample);
+        boolean bacteriumFound = false;
+        for (SamplePropertyPE property : sample.getProperties())
+        {
+            MaterialPE materialValue = property.getMaterialValue();
+            if (materialValue != null && materialValue.getCode().equals(bacteriumX)
+                    && materialValue.getMaterialType().getCode().equals(BACTERIUM))
+            {
+                bacteriumFound = true;
+            }
+        }
+        assertTrue(bacteriumFound);
+
+        materialDAO.delete(usedMaterial);
+    }
 }
