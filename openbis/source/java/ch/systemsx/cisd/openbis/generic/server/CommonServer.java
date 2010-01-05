@@ -1563,6 +1563,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
     public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken,
             DataStoreServiceKind dataStoreServiceKind)
     {
+        checkSession(sessionToken);
+        
         List<DatastoreServiceDescription> result = new ArrayList<DatastoreServiceDescription>();
         List<DataStorePE> dataStores = getDAOFactory().getDataStoreDAO().listDataStores();
         for (DataStorePE dataStore : dataStores)
