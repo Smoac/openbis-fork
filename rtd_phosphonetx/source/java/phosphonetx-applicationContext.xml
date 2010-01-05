@@ -39,4 +39,29 @@
         <constructor-arg ref="dao-factory"/>
         <constructor-arg ref="phosphonetx-dao-factory"/>
     </bean>      
+    
+    <!-- 
+        // Raw Data Server with interceptors for translating results
+    -->
+    
+    <bean id="phosphonetx-raw-data-service" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces">
+            <list>
+                <value>ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService</value>
+            </list>
+        </property>
+        <property name="target">
+            <bean class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataService">
+                <constructor-arg ref="session-manager" />
+                <constructor-arg ref="dao-factory" />
+                <constructor-arg ref="common-server" />
+            </bean>
+        </property>
+        <property name="interceptorNames">
+            <list>
+                <value>exception-translator</value>
+            </list>
+        </property>
+    </bean>
+    
 </beans>
