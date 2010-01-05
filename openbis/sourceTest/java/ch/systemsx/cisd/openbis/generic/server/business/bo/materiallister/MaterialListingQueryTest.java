@@ -24,9 +24,10 @@ import static org.testng.AssertJUnit.assertEquals;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-
-import junit.framework.Assert;
+import java.util.Set;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
@@ -55,8 +56,6 @@ public class MaterialListingQueryTest extends AbstractDAOTest
 {
 
     private static final long BACTERIUM_MATERIAL_TYPE = 6L;
-
-    private static final int NUMBER_OF_BACTERIA = 4;
 
     // ID of the BACTERIA which has ORGANISM property filled
     private static final long MATERIAL_ID_TEST_1 = 34;
@@ -150,18 +149,18 @@ public class MaterialListingQueryTest extends AbstractDAOTest
     {
         Iterable<MaterialRecord> materials =
                 query.getMaterialsForMaterialType(dbInstanceId, BACTERIUM_MATERIAL_TYPE);
-        int count = 0;
+        Set<String> remainingBacteriumCodes = new HashSet<String>(Arrays.asList(new String[]
+            { "BACTERIUM-X", "BACTERIUM-Y", "BACTERIUM1", "BACTERIUM2" }));
         for (MaterialRecord materialRecord : materials)
         {
             assertEquals(dbInstanceId, materialRecord.dbin_id);
             assertEquals(BACTERIUM_MATERIAL_TYPE, materialRecord.maty_id);
-            if (count == 0)
+            if (false == remainingBacteriumCodes.remove(materialRecord.code))
             {
-                Assert.assertEquals("BACTERIUM-X", materialRecord.code);
+                AssertJUnit.fail("Unexpected material code: '" + materialRecord.code + "'");
             }
-            count++;
         }
-        assertEquals(NUMBER_OF_BACTERIA, count);
+        assertEquals(0, remainingBacteriumCodes.size());
     }
 
 }
