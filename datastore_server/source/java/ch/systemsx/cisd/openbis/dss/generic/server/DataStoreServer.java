@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_SERVICE_NAME;
 import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -100,8 +99,6 @@ public class DataStoreServer
     private static final String PREFIX = "data-set-download.";
 
     private static final int PREFIX_LENGTH = PREFIX.length();
-
-    private static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataStoreServer.class);
@@ -199,13 +196,13 @@ public class DataStoreServer
 
     final static ConfigParameters getConfigParameters()
     {
-        final Properties properties;
-        if (new File(SERVICE_PROPERTIES_FILE).exists() == false)
+        Properties properties;
+        try
+        {
+            properties = PropertyParametersUtil.loadServiceProperties();
+        } catch (ConfigurationFailureException ex)
         {
             properties = new Properties();
-        } else
-        {
-            properties = PropertyParametersUtil.loadProperties(SERVICE_PROPERTIES_FILE);
         }
         final Properties systemProperties = System.getProperties();
         final Enumeration<?> propertyNames = systemProperties.propertyNames();
