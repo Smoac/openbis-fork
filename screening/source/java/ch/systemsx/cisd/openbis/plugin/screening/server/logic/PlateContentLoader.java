@@ -39,9 +39,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningCons
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -148,13 +148,11 @@ public class PlateContentLoader
         String datasetCode = dataset.getCode();
         List<String> datasets = Arrays.asList(datasetCode);
         String datastoreCode = dataStore.getCode();
-        List<TileImage> plateReport =
-                DatasetLoader.loadImages(datasets, datastoreCode, externalDataTable);
         List<PlateImageParameters> imageParamsReports =
                 DatasetLoader.loadImageParameters(datasets, datastoreCode, externalDataTable);
 
         return TileImages.create(new DatasetReference(datasetCode, datastoreCode, dataStore
-                .getDownloadUrl()), plateReport, imageParamsReports.get(0));
+                .getDownloadUrl()), imageParamsReports.get(0));
     }
 
     private static ExternalDataPE tryFindDataset(List<ExternalDataPE> datasets, String datasetType)
@@ -182,7 +180,8 @@ public class PlateContentLoader
     private static WellMetadata createWell(Sample wellSample)
     {
         WellMetadata well = new WellMetadata();
-        well.setWellSample(wellSample);
+        WellLocation locationOrNull = tryGetLocation(wellSample);
+        well.setWellSample(wellSample, locationOrNull);
         Material content = tryFindMaterialProperty(wellSample.getProperties());
         well.setContent(content);
         if (content != null)
@@ -191,6 +190,11 @@ public class PlateContentLoader
             well.setGene(inhibited);
         }
         return well;
+    }
+
+    private static WellLocation tryGetLocation(Sample wellSample)
+    {
+        return WellUtils.tryCreateLocationFromMatrixCoordinate(wellSample.getSubCode());
     }
 
     private static Material tryFindInhibitedMaterial(Material content)

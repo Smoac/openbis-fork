@@ -21,13 +21,11 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImage;
 
 /**
  * Loads content of datasets by contacting DSS.
@@ -36,15 +34,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImage;
  */
 public class DatasetLoader
 {
-    public static List<TileImage> loadImages(List<String> datasets, String datastoreCode,
-            IExternalDataTable externalDataTable)
-    {
-        TableModel plateReport =
-                externalDataTable.createReportFromDatasets(
-                        ScreeningConstants.PLATE_VIEWER_REPORT_KEY, datastoreCode, datasets);
-        return asImageList(plateReport);
-    }
-
     public static List<PlateImageParameters> loadImageParameters(List<String> datasets,
             String datastoreCode, IExternalDataTable externalDataTable)
     {
@@ -77,42 +66,9 @@ public class DatasetLoader
         return params;
     }
 
-    /**
-     * @param plateImages report of a screening plugun with images for the whole plate
-     */
-    private static final List<TileImage> asImageList(TableModel plateReport)
-    {
-        List<TableModelRow> rows = plateReport.getRows();
-        List<TileImage> images = new ArrayList<TileImage>();
-        for (TableModelRow row : rows)
-        {
-            images.add(createImage(row));
-        }
-        return images;
-    }
-
-    // creates a DTO for an image from an unstructured report row
-    private static TileImage createImage(TableModelRow row)
-    {
-        List<ISerializableComparable> values = row.getValues();
-        TileImage image = new TileImage();
-        image.setDatasetCode(asText(values.get(0)));
-        image.setRow(asNum(values.get(1)));
-        image.setColumn(asNum(values.get(2)));
-        image.setTile(asNum(values.get(3)));
-        image.setChannel(asNum(values.get(4)));
-        image.setImagePath(asImagePath(values.get(5)));
-        return image;
-    }
-
     private static String asText(ISerializableComparable serializableComparable)
     {
         return serializableComparable.toString();
-    }
-
-    private static String asImagePath(ISerializableComparable serializableComparable)
-    {
-        return ((ImageTableCell) serializableComparable).getPath();
     }
 
     private static int asNum(ISerializableComparable serializableComparable)

@@ -81,13 +81,13 @@ public class WellContentDialog
             container.add(imageViewer);
 
             dialogWidth = imgW * images.getTileColsNum();
-            dialogHeight = imgH * images.getTileRowsNum() + 160;
+            dialogHeight = imgH * images.getTileRowsNum() + 200;
         } else
         {
             dialogWidth = 250;
             dialogHeight = 160;
         }
-        String title = "Well Content: " + wellData.getWellSubcode();
+        String title = "Well Content: " + wellData.getWellContentDescription();
         showWellContentDialog(container, dialogWidth, dialogHeight, title);
     }
 
@@ -212,24 +212,21 @@ public class WellContentDialog
             IViewContext<?> viewContext, int imageWidth, int imageHeight)
     {
         LayoutContainer container = new LayoutContainer(new TableLayout(images.getTileColsNum()));
-        for (int i = 1; i <= images.getTileRowsNum() * images.getTileColsNum(); i++)
+        for (int row = 1; row <= images.getTileRowsNum(); row++)
         {
-            Component tileContent;
-            String imagePath = images.tryGetImagePath(channel, i);
-            if (imagePath != null)
+            for (int col = 1; col <= images.getTileColsNum(); col++)
             {
+                Component tileContent;
+                String imagePath = images.getImagePath(channel, row, col);
                 String sessionId = getSessionId(viewContext);
                 String imageURL =
                         SimpleDatastoreImageRenderer.createDatastoreImageUrl(imagePath, imageWidth,
                                 imageHeight, images.getDownloadUrl(), sessionId);
                 tileContent = new Html(imageURL);
+                tileContent.setHeight("" + imageHeight);
                 PlateStyleSetter.setPointerCursor(tileContent);
-            } else
-            {
-                tileContent = new Text("No image.");
-                tileContent.setPixelSize(imageWidth, imageHeight);
+                container.add(tileContent);
             }
-            container.add(tileContent);
         }
         return container;
     }

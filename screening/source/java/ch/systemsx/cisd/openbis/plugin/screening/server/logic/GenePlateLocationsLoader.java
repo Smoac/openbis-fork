@@ -28,13 +28,7 @@ import java.util.Set;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.common.geometry.ConversionUtils;
-import ch.systemsx.cisd.common.geometry.Point;
-import ch.systemsx.cisd.common.utilities.AbstractHashable;
-import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContextUtils;
@@ -51,8 +45,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObject
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -61,8 +55,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 @Friend(toClasses = IScreeningQuery.class)
 public class GenePlateLocationsLoader
 {
-
-    public static List<WellLocation> load(Session session,
+    public static List<WellContent> load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, IDAOFactory daoFactory,
             TechId geneMaterialId, ExperimentIdentifier experimentIdentifier)
     {
@@ -88,40 +81,31 @@ public class GenePlateLocationsLoader
 
     }
 
-    private List<WellLocation> getPlateLocations(TechId geneMaterialId,
+    private List<WellContent> getPlateLocations(TechId geneMaterialId,
             ExperimentIdentifier experimentIdentifier)
     {
-        List<WellLocation> locations = loadLocations(geneMaterialId, experimentIdentifier);
+        List<WellContent> locations = loadLocations(geneMaterialId, experimentIdentifier);
         List<ExternalDataPE> imageDatasets = loadImageDatasets(locations, externalDataTable);
-        ImagesWithParams images = tryLoadImagesReport(imageDatasets);
-        if (images != null)
-        {
-            enrichWithImages(locations, imageDatasets, images);
-        }
+        Map<String, PlateImageParameters> imageParams = loadImagesReport(imageDatasets);
+        enrichWithImages(locations, imageDatasets, imageParams);
         return locations;
     }
 
-    private static void enrichWithImages(List<WellLocation> locations,
-            List<ExternalDataPE> imageDatasets, ImagesWithParams images)
+    private static void enrichWithImages(List<WellContent> locations,
+            List<ExternalDataPE> imageDatasets, Map<String, PlateImageParameters> imageParams)
     {
-        Map<WellPointer, List<TileImage>> imageMap = asMap(images.getImages());
-        Map<Long/* plate id */, String/* datasetCode */> plateToDatasetMap =
+        Map<Long/* plate id */, ExternalDataPE> plateToDatasetMap =
                 createPlateToDatasetMap(imageDatasets);
-        Map<String, ExternalDataPE> datasetMap = asSampleMap(imageDatasets);
-
-        for (WellLocation loc : locations)
+        for (WellContent loc : locations)
         {
-            WellPointer pointer = tryCreateWellPointer(plateToDatasetMap, loc);
-            if (pointer != null)
+            ExternalDataPE dataset = plateToDatasetMap.get(loc.getPlate().getId());
+            if (dataset != null)
             {
-                List<TileImage> tiles = imageMap.get(pointer);
-                if (tiles != null)
+                PlateImageParameters imageParameters = imageParams.get(dataset.getCode());
+                if (imageParameters != null)
                 {
-                    ExternalDataPE dataset = datasetMap.get(pointer.getDatasetCode());
-                    PlateImageParameters imageParameters =
-                            images.getParamsMap().get(dataset.getCode());
                     TileImages wellImages =
-                            TileImages.create(createReference(dataset), tiles, imageParameters);
+                            TileImages.create(createReference(dataset), imageParameters);
                     loc.setImages(wellImages);
                 }
             }
@@ -135,153 +119,40 @@ public class GenePlateLocationsLoader
                 .getDownloadUrl());
     }
 
-    private static WellPointer tryCreateWellPointer(Map<Long, String> plateToDatasetMap,
-            WellLocation location)
+    private static Map<Long, ExternalDataPE> createPlateToDatasetMap(List<ExternalDataPE> datasets)
     {
-        String datasetCode = plateToDatasetMap.get(location.getPlate().getId());
-        if (datasetCode != null)
-        {
-            EntityReference well = location.getWell();
-            String wellCode = well.getCode();
-            Point wellLoc = ConversionUtils.parseSpreadsheetLocation(wellCode);
-            return new WellPointer(datasetCode, wellLoc.getX() + 1, wellLoc.getY() + 1);
-        } else
-        {
-            return null;
-        }
-    }
-
-    private static Map<Long, String> createPlateToDatasetMap(List<ExternalDataPE> datasets)
-    {
-        Map<Long, String> map = new HashMap<Long, String>();
+        Map<Long, ExternalDataPE> map = new HashMap<Long, ExternalDataPE>();
         for (ExternalDataPE dataset : datasets)
         {
-            map.put(dataset.tryGetSample().getId(), dataset.getCode());
+            map.put(dataset.tryGetSample().getId(), dataset);
         }
         return map;
     }
 
-    private static Map<WellPointer, List<TileImage>> asMap(List<TileImage> images)
-    {
-        Map<WellPointer, List<TileImage>> map = new HashMap<WellPointer, List<TileImage>>();
-        for (TileImage image : images)
-        {
-            WellPointer pointer = WellPointer.create(image);
-            List<TileImage> list = map.get(pointer);
-            if (list == null)
-            {
-                list = new ArrayList<TileImage>();
-                map.put(pointer, list);
-            }
-            list.add(image);
-        }
-        return map;
-    }
-
-    private static class WellPointer
-    {
-        private static WellPointer create(TileImage image)
-        {
-            return new WellPointer(image.getDatasetCode(), image.getRow(), image.getColumn());
-        }
-
-        private final String datasetCode;
-
-        private final int row;
-
-        private final int column;
-
-        public WellPointer(String datasetCode, int row, int column)
-        {
-            this.datasetCode = datasetCode;
-            this.row = row;
-            this.column = column;
-        }
-
-        public String getDatasetCode()
-        {
-            return datasetCode;
-        }
-
-        public int getRow()
-        {
-            return row;
-        }
-
-        public int getColumn()
-        {
-            return column;
-        }
-
-        @Override
-        public final boolean equals(final Object obj)
-        {
-            WellPointer that = (WellPointer) obj;
-            return row == that.row && column == that.column && datasetCode.equals(that.datasetCode);
-        }
-
-        @Override
-        public final int hashCode()
-        {
-            return (column * 2343 + row * 9876) ^ datasetCode.hashCode();
-        }
-
-        @Override
-        public String toString()
-        {
-            return ToStringBuilder.reflectionToString(this,
-                    ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
-        }
-    }
-
-    private ImagesWithParams tryLoadImagesReport(List<ExternalDataPE> imageDatasets)
+    private Map<String/* dataset code */, PlateImageParameters> loadImagesReport(
+            List<ExternalDataPE> imageDatasets)
     {
         if (imageDatasets.size() == 0)
         {
-            return null;
+            return new HashMap<String, PlateImageParameters>();
         }
         List<String> datasetCodes = asCodes(imageDatasets);
         // NOTE: assumes that all datasets are from the same datastore
         String datastoreCode = imageDatasets.get(0).getDataStore().getCode();
-        List<TileImage> images =
-                DatasetLoader.loadImages(datasetCodes, datastoreCode, externalDataTable);
         List<PlateImageParameters> imageParameters =
                 DatasetLoader.loadImageParameters(datasetCodes, datastoreCode, externalDataTable);
-        return new ImagesWithParams(images, imageParameters);
+        return asDatasetToParamsMap(imageParameters);
     }
 
-    private static class ImagesWithParams extends AbstractHashable
+    private static Map<String/* dataset code */, PlateImageParameters> asDatasetToParamsMap(
+            List<PlateImageParameters> imageParameters)
     {
-        private List<TileImage> images;
-
-        private Map<String/* dataset code */, PlateImageParameters> paramsMap;
-
-        public ImagesWithParams(List<TileImage> images, List<PlateImageParameters> imageParameters)
+        Map<String, PlateImageParameters> map = new HashMap<String, PlateImageParameters>();
+        for (PlateImageParameters params : imageParameters)
         {
-            this.images = images;
-            this.paramsMap = asMap(imageParameters);
+            map.put(params.getDatasetCode(), params);
         }
-
-        private static Map<String, PlateImageParameters> asMap(
-                List<PlateImageParameters> imageParameters)
-        {
-            Map<String, PlateImageParameters> map = new HashMap<String, PlateImageParameters>();
-            for (PlateImageParameters params : imageParameters)
-            {
-                map.put(params.getDatasetCode(), params);
-            }
-            return map;
-        }
-
-        public List<TileImage> getImages()
-        {
-            return images;
-        }
-
-        public Map<String, PlateImageParameters> getParamsMap()
-        {
-            return paramsMap;
-        }
+        return map;
     }
 
     private static List<String> asCodes(List<ExternalDataPE> datasets)
@@ -294,18 +165,7 @@ public class GenePlateLocationsLoader
         return codes;
     }
 
-    private static Map<String/* dataset code */, ExternalDataPE> asSampleMap(
-            List<ExternalDataPE> datasets)
-    {
-        Map<String, ExternalDataPE> map = new HashMap<String, ExternalDataPE>();
-        for (ExternalDataPE dataset : datasets)
-        {
-            map.put(dataset.getCode(), dataset);
-        }
-        return map;
-    }
-
-    private static List<ExternalDataPE> loadImageDatasets(List<WellLocation> locations,
+    private static List<ExternalDataPE> loadImageDatasets(List<WellContent> locations,
             IExternalDataTable externalDataTable)
     {
         List<ExternalDataPE> imageDatasets = new ArrayList<ExternalDataPE>();
@@ -333,10 +193,10 @@ public class GenePlateLocationsLoader
         return result;
     }
 
-    private static List<TechId> extractPlateIds(List<WellLocation> locations)
+    private static List<TechId> extractPlateIds(List<WellContent> locations)
     {
         Set<Long> ids = new HashSet<Long>();
-        for (WellLocation loc : locations)
+        for (WellContent loc : locations)
         {
             ids.add(loc.getPlate().getId());
         }
@@ -354,31 +214,32 @@ public class GenePlateLocationsLoader
         return result;
     }
 
-    private List<WellLocation> loadLocations(TechId geneMaterialId,
+    private List<WellContent> loadLocations(TechId geneMaterialId,
             ExperimentIdentifier experimentIdentifier)
     {
         long experimentId = loadExperimentId(experimentIdentifier);
 
-        DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellLocation> locations =
+        DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> locations =
                 createDAO(daoFactory).getPlateLocations(geneMaterialId.getId(), experimentId);
 
         return convert(locations);
     }
 
-    private List<WellLocation> convert(
-            DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellLocation> locations)
+    private List<WellContent> convert(
+            DataIterator<ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent> locations)
     {
-        List<WellLocation> wellLocations = new ArrayList<WellLocation>();
-        for (ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellLocation location : locations)
+        List<WellContent> wellLocations = new ArrayList<WellContent>();
+        for (ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent location : locations)
         {
             wellLocations.add(convert(location));
         }
         return wellLocations;
     }
 
-    private static WellLocation convert(
-            ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellLocation loc)
+    private static WellContent convert(
+            ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent loc)
     {
+        WellLocation location = WellUtils.tryCreateLocationFromMatrixCoordinate(loc.well_code);
         EntityReference well =
                 new EntityReference(loc.well_id, loc.well_code, loc.well_type_code,
                         EntityKind.SAMPLE);
@@ -388,7 +249,7 @@ public class GenePlateLocationsLoader
         EntityReference materialContent =
                 new EntityReference(loc.material_content_id, loc.material_content_code,
                         loc.material_content_type_code, EntityKind.MATERIAL);
-        return new WellLocation(well, plate, materialContent);
+        return new WellContent(location, well, plate, materialContent);
     }
 
     private static IScreeningQuery createDAO(IDAOFactory daoFactory)

@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.plateviewer;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
  * Images of one well.
@@ -27,47 +27,38 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
  */
 public class WellImages
 {
-    private String[/* channel */][/* tile number */] imagePaths;
-
     private final int tileRowsNum;
 
     private final int tileColsNum;
 
     private final int channelsNum;
 
+    private final String datasetCode;
+
     private final String downloadUrl;
 
-    public WellImages(PlateImageParameters imageParams, String downloadUrl)
+    private final WellLocation location;
+
+    public WellImages(PlateImageParameters imageParams, String downloadUrl, WellLocation location)
     {
-        int tilesNum = imageParams.getTileRowsNum() * imageParams.getTileColsNum();
         this.tileRowsNum = imageParams.getTileRowsNum();
         this.tileColsNum = imageParams.getTileColsNum();
         this.channelsNum = imageParams.getChannelsNum();
+        this.datasetCode = imageParams.getDatasetCode();
         this.downloadUrl = downloadUrl;
-        this.imagePaths = new String[imageParams.getChannelsNum()][tilesNum];
+        this.location = location;
     }
 
-    public WellImages(TileImages images)
+    public WellImages(TileImages images, WellLocation location)
     {
-        this(images.getImageParameters(), images.getDownloadUrl());
-        for (TileImage image : images.getImages())
-        {
-            addImage(image);
-        }
+        this(images.getImageParameters(), images.getDownloadUrl(), location);
     }
 
-    public void addImage(TileImage image)
+    public String getImagePath(int channel, int tileRow, int tileCol)
     {
-        int channelIx = image.getChannel() - 1;
-        int tileIx = image.getTile() - 1;
-        assert imagePaths != null && imagePaths[channelIx][tileIx] == null : "duplicated image for channelIx = "
-                + channelIx + ", tileIx = " + tileIx;
-        imagePaths[channelIx][tileIx] = image.getImagePath();
-    }
-
-    public String tryGetImagePath(int channel, int tile)
-    {
-        return imagePaths[channel - 1][tile - 1];
+        return datasetCode + "/data/standard/channel" + channel + "/row" + location.getRow()
+                + "/column" + location.getColumn() + "/row" + tileRow + "_column" + tileCol
+                + ".tiff";
     }
 
     public int getTileRowsNum()

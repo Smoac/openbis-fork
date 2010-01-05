@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.plateviewer;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImage;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -28,20 +28,25 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  */
 class WellData
 {
-    private WellMetadata metadata;
+    private WellMetadata metadataOrNull;
 
     private WellImages imagesOrNull;
 
-    public static WellData create(PlateContent plateContent)
+    public static WellData create(PlateContent plateContent, WellLocation location)
+    {
+        WellImages wellImages = tryCreateWellImages(plateContent, location);
+        return new WellData(wellImages);
+    }
+
+    private static WellImages tryCreateWellImages(PlateContent plateContent, WellLocation location)
     {
         TileImages images = plateContent.tryGetImages();
         if (images != null)
         {
-            return new WellData(
-                    new WellImages(images.getImageParameters(), images.getDownloadUrl()));
+            return new WellImages(images.getImageParameters(), images.getDownloadUrl(), location);
         } else
         {
-            return new WellData(null);
+            return null;
         }
     }
 
@@ -52,34 +57,12 @@ class WellData
 
     public void setMetadata(WellMetadata well)
     {
-        this.metadata = well;
+        this.metadataOrNull = well;
     }
 
     public WellMetadata tryGetMetadata()
     {
-        return metadata;
-    }
-
-    public String getWellContentDescription()
-    {
-        if (metadata != null)
-        {
-            return metadata.getWellSample().getSubCode();
-        } else
-        {
-            return "?";
-        }
-    }
-
-    public String getWellSubcode()
-    {
-        if (metadata != null)
-        {
-            return metadata.getWellSample().getSubCode();
-        } else
-        {
-            return "?";
-        }
+        return metadataOrNull;
     }
 
     public WellImages tryGetImages()
@@ -87,14 +70,14 @@ class WellData
         return imagesOrNull;
     }
 
-    public void addImage(TileImage image)
+    public String getWellContentDescription()
     {
-        assert imagesOrNull != null;
-        imagesOrNull.addImage(image);
-    }
-
-    public String tryGetImagePath(int channel, int tile)
-    {
-        return imagesOrNull == null ? null : imagesOrNull.tryGetImagePath(channel, tile);
+        if (metadataOrNull != null)
+        {
+            return metadataOrNull.getWellSample().getSubCode();
+        } else
+        {
+            return "?";
+        }
     }
 }

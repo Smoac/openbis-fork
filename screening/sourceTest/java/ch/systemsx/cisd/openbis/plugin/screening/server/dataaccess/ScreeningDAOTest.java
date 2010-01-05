@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { IScreeningQuery.class, WellLocation.class })
+    { IScreeningQuery.class, WellContent.class })
 @Test(groups =
     { "db", "screening" })
 public class ScreeningDAOTest extends AbstractDAOTest
@@ -56,7 +56,7 @@ public class ScreeningDAOTest extends AbstractDAOTest
     public void testGetPlateLocations()
     {
         // it just tests if the sql is correct
-        List<WellLocation> locations = EntityListingTestUtils.asList(query.getPlateLocations(1, 1));
+        List<WellContent> locations = EntityListingTestUtils.asList(query.getPlateLocations(1, 1));
         AssertJUnit.assertEquals(0, locations.size());
     }
 }

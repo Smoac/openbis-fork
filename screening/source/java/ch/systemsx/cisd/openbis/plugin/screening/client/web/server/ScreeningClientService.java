@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
  * The {@link IScreeningClientService} implementation.
@@ -113,7 +113,7 @@ public final class ScreeningClientService extends AbstractClientService implemen
         }
     }
 
-    public List<WellLocation> getPlateLocations(TechId geneMaterialId,
+    public List<WellContent> getPlateLocations(TechId geneMaterialId,
             ExperimentIdentifier experimentIdentifier) throws UserFailureException
     {
         try

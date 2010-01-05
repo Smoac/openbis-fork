@@ -36,9 +36,6 @@ public class ScreeningConstants
     // type of the dataset which stores image analysis data, there should be at most one
     public static final String IMAGE_ANALYSIS_DATASET_TYPE = "HCS_IMAGE_ANALYSIS_DATA";
 
-    // id of the DSS screening reporting plugin to get the images of the plate
-    public static final String PLATE_VIEWER_REPORT_KEY = "plate-image-reporter";
-
     // id of the DSS screening reporting plugin to get the images parameters
     public static final String PLATE_IMAGE_PARAMS_REPORT_KEY = "plate-image-params-reporter";
 

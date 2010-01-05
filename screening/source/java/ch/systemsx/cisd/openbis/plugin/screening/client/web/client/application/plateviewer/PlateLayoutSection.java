@@ -52,8 +52,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningCons
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImage;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -212,7 +211,7 @@ public class PlateLayoutSection extends SingleSectionPanel
                 if (wellWidget == null)
                 {
                     WellData wellData = wellMatrix[row][col];
-                    if (wellData == null)
+                    if (wellData.tryGetImages() == null)
                     {
                         wellWidget = createEmptyWellWidget();
                     } else
@@ -260,20 +259,15 @@ public class PlateLayoutSection extends SingleSectionPanel
         }
     }
 
-    // TODO 2009-12-07, Tomasz Pylak: use ConversionUtils.parseSpreadsheetLocation at server side
     private static String asWellLeter(int row)
     {
-        return "" + (char) ('A' + row - 1);
-    }
-
-    private static int getColFromCode(String wellCode)
-    {
-        return new Integer(wellCode.substring(1));
-    }
-
-    private static int getRowFromCode(String wellCode)
-    {
-        return wellCode.toUpperCase().charAt(0) - 'A' + 1;
+        if (row <= 'Z')
+        {
+            return "" + (char) ('A' + row - 1);
+        } else
+        {
+            return "" + row;
+        }
     }
 
     // ------ end todo
@@ -354,64 +348,46 @@ public class PlateLayoutSection extends SingleSectionPanel
         Material content = metadata.tryGetContent();
         if (content != null)
         {
-            String tooltip =
-                    "Well: " + wellData.getWellSubcode() + ". Content: " + content.getIdentifier();
+            String tooltip = "Well: " + wellData.getWellContentDescription();
             Material gene = metadata.tryGetGene();
             if (gene != null)
             {
-                tooltip += ". Inhibited gene: " + gene.getCode();
+                tooltip += "<br>Inhibited gene: " + gene.getCode();
             }
+            tooltip += "<br>Content: " + content.getIdentifier();
             widget.setToolTip(tooltip);
         }
     }
 
-    // Elements may contain null if well is empty.
+    // Elements will not contain null even if well is empty.
     // Numbering starts with 1 so row and column with index 0 are left empty.
     private static WellData[][] createMatrix(PlateContent plateContent)
     {
-        WellData[][] matrix =
-                new WellData[plateContent.getRowsNum() + 1][plateContent.getColsNum() + 1];
-        TileImages plateImages = plateContent.tryGetImages();
-        if (plateImages != null)
+        WellData[][] matrix = createWellData(plateContent);
+        List<WellMetadata> wells = plateContent.getWells();
+        for (WellMetadata well : wells)
         {
-            addImagePaths(plateContent, matrix, plateImages.getImages());
+            WellLocation location = well.tryGetLocation();
+            if (location != null)
+            {
+                WellData wellData = matrix[location.getRow()][location.getColumn()];
+                wellData.setMetadata(well);
+            }
         }
-        addMetadata(plateContent, matrix, plateContent.getWells());
         return matrix;
     }
 
-    private static void addMetadata(PlateContent plateContent, WellData[][] matrix,
-            List<WellMetadata> wells)
+    private static WellData[][] createWellData(PlateContent plateContent)
     {
-        for (WellMetadata well : wells)
+        WellData[][] data =
+                new WellData[plateContent.getRowsNum() + 1][plateContent.getColsNum() + 1];
+        for (int row = 1; row < data.length; row++)
         {
-            String wellCode = well.getWellSample().getSubCode();
-            int row = getRowFromCode(wellCode);
-            int col = getColFromCode(wellCode);
-            WellData wellData = matrix[row][col];
-            if (wellData == null)
+            for (int col = 1; col < data[row].length; col++)
             {
-                wellData = WellData.create(plateContent);
-                matrix[row][col] = wellData;
+                data[row][col] = WellData.create(plateContent, new WellLocation(row, col));
             }
-            wellData.setMetadata(well);
         }
-    }
-
-    private static void addImagePaths(PlateContent plateContent, WellData[][] matrix,
-            List<TileImage> imagesList)
-    {
-        for (TileImage image : imagesList)
-        {
-            int row = image.getRow();
-            int col = image.getColumn();
-            WellData wellData = matrix[row][col];
-            if (wellData == null)
-            {
-                wellData = WellData.create(plateContent);
-                matrix[row][col] = wellData;
-            }
-            wellData.addImage(image);
-        }
+        return data;
     }
 }

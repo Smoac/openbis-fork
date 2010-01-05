@@ -30,7 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
  * The <i>screening</i> specific {@link AbstractServerLogger} extension.
@@ -65,7 +65,7 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
         return null;
     }
 
-    public List<WellLocation> getPlateLocations(String sessionToken, TechId geneMaterialId,
+    public List<WellContent> getPlateLocations(String sessionToken, TechId geneMaterialId,
             ExperimentIdentifier experimentIdentifier)
     {
         logTracking(sessionToken, "getPlateLocations",

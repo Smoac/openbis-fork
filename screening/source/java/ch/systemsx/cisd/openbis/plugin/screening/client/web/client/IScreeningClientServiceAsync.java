@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
@@ -51,5 +51,5 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      *      ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier)
      */
     public void getPlateLocations(TechId geneMaterialId, ExperimentIdentifier experimentIdentifier,
-            AsyncCallback<List<WellLocation>> callback);
+            AsyncCallback<List<WellContent>> callback);
 }

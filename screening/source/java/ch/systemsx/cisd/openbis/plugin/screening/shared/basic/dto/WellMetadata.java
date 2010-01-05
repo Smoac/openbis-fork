@@ -31,6 +31,8 @@ public class WellMetadata implements IsSerializable
 {
     private Sample wellSample;
 
+    private WellLocation locationOrNull;
+
     private Material contentOrNull; // with fetched properties
 
     // if the well content is connected to a gene material, this field is filled
@@ -41,9 +43,15 @@ public class WellMetadata implements IsSerializable
         return wellSample;
     }
 
-    public void setWellSample(Sample wellSample)
+    public WellLocation tryGetLocation()
+    {
+        return locationOrNull;
+    }
+
+    public void setWellSample(Sample wellSample, WellLocation locationOrNull)
     {
         this.wellSample = wellSample;
+        this.locationOrNull = locationOrNull;
     }
 
     /** can be null */

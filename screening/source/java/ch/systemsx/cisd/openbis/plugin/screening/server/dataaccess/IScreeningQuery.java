@@ -29,7 +29,7 @@ import ch.rinn.restrictions.Private;
  * @author Tomasz Pylak
  */
 @Private
-@Friend(toClasses = WellLocation.class)
+@Friend(toClasses = WellContent.class)
 public interface IScreeningQuery extends BaseQuery
 {
     /**
@@ -54,6 +54,6 @@ public interface IScreeningQuery extends BaseQuery
             // additional joins to entity type tables
             + "pl_type.id = pl.saty_id and well_type.id = well.saty_id and                         "
             + "well_material_type.id = well_material.maty_id ")
-    public DataIterator<WellLocation> getPlateLocations(long geneMaterialId, long experimentId);
+    public DataIterator<WellContent> getPlateLocations(long geneMaterialId, long experimentId);
 
 }

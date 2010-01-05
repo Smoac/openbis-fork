@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.p
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.plateviewer.WellImages;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -60,6 +61,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  */
 public class ScreeningGeneViewer extends AbstractViewer<Material>
 {
+    private static final int IMAGE_WIDTH_PX = 100;
+
+    private static final int IMAGE_HEIGHT_PX = 60;
+
     private static final String PREFIX = GenericConstants.ID_PREFIX + "ScreeningGeneViewer_";
 
     public static DatabaseModificationAwareComponent create(
@@ -124,10 +129,10 @@ public class ScreeningGeneViewer extends AbstractViewer<Material>
                 .replaceLastItem(container, new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
         viewContext.getService().getPlateLocations(materialId,
                 new ExperimentIdentifier(entity.getIdentifier()),
-                new AbstractAsyncCallback<List<WellLocation>>(viewContext)
+                new AbstractAsyncCallback<List<WellContent>>(viewContext)
                     {
                         @Override
-                        protected void process(List<WellLocation> wellLocations)
+                        protected void process(List<WellContent> wellLocations)
                         {
                             Widget geneLocationsPanel = createGeneLocationPanel(wellLocations);
                             GuiUtils.replaceLastItem(container, geneLocationsPanel);
@@ -135,45 +140,51 @@ public class ScreeningGeneViewer extends AbstractViewer<Material>
                     });
     }
 
-    private Widget createGeneLocationPanel(List<WellLocation> wellLocations)
+    private Widget createGeneLocationPanel(List<WellContent> wellLocations)
     {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new TableLayout(3));
         TableData cellLayout = new TableData();
         cellLayout.setPadding(20);
-        for (WellLocation loc : wellLocations)
+        for (WellContent loc : wellLocations)
         {
             container.add(createLocationDescription(loc), cellLayout);
         }
         return container;
     }
 
-    private LayoutContainer createLocationDescription(WellLocation loc)
+    private LayoutContainer createLocationDescription(WellContent wellContent)
     {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
         int margin = 4;
 
-        Widget plateLink = createEntityLink(loc.getPlate());
+        Widget plateLink = createEntityLink(wellContent.getPlate());
         container.add(withLabel(plateLink, "Plate: ", margin));
 
-        Widget wellLink = createEntityLink(loc.getWell());
+        Widget wellLink = createEntityLink(wellContent.getWell());
         container.add(withLabel(wellLink, "Well: ", margin));
 
-        Widget contentLink = createEntityLink(loc.getMaterialContent());
+        Widget contentLink = createEntityLink(wellContent.getMaterialContent());
         container.add(withLabel(contentLink, "Content: ", margin));
 
-        if (loc.tryGetImages() != null)
+        TileImages images = wellContent.tryGetImages();
+        if (images != null)
         {
-            container.add(createImageViewer(loc.tryGetImages()));
+            container.add(createImageViewer(images, wellContent.tryGetLocation()));
         }
         return container;
     }
 
-    private Widget createImageViewer(TileImages images)
+    private Widget createImageViewer(TileImages images, WellLocation locationOrNull)
     {
-        WellImages wellImages = new WellImages(images);
-        return WellContentDialog.createImageViewer(wellImages, viewContext, 100, 60);
+        if (locationOrNull == null)
+        {
+            return new Text("Incorrect well code.");
+        }
+        WellImages wellImages = new WellImages(images, locationOrNull);
+        return WellContentDialog.createImageViewer(wellImages, viewContext, IMAGE_WIDTH_PX,
+                IMAGE_HEIGHT_PX);
     }
 
     private Widget createEntityLink(EntityReference entity)

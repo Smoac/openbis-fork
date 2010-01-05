@@ -14,43 +14,27 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
+package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
-import com.google.gwt.user.client.rpc.IsSerializable;
+import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * Describes position of the well on the plate.
+ * Helper methods to operate on wells.
  * 
  * @author Tomasz Pylak
  */
-public class WellLocation implements IsSerializable
+public class WellUtils
 {
-    private int row;
-
-    private int column;
-
-    // GWT only
-    @SuppressWarnings("unused")
-    private WellLocation()
+    public static WellLocation tryCreateLocationFromMatrixCoordinate(String wellCode)
     {
+        Location loc = Location.tryCreateLocationFromMatrixCoordinate(wellCode);
+        if (loc == null)
+        {
+            return null;
+        } else
+        {
+            return new WellLocation(loc.getY(), loc.getX());
+        }
     }
-
-    public WellLocation(int row, int column)
-    {
-        this.row = row;
-        this.column = column;
-    }
-
-    /** Starts with 1 */
-    public int getRow()
-    {
-        return row;
-    }
-
-    /** Starts with 1 */
-    public int getColumn()
-    {
-        return column;
-    }
-
 }

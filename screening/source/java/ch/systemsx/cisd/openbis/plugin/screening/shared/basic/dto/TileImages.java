@@ -16,26 +16,21 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 /**
- * Describes images in one dataset and URLs to them.
+ * Describes images in one dataset and the way to access them.
  * 
  * @author Tomasz Pylak
  */
 public class TileImages implements IsSerializable
 {
-    public static final TileImages create(DatasetReference dataset, List<TileImage> plateImages,
-            PlateImageParameters imageParams)
+    public static final TileImages create(DatasetReference dataset, PlateImageParameters imageParams)
     {
-        return new TileImages(dataset, plateImages, imageParams);
+        return new TileImages(dataset, imageParams);
     }
 
     private DatasetReference dataset;
-
-    private List<TileImage> images;
 
     private PlateImageParameters imageParameters;
 
@@ -45,11 +40,9 @@ public class TileImages implements IsSerializable
     {
     }
 
-    public TileImages(DatasetReference dataset, List<TileImage> images,
-            PlateImageParameters imageParameters)
+    public TileImages(DatasetReference dataset, PlateImageParameters imageParameters)
     {
         this.dataset = dataset;
-        this.images = images;
         this.imageParameters = imageParameters;
     }
 
@@ -66,11 +59,6 @@ public class TileImages implements IsSerializable
     public String getDatastoreCode()
     {
         return dataset.getDatastoreCode();
-    }
-
-    public List<TileImage> getImages()
-    {
-        return images;
     }
 
     public PlateImageParameters getImageParameters()

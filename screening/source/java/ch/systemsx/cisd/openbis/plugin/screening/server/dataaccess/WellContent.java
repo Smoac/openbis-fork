@@ -22,7 +22,7 @@ import ch.rinn.restrictions.Private;
  * @author Tomasz Pylak
  */
 @Private
-public class WellLocation
+public class WellContent
 {
     // well pointer
 
