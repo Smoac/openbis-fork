@@ -104,9 +104,6 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getDataStoreDAO();
-                    will(returnValue(dataStoreDAO));
-
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(null));
 
@@ -164,9 +161,6 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getDataStoreDAO();
-                    will(returnValue(dataStoreDAO));
-
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(new DataStorePE()));
 
