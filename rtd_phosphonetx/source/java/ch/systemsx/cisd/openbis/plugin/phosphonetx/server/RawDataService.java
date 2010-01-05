@@ -16,26 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Resource;
-
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.validator.GroupValidator;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
 
 /**
  * Imlementation of {@link IRawDataService}.
@@ -44,22 +35,17 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService;
  */
 public class RawDataService extends AbstractServer<IRawDataService> implements IRawDataService
 {
-    @Private static final String GROUP_CODE = "MS_DATA";
-
-    @Private static final String RAW_DATA_SAMPLE_TYPE = "MS_INJECTION";
-    
-    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
-    private ICommonServer commonServer;
+    private IRawDataServiceInternal service;
 
     public RawDataService()
     {
     }
 
-    public RawDataService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
-            ICommonServer commonServer)
+    public RawDataService(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
+            IRawDataServiceInternal service)
     {
         super(sessionManager, daoFactory);
-        this.commonServer = commonServer;
+        this.service = service;
     }
     
     public IRawDataService createLogger(boolean invocationSuccessful, long elapsedTime)
@@ -70,34 +56,38 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
     public List<Sample> listRawDataSamples(String sessionToken, String userID)
     {
         checkSession(sessionToken);
-        
-        PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userID);
-        if (person == null)
+        SessionContextDTO session = login(userID);
+        try
+        {
+            return service.listRawDataSamples(session.getSessionToken());
+            
+        } finally
+        {
+            service.logout(session.getSessionToken());
+        }
+    }
+
+    public void copyRawData(String sessionToken, String userID, long[] rawDataSampleIDs)
+    {
+        checkSession(sessionToken);
+        SessionContextDTO session = login(userID);
+        try
+        {
+            service.copyRawData(session.getSessionToken(), rawDataSampleIDs);
+        } finally
+        {
+            service.logout(session.getSessionToken());
+        }
+    }
+    
+    private SessionContextDTO login(String userID)
+    {
+        SessionContextDTO session = service.tryToAuthenticate(userID, "dummy-password");
+        if (session == null)
         {
             throw new UserFailureException("Unknown user ID: " + userID);
         }
-        ListSampleCriteria criteria = new ListSampleCriteria();
-        SampleTypePE sampleTypePE =
-                getDAOFactory().getSampleTypeDAO().tryFindSampleTypeByCode(RAW_DATA_SAMPLE_TYPE);
-        criteria.setSampleType(SampleTypeTranslator.translate(sampleTypePE, null));
-        criteria.setIncludeGroup(true);
-        criteria.setGroupCode(GROUP_CODE);
-        List<Sample> samples = commonServer.listSamples(sessionToken, criteria);
-        List<Sample> filteredList = new ArrayList<Sample>();
-        GroupValidator validator = new GroupValidator();
-        for (Sample sample : samples)
-        {
-            Sample parent = sample.getGeneratedFrom();
-            if (parent != null)
-            {
-                Group group = parent.getGroup();
-                if (group == null || validator.doValidation(person, group))
-                {
-                    filteredList.add(sample);
-                }
-            }
-        }
-        return filteredList;
+        return session;
     }
-
+    
 }

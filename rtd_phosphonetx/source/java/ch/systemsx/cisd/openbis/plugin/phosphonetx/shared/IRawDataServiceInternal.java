@@ -21,26 +21,29 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validator.RawDataSampleValidator;
 
 /**
- * Service for querying raw data.
+ * 
  *
  * @author Franz-Josef Elmer
  */
-public interface IRawDataService extends IServer
+public interface IRawDataServiceInternal extends IServer
 {
     /**
      * Returns all samples of type MS_INJECTION in group MS_DATA which have a parent sample which
      * the specified user is allow to read.
      */
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
-    public List<Sample> listRawDataSamples(String sessionToken, String userID);
+    @RolesAllowed(RoleSet.USER)
+    @ReturnValueFilter(validatorClass = RawDataSampleValidator.class)
+    public List<Sample> listRawDataSamples(String sessionToken);
     
     @Transactional(readOnly = true)
-    @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
-    public void copyRawData(String sessionToken, String userID, long[] rawDataSampleIDs);
+    @RolesAllowed(RoleSet.USER)
+    public void copyRawData(String sessionToken, long[] rawDataSampleIDs);
 }

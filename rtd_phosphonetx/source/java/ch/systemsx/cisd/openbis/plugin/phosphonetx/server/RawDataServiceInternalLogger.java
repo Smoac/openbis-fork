@@ -22,33 +22,32 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-class RawDataServiceLogger extends AbstractServerLogger implements IRawDataService
+class RawDataServiceInternalLogger extends AbstractServerLogger implements IRawDataServiceInternal
 {
 
-    RawDataServiceLogger(ISessionManager<Session> sessionManager,
+    RawDataServiceInternalLogger(ISessionManager<Session> sessionManager,
             boolean invocationSuccessful, long elapsedTime)
     {
         super(sessionManager, invocationSuccessful, elapsedTime);
     }
 
-    public List<Sample> listRawDataSamples(String sessionToken, String userID)
+    public List<Sample> listRawDataSamples(String sessionToken)
     {
-        logAccess(sessionToken, "list_raw_data_samples", "USER_ID(%s)", userID);
+        logAccess(sessionToken, "list_raw_data_samples");
         return null;
     }
-
-    public void copyRawData(String sessionToken, String userID, long[] rawDataSampleIDs)
+    
+    public void copyRawData(String sessionToken, long[] rawDataSampleIDs)
     {
         int numberOfDataSets = rawDataSampleIDs == null ? 0 : rawDataSampleIDs.length;
-        logAccess(sessionToken, "copy_raw_data", "USER_ID(%s) NUMBER_OF_DATA_SETS(%s)", userID,
-                numberOfDataSets);
+        logAccess(sessionToken, "copy_raw_data", "NUMBER_OF_DATA_SETS(%s)", numberOfDataSets);
     }
 
 }

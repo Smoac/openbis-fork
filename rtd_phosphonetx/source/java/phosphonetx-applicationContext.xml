@@ -41,7 +41,7 @@
     </bean>      
     
     <!-- 
-        // Raw Data Server with interceptors for translating results
+        // Raw Data Server 
     -->
     
     <bean id="phosphonetx-raw-data-service" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -54,7 +54,7 @@
             <bean class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataService">
                 <constructor-arg ref="session-manager" />
                 <constructor-arg ref="dao-factory" />
-                <constructor-arg ref="common-server" />
+                <constructor-arg ref="phosphonetx-raw-data-service-internal" />
             </bean>
         </property>
         <property name="interceptorNames">
@@ -63,5 +63,29 @@
             </list>
         </property>
     </bean>
+    
+    <bean id="phosphonetx-raw-data-service-internal" 
+          class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal">
+        <constructor-arg>
+            <bean class="ch.systemsx.cisd.authentication.DefaultSessionManager">
+                <constructor-arg>
+                    <bean class="ch.systemsx.cisd.openbis.generic.server.SessionFactory" />
+                </constructor-arg>
+                <constructor-arg>
+                    <bean class="ch.systemsx.cisd.openbis.generic.server.LogMessagePrefixGenerator" />
+                </constructor-arg>
+                <constructor-arg ref="dummy-authentication-service" />
+                <constructor-arg>
+                    <bean class="ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter">
+                        <constructor-arg ref="request-context-provider" />
+                    </bean>
+                </constructor-arg>
+                <constructor-arg value="${session-timeout}" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg ref="dao-factory"/>
+        <constructor-arg ref="common-business-object-factory" />
+    </bean>
+
     
 </beans>

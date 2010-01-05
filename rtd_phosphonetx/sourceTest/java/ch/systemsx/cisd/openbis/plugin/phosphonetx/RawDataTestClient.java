@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx;
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
@@ -37,17 +38,35 @@ public class RawDataTestClient
     {
         IRawDataService service = HttpInvokerUtils.createServiceStub(IRawDataService.class, SERVICE_PATH, 5);
         
-        SessionContextDTO session = service.tryToAuthenticate("test_b", "t");
         for (String user : new String[] {"test", "test_a", "test_b", "test_c"})
         {
-            List<Sample> samples = service.listRawDataSamples(session.getSessionToken(), user);
-            System.out.println("User: " + user);
-            for (Sample sample : samples)
+            try
             {
-                System.out.println("  " + sample.getCode()+" -> "+sample.getGeneratedFrom().getIdentifier());
+                System.out.println("User: " + user);
+                SessionContextDTO session = service.tryToAuthenticate("test_b", "t");
+                String sessionToken = session.getSessionToken();
+                List<Sample> samples = service.listRawDataSamples(sessionToken, user);
+                for (Sample sample : samples)
+                {
+                    System.out.println("  " + sample.getCode()+" -> "+sample.getGeneratedFrom().getIdentifier());
+                }
+            } catch (UserFailureException ex)
+            {
+                System.out.println(" Exception: " + ex);
             }
             
         }
-   
+        System.out.println("--------------------");
+        SessionContextDTO session = service.tryToAuthenticate("test_b", "t");
+        String sessionToken = session.getSessionToken();
+        
+        List<Sample> samples = service.listRawDataSamples(sessionToken, "test_a");
+        long[] ids = new long[samples.size()];
+        for (int i = 0; i < samples.size(); i++)
+        {
+            Sample sample = samples.get(i);
+            ids[i] = sample.getId();
+        }
+        service.copyRawData(sessionToken, "test_a", ids);
     }
 }
