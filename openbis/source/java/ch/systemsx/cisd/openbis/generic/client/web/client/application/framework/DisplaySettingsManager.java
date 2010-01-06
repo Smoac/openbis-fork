@@ -359,6 +359,12 @@ public class DisplaySettingsManager
         updater.executeDelayed(delayMs);
     }
 
+    public void storeSearchMode(boolean useWildcardSearchMode)
+    {
+        updateUseWildcardSearchMode(useWildcardSearchMode);
+        updater.executeDelayed(1); // 0 not allowed
+    }
+
     private static List<ColumnSetting> createColumnsSettings(ColumnModel columnModel,
             List<String> filteredColumnIdsList)
     {
@@ -440,6 +446,24 @@ public class DisplaySettingsManager
     public final Modification tryGetLastSectionSettingsModification(String sectionDisplayTypeID)
     {
         return sectionModifications.get(sectionDisplayTypeID);
+    }
+
+    /**
+     * @returns section settings for given display id<br>
+     */
+    @SuppressWarnings("deprecation")
+    public final boolean isUseWildcardSearchMode()
+    {
+        return displaySettings.isUseWildcardSearchMode();
+    }
+
+    /**
+     * update section settings for given display id (modification date is updated automatically)
+     */
+    @SuppressWarnings("deprecation")
+    private final void updateUseWildcardSearchMode(Boolean newValue)
+    {
+        displaySettings.setUseWildcardSearchMode(newValue);
     }
 
 }

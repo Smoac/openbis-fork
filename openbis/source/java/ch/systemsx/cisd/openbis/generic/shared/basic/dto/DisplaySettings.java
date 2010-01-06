@@ -27,14 +27,14 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 /**
  * Class storing personalised display settings. This class implements {@link Serializable} not only
  * for transferring it's content remotely but also to store it in the database. Thus, CHANGES IN
- * THIS CLASS MIGHT LEAD TO A LOST OF PERSONAL SETTINGS. In all cases deserialisation leads to an
+ * THIS CLASS MIGHT LEAD TO A LOST OF PERSONAL SETTINGS. In all cases deserialization leads to an
  * exception the default settings is used.
  * <p>
  * NOTE: This class has to be Java serializable and GWT serializable.
  * <p>
- * NOTE: Object of this class should be alwayes managed by DisplaySettingsManager on client side.
+ * NOTE: Object of this class should be always managed by DisplaySettingsManager on client side.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class DisplaySettings implements Serializable, IsSerializable
 {
@@ -44,6 +44,9 @@ public class DisplaySettings implements Serializable, IsSerializable
             new LinkedHashMap<String, List<ColumnSetting>>();
 
     private Map<String, Boolean> sectionSettings = new HashMap<String, Boolean>();
+
+    // for new users with clean display settings basic search mode will be used by default
+    private boolean useWildcardSearchMode = false; 
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
@@ -63,6 +66,13 @@ public class DisplaySettings implements Serializable, IsSerializable
         return sectionSettings;
     }
 
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public boolean isUseWildcardSearchMode()
+    {
+        return useWildcardSearchMode;
+    }
+
     // for serialization
 
     @SuppressWarnings("unused")
@@ -75,6 +85,13 @@ public class DisplaySettings implements Serializable, IsSerializable
     private final void setSectionSettings(Map<String, Boolean> sectionSettings)
     {
         this.sectionSettings = sectionSettings;
+    }
+
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public void setUseWildcardSearchMode(boolean useWildcardSearchMode)
+    {
+        this.useWildcardSearchMode = useWildcardSearchMode;
     }
 
 }

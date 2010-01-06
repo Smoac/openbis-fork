@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.Actio
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.ChangeHomeGroupAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.ChangeUserSettingsAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action.LogoutAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.User;
@@ -47,6 +48,8 @@ public final class LoggedUserMenu extends TopMenuItem
         Menu submenu = new Menu();
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_CHANGE_HOME_GROUP, viewContext,
                 new ChangeHomeGroupAction(viewContext, this)));
+        submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_CHANGE_SETTINGS, viewContext,
+                new ChangeUserSettingsAction(viewContext)));
         submenu.add(new ActionMenu(TopMenu.ActionMenuKind.USER_MENU_LOGOUT, viewContext,
                 new LogoutAction(viewContext)));
         setMenu(submenu);

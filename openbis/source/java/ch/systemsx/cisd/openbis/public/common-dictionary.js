@@ -296,6 +296,7 @@ var common = {
   
   // menu user
   USER_MENU_CHANGE_HOME_GROUP: "Home Group",
+  USER_MENU_CHANGE_SETTINGS: "Settings",
   USER_MENU_LOGOUT: "Logout",
     
   menu_compute: "Perform",
@@ -324,9 +325,15 @@ var common = {
   confirm_title: "Confirmation",
   confirm_close_msg: "All unsaved changes will be lost. Are you sure?",
 
+  
+  //
+  // User Settings Dialog
+  //
+  
   change_user_home_group_dialog_title: "Change Home Group",  
-  
-  
+  change_user_settings_dialog_title: "Change Settings",  
+  use_wildcard_search_mode_label: "Use wildcard search mode",
+    
   //
   // Role View
   //

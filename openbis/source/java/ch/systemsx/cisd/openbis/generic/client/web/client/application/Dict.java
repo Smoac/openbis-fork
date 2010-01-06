@@ -716,6 +716,15 @@ public abstract class Dict
     public static final String GRID_COLUMN_HAS_FILTER_HEADER = "GRID_COLUMN_HAS_FILTER_HEADER";
 
     //
+    // User Settings Dialog
+    //
+
+    public static final String CHANGE_USER_SETTINGS_DIALOG_TITLE =
+            "change_user_settings_dialog_title";
+
+    public static final String USE_WILDCARD_SEARCH_MODE_LABEL = "use_wildcard_search_mode_label";
+
+    //
     // Unclassified
     //
 
