@@ -86,6 +86,13 @@
         <constructor-arg ref="dao-factory"/>
         <constructor-arg ref="common-business-object-factory" />
     </bean>
+    
+    <bean id="phosphonetx-raw-data-service-web" 
+          class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal">
+        <constructor-arg ref="session-manager" />
+        <constructor-arg ref="dao-factory"/>
+        <constructor-arg ref="common-business-object-factory" />
+    </bean>
 
     
 </beans>

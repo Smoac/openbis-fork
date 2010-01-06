@@ -78,5 +78,14 @@ public class Dict
     // SampleAbundance Browser
 
     public static final String ABUNDANCE = "abundance";
+    
+    // RawDataSample Browser
+    
+    public static final String BIOLOGICAL_SAMPLE_IDENTIFIER = "biological_sample_identifier";
+    public static final String MS_INJECTION_SAMPLE_CODE = "ms_injection_sample_code";
+
+    public static final String COPY_DATA_SETS_BUTTON_LABEL = "copy_data_sets_button_label";
+    public static final String COPY_DATA_SETS_TITLE = "copy_data_sets_title";
+    public static final String COPY_DATA_SETS_MESSAGE = "copy_data_sets_message";
 
 }

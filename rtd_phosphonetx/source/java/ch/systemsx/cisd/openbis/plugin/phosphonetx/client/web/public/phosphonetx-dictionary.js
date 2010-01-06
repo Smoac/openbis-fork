@@ -35,6 +35,16 @@ var phosphonetx = {
   // SampleAbudndance Browser
   abundance: "Abundance",
   
+  // RawDataSample Browser
+  
+  ALL_RAW_DATA_SAMPLES_menu_item: "All MS INJECTION Samples",  
+  ALL_RAW_DATA_SAMPLES_tab_label: "MS INJECTION Samples and Related Biological Samples",  
+  ms_injection_sample_code: "MS INJECTION Sample",
+  biological_sample_identifier: "Biological Sample",
+  copy_data_sets_button_label: "Copy Data Sets",
+  copy_data_sets_title: "Copy Data Sets Confirmation",
+  copy_data_sets_message: "Do you want to make the data sets of the samples {0} available for processing?", 
+  
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma
 };

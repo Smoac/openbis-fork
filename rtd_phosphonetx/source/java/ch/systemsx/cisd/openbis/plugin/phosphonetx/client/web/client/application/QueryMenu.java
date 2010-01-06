@@ -49,6 +49,15 @@ public class QueryMenu extends TopMenuItem
             {
                 return ProteinByExperimentBrowserGrid.create(viewContext);
             }
+        },
+        ALL_RAW_DATA_SAMPLES()
+        {
+            @Override
+            IDisposableComponent createComponent(
+                    IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
+            {
+                return RawDataSampleGrid.create(viewContext);
+            }
         }
         ;
 

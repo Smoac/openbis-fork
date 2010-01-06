@@ -21,9 +21,11 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
@@ -99,4 +101,15 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     public void prepareExportSamplesWithAbundance(
             TableExportCriteria<SampleWithPropertiesAndAbundance> exportCriteria,
             AsyncCallback<String> callback);
+
+    /** @see IPhosphoNetXClientService#listRawDataSamples(IResultSetConfig) */
+    public void listRawDataSamples(IResultSetConfig<String, Sample> criteria,
+            AsyncCallback<ResultSet<Sample>> callback);
+    
+    /** @see IPhosphoNetXClientService#prepareExportRawDataSamples(TableExportCriteria) */
+    public void prepareExportRawDataSamples(TableExportCriteria<Sample> exportCriteria,
+            AsyncCallback<String> callback);
+    
+    /** @see IPhosphoNetXClientService#copyRawData(long[]) */
+    public void copyRawData(long[] rawDataSampleIDs, AsyncCallback<Void> callback);
 }

@@ -24,12 +24,14 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
@@ -38,6 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListPro
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinSummaryByExperimentCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListSampleAbundanceByProteinCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IPhosphoNetXServer;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AbundanceColumnDefinition;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.AggregateFunction;
@@ -57,6 +60,9 @@ public class PhosphoNetXClientService extends AbstractClientService implements
 {
     @Resource(name = ResourceNames.PHOSPHONETX_PLUGIN_SERVER)
     private IPhosphoNetXServer server;
+    
+    @Resource(name = ResourceNames.PHOSPHONETX_RAW_DATA_SERVICE_WEB)
+    private IRawDataServiceInternal rawDataService;
 
     public PhosphoNetXClientService()
     {
@@ -178,5 +184,25 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     {
         return prepareExportEntities(exportCriteria);
     }
+
+    public ResultSet<Sample> listRawDataSamples(IResultSetConfig<String, Sample> criteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final String sessionToken = getSessionToken();
+        return listEntities(criteria, new RawDataSampleProvider(rawDataService, sessionToken));
+    }
+
+    public String prepareExportRawDataSamples(TableExportCriteria<Sample> exportCriteria)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        return prepareExportEntities(exportCriteria);
+    }
+
+    public void copyRawData(long[] rawDataSampleIDs)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        rawDataService.copyRawData(getSessionToken(), rawDataSampleIDs);
+    }
+    
 
 }

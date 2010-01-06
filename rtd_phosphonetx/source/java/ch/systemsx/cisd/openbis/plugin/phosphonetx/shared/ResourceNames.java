@@ -33,6 +33,8 @@ public class ResourceNames
     
     public final static String PHOSPHONETX_RAW_DATA_SERVICE = "phosphonetx-raw-data-service";
     
+    public final static String PHOSPHONETX_RAW_DATA_SERVICE_WEB = "phosphonetx-raw-data-service-web";
+    
     public final static String PHOSPHONETX_DAO_FACTORY = "phosphonetx-dao-factory";
     
     public final static String PHOSPHONETX_BO_FACTORY = "phosphonetx-bo-factory";
