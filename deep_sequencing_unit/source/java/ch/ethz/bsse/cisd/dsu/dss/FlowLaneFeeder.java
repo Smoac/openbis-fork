@@ -160,7 +160,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             File dropBox = createDropBoxFile(flowLane);
             String fileName =
                     flowLaneSample.getGroup().getCode() + entitySepaparator + flowcellID
-                            + SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING + flowLane;
+                            + FlowLaneDataSetInfoExtractor.FLOW_LANE_NUMBER_SEPARATOR + flowLane;
             File flowLaneDataSet = new File(dropBox, fileName);
             if (flowLaneDataSet.exists())
             {
@@ -274,8 +274,10 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                 builder.append(line).append('\n');
             }
         }
-        String metaFileName = flowLaneSample.getCode() + META_DATA_FILE_TYPE;
-        metaFileName = asFileName(metaFileName);
+        String sampleCode = flowLaneSample.getCode();
+        String metaFileName =
+                escapeSampleCode(sampleCode)
+                        + META_DATA_FILE_TYPE;
         FileUtilities.writeToFile(new File(flowLaneDataSet, metaFileName), builder.toString());
         if (dropBox != null)
         {
@@ -289,15 +291,10 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         }
     }
 
-    // TODO : more generic solution for avoiding escape chars in file names, this is just quick and
-    // dirty
-    static String asFileName(String originalFileName)
+    static String escapeSampleCode(String sampleCode)
     {
-        String fileName = originalFileName;
-        fileName = fileName.replace("/", "_");
-        fileName = fileName.replace(":", "_");
-        fileName = fileName.replace("\\", "_");
-        return fileName;
+        return sampleCode == null ? null : sampleCode.replace(
+                SampleIdentifier.CONTAINED_SAMPLE_CODE_SEPARARTOR_STRING, "_");
     }
 
     private void addLine(StringBuilder builder, String key, String value)
