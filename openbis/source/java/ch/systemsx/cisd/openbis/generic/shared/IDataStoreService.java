@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * Service interface of Data Store Server.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IDataStoreService
 {
@@ -78,7 +78,13 @@ public interface IDataStoreService
     public TableModel createReportFromDatasets(String sessionToken, String serviceKey,
             List<DatasetDescription> datasets);
 
-    /** Schedules the processing task with the specified id for provided datasets */
+    /**
+     * Schedules the processing task with the specified id for provided datasets.
+     * 
+     * @param userEmailOrNull Email of user who initiated processing and will get a message after
+     *            the processing is finished. It may be null if the user doesn't have email and no
+     *            message will be send in such case.
+     */
     public void processDatasets(String sessionToken, String serviceKey,
-            List<DatasetDescription> datasets);
+            List<DatasetDescription> datasets, String userEmailOrNull);
 }

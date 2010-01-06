@@ -35,33 +35,40 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Processing plugin which copies data sets to a destination folder by using rsync. The destination
- * can be 
+ * can be
  * <ul>
- * <li>on the local file system, 
+ * <li>on the local file system,
  * <li>a mounted remote folder,
  * <li>a remote folder accessible via SSH,
  * <li>a remote folder accessible via an rsync server.
  * </ul>
- *  
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataSetCopier extends AbstractDropboxProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
 
-    @Private static final String DESTINATION_KEY = "destination";
-    @Private static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
+    @Private
+    static final String DESTINATION_KEY = "destination";
+
+    @Private
+    static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
+
     private static final String RSYNC_EXEC = "rsync";
+
     private static final String SSH_EXEC = "ssh";
-    
-    @Private static interface IPathCopierFactory
+
+    @Private
+    static interface IPathCopierFactory
     {
         IPathCopier create(File rsyncExecutable, File sshExecutableOrNull);
     }
-    
+
     private static final class RsyncCopierFactory implements Serializable, IPathCopierFactory
     {
         private static final long serialVersionUID = 1L;
+
         public IPathCopier create(File rsyncExecutable, File sshExecutableOrNull)
         {
             return new RsyncCopier(rsyncExecutable, sshExecutableOrNull, false, false);
@@ -76,7 +83,7 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
         private transient IPathCopier copier;
 
         private final File rsyncExecutable;
-        
+
         private final File sshExecutable;
 
         private final Properties properties;
@@ -114,7 +121,8 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
                 copier.check();
                 if (host != null)
                 {
-                    FileUtilities.checkPathCopier(copier, host, null, rsyncModule, rsyncPasswordFile);
+                    FileUtilities.checkPathCopier(copier, host, null, rsyncModule,
+                            rsyncPasswordFile);
                 }
             }
             return copier;
@@ -122,8 +130,9 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
         public void handle(File originalData, DataSetInformation dataSetInformation)
         {
-            Status status = getCopier().copyToRemote(originalData, destination, host,
-                    rsyncModule, rsyncPasswordFile);
+            Status status =
+                    getCopier().copyToRemote(originalData, destination, host, rsyncModule,
+                            rsyncPasswordFile);
             if (status.isError())
             {
                 throw new EnvironmentFailureException("Could not copy data set "
@@ -168,15 +177,11 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
     {
         this(properties, storeRoot, new RsyncCopierFactory());
     }
-    
-    @Private DataSetCopier(Properties properties, File storeRoot, IPathCopierFactory factory)
+
+    @Private
+    DataSetCopier(Properties properties, File storeRoot, IPathCopierFactory factory)
     {
         super(properties, storeRoot, new Copier(properties, factory));
-    }
-
-    public String getDescription()
-    {
-        return "Copy data sets";
     }
 
 }

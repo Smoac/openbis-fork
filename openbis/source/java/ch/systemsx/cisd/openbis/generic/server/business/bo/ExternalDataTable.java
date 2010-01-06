@@ -373,7 +373,13 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         }
         List<DatasetDescription> locations = loadDatasetDescriptions(datasetCodes);
         String sessionToken = dataStore.getSessionToken();
-        service.processDatasets(sessionToken, datastoreServiceKey, locations);
+        service.processDatasets(sessionToken, datastoreServiceKey, locations,
+                tryGetLoggedUserEmail());
+    }
+
+    private String tryGetLoggedUserEmail()
+    {
+        return session.tryGetPerson() == null ? null : session.tryGetPerson().getEmail();
     }
 
     private ConfigurationFailureException createUnknownDataStoreServerException()

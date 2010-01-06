@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.collections.IExtendedBlockingQueue;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -83,7 +84,8 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
                                 command.execute(store);
                             } catch (RuntimeException e)
                             {
-                                notificationLog.error("Error executing command '" + description + "'.", e);
+                                notificationLog.error("Error executing command '" + description
+                                        + "'.", e);
                             }
                             if (operationLog.isInfoEnabled())
                             {
@@ -119,9 +121,11 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
     }
 
     public void scheduleProcessDatasets(IProcessingPluginTask task,
-            List<DatasetDescription> datasets)
+            List<DatasetDescription> datasets, String userEmailOrNull,
+            DatastoreServiceDescription serviceDescription)
     {
-        scheduleCommand(new ProcessDatasetsCommand(task, datasets));
+        scheduleCommand(new ProcessDatasetsCommand(task, datasets, userEmailOrNull,
+                serviceDescription));
     }
 
     private void scheduleCommand(IDataSetCommand command)

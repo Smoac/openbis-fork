@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -36,29 +37,90 @@ public class ProcessDatasetsCommand implements IDataSetCommand
 
     private final List<DatasetDescription> datasets;
 
-    public ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets)
+    private final String userEmailOrNull;
+
+    private final DatastoreServiceDescription serviceDescription;
+
+    public ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
+            String userEmailOrNull, DatastoreServiceDescription serviceDescription)
     {
         this.task = task;
         this.datasets = datasets;
+        this.userEmailOrNull = userEmailOrNull;
+        this.serviceDescription = serviceDescription;
     }
 
     public void execute(File store)
     {
-        task.process(datasets);
+        String errorMessageOrNull = null;
+        try
+        {
+            task.process(datasets);
+        } catch (RuntimeException e)
+        {
+            // exception message should be readable for users
+            errorMessageOrNull = e.getMessage() == null ? "" : e.getMessage();
+            throw e;
+        } finally
+        {
+            if (userEmailOrNull == null)
+            {
+                System.out
+                        .println("No receiver email address provided for processing completion notification.");
+                return;
+            }
+            final StringBuilder sb = new StringBuilder();
+            final String messageHeader;
+            if (errorMessageOrNull != null)
+            {
+                // error
+                messageHeader = getShortDescription("Failed to perform ");
+                sb.append(getDescription(messageHeader));
+                sb.append("\n\nError message:\n");
+                sb.append(errorMessageOrNull);
+            } else
+            {
+                // success
+                messageHeader = getShortDescription("Finished ");
+                sb.append(getDescription(messageHeader));
+            }
+            // TODO 2010-01-06, Piotr Buczek: send mail
+            System.err.println("email: " + userEmailOrNull);
+            System.err.println("messageHeader: " + messageHeader);
+            System.err.println(sb.toString());
+        }
+    }
+
+    private String getShortDescription(String prefix)
+    {
+        return String.format("%s'%s'", prefix, serviceDescription.getLabel());
+    }
+
+    private String getDescription(String prefix)
+    {
+        return String.format("%s on data set(s): [%s]", prefix, getDataSetCodes());
     }
 
     public String getDescription()
     {
-        final StringBuilder b = new StringBuilder();
-        b.append("Perform processing '");
-        b.append(task.getDescription());
-        b.append("' on data sets: ");
-        for (DatasetDescription dataset : datasets)
+        return getDescription(getShortDescription(""));
+    }
+
+    public String getDataSetCodes()
+    {
+        if (datasets.isEmpty())
         {
-            b.append(dataset.getDatasetCode());
-            b.append(',');
+            return "";
+        } else
+        {
+            final StringBuilder sb = new StringBuilder();
+            for (DatasetDescription dataset : datasets)
+            {
+                sb.append(dataset.getDatasetCode());
+                sb.append(',');
+            }
+            sb.setLength(sb.length() - 1);
+            return sb.toString();
         }
-        b.setLength(b.length() - 1);
-        return b.toString();
     }
 }

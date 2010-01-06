@@ -32,9 +32,5 @@ public interface IProcessingPluginTask extends Serializable
      * Processes asynchronously the specified datasets.
      */
     void process(List<DatasetDescription> datasets);
-    
-    /**
-     * Returns a textual description of this task.
-     */
-    String getDescription();
+
 }

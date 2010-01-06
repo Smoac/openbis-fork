@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPlugi
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProviders;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -57,7 +58,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private final PluginTaskProviders pluginTaskParameters;
 
     private File storeRoot;
-    
+
     private File commandQueueDirOrNull;
 
     private IDataSetCommandExecutor commandExecuter;
@@ -204,14 +205,16 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     public void processDatasets(String sessionToken, String serviceKey,
-            List<DatasetDescription> datasets)
+            List<DatasetDescription> datasets, String userEmailOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
 
         PluginTaskProvider<IProcessingPluginTask> plugins =
                 pluginTaskParameters.getProcessingPluginsProvider();
+
         IProcessingPluginTask task = plugins.createPluginInstance(serviceKey, storeRoot);
-        commandExecuter.scheduleProcessDatasets(task, datasets);
+        DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
+        commandExecuter.scheduleProcessDatasets(task, datasets, userEmailOrNull, pluginDescription);
     }
 
 }

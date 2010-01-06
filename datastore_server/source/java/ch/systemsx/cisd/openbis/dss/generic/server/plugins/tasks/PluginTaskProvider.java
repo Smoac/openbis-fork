@@ -53,6 +53,11 @@ public class PluginTaskProvider<P>
         return factories.tryGet(pluginKey).createPluginInstance(storeRoot);
     }
 
+    public DatastoreServiceDescription getPluginDescription(String pluginKey)
+    {
+        return factories.tryGet(pluginKey).getPluginDescription();
+    }
+
     public List<DatastoreServiceDescription> getPluginDescriptions()
     {
         List<DatastoreServiceDescription> descriptions =

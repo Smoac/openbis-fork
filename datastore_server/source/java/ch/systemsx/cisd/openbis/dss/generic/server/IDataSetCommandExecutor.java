@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -52,6 +53,13 @@ interface IDataSetCommandExecutor
             MailClientParameters mailClientParameters, List<ExternalData> dataSets,
             DataSetUploadContext uploadContext);
 
-    /** Schedules the specified processing task for provided datasets */
-    void scheduleProcessDatasets(IProcessingPluginTask task, List<DatasetDescription> datasets);
+    /**
+     * Schedules the specified processing task for provided datasets.
+     * 
+     * @param userEmailOrNull Email of user who initiated processing and will get a message after
+     *            the processing is finished. It may be null if the user doesn't have email and no
+     *            message will be send in such case.
+     */
+    void scheduleProcessDatasets(IProcessingPluginTask task, List<DatasetDescription> datasets,
+            String userEmailOrNull, DatastoreServiceDescription serviceDescription);
 }
