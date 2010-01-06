@@ -224,6 +224,10 @@ public final class ColumnNames
 
     public static final String GENERATED_CODE_PREFIX = "generated_code_prefix";
 
+    public static final String MAIN_DS_PATH = "main_ds_path";
+
+    public static final String MAIN_DS_PATTERN = "main_ds_pattern";
+
     private ColumnNames()
     {
         // Can not be instantiated.

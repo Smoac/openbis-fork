@@ -52,6 +52,14 @@ public final class ValidationMessages
             "Given code '%s' is either too short (minimal length: {min} character) "
                     + "or too long (maximal length: {max} characters).";
 
+    public static final String MAIN_DS_PATH_LENGTH_MESSAGE =
+            "Given path '%s' is either too short (minimal length: {min} character) "
+                    + "or too long (maximal length: {max} characters).";
+
+    public static final String MAIN_DS_PATTERN_LENGTH_MESSAGE =
+            "Given file name pattern '%s' is either too short (minimal length: {min} character) "
+                    + "or too long (maximal length: {max} characters).";
+
     public static final String NAME_LENGTH_MESSAGE =
             "Given name '%s' is either too short (minimal length: {min} character) "
                     + "or too long (maximal length: {max} characters).";

@@ -37,6 +37,7 @@ var common = {
   reason: "Reason",
   delete_confirmation_message_with_reason: "You are deleting {0}(s).<br><br>Please enter a reason or cancel deletion.",
   add_attachment: "Add attachment",
+  data_view: "Data View",
   
   //
   // Field

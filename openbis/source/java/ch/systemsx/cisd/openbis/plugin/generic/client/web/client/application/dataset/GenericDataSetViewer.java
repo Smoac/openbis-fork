@@ -154,6 +154,11 @@ public final class GenericDataSetViewer extends AbstractViewer<ExternalData> imp
                 displayIdSuffix);
         container.addPanel(childrenSection);
 
+        // data
+        final SingleSectionPanel dataSection = new DataViewSection(viewContext, dataset);
+        dataSection.setDisplayID(DisplayTypeIDGenerator.DATA_SET_DATA_SECTION, displayIdSuffix);
+        container.addPanel(dataSection);
+
         container.layout();
         return container;
     }

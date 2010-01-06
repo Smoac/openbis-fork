@@ -867,5 +867,7 @@ public abstract class Dict
 
     public static final String MATERIALS_RADIO_GROUP_LABEL = "materials_radio_group_label";
 
+    public static final String DATA_VIEW = "data_view";
+
     // ----- end generic ------------------
 }

@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -32,7 +33,9 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Cascade;
+import org.hibernate.validator.Length;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
@@ -50,6 +53,10 @@ public class DataSetTypePE extends EntityTypePE
 
     private Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes =
             new HashSet<DataSetTypePropertyTypePE>();
+
+    private String mainDataSetPath;
+
+    private String mainDataSetPattern;
 
     @SequenceGenerator(name = SequenceNames.DATA_SET_TYPE_SEQUENCE, sequenceName = SequenceNames.DATA_SET_TYPE_SEQUENCE, allocationSize = 1)
     @Id
@@ -99,5 +106,29 @@ public class DataSetTypePE extends EntityTypePE
         {
             addDataSetTypePropertyType(child);
         }
+    }
+
+    @Column(name = ColumnNames.MAIN_DS_PATH)
+    @Length(min = 1, max = GenericConstants.MAIN_DS_PATH_LENGTH, message = ValidationMessages.MAIN_DS_PATH_LENGTH_MESSAGE)
+    public String getMainDataSetPath()
+    {
+        return mainDataSetPath;
+    }
+
+    public void setMainDataSetPath(String mainDataSetPath)
+    {
+        this.mainDataSetPath = mainDataSetPath;
+    }
+
+    @Column(name = ColumnNames.MAIN_DS_PATTERN)
+    @Length(min = 1, max = GenericConstants.MAIN_DS_PATTERN_LENGTH, message = ValidationMessages.MAIN_DS_PATTERN_LENGTH_MESSAGE)
+    public String getMainDataSetPattern()
+    {
+        return mainDataSetPattern;
+    }
+
+    public void setMainDataSetPattern(String mainDataSetPattern)
+    {
+        this.mainDataSetPattern = mainDataSetPattern;
     }
 }

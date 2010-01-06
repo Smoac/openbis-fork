@@ -21,16 +21,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class DataSetUtils
 {
     public static void showDataSet(ExternalData dataSet, GenericViewModel model)
     {
+        String url = createDataViewUrl(dataSet, model);
+        WindowUtils.openWindow(url);
+    }
+
+    public static String createDataViewUrl(ExternalData dataSet, GenericViewModel model)
+    {
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(dataSet.getDataStore().getDownloadUrl() + "/"
                         + dataSet.getCode());
         methodWithParameters.addParameter("sessionID", model.getSessionContext().getSessionID());
-        WindowUtils.openWindow(methodWithParameters.toString());
+        String url = methodWithParameters.toString();
+        return url;
     }
 }

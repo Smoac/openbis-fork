@@ -103,6 +103,10 @@ public final class GenericConstants
 
     public static final int DESCRIPTION_1000 = 1000;
 
+    public static final int MAIN_DS_PATH_LENGTH = 1000;
+
+    public static final int MAIN_DS_PATTERN_LENGTH = 300;
+
     public static final int COLUMN_LABEL = 128;
 
     public static final String WITH_EXPERIMENTS = "with_experiments";
