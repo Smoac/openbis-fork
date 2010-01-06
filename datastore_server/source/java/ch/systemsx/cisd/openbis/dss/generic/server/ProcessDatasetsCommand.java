@@ -19,6 +19,10 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.File;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
@@ -33,6 +37,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  */
 public class ProcessDatasetsCommand implements IDataSetCommand
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, ProcessDatasetsCommand.class);
+
     private static final long serialVersionUID = 1L;
 
     private final IProcessingPluginTask task;
@@ -71,8 +78,17 @@ public class ProcessDatasetsCommand implements IDataSetCommand
         {
             if (userEmailOrNull == null)
             {
-                System.out
-                        .println("No email recipient address provided for processing completion notification.");
+                if (errorMessageOrNull != null)
+                {
+                    String warning =
+                            String
+                                    .format(
+                                            "Dataset processing '%s' has failed with a message '%s' but"
+                                                    + " the person who triggered processing has no email address specified."
+                                                    + " No notification has been sent.",
+                                            serviceDescription.getKey(), errorMessageOrNull);
+                    operationLog.warn(warning);
+                }
                 return;
             }
             createContentAndSendMessage(errorMessageOrNull);
