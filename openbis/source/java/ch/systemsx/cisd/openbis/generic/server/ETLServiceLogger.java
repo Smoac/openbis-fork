@@ -43,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class ETLServiceLogger extends AbstractServerLogger implements IETLService
 {
@@ -56,7 +56,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
 
     public String createDataSetCode(String sessionToken) throws UserFailureException
     {
-        logTracking(sessionToken, "create_data_set_code", "");
+        logTracking(sessionToken, "createDataSetCode", "");
         return null;
     }
 
@@ -74,7 +74,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
         DatastoreServiceDescriptions services = info.getServicesDescriptions();
         logTracking(
                 sessionToken,
-                "register_data_store_server_session_token",
+                "registerDataStoreServer",
                 "CODE(%s) DOWNLOAD-URL(%s) PORT(%s) DSS-TOKEN(%s) REPORTING_PLUGINS(%s), PROCESSING_PLUGINS(%s)",
                 code, downloadUrl, port, dssSessionToken, services
                         .getReportingServiceDescriptions(), services
@@ -84,7 +84,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public long registerSample(String sessionToken, NewSample newSample)
             throws UserFailureException
     {
-        logTracking(sessionToken, "register_sample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
+        logTracking(sessionToken, "registerSample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
                 .getSampleType(), newSample.getIdentifier());
         return 0;
     }
@@ -92,71 +92,78 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,
             NewExternalData externalData) throws UserFailureException
     {
-        logTracking(sessionToken, "register_data_set", "SAMPLE(%s) DATA_SET(%s)", sampleIdentifier,
+        logTracking(sessionToken, "registerDataSet", "SAMPLE(%s) DATA_SET(%s)", sampleIdentifier,
                 externalData);
     }
 
     public void registerDataSet(String sessionToken, ExperimentIdentifier experimentIdentifier,
             NewExternalData externalData) throws UserFailureException
     {
-        logTracking(sessionToken, "register_data_set", "EXPERIMENT(%s) DATA_SET(%s)",
+        logTracking(sessionToken, "registerDataSet", "EXPERIMENT(%s) DATA_SET(%s)",
                 experimentIdentifier, externalData);
     }
 
     public Experiment tryToGetExperiment(String sessionToken,
             ExperimentIdentifier experimentIdentifier) throws UserFailureException
     {
-        logAccess(sessionToken, "get_experiment", "EXPERIMENT(%s)", experimentIdentifier);
+        logAccess(sessionToken, "tryToGetExperiment", "EXPERIMENT(%s)", experimentIdentifier);
         return null;
     }
 
     public List<Sample> listSamples(String sessionToken, ListSampleCriteria criteria)
     {
-        logAccess(sessionToken, "list_samples", "CRITERIA(%s)", criteria);
+        logAccess(sessionToken, "listSamples", "CRITERIA(%s)", criteria);
         return null;
     }
 
     public Sample tryGetSampleWithExperiment(String sessionToken, SampleIdentifier sampleIdentifier)
             throws UserFailureException
     {
-        logAccess(sessionToken, "get_sample_with_experiment", "SAMPLE(%s)", sampleIdentifier);
+        logAccess(sessionToken, "tryGetSampleWithExperiment", "SAMPLE(%s)", sampleIdentifier);
         return null;
     }
 
     public SampleType getSampleType(String sessionToken, String sampleTypeCode)
             throws UserFailureException
     {
-        logAccess(sessionToken, "get_sample_type", "SAMPLE_TYPE(%s)", sampleTypeCode);
+        logAccess(sessionToken, "getSampleType", "SAMPLE_TYPE(%s)", sampleTypeCode);
         return null;
     }
 
     public DataSetTypeWithVocabularyTerms getDataSetType(String sessionToken, String dataSetTypeCode)
     {
-        logAccess(sessionToken, "get_data_set_type", "DATA_SET_TYPE(%s)", dataSetTypeCode);
+        logAccess(sessionToken, "getDataSetType", "DATA_SET_TYPE(%s)", dataSetTypeCode);
         return null;
     }
 
     public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
-        logAccess(sessionToken, "list_data_sets_by_sample_id", "SAMPLE_ID(%s)", sampleId);
+        logAccess(sessionToken, "listDataSetsBySampleID", "SAMPLE_ID(%s)", sampleId);
         return null;
     }
 
     public IEntityProperty[] tryToGetPropertiesOfTopSampleRegisteredFor(String sessionToken,
             SampleIdentifier sampleIdentifier) throws UserFailureException
     {
-        logAccess(sessionToken, "get_properties_of_top_sample", "SAMPLE(%s)", sampleIdentifier);
+        logAccess(sessionToken, "tryToGetPropertiesOfTopSampleRegisteredFor", "SAMPLE(%s)",
+                sampleIdentifier);
         return null;
+    }
+
+    public void checkDataSetAccess(String sessionToken, String dataSetCode)
+            throws UserFailureException
+    {
+        logAccess(sessionToken, "checkDataSetAccess", "DATA_SET(%s)", dataSetCode);
     }
 
     public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
             throws UserFailureException
     {
-        logAccess(sessionToken, "try_get_data_set", "DATA_SET(%s)", dataSetCode);
+        logAccess(sessionToken, "tryGetDataSet", "DATA_SET(%s)", dataSetCode);
         return null;
     }
-
+    
     public List<Sample> listSamplesByCriteria(String sessionToken,
             ListSamplesByPropertyCriteria criteria) throws UserFailureException
     {
@@ -174,7 +181,7 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
     public SamplePE getSampleWithProperty(String sessionToken, String propertyTypeCode,
             GroupIdentifier groupIdentifier, String propertyValue)
     {
-        logAccess(sessionToken, "get_sample_with_property",
+        logAccess(sessionToken, "getSampleWithProperty",
                 "PROPERTY_TYPE(%s) GROUP(%s) PROPERTY_VALUE(%s)", propertyTypeCode,
                 groupIdentifier, propertyValue);
         return null;

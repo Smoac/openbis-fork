@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
-import java.io.File;
 
 /**
  * A class that provides a lister for the commands in the command queue of the store.
@@ -33,6 +32,6 @@ public final class CommandQueueLister
     public static void listQueuedCommand()
     {
         final ConfigParameters configParams = DataStoreServer.getConfigParameters();
-        DataSetCommandExecutor.listQueuedCommands(new File(configParams.getStorePath()));
+        DataSetCommandExecutor.listQueuedCommands(configParams.getStorePath());
     }
 }

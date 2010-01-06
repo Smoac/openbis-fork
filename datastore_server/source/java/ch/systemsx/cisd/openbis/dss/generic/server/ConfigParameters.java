@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.File;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -52,7 +53,7 @@ final class ConfigParameters
 
     static final String KEYSTORE_KEY_PASSWORD_KEY = KEYSTORE + "key-password";
 
-    private final String storePath;
+    private final File storePath;
 
     private final int port;
 
@@ -73,7 +74,7 @@ final class ConfigParameters
      */
     public ConfigParameters(final Properties properties)
     {
-        storePath = PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY);
+        storePath = new File(PropertyUtils.getMandatoryProperty(properties, STOREROOT_DIR_KEY));
         port = getMandatoryIntegerProperty(properties, PORT_KEY);
         serverURL = PropertyUtils.getMandatoryProperty(properties, SERVER_URL_KEY);
         sessionTimeout = getMandatoryIntegerProperty(properties, SESSION_TIMEOUT_KEY) * 60;
@@ -97,7 +98,7 @@ final class ConfigParameters
         }
     }
 
-    public final String getStorePath()
+    public final File getStorePath()
     {
         return storePath;
     }

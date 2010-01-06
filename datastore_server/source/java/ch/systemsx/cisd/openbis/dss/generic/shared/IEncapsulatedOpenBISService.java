@@ -53,6 +53,12 @@ public interface IEncapsulatedOpenBISService
             throws UserFailureException;
 
     /**
+     * Checks if the current user has access rights to a dataset with the specified data set code.
+     */
+    public void checkDataSetAccess(final String sessionToken, final String dataSetCode)
+            throws UserFailureException;
+
+    /**
      * Tries to get the experiment of specified identifier or <code>null</code> if not found.
      */
     public Experiment tryToGetExperiment(ExperimentIdentifier experimentIdentifier)
@@ -91,7 +97,7 @@ public interface IEncapsulatedOpenBISService
      */
     public List<ExternalData> listDataSetsBySampleID(long sampleID,
             boolean showOnlyDirectlyConnected) throws UserFailureException;
-    
+
     /**
      * Registers the specified sample.
      * 

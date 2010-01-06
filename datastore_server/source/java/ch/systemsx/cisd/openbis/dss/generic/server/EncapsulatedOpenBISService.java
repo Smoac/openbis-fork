@@ -297,7 +297,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             return service.getSampleType(sessionToken, sampleTypeCode);
         }
     }
-    
+
     synchronized public DataSetTypeWithVocabularyTerms getDataSetType(String dataSetTypeCode)
     {
         checkSessionToken();
@@ -324,7 +324,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
             authenticate();
             return service.listDataSetsBySampleID(sessionToken, id, showOnlyDirectlyConnected);
         }
-    }    
+    }
 
     synchronized public long registerSample(NewSample newSample) throws UserFailureException
     {
@@ -431,6 +431,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         checkSessionToken();
         return service.tryGetDataSet(sToken, dataSetCode);
+    }
+
+    synchronized public void checkDataSetAccess(String sToken, String dataSetCode)
+            throws UserFailureException
+    {
+        checkSessionToken();
+        service.checkDataSetAccess(sToken, dataSetCode);
     }
 
     synchronized public List<SimpleDataSetInformationDTO> listDataSets()

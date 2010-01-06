@@ -57,9 +57,10 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 
 /**
  * @author Franz-Josef Elmer
@@ -97,9 +98,11 @@ public class DatasetDownloadServlet extends HttpServlet
 
     private static final String THUMBNAIL_MODE_DISPLAY = "thumbnail";
 
-    static final String DATA_SET_KEY = "data-set";
+    static final String DATABASE_INSTANCE_SESSION_KEY = "database-instance";
 
-    static final String DATASET_CODE_KEY = "dataSetCode";
+    static final String DATA_SET_ACCESS_SESSION_KEY = "data-set-access";
+
+    static final String DATA_SET_SESSION_KEY = "data-set";
 
     static final String SESSION_ID_KEY = "sessionID";
 
@@ -237,10 +240,7 @@ public class DatasetDownloadServlet extends HttpServlet
                     parseRequestURL(request, DATA_STORE_SERVER_WEB_APPLICATION_NAME);
             rendererFactory = createRendererFactory(requestParams.getDisplayMode());
 
-            obtainDataSetFromServer(requestParams.getDataSetCode(),
-                    requestParams.tryGetSessionId(), request);
-
-            HttpSession session = request.getSession(false);
+            HttpSession session = tryGetOrCreateSession(request, requestParams);
             if (session == null)
             {
                 printSessionExpired(response);
@@ -263,16 +263,18 @@ public class DatasetDownloadServlet extends HttpServlet
             throws UnsupportedEncodingException, IOException
     {
         String dataSetCode = requestParams.getDataSetCode();
-        ExternalData dataSet = tryToGetDataSet(session, dataSetCode);
-        if (dataSet == null)
-        {
-            throw new UserFailureException("Unknown data set '" + dataSetCode + "'.");
-        }
-        File rootDir = createDataSetRootDirectory(dataSet);
+        RenderingContext context = createRenderingContext(requestParams, dataSetCode, session);
+        renderPage(rendererFactory, response, dataSetCode, context, requestParams, session);
+    }
+
+    private RenderingContext createRenderingContext(RequestParams requestParams,
+            String dataSetCode, HttpSession session)
+    {
+        File rootDir = createDataSetRootDirectory(dataSetCode, session);
         RenderingContext context =
                 new RenderingContext(rootDir, requestParams.getURLPrefix(), requestParams
                         .getPathInfo());
-        renderPage(rendererFactory, response, dataSet, context, requestParams);
+        return context;
     }
 
     private IRendererFactory createRendererFactory(String displayMode)
@@ -351,20 +353,29 @@ public class DatasetDownloadServlet extends HttpServlet
     }
 
     private void renderPage(IRendererFactory rendererFactory, HttpServletResponse response,
-            ExternalData dataSet, RenderingContext renderingContext, RequestParams requestParams)
-            throws IOException
+            String dataSetCode, RenderingContext renderingContext, RequestParams requestParams,
+            HttpSession session) throws IOException
     {
         File file = renderingContext.getFile();
         if (file.exists() == false)
         {
             throw new EnvironmentFailureException("File '" + file.getName() + "' does not exist.");
         }
+        // If we want to browse a directory, we need a whole dataset metadata from openbis to
+        // display them for the user. But if just a file is needed, then it's much faster to just
+        // check the access rights in openbis.
+        String sessionIdOrNull = requestParams.tryGetSessionId();
         if (file.isDirectory())
         {
+            ExternalData dataSet = getDataSet(dataSetCode, sessionIdOrNull, session);
             createPage(rendererFactory, response, dataSet, renderingContext, file);
         } else
         {
-            deliverFile(response, dataSet, file, requestParams.getDisplayMode());
+            if (isDatasetAccessible(dataSetCode, sessionIdOrNull, session) == false)
+            {
+                throw new UserFailureException("Data set '" + dataSetCode + "' is not accessible.");
+            }
+            deliverFile(response, dataSetCode, file, requestParams.getDisplayMode());
         }
     }
 
@@ -415,7 +426,7 @@ public class DatasetDownloadServlet extends HttpServlet
         }
     }
 
-    private void deliverFile(final HttpServletResponse response, ExternalData dataSet, File file,
+    private void deliverFile(final HttpServletResponse response, String dataSetCode, File file,
             String displayMode) throws IOException, FileNotFoundException
     {
         ServletOutputStream outputStream = null;
@@ -445,7 +456,7 @@ public class DatasetDownloadServlet extends HttpServlet
         }
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info("For data set '" + dataSet.getCode() + "' deliver file "
+            operationLog.info("For data set '" + dataSetCode + "' deliver file "
                     + file.getAbsolutePath() + infoPostfix);
         }
         response.setContentLength(size);
@@ -491,53 +502,137 @@ public class DatasetDownloadServlet extends HttpServlet
         writer.close();
     }
 
-    private void obtainDataSetFromServer(String dataSetCode, String sessionIdOrNull,
-            final HttpServletRequest request)
+    private ExternalData getDataSet(String dataSetCode, String sessionIdOrNull, HttpSession session)
     {
-        HttpSession session = request.getSession(false);
-        if (session != null && tryToGetDataSet(session, dataSetCode) != null)
+        ExternalData dataset = tryToGetCachedDataSet(session, dataSetCode);
+        if (dataset != null)
         {
-            return; // dataset is already in the cache
+            return dataset;
         }
-        if (sessionIdOrNull != null)
+        ensureSessionIdSpecified(sessionIdOrNull);
+        ExternalData dataSet = tryGetDataSetFromServer(dataSetCode, sessionIdOrNull);
+        if (dataSet != null)
         {
-            IEncapsulatedOpenBISService dataSetService = applicationContext.getDataSetService();
-            ExternalData dataSet = dataSetService.tryGetDataSet(sessionIdOrNull, dataSetCode);
-            if (operationLog.isInfoEnabled())
-            {
-                String actionDesc = (dataSet != null) ? "obtained from" : "not found in";
-                operationLog.info(String.format("Data set '%s' %s openBIS server.", dataSetCode,
-                        actionDesc));
-            }
-
-            ConfigParameters configParameters = applicationContext.getConfigParameters();
-            if (session == null)
-            {
-                session = request.getSession(true);
-                session.setMaxInactiveInterval(configParameters.getSessionTimeout());
-            }
-            if (dataSet != null)
-            {
-                putDataSetToMap(session, dataSetCode, dataSet);
-            }
+            putDataSetToMap(session, dataSetCode, dataSet);
+            return dataSet;
+        } else
+        {
+            throw new UserFailureException("Unknown data set '" + dataSetCode + "'.");
         }
     }
 
-    private File createDataSetRootDirectory(ExternalData dataSet)
+    private void ensureSessionIdSpecified(String sessionIdOrNull)
     {
-        String path = dataSet.getLocation();
-        LocatorType locatorType = dataSet.getLocatorType();
-        if (locatorType.getCode().equals(LocatorType.DEFAULT_LOCATOR_TYPE_CODE))
+        if (sessionIdOrNull == null)
         {
-            path = applicationContext.getConfigParameters().getStorePath() + "/" + path;
+            throw new EnvironmentFailureException("Session id not specified in the URL");
         }
-        File dataSetRootDirectory = new File(path);
+    }
+
+    private ExternalData tryGetDataSetFromServer(String dataSetCode, String sessionIdOrNull)
+    {
+        IEncapsulatedOpenBISService dataSetService = applicationContext.getDataSetService();
+        ExternalData dataSet = dataSetService.tryGetDataSet(sessionIdOrNull, dataSetCode);
+        if (operationLog.isInfoEnabled())
+        {
+            String actionDesc = (dataSet != null) ? "obtained from" : "not found in";
+            operationLog.info(String.format("Data set '%s' %s openBIS server.", dataSetCode,
+                    actionDesc));
+        }
+        return dataSet;
+    }
+
+    private HttpSession tryGetOrCreateSession(final HttpServletRequest request,
+            RequestParams requestParams)
+    {
+        HttpSession session = request.getSession(false);
+        if (session == null && requestParams.tryGetSessionId() == null)
+        {
+            // a) The session is expired and b) we do not have openbis session id provided.
+            // So a) metadata about datasets are not in the session and b) we cannot get them from
+            // openbis.
+            return null;
+        }
+        if (session == null)
+        {
+            session = request.getSession(true);
+            ConfigParameters configParameters = applicationContext.getConfigParameters();
+            session.setMaxInactiveInterval(configParameters.getSessionTimeout());
+        }
+        return session;
+    }
+
+    private File createDataSetRootDirectory(String dataSetCode, HttpSession session)
+    {
+        DatabaseInstance databaseInstance = getDatabaseInstance(session);
+        File storeDir = applicationContext.getConfigParameters().getStorePath();
+        File dataSetRootDirectory =
+                DatasetLocationUtil.getDatasetLocationPath(storeDir, dataSetCode, databaseInstance
+                        .getUuid());
         if (dataSetRootDirectory.exists() == false)
         {
-            throw new UserFailureException("Data set '" + dataSet.getCode()
-                    + "' not found in store at '" + dataSetRootDirectory.getAbsolutePath() + "'.");
+            throw new UserFailureException("Data set '" + dataSetCode + "' not found in the store.");
         }
         return dataSetRootDirectory;
+    }
+
+    // ---
+
+    private DatabaseInstance getDatabaseInstance(HttpSession session)
+    {
+        DatabaseInstance databaseInstance =
+                (DatabaseInstance) session.getAttribute(DATABASE_INSTANCE_SESSION_KEY);
+        if (databaseInstance == null)
+        {
+            databaseInstance = applicationContext.getDataSetService().getHomeDatabaseInstance();
+            session.setAttribute(DATABASE_INSTANCE_SESSION_KEY, databaseInstance);
+        }
+        return databaseInstance;
+    }
+
+    // ---
+
+    private boolean isDatasetAccessible(String dataSetCode, String sessionIdOrNull,
+            HttpSession session)
+    {
+        Boolean access = getDataSetAccess(session).get(dataSetCode);
+        if (access == null)
+        {
+            if (tryToGetCachedDataSet(session, dataSetCode) != null)
+            {
+                return true; // access already checked and granted
+            }
+            if (operationLog.isInfoEnabled())
+            {
+                operationLog.info(String.format(
+                        "Check access to the data set '%s' at openBIS server.", dataSetCode));
+            }
+            IEncapsulatedOpenBISService dataSetService = applicationContext.getDataSetService();
+            ensureSessionIdSpecified(sessionIdOrNull);
+            try
+            {
+                dataSetService.checkDataSetAccess(sessionIdOrNull, dataSetCode);
+                access = true;
+            } catch (UserFailureException ex)
+            {
+                access = false;
+            }
+            getDataSetAccess(session).put(dataSetCode, access);
+        }
+        return access;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Boolean> getDataSetAccess(HttpSession session)
+    {
+        Map<String, Boolean> map =
+                (Map<String, Boolean>) session.getAttribute(DATA_SET_ACCESS_SESSION_KEY);
+        if (map == null)
+        {
+            map = new HashMap<String, Boolean>();
+            session.setAttribute(DATA_SET_ACCESS_SESSION_KEY, map);
+        }
+        return map;
     }
 
     private void putDataSetToMap(HttpSession session, String dataSetCode, ExternalData dataSet)
@@ -545,7 +640,7 @@ public class DatasetDownloadServlet extends HttpServlet
         getDataSets(session).put(dataSetCode, dataSet);
     }
 
-    private ExternalData tryToGetDataSet(HttpSession session, String dataSetCode)
+    private ExternalData tryToGetCachedDataSet(HttpSession session, String dataSetCode)
     {
         return getDataSets(session).get(dataSetCode);
     }
@@ -554,13 +649,12 @@ public class DatasetDownloadServlet extends HttpServlet
     private Map<String, ExternalData> getDataSets(HttpSession session)
     {
         Map<String, ExternalData> map =
-                (Map<String, ExternalData>) session.getAttribute(DATA_SET_KEY);
+                (Map<String, ExternalData>) session.getAttribute(DATA_SET_SESSION_KEY);
         if (map == null)
         {
             map = new HashMap<String, ExternalData>();
-            session.setAttribute(DATA_SET_KEY, map);
+            session.setAttribute(DATA_SET_SESSION_KEY, map);
         }
         return map;
     }
-
 }

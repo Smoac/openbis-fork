@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.ISessionProvider;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSamplesByPropertyPredicate;
@@ -115,7 +116,7 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @RolesAllowed(RoleSet.ETL_SERVER)
     public DataSetTypeWithVocabularyTerms getDataSetType(String sessionToken, String dataSetTypeCode)
             throws UserFailureException;
-    
+
     /**
      * For given sample {@link TechId} returns the corresponding list of {@link ExternalData}.
      * 
@@ -202,11 +203,22 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             final NewExternalData externalData) throws UserFailureException;
 
     /**
+     * Does nothing besides checking that the current user has rights to access the content of the
+     * dataset.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.OBSERVER)
+    public void checkDataSetAccess(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode)
+            throws UserFailureException;
+
+    /**
      * Tries to return the data set specified by its code.
      */
     @Transactional
     @RolesAllowed(RoleSet.OBSERVER)
-    public ExternalData tryGetDataSet(String sessionToken, String dataSetCode)
+    public ExternalData tryGetDataSet(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class) String dataSetCode)
             throws UserFailureException;
 
     /**

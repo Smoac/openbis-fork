@@ -20,8 +20,8 @@ import java.io.File;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.MD5ChecksumCalculator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 
 /**
@@ -64,22 +64,7 @@ public final class IdentifiedDataStrategy implements IDataStoreStrategy
     {
         String dataSetCode = dataSetInfo.getDataSetCode();
         final String instanceUUID = dataSetInfo.getInstanceUUID();
-        final File instanceDir = new File(baseDir, instanceUUID);
-        final File shardingDir = createShardingDir(instanceDir, dataSetCode);
-        final File datasetDir = new File(shardingDir, dataSetCode);
-        return datasetDir;
-    }
-
-    // In order not to overwhelm the file system implementation, we won't use a completely flat
-    // hierarchy, but instead a structure called 'data sharding'. 'Data sharding' ensures that there
-    // are no directories with an extremely large number of data sets.
-    private static File createShardingDir(File parentDir, String dataSetCode)
-    {
-        String checksum = MD5ChecksumCalculator.calculate(dataSetCode);
-        final File dirLevel1 = new File(parentDir, checksum.substring(0, 2));
-        final File dirLevel2 = new File(dirLevel1, checksum.substring(2, 4));
-        final File dirLevel3 = new File(dirLevel2, checksum.substring(4, 6));
-        return dirLevel3;
+        return DatasetLocationUtil.getDatasetLocationPath(baseDir, dataSetCode, instanceUUID);
     }
 
     //

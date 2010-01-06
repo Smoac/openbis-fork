@@ -345,12 +345,13 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             throws UserFailureException
     {
         checkSession(sessionToken);
-        
+
         ISampleTypeDAO sampleTypeDAO = getDAOFactory().getSampleTypeDAO();
         SampleTypePE sampleType = sampleTypeDAO.tryFindSampleTypeByCode(sampleTypeCode);
         if (sampleType == null)
         {
-            throw new UserFailureException("No sample type found with code '" + sampleTypeCode + "'.");
+            throw new UserFailureException("No sample type found with code '" + sampleTypeCode
+                    + "'.");
         }
         HibernateUtils.initialize(sampleType.getSampleTypePropertyTypes());
         return SampleTypeTranslator.translate(sampleType, null);
@@ -360,16 +361,18 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
             throws UserFailureException
     {
         checkSession(sessionToken);
-        
+
         IDataSetTypeDAO dataSetTypeDAO = getDAOFactory().getDataSetTypeDAO();
         DataSetTypePE dataSetType = dataSetTypeDAO.tryToFindDataSetTypeByCode(dataSetTypeCode);
         if (dataSetType == null)
         {
-            throw new UserFailureException("No data set type found with code '" + dataSetTypeCode + "'.");
+            throw new UserFailureException("No data set type found with code '" + dataSetTypeCode
+                    + "'.");
         }
         DataSetTypeWithVocabularyTerms result = new DataSetTypeWithVocabularyTerms();
         result.setCode(dataSetType.getCode());
-        Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes = dataSetType.getDataSetTypePropertyTypes();
+        Set<DataSetTypePropertyTypePE> dataSetTypePropertyTypes =
+                dataSetType.getDataSetTypePropertyTypes();
         HibernateUtils.initialize(dataSetTypePropertyTypes);
         for (DataSetTypePropertyTypePE dataSetTypePropertyTypePE : dataSetTypePropertyTypes)
         {
@@ -387,7 +390,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         }
         return result;
     }
-    
+
     public List<ExternalData> listDataSetsBySampleID(final String sessionToken,
             final TechId sampleId, final boolean showOnlyDirectlyConnected)
     {
@@ -501,6 +504,13 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         externalDataBO.enrichWithParentsAndExperiment();
         return ExternalDataTranslator.translate(externalDataBO.getExternalData(),
                 dataStoreBaseURLProvider.getDataStoreBaseURL(), session.getBaseIndexURL());
+    }
+    
+    public void checkDataSetAccess(String sessionToken, String dataSetCode)
+            throws UserFailureException
+    {
+        checkSession(sessionToken);
+        // do nothing, the access rights specified in method annotations are checked by a proxy
     }
 
     public List<Sample> listSamplesByCriteria(String sessionToken,
