@@ -214,7 +214,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
 
         IProcessingPluginTask task = plugins.createPluginInstance(serviceKey, storeRoot);
         DatastoreServiceDescription pluginDescription = plugins.getPluginDescription(serviceKey);
-        commandExecuter.scheduleProcessDatasets(task, datasets, userEmailOrNull, pluginDescription);
+        commandExecuter.scheduleProcessDatasets(task, datasets, userEmailOrNull, pluginDescription,
+                mailClientParameters);
     }
 
 }

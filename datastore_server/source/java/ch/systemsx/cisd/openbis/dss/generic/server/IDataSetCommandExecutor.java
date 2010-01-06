@@ -61,5 +61,6 @@ interface IDataSetCommandExecutor
      *            message will be send in such case.
      */
     void scheduleProcessDatasets(IProcessingPluginTask task, List<DatasetDescription> datasets,
-            String userEmailOrNull, DatastoreServiceDescription serviceDescription);
+            String userEmailOrNull, DatastoreServiceDescription serviceDescription,
+            MailClientParameters mailClientParameters);
 }

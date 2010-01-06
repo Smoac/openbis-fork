@@ -19,6 +19,8 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 import java.io.File;
 import java.util.List;
 
+import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -41,13 +43,17 @@ public class ProcessDatasetsCommand implements IDataSetCommand
 
     private final DatastoreServiceDescription serviceDescription;
 
+    private final MailClientParameters mailClientParameters;
+
     public ProcessDatasetsCommand(IProcessingPluginTask task, List<DatasetDescription> datasets,
-            String userEmailOrNull, DatastoreServiceDescription serviceDescription)
+            String userEmailOrNull, DatastoreServiceDescription serviceDescription,
+            MailClientParameters mailClientParameters)
     {
         this.task = task;
         this.datasets = datasets;
         this.userEmailOrNull = userEmailOrNull;
         this.serviceDescription = serviceDescription;
+        this.mailClientParameters = mailClientParameters;
     }
 
     public void execute(File store)
@@ -66,29 +72,42 @@ public class ProcessDatasetsCommand implements IDataSetCommand
             if (userEmailOrNull == null)
             {
                 System.out
-                        .println("No receiver email address provided for processing completion notification.");
+                        .println("No email recipient address provided for processing completion notification.");
                 return;
             }
-            final StringBuilder sb = new StringBuilder();
-            final String messageHeader;
-            if (errorMessageOrNull != null)
-            {
-                // error
-                messageHeader = getShortDescription("Failed to perform ");
-                sb.append(getDescription(messageHeader));
-                sb.append("\n\nError message:\n");
-                sb.append(errorMessageOrNull);
-            } else
-            {
-                // success
-                messageHeader = getShortDescription("Finished ");
-                sb.append(getDescription(messageHeader));
-            }
-            // TODO 2010-01-06, Piotr Buczek: send mail
-            System.err.println("email: " + userEmailOrNull);
-            System.err.println("messageHeader: " + messageHeader);
-            System.err.println(sb.toString());
+            createContentAndSendMessage(errorMessageOrNull);
         }
+    }
+
+    private void createContentAndSendMessage(String errorMessageOrNull)
+    {
+        final StringBuilder contentBuilder = new StringBuilder();
+        final String subject;
+        if (errorMessageOrNull != null)
+        {
+            // create error message content
+            subject = getShortDescription("Failed to perform ");
+            contentBuilder.append(getDescription(subject));
+            contentBuilder.append("\n\nError message:\n");
+            contentBuilder.append(errorMessageOrNull);
+        } else
+        {
+            // create success message content
+            subject = getShortDescription("Finished ");
+            contentBuilder.append(getDescription(subject));
+        }
+        sendMessage(subject, contentBuilder.toString(), userEmailOrNull);
+    }
+
+    private void sendMessage(String subject, String content, String recipient)
+    {
+        String from = mailClientParameters.getFrom();
+        String smtpHost = mailClientParameters.getSmtpHost();
+        String smtpUser = mailClientParameters.getSmtpUser();
+        String smtpPassword = mailClientParameters.getSmtpPassword();
+
+        IMailClient mailClient = new MailClient(from, smtpHost, smtpUser, smtpPassword);
+        mailClient.sendMessage(subject, content, null, null, recipient);
     }
 
     private String getShortDescription(String prefix)

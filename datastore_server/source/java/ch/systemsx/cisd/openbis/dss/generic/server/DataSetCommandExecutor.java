@@ -122,10 +122,11 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
 
     public void scheduleProcessDatasets(IProcessingPluginTask task,
             List<DatasetDescription> datasets, String userEmailOrNull,
-            DatastoreServiceDescription serviceDescription)
+            DatastoreServiceDescription serviceDescription,
+            MailClientParameters mailClientParameters)
     {
         scheduleCommand(new ProcessDatasetsCommand(task, datasets, userEmailOrNull,
-                serviceDescription));
+                serviceDescription, mailClientParameters));
     }
 
     private void scheduleCommand(IDataSetCommand command)
