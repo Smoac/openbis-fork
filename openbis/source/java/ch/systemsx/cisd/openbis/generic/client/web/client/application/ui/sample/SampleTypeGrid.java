@@ -97,6 +97,24 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
     }
 
     @Override
+    protected void register(SampleType sampleType, AsyncCallback<Void> registrationCallback)
+    {
+        viewContext.getService().registerSampleType(sampleType, registrationCallback);
+    }
+
+    @Override
+    protected SampleType createNewEntityType()
+    {
+        return new SampleType();
+    }
+
+    @Override
+    protected IColumnDefinitionKind<SampleType>[] getStaticColumnsDefinition()
+    {
+        return SampleTypeColDefKind.values();
+    }
+
+    @Override
     protected Window createEditEntityTypeDialog(final EntityKind entityKind,
             final SampleType sampleType)
     {
@@ -226,24 +244,6 @@ public class SampleTypeGrid extends AbstractEntityTypeGrid<SampleType>
                     SampleTypeGrid.this.register(sampleType, registrationCallback);
                 }
             };
-    }
-
-    @Override
-    protected void register(SampleType sampleType, AsyncCallback<Void> registrationCallback)
-    {
-        viewContext.getService().registerSampleType(sampleType, registrationCallback);
-    }
-
-    @Override
-    protected SampleType createNewEntityType()
-    {
-        return new SampleType();
-    }
-
-    @Override
-    protected IColumnDefinitionKind<SampleType>[] getStaticColumnsDefinition()
-    {
-        return SampleTypeColDefKind.values();
     }
 
     // 

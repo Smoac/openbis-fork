@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.column
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.EntityTypeColDefKindFactory.dataSetTypeColDefKindFactory;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -34,6 +35,25 @@ public enum DataSetTypeColDefKind implements IColumnDefinitionKind<DataSetType>
     CODE(dataSetTypeColDefKindFactory.createCodeColDefKind()),
 
     DESCRIPTION(dataSetTypeColDefKindFactory.createDescriptionColDefKind()),
+
+    MAIN_DATA_SET_PATH(new AbstractColumnDefinitionKind<DataSetType>(Dict.MAIN_DATA_SET_PATH, true)
+        {
+            @Override
+            public String tryGetValue(DataSetType entity)
+            {
+                return entity.getMainDataSetPath();
+            }
+        }),
+
+    MAIN_DATA_SET_PATTERN(new AbstractColumnDefinitionKind<DataSetType>(Dict.MAIN_DATA_SET_PATTERN,
+            true)
+        {
+            @Override
+            public String tryGetValue(DataSetType entity)
+            {
+                return entity.getMainDataSetPattern();
+            }
+        }),
 
     DATABASE_INSTANCE(dataSetTypeColDefKindFactory.createDatabaseInstanceColDefKind());
 

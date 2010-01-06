@@ -29,6 +29,20 @@ public class DataSetType extends EntityType
 
     private List<DataSetTypePropertyType> dataSetTypePropertyTypes;
 
+    private String mainDataSetPattern;
+
+    private String mainDataSetPath;
+
+    public void setMainDataSetPattern(String mainDataSetPattern)
+    {
+        this.mainDataSetPattern = mainDataSetPattern;
+    }
+
+    public void setMainDataSetPath(String mainDataSetPath)
+    {
+        this.mainDataSetPath = mainDataSetPath;
+    }
+
     public DataSetType()
     {
     }
@@ -47,5 +61,15 @@ public class DataSetType extends EntityType
     public void setDataSetTypePropertyTypes(List<DataSetTypePropertyType> dataSetTypePropertyTypes)
     {
         this.dataSetTypePropertyTypes = dataSetTypePropertyTypes;
+    }
+
+    public String getMainDataSetPath()
+    {
+        return mainDataSetPath;
+    }
+
+    public String getMainDataSetPattern()
+    {
+        return mainDataSetPattern;
     }
 }

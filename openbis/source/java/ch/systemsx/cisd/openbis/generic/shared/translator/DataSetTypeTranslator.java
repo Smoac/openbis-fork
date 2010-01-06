@@ -55,6 +55,10 @@ public class DataSetTypeTranslator
         result.setDataSetTypePropertyTypes(EntityType
                 .sortedInternally(DataSetTypePropertyTypeTranslator.translate(entityTypeOrNull
                         .getDataSetTypePropertyTypes(), result, cacheOrNull)));
+        result.setMainDataSetPath(StringEscapeUtils.escapeHtml(entityTypeOrNull
+                .getMainDataSetPath()));
+        result.setMainDataSetPattern(StringEscapeUtils.escapeHtml(entityTypeOrNull
+                .getMainDataSetPattern()));
         return result;
     }
 

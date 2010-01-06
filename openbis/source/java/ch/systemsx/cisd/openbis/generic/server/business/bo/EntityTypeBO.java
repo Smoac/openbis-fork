@@ -25,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
@@ -100,8 +101,16 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
 
     public void define(DataSetType entityType)
     {
+
+        DataSetTypePE dataSetTypePE = new DataSetTypePE();
+        dataSetTypePE.setCode(entityType.getCode());
+        dataSetTypePE.setDescription(entityType.getDescription());
+        dataSetTypePE.setDatabaseInstance(getHomeDatabaseInstance());
+        dataSetTypePE.setMainDataSetPath(entityType.getMainDataSetPath());
+        dataSetTypePE.setMainDataSetPattern(entityType.getMainDataSetPattern());
+
         this.entityKind = EntityKind.DATA_SET;
-        this.entityTypePE = convertGeneric(entityType, entityKind, getHomeDatabaseInstance());
+        this.entityTypePE = dataSetTypePE;
     }
 
     public void load(EntityKind kind, String code)

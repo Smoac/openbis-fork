@@ -869,5 +869,9 @@ public abstract class Dict
 
     public static final String DATA_VIEW = "data_view";
 
+    public static final String MAIN_DATA_SET_PATH = "main_data_set_path";
+
+    public static final String MAIN_DATA_SET_PATTERN = "main_data_set_pattern";
+
     // ----- end generic ------------------
 }
