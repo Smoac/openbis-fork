@@ -28,13 +28,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
@@ -50,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -286,22 +281,7 @@ public class MaterialBrowserGrid extends
     @Override
     protected void showEntityViewer(Material material, boolean editMode)
     {
-        final EntityKind entityKind = EntityKind.MATERIAL;
-        ITabItemFactory tabView;
-        final IClientPluginFactory clientPluginFactory =
-                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        material.getMaterialType());
-
-        final IClientPlugin<MaterialType, IIdentifiable> createClientPlugin =
-                clientPluginFactory.createClientPlugin(entityKind);
-        if (editMode)
-        {
-            tabView = createClientPlugin.createEntityEditor(material);
-        } else
-        {
-            tabView = createClientPlugin.createEntityViewer(material);
-        }
-        DispatcherHelper.dispatchNaviEvent(tabView);
+        showEntityInformationHolderViewer(material, editMode);
     }
 
     @Override

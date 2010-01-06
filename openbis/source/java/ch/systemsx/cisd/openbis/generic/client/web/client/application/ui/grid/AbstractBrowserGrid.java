@@ -65,12 +65,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ShowRelatedDatasetsDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplaySettingsGetter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.GridDisplaySettings;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InternalLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.MultilineStringCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
@@ -94,8 +98,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SortInfo.SortDir;
 
@@ -255,6 +262,25 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
         WidgetUtils.setVisibleByStyle(bottomToolbars, false);
 
+    }
+
+    protected void showEntityInformationHolderViewer(IEntityInformationHolder entity, boolean editMode)
+    {
+        final EntityKind entityKind = entity.getEntityKind();
+        final ITabItemFactory tabView;
+        final IClientPluginFactory clientPluginFactory =
+                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
+                        entity.getEntityType());
+        final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
+                clientPluginFactory.createClientPlugin(entityKind);
+        if (editMode)
+        {
+            tabView = createClientPlugin.createEntityEditor(entity);
+        } else
+        {
+            tabView = createClientPlugin.createEntityViewer(entity);
+        }
+        DispatcherHelper.dispatchNaviEvent(tabView);
     }
 
     private void addRefreshDisplaySettingsListener()

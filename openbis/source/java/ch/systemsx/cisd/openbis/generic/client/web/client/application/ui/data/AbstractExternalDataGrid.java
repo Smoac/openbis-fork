@@ -30,13 +30,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
@@ -58,7 +54,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -406,22 +401,7 @@ public abstract class AbstractExternalDataGrid
     @Override
     protected void showEntityViewer(ExternalData dataSet, boolean editMode)
     {
-        final EntityKind entityKind = EntityKind.DATA_SET;
-        ITabItemFactory tabView;
-        final IClientPluginFactory clientPluginFactory =
-                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        dataSet.getDataSetType());
-
-        final IClientPlugin<EntityType, IIdentifiable> createClientPlugin =
-                clientPluginFactory.createClientPlugin(entityKind);
-        if (editMode)
-        {
-            tabView = createClientPlugin.createEntityEditor(dataSet);
-        } else
-        {
-            tabView = createClientPlugin.createEntityViewer(dataSet);
-        }
-        DispatcherHelper.dispatchNaviEvent(tabView);
+        showEntityInformationHolderViewer(dataSet, editMode);
     }
 
     @Override

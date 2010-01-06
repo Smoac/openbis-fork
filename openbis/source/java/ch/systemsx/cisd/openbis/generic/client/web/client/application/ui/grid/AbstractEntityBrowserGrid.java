@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ShowDetailsLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
@@ -102,7 +103,7 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
 
     protected AbstractEntityBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String gridId, boolean showHeader, boolean refreshAutomatically,
-            DisplayTypeIDGenerator displayTypeIDGenerator)
+            IDisplayTypeIDGenerator displayTypeIDGenerator)
     {
         super(viewContext, gridId, showHeader, refreshAutomatically, displayTypeIDGenerator);
         allowMultipleSelection();

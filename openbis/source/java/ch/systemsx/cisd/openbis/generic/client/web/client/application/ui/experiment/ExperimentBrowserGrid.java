@@ -33,11 +33,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.DisplayedAndSelectedEntities;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.experiment.CommonExperimentColDefKind;
@@ -53,12 +50,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 
 /**
@@ -194,21 +189,7 @@ public class ExperimentBrowserGrid extends
     @Override
     protected void showEntityViewer(Experiment experiment, boolean editMode)
     {
-        final EntityKind entityKind = EntityKind.EXPERIMENT;
-        final ITabItemFactory tabView;
-        final IClientPluginFactory clientPluginFactory =
-                viewContext.getClientPluginFactoryProvider().getClientPluginFactory(entityKind,
-                        experiment.getExperimentType());
-        final IClientPlugin<ExperimentType, IIdentifiable> createClientPlugin =
-                clientPluginFactory.createClientPlugin(entityKind);
-        if (editMode)
-        {
-            tabView = createClientPlugin.createEntityEditor(experiment);
-        } else
-        {
-            tabView = createClientPlugin.createEntityViewer(experiment);
-        }
-        DispatcherHelper.dispatchNaviEvent(tabView);
+        showEntityInformationHolderViewer(experiment, editMode);
     }
 
     @Override
