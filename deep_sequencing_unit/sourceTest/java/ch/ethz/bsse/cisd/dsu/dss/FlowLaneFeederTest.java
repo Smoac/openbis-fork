@@ -263,7 +263,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         File[] transferedFiles = transferDropBox.listFiles();
         assertEquals(1, transferedFiles.length);
-        String sampleName = SAMPLE_CODE + "_2";
+        String sampleName = SAMPLE_CODE + ":2";
         assertEquals("G2_" + sampleName, transferedFiles[0].getName());
         File metaFile = getFile(transferedFiles[0], FlowLaneFeeder.META_DATA_FILE_TYPE);
         String myFileName = asFileName(sampleName + FlowLaneFeeder.META_DATA_FILE_TYPE);
@@ -303,7 +303,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
 
         File[] transferedFiles = transferDropBox.listFiles();
         assertEquals(1, transferedFiles.length);
-        String sampleName = SAMPLE_CODE + "_2";
+        String sampleName = SAMPLE_CODE + ":2";
         assertEquals("G2_" + sampleName, transferedFiles[0].getName());
         File metaFile = getFile(transferedFiles[0], FlowLaneFeeder.META_DATA_FILE_TYPE);
         assertEquals(asFileName(sampleName + FlowLaneFeeder.META_DATA_FILE_TYPE), metaFile
@@ -456,7 +456,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
     private void checkFlowLaneDataSet(File originalFlowLane, String flowLaneNumber)
     {
         File dropBox = new File(workingDirectory, DROP_BOX_PREFIX + flowLaneNumber);
-        String flowLaneSampleCode = SAMPLE_CODE + "_" + flowLaneNumber;
+        String flowLaneSampleCode = SAMPLE_CODE + ":" + flowLaneNumber;
         String fileName =
                 "G" + flowLaneNumber + FlowLaneFeeder.DEFAULT_ENTITY_SEPARATOR + flowLaneSampleCode;
         File ds = new File(dropBox, fileName);
