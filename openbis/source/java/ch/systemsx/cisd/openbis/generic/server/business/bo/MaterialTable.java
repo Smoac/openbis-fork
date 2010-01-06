@@ -24,7 +24,6 @@ import java.util.Map;
 import org.springframework.dao.DataAccessException;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
@@ -64,22 +63,6 @@ public final class MaterialTable extends AbstractBusinessObject implements IMate
         this.entityPropertiesConverter = entityPropertiesConverter;
         this.materials = materials;
         this.dataChanged = dataChanged;
-    }
-
-    private void checkNotNull(final String materialTypeCode, final EntityTypePE entityType)
-    {
-        if (entityType == null)
-        {
-            throw new UserFailureException("Unknown material type '" + materialTypeCode + "'.");
-        }
-    }
-
-    private void checkNotNull(final String materialTypeCode)
-    {
-        if (materialTypeCode == null)
-        {
-            throw new UserFailureException("Material type not specified.");
-        }
     }
 
     public final List<MaterialPE> getMaterials()
