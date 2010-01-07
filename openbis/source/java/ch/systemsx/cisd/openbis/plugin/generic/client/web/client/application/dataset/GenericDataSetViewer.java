@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -86,6 +88,15 @@ public final class GenericDataSetViewer extends AbstractViewer<ExternalData> imp
         reloadData();
     }
 
+    /**
+     * To be subclassed. Creates additional panels of the viewer in the right side section besides
+     * components, datasets and attachments
+     */
+    protected List<SingleSectionPanel> createAdditionalSectionPanels()
+    {
+        return new ArrayList<SingleSectionPanel>();
+    }
+
     private void extendToolBar()
     {
         addToolBarButton(browseButtonHolder.getButton());
@@ -141,6 +152,12 @@ public final class GenericDataSetViewer extends AbstractViewer<ExternalData> imp
     {
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
         final String displayIdSuffix = getDisplayIdSuffix(dataset.getDataSetType().getCode());
+
+        List<SingleSectionPanel> additionalPanels = createAdditionalSectionPanels();
+        for (SingleSectionPanel panel : additionalPanels)
+        {
+            container.addPanel(panel);
+        }
 
         // parents
         final SingleSectionPanel parentsSection = new DataSetParentsSection(viewContext, dataset);
