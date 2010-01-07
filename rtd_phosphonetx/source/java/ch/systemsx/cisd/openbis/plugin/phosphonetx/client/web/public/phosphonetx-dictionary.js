@@ -30,7 +30,7 @@ var phosphonetx = {
   peptide_count: "Peptides",
   peptides: "Peptides ({0})",
   sequence_name: "Sequence",
-  false_discovery_rate_column: "FDR",
+  false_discovery_rate_column: "FDR (Protein Prophet)",
   
   // SampleAbudndance Browser
   abundance: "Abundance",
