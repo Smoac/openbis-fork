@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -53,7 +54,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Piotr Buczek
  */
-public final class GenericDataSetViewer extends AbstractViewer<ExternalData> implements
+abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> implements
         IDatabaseModificationObserver
 {
     private static final String PREFIX = "generic-dataset-viewer_";
@@ -64,19 +65,28 @@ public final class GenericDataSetViewer extends AbstractViewer<ExternalData> imp
 
     private final BrowseButtonHolder browseButtonHolder;
 
-    private final TechId datasetId;
+    protected final TechId datasetId;
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
+    private final IViewContext<?> viewContext;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final IIdentifiable identifiable)
     {
-        GenericDataSetViewer viewer = new GenericDataSetViewer(viewContext, identifiable);
+        GenericDataSetViewer viewer = new GenericDataSetViewer(viewContext, identifiable)
+            {
+                @Override
+                protected void loadDatasetInfo(TechId datasetTechId,
+                        AsyncCallback<ExternalData> asyncCallback)
+                {
+                    viewContext.getService().getDataSetInfo(datasetTechId, asyncCallback);
+                }
+            };
+        viewer.reloadData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
-    private GenericDataSetViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
+    protected GenericDataSetViewer(final IViewContext<?> viewContext,
             final IIdentifiable identifiable)
     {
         super(viewContext, createId(identifiable));
@@ -85,8 +95,10 @@ public final class GenericDataSetViewer extends AbstractViewer<ExternalData> imp
         this.datasetId = TechId.create(identifiable);
         this.browseButtonHolder = new BrowseButtonHolder();
         extendToolBar();
-        reloadData();
     }
+
+    abstract protected void loadDatasetInfo(TechId datasetTechId,
+            AsyncCallback<ExternalData> asyncCallback);
 
     /**
      * To be subclassed. Creates additional panels of the viewer in the right side section besides
@@ -132,8 +144,7 @@ public final class GenericDataSetViewer extends AbstractViewer<ExternalData> imp
      */
     protected void reloadData()
     {
-        viewContext.getService().getDataSetInfo(datasetId,
-                new DataSetInfoCallback(viewContext, this));
+        loadDatasetInfo(datasetId, new DataSetInfoCallback(viewContext, this));
     }
 
     private final Component createLeftPanel(final ExternalData dataset)
@@ -189,7 +200,7 @@ public final class GenericDataSetViewer extends AbstractViewer<ExternalData> imp
     {
         private final GenericDataSetViewer genericDataSetViewer;
 
-        private DataSetInfoCallback(final IViewContext<IGenericClientServiceAsync> viewContext,
+        private DataSetInfoCallback(final IViewContext<?> viewContext,
                 final GenericDataSetViewer genericSampleViewer)
         {
             super(viewContext);

@@ -23,7 +23,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
  * Section panel presenting data from Data Store Server.
@@ -33,8 +32,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 public class DataViewSection extends SingleSectionPanel
 {
 
-    public DataViewSection(IViewContext<IGenericClientServiceAsync> viewContext,
-            ExternalData dataset)
+    public DataViewSection(IViewContext<?> viewContext, ExternalData dataset)
     {
         super(viewContext.getMessage(Dict.DATA_VIEW));
         Frame widget = new Frame(DataSetUtils.createDataViewUrl(dataset, viewContext.getModel()));
