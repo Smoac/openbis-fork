@@ -39,8 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.GeneMaterialViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
 
 /**
  * {@link IClientPluginFactory} implementation for <i>screening</i> plugin.
@@ -126,19 +126,12 @@ public final class ClientPluginFactory extends
                     {
                         final DatabaseModificationAwareComponent viewer =
                                 GeneMaterialViewer.create(getViewContext(), materialId);
-                        return DefaultTabItem.create(getViewerTitle(), viewer, getViewContext(),
-                                false);
-                    }
-
-                    private String getViewerTitle()
-                    {
-                        return AbstractViewer.getTitle(getViewContext(), Dict.MATERIAL,
-                                identifiable);
+                        return createViewerTab(viewer, identifiable, Dict.MATERIAL);
                     }
 
                     public String getId()
                     {
-                        return PlateSampleViewer.createId(materialId);
+                        return GeneMaterialViewer.createId(materialId);
                     }
                 };
         }
@@ -154,28 +147,34 @@ public final class ClientPluginFactory extends
         @Override
         public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
-            final TechId sampleId = TechId.create(identifiable);
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
-                        final DatabaseModificationAwareComponent sampleViewer =
+                        final DatabaseModificationAwareComponent viewer =
                                 PlateSampleViewer.create(getViewContext(), identifiable);
-                        return DefaultTabItem.create(getViewerTitle(), sampleViewer,
-                                getViewContext(), false);
-                    }
-
-                    private String getViewerTitle()
-                    {
-                        return AbstractViewer.getTitle(getViewContext(), Dict.SAMPLE, identifiable);
+                        return createViewerTab(viewer, identifiable, Dict.SAMPLE);
                     }
 
                     public String getId()
                     {
+                        final TechId sampleId = TechId.create(identifiable);
                         return PlateSampleViewer.createId(sampleId);
                     }
                 };
         }
+    }
+
+    private ITabItem createViewerTab(DatabaseModificationAwareComponent viewer,
+            IIdentifiable identifiable, String dictTitleKey)
+    {
+        String title = getViewerTitle(dictTitleKey, identifiable);
+        return DefaultTabItem.create(title, viewer, getViewContext(), false);
+    }
+
+    private String getViewerTitle(String dictTitleKey, IIdentifiable identifiable)
+    {
+        return AbstractViewer.getTitle(getViewContext(), dictTitleKey, identifiable);
     }
 
     /**
