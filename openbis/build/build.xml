@@ -144,7 +144,7 @@
 	-->
 	<target name="compile-gwt-module">
 		<delete dir="${webapp.dist}" />
-		<java classpath="${ecp}:${gwt.user.lib}:../openbis/${sources}:${sources}"
+		<java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
 		      classname="com.google.gwt.dev.Compiler"
 		      fork="true">
 			<jvmarg value="-Xmx512M" />
