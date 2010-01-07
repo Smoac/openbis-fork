@@ -48,7 +48,12 @@ public class RoleListBox extends ListBox
 
                 public final void onChange(final ChangeEvent sender)
                 {
-                    boolean groupLevel = RoleSetCode.values()[getSelectedIndex()].isGroupLevel();
+                    int index = getSelectedIndex();
+                    RoleSetCode[] roleSetCodes = RoleSetCode.values();
+                    if (index < 0 || index >= roleSetCodes.length)
+                        return;
+
+                    boolean groupLevel = roleSetCodes[index].isGroupLevel();
                     FieldUtil.setMandatoryFlag(group, groupLevel);
                     group.setVisible(groupLevel);
                 }
