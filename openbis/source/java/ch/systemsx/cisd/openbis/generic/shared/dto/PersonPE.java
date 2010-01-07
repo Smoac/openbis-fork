@@ -16,11 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -61,6 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
+import ch.systemsx.cisd.openbis.generic.shared.util.DisplaySettingsSerializationUtils;
 
 /**
  * A <i>Persistence Entity</i> which represents a person.
@@ -279,21 +275,9 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         if (displaySettings == null)
         {
             byte[] serializedSettings = getSerializedDisplaySettings();
-            if (serializedSettings != null)
-            {
-                ByteArrayInputStream bais = new ByteArrayInputStream(serializedSettings);
-                try
-                {
-                    displaySettings = (DisplaySettings) new ObjectInputStream(bais).readObject();
-                } catch (Exception ex)
-                {
-                    // ignored using default settings
-                }
-            }
-            if (displaySettings == null)
-            {
-                displaySettings = new DisplaySettings();
-            }
+            displaySettings =
+                    DisplaySettingsSerializationUtils
+                            .deserializeOrCreateDisplaySettings(serializedSettings);
         }
         return displaySettings;
     }
@@ -301,16 +285,8 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     public void setDisplaySettings(DisplaySettings displaySettings)
     {
         this.displaySettings = displaySettings;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try
-        {
-            new ObjectOutputStream(baos).writeObject(displaySettings);
-            setSerializedDisplaySettings(baos.toByteArray());
-        } catch (IOException ex)
-        {
-            setSerializedDisplaySettings(null);
-        }
-
+        setSerializedDisplaySettings(DisplaySettingsSerializationUtils
+                .serializeDisplaySettings(displaySettings));
     }
 
     @Column(name = ColumnNames.PERSON_DISPLAY_SETTINGS, updatable = true)

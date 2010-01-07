@@ -1,4 +1,4 @@
--- Migration from 046 to 047
+-- JAVA ch.systemsx.cisd.openbis.generic.server.dataaccess.migration.MigrationStepFrom046To047
 
 ------------------------------------------------------------------------------------
 --  Add "main data set pattern" to data set types 
