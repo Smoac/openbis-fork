@@ -163,7 +163,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         checkExperiment.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
         remoteConsole.prepare(checkExperiment);
 
-        launchTest(60000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
     public final void testListOfAttachments()

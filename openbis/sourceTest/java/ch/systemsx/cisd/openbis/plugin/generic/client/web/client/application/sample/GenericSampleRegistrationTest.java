@@ -93,7 +93,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(GROUP_CL)
                 .identifier("CISD", "CISD")));
-        launchTest(20000);
+        launchTest(30000);
     }
 
     /**
@@ -113,7 +113,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                                 + "'[GROUP.USER, GROUP.POWER_USER, GROUP.ADMIN, INSTANCE.ADMIN]' "
                                 + "could be found in roles of user 'observer'.");
         remoteConsole.prepare(failureExpectation);
-        launchTest(20000);
+        launchTest(30000);
     }
 
     public final void testRegisterGroupSampleWithParent()
@@ -127,7 +127,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode
                 .toUpperCase()).identifier("CISD", "CISD")));
-        launchTest(20000);
+        launchTest(30000);
     }
 
     public final void testRegisterGroupSampleWithExperiment()
@@ -141,7 +141,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode
                 .toUpperCase()).identifier("CISD", "CISD").experiment("CISD", "NEMO", "EXP1")));
-        launchTest(20000);
+        launchTest(30000);
     }
 
     public final void testRegisterGroupSampleWithContainer()
