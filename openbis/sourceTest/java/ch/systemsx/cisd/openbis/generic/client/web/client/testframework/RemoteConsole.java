@@ -49,6 +49,14 @@ public class RemoteConsole
 
     private Timer timer;
 
+    private int cleanupTimerWaitTime;
+
+    private Timer cleanupTimer;
+
+    private boolean hasTestTimedOut = false;
+
+    private final RemoteConsoleCallbackListener consoleCallbackListener;
+
     /**
      * Creates an instance for the specified test.
      */
@@ -56,7 +64,8 @@ public class RemoteConsole
     {
         this.testCase = testCase;
         commands = new ArrayList<ITestCommand>();
-        AbstractAsyncCallback.setStaticCallbackListener(new RemoteConsoleCallbackListener());
+        consoleCallbackListener = new RemoteConsoleCallbackListener();
+        AbstractAsyncCallback.setStaticCallbackListener(consoleCallbackListener);
     }
 
     /**
@@ -76,21 +85,54 @@ public class RemoteConsole
      */
     public void finish(final int delayInMilliseconds)
     {
+        hasTestTimedOut = false;
+        cleanupTimerWaitTime = 5;
+        cleanupTimer = new Timer()
+            {
+                @Override
+                public void run()
+                {
+                    if (!consoleCallbackListener.areAllCallbacksFinished())
+                    {
+                        System.err.println("After waiting " + cleanupTimerWaitTime + " sec, "
+                                + consoleCallbackListener.activeCallbacksCounter
+                                + " callback(s) still remain outstanding.");
+                    }
+
+                    cleanupAfterTests(delayInMilliseconds);
+                }
+            };
+
         timer = new Timer()
             {
                 @Override
                 public void run()
                 {
-                    AbstractAsyncCallback
-                            .setStaticCallbackListener(AbstractAsyncCallback.DEFAULT_CALLBACK_LISTENER);
-                    final int numberOfUnexcutedCommands = commands.size() - entryIndex;
-                    if (numberOfUnexcutedCommands > 0)
+                    hasTestTimedOut = true;
+                    System.err.println("Test timed out " + testCase);
+                    StringBuffer buffer = new StringBuffer();
+                    buffer.append("Consider increasing the timeout to something > ");
+                    buffer.append(delayInMilliseconds);
+                    buffer.append(" (");
+                    buffer.append(delayInMilliseconds / 1000);
+                    buffer.append(" sec)");
+                    System.err.println(buffer.toString());
+                    // Wait for outstanding callbacks to return before continuing -- otherswise,
+                    // later tests will fail.
+                    if (!consoleCallbackListener.areAllCallbacksFinished())
                     {
-                        final StringBuffer buffer = new StringBuffer("Console not finished. Last ");
-                        buffer.append(numberOfUnexcutedCommands == 1 ? "command has"
-                                : numberOfUnexcutedCommands + " commands have");
-                        buffer.append(" not been executed. ");
-                        Assert.fail(buffer.toString());
+                        System.err.println("Waiting for "
+                                + consoleCallbackListener.activeCallbacksCounter
+                                + " callback(s) to return");
+
+                        testCase.delayTestTermination((cleanupTimerWaitTime + 1)
+                                * AbstractGWTTestCase.SECOND);
+                        // schedule cleanupAfterTests in cleanupTimerWaitTime seconds
+                        cleanupTimer.schedule(cleanupTimerWaitTime * AbstractGWTTestCase.SECOND);
+                    } else
+                    {
+                        // all callbacks are finished -- cleanup now
+                        cleanupAfterTests(delayInMilliseconds);
                     }
                 }
             };
@@ -107,6 +149,44 @@ public class RemoteConsole
         {
             Assert.fail("Missing preparation of the remote console with method finish().");
         }
+    }
+
+    /**
+     * Does necessary cleanup after the test has completed.
+     * 
+     * @param delayInMillisecondsOrZero The max duration the test was allowed to run. This is only
+     *            used to construct an error message if the duration ran out before the test
+     *            completed. In cases where it is known that the test completed properly, this can
+     *            be set to 0.
+     */
+    private void cleanupAfterTests(final int delayInMillisecondsOrZero)
+    {
+        System.out.println("Cleanup after " + testCase);
+        AbstractAsyncCallback
+                .setStaticCallbackListener(AbstractAsyncCallback.DEFAULT_CALLBACK_LISTENER);
+
+        final int numberOfUnexcutedCommands = commands.size() - entryIndex;
+        if (numberOfUnexcutedCommands > 0)
+        {
+            final StringBuffer buffer = new StringBuffer("Console not finished. Last ");
+            buffer.append(numberOfUnexcutedCommands == 1 ? "command has"
+                    : numberOfUnexcutedCommands + " commands have");
+            buffer.append(" not been executed.");
+            Assert.fail(buffer.toString());
+        }
+
+        if (hasTestTimedOut)
+        {
+            final StringBuffer buffer = new StringBuffer();
+            buffer.append("Test timed out. Consider increasing the timeout to something > ");
+            buffer.append(delayInMillisecondsOrZero);
+            buffer.append(" (");
+            buffer.append(delayInMillisecondsOrZero / 1000);
+            buffer.append(" sec)");
+            Assert.fail(buffer.toString());
+        }
+
+        testCase.terminateTest();
     }
 
     //
@@ -129,12 +209,32 @@ public class RemoteConsole
         private final void executeCommand()
         {
             final ITestCommand testCommand = commands.get(entryIndex++);
+            // Don't continue with the test if it has already timed out
+            if (hasTestTimedOut)
+            {
+                System.err.println("--> SKIP: " + testCommand);
+                return;
+            }
+
+            // This should not happen
+            if (AbstractAsyncCallback.getStaticCallbackListener() != this)
+            {
+                System.err
+                        .println("ERROR: Timer has timed out, but the test case is still running ("
+                                + testCase + ")");
+                System.err.println("--> SKIP: " + testCommand);
+                return;
+            }
+
+            // Normal execution
             System.out.println("--> EXECUTE: " + testCommand);
             testCommand.execute();
             if (entryIndex == commands.size())
             {
-                testCase.terminateTest();
+                if (areAllCallbacksFinished())
+                    cleanupAfterTests(0);
             }
+
         }
 
         //
@@ -145,6 +245,15 @@ public class RemoteConsole
                 final Object result)
         {
             detectCallback(callback);
+
+            // If this is the last command and all callbacks have returned, we can finish the test
+            // now
+            if (entryIndex == commands.size() && areAllCallbacksFinished())
+            {
+                cleanupAfterTests(0);
+                return;
+            }
+
             // Sometimes there are no callbacks activated between execution of two commands.
             // We invoke them one after another in a while loop.
             while (areAllCallbacksFinished() && entryIndex < commands.size())

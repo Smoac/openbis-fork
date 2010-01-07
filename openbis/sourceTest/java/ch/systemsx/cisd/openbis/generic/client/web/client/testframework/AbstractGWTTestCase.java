@@ -41,6 +41,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUt
 public abstract class AbstractGWTTestCase extends GWTTestCase
 {
     protected static final int SECOND = 1000;
+    
+    protected static final int DEFAULT_TIMEOUT = 120 * SECOND;
 
     protected RemoteConsole remoteConsole;
 
@@ -112,7 +114,7 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     protected void launchTest(int delayInMilliseconds)
     {
         remoteConsole.finish(delayInMilliseconds);
-        client.onModuleLoad();
+        client.onModuleLoadTest();
     }
 
     /**
