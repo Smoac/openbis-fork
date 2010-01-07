@@ -29,7 +29,7 @@ public class MultilineVarcharField extends TextArea
 {
     private static final double DEFAULT_LINE_HEIGHT = 1.6; // in em
 
-    private static final int EM_TO_PIXEL = 10;
+    public static final int EM_TO_PIXEL = 10;
 
     private static final int DEFAULT_LINES = 5;
 
@@ -53,7 +53,11 @@ public class MultilineVarcharField extends TextArea
     {
         // WORKAROUND: GXT does not correctly interpret heights set in em's. Switch to pixels.
         // setHeight(lines * DEFAULT_LINE_HEIGHT + "em");
-        setHeight((int) (lines * DEFAULT_LINE_HEIGHT * EM_TO_PIXEL));
+        setHeight(linesToPixelHeight(lines));
     }
+
+	public static int linesToPixelHeight(int lines) {
+		return (int) (lines * DEFAULT_LINE_HEIGHT * EM_TO_PIXEL);
+	}
 
 }

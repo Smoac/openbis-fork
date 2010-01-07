@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -40,7 +41,8 @@ public final class DataSetParentsArea extends TextArea
     public DataSetParentsArea(IMessageProvider messageProvider, String idPrefix)
     {
         super();
-        setHeight("10em");
+
+        setHeight("" + MultilineVarcharField.EM_TO_PIXEL * 10);
         this.setFieldLabel(messageProvider.getMessage(Dict.PARENTS));
         setEmptyText(messageProvider.getMessage(Dict.PARENTS_EMPTY));
         setId(createId(idPrefix));
@@ -51,7 +53,8 @@ public final class DataSetParentsArea extends TextArea
         return idPrefix + ID_SUFFIX_PARENTS;
     }
 
-    // null if the area has not been modified, the list of all data set parent codes otherwise
+    // null if the area has not been modified, the list of all data set parent
+    // codes otherwise
     public final String[] tryGetModifiedParentCodes()
     {
         if (isDirty() == false)
