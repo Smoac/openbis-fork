@@ -258,7 +258,7 @@ var common = {
   AUTHORIZATION_MENU_ROLES: "Roles",
 
   menu_data_set: "Data Set",
-  DATA_SET_MENU_SEARCH: "Search",
+  DATA_SET_MENU_SEARCH: "Advanced Search",
   DATA_SET_MENU_TYPES: "Types",
   DATA_SET_MENU_FILE_FORMATS: "File Types",
   DATA_SET_MENU_UPLOAD: "Upload",
@@ -274,7 +274,7 @@ var common = {
   MATERIAL_MENU_TYPES: "Types",
    
   menu_sample: "Sample",
-  SAMPLE_MENU_SEARCH: "Search",
+  SAMPLE_MENU_SEARCH: "Advanced Search",
   SAMPLE_MENU_BROWSE: "Browse",
   SAMPLE_MENU_NEW: "New",
   SAMPLE_MENU_IMPORT: "Import",
@@ -299,7 +299,6 @@ var common = {
   VOCABULARY_MENU_NEW: "New",
   
   // menu user
-  USER_MENU_CHANGE_HOME_GROUP: "Home Group",
   USER_MENU_CHANGE_SETTINGS: "Settings",
   USER_MENU_LOGOUT: "Logout",
     
@@ -334,9 +333,10 @@ var common = {
   // User Settings Dialog
   //
   
-  change_user_home_group_dialog_title: "Change Home Group",  
-  change_user_settings_dialog_title: "Change Settings",  
-  use_wildcard_search_mode_label: "Use wildcard search mode",
+  change_user_settings_dialog_title: "Change User Settings",  
+  home_group_label: "Home Group",
+  use_wildcard_search_mode_label: "Search with Wildcards",
+  use_wildcard_search_mode_tooltip: "Check to treat '*' and '?' as wildcards in searched text. Note, that only whole words will match if you don't add '*' at the beginning and at the end of the text.",
     
   //
   // Role View

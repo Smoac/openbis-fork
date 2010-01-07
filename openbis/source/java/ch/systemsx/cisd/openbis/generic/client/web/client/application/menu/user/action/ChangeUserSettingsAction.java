@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.LoggedUserMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.user.ChangeUserSettingsDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
@@ -29,9 +30,12 @@ public class ChangeUserSettingsAction implements IDelegatedAction
 {
     private final IViewContext<?> viewContext;
 
-    public ChangeUserSettingsAction(final IViewContext<?> viewContext)
+    private final LoggedUserMenu menu;
+
+    public ChangeUserSettingsAction(final IViewContext<?> viewContext, LoggedUserMenu menu)
     {
         this.viewContext = viewContext;
+        this.menu = menu;
     }
 
     public void execute()
@@ -41,7 +45,7 @@ public class ChangeUserSettingsAction implements IDelegatedAction
                     {
                         public void execute()
                         {
-                            // nothing to do
+                            menu.refreshTitle();
                         }
                     });
         dialog.show();

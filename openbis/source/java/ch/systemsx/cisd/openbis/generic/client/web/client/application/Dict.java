@@ -719,10 +719,15 @@ public abstract class Dict
     // User Settings Dialog
     //
 
+    public static final String HOME_GROUP_LABEL = "home_group_label";
+
     public static final String CHANGE_USER_SETTINGS_DIALOG_TITLE =
             "change_user_settings_dialog_title";
 
     public static final String USE_WILDCARD_SEARCH_MODE_LABEL = "use_wildcard_search_mode_label";
+
+    public static final String USE_WILDCARD_SEARCH_MODE_TOOLTIP =
+            "use_wildcard_search_mode_tooltip";
 
     //
     // Unclassified
@@ -769,9 +774,6 @@ public abstract class Dict
     public static final String SHOW_DETAILS_LINK = "show_details_link_column_name";
 
     public static final String SHOW_DETAILS_LINK_TEXT_VALUE = "show_details_link_text_value";
-
-    public static final String CHANGE_USER_HOME_GROUP_DIALOG_TITLE =
-            "change_user_home_group_dialog_title";
 
     public static final String FILE_TEMPLATE_LABEL = "file_template_label";
 

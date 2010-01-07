@@ -22,9 +22,13 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 
 /**
  * {@link Window} containing form for changing logged user settings.
@@ -36,7 +40,11 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     public static final String DIALOG_ID =
             GenericConstants.ID_PREFIX + "change-user-settings-dialog";
 
+    public static final String GROUP_FIELD_ID = DIALOG_ID + "-group-field";
+
     private final IViewContext<?> viewContext;
+
+    private final GroupSelectionWidget homeGroupField;
 
     private final CheckBoxField useWildcardSearchModeCheckbox;
 
@@ -46,25 +54,39 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         super(viewContext, viewContext.getMessage(Dict.CHANGE_USER_SETTINGS_DIALOG_TITLE),
                 saveCallback);
         this.viewContext = viewContext;
+        form.setLabelWidth(150);
+        form.setFieldWidth(400);
 
-        useWildcardSearchModeCheckbox = createUseWildcardSearchModeField();
-        addField(useWildcardSearchModeCheckbox);
+        addField(homeGroupField = createHomeGroupField());
+        addField(useWildcardSearchModeCheckbox = createUseWildcardSearchModeField());
+    }
+
+    private final GroupSelectionWidget createHomeGroupField()
+    {
+        GroupSelectionWidget field = new GroupSelectionWidget(viewContext, GROUP_FIELD_ID, false);
+        FieldUtil.setMandatoryFlag(field, false);
+        field.setFieldLabel(viewContext.getMessage(Dict.HOME_GROUP_LABEL));
+        return field;
     }
 
     private final CheckBoxField createUseWildcardSearchModeField()
     {
         CheckBoxField field =
                 new CheckBoxField(viewContext.getMessage(Dict.USE_WILDCARD_SEARCH_MODE_LABEL), true);
+        field.setTitle(viewContext.getMessage(Dict.USE_WILDCARD_SEARCH_MODE_TOOLTIP));
         field.setValue(viewContext.getDisplaySettingsManager().isUseWildcardSearchMode());
-        field
-                .setTitle("Wildcard search treats '*' and '?' as wildcards.\n"
-                        + "It requires adding a '*' at the beginning and the end of searched text for contains search.");
         return field;
     }
 
     @Override
     protected void save(AsyncCallback<Void> saveCallback)
     {
+        Group group = homeGroupField.tryGetSelected();
+        String groupCodeOrNull = group == null ? null : group.getCode();
+        TechId groupIdOrNull = TechId.create(group);
+        viewContext.getModel().getSessionContext().getUser().setHomeGroupCode(groupCodeOrNull);
+        viewContext.getService().changeUserHomeGroup(groupIdOrNull, saveCallback);
+
         boolean useWildcardSearchMode = extractUseWildcardSearchMode();
         viewContext.getDisplaySettingsManager().storeSearchMode(useWildcardSearchMode);
     }
