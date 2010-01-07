@@ -219,6 +219,7 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
         properties.put(viewContext.getMessage(Dict.PEPTIDES, proteinDetails.getPeptides().size()),
                 proteinDetails.getPeptides().toArray());
 
+        properties.put(viewContext.getMessage(Dict.PROBABILITY), proteinDetails.getProbability());
         properties.put(viewContext.getMessage(Dict.FDR), proteinDetails.getFalseDiscoveryRate());
 
         DatasetInformationHolder dataset = new DatasetInformationHolder(proteinDetails);

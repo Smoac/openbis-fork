@@ -68,6 +68,7 @@ class ProteinDetailsBO extends AbstractBusinessObject implements IProteinDetails
                 details = new ProteinDetails();
                 details.setSequence(protein.getSequence());
                 details.setDatabaseNameAndVersion(protein.getDatabaseNameAndVersion());
+                details.setProbability(protein.getProbability());
                 details.setFalseDiscoveryRate(protein.getFalseDiscoveryRate());
                 String dataSetPermID = protein.getDataSetPermID();
                 details.setDataSetPermID(dataSetPermID);

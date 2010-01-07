@@ -34,6 +34,8 @@ public class ProteinDetails implements IsSerializable, Serializable
     private String sequence;
 
     private String databaseNameAndVersion;
+    
+    private double probability;
 
     private double falseDiscoveryRate;
 
@@ -72,6 +74,16 @@ public class ProteinDetails implements IsSerializable, Serializable
         return falseDiscoveryRate;
     }
 
+    public double getProbability()
+    {
+        return probability;
+    }
+    
+    public void setProbability(double probability)
+    {
+        this.probability = probability;
+    }
+    
     public void setFalseDiscoveryRate(double falseDiscoveryRate)
     {
         this.falseDiscoveryRate = falseDiscoveryRate;

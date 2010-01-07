@@ -74,6 +74,10 @@ public class Dict
     public static final String SEQUENCE_NAME = "sequence_name";
 
     public static final String FDR = "false_discovery_rate_column";
+    
+    // Protein Detail View
+    public static final String PROBABILITY = "protein_probability";
+
 
     // SampleAbundance Browser
 
