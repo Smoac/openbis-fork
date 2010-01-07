@@ -16,12 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Hyperlink;
-import com.google.gwt.user.client.ui.InlineHTML;
-import com.google.gwt.user.client.ui.Widget;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.VocabularyPropertyColRenderer;
@@ -53,6 +47,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.InlineHTML;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Some {@link IPropertyValueRenderer} implementations.
@@ -292,7 +291,7 @@ public final class PropertyValueRenderers
                 final ClickHandler listener =
                         new OpenEntityDetailsTabClickListener(material, viewContext);
 
-                final Hyperlink link = LinkRenderer.getLinkWidget(material.getCode(), listener);
+                final Widget link = LinkRenderer.getLinkWidget(material.getCode(), listener);
 
                 FlowPanel panel = new FlowPanel();
                 panel.add(link);
@@ -405,7 +404,7 @@ public final class PropertyValueRenderers
             final boolean invalidate = getInvalidate(entity);
             final ClickHandler listener =
                     new OpenEntityDetailsTabClickListener(entity, viewContext);
-            final Hyperlink link = LinkRenderer.getLinkWidget(code, listener, invalidate);
+            final Widget link = LinkRenderer.getLinkWidget(code, listener, invalidate);
 
             // putting link into a panel makes it a block/row
             // which is important if they are rendered as an array

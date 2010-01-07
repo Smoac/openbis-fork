@@ -5,8 +5,7 @@
 
 	<property name="mainfolder" value="openbis" />
 
-	<property name="gwt.lib" value="${lib}/gwt1.7" />
-	<property name="gwt.dev.lib" value="${gwt.lib}/mac/gwt-dev-mac.jar" />
+	<property name="gwt.lib" value="${lib}/gwt2.0" />
 	<property name="gwt.user.lib" value="${gwt.lib}/gwt-user.jar" />
 
 	<property name="original.server.dist" value="${original.dist}/server" />
@@ -58,7 +57,7 @@
 				<pathelement location="${sources}" />
 				<pathelement location="${sources.test}" />
 				<pathelement path="${ecp}" />
-				<pathelement location="${gwt.lib}/linux/gwt-dev-linux.jar" />
+				<pathelement location="${gwt.lib}/gwt-dev.jar" />
 			</classpath>
 			<jvmarg value="-ea" />
 			<sysproperty key="authentication-service" value="file-authentication-service" />
@@ -145,7 +144,7 @@
 	-->
 	<target name="compile-gwt-module">
 		<delete dir="${webapp.dist}" />
-		<java classpath="${ecp}:${gwt.dev.lib}:${gwt.user.lib}:../openbis/${sources}:${sources}"
+		<java classpath="${ecp}:${gwt.user.lib}:../openbis/${sources}:${sources}"
 		      classname="com.google.gwt.dev.Compiler"
 		      fork="true">
 			<jvmarg value="-Xmx512M" />

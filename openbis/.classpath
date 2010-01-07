@@ -5,7 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/authentication"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/common"/>
-	<classpathentry kind="lib" path="/libraries/gwt1.7/gwt-user.jar"/>
+	<classpathentry kind="lib" path="/libraries/gwt2.0/gwt-user.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/server-common"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/gxt2.1/gxt.jar">

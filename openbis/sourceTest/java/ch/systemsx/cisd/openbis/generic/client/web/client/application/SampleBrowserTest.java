@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
 
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
@@ -65,9 +68,10 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         checkCommand.expectedColumnsNumber(17);
         remoteConsole.prepare(checkCommand);
 
-        launchTest(30000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testListAllSamples()
     {
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
@@ -111,7 +115,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                         DEFAULT_PLATE_GEOMETRY_VALUE));
         remoteConsole.prepare(table.expectedSize(5));
 
-        launchTest(20000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
     public final void testExportMasterPlates()
@@ -125,7 +129,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         String firstLine = "MP\t\t\tDoe, John\t2008-11-05 09:20:47 GMT+01:00";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 2));
 
-        launchTest(20000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
     public final void testListOnlySharedMasterPlates()
@@ -140,7 +144,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(expectedRow);
         remoteConsole.prepare(table.expectedSize(1));
 
-        launchTest(20000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
     public final void testExportCellPlates()
@@ -155,7 +159,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                 "3VCP1\tEXP1\tNEMO\tDoe, John\t2008-11-05 09:21:46 GMT+01:00\tCISD:/CISD/3V-123\tCISD:/CISD/MP001-1";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 16));
 
-        launchTest(20000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
     public final void testListCellPlates()
@@ -169,7 +173,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedColumnsNumber(22);
         remoteConsole.prepare(table.expectedSize(15));
 
-        launchTest(20000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
     private void loginAndGotoListSamplesTab()

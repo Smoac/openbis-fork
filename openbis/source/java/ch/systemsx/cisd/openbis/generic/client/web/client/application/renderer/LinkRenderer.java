@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -23,10 +25,9 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Hyperlink;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InlineHyperlink;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author Franz-Josef Elmer
@@ -94,11 +95,11 @@ public class LinkRenderer
     }
 
     /**
-     * @return {@link Hyperlink} GWT widget that is displayed as a link with given <var>text</var>
+     * @return {@link Anchor} GWT widget that is displayed as a link with given <var>text</var>
      *         and a <var>listener</var> registered on the click event. The link display style is
      *         default (not invalidated).
      */
-    public static Hyperlink getLinkWidget(final String text, final ClickHandler listener)
+    public static Widget getLinkWidget(final String text, final ClickHandler listener)
     {
         return getLinkWidget(text, listener, false);
     }
@@ -108,10 +109,11 @@ public class LinkRenderer
      *         and a <var>listener</var> registered on the click event. The link display style is
      *         based on <var>invalidate</var> (default style is for false).
      */
-    public static Hyperlink getLinkWidget(final String text, final ClickHandler listener,
+    public static Widget getLinkWidget(final String text, final ClickHandler listener,
             boolean invalidate)
     {
-        Hyperlink link = new InlineHyperlink(text);
+        Anchor link = new Anchor();
+        link.setText(text);
         if (listener != null)
         {
             link.addClickHandler(listener);

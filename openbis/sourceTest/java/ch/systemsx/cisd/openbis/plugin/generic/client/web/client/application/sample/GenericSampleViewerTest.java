@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
@@ -90,7 +92,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.dataTable().expectedSize(0);
         remoteConsole.prepare(checkSample);
 
-        launchTest(60000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
     public final void testShowCellPlateView()
@@ -151,9 +153,10 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         // browse shown dataset
         remoteConsole.prepare(new BrowseDataSet(DIRECTLY_CONNECTED_DATA_SET_CODE));
 
-        launchTest(60000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testShowIndirectlyConnectedDataSets()
     {
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
@@ -208,6 +211,6 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 }
             });
 
-        launchTest(60000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 }

@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
@@ -34,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
  */
 public class SearchTest extends AbstractGWTTestCase
 {
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testAllSearch()
     {
         remoteConsole.prepare(new Login("test", "a"));
@@ -46,6 +50,7 @@ public class SearchTest extends AbstractGWTTestCase
         launchTest(20000);
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testExperimentSearch()
     {
         remoteConsole.prepare(new Login("test", "a"));
@@ -88,7 +93,7 @@ public class SearchTest extends AbstractGWTTestCase
         remoteConsole.prepare(showDatasetsRelatedToAllDisplayedEntities());
         remoteConsole.prepare(createCheckRelatedDatasetsTableCommand(DS_LOC1, DS_LOC2, DS_LOC3));
 
-        launchTest(20000);
+        launchTest(30000);
     }
 
     public final void testShowDatasetsRelatedToExperiments()
@@ -102,7 +107,7 @@ public class SearchTest extends AbstractGWTTestCase
         remoteConsole.prepare(showDatasetsRelatedToAllDisplayedEntities());
         remoteConsole.prepare(createCheckRelatedDatasetsTableCommand(DS_LOC1, DS_LOC2, DS_LOC3));
 
-        launchTest(20000);
+        launchTest(30000);
     }
 
     public final void testShowDatasetsRelatedToAll()
@@ -119,7 +124,7 @@ public class SearchTest extends AbstractGWTTestCase
         remoteConsole.prepare(createCheckRelatedDatasetsTableCommand(DS_LOC1, DS_LOC2, DS_LOC3,
                 "xml/result-8", "xml/result-9", "xml/result-10", "xml/result-11", "xml/result-12"));
 
-        launchTest(20000);
+        launchTest(30000);
     }
 
     private CheckTableCommand createCheckMatchingEntitiesTableCommand(int size,
