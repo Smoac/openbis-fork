@@ -75,12 +75,25 @@ public class PlateContentLoader
 
         Sample plate = loadPlate(plateId);
         List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
-
-        TileImages images = tryLoadImages(datasets, externalDataTable);
         List<WellMetadata> wells = loadWells(plateId);
-        DatasetReference imageAnalysisDataset = tryFindImageAnalysisDataset(datasets);
 
-        return new PlateContent(plate, wells, images, imageAnalysisDataset);
+        TileImages images = null;
+        int imageDatasetsNumber = countDatasets(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
+        if (imageDatasetsNumber == 1)
+        {
+            images = tryLoadImages(datasets, externalDataTable);
+        }
+
+        int imageAnalysisDatasetsNumber =
+                countDatasets(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
+        DatasetReference imageAnalysisDataset = null;
+        if (imageAnalysisDatasetsNumber == 1)
+        {
+            imageAnalysisDataset = tryFindImageAnalysisDataset(datasets);
+        }
+
+        return new PlateContent(plate, wells, images, imageDatasetsNumber, imageAnalysisDataset,
+                imageAnalysisDatasetsNumber);
     }
 
     private Sample loadPlate(TechId plateId)
@@ -97,9 +110,7 @@ public class PlateContentLoader
                 tryFindDataset(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
         if (dataset != null)
         {
-            DataStorePE dataStore = dataset.getDataStore();
-            return new DatasetReference(dataset.getCode(), dataStore.getCode(), dataStore
-                    .getDownloadUrl());
+            return ScreeningUtils.createDatasetReference(dataset);
         } else
         {
             return null;
@@ -144,27 +155,50 @@ public class PlateContentLoader
 
     private TileImages loadImages(IExternalDataTable externalDataTable, ExternalDataPE dataset)
     {
+        PlateImageParameters imageParameters = loadImageParams(dataset, externalDataTable);
+        return TileImages.create(ScreeningUtils.createDatasetReference(dataset), imageParameters);
+    }
+
+    private PlateImageParameters loadImageParams(ExternalDataPE dataset,
+            IExternalDataTable externalDataTable)
+    {
         DataStorePE dataStore = dataset.getDataStore();
         String datasetCode = dataset.getCode();
         List<String> datasets = Arrays.asList(datasetCode);
-        String datastoreCode = dataStore.getCode();
         List<PlateImageParameters> imageParamsReports =
-                DatasetLoader.loadImageParameters(datasets, datastoreCode, externalDataTable);
+                DatasetLoader.loadImageParameters(datasets, dataStore.getCode(), externalDataTable);
+        assert imageParamsReports.size() == 1;
+        return imageParamsReports.get(0);
+    }
 
-        return TileImages.create(new DatasetReference(datasetCode, datastoreCode, dataStore
-                .getDownloadUrl()), imageParamsReports.get(0));
+    private static int countDatasets(List<ExternalDataPE> datasets, String datasetType)
+    {
+        int counter = 0;
+        for (ExternalDataPE dataset : datasets)
+        {
+            if (isTypeEqual(dataset, datasetType))
+            {
+                counter++;
+            }
+        }
+        return counter;
     }
 
     private static ExternalDataPE tryFindDataset(List<ExternalDataPE> datasets, String datasetType)
     {
         for (ExternalDataPE dataset : datasets)
         {
-            if (dataset.getDataSetType().getCode().equals(datasetType))
+            if (isTypeEqual(dataset, datasetType))
             {
                 return dataset;
             }
         }
         return null;
+    }
+
+    private static boolean isTypeEqual(ExternalDataPE dataset, String datasetType)
+    {
+        return dataset.getDataSetType().getCode().equals(datasetType);
     }
 
     private static List<WellMetadata> createWells(List<Sample> wellSamples)
@@ -194,7 +228,7 @@ public class PlateContentLoader
 
     private static WellLocation tryGetLocation(Sample wellSample)
     {
-        return WellUtils.tryCreateLocationFromMatrixCoordinate(wellSample.getSubCode());
+        return ScreeningUtils.tryCreateLocationFromMatrixCoordinate(wellSample.getSubCode());
     }
 
     private static Material tryFindInhibitedMaterial(Material content)

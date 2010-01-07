@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+
 /**
  * Describes images in one dataset and the way to access them.
  * 
@@ -51,14 +53,9 @@ public class TileImages implements IsSerializable
         return dataset.getDownloadUrl();
     }
 
-    public String getDatasetCode()
+    public IEntityInformationHolder getDatasetReference()
     {
-        return dataset.getCode();
-    }
-
-    public String getDatastoreCode()
-    {
-        return dataset.getDatastoreCode();
+        return dataset;
     }
 
     public PlateImageParameters getImageParameters()

@@ -99,9 +99,12 @@ public class PlateLayoutSection extends SingleSectionPanel
             final IViewContext<?> viewContext)
     {
         Component analysisPanel;
+        int datasetsNumber = plateContent.getImageAnalysisDatasetsNumber();
         final DatasetReference dataset = plateContent.tryGetImageAnalysisDataset();
         if (dataset != null)
         {
+            assert datasetsNumber == 1 : "only one image analysis dataset expected, but found: "
+                    + datasetsNumber;
             Button generateButton =
                     new Button("Show Image Analysis Results", new SelectionListener<ButtonEvent>()
                         {
@@ -114,7 +117,16 @@ public class PlateLayoutSection extends SingleSectionPanel
             analysisPanel = generateButton;
         } else
         {
-            analysisPanel = new Text("No image analysis data are available.");
+            if (datasetsNumber == 0)
+            {
+                analysisPanel = new Text("No image analysis data is available.");
+            } else
+            {
+                analysisPanel =
+                        new Text("There are " + datasetsNumber + " analysis datasets, "
+                                + "select the one of your interest from the 'Data Sets' section "
+                                + "and go to its detail view to see the image analysis results.");
+            }
         }
         add(analysisPanel, createMarginLayoutData());
     }
@@ -140,10 +152,33 @@ public class PlateLayoutSection extends SingleSectionPanel
     private void renderPlate(PlateContent plateContent, IViewContext<?> viewContext)
     {
         LayoutContainer container = new LayoutContainer();
+        Widget datasetNumberLegend = tryRenderImageDatasetsNumberLegend(plateContent, viewContext);
+        if (datasetNumberLegend != null)
+        {
+            container.add(datasetNumberLegend);
+        }
         container.add(renderWellsMatrix(plateContent, viewContext));
         container.add(renderWellsLegend());
 
         add(container, createMarginLayoutData());
+    }
+
+    private Widget tryRenderImageDatasetsNumberLegend(PlateContent plateContent,
+            IViewContext<?> viewContext)
+    {
+        int datasetsNumber = plateContent.getImageDatasetsNumber();
+        if (datasetsNumber == 0)
+        {
+            return new Text("No images data is available.");
+        } else if (datasetsNumber == 1)
+        {
+            return null;
+        } else
+        {
+            return new Text("There are " + datasetsNumber + " datasets with images, "
+                    + "select the one of your interest from the 'Data Sets' section "
+                    + "and go to its detail view to browse acquired images.");
+        }
     }
 
     private RowData createMarginLayoutData()

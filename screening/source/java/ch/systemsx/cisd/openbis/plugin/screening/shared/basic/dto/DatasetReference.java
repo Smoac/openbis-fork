@@ -16,16 +16,29 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
+import java.io.Serializable;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
  * Points to one dataset.
  * 
  * @author Tomasz Pylak
  */
-public class DatasetReference implements IsSerializable
+public class DatasetReference implements Serializable, IsSerializable, IEntityInformationHolder
 {
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+
+    private long id;
+
     private String datasetCode;
+
+    private String typeCode;
 
     private String datastoreCode;
 
@@ -37,9 +50,12 @@ public class DatasetReference implements IsSerializable
     {
     }
 
-    public DatasetReference(String code, String datastoreCode, String downloadUrl)
+    public DatasetReference(long id, String code, String typeCode, String datastoreCode,
+            String downloadUrl)
     {
+        this.id = id;
         this.datasetCode = code;
+        this.typeCode = typeCode;
         this.datastoreCode = datastoreCode;
         this.downloadUrl = downloadUrl;
     }
@@ -57,6 +73,23 @@ public class DatasetReference implements IsSerializable
     public String getDownloadUrl()
     {
         return downloadUrl;
+    }
+
+    public EntityKind getEntityKind()
+    {
+        return EntityKind.DATA_SET;
+    }
+
+    public BasicEntityType getEntityType()
+    {
+        BasicEntityType basicEntityType = new BasicEntityType();
+        basicEntityType.setCode(typeCode);
+        return basicEntityType;
+    }
+
+    public Long getId()
+    {
+        return id;
     }
 
 }

@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
@@ -87,44 +86,61 @@ public class GenePlateLocationsLoader
         List<WellContent> locations = loadLocations(geneMaterialId, experimentIdentifier);
         List<ExternalDataPE> imageDatasets = loadImageDatasets(locations, externalDataTable);
         Map<String, PlateImageParameters> imageParams = loadImagesReport(imageDatasets);
-        enrichWithImages(locations, imageDatasets, imageParams);
-        return locations;
+        return enrichWithImages(locations, imageDatasets, imageParams);
     }
 
-    private static void enrichWithImages(List<WellContent> locations,
+    private static List<WellContent> enrichWithImages(List<WellContent> wellContents,
             List<ExternalDataPE> imageDatasets, Map<String, PlateImageParameters> imageParams)
     {
-        Map<Long/* plate id */, ExternalDataPE> plateToDatasetMap =
+        Map<Long/* plate id */, List<ExternalDataPE>> plateToDatasetMap =
                 createPlateToDatasetMap(imageDatasets);
-        for (WellContent loc : locations)
+        List<WellContent> wellsWithImages = new ArrayList<WellContent>();
+        for (WellContent wellContent : wellContents)
         {
-            ExternalDataPE dataset = plateToDatasetMap.get(loc.getPlate().getId());
-            if (dataset != null)
+            List<ExternalDataPE> datasets = plateToDatasetMap.get(wellContent.getPlate().getId());
+            boolean imagesExist = false;
+            // there can be more than one dataset with images for each well - in such a case we will
+            // have one well content duplicate for each dataset
+            if (datasets != null)
             {
-                PlateImageParameters imageParameters = imageParams.get(dataset.getCode());
-                if (imageParameters != null)
+                for (ExternalDataPE dataset : datasets)
                 {
-                    TileImages wellImages =
-                            TileImages.create(createReference(dataset), imageParameters);
-                    loc.setImages(wellImages);
+                    PlateImageParameters imageParameters = imageParams.get(dataset.getCode());
+                    if (imageParameters != null)
+                    {
+                        DatasetReference datasetReference =
+                                ScreeningUtils.createDatasetReference(dataset);
+                        TileImages wellImages =
+                                TileImages.create(datasetReference, imageParameters);
+                        WellContent wellWithImages = wellContent.cloneWithImages(wellImages);
+                        wellsWithImages.add(wellWithImages);
+                        imagesExist = true;
+                    }
                 }
             }
+            // if there are no datasets for the well content, we add it without images
+            if (imagesExist == false)
+            {
+                wellsWithImages.add(wellContent);
+            }
         }
+        return wellsWithImages;
     }
 
-    private static DatasetReference createReference(ExternalDataPE dataset)
+    private static Map<Long/* sample id */, List<ExternalDataPE>> createPlateToDatasetMap(
+            List<ExternalDataPE> datasets)
     {
-        DataStorePE dataStore = dataset.getDataStore();
-        return new DatasetReference(dataset.getCode(), dataStore.getCode(), dataStore
-                .getDownloadUrl());
-    }
-
-    private static Map<Long, ExternalDataPE> createPlateToDatasetMap(List<ExternalDataPE> datasets)
-    {
-        Map<Long, ExternalDataPE> map = new HashMap<Long, ExternalDataPE>();
+        Map<Long, List<ExternalDataPE>> map = new HashMap<Long, List<ExternalDataPE>>();
         for (ExternalDataPE dataset : datasets)
         {
-            map.put(dataset.tryGetSample().getId(), dataset);
+            Long sampleId = dataset.tryGetSample().getId();
+            List<ExternalDataPE> plateDatasets = map.get(sampleId);
+            if (plateDatasets == null)
+            {
+                plateDatasets = new ArrayList<ExternalDataPE>();
+                map.put(sampleId, plateDatasets);
+            }
+            plateDatasets.add(dataset);
         }
         return map;
     }
@@ -239,7 +255,7 @@ public class GenePlateLocationsLoader
     private static WellContent convert(
             ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContent loc)
     {
-        WellLocation location = WellUtils.tryCreateLocationFromMatrixCoordinate(loc.well_code);
+        WellLocation location = ScreeningUtils.tryCreateLocationFromMatrixCoordinate(loc.well_code);
         EntityReference well =
                 new EntityReference(loc.well_id, loc.well_code, loc.well_type_code,
                         EntityKind.SAMPLE);

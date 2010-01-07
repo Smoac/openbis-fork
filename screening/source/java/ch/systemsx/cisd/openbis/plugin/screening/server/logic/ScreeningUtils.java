@@ -17,14 +17,17 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * Helper methods to operate on wells.
+ * Helper methods to operate on screening specific objects.
  * 
  * @author Tomasz Pylak
  */
-public class WellUtils
+public class ScreeningUtils
 {
     public static WellLocation tryCreateLocationFromMatrixCoordinate(String wellCode)
     {
@@ -37,4 +40,12 @@ public class WellUtils
             return new WellLocation(loc.getY(), loc.getX());
         }
     }
+
+    public static DatasetReference createDatasetReference(ExternalDataPE dataset)
+    {
+        DataStorePE dataStore = dataset.getDataStore();
+        return new DatasetReference(dataset.getId(), dataset.getCode(), dataset.getDataSetType()
+                .getCode(), dataStore.getCode(), dataStore.getDownloadUrl());
+    }
+
 }

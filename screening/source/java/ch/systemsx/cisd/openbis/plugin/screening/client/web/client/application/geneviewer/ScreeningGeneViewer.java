@@ -43,8 +43,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.I
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.MaterialPropertiesComponent;
@@ -176,6 +176,9 @@ public class ScreeningGeneViewer extends AbstractViewer<Material>
         TileImages images = wellContent.tryGetImages();
         if (images != null)
         {
+            Widget datasetLink = createEntityLink(images.getDatasetReference(), "browse");
+            container.add(withLabel(datasetLink, "Dataset: ", margin));
+
             container.add(createImageViewer(images, wellContent.tryGetLocation()));
         }
         return container;
@@ -192,10 +195,16 @@ public class ScreeningGeneViewer extends AbstractViewer<Material>
                 IMAGE_HEIGHT_PX);
     }
 
-    private Widget createEntityLink(EntityReference entity)
+    private Widget createEntityLink(IEntityInformationHolder entityInformationHolder)
     {
-        final ClickHandler listener = new OpenEntityDetailsTabClickListener(entity, viewContext);
-        return LinkRenderer.getLinkWidget(entity.getCode(), listener);
+        return createEntityLink(entityInformationHolder, entityInformationHolder.getCode());
+    }
+
+    private Widget createEntityLink(IEntityInformationHolder entityInformationHolder, String label)
+    {
+        final ClickHandler listener =
+                new OpenEntityDetailsTabClickListener(entityInformationHolder, viewContext);
+        return LinkRenderer.getLinkWidget(label, listener);
     }
 
     public static final String createId(final TechId materialId)

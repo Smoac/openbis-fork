@@ -33,9 +33,15 @@ public class PlateContent implements IsSerializable
 
     private List<WellMetadata> wells;
 
+    // not null if exactly one image dataset exists
     private TileImages imagesOrNull;
 
+    // not null if exactly one image analysis dataset exists
     private DatasetReference imageAnalysisDatasetOrNull;
+
+    private int imageDatasetsNumber;
+
+    private int imageAnalysisDatasetsNumber;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -44,12 +50,19 @@ public class PlateContent implements IsSerializable
     }
 
     public PlateContent(Sample plate, List<WellMetadata> wells, TileImages imagesOrNull,
-            DatasetReference imageAnalysisDatasetOrNull)
+            int imageDatasetsNumber, DatasetReference imageAnalysisDatasetOrNull,
+            int imageAnalysisDatasetsNumber)
     {
+        assert (imagesOrNull != null && imageDatasetsNumber == 1)
+                || (imagesOrNull == null && imageDatasetsNumber != 1);
+        assert (imageAnalysisDatasetOrNull != null && imageAnalysisDatasetsNumber == 1)
+                || (imageAnalysisDatasetOrNull == null && imageAnalysisDatasetsNumber != 1);
         this.plate = plate;
         this.wells = wells;
         this.imagesOrNull = imagesOrNull;
+        this.imageDatasetsNumber = imageDatasetsNumber;
         this.imageAnalysisDatasetOrNull = imageAnalysisDatasetOrNull;
+        this.imageAnalysisDatasetsNumber = imageAnalysisDatasetsNumber;
     }
 
     public List<WellMetadata> getWells()
@@ -95,5 +108,15 @@ public class PlateContent implements IsSerializable
             // TODO 2009-12-09, Tomasz Pylak: calculate rows number on the basis of metadata
             return 24;
         }
+    }
+
+    public int getImageDatasetsNumber()
+    {
+        return imageDatasetsNumber;
+    }
+
+    public int getImageAnalysisDatasetsNumber()
+    {
+        return imageAnalysisDatasetsNumber;
     }
 }

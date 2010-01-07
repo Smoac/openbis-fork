@@ -41,8 +41,7 @@ public class EntityReference implements Serializable, IsSerializable, IEntityInf
     private EntityKind kind;
 
     // GWT only
-    @SuppressWarnings("unused")
-    private EntityReference()
+    protected EntityReference()
     {
     }
 

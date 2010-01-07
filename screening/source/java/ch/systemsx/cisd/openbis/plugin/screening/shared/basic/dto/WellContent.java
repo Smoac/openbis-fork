@@ -21,8 +21,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityReference;
 
 /**
- * Describes the well and its location on the plate. Contains pointers to well and plate samples and
- * the material inside the well.
+ * Describes the well and its location on the plate. Contains pointers to well and plate samples, a
+ * material inside the well and the images from one dataset (if available) acquired for the well.
  * 
  * @author Tomasz Pylak
  */
@@ -36,7 +36,7 @@ public class WellContent implements IsSerializable
 
     private EntityReference materialContent;
 
-    // contains only images for this well
+    // contains only images for this well, null if no images have been acquired
     private TileImages imagesOrNull;
 
     // GWT only
@@ -79,8 +79,10 @@ public class WellContent implements IsSerializable
         return imagesOrNull;
     }
 
-    public void setImages(TileImages images)
+    public WellContent cloneWithImages(TileImages images)
     {
-        this.imagesOrNull = images;
+        WellContent clone = new WellContent(locationOrNull, well, plate, materialContent);
+        clone.imagesOrNull = images;
+        return clone;
     }
 }
