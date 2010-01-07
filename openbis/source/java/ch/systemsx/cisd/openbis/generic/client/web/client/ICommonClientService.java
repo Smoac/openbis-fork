@@ -234,6 +234,7 @@ public interface ICommonClientService extends IClientService
      */
     public ResultSet<MatchingEntity> listMatchingEntities(
             final SearchableEntity searchableEntityOrNull, final String queryText,
+            final boolean useWildcardSearchMode,
             final IResultSetConfig<String, MatchingEntity> resultSetConfig)
             throws UserFailureException;
 

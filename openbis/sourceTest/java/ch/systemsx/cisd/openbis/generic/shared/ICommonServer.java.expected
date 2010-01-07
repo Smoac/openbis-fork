@@ -307,7 +307,8 @@ public interface ICommonServer extends IServer
     @RolesAllowed(RoleSet.OBSERVER)
     @ReturnValueFilter(validatorClass = MatchingEntityValidator.class)
     public List<MatchingEntity> listMatchingEntities(final String sessionToken,
-            final SearchableEntity[] searchableEntities, final String queryText);
+            final SearchableEntity[] searchableEntities, final String queryText,
+            final boolean useWildcardSearchMode);
 
     /**
      * List experiment types.

@@ -219,10 +219,12 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> asyncCallback);
 
     /**
-     * @see ICommonClientService#listMatchingEntities(SearchableEntity, String, IResultSetConfig)
+     * @see ICommonClientService#listMatchingEntities(SearchableEntity, String, boolean,
+     *      IResultSetConfig)
      */
     public void listMatchingEntities(final SearchableEntity searchableEntity,
-            final String queryText, final IResultSetConfig<String, MatchingEntity> resultSetConfig,
+            final String queryText, final boolean useWildcardSearchMode,
+            final IResultSetConfig<String, MatchingEntity> resultSetConfig,
             final AsyncCallback<ResultSet<MatchingEntity>> asyncCallback);
 
     /** @see ICommonClientService#prepareExportMatchingEntities(TableExportCriteria) */

@@ -148,9 +148,12 @@ public final class SearchWidget extends LayoutContainer
         enableSearch(false);
         final SearchableEntity selectedSearchableEntityOrNull =
                 entityChooser.getSelectedSearchableEntity();
+        final boolean useWildcardSearchMode =
+                viewContext.getDisplaySettingsManager().isUseWildcardSearchMode();
 
         final MatchingEntitiesPanel matchingEntitiesGrid =
-                new MatchingEntitiesPanel(viewContext, selectedSearchableEntityOrNull, queryText);
+                new MatchingEntitiesPanel(viewContext, selectedSearchableEntityOrNull, queryText,
+                        useWildcardSearchMode);
         String title = createTabTitle(queryText);
         final ITabItemFactory tabFactory =
                 createTabFactory(matchingEntitiesGrid, title, viewContext);
@@ -166,8 +169,11 @@ public final class SearchWidget extends LayoutContainer
                     }
                     if (matchingEntitiesGrid.getRowNumber() == 0)
                     {
+                        Object[] msgParameters = (useWildcardSearchMode == true) ? new String[]
+                            { queryText, "", "off", } : new String[]
+                            { queryText, "not", "on" };
                         MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
-                                viewContext.getMessage(Dict.NO_MATCH, queryText), null);
+                                viewContext.getMessage(Dict.NO_MATCH, msgParameters), null);
                         return;
                     } else
                     {

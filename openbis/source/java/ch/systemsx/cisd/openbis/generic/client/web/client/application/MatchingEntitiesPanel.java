@@ -74,18 +74,21 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
 
     private final String queryText;
 
+    private final boolean useWildcardSearchMode;
+
     public IDisposableComponent asDisposableComponent()
     {
         return asDisposableWithoutToolbar();
     }
 
     public MatchingEntitiesPanel(IViewContext<ICommonClientServiceAsync> viewContext,
-            SearchableEntity searchableEntity, String queryText)
+            SearchableEntity searchableEntity, String queryText, boolean useWildcardSearchMode)
     {
         // NOTE: refreshAutomatically is false, refreshing should be called manually
         super(viewContext, GRID_ID, false, false, DisplayTypeIDGenerator.SEARCH_RESULT_GRID);
         this.searchableEntity = searchableEntity;
         this.queryText = queryText;
+        this.useWildcardSearchMode = useWildcardSearchMode;
         setId(createId());
 
         updateDefaultRefreshButton();
@@ -180,8 +183,8 @@ final class MatchingEntitiesPanel extends AbstractBrowserGrid<MatchingEntity, Ma
     protected void listEntities(DefaultResultSetConfig<String, MatchingEntity> resultSetConfig,
             AbstractAsyncCallback<ResultSet<MatchingEntity>> callback)
     {
-        viewContext.getService().listMatchingEntities(searchableEntity, queryText, resultSetConfig,
-                callback);
+        viewContext.getService().listMatchingEntities(searchableEntity, queryText,
+                useWildcardSearchMode, resultSetConfig, callback);
     }
 
     @Override

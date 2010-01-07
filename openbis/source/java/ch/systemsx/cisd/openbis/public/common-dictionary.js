@@ -122,7 +122,7 @@ var common = {
   search_button: "Search",
   global_search: "[{0}]: '{1}'",
   identifier: "Identifier",
-  no_match: "No results found for '{0}'.",
+  no_match: "No results found for '{0}'.<br><br><br>Note, that you are {1} using wildcard search mode. Try to turn it {2} in your user settings.",
   entity_type: "Entity Type",
   entity_kind: "Entity Kind",
   matching_text: "Matching Text",

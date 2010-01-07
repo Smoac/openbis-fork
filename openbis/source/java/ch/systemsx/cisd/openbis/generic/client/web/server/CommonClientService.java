@@ -571,6 +571,7 @@ public final class CommonClientService extends AbstractClientService implements
 
     public final ResultSet<MatchingEntity> listMatchingEntities(
             final SearchableEntity searchableEntityOrNull, final String queryText,
+            final boolean useWildcardSearchMode,
             final IResultSetConfig<String, MatchingEntity> resultSetConfig)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
@@ -578,7 +579,7 @@ public final class CommonClientService extends AbstractClientService implements
         final ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity[] matchingEntities =
                 SearchableEntityTranslator.translate(searchableEntityOrNull);
         return listEntities(resultSetConfig, new ListMatchingEntitiesOriginalDataProvider(
-                commonServer, sessionToken, matchingEntities, queryText));
+                commonServer, sessionToken, matchingEntities, queryText, useWildcardSearchMode));
     }
 
     public ResultSet<EntityTypePropertyType<?>> listPropertyTypeAssignments(

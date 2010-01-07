@@ -503,17 +503,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
                 new HashMap<PropertyTypePE, PropertyType>());
     }
 
-    @SuppressWarnings("deprecation")
     public final List<MatchingEntity> listMatchingEntities(final String sessionToken,
-            final SearchableEntity[] searchableEntities, final String queryText)
+            final SearchableEntity[] searchableEntities, final String queryText,
+            final boolean useWildcardSearchMode)
     {
-
-        // checkSession(sessionToken);
-        // TODO 2010-01-07, PTR: move to client
-        final Session session = getSession(sessionToken);
-        boolean useWildcardSearchMode =
-                session.getPerson().getDisplaySettings().isUseWildcardSearchMode();
-
+        checkSession(sessionToken);
         final List<MatchingEntity> list = new ArrayList<MatchingEntity>();
         try
         {
