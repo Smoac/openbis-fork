@@ -82,7 +82,8 @@ public class DetailedQueryBuilder
         for (DetailedSearchCriterion criterion : criteria)
         {
             List<String> fieldNames = getIndexFieldNames(criterion.getField());
-            String searchPattern = LuceneQueryBuilder.adaptQuery(criterion.getValue());
+            // TODO 2010-01-07, PTR: pass search mode
+            String searchPattern = LuceneQueryBuilder.adaptQuery(criterion.getValue(), true);
             Query luceneQuery = LuceneQueryBuilder.parseQuery(fieldNames, searchPattern, analyzer);
             resultQuery.add(luceneQuery, occureCondition);
         }

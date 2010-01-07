@@ -40,8 +40,8 @@ public interface IHibernateSearchDAO
      * @param searchTerm could be something like "<code>C11 AND System User</code>".
      */
     public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
-            final String searchTerm, final HibernateSearchDataProvider dataProvider)
-            throws DataAccessException;
+            final String searchTerm, final HibernateSearchDataProvider dataProvider,
+            boolean useWildcardSearchMode) throws DataAccessException;
 
     /** search for entity ids using the specified criteria */
     public List<Long> searchForEntityIds(DetailedSearchCriteria criteria, EntityKind entityKind);

@@ -118,7 +118,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         boolean fail = true;
         try
         {
-            hibernateSearchDAO.searchEntitiesByTerm(null, null, createDataProvider());
+            hibernateSearchDAO.searchEntitiesByTerm(null, null, createDataProvider(), true);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -128,7 +128,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         try
         {
             hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.MATERIAL, "",
-                    createDataProvider());
+                    createDataProvider(), true);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -148,7 +148,8 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final String lastName = "John";
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.SAMPLE, term,
-                        createDataProvider());
+                        createDataProvider(), true);
+        // TODO 2010-01-07, PTR: test basic search mode
         assertTrue(hits.size() > 0);
         for (MatchingEntity matchingEntity : hits)
         {
@@ -166,7 +167,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final String querySubstring = "exp-"; // no wildcard
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.EXPERIMENT, query,
-                        createDataProvider());
+                        createDataProvider(), true);
         assertEquals(5, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
@@ -182,7 +183,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         String propertyValue = "adenovirus";
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.MATERIAL, propertyValue,
-                        createDataProvider());
+                        createDataProvider(), true);
         assertEquals(2, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {

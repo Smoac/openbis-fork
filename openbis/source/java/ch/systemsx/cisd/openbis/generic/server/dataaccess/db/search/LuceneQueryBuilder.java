@@ -44,30 +44,59 @@ public class LuceneQueryBuilder
                 .convertEntityKind(entityKind));
     }
 
-    public static String adaptQuery(String userQuery)
+    private static final char FIELD_SEPARATOR = ':';
+
+    //
+    // query adaptation
+    //
+
+    // In wildcard mode field separator character needs to be escaped to disable field query.
+    // In basic mode wildcard characters in the query need to be escaped too.
+
+    private static final char[] CHARS_ESCAPED_IN_WILCARD_MODE =
+        { FIELD_SEPARATOR };
+
+    private static final char[] CHARS_ESCAPED_IN_BASIC_MODE =
+        { FIELD_SEPARATOR, '*', '?' };
+
+    public static String adaptQuery(String userQuery, boolean useWildcardSearchMode)
     {
-        String result = disableFieldQuery(userQuery);
+        char[] escapedChars =
+                (useWildcardSearchMode == true) ? CHARS_ESCAPED_IN_WILCARD_MODE
+                        : CHARS_ESCAPED_IN_BASIC_MODE;
+        String result = escapeQuery(userQuery, escapedChars);
+        // add '*' wildcard at the beginning and at the end of the query in basic search mode
+        if (useWildcardSearchMode == false)
+        {
+            result = '*' + result + '*';
+        }
         return result;
     }
 
-    // disables field query by escaping all field separator characters.
-    public static String disableFieldQuery(String userQuery)
+    /**
+     * Escapes <var>escapedChars</var> characters in the query.
+     */
+    private static String escapeQuery(String userQuery, char... escapedChars)
     {
-        char fieldSep = ':';
         char escapeChar = '\\';
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < userQuery.length(); i++)
         {
             char ch = userQuery.charAt(i);
-            if (ch == fieldSep && (i == 0 || userQuery.charAt(i - 1) != escapeChar))
+            for (char escapedChar : escapedChars)
             {
-                // add escape character to an unescaped field separator
-                sb.append(escapeChar);
+                if (ch == escapedChar && (i == 0 || userQuery.charAt(i - 1) != escapeChar))
+                {
+                    // add escape character if there is none
+                    sb.append(escapeChar);
+                }
             }
             sb.append(ch);
         }
         return sb.toString();
     }
+    
+    //
 
     /**
      * All the search query parsers should use this method to get the analyzer, because this is the

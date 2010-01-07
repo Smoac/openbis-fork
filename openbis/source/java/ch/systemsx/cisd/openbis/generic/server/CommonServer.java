@@ -503,10 +503,17 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
                 new HashMap<PropertyTypePE, PropertyType>());
     }
 
+    @SuppressWarnings("deprecation")
     public final List<MatchingEntity> listMatchingEntities(final String sessionToken,
             final SearchableEntity[] searchableEntities, final String queryText)
     {
-        checkSession(sessionToken);
+
+        // checkSession(sessionToken);
+        // TODO 2010-01-07, PTR: move to client
+        final Session session = getSession(sessionToken);
+        boolean useWildcardSearchMode =
+                session.getPerson().getDisplaySettings().isUseWildcardSearchMode();
+
         final List<MatchingEntity> list = new ArrayList<MatchingEntity>();
         try
         {
@@ -515,7 +522,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
                 HibernateSearchDataProvider dataProvider =
                         new HibernateSearchDataProvider(getDAOFactory());
                 list.addAll(getDAOFactory().getHibernateSearchDAO().searchEntitiesByTerm(
-                        searchableEntity, queryText, dataProvider));
+                        searchableEntity, queryText, dataProvider, useWildcardSearchMode));
             }
         } catch (final DataAccessException ex)
         {
@@ -783,9 +790,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
+
         try
         {
             IHibernateSearchDAO searchDAO = getDAOFactory().getHibernateSearchDAO();
+
             final Collection<Long> datasetIds =
                     searchDAO.searchForEntityIds(criteria, DtoConverters
                             .convertEntityKind(EntityKind.DATA_SET));
@@ -1564,7 +1573,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             DataStoreServiceKind dataStoreServiceKind)
     {
         checkSession(sessionToken);
-        
+
         List<DatastoreServiceDescription> result = new ArrayList<DatastoreServiceDescription>();
         List<DataStorePE> dataStores = getDAOFactory().getDataStoreDAO().listDataStores();
         for (DataStorePE dataStore : dataStores)

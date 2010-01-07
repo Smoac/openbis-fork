@@ -41,7 +41,8 @@ public class LuceneQueryBuilderTest extends AssertJUnit
     @Test(dataProvider = "queryEscaping")
     public final void testDisableAdvancedSearch(String unescapedQuery, String escapedQuery)
     {
-        String query = LuceneQueryBuilder.adaptQuery(unescapedQuery);
+        // TODO 2010-01-07, PTR: test basic search mode
+        String query = LuceneQueryBuilder.adaptQuery(unescapedQuery, true);
         assertEquals(escapedQuery, query);
     }
 

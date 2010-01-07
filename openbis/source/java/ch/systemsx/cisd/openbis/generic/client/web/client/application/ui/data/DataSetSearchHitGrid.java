@@ -76,6 +76,7 @@ public class DataSetSearchHitGrid extends AbstractExternalDataGrid implements
     protected void listDatasets(DefaultResultSetConfig<String, ExternalData> resultSetConfig,
             final AbstractAsyncCallback<ResultSetWithEntityTypes<ExternalData>> callback)
     {
+        // TODO 2010-01-07, PTR: pass search mode
         viewContext.getService().searchForDataSets(chosenSearchCriteria, resultSetConfig, callback);
     }
 

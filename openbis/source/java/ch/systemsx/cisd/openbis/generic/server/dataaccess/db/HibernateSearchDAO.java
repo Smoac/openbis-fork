@@ -99,8 +99,8 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
     // simple search for MatchingEntities
 
     public List<MatchingEntity> searchEntitiesByTerm(final SearchableEntity searchableEntity,
-            final String searchTerm, final HibernateSearchDataProvider dataProvider)
-            throws DataAccessException
+            final String searchTerm, final HibernateSearchDataProvider dataProvider,
+            final boolean useWildcardSearchMode) throws DataAccessException
     {
         assert searchableEntity != null : "Unspecified searchable entity";
         assert StringUtils.isBlank(searchTerm) == false : "Unspecified search term.";
@@ -113,7 +113,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
                                 throws HibernateException, SQLException
                         {
                             return doSearchEntitiesByTerm(session, searchableEntity, searchTerm,
-                                    dataProvider);
+                                    dataProvider, useWildcardSearchMode);
                         }
                     }));
         if (operationLog.isDebugEnabled())
@@ -127,15 +127,16 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
 
     private final List<MatchingEntity> doSearchEntitiesByTerm(final Session session,
             final SearchableEntity searchableEntity, final String userQuery,
-            final HibernateSearchDataProvider dataProvider) throws DataAccessException,
-            UserFailureException
+            final HibernateSearchDataProvider dataProvider, final boolean useWildcardSearchMode)
+            throws DataAccessException, UserFailureException
     {
         final FullTextSession fullTextSession = Search.getFullTextSession(session);
         Analyzer analyzer = LuceneQueryBuilder.createSearchAnalyzer();
 
         MyIndexReaderProvider indexProvider =
                 new MyIndexReaderProvider(fullTextSession, searchableEntity);
-        String searchQuery = LuceneQueryBuilder.adaptQuery(userQuery);
+
+        String searchQuery = LuceneQueryBuilder.adaptQuery(userQuery, useWildcardSearchMode);
 
         try
         {
