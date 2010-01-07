@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.calculator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -33,6 +34,14 @@ final class StandardFunctions
 {
     static final Double DOUBLE_DEFAULT_VALUE = new Double(-Double.MAX_VALUE);
     static final Integer INTEGER_DEFAULT_VALUE = new Integer(Integer.MIN_VALUE);
+    
+    /**
+     * Returns <code>true</code> if the specified string matches the specified regular expression.
+     */
+    public static boolean matches(String regex, String string)
+    {
+        return Pattern.matches(regex, string);
+    }
 
     /**
      * Returns the specified value as an integer. Returns the smallest integer if <code>value</code>
