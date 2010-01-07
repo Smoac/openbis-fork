@@ -42,6 +42,6 @@ public class MaterialBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new MaterialRow("BACTERIUM2"));
         remoteConsole.prepare(table.expectedSize(4));
 
-        launchTest(20000);
+        launchTest(30000);
     }
 }

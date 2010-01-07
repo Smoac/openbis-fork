@@ -35,7 +35,7 @@ public class AuthenticationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new WaitForAllActiveCallbacksFinish());
 
-        launchTest(30000);
+        launchTest(30 * SECOND);
     }
 
     public void testLogout() throws Exception
@@ -43,7 +43,7 @@ public class AuthenticationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new Login("test", "a"));
         remoteConsole.prepare(new Logout());
 
-        launchTest(10000);
+        launchTest(10 * SECOND);
     }
 
     public void testFailedLoginBecauseOfEmptyPassword() throws Exception

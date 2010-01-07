@@ -57,7 +57,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
         table.expectedRow(new Row().withCell(GroupColDefKind.CODE.id(), groupCode.toUpperCase()));
         remoteConsole.prepare(table);
 
-        launchTest(20000);
+        launchTest(20 * SECOND);
     }
 
     public final void testCreatePerson()
@@ -87,7 +87,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
                 TestConstants.USER_ID_O, RoleSetCode.OBSERVER.toString()));
         remoteConsole.prepare(table);
 
-        launchTest(20000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
     public final void testCreateAuthorizationGroupRoleAssignment()
@@ -102,7 +102,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
                 ADMINS_GROUP, RoleSetCode.OBSERVER.toString()));
         remoteConsole.prepare(table);
 
-        launchTest(20000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
     /**
@@ -121,7 +121,7 @@ public class AuthorizationManagementConsolTest extends AbstractGWTTestCase
                                 + "could be found in roles of user 'o'.");
         remoteConsole.prepare(failureExpectation);
 
-        launchTest(20000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
 }

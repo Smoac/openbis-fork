@@ -48,7 +48,7 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
         table.expectedColumnsNumber(15);
         remoteConsole.prepare(table.expectedSize(5));
 
-        launchTest(20000);
+        launchTest(30000);
     }
 
     public final void testListExperiments()
@@ -61,6 +61,6 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
         table.expectedColumnsNumber(14);
         remoteConsole.prepare(table.expectedSize(2));
 
-        launchTest(20000);
+        launchTest(30000);
     }
 }
