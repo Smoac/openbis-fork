@@ -162,6 +162,40 @@ public class Client implements EntryPoint
     }
 
     /**
+     * A version of onModuleLoad specifically for tests. Ignore the state in the session and go directly
+     * to the login page.
+     */
+    public final void onModuleLoadTest()
+    {
+        Controller openUrlController = WindowUtils.createOpenUrlController();
+        if (viewContext == null)
+        {
+            viewContext = createViewContext(openUrlController);
+            initializeControllers(openUrlController);
+        }
+
+        final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
+        urlParamsHelper.initUrlParams();
+
+        final IClientServiceAsync service = viewContext.getService();
+        service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
+            {
+
+                //
+                // AbstractAsyncCallback
+                //
+
+                @Override
+                public final void process(final ApplicationInfo info)
+                {
+                    viewContext.getModel().setApplicationInfo(info);
+                    final Dispatcher dispatcher = Dispatcher.get();
+                    dispatcher.dispatch(AppEvents.LOGIN);
+                }
+            });
+    }
+
+    /**
      * Callback class which handles return value
      * {@link ICommonClientService#tryToGetCurrentSessionContext()}.
      * 

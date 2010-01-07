@@ -108,6 +108,17 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
         staticCallbackListener = callbackListener;
     }
 
+    /**
+     * Gets the global callback listener
+     * <p>
+     * N.b. This method is just for testing purposes.
+     * </p>
+     */
+    public final static ICallbackListener<?> getStaticCallbackListener()
+    {
+        return staticCallbackListener;
+    }
+
     private final ICallbackListener<T> callbackListener;
 
     // can be null only during tests
@@ -159,7 +170,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     @SuppressWarnings("unchecked")
     private final static <T> ICallbackListener<T> cast(final ICallbackListener<?> callbackListener)
     {
-        return (ICallbackListener<T>) staticCallbackListener;
+        return (ICallbackListener<T>) callbackListener;
     }
 
     // TODO 2009-10-05, Piotr Buczek: make protected if one finds a way to easily delegate it
