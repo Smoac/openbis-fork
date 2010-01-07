@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 /**
  * @author Tomasz Pylak
  */
-public class ScreeningGeneViewer extends AbstractViewer<Material>
+public class GeneMaterialViewer extends AbstractViewer<Material>
 {
     private static final int IMAGE_WIDTH_PX = 100;
 
@@ -68,7 +68,7 @@ public class ScreeningGeneViewer extends AbstractViewer<Material>
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IScreeningClientServiceAsync> viewContext, final TechId materialId)
     {
-        ScreeningGeneViewer viewer = new ScreeningGeneViewer(viewContext, materialId);
+        GeneMaterialViewer viewer = new GeneMaterialViewer(viewContext, materialId);
 
         return new DatabaseModificationAwareComponent(viewer, viewer.propertiesSection);
     }
@@ -77,7 +77,7 @@ public class ScreeningGeneViewer extends AbstractViewer<Material>
 
     private final MaterialPropertiesComponent propertiesSection;
 
-    protected ScreeningGeneViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
+    protected GeneMaterialViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
             final TechId materialId)
     {
         super(viewContext, createId(materialId));

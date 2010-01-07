@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ScreeningGeneViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.GeneMaterialViewer;
 
 /**
  * {@link IClientPluginFactory} implementation for <i>screening</i> plugin.
@@ -125,7 +125,7 @@ public final class ClientPluginFactory extends
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent viewer =
-                                ScreeningGeneViewer.create(getViewContext(), materialId);
+                                GeneMaterialViewer.create(getViewContext(), materialId);
                         return DefaultTabItem.create(getViewerTitle(), viewer, getViewContext(),
                                 false);
                     }
