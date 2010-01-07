@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.plateviewer;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,20 +35,20 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
  * 
  * @author Tomasz Pylak
  */
-public final class ScreeningSampleViewer extends GenericSampleViewer
+public final class PlateSampleViewer extends GenericSampleViewer
 {
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IScreeningClientServiceAsync> viewContext,
             final IIdentifiable identifiable)
     {
-        ScreeningSampleViewer viewer = new ScreeningSampleViewer(viewContext, identifiable);
+        PlateSampleViewer viewer = new PlateSampleViewer(viewContext, identifiable);
         viewer.reloadAllData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
     private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
-    public ScreeningSampleViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
+    public PlateSampleViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
             final IIdentifiable identifiable)
     {
         super(viewContext, identifiable);

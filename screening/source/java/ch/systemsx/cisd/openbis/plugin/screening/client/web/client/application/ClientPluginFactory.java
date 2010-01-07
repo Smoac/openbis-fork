@@ -39,8 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.geneviewer.ScreeningGeneViewer;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.plateviewer.ScreeningSampleViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ScreeningGeneViewer;
 
 /**
  * {@link IClientPluginFactory} implementation for <i>screening</i> plugin.
@@ -138,7 +138,7 @@ public final class ClientPluginFactory extends
 
                     public String getId()
                     {
-                        return ScreeningSampleViewer.createId(materialId);
+                        return PlateSampleViewer.createId(materialId);
                     }
                 };
         }
@@ -160,7 +160,7 @@ public final class ClientPluginFactory extends
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent sampleViewer =
-                                ScreeningSampleViewer.create(getViewContext(), identifiable);
+                                PlateSampleViewer.create(getViewContext(), identifiable);
                         return DefaultTabItem.create(getViewerTitle(), sampleViewer,
                                 getViewContext(), false);
                     }
@@ -172,7 +172,7 @@ public final class ClientPluginFactory extends
 
                     public String getId()
                     {
-                        return ScreeningSampleViewer.createId(sampleId);
+                        return PlateSampleViewer.createId(sampleId);
                     }
                 };
         }

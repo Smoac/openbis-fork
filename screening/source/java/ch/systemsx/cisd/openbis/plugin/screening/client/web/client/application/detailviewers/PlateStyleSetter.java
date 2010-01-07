@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.plateviewer;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import com.extjs.gxt.ui.client.widget.Component;
 

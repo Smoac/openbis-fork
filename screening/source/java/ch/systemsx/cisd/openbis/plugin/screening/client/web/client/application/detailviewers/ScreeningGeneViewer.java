@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.geneviewer;
+package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import static ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils.withLabel;
 
@@ -49,8 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.MaterialPropertiesComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.plateviewer.WellContentDialog;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.plateviewer.WellImages;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
