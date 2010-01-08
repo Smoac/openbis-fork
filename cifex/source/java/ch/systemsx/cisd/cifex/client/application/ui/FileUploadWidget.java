@@ -20,9 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -32,11 +33,13 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
-import com.extjs.gxt.ui.client.widget.layout.ColumnData;
-import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.FileShareUploadDialog;
@@ -55,18 +58,11 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
  */
 public final class FileUploadWidget extends LayoutContainer
 {
-
-    private static final int COLUMN_WIDTH = 360;
-
-    private static final int WIDTH_OFS = 20;
-
-    private static final int FIELD_WIDTH = COLUMN_WIDTH - 50;
-
-    private static final int TOTAL_WIDTH = 3 * COLUMN_WIDTH + WIDTH_OFS;
+    private static boolean SUBSCRIBE_TO_WINDOW_CHANGES = false;
 
     private static final int FILE_FIELD_NUMBER = 3;
 
-    private final UserTextArea userTextArea;
+    private final UserTextArea recipientsTextArea;
 
     private final ViewContext context;
 
@@ -76,45 +72,83 @@ public final class FileUploadWidget extends LayoutContainer
 
     private final FormPanel formPanel;
 
+    private final ContentPanel downloaderPanel;
+
     private final List<FileUploadField> uploadFields;
+
+    private final FieldSet uploadFilesFieldSet;
 
     public FileUploadWidget(final ViewContext context)
     {
+        // Instantiate and initialize fields
         uploadFields = new ArrayList<FileUploadField>();
         this.context = context;
-        setLayout(new FlowLayout(5));
+        TableRowLayout layout = new TableRowLayout();
+        layout.setCellVerticalAlign(VerticalAlignment.TOP);
+        layout.setWidth("100%");
+        layout.setCellSpacing(2);
+        setLayout(layout);
         setBorders(false);
-        setScrollMode(Scroll.AUTO);
-        setWidth(TOTAL_WIDTH);
+
         formPanel = new FormPanel();
-        formPanel.setHeaderVisible(false);
+        initializeFormPanel();
+
+        recipientsTextArea = new UserTextArea();
+        initializeRecipientsTextArea();
+
+        uploadFilesFieldSet = new FieldSet();
+        initializeUploadFilesFieldSet();
+
+        createForm();
+
+        downloaderPanel = new ContentPanel();
+        initializeDownloaderPanel();
+
+        // Add top-level widgets to the container
+        add(formPanel, new TableData("66%", ""));
+        add(downloaderPanel, new TableData("34%", ""));
+
+        if (SUBSCRIBE_TO_WINDOW_CHANGES)
+            setMonitorWindowResize(true);
+    }
+
+    private void initializeRecipientsTextArea()
+    {
+        recipientsTextArea.setAllowBlank(false);
+        recipientsTextArea.setFieldLabel(context.getMessageResources().getRecipientLegend());
+        recipientsTextArea.setName("email-addresses");
+        recipientsTextArea.setPreventScrollbars(false);
+        recipientsTextArea.setValidator(CifexValidator.getUserFieldValidator(context
+                .getMessageResources()));
+        trySetInitialValueFromURL(recipientsTextArea, Constants.RECIPIENTS_PARAMETER);
+    }
+
+    private void initializeFormPanel()
+    {
+        formPanel.setHeading(context.getMessageResources().getUploadFilesPartTitleLess2GB());
+        formPanel.setHeaderVisible(true);
         formPanel.setBodyBorder(false);
-        formPanel.setBorders(false);
-        formPanel.setWidth(-1);
+        formPanel.setBorders(true);
         formPanel.setLabelAlign(LabelAlign.LEFT);
         formPanel.setButtonAlign(HorizontalAlignment.LEFT);
         formPanel.setAction(ServletPathConstants.FILE_UPLOAD_SERVLET_NAME);
         formPanel.setMethod(Method.POST);
         formPanel.setEncoding(Encoding.MULTIPART);
-        userTextArea = new UserTextArea();
-        userTextArea.setAllowBlank(false);
-        userTextArea.setFieldLabel(context.getMessageResources().getRecipientFieldLabel());
-        userTextArea.setName("email-addresses");
-        userTextArea.setWidth(FIELD_WIDTH);
-        userTextArea.setPreventScrollbars(false);
-        userTextArea.setValidator(CifexValidator.getUserFieldValidator(context
-                .getMessageResources()));
-        trySetInitialValueFromURL(userTextArea, Constants.RECIPIENTS_PARAMETER);
-        createForm();
+    }
+
+    private void initializeDownloaderPanel()
+    {
+        downloaderPanel.setHeading(context.getMessageResources()
+                .getUploadFilesPartTitleGreater2GB());
+        downloaderPanel.setHeaderVisible(true);
+        downloaderPanel.setBodyBorder(false);
+        downloaderPanel.setBorders(true);
+        downloaderPanel.setHeight(400);
     }
 
     private final void createForm()
     {
         FormData formData = new FormData("95%");
-
-        formPanel.addButton(validateButton =
-                new Button(context.getMessageResources().getValidateUsersButtonLabel()));
-        validateButton.addSelectionListener(getUserValidateButtonListener());
 
         formPanel.addButton(submitButton =
                 new Button(context.getMessageResources().getFileUploadButtonLabel()));
@@ -128,32 +162,26 @@ public final class FileUploadWidget extends LayoutContainer
 
             });
 
-        LayoutContainer main = new LayoutContainer();
-        main.setWidth(-1);
-        main.setLayout(new ColumnLayout());
-        main.add(createLeftColumn(formData), new ColumnData(.34));
-        main.add(createMiddleColumn(formData), new ColumnData(.33));
-        main.add(createRightColumn(formData), new ColumnData(.33));
+        formPanel.addButton(validateButton =
+                new Button(context.getMessageResources().getValidateUsersButtonLabel()));
+        validateButton.addSelectionListener(getUserValidateButtonListener());
 
-        formPanel.add(main);
-        add(formPanel);
+        LayoutContainer formContainer = new LayoutContainer();
+        FormLayout layout = new FormLayout();
+        layout.setLabelWidth(70);
+        layout.setDefaultWidth(-1);
+        formContainer.setLayout(layout);
+
+        // Add the fields
+        formContainer.add(createRecipientsField(), formData);
+        formContainer.add(uploadFilesFieldSet, formData);
+        formContainer.add(createCommentField(), formData);
+
+        formPanel.add(formContainer);
     }
 
-    private FormColumn createRightColumn(FormData formData)
+    private Widget createRecipientsField()
     {
-        FormColumn rightColumn = new FormColumn(formData);
-        FieldSet fieldSetRight = new FieldSet();
-        fieldSetRight.setHeading(context.getMessageResources().getCommentLabel());
-        fieldSetRight.add(createCommentField());
-        rightColumn.addFieldSet(fieldSetRight);
-        return rightColumn;
-    }
-
-    private FormColumn createMiddleColumn(FormData formData)
-    {
-        FormColumn middleColumn = new FormColumn(formData);
-        FieldSet fieldSetMiddle = new FieldSet();
-        fieldSetMiddle.setHeading(context.getMessageResources().getRecipientLegend());
         if (context.getModel().getUser().isPermanent() == false)
         {
             final UserInfoDTO registratorOrNull = context.getModel().getUser().getRegistrator();
@@ -161,27 +189,26 @@ public final class FileUploadWidget extends LayoutContainer
                     (registratorOrNull != null) ? registratorOrNull.getUserCode() : null;
             if (registratorUserCode != null)
             {
-                userTextArea.setValue("id:" + registratorUserCode);
+                recipientsTextArea.setValue("id:" + registratorUserCode);
             }
         }
-        fieldSetMiddle.add(userTextArea);
-        middleColumn.addFieldSet(fieldSetMiddle);
-        return middleColumn;
+        return recipientsTextArea;
     }
 
-    private FormColumn createLeftColumn(FormData formData)
+    private void initializeUploadFilesFieldSet()
     {
-        FormColumn leftColumn = new FormColumn(formData);
-        FieldSet fieldSet = new FieldSet();
-        fieldSet.setHeading(context.getMessageResources().getFileUploadLegend());
+        TableLayout layout = new TableLayout(1);
+        layout.setCellVerticalAlign(VerticalAlignment.TOP);
+        layout.setWidth("100%");
+        layout.setCellSpacing(2);
+        uploadFilesFieldSet.setLayout(layout);
+        uploadFilesFieldSet.setHeading(context.getMessageResources().getFileUploadLegend());
         for (int i = 0; i < FILE_FIELD_NUMBER; i++)
         {
             FileUploadField field = createFileField(i);
             uploadFields.add(field);
-            fieldSet.add(field);
+            uploadFilesFieldSet.add(field, new TableData("100%", ""));
         }
-        leftColumn.addFieldSet(fieldSet);
-        return leftColumn;
     }
 
     private final SelectionListener<ButtonEvent> getUserValidateButtonListener()
@@ -193,10 +220,10 @@ public final class FileUploadWidget extends LayoutContainer
                 {
                     final List<UserInfoDTO> existingUsers = new ArrayList<UserInfoDTO>();
                     final List<UserInfoDTO> newUsers = new ArrayList<UserInfoDTO>();
-                    final String[] userEntries = userTextArea.getUserEntries();
+                    final String[] userEntries = recipientsTextArea.getUserEntries();
                     final FileShareUploadDialog dialog =
                             new FileShareUploadDialog(context, existingUsers, newUsers,
-                                    "Upload New Files", userTextArea);
+                                    "Upload New Files", recipientsTextArea);
                     for (int i = 0; i < userEntries.length; i++)
                     {
                         if (userEntries[i].startsWith(Constants.USER_ID_PREFIX))
@@ -271,21 +298,21 @@ public final class FileUploadWidget extends LayoutContainer
         textAreaConfig.setFieldLabel(messageResources.getCommentLabel());
         textAreaConfig.setName("upload-comment");
         textAreaConfig.setPreventScrollbars(true);
-        textAreaConfig.setWidth(FIELD_WIDTH);
+        // textAreaConfig.setWidth(FIELD_WIDTH);
         trySetInitialValueFromURL(textAreaConfig, Constants.COMMENT_PARAMETER);
         return textAreaConfig;
     }
 
     private final FileUploadField createFileField(final int index)
     {
-        final FileUploadField fileFieldConfig = new FileUploadField();
-        fileFieldConfig.setFieldLabel(context.getMessageResources().getFileUploadFieldLabel(
-                index + 1));
-        fileFieldConfig.setName(getFilenameFieldName(index));
-        fileFieldConfig.setWidth(FIELD_WIDTH);
-        fileFieldConfig.setAllowBlank(index > 0);
-        fileFieldConfig.setValidateOnBlur(false);
-        return fileFieldConfig;
+        final FileUploadField fileField = new FileUploadField();
+        fileField.setFieldLabel(context.getMessageResources().getFileUploadFieldLabel(index + 1));
+        fileField.setName(getFilenameFieldName(index));
+        // fileField.setWidth(FIELD_WIDTH);
+        fileField.setWidth("100%");
+        fileField.setAllowBlank(index > 0);
+        fileField.setValidateOnBlur(false);
+        return fileField;
     }
 
     private void trySetInitialValueFromURL(UserTextArea field, String paramKey)
@@ -355,5 +382,22 @@ public final class FileUploadWidget extends LayoutContainer
                             submitButton.enable();
                         }
                     });
+    }
+
+    @Override
+    protected void onWindowResize(int aWidth, int aHeight)
+    {
+        super.onWindowResize(aWidth, aHeight);
+        // for (FileUploadField uploadField : uploadFields)
+        // {
+        // uploadField.setWidth((aWidth / 2));
+        // }
+        formPanel.layout(true);
+        uploadFilesFieldSet.layout(true);
+    }
+
+    public void onOutermostContainerWindowResize(int aWidth, int aHeight)
+    {
+        onWindowResize(aWidth, aHeight);
     }
 }
