@@ -231,6 +231,9 @@ public abstract class Dict
 
     public static final String PROJECT_SELECTOR_TOOLTIP = "project_selector_tooltip";
 
+    public static final String PROJECT_SELECTOR_DESCRIPTION_NOT_AVAILABLE =
+            "project_selector_description_not_available";
+
     public static final String PROJECT_SELECTOR_CODE_COLUMN = "project_selector_code_column";
 
     public static final String PROJECT_SELECTOR_DETAILS_LINK_LABEL =

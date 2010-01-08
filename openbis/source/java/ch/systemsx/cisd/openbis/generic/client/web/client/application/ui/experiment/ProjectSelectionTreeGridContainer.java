@@ -191,7 +191,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                 {
                     final Group group = (Group) model.get(ModelDataPropertyNames.OBJECT);
                     final Widget result = new InlineHTML(group.getCode());
-                    result.setTitle(StringEscapeUtils.unescapeHtml(group.getDescription()));
+                    result.setTitle(createTooltipText("Group", group.getCode(), group
+                            .getDescription()));
                     return result;
                 }
 
@@ -217,10 +218,21 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
                     final FlowPanel panel =
                             new FlowPanelWithLinkAppearingOnMouseOver(project, detailsLink);
-                    panel.setTitle(StringEscapeUtils.unescapeHtml(project.getDescription()));
+                    panel.setTitle(createTooltipText("Project", project.getCode(), project
+                            .getDescription()));
                     panel.add(new InlineHTML(project.getCode() + " "));
                     panel.add(detailsLink);
                     return panel;
+                }
+
+                private String createTooltipText(String entity, String code,
+                        String descriptionOrNull)
+                {
+                    String description =
+                            descriptionOrNull == null ? viewContext
+                                    .getMessage(Dict.PROJECT_SELECTOR_DESCRIPTION_NOT_AVAILABLE)
+                                    : StringEscapeUtils.unescapeHtml(descriptionOrNull);
+                    return entity + " code: " + code + "\nDescription: " + description;
                 }
 
                 class FlowPanelWithLinkAppearingOnMouseOver extends FlowPanel
