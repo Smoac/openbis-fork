@@ -154,7 +154,7 @@ public class FileDownloadClientModel extends AbstractTableModel
         this.sessionId = downloadClient.getSessionId();
         this.downloader = downloadClient.getDownloader();
         this.timeProvider = timeProvider;
-        this.downloadDirectory = new File(".");
+        this.downloadDirectory = new File(System.getProperty("user.home"));
 
         addProgessListener();
 
