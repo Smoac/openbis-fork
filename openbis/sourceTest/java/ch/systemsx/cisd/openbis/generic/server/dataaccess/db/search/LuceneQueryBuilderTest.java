@@ -28,22 +28,38 @@ import ch.rinn.restrictions.Friend;
 @Friend(toClasses = LuceneQueryBuilder.class)
 public class LuceneQueryBuilderTest extends AssertJUnit
 {
-    @DataProvider(name = "queryEscaping")
-    protected Object[][] getQueriesToTest()
+    @DataProvider(name = "basicModeQueries")
+    protected Object[][] getQueriesToTestInBasicMode()
+    {
+        return new Object[][]
+            {
+                { "abc", "*abc*" },
+                { "code:CP registrator:Joe", "*code\\:CP registrator\\:Joe*" },
+                { "a*b?c:", "*a\\*b\\?c\\:*" }, };
+    }
+
+    @DataProvider(name = "wildcardModeQueries")
+    protected Object[][] getQueriesToTestInWildcardMode()
     {
         return new Object[][]
             {
                 { "abc", "abc" },
                 { "code:CP registrator:Joe", "code\\:CP registrator\\:Joe" },
-                { "::", "\\:\\:" } };
+                { "a*b?c:", "a*b?c\\:" }, };
     }
 
-    @Test(dataProvider = "queryEscaping")
-    public final void testDisableAdvancedSearch(String unescapedQuery, String escapedQuery)
+    @Test(dataProvider = "basicModeQueries")
+    public final void testBasicSearchMode(String originalQuery, String adaptedQuery)
     {
-        // TODO 2010-01-07, PTR: test basic search mode
-        String query = LuceneQueryBuilder.adaptQuery(unescapedQuery, true);
-        assertEquals(escapedQuery, query);
+        String query = LuceneQueryBuilder.adaptQuery(originalQuery, false);
+        assertEquals(adaptedQuery, query);
+    }
+
+    @Test(dataProvider = "wildcardModeQueries")
+    public final void testWildcardSearchMode(String originalQuery, String adaptedQuery)
+    {
+        String query = LuceneQueryBuilder.adaptQuery(originalQuery, true);
+        assertEquals(adaptedQuery, query);
     }
 
 }
