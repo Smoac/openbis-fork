@@ -25,9 +25,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public enum SearchableEntity
 {
+    EXPERIMENT("Experiment", EntityKind.EXPERIMENT),
+
     SAMPLE("Sample", EntityKind.SAMPLE),
 
-    EXPERIMENT("Experiment", EntityKind.EXPERIMENT),
+    DATA_SET("Data Set", EntityKind.DATA_SET),
 
     MATERIAL("Material", EntityKind.MATERIAL);
 
@@ -70,7 +72,13 @@ public enum SearchableEntity
      */
     public <T extends IMatchingEntity> Class<T> getMatchingEntityClass()
     {
-        return cast(entityKind.getEntityClass());
+        if (entityKind == EntityKind.DATA_SET)
+        {
+            return cast(ExternalDataPE.class);
+        } else
+        {
+            return cast(entityKind.getEntityClass());
+        }
     }
 
     @SuppressWarnings("unchecked")

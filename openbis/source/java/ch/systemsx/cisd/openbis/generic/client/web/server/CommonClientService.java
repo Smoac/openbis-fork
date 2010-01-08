@@ -925,7 +925,6 @@ public final class CommonClientService extends AbstractClientService implements
                     BeanUtils.createBeanList(SearchableEntity.class, Arrays
                             .asList(ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity
                                     .values()));
-            Collections.sort(searchableEntities);
             return searchableEntities;
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {

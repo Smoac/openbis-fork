@@ -59,6 +59,7 @@ import org.hibernate.validator.Pattern;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collections.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
@@ -77,7 +78,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Friend(toClasses = EventPE.class)
 public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPropertiesHolder,
-        IEntityInformationHolderDTO
+        IEntityInformationHolderDTO, IIdentifierHolder
 {
     private static final long serialVersionUID = IServer.VERSION;
 
@@ -488,6 +489,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements IEntityPr
     }
 
     @Transient
+    @Field(index = Index.NO, store = Store.YES, name = SearchFieldConstants.IDENTIFIER)
     public String getIdentifier()
     {
         return getCode();
