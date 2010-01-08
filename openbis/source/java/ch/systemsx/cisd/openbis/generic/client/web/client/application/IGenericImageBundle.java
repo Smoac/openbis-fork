@@ -16,29 +16,29 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.ImageBundle;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
 
 /**
- * A generic {@link ImageBundle} implementation.
+ * A generic {@link ClientBundle} implementation.
  * <p>
  * Note that this approach does not render correctly animated <i>gif</i> (no animation!).
  * </p>
  * 
  * @author Franz-Josef Elmer
  */
-public interface IGenericImageBundle extends ImageBundle
+public interface IGenericImageBundle extends ClientBundle
 {
     /**
      * Returns CISD logo.
      */
-    @Resource("cisd.jpg")
-    public AbstractImagePrototype getCISDLogo();
+    @Source("cisd.jpg")
+    public ImageResource getCISDLogo();
 
     /**
      * Returns openBIS logo.
      */
-    @Resource("openBIS_logo_229x100.png")
-    public AbstractImagePrototype getOpenBISLogo();
+    @Source("openBIS_logo_229x100.png")
+    public ImageResource getOpenBISLogo();
 
 }

@@ -54,7 +54,8 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         loginPanel.add(loginWidget, DockPanel.CENTER);
         Anchor logo = createLogo(viewContext);
         final Widget footerPanel = createFooter(viewContext);
-        final HTML welcomePanel = new HTML(viewContext.getMessage(Dict.OPENBIS_INSTANCE, new Date()));
+        final HTML welcomePanel =
+                new HTML(viewContext.getMessage(Dict.OPENBIS_INSTANCE, new Date()));
         welcomePanel.setStyleName("login-welcome-text");
         final CellPanel northPanel = createNorthPanel();
         northPanel.add(logo);
@@ -69,7 +70,7 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
 
     private Anchor createLogo(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        Image image = viewContext.getImageBundle().getOpenBISLogo().createImage();
+        Image image = new Image(viewContext.getImageBundle().getOpenBISLogo());
         image.setTitle(viewContext.getMessage(Dict.OPENBIS_LOGO_TITLE));
         Anchor logo =
                 new Anchor(image.getElement().getString(), true,
