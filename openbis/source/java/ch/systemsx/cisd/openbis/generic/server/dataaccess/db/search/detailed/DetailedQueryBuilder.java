@@ -74,6 +74,7 @@ public class DetailedQueryBuilder
 
     private Query createQuery(DetailedSearchCriteria searchCriteria)
     {
+        boolean useWildcardSearchMode = searchCriteria.isUseWildcardSearchMode();
         List<DetailedSearchCriterion> criteria = searchCriteria.getCriteria();
         Occur occureCondition = createOccureCondition(searchCriteria.getConnection());
 
@@ -82,8 +83,8 @@ public class DetailedQueryBuilder
         for (DetailedSearchCriterion criterion : criteria)
         {
             List<String> fieldNames = getIndexFieldNames(criterion.getField());
-            // TODO 2010-01-07, PTR: pass search mode
-            String searchPattern = LuceneQueryBuilder.adaptQuery(criterion.getValue(), true);
+            String searchPattern =
+                    LuceneQueryBuilder.adaptQuery(criterion.getValue(), useWildcardSearchMode);
             Query luceneQuery = LuceneQueryBuilder.parseQuery(fieldNames, searchPattern, analyzer);
             resultQuery.add(luceneQuery, occureCondition);
         }

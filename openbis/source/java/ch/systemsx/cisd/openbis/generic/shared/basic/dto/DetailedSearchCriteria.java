@@ -35,6 +35,8 @@ public class DetailedSearchCriteria implements IsSerializable, Serializable
 
     private SearchCriteriaConnection connection;
 
+    private boolean useWildcardSearchMode;
+
     public DetailedSearchCriteria()
     {
     }
@@ -59,6 +61,16 @@ public class DetailedSearchCriteria implements IsSerializable, Serializable
         this.connection = connection;
     }
 
+    public boolean isUseWildcardSearchMode()
+    {
+        return useWildcardSearchMode;
+    }
+
+    public void setUseWildcardSearchMode(boolean useWildcardSearchMode)
+    {
+        this.useWildcardSearchMode = useWildcardSearchMode;
+    }
+
     public boolean isEmpty()
     {
         return criteria == null || criteria.isEmpty();
@@ -76,6 +88,7 @@ public class DetailedSearchCriteria implements IsSerializable, Serializable
             }
             sb.append(element);
         }
+        sb.append(" (" + (isUseWildcardSearchMode() ? "with" : "without") + " wildcards)");
         return sb.toString();
     }
 }

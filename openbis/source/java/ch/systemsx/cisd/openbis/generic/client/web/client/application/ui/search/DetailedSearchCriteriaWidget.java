@@ -44,15 +44,19 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
 
     private final MatchCriteriaRadio matchRadios;
 
+    private final IViewContext<ICommonClientServiceAsync> viewContext;
+
     public DetailedSearchCriteriaWidget(IViewContext<ICommonClientServiceAsync> viewContext,
             EntityKind entityKind)
     {
+        this.viewContext = viewContext;
         setLayoutOnChange(true);
         criteriaWidgets = new ArrayList<DetailedSearchCriterionWidget>();
         add(matchRadios =
                 new MatchCriteriaRadio(viewContext.getMessage(Dict.MATCH_ALL), viewContext
                         .getMessage(Dict.MATCH_ANY)));
-        addCriterion(new DetailedSearchCriterionWidget(viewContext, this, FIRST_ID_SUFFIX, entityKind));
+        addCriterion(new DetailedSearchCriterionWidget(viewContext, this, FIRST_ID_SUFFIX,
+                entityKind));
     }
 
     private void enableRemovalIfOneExists(final boolean enable)
@@ -76,9 +80,9 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
     }
 
     /**
-     * Removes given {@link DetailedSearchCriterionWidget} from the panel, unless it is the only one that
-     * left. In this case the state of chosen {@link DetailedSearchCriterionWidget} is set to initial value
-     * (reset).
+     * Removes given {@link DetailedSearchCriterionWidget} from the panel, unless it is the only one
+     * that left. In this case the state of chosen {@link DetailedSearchCriterionWidget} is set to
+     * initial value (reset).
      */
     void removeCriterion(DetailedSearchCriterionWidget w)
     {
@@ -117,6 +121,8 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
         if (criteria.size() > 0)
         {
             final DetailedSearchCriteria result = new DetailedSearchCriteria();
+            result.setUseWildcardSearchMode(viewContext.getDisplaySettingsManager()
+                    .isUseWildcardSearchMode());
             result.setConnection(matchRadios.getSelected());
             result.setCriteria(criteria);
             return result;
@@ -157,7 +163,8 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
     public void reset()
     {
         matchRadios.reset();
-        List<DetailedSearchCriterionWidget> list = new ArrayList<DetailedSearchCriterionWidget>(criteriaWidgets);
+        List<DetailedSearchCriterionWidget> list =
+                new ArrayList<DetailedSearchCriterionWidget>(criteriaWidgets);
         for (DetailedSearchCriterionWidget cw : list)
         {
             removeCriterion(cw);
