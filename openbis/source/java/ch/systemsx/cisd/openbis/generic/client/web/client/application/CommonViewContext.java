@@ -79,12 +79,14 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         return viewModel;
     }
 
+    public void initDisplaySettingsManager()
+    {
+        displaySettingsManager = createDisplaySettingsManager();
+    }
+
     public DisplaySettingsManager getDisplaySettingsManager()
     {
-        if (displaySettingsManager == null)
-        {
-            displaySettingsManager = createDisplaySettingsManager();
-        }
+        assert displaySettingsManager != null : "displaySettingsManager not initialized";
         return displaySettingsManager;
     }
 

@@ -230,6 +230,11 @@ public class Client implements EntryPoint
             } else
             {
                 viewContext.getModel().setSessionContext(sessionContext);
+                // NOTE: Display settings manager needs to be reinitialized after login.
+                // Otherwise if two users used the same browser one after another without server
+                // restart than display settings of the user that logged in first would be used
+                // also for the second user.
+                viewContext.initDisplaySettingsManager();
                 dispatcher.dispatch(AppEvents.INIT);
                 afterInitAction.execute();
                 GWTUtils.setAllowConfirmOnExit(true);

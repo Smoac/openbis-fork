@@ -66,7 +66,7 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     {
         return service;
     }
-    
+
     public final IViewContext<ICommonClientServiceAsync> getCommonViewContext()
     {
         return commonViewContext;
@@ -80,6 +80,11 @@ public abstract class AbstractPluginViewContext<T extends IClientServiceAsync> i
     public final GenericViewModel getModel()
     {
         return commonViewContext.getModel();
+    }
+
+    public void initDisplaySettingsManager()
+    {
+        commonViewContext.initDisplaySettingsManager();
     }
 
     public DisplaySettingsManager getDisplaySettingsManager()
