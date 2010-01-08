@@ -388,10 +388,10 @@ public final class FileUploadWidget extends LayoutContainer
     protected void onWindowResize(int aWidth, int aHeight)
     {
         super.onWindowResize(aWidth, aHeight);
-        // for (FileUploadField uploadField : uploadFields)
-        // {
-        // uploadField.setWidth((aWidth / 2));
-        // }
+        for (FileUploadField uploadField : uploadFields)
+        {
+            uploadField.setWidth((aWidth / 2));
+        }
         formPanel.layout(true);
         uploadFilesFieldSet.layout(true);
     }

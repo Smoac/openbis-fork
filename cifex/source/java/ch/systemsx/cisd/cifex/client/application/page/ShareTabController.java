@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.client.application.page;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -43,10 +44,14 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 class ShareTabController extends AbstractMainPageTabController
 {
 
+    private final FileUploadWidget fileUploadWidget;
+
     public ShareTabController(ViewContext context,
             final List<GridWidget<AbstractFileGridModel>> fileGridWidgets)
     {
         super(context, fileGridWidgets);
+
+        fileUploadWidget = new FileUploadWidget(context);
     }
 
     @Override
@@ -61,6 +66,17 @@ class ShareTabController extends AbstractMainPageTabController
         FileListingTabHelper.createListOwnedFilesGrid(context, contentPanel, fileGridWidgets,
                 quotaInformationUpdater);
         return contentPanel;
+    }
+
+    @Override
+    protected void onOutermostContainerWindowResize(int aWidth, int aHeight)
+    {
+        fileUploadWidget.onOutermostContainerWindowResize(aWidth, aHeight);
+        for (GridWidget<AbstractFileGridModel> gridWidget : fileGridWidgets)
+        {
+            gridWidget.getGrid().getView().layout();
+            gridWidget.getWidget().layout(true);
+        }
     }
 
     private String createExplanationText()
@@ -91,8 +107,7 @@ class ShareTabController extends AbstractMainPageTabController
         final LayoutContainer verticalPanel = createContainer();
         addTitlePart(verticalPanel, context.getMessageResources().getUploadFilesPartTitle());
         verticalPanel.add(explanationWidget);
-        addTitlePart(verticalPanel, messageResources.getUploadFilesPartTitleLess2GB());
-        verticalPanel.add(new FileUploadWidget(context));
+        verticalPanel.add(fileUploadWidget, new FlowData(5));
         addTitlePart(verticalPanel, messageResources.getUploadFilesPartTitleGreater2GB());
         String webStartLink = messageResources.getUploadFilesHelpJavaUploaderLink();
         String webStartTitle = messageResources.getUploadFilesHelpJavaUploaderTitle();

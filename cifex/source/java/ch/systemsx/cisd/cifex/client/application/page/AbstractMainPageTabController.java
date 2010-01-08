@@ -69,7 +69,18 @@ public abstract class AbstractMainPageTabController
      */
     protected LayoutContainer createOutermostWidgetContainer()
     {
-        LayoutContainer container = new LayoutContainer();
+        LayoutContainer container = new LayoutContainer()
+            {
+                @Override
+                protected void onWindowResize(int aWidth, int aHeight)
+                {
+                    super.onWindowResize(aWidth, aHeight);
+                    onOutermostContainerWindowResize(aWidth, aHeight);
+                    layout(true);
+                }
+            };
+        container.setMonitorWindowResize(true);
+        // LayoutContainer container = new LayoutContainer();
         container.addListener(Events.Show, new Listener<ComponentEvent>()
             {
 
@@ -78,7 +89,18 @@ public abstract class AbstractMainPageTabController
                     context.getPageController().setCurrentPage(getPageIdentifier());
                 }
             });
+        container.setWidth("100%");
         return container;
+    }
+
+    protected void onOutermostContainerWindowResize(int aWidth, int aHeight)
+    {
+        // Subclasses may override
+        // for (GridWidget<AbstractFileGridModel> gridWidget : fileGridWidgets)
+        // {
+        // gridWidget.getGrid().getView().layout();
+        // gridWidget.getWidget().layout(true);
+        // }
     }
 
     public static final LayoutContainer createContainer()
