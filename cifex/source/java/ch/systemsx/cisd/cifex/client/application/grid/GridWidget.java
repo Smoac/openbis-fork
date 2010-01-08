@@ -39,7 +39,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.model.IModelDataWithID;
@@ -56,9 +55,9 @@ public class GridWidget<M extends IModelDataWithID>
     private static final int PAGE_SIZE = 50;
 
     /** creates a paged grid with specified columns and filters */
-    public static <M extends IModelDataWithID> GridWidget<M> create(List<ColumnConfig> columnConfigs,
-            List<M> models, List<AbstractFilterField<M>> filterFields,
-            IMessageResources messageResources)
+    public static <M extends IModelDataWithID> GridWidget<M> create(
+            List<ColumnConfig> columnConfigs, List<M> models,
+            List<AbstractFilterField<M>> filterFields, IMessageResources messageResources)
     {
         return new GridWidget<M>(columnConfigs, models, filterFields, messageResources);
     }
@@ -76,6 +75,9 @@ public class GridWidget<M extends IModelDataWithID>
 
     // all displayed rows on all pages before filtering
     private List<M> models;
+
+    // The screen widget -- lazily created in the getter.
+    private ContentPanel widget = null;
 
     private GridWidget(List<ColumnConfig> columnConfigs, List<M> models,
             List<AbstractFilterField<M>> filterFields, IMessageResources messageResources)
@@ -105,7 +107,7 @@ public class GridWidget<M extends IModelDataWithID>
         this.models = models;
         refreshStore();
     }
-    
+
     public boolean removeItem(long id)
     {
         boolean removed = false;
@@ -126,7 +128,7 @@ public class GridWidget<M extends IModelDataWithID>
         }
         return removed;
     }
-    
+
     public M tryGetModel(long id)
     {
         final Iterator<M> it = models.iterator();
@@ -157,14 +159,17 @@ public class GridWidget<M extends IModelDataWithID>
     }
 
     /** widget containing the grid with the paging and filtering toolbar at the bottom */
-    public Widget getWidget()
+    public ContentPanel getWidget()
     {
-        final ContentPanel container = new ContentPanel();
-        container.setHeaderVisible(false);
-        container.setLayout(new RowLayout());
-        container.add(grid);
-        container.add(toolBar);
-        return container;
+        if (widget == null)
+        {
+            widget = new ContentPanel();
+            widget.setHeaderVisible(false);
+            widget.setLayout(new RowLayout());
+            widget.add(grid);
+            widget.add(toolBar);
+        }
+        return widget;
     }
 
     /** The internal grid control */
