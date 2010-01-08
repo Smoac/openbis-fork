@@ -34,6 +34,8 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 
 /**
+ * Handles displaying images in different channels.
+ * 
  * @author Tomasz Pylak
  */
 class ChannelChooser
