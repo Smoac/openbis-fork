@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -238,6 +239,7 @@ public class PlateLayoutSection extends SingleSectionPanel
         List<Widget> wellWidgets = new ArrayList<Widget>();
         int rowsNum = wellMatrix.length;
         int colsNum = getColumnsNum(wellMatrix);
+        DefaultChannelState channelState = new DefaultChannelState();
         for (int row = 0; row < rowsNum; row++)
         {
             for (int col = 0; col < colsNum; col++)
@@ -251,7 +253,8 @@ public class PlateLayoutSection extends SingleSectionPanel
                         wellWidget = createEmptyWellWidget();
                     } else
                     {
-                        wellWidget = createWellWidget(wellData, plateContent, viewContext);
+                        wellWidget =
+                                createWellWidget(wellData, plateContent, channelState, viewContext);
                     }
                 }
                 wellWidgets.add(wellWidget);
@@ -315,14 +318,15 @@ public class PlateLayoutSection extends SingleSectionPanel
     }
 
     private static Component createWellWidget(final WellData wellData,
-            final PlateContent plateContent, final IViewContext<?> viewContext)
+            final PlateContent plateContent, final DefaultChannelState channelState,
+            final IViewContext<?> viewContext)
     {
         Component widget = createContentWell(wellData);
         widget.addListener(Events.OnMouseDown, new Listener<BaseEvent>()
             {
                 public void handleEvent(BaseEvent ce)
                 {
-                    WellContentDialog.showContentDialog(wellData, viewContext);
+                    WellContentDialog.showContentDialog(wellData, channelState, viewContext);
                 }
             });
         widget.sinkEvents(Events.OnMouseDown.getEventCode());

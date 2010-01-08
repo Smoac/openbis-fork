@@ -49,6 +49,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material.MaterialPropertiesComponent;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -77,6 +79,8 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
 
     private final MaterialPropertiesComponent propertiesSection;
 
+    private final DefaultChannelState channelState;
+
     protected GeneMaterialViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
             final TechId materialId)
     {
@@ -90,6 +94,7 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
                 }
             };
         this.viewContext = viewContext;
+        this.channelState = new DefaultChannelState();
         setLayout(new BorderLayout());
         add(propertiesSection, createLeftBorderLayoutData());
         add(createLocationsPanel(materialId), createRightBorderLayoutData());
@@ -113,7 +118,7 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
                 }
             });
         chooserField.setEditable(false);
-        container.add(GuiUtils.withLabel(experimentChooser.getField(), "Experiment:"));
+        container.add(GuiUtils.withLabel(experimentChooser.getField(), "Experiment:", 10));
         container.add(new Text(
                 "Choose an experiment to find wells where this gene has been suppressed."));
         container.setScrollMode(Scroll.AUTO);
@@ -138,25 +143,51 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
                     });
     }
 
-    private Widget createGeneLocationPanel(List<WellContent> wellLocations)
+    private Widget createGeneLocationPanel(final List<WellContent> wellLocations)
     {
         if (wellLocations.size() == 0)
         {
             return new Text(
                     "This gene has not been suppressed in any plate measured in the chosen experiment.");
         }
+        int totalChannels = findMaxChannelNumber(wellLocations);
+        return ChannelChooser.createViewerWithChannelChooser(new IChanneledViewerFactory()
+            {
+                public Widget create(int channel)
+                {
+                    return createGeneLocationPanel(wellLocations, channel);
+                }
+            }, channelState, totalChannels);
+    }
+
+    private static int findMaxChannelNumber(List<WellContent> wells)
+    {
+        int max = 0;
+        for (WellContent well : wells)
+        {
+            TileImages images = well.tryGetImages();
+            if (images != null)
+            {
+                max = Math.max(max, images.getImageParameters().getChannelsNum());
+            }
+        }
+        return max;
+    }
+
+    private Widget createGeneLocationPanel(List<WellContent> wellLocations, int channel)
+    {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new TableLayout(3));
         TableData cellLayout = new TableData();
         cellLayout.setPadding(20);
         for (WellContent loc : wellLocations)
         {
-            container.add(createLocationDescription(loc), cellLayout);
+            container.add(createLocationDescription(loc, channel), cellLayout);
         }
         return container;
     }
 
-    private LayoutContainer createLocationDescription(WellContent wellContent)
+    private LayoutContainer createLocationDescription(WellContent wellContent, int channel)
     {
         LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
@@ -177,19 +208,23 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
             Widget datasetLink = createEntityLink(images.getDatasetReference(), "browse");
             container.add(withLabel(datasetLink, "Dataset: ", margin));
 
-            container.add(createImageViewer(images, wellContent.tryGetLocation()));
+            container.add(createImageViewer(images, wellContent.tryGetLocation(), channel));
         }
         return container;
     }
 
-    private Widget createImageViewer(TileImages images, WellLocation locationOrNull)
+    private Widget createImageViewer(TileImages images, WellLocation locationOrNull, int channel)
     {
         if (locationOrNull == null)
         {
             return new Text("Incorrect well code.");
         }
+        if (channel > images.getImageParameters().getChannelsNum())
+        {
+            return new Text("No images available for this channel.");
+        }
         WellImages wellImages = new WellImages(images, locationOrNull);
-        return WellContentDialog.createImageViewer(wellImages, viewContext, IMAGE_WIDTH_PX,
+        return WellContentDialog.createTilesGrid(wellImages, channel, viewContext, IMAGE_WIDTH_PX,
                 IMAGE_HEIGHT_PX);
     }
 

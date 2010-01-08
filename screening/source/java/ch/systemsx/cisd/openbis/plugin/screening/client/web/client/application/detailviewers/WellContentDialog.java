@@ -16,21 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
@@ -45,7 +36,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listene
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -59,7 +51,8 @@ public class WellContentDialog
 
     private final IViewContext<?> viewContext;
 
-    public static void showContentDialog(final WellData wellData, final IViewContext<?> viewContext)
+    public static void showContentDialog(final WellData wellData, DefaultChannelState channelState,
+            final IViewContext<?> viewContext)
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
@@ -77,7 +70,8 @@ public class WellContentDialog
         {
             int imgW = 200;
             int imgH = 120;
-            LayoutContainer imageViewer = createImageViewer(images, viewContext, imgW, imgH);
+            LayoutContainer imageViewer =
+                    createImageViewer(images, channelState, viewContext, imgW, imgH);
             container.add(imageViewer);
 
             dialogWidth = imgW * images.getTileColsNum();
@@ -91,67 +85,19 @@ public class WellContentDialog
         showWellContentDialog(container, dialogWidth, dialogHeight, title);
     }
 
-    public static LayoutContainer createImageViewer(final WellImages images,
-            final IViewContext<?> viewContext, final int imageWidth, final int imageHeight)
+    private static LayoutContainer createImageViewer(final WellImages images,
+            DefaultChannelState channelState, final IViewContext<?> viewContext,
+            final int imageWidth, final int imageHeight)
     {
-        final LayoutContainer container = new LayoutContainer();
-        container.setLayout(new RowLayout());
-
-        int channelsNum = images.getChannelsNum();
-
-        final List<String> channelNames = createChannelsDescriptions(channelsNum);
-        if (channelsNum > 1)
-        {
-            ComboBox<SimpleComboValue<String>> channelChooser = createChannelChooser(channelNames);
-            channelChooser
-                    .addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>()
-                        {
-                            @Override
-                            public void selectionChanged(
-                                    SelectionChangedEvent<SimpleComboValue<String>> se)
-                            {
-                                String value = se.getSelectedItem().getValue();
-                                int channel = channelNames.indexOf(value) + 1;
-                                LayoutContainer wellsGrid =
-                                        createWellsGrid(images, channel, viewContext, imageWidth,
-                                                imageHeight);
-                                GuiUtils.replaceLastItem(container, wellsGrid);
-                            }
-                        });
-            container.add(GuiUtils.withLabel(channelChooser, "Channel:"));
-        }
-        LayoutContainer wellsGrid =
-                createWellsGrid(images, 1, viewContext, imageWidth, imageHeight);
-        container.add(wellsGrid);
-        return container;
-    }
-
-    private static ComboBox<SimpleComboValue<String>> createChannelChooser(List<String> channelNames)
-    {
-        SimpleComboBox<String> combo = new SimpleComboBox<String>();
-        combo.setTriggerAction(TriggerAction.ALL);
-        combo.add(channelNames);
-        combo.setAllowBlank(false);
-        combo.setEditable(false);
-        combo.setSimpleValue(channelNames.get(0));
-        return combo;
-    }
-
-    private static List<String> createChannelsDescriptions(int channelsNum)
-    {
-        assert channelsNum > 0 : "there has to be at least one channel";
-
-        final List<String> channelNames = new ArrayList<String>();
-        for (int i = 1; i <= channelsNum; i++)
-        {
-            channelNames.add(createChannelName(i));
-        }
-        return channelNames;
-    }
-
-    private static String createChannelName(int channel)
-    {
-        return "Channel " + channel;
+        final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
+            {
+                public LayoutContainer create(int channel)
+                {
+                    return createTilesGrid(images, channel, viewContext, imageWidth, imageHeight);
+                }
+            };
+        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
+                .getChannelsNum());
     }
 
     private LayoutContainer createContentDescription()
@@ -208,7 +154,7 @@ public class WellContentDialog
         this.viewContext = viewContext;
     }
 
-    private static LayoutContainer createWellsGrid(WellImages images, int channel,
+    public static LayoutContainer createTilesGrid(WellImages images, int channel,
             IViewContext<?> viewContext, int imageWidth, int imageHeight)
     {
         LayoutContainer container = new LayoutContainer(new TableLayout(images.getTileColsNum()));

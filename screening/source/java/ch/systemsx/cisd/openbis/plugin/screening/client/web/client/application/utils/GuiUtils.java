@@ -45,7 +45,7 @@ public class GuiUtils
         LayoutContainer c = new LayoutContainer();
         c.setLayout(new TableLayout(2));
         TableData cellLayout = new TableData();
-        cellLayout.setMargin(4);
+        cellLayout.setMargin(margin);
         Text labelWidget = new Text(label);
         labelWidget.setWidth(Math.max(label.length() * 9, 80));
         c.add(labelWidget, cellLayout);
