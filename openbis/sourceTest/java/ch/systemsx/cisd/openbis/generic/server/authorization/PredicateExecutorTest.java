@@ -116,7 +116,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(predicateFactory).createPredicateForClass(stringPredicate.getClass());
+                    one(predicateFactory).createPredicateForClass(castToStringPredicateClass());
                     will(returnValue(stringPredicate));
 
                     one(stringPredicate).init(with(any(IAuthorizationDataProvider.class)));
@@ -139,7 +139,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(predicateFactory).createPredicateForClass(stringPredicate.getClass());
+                    one(predicateFactory).createPredicateForClass(castToStringPredicateClass());
                     will(returnValue(stringPredicate));
 
                     one(stringPredicate).init(with(any(IAuthorizationDataProvider.class)));
@@ -165,7 +165,7 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(predicateFactory).createPredicateForClass(stringPredicate.getClass());
+                    one(predicateFactory).createPredicateForClass(castToStringPredicateClass());
                     will(returnValue(stringPredicate));
 
                     one(stringPredicate).init(with(any(IAuthorizationDataProvider.class)));
