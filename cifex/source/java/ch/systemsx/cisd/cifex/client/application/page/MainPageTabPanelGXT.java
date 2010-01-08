@@ -72,7 +72,7 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
     private final TabItem adminTabItemOrNull;
 
     private final ViewContext context;
-    
+
     private final List<GridWidget<AbstractFileGridModel>> fileGridWidgets;
 
     public MainPageTabPanelGXT(ViewContext context)
@@ -153,12 +153,12 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
         // Add the tabs
         tabPanel.add(shareTabItem);
         tabPanel.add(inboxTabItem);
-        
+
         if (context.getModel().getUser().isPermanent() && inviteTabItemOrNull != null)
         {
             tabPanel.add(inviteTabItemOrNull);
         }
-        
+
         if (context.getModel().getUser().isAdmin() && adminTabOrNull != null)
         {
             tabPanel.add(adminTabItemOrNull);
@@ -173,7 +173,7 @@ public final class MainPageTabPanelGXT extends MainPageTabPanel
         tabItem.setClosable(false);
         tabItem.add(tabController.getWidget());
         tabItem.setScrollMode(Scroll.AUTO);
-        // WORKAOUND: set height to 95% to ensure also the toolbar of the bottom grid is shown.
+        // WORKAROUND: set height to 95% to ensure also the toolbar of the bottom grid is shown.
         tabItem.setSize("100%", "95%");
         tabItem.addListener(Events.Select, new Listener<TabPanelEvent>()
             {
