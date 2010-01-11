@@ -87,6 +87,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -277,13 +278,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             throw new EnvironmentFailureException("Authentication service cannot be accessed.");
         }
         List<String> unknownUsers = new ArrayList<String>();
+        final DisplaySettings defaultDisplaySettings = getDefaultDisplaySettings(sessionToken);
         for (String userID : userIDs)
         {
             try
             {
                 final Principal principal =
                         authenticationService.getPrincipal(applicationToken, userID);
-                createPerson(principal, session.tryGetPerson());
+                createPerson(principal, session.tryGetPerson(), defaultDisplaySettings);
             } catch (final IllegalArgumentException e)
             {
                 unknownUsers.add(userID);

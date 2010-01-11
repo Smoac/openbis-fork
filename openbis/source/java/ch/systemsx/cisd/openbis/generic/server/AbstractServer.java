@@ -147,7 +147,8 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         return roleAssignmentPE;
     }
 
-    protected final PersonPE createPerson(final Principal principal, final PersonPE registrator)
+    protected final PersonPE createPerson(final Principal principal, final PersonPE registrator,
+            DisplaySettings defaultDisplaySettings)
     {
         final PersonPE person = new PersonPE();
         person.setUserId(principal.getUserId());
@@ -156,6 +157,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         person.setEmail(principal.getEmail());
         person.setRegistrator(registrator);
         person.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        person.setDisplaySettings(defaultDisplaySettings);
         try
         {
             daoFactory.getPersonDAO().createPerson(person);
@@ -249,7 +251,8 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         if (person == null)
         {
             final PersonPE systemUser = getSystemUser(persons);
-            person = createPerson(session.getPrincipal(), systemUser);
+            final DisplaySettings defaultDisplaySettings = getDefaultDisplaySettings(sessionToken);
+            person = createPerson(session.getPrincipal(), systemUser, defaultDisplaySettings);
         } else
         {
             HibernateUtils.initialize(person.getAllPersonRoles());
