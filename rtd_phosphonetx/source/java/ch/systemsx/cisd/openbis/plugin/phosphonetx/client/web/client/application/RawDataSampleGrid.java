@@ -22,7 +22,9 @@ import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.appl
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.Dict.COPY_DATA_SETS_MESSAGE;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.Dict.COPY_DATA_SETS_TITLE;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -33,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.EntityGridModelFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ColumnDefsAndConfigs;
@@ -42,9 +45,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ID
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
@@ -115,6 +123,8 @@ class RawDataSampleGrid extends AbstractSimpleBrowserGrid<Sample>
 
     private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
     
+    private Set<BasicEntityType> shownEntityTypesOrNull;
+   
     RawDataSampleGrid(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, true,
@@ -153,7 +163,26 @@ class RawDataSampleGrid extends AbstractSimpleBrowserGrid<Sample>
     @Override
     protected ColumnDefsAndConfigs<Sample> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<Sample> schema = super.createColumnsDefinition();
+        IColumnDefinitionKind<Sample>[] columnsDefinition = getStaticColumnsDefinition();
+        EntityGridModelFactory<Sample> factory = new EntityGridModelFactory<Sample>(columnsDefinition);
+        ArrayList<PropertyType> propertyTypes = new ArrayList<PropertyType>();
+        if (shownEntityTypesOrNull != null)
+        {
+            for (BasicEntityType type : shownEntityTypesOrNull)
+            {
+                if (type instanceof EntityType)
+                {
+                    EntityType entityType = (EntityType) type;
+                    List<? extends EntityTypePropertyType<?>> etpts = entityType.getAssignedPropertyTypes();
+                    for (EntityTypePropertyType<?> entityTypePropertyType : etpts)
+                    {
+                        propertyTypes.add(entityTypePropertyType.getPropertyType());
+                    }
+                }
+            }
+        }
+        System.out.println(shownEntityTypesOrNull + " " + propertyTypes);
+        ColumnDefsAndConfigs<Sample> schema = factory.createColumnsSchema(viewContext, propertyTypes);
         GridCellRenderer<BaseEntityModel<?>> linkCellRenderer = createInternalLinkCellRenderer();
         schema.setGridCellRendererFor(RawDataSampleColDefKind.CODE.id(), linkCellRenderer);
         return schema;
@@ -167,9 +196,26 @@ class RawDataSampleGrid extends AbstractSimpleBrowserGrid<Sample>
     
     @Override
     protected void listEntities(DefaultResultSetConfig<String, Sample> resultSetConfig,
-            AbstractAsyncCallback<ResultSet<Sample>> callback)
+            final AbstractAsyncCallback<ResultSet<Sample>> callback)
     {
-        specificViewContext.getService().listRawDataSamples(resultSetConfig, callback);
+        AbstractAsyncCallback<ResultSetWithEntityTypes<Sample>> extendedCallback =
+            new AbstractAsyncCallback<ResultSetWithEntityTypes<Sample>>(viewContext)
+                {
+                    @Override
+                    protected void process(ResultSetWithEntityTypes<Sample> result)
+                    {
+                        shownEntityTypesOrNull = result.getAvailableEntityTypes();
+                        callback.onSuccess(result.getResultSet());
+//                        refreshColumnsSettingsIfNecessary();
+                    }
+
+                    @Override
+                    public void finishOnFailure(Throwable caught)
+                    {
+                        callback.finishOnFailure(caught);
+                    }
+                };
+        specificViewContext.getService().listRawDataSamples(resultSetConfig, extendedCallback);
     }
 
     @Override

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
@@ -185,11 +186,11 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return prepareExportEntities(exportCriteria);
     }
 
-    public ResultSet<Sample> listRawDataSamples(IResultSetConfig<String, Sample> criteria)
+    public ResultSetWithEntityTypes<Sample> listRawDataSamples(IResultSetConfig<String, Sample> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        return listEntities(criteria, new RawDataSampleProvider(rawDataService, sessionToken));
+        return listEntitiesWithTypes(criteria, new RawDataSampleProvider(rawDataService, sessionToken));
     }
 
     public String prepareExportRawDataSamples(TableExportCriteria<Sample> exportCriteria)
@@ -204,5 +205,4 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         rawDataService.copyRawData(getSessionToken(), rawDataSampleIDs);
     }
     
-
 }

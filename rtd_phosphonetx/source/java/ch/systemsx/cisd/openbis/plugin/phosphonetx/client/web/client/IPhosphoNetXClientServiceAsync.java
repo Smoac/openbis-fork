@@ -23,6 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -104,7 +105,7 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
 
     /** @see IPhosphoNetXClientService#listRawDataSamples(IResultSetConfig) */
     public void listRawDataSamples(IResultSetConfig<String, Sample> criteria,
-            AsyncCallback<ResultSet<Sample>> callback);
+            AsyncCallback<ResultSetWithEntityTypes<Sample>> callback);
     
     /** @see IPhosphoNetXClientService#prepareExportRawDataSamples(TableExportCriteria) */
     public void prepareExportRawDataSamples(TableExportCriteria<Sample> exportCriteria,

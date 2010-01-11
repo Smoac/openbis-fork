@@ -21,6 +21,7 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -85,7 +86,7 @@ public interface IPhosphoNetXClientService extends IClientService
             TableExportCriteria<SampleWithPropertiesAndAbundance> exportCriteria)
             throws UserFailureException;
 
-    public ResultSet<Sample> listRawDataSamples(IResultSetConfig<String, Sample> criteria)
+    public ResultSetWithEntityTypes<Sample> listRawDataSamples(IResultSetConfig<String, Sample> criteria)
             throws UserFailureException;
 
     public String prepareExportRawDataSamples(TableExportCriteria<Sample> exportCriteria)
