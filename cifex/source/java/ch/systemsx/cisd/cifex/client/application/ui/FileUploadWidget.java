@@ -174,8 +174,8 @@ public final class FileUploadWidget extends LayoutContainer
 
         // Add the fields
         formContainer.add(createRecipientsField(), formData);
-        formContainer.add(uploadFilesFieldSet, formData);
         formContainer.add(createCommentField(), formData);
+        formContainer.add(uploadFilesFieldSet, formData);
 
         formPanel.add(formContainer);
     }
