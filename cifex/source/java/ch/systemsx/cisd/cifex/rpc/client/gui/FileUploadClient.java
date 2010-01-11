@@ -19,23 +19,24 @@ package ch.systemsx.cisd.cifex.rpc.client.gui;
 import static ch.systemsx.cisd.common.utilities.SystemTimeProvider.SYSTEM_TIME_PROVIDER;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -43,6 +44,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.Spring;
+import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.TableModelEvent;
@@ -50,13 +53,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
-import org.springframework.remoting.RemoteAccessException;
-
-import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
-import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -64,46 +62,36 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 /**
  * @author Franz-Josef Elmer
  */
-public class FileUploadClient
+public class FileUploadClient extends AbstractSwingGUI
 {
+    private final static boolean USE_OLD_GUI = false;
+
+    private static final int LINE_HEIGHT = 30;
+
+    private static final int INPUT_WIDTH = 130;
+
     static
     {
         // Disable any logging output.
         System.setProperty("org.apache.commons.logging.Log",
                 "org.apache.commons.logging.impl.NoOpLog");
     }
-    
+
     private static final String TITLE = "CIFEX Uploader";
 
     private static final String REMOVE_FROM_TABLE_MENU_ITEM = "Remove selected files from table";
-
-    private static final long KEEP_ALIVE_PERIOD_MILLIS = 60 * 1000; // Every minute.
 
     public static void main(String[] args)
             throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
             EnvironmentFailureException
     {
+        setLookAndFeelToMetal();
+
         try
         {
-            final String serviceURL = args[0];
-            if (args.length == 2)
-            {
-                final String sessionId = args[1];
-                new FileUploadClient(RPCServiceFactory.createCIFEXComponent(serviceURL, true),
-                        sessionId, SYSTEM_TIME_PROVIDER).show();
-            } else if (args.length == 3)
-            {
-                final String userName = args[1];
-                final String passwd = args[2];
-                final ICIFEXComponent cifex =
-                        RPCServiceFactory.createCIFEXComponent(serviceURL, true);
-                final String sessionId = cifex.login(userName, passwd);
-                new FileUploadClient(cifex, sessionId, SYSTEM_TIME_PROVIDER)
-                        .show();
-            } else
-            {
-                throw new UserFailureException("Wrong number of arguments.");
-            }
+            CIFEXCommunicationState commState = new CIFEXCommunicationState(args);
+            FileUploadClient newMe = new FileUploadClient(commState, SYSTEM_TIME_PROVIDER);
+            newMe.show();
         } catch (RuntimeException ex)
         {
             final JFrame frame = new JFrame(TITLE);
@@ -114,17 +102,9 @@ public class FileUploadClient
         }
     }
 
-    private final ICIFEXComponent cifex;
-
     private final ICIFEXUploader uploader;
 
-    private final String sessionId;
-
     private final FileDialog fileDialog;
-
-    private final Thread shutdownHook;
-
-    private final JFrame frame;
 
     private JButton uploadButton;
 
@@ -134,43 +114,34 @@ public class FileUploadClient
 
     private JPopupMenu popupMenu;
 
-    FileUploadClient(final ICIFEXComponent cifex, final String sessionId,
-            final ITimeProvider timeProvider) throws EnvironmentFailureException,
-            InvalidSessionException
+    private UploadTableModel tableModel;
+
+    private JTextArea recipientsTextArea;
+
+    private JTextArea commentTextArea;
+
+    FileUploadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
     {
-        this.cifex = cifex;
-        this.sessionId = sessionId;
-        shutdownHook = new Thread()
-            {
-                @Override
-                public void run()
-                {
-                    cifex.logout(sessionId);
-                }
-            };
-        Runtime.getRuntime().addShutdownHook(shutdownHook);
-        startSessionKeepAliveTimer(KEEP_ALIVE_PERIOD_MILLIS);
+        // save and create local state
+        super(commState);
+
         this.uploader = cifex.createUploader(sessionId);
-        frame = new JFrame(TITLE);
-        frame.addWindowListener(new WindowAdapter()
-            {
-                @Override
-                public void windowClosing(WindowEvent e)
-                {
-                    logout();
-                }
-            });
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        UploadTableModel model = new UploadTableModel(uploader, timeProvider);
-        frame.add(createGUI(model), BorderLayout.CENTER);
-        frame.setBounds(200, 200, 500, 400);
-        frame.setVisible(true);
-        fileDialog = new FileDialog(frame);
+
+        tableModel = new UploadTableModel(uploader, timeProvider);
+        createGUI();
+
+        fileDialog = new FileDialog(getWindowFrame());
+        initializeFileDialog();
+
+        addProgressListener();
+    }
+
+    private void initializeFileDialog()
+    {
         fileDialog.setDirectory(".");
         fileDialog.setModal(true);
         fileDialog.setMode(FileDialog.LOAD);
         fileDialog.setTitle("Select file to upload");
-        addProgressListener();
     }
 
     private void addProgressListener()
@@ -190,14 +161,14 @@ public class FileUploadClient
                     setEnableStateOfButtons(true);
                     if (successful)
                     {
-                        JOptionPane.showMessageDialog(frame,
+                        JOptionPane.showMessageDialog(getWindowFrame(),
                                 "Uploading finished. Please refresh CIFEX in your Web browser.");
                         System.exit(0);
                     } else
                     {
                         JOptionPane
                                 .showMessageDialog(
-                                        frame,
+                                        getWindowFrame(),
                                         "Operation did not complete successfully. "
                                                 + "Check the status in the CIFEX Web GUI (Uploaded Files > Edit Sharing)");
                     }
@@ -218,13 +189,13 @@ public class FileUploadClient
                         message = "ERROR: " + throwable;
                     }
                     SwingUtilities.invokeLater(new Runnable()
-                    {
-                        public void run()
                         {
-                            JOptionPane.showMessageDialog(frame, message, "Error",
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
-                    });
+                            public void run()
+                            {
+                                JOptionPane.showMessageDialog(getWindowFrame(), message, "Error",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                        });
                 }
 
                 private String lastWarningMessage;
@@ -235,13 +206,13 @@ public class FileUploadClient
                     {
                         lastWarningMessage = warningMessage;
                         SwingUtilities.invokeLater(new Runnable()
-                        {
-                            public void run()
                             {
-                                JOptionPane.showMessageDialog(frame, warningMessage, "Warning",
-                                        JOptionPane.WARNING_MESSAGE);
-                            }
-                        });
+                                public void run()
+                                {
+                                    JOptionPane.showMessageDialog(getWindowFrame(), warningMessage,
+                                            "Warning", JOptionPane.WARNING_MESSAGE);
+                                }
+                            });
                     }
                 }
 
@@ -252,52 +223,65 @@ public class FileUploadClient
             });
     }
 
-    private void startSessionKeepAliveTimer(final long checkTimeIntervalMillis)
-    {
-        final Timer timer = new Timer("Session Keep Alive", true);
-        timer.schedule(new TimerTask()
-            {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        cifex.checkSession(sessionId);
-                    } catch (RemoteAccessException ex)
-                    {
-                        System.err.println("Error connecting to the server");
-                        ex.printStackTrace();
-                    } catch (InvalidSessionException ex)
-                    {
-                        JOptionPane.showMessageDialog(frame,
-                                "Your session has expired on the server. Please log in again",
-                                "Error connecting to server", JOptionPane.ERROR_MESSAGE);
-                        Runtime.getRuntime().removeShutdownHook(shutdownHook);
-                        System.exit(1);
-                    }
-                }
-            }, 0L, checkTimeIntervalMillis);
-    }
-
     void show()
     {
-        frame.setVisible(true);
+        getWindowFrame().setVisible(true);
     }
 
-    private JPanel createGUI(UploadTableModel tableModel)
+    private void createGUI()
+    {
+        JFrame window = getWindowFrame();
+
+        if (USE_OLD_GUI)
+        {
+            JPanel panel = createGUIOld();
+
+            window.add(panel, BorderLayout.CENTER);
+            window.setBounds(200, 200, 500, 400);
+            window.setVisible(true);
+        } else
+        {
+            JLabel spacer;
+            JPanel panel = createGUINew();
+            window.add(panel, BorderLayout.CENTER);
+
+            // Add small gaps to the left and right of the frame, to give a bit of space
+            spacer = new JLabel("");
+            spacer.setPreferredSize(new Dimension(5, 5));
+            window.add(spacer, BorderLayout.WEST);
+            spacer = new JLabel("");
+            spacer.setPreferredSize(new Dimension(5, 5));
+            window.add(spacer, BorderLayout.EAST);
+
+            // Add a small gap at the bottom of the frame, to the GUI doesn't look too constrained
+            spacer = new JLabel("");
+            spacer.setPreferredSize(new Dimension(600, 15));
+            window.add(spacer, BorderLayout.SOUTH);
+
+            // Add a small gap at the top of the frame, to the GUI doesn't look too constrained
+            spacer = new JLabel("");
+            spacer.setPreferredSize(new Dimension(600, 15));
+            window.add(spacer, BorderLayout.NORTH);
+
+            window.setBounds(200, 200, 770, 300);
+            window.setVisible(true);
+        }
+    }
+
+    private JPanel createGUIOld()
     {
         JPanel panel = new JPanel(new BorderLayout());
         JPanel centerPanel = new JPanel();
         panel.add(centerPanel, BorderLayout.CENTER);
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.add(createFilePanel(tableModel));
-        final JTextArea recipientsTextArea = createAndAddTextArea(centerPanel, "Recipients");
-        final JTextArea commentTextArea = createAndAddTextArea(centerPanel, "Comment");
+        centerPanel.add(createFilePanel());
+        recipientsTextArea = createAndAddTextArea(centerPanel, "Recipients");
+        commentTextArea = createAndAddTextArea(centerPanel, "Comment");
         JPanel buttonPanel = new JPanel(new BorderLayout());
         panel.add(buttonPanel, BorderLayout.SOUTH);
         JPanel centerButtonPanel = new JPanel();
         buttonPanel.add(centerButtonPanel, BorderLayout.CENTER);
-        uploadButton = createUploadButton(tableModel, recipientsTextArea, commentTextArea);
+        uploadButton = createUploadButton(tableModel);
         centerButtonPanel.add(uploadButton);
         cancelButton = new JButton("Cancel");
         cancelButton.setEnabled(false);
@@ -324,8 +308,131 @@ public class FileUploadClient
         return panel;
     }
 
-    private JButton createUploadButton(final UploadTableModel fileListModel,
-            final JTextArea recipientsTextArea, final JTextArea commentTextArea)
+    private JPanel createGUINew()
+    {
+        // The panel for the GUI
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+
+        // The panel for the upload form
+        JPanel fileListPanel = createFileListPanel();
+
+        // The buttons the implement the form actions (upload, cancel)
+        JPanel actionButtonsPanel = createActionButtonsPanel();
+
+        panel.add(fileListPanel, BorderLayout.CENTER);
+        panel.add(actionButtonsPanel, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    /**
+     * Create the panel with the information required for uploading files to CIFEX (file path,
+     * recipients, and comments).
+     */
+    private JPanel createFileListPanel()
+    {
+        JPanel panel = new JPanel(new SpringLayout());
+
+        JLabel label;
+        // Recipients label and input
+        label = new JLabel("Recipients", JLabel.TRAILING);
+        recipientsTextArea = new JTextArea();
+        recipientsTextArea.setPreferredSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT));
+        label.setLabelFor(recipientsTextArea);
+        panel.add(label);
+        panel.add(new JScrollPane(recipientsTextArea));
+
+        // Comment label and input
+        label = new JLabel("Comment", JLabel.TRAILING);
+        commentTextArea = new JTextArea();
+        commentTextArea.setPreferredSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT));
+        label.setLabelFor(commentTextArea);
+        panel.add(label);
+        panel.add(new JScrollPane(commentTextArea));
+
+        // Files label and table
+        label = new JLabel("Files", JLabel.TRAILING);
+        final JTable table = new JTable(tableModel)
+            {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public String getToolTipText(MouseEvent evt)
+                {
+                    int index = rowAtPoint(evt.getPoint());
+                    File file = tableModel.getFileItem(index).getFile();
+                    String size = FileUtilities.byteCountToDisplaySize(file.length());
+                    return file.getAbsolutePath() + " (" + size + ")";
+                }
+            };
+        table.setColumnModel(createTableColumnModel());
+        popupMenu = createPopupMenu(table);
+
+        JScrollPane filesPane = new JScrollPane(table);
+        filesPane.setMinimumSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT * 2));
+        filesPane.setPreferredSize(new Dimension(INPUT_WIDTH, LINE_HEIGHT * 6));
+        label.setLabelFor(filesPane);
+        panel.add(label);
+        panel.add(filesPane);
+
+        SpringUtilities.makeCompactGrid(panel, 3, 2, 5, 5, 5, 5);
+
+        JPanel fileListPanel = new JPanel();
+        fileListPanel.setLayout(new BorderLayout());
+        JPanel buttonsPanel = createFileListButtonsPanel();
+        buttonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        fileListPanel.add(panel, BorderLayout.CENTER);
+        fileListPanel.add(buttonsPanel, BorderLayout.PAGE_END);
+
+        return fileListPanel;
+    }
+
+    private JPanel createFileListButtonsPanel()
+    {
+        JPanel buttonsPanel = new JPanel();
+        BoxLayout layout = new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS);
+        buttonsPanel.setLayout(layout);
+
+        addButton = new JButton("Add File");
+        addButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    chooseAndAddFile();
+                }
+            });
+        buttonsPanel.add(Box.createHorizontalGlue());
+        buttonsPanel.add(addButton);
+        buttonsPanel.add(Box.createHorizontalGlue());
+
+        return buttonsPanel;
+    }
+
+    private JPanel createActionButtonsPanel()
+    {
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+        uploadButton = createUploadButton(tableModel);
+        cancelButton = new JButton("Stop");
+        cancelButton.setEnabled(false);
+        cancelButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    cancel();
+                }
+            });
+
+        buttonPanel.add(Box.createHorizontalGlue());
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(Box.createHorizontalStrut(5));
+        buttonPanel.add(uploadButton);
+
+        return buttonPanel;
+    }
+
+    private JButton createUploadButton(final UploadTableModel fileListModel)
     {
         final JButton button = new JButton("Upload");
         button.addActionListener(new ActionListener()
@@ -370,7 +477,7 @@ public class FileUploadClient
         return textArea;
     }
 
-    private JPanel createFilePanel(final UploadTableModel tableModel)
+    private JPanel createFilePanel()
     {
         JPanel filePanel = new JPanel(new BorderLayout());
         Border border = BorderFactory.createEtchedBorder();
@@ -389,21 +496,21 @@ public class FileUploadClient
                 }
             };
         table.setColumnModel(createTableColumnModel());
-        popupMenu = createPopupMenu(table, tableModel);
+        popupMenu = createPopupMenu(table);
         filePanel.add(new JScrollPane(table), BorderLayout.CENTER);
         addButton = new JButton("Add File");
         addButton.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    chooseAndAddFile(tableModel);
+                    chooseAndAddFile();
                 }
             });
         filePanel.add(addButton, BorderLayout.SOUTH);
         return filePanel;
     }
 
-    private JPopupMenu createPopupMenu(final JTable table, final UploadTableModel tableModel)
+    private JPopupMenu createPopupMenu(final JTable table)
     {
         final JPopupMenu menu = new JPopupMenu();
         final JMenuItem menuItem = new JMenuItem(REMOVE_FROM_TABLE_MENU_ITEM);
@@ -460,7 +567,7 @@ public class FileUploadClient
         return columnModel;
     }
 
-    private void chooseAndAddFile(final UploadTableModel tableModel)
+    private void chooseAndAddFile()
     {
         fileDialog.setVisible(true);
         String fileName = fileDialog.getFile();
@@ -472,25 +579,25 @@ public class FileUploadClient
                 file = file.getCanonicalFile();
             } catch (IOException ex)
             {
-                JOptionPane.showMessageDialog(frame, "Problem canonicalizing file:\n"
+                JOptionPane.showMessageDialog(getWindowFrame(), "Problem canonicalizing file:\n"
                         + file.getAbsolutePath());
 
                 return;
             }
             if (file.exists() == false)
             {
-                JOptionPane.showMessageDialog(frame, "File does not exists:\n"
+                JOptionPane.showMessageDialog(getWindowFrame(), "File does not exists:\n"
                         + file.getAbsolutePath());
                 return;
             }
             if (file.isDirectory())
             {
-                JOptionPane.showMessageDialog(frame, "Can't upload whole directories.");
+                JOptionPane.showMessageDialog(getWindowFrame(), "Can't upload whole directories.");
                 return;
             }
             if (tableModel.alreadyAdded(file))
             {
-                JOptionPane.showMessageDialog(frame, "File already added:\n"
+                JOptionPane.showMessageDialog(getWindowFrame(), "File already added:\n"
                         + file.getAbsolutePath());
                 return;
             }
@@ -518,23 +625,16 @@ public class FileUploadClient
         }
     }
 
-    private void logout()
-    {
-        if (cancel())
-        {
-            cifex.logout(sessionId);
-            System.exit(0);
-        }
-    }
-
-    private boolean cancel()
+    @Override
+    protected boolean cancel()
     {
         if (uploader.isInProgress() == false)
         {
             return true;
         }
         int answer =
-                JOptionPane.showConfirmDialog(frame, "Do you really want to cancel uploading?");
+                JOptionPane.showConfirmDialog(getWindowFrame(),
+                        "Do you really want to cancel uploading?");
         if (answer == JOptionPane.YES_OPTION)
         {
             uploader.cancel();
@@ -543,4 +643,192 @@ public class FileUploadClient
         return false;
     }
 
+    @Override
+    protected final String getTitle()
+    {
+        return TITLE;
+    }
+}
+
+/**
+ * A 1.4 file that provides utility methods for creating form- or grid-style layouts with
+ * SpringLayout. These utilities are used by several programs, such as SpringBox and
+ * SpringCompactGrid.
+ */
+class SpringUtilities
+{
+    /**
+     * A debugging utility that prints to stdout the component's minimum, preferred, and maximum
+     * sizes.
+     */
+    public static void printSizes(Component c)
+    {
+        System.out.println("minimumSize = " + c.getMinimumSize());
+        System.out.println("preferredSize = " + c.getPreferredSize());
+        System.out.println("maximumSize = " + c.getMaximumSize());
+    }
+
+    /**
+     * Aligns the first <code>rows</code> * <code>cols</code> components of <code>parent</code> in a
+     * grid. Each component is as big as the maximum preferred width and height of the components.
+     * The parent is made just big enough to fit them all.
+     * 
+     * @param rows number of rows
+     * @param cols number of columns
+     * @param initialX x location to start the grid at
+     * @param initialY y location to start the grid at
+     * @param xPad x padding between cells
+     * @param yPad y padding between cells
+     */
+    public static void makeGrid(Container parent, int rows, int cols, int initialX, int initialY,
+            int xPad, int yPad)
+    {
+        SpringLayout layout;
+        try
+        {
+            layout = (SpringLayout) parent.getLayout();
+        } catch (ClassCastException exc)
+        {
+            System.err.println("The first argument to makeGrid must use SpringLayout.");
+            return;
+        }
+
+        Spring xPadSpring = Spring.constant(xPad);
+        Spring yPadSpring = Spring.constant(yPad);
+        Spring initialXSpring = Spring.constant(initialX);
+        Spring initialYSpring = Spring.constant(initialY);
+        int max = rows * cols;
+
+        // Calculate Springs that are the max of the width/height so that all
+        // cells have the same size.
+        Spring maxWidthSpring = layout.getConstraints(parent.getComponent(0)).getWidth();
+        Spring maxHeightSpring = layout.getConstraints(parent.getComponent(0)).getWidth();
+        for (int i = 1; i < max; i++)
+        {
+            SpringLayout.Constraints cons = layout.getConstraints(parent.getComponent(i));
+
+            maxWidthSpring = Spring.max(maxWidthSpring, cons.getWidth());
+            maxHeightSpring = Spring.max(maxHeightSpring, cons.getHeight());
+        }
+
+        // Apply the new width/height Spring. This forces all the
+        // components to have the same size.
+        for (int i = 0; i < max; i++)
+        {
+            SpringLayout.Constraints cons = layout.getConstraints(parent.getComponent(i));
+
+            cons.setWidth(maxWidthSpring);
+            cons.setHeight(maxHeightSpring);
+        }
+
+        // Then adjust the x/y constraints of all the cells so that they
+        // are aligned in a grid.
+        SpringLayout.Constraints lastCons = null;
+        SpringLayout.Constraints lastRowCons = null;
+        for (int i = 0; i < max; i++)
+        {
+            SpringLayout.Constraints cons = layout.getConstraints(parent.getComponent(i));
+            if (i % cols == 0)
+            { // start of new row
+                lastRowCons = lastCons;
+                cons.setX(initialXSpring);
+            } else
+            { // x position depends on previous component
+                cons.setX(Spring.sum(lastCons.getConstraint(SpringLayout.EAST), xPadSpring));
+            }
+
+            if (i / cols == 0)
+            { // first row
+                cons.setY(initialYSpring);
+            } else
+            { // y position depends on previous row
+                cons.setY(Spring.sum(lastRowCons.getConstraint(SpringLayout.SOUTH), yPadSpring));
+            }
+            lastCons = cons;
+        }
+
+        // Set the parent's size.
+        SpringLayout.Constraints pCons = layout.getConstraints(parent);
+        pCons.setConstraint(SpringLayout.SOUTH, Spring.sum(Spring.constant(yPad), lastCons
+                .getConstraint(SpringLayout.SOUTH)));
+        pCons.setConstraint(SpringLayout.EAST, Spring.sum(Spring.constant(xPad), lastCons
+                .getConstraint(SpringLayout.EAST)));
+    }
+
+    /* Used by makeCompactGrid. */
+    private static SpringLayout.Constraints getConstraintsForCell(int row, int col,
+            Container parent, int cols)
+    {
+        SpringLayout layout = (SpringLayout) parent.getLayout();
+        Component c = parent.getComponent(row * cols + col);
+        return layout.getConstraints(c);
+    }
+
+    /**
+     * Aligns the first <code>rows</code> * <code>cols</code> components of <code>parent</code> in a
+     * grid. Each component in a column is as wide as the maximum preferred width of the components
+     * in that column; height is similarly determined for each row. The parent is made just big
+     * enough to fit them all.
+     * 
+     * @param rows number of rows
+     * @param cols number of columns
+     * @param initialX x location to start the grid at
+     * @param initialY y location to start the grid at
+     * @param xPad x padding between cells
+     * @param yPad y padding between cells
+     */
+    public static void makeCompactGrid(Container parent, int rows, int cols, int initialX,
+            int initialY, int xPad, int yPad)
+    {
+        SpringLayout layout;
+        try
+        {
+            layout = (SpringLayout) parent.getLayout();
+        } catch (ClassCastException exc)
+        {
+            System.err.println("The first argument to makeCompactGrid must use SpringLayout.");
+            return;
+        }
+
+        // Align all cells in each column and make them the same width.
+        Spring x = Spring.constant(initialX);
+        for (int c = 0; c < cols; c++)
+        {
+            Spring width = Spring.constant(0);
+            for (int r = 0; r < rows; r++)
+            {
+                width = Spring.max(width, getConstraintsForCell(r, c, parent, cols).getWidth());
+            }
+            for (int r = 0; r < rows; r++)
+            {
+                SpringLayout.Constraints constraints = getConstraintsForCell(r, c, parent, cols);
+                constraints.setX(x);
+                constraints.setWidth(width);
+            }
+            x = Spring.sum(x, Spring.sum(width, Spring.constant(xPad)));
+        }
+
+        // Align all cells in each row and make them the same height.
+        Spring y = Spring.constant(initialY);
+        for (int r = 0; r < rows; r++)
+        {
+            Spring height = Spring.constant(0);
+            for (int c = 0; c < cols; c++)
+            {
+                height = Spring.max(height, getConstraintsForCell(r, c, parent, cols).getHeight());
+            }
+            for (int c = 0; c < cols; c++)
+            {
+                SpringLayout.Constraints constraints = getConstraintsForCell(r, c, parent, cols);
+                constraints.setY(y);
+                constraints.setHeight(height);
+            }
+            y = Spring.sum(y, Spring.sum(height, Spring.constant(yPad)));
+        }
+
+        // Set the parent's size.
+        SpringLayout.Constraints pCons = layout.getConstraints(parent);
+        pCons.setConstraint(SpringLayout.SOUTH, y);
+        pCons.setConstraint(SpringLayout.EAST, x);
+    }
 }

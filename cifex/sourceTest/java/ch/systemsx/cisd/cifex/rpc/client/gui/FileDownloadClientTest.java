@@ -37,7 +37,7 @@ public class FileDownloadClientTest extends AssertJUnit
         {
             String[] args =
                 { "" };
-            FileDownloadClient.createFileDownloadClient(args);
+            new CIFEXCommunicationState(args);
         } catch (ConfigurationFailureException e)
         {
             // worked correctly

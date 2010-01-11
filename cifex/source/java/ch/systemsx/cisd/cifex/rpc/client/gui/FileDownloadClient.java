@@ -22,13 +22,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -41,19 +37,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 
-import org.springframework.remoting.RemoteAccessException;
-
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
-import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
-import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
@@ -66,15 +56,17 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
-public class FileDownloadClient
+public class FileDownloadClient extends AbstractSwingGUI
 {
+    private static final int LINE_HEIGHT = 30;
+
     static
     {
         // Disable any logging output.
         System.setProperty("org.apache.commons.logging.Log",
                 "org.apache.commons.logging.impl.NoOpLog");
     }
-    
+
     private static final String TITLE = "CIFEX Downloader";
 
     /**
@@ -88,7 +80,9 @@ public class FileDownloadClient
 
         try
         {
-            FileDownloadClient newMe = createFileDownloadClient(args);
+            CIFEXCommunicationState commState = new CIFEXCommunicationState(args);
+
+            FileDownloadClient newMe = new FileDownloadClient(commState, SYSTEM_TIME_PROVIDER);
             newMe.show();
         } catch (RuntimeException ex)
         {
@@ -100,69 +94,17 @@ public class FileDownloadClient
         }
     }
 
-    /**
-     * Create a new instance of the FileDownloadClient based on the arguments, if possible.
-     */
-    static FileDownloadClient createFileDownloadClient(String[] args)
-            throws ch.systemsx.cisd.cifex.shared.basic.UserFailureException,
-            EnvironmentFailureException
-    {
-        if (args.length < 2)
-            throw new ConfigurationFailureException(
-                    "The CIFEX File Download Client was improperly configured -- the arguments it requires were not supplied. Please talk to the CIFEX administrator.");
-
-        final String serviceURL = args[0];
-        final String sessionId;
-        final ICIFEXComponent cifex = RPCServiceFactory.createCIFEXComponent(serviceURL, true);
-
-        switch (args.length)
-        {
-            case 2:
-                sessionId = args[1];
-                break;
-            default:
-                String userName = args[1];
-                String passwd = args[2];
-                sessionId = cifex.login(userName, passwd);
-        }
-
-        return new FileDownloadClient(cifex, sessionId, SYSTEM_TIME_PROVIDER);
-    }
-
-    // GUI Implementation State
-    private final ICIFEXComponent cifex;
-
-    private final String sessionId;
-
     private final ICIFEXDownloader downloader;
-
-    private Thread shutdownHook;
-
-    private final JFrame frame;
 
     private final FileDownloadClientModel tableModel;
 
-    private static final long KEEP_ALIVE_PERIOD_MILLIS = 60 * 1000; // Every second
-
     private JButton directoryButton;
 
-    FileDownloadClient(final ICIFEXComponent cifex, final String sessionId,
-            final ITimeProvider timeProvider) throws EnvironmentFailureException,
-            InvalidSessionException
+    FileDownloadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
     {
         // save and create local state
-        this.cifex = cifex;
-        this.sessionId = sessionId;
-        this.downloader = this.cifex.createDownloader(this.sessionId);
-
-        // create the window frame
-        frame = new JFrame(TITLE);
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-        // add callbacks to close the app properly
-        addShutdownHook();
-        startSessionKeepAliveTimer(KEEP_ALIVE_PERIOD_MILLIS);
-        addWindowCloseHook();
+        super(commState);
+        downloader = cifex.createDownloader(this.sessionId);
 
         tableModel = new FileDownloadClientModel(this, timeProvider);
 
@@ -185,43 +127,32 @@ public class FileDownloadClient
         return downloader;
     }
 
-    private static void setLookAndFeelToMetal()
-    {
-        // Set the look and feel to Metal, if possible
-        try
-        {
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (Exception ex)
-        {
-            // just ignore -- no big deal
-        }
-    }
-
     private void createGUI()
     {
         JLabel spacer;
+        final JFrame window = getWindowFrame();
 
         // Put everything into a panel which goes into the center of the frame
         final JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout(0, 5));
         panel.add(createFileListComponent(), BorderLayout.CENTER);
         panel.add(createDirectoryPanel(), BorderLayout.SOUTH);
-        frame.add(panel, BorderLayout.CENTER);
+        window.add(panel, BorderLayout.CENTER);
 
         // Add small gaps to the left and right of the frame, to give a bit of space
         spacer = new JLabel("");
         spacer.setPreferredSize(new Dimension(5, 5));
-        frame.add(spacer, BorderLayout.WEST);
+        window.add(spacer, BorderLayout.WEST);
         spacer = new JLabel("");
         spacer.setPreferredSize(new Dimension(5, 5));
-        frame.add(spacer, BorderLayout.EAST);
+        window.add(spacer, BorderLayout.EAST);
 
         // Add a small gap at the bottom of the frame, to the GUI doesn't look too constrained
         spacer = new JLabel("");
         spacer.setPreferredSize(new Dimension(600, 15));
-        frame.add(spacer, BorderLayout.SOUTH);
-        frame.setBounds(200, 200, 770, 300);
-        frame.setVisible(true);
+        window.add(spacer, BorderLayout.SOUTH);
+        window.setBounds(200, 200, 770, 300);
+        window.setVisible(true);
     }
 
     private JComponent createFileListComponent()
@@ -264,7 +195,7 @@ public class FileDownloadClient
 
         column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.SENDER_COLUMN);
         column.setPreferredWidth(150);
-        
+
         column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.COMMENT_COLUMN);
         column.setPreferredWidth(150);
 
@@ -272,11 +203,15 @@ public class FileDownloadClient
         column.setPreferredWidth(100);
         column.setCellRenderer(new DateTimeTableCellRenderer());
 
-        column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.EXPIRATION_DATE_COLUMN);
+        column =
+                fileTable.getColumnModel()
+                        .getColumn(FileDownloadClientModel.EXPIRATION_DATE_COLUMN);
         column.setPreferredWidth(100);
         column.setCellRenderer(new DateTimeTableCellRenderer());
 
-        column = fileTable.getColumnModel().getColumn(FileDownloadClientModel.DOWNLOAD_STATUS_COLUMN);
+        column =
+                fileTable.getColumnModel()
+                        .getColumn(FileDownloadClientModel.DOWNLOAD_STATUS_COLUMN);
         column.setPreferredWidth(100);
         column.setCellRenderer(new DownloadStatusTableCellRenderer(tableModel));
         column.setCellEditor(new DownloadStatusTableCellEditor(tableModel));
@@ -289,11 +224,11 @@ public class FileDownloadClient
         final JPanel directoryPanel = new JPanel();
         directoryPanel.setLayout(new BorderLayout());
         final JLabel saveLabel = new JLabel("Save To:");
-        saveLabel.setPreferredSize(new Dimension(60, 30));
+        saveLabel.setPreferredSize(new Dimension(60, LINE_HEIGHT));
         directoryPanel.add(saveLabel, BorderLayout.WEST);
 
         directoryButton = new JButton("");
-        directoryButton.setPreferredSize(new Dimension(510, 30));
+        directoryButton.setPreferredSize(new Dimension(510, LINE_HEIGHT));
         directoryPanel.add(directoryButton, BorderLayout.CENTER);
         directoryButton
                 .setToolTipText("Click button to select a directory in which to save the downloaded files.");
@@ -304,7 +239,7 @@ public class FileDownloadClient
                 {
                     JFileChooser fileChooser = new JFileChooser(getDownloadDirectory());
                     fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    int returnVal = fileChooser.showOpenDialog(frame);
+                    int returnVal = fileChooser.showOpenDialog(getWindowFrame());
                     if (returnVal == JFileChooser.APPROVE_OPTION)
                     {
                         setDownloadDirectory(fileChooser.getSelectedFile());
@@ -326,37 +261,6 @@ public class FileDownloadClient
         {
             directoryButton.setText(".");
         }
-    }
-
-    /**
-     * Log the user out automatically if the window is closed.
-     */
-    private void addWindowCloseHook()
-    {
-        frame.addWindowListener(new WindowAdapter()
-            {
-                @Override
-                public void windowClosing(WindowEvent e)
-                {
-                    logout();
-                }
-            });
-    }
-
-    /**
-     * Log the user out automatically if the app is shutdown.
-     */
-    private void addShutdownHook()
-    {
-        shutdownHook = new Thread()
-            {
-                @Override
-                public void run()
-                {
-                    cifex.logout(sessionId);
-                }
-            };
-        Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 
     private void addProgressListener()
@@ -387,13 +291,13 @@ public class FileDownloadClient
                         message = "ERROR: " + throwable;
                     }
                     SwingUtilities.invokeLater(new Runnable()
-                    {
-                        public void run()
                         {
-                            JOptionPane.showMessageDialog(frame, message, "Error",
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
-                    });
+                            public void run()
+                            {
+                                JOptionPane.showMessageDialog(getWindowFrame(), message, "Error",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                        });
                 }
 
                 private String lastWarningMessage;
@@ -407,8 +311,8 @@ public class FileDownloadClient
                             {
                                 public void run()
                                 {
-                                    JOptionPane.showMessageDialog(frame, warningMessage, "Warning",
-                                            JOptionPane.WARNING_MESSAGE);
+                                    JOptionPane.showMessageDialog(getWindowFrame(), warningMessage,
+                                            "Warning", JOptionPane.WARNING_MESSAGE);
                                 }
                             });
                     }
@@ -418,59 +322,18 @@ public class FileDownloadClient
     }
 
     /**
-     * Periodically remind the server that we are still alive.
-     */
-    private void startSessionKeepAliveTimer(final long checkTimeIntervalMillis)
-    {
-        final Timer timer = new Timer("Session Keep Alive", true);
-        timer.schedule(new TimerTask()
-            {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        cifex.checkSession(sessionId);
-                    } catch (RemoteAccessException ex)
-                    {
-                        System.err.println("Error connecting to the server");
-                        ex.printStackTrace();
-                    } catch (InvalidSessionException ex)
-                    {
-                        JOptionPane.showMessageDialog(frame,
-                                "Your session has expired on the server. Please log in again",
-                                "Error connecting to server", JOptionPane.ERROR_MESSAGE);
-                        Runtime.getRuntime().removeShutdownHook(shutdownHook);
-                        System.exit(1);
-                    }
-                }
-            }, 0L, checkTimeIntervalMillis);
-    }
-
-    /**
      * Display the GUI
      */
     private void show()
     {
-        frame.setVisible(true);
-    }
-
-    /**
-     * Checks if it is safe to quit, if not, asks the user before doing so.
-     */
-    private void logout()
-    {
-        if (cancel())
-        {
-            cifex.logout(sessionId);
-            System.exit(0);
-        }
+        getWindowFrame().setVisible(true);
     }
 
     /**
      * @return true if it safe to quit or if the user says it is ok
      */
-    private boolean cancel()
+    @Override
+    protected final boolean cancel()
     {
 
         if (!downloader.isInProgress())
@@ -478,7 +341,8 @@ public class FileDownloadClient
             return true;
         }
         int answer =
-                JOptionPane.showConfirmDialog(frame, "Do you really want to stop downloading?");
+                JOptionPane.showConfirmDialog(getWindowFrame(),
+                        "Do you really want to stop downloading?");
         if (answer == JOptionPane.YES_OPTION)
         {
             downloader.cancel();
@@ -495,5 +359,11 @@ public class FileDownloadClient
     public File getDownloadDirectory()
     {
         return tableModel.getDownloadDirectory();
+    }
+
+    @Override
+    protected String getTitle()
+    {
+        return TITLE;
     }
 }
