@@ -982,6 +982,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
             sampleTypePE.setContainerHierarchyDepth(sampleType.getContainerHierarchyDepth());
             sampleTypePE
                     .setGeneratedFromHierarchyDepth(sampleType.getGeneratedFromHierarchyDepth());
+        } else if (entityKind == EntityKind.DATA_SET)
+        {
+            DataSetTypePE dataSetTypePE = (DataSetTypePE) entityTypePE;
+            DataSetType dataSetType = (DataSetType) entityType;
+            dataSetTypePE.setMainDataSetPath(dataSetType.getMainDataSetPath());
+            dataSetTypePE.setMainDataSetPattern(dataSetType.getMainDataSetPattern());
         }
     }
 

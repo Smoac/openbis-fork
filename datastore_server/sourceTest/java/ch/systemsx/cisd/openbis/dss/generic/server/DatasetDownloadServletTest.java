@@ -250,6 +250,15 @@ public class DatasetDownloadServletTest
 
                     one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_KEY);
                     will(returnValue(null));
+
+                    one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
+                    will(returnValue(null));
+
+                    one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATH_KEY);
+                    will(returnValue(null));
+
+                    one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATTERN_KEY);
+                    will(returnValue(null));
                 }
             });
     }
@@ -596,6 +605,13 @@ public class DatasetDownloadServletTest
 
         exp.one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_KEY);
         exp.will(Expectations.returnValue("html"));
+
+        exp.one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
+        exp.will(Expectations.returnValue(null));
+        exp.one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATH_KEY);
+        exp.will(Expectations.returnValue(null));
+        exp.one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATTERN_KEY);
+        exp.will(Expectations.returnValue(null));
     }
 
     private void prepareParseRequestURLForThumbnail(final int width, final int height)
@@ -608,6 +624,15 @@ public class DatasetDownloadServletTest
 
                     one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_KEY);
                     will(returnValue("thumbnail" + width + "x" + height));
+
+                    one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
+                    will(returnValue(null));
+
+                    one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATH_KEY);
+                    will(returnValue(null));
+
+                    one(request).getParameter(DatasetDownloadServlet.MAIN_DATA_SET_PATTERN_KEY);
+                    will(returnValue(null));
                 }
             });
     }

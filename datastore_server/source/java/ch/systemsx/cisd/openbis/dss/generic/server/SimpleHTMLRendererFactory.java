@@ -18,11 +18,11 @@ package ch.systemsx.cisd.openbis.dss.generic.server;
 
 
 /**
- * Factory for rendering file system view in HTML.
+ * Factory for rendering file system view in HTML without data set information.
  * 
- * @author Franz-Josef Elmer
+ * @author Izabela Adamczyk
  */
-public class HTMLRendererFactory implements IRendererFactory
+public class SimpleHTMLRendererFactory implements IRendererFactory
 {
     public String getContentType()
     {
@@ -31,7 +31,7 @@ public class HTMLRendererFactory implements IRendererFactory
 
     public IDirectoryRenderer createDirectoryRenderer(RenderingContext context)
     {
-        return new HTMLDirectoryRenderer(context);
+        return new SimpleHTMLDirectoryRenderer(context);
     }
 
     public IErrorRenderer createErrorRenderer()

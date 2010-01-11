@@ -16,6 +16,13 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.google.gwt.user.client.ui.Frame;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -32,11 +39,45 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 public class DataViewSection extends SingleSectionPanel
 {
 
-    public DataViewSection(IViewContext<?> viewContext, ExternalData dataset)
+    public DataViewSection(final IViewContext<?> viewContext,
+            final ExternalData dataset)
     {
         super(viewContext.getMessage(Dict.DATA_VIEW));
-        Frame widget = new Frame(DataSetUtils.createDataViewUrl(dataset, viewContext.getModel()));
-        add(widget);
+
+        Button refreshButton = new Button("Refresh");
+        final CheckBox autoResolveCheckbox = new CheckBox();
+        autoResolveCheckbox.setBoxLabel("Auto Resolve");
+        autoResolveCheckbox.setValue(true);
+
+        final Frame iFrame = new Frame(createUrl(viewContext, dataset, autoResolveCheckbox));
+
+        autoResolveCheckbox.addListener(Events.Change, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    iFrame.setUrl(createUrl(viewContext, dataset, autoResolveCheckbox));
+                }
+            });
+        refreshButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    iFrame.setUrl(createUrl(viewContext, dataset, autoResolveCheckbox));
+                }
+            });
+
+        getHeader().addTool(autoResolveCheckbox);
+        getHeader().addTool(refreshButton);
+
+        add(iFrame);
+    }
+
+    private String createUrl(final IViewContext<?> viewContext,
+            final ExternalData dataset, CheckBox autoResolve)
+    {
+        return DataSetUtils.createDataViewUrl(dataset, viewContext.getModel(), "simpleHtml",
+                autoResolve.getValue());
     }
 
 }

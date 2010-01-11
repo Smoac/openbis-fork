@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,27 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.PrintWriter;
 
 /**
- * Factory for rendering file system view in HTML.
+ * {@link IErrorRenderer} displaying error as HTML page.
  * 
- * @author Franz-Josef Elmer
+ * @author Izabela Adamczyk
  */
-public class HTMLRendererFactory implements IRendererFactory
+public class HTMLErrorRenderer implements IErrorRenderer
 {
-    public String getContentType()
+    private PrintWriter writer;
+
+    public void setWriter(PrintWriter writer)
     {
-        return "text/html";
+        this.writer = writer;
     }
 
-    public IDirectoryRenderer createDirectoryRenderer(RenderingContext context)
+    public void printErrorMessage(String errorMessage)
     {
-        return new HTMLDirectoryRenderer(context);
-    }
-
-    public IErrorRenderer createErrorRenderer()
-    {
-        return new HTMLErrorRenderer();
+        writer.println("<html><body><h1>Error</h1>");
+        writer.println(errorMessage);
+        writer.println("</body></html>");
     }
 
 }

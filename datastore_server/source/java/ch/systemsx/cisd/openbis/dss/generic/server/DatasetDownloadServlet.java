@@ -32,6 +32,7 @@ import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -111,6 +112,14 @@ public class DatasetDownloadServlet extends HttpServlet
     static final String BINARY_CONTENT_TYPE = "binary";
 
     static final String PLAIN_TEXT_CONTENT_TYPE = "text/plain";
+
+    private static final String SIMPLE_HTML_MODE_DISPLAY = "simpleHtml";
+
+    static final String AUTO_RESOLVE_KEY = "autoResolve";
+
+    static final String MAIN_DATA_SET_PATH_KEY = "mdsPath";
+
+    static final String MAIN_DATA_SET_PATTERN_KEY = "mdsPattern";
 
     private static final MimetypesFileTypeMap MIMETYPES = new MimetypesFileTypeMap();
 
@@ -193,14 +202,29 @@ public class DatasetDownloadServlet extends HttpServlet
 
         private final String displayMode;
 
+        private final boolean autoResolve;
+
+        private final String mainDataSetPathOrNull;
+
+        private final String mainDataSetPatternOrNull;
+
         public RequestParams(String dataSetCode, String pathInfo, String sessionIdOrNull,
-                String urlPrefixWithDataset, String displayMode)
+                String urlPrefixWithDataset, String displayMode, boolean autoResolve,
+                String mainDataSetPathOrNull, String mainDataSetPatternOrNull)
         {
             this.dataSetCode = dataSetCode;
             this.pathInfo = pathInfo;
             this.sessionIdOrNull = sessionIdOrNull;
             this.urlPrefixWithDataset = urlPrefixWithDataset;
             this.displayMode = displayMode;
+            this.autoResolve = autoResolve;
+            this.mainDataSetPathOrNull = mainDataSetPathOrNull;
+            this.mainDataSetPatternOrNull = mainDataSetPatternOrNull;
+        }
+
+        public boolean isAutoResolve()
+        {
+            return autoResolve;
         }
 
         public String getDataSetCode()
@@ -226,6 +250,16 @@ public class DatasetDownloadServlet extends HttpServlet
         public String getURLPrefix()
         {
             return urlPrefixWithDataset;
+        }
+
+        public String tryGetMainDataSetPath()
+        {
+            return mainDataSetPathOrNull;
+        }
+
+        public String tryGetMainDataSetPattern()
+        {
+            return mainDataSetPatternOrNull;
         }
     }
 
@@ -273,13 +307,19 @@ public class DatasetDownloadServlet extends HttpServlet
         File rootDir = createDataSetRootDirectory(dataSetCode, session);
         RenderingContext context =
                 new RenderingContext(rootDir, requestParams.getURLPrefix(), requestParams
-                        .getPathInfo());
+                        .getPathInfo()
+
+                );
+
         return context;
     }
 
     private IRendererFactory createRendererFactory(String displayMode)
     {
-        if (displayMode.equals(HTML_MODE_DISPLAY))
+        if (displayMode.equals(SIMPLE_HTML_MODE_DISPLAY))
+        {
+            return new SimpleHTMLRendererFactory();
+        } else if (displayMode.equals(HTML_MODE_DISPLAY))
         {
             return new HTMLRendererFactory();
         } else
@@ -320,9 +360,20 @@ public class DatasetDownloadServlet extends HttpServlet
         {
             displayMode = HTML_MODE_DISPLAY;
         }
-
+        Boolean autoResolveOrNull = Boolean.valueOf(request.getParameter(AUTO_RESOLVE_KEY));
+        boolean autoResolve = autoResolveOrNull != null && autoResolveOrNull;
+        String mainDataSetPathOrNull = request.getParameter(MAIN_DATA_SET_PATH_KEY);
+        String mainDataSetPatternOrNull = request.getParameter(MAIN_DATA_SET_PATTERN_KEY);
+        if (autoResolve == false || StringUtils.isBlank(mainDataSetPathOrNull))
+        {
+            mainDataSetPathOrNull = null;
+        }
+        if (autoResolve == false || StringUtils.isBlank(mainDataSetPatternOrNull))
+        {
+            mainDataSetPatternOrNull = null;
+        }
         return new RequestParams(dataSetCode, pathInfo, sessionIDOrNull, urlPrefixWithDataset,
-                displayMode);
+                displayMode, autoResolve, mainDataSetPathOrNull, mainDataSetPatternOrNull);
     }
 
     private void printError(IRendererFactory rendererFactory, final HttpServletRequest request,
@@ -356,6 +407,7 @@ public class DatasetDownloadServlet extends HttpServlet
             String dataSetCode, RenderingContext renderingContext, RequestParams requestParams,
             HttpSession session) throws IOException
     {
+
         File file = renderingContext.getFile();
         if (file.exists() == false)
         {
@@ -368,7 +420,14 @@ public class DatasetDownloadServlet extends HttpServlet
         if (file.isDirectory())
         {
             ExternalData dataSet = getDataSet(dataSetCode, sessionIdOrNull, session);
-            createPage(rendererFactory, response, dataSet, renderingContext, file);
+            if (requestParams.isAutoResolve())
+            {
+                autoResolve(rendererFactory, response, dataSetCode, renderingContext,
+                        requestParams, session, file, dataSet);
+            } else
+            {
+                createPage(rendererFactory, response, dataSet, renderingContext, file);
+            }
         } else
         {
             if (isDatasetAccessible(dataSetCode, sessionIdOrNull, session) == false)
@@ -376,6 +435,46 @@ public class DatasetDownloadServlet extends HttpServlet
                 throw new UserFailureException("Data set '" + dataSetCode + "' is not accessible.");
             }
             deliverFile(response, dataSetCode, file, requestParams.getDisplayMode());
+        }
+    }
+
+    private void autoResolve(IRendererFactory rendererFactory, HttpServletResponse response,
+            String dataSetCode, RenderingContext renderingContext, RequestParams requestParams,
+            HttpSession session, File dir, ExternalData dataSet) throws IOException
+    {
+        assert dir.exists() && dir.isDirectory();
+        List<File> mainDataSets =
+                AutoResolveUtils.findSomeMatchingFiles(renderingContext.getRootDir(), requestParams
+                        .tryGetMainDataSetPath(), requestParams.tryGetMainDataSetPattern());
+        if (mainDataSets.size() == 1)
+        {
+            String newRelativePath =
+                    FileUtilities.getRelativeFile(renderingContext.getRootDir(), new File(
+                            mainDataSets.get(0).getPath()));
+            RenderingContext newRenderingContext =
+                    new RenderingContext(renderingContext.getRootDir(), renderingContext
+                            .getUrlPrefix(), newRelativePath);
+
+            renderPage(rendererFactory, response, dataSetCode, newRenderingContext, requestParams,
+                    session);
+        } else if (AutoResolveUtils.continueAutoResolving(requestParams.tryGetMainDataSetPattern(),
+                dir))
+        {
+            assert dir.listFiles().length == 1;
+            String childName = dir.listFiles()[0].getName();
+            String oldRelativePathOrNull = renderingContext.getRelativePathOrNull();
+            String pathPrefix =
+                    StringUtils.isBlank(oldRelativePathOrNull) ? "" : (oldRelativePathOrNull + "/");
+            String newRelativePath = pathPrefix + childName;
+            RenderingContext newRenderingContext =
+                    new RenderingContext(renderingContext.getRootDir(), renderingContext
+                            .getUrlPrefix(), newRelativePath);
+
+            renderPage(rendererFactory, response, dataSetCode, newRenderingContext, requestParams,
+                    session);
+        } else
+        {
+            createPage(rendererFactory, response, dataSet, renderingContext, dir);
         }
     }
 

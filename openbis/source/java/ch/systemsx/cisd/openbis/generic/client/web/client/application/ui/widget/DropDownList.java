@@ -117,7 +117,7 @@ abstract public class DropDownList<M extends ModelData, E> extends ComboBox<M> i
                 public boolean select(Store s, M parent, M item, String property)
                 {
                     String v = comboBox.getRawValue();
-                    // FIXME: (workaround GXT2.1) only one option in the list when something
+                    // WORKAROUND: (GXT2.1) only one option in the list when something
                     // selected and trigger field clicked
                     if (StringUtils.isBlank(v) || comboBox.getValue() != null)
                     {

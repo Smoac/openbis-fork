@@ -25,18 +25,47 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  */
 public class DataSetUtils
 {
+    private static final String MAIN_DATA_SET_PATH = "mdsPath";
+
+    private static final String MAIN_DATA_SET_PATTERN = "mdsPattern";
+
+    private static final String AUTO_RESOLVE = "autoResolve";
+
+    private static final String SESSION_ID = "sessionID";
+
+    private static final String MODE = "mode";
+
     public static void showDataSet(ExternalData dataSet, GenericViewModel model)
     {
-        String url = createDataViewUrl(dataSet, model);
+        String url = createDataViewUrl(dataSet, model, null, false);
         WindowUtils.openWindow(url);
     }
 
-    public static String createDataViewUrl(ExternalData dataSet, GenericViewModel model)
+    public static String createDataViewUrl(ExternalData dataSet, GenericViewModel model,
+            String modeOrNull, boolean autoResolve)
     {
         URLMethodWithParameters methodWithParameters =
                 new URLMethodWithParameters(dataSet.getDataStore().getDownloadUrl() + "/"
                         + dataSet.getCode());
-        methodWithParameters.addParameter("sessionID", model.getSessionContext().getSessionID());
+        methodWithParameters.addParameter(SESSION_ID, model.getSessionContext().getSessionID());
+        if (modeOrNull != null)
+        {
+            methodWithParameters.addParameter(MODE, modeOrNull);
+        }
+        if (autoResolve)
+        {
+            methodWithParameters.addParameter(AUTO_RESOLVE, autoResolve);
+            if (StringUtils.isBlank(dataSet.getDataSetType().getMainDataSetPattern()) == false)
+            {
+                methodWithParameters.addParameter(MAIN_DATA_SET_PATTERN, dataSet.getDataSetType()
+                        .getMainDataSetPattern());
+            }
+            if (StringUtils.isBlank(dataSet.getDataSetType().getMainDataSetPath()) == false)
+            {
+                methodWithParameters.addParameter(MAIN_DATA_SET_PATH, dataSet.getDataSetType()
+                        .getMainDataSetPath());
+            }
+        }
         String url = methodWithParameters.toString();
         return url;
     }
