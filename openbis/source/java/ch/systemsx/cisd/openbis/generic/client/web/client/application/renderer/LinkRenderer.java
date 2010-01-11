@@ -35,6 +35,8 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class LinkRenderer
 {
+    private static final String LINK_STYLE = "link-style";
+
     public static GridCellRenderer<BaseEntityModel<?>> createLinkRenderer()
     {
         return new GridCellRenderer<BaseEntityModel<?>>()
@@ -69,7 +71,7 @@ public class LinkRenderer
     {
         final Element div = DOM.createDiv();
         div.setInnerHTML(message);
-        div.setClassName("link-style");
+        div.setClassName(LINK_STYLE);
         return DOM.toString(div);
     }
 
@@ -114,6 +116,7 @@ public class LinkRenderer
     {
         Anchor link = new Anchor();
         link.setText(text);
+        link.setStyleName(LINK_STYLE);
         if (listener != null)
         {
             link.addClickHandler(listener);
