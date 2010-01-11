@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.core.IsEqual;
 import org.jmock.Expectations;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.testng.annotations.BeforeMethod;
@@ -146,8 +147,13 @@ public final class CommonServerTest extends AbstractServerTestCase
         final PersonPE systemPerson = new PersonPE();
         systemPerson.setUserId(PersonPE.SYSTEM_USER_ID);
         systemPerson.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
-        systemPerson.setDisplaySettings(new DisplaySettings());
+        systemPerson.setDisplaySettings(createDefaultSettings());
         return systemPerson;
+    }
+
+    private final static DisplaySettings createDefaultSettings()
+    {
+        return new DisplaySettings();
     }
 
     //
@@ -230,7 +236,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
                     will(returnValue(systemPerson));
 
-                    one(personDAO).createPerson(person);
+                    person.setDisplaySettings(systemPerson.getDisplaySettings());
+
+                    one(personDAO).createPerson(with(new PersonWithDisplaySettingsMatcher(person)));
                     one(personDAO).updatePerson(with(new BaseMatcher<PersonPE>()
                         {
                             public boolean matches(Object item)
@@ -280,7 +288,8 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
                     will(returnValue(systemPerson));
 
-                    one(personDAO).createPerson(person);
+                    person.setDisplaySettings(systemPerson.getDisplaySettings());
+                    one(personDAO).createPerson(with(new PersonWithDisplaySettingsMatcher(person)));
                 }
             });
 
@@ -425,14 +434,39 @@ public final class CommonServerTest extends AbstractServerTestCase
                     will(returnValue(PRINCIPAL));
 
                     final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+                    person.setDisplaySettings(systemPerson.getDisplaySettings());
 
-                    one(personDAO).createPerson(person);
+                    one(personDAO).createPerson(with(new PersonWithDisplaySettingsMatcher(person)));
                 }
             });
 
         createServer().registerPerson(SESSION_TOKEN, CommonTestUtils.USER_ID);
 
         context.assertIsSatisfied();
+    }
+
+    private final static class PersonWithDisplaySettingsMatcher extends IsEqual<PersonPE>
+    {
+
+        private final PersonPE item;
+
+        public PersonWithDisplaySettingsMatcher(PersonPE item)
+        {
+            super(item);
+            this.item = item;
+        }
+
+        @Override
+        public boolean matches(Object arg)
+        {
+            if (super.matches(arg) == false)
+            {
+                return false;
+            }
+            final PersonPE that = (PersonPE) arg;
+            return item.getDisplaySettings().equals(that.getDisplaySettings());
+        }
+
     }
 
     @Test
