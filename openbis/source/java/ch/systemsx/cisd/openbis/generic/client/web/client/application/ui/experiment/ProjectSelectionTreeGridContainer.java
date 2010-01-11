@@ -501,6 +501,12 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
             return get(ModelDataPropertyNames.PROJECT_IDENTIFIER);
         }
 
+        @Override
+        public int hashCode()
+        {
+            return getIdentifier().hashCode();
+        }
+
     }
 
     private static class GroupItemModel extends BaseModelDataWithCode
