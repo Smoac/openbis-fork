@@ -146,6 +146,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         final PersonPE systemPerson = new PersonPE();
         systemPerson.setUserId(PersonPE.SYSTEM_USER_ID);
         systemPerson.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
+        systemPerson.setDisplaySettings(new DisplaySettings());
         return systemPerson;
     }
 
@@ -226,6 +227,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(personDAO).tryFindPersonByUserId(user); // first login
                     will(returnValue(null));
 
+                    one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
+                    will(returnValue(systemPerson));
+
                     one(personDAO).createPerson(person);
                     one(personDAO).updatePerson(with(new BaseMatcher<PersonPE>()
                         {
@@ -272,6 +276,9 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     one(personDAO).tryFindPersonByUserId(user); // first login
                     will(returnValue(null));
+
+                    one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
+                    will(returnValue(systemPerson));
 
                     one(personDAO).createPerson(person);
                 }
@@ -409,11 +416,16 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
 
+                    final PersonPE systemPerson = createSystemUser();
+                    one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
+                    will(returnValue(systemPerson));
+
                     one(authenticationService).getPrincipal(applicationToken,
                             CommonTestUtils.USER_ID);
                     will(returnValue(PRINCIPAL));
 
                     final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+
                     one(personDAO).createPerson(person);
                 }
             });
@@ -463,6 +475,10 @@ public final class CommonServerTest extends AbstractServerTestCase
                     final String applicationToken = "application-token";
                     one(authenticationService).authenticateApplication();
                     will(returnValue(applicationToken));
+
+                    final PersonPE systemPerson = createSystemUser();
+                    one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
+                    will(returnValue(systemPerson));
 
                     one(authenticationService).getPrincipal(applicationToken,
                             CommonTestUtils.USER_ID);
