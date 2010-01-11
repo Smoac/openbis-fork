@@ -79,11 +79,9 @@ import ch.systemsx.cisd.common.logging.LogLevel;
  * <p>
  * <i>Note:</i> A MonitoringProxy object can only be used safely from more than one thread if
  * <ol>
- * <li>The proxied object is thread-safe
- * <li>
+ * <li>The proxied object is thread-safe</li>
  * <li>No observer / sensor pattern is used to detect activity (can produce "false negatives" on
- * hanging method calls)
- * <li>
+ * hanging method calls)</li>
  * </ol>
  * 
  * @author Bernd Rinn
