@@ -64,6 +64,20 @@ public class SearchTest extends AbstractGWTTestCase
         launchTest(20000);
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
+    public final void testDataSetSearch()
+    {
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new SearchCommand("Data Set", "TIFF"));
+
+        final CheckTableCommand checkDatasetsTableCommand =
+                createCheckMatchingEntitiesTableCommand(2, "20081105092158673-1",
+                        "20081105092159111-1");
+        remoteConsole.prepare(checkDatasetsTableCommand);
+
+        launchTest(20000);
+    }
+
     private final static String SAMPLE_T1 = "CISD:/CISD/CP-TEST-1";
 
     private final static String SAMPLE_T2 = "CISD:/CISD/CP-TEST-2";

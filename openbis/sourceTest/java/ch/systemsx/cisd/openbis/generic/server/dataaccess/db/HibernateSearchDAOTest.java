@@ -148,8 +148,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final String lastName = "John";
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.SAMPLE, term,
-                        createDataProvider(), true);
-        // TODO 2010-01-07, PTR: test basic search mode
+                        createDataProvider(), false);
         assertTrue(hits.size() > 0);
         for (MatchingEntity matchingEntity : hits)
         {
@@ -159,15 +158,23 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         }
     }
 
-    @Test
-    public final void testSearchEntitiesByTermForExperiment()
+    @DataProvider(name = "experimentQueriestAndModeToTest")
+    protected Object[][] getExperimentQueriesAndModeToTest()
+    {
+        return new Object[][]
+            {
+                { "exp-*", "exp-", true },
+                { "exp-", "exp-", false } };
+    }
+
+    @Test(dataProvider = "experimentQueriestAndModeToTest")
+    public final void testSearchEntitiesByTermForExperiment(String query, String querySubstring,
+            boolean useWildcardMode)
     {
         final IHibernateSearchDAO hibernateSearchDAO = daoFactory.getHibernateSearchDAO();
-        final String query = "exp-*";
-        final String querySubstring = "exp-"; // no wildcard
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(SearchableEntity.EXPERIMENT, query,
-                        createDataProvider(), true);
+                        createDataProvider(), useWildcardMode);
         assertEquals(5, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
