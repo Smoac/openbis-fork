@@ -39,6 +39,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
     { "db", "screening" })
 public class ScreeningDAOTest extends AbstractDAOTest
 {
+    static
+    {
+        System.setProperty("script-folder", "../openbis/sourceTest");
+        System.setProperty("mass-upload-folder", "../openbis/sourceTest/sql/postgresql");
+    }
+
     private IScreeningQuery query;
 
     @BeforeClass(alwaysRun = true)
