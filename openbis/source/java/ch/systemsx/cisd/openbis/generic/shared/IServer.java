@@ -65,6 +65,9 @@ public interface IServer extends ISessionProvider
     public void setBaseIndexURL(String sessionToken, String baseIndexURL);
 
     @Transactional
+    public DisplaySettings getDefaultDisplaySettings(String sessionToken);
+
+    @Transactional
     public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings);
 
     /**

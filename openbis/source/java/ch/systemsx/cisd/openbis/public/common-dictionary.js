@@ -338,6 +338,8 @@ var common = {
   home_group_label: "Home Group",
   use_wildcard_search_mode_label: "Search with Wildcards",
   use_wildcard_search_mode_tooltip: "Check to treat '*' and '?' as wildcards in searched text. Note, that only whole words will match if you don't add '*' at the beginning and at the end of the text.",
+  reset_user_settings_button: "Restore Default",
+  reset_user_settings_confirmation_msg: "Are you sure that you want to restore default settings?<br><br>Every setting you changed in this application apart from home group, e.g. hiding/showing certain columns in a browser, will be lost.",
     
   //
   // Role View

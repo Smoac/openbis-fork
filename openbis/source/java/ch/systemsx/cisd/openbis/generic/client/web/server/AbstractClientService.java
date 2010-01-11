@@ -399,6 +399,25 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    public DisplaySettings resetDisplaySettings()
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            IServer server = getServer();
+            final DisplaySettings defaultSettings = server.getDefaultDisplaySettings(sessionToken);
+            updateDisplaySettings(defaultSettings);
+            return defaultSettings;
+        } catch (InvalidSessionException e)
+        {
+            // ignored
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+        return null;
+    }
+
     public void changeUserHomeGroup(TechId groupIdOrNull)
     {
         try

@@ -313,6 +313,18 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
         }
     }
 
+    public DisplaySettings getDefaultDisplaySettings(String sessionToken)
+    {
+        PersonPE systemUser =
+                getDAOFactory().getPersonDAO().tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
+        if (systemUser == null)
+        {
+            throw new UserFailureException(
+                    "Couldn't find system user with default settings in the DB.");
+        }
+        return systemUser.getDisplaySettings();
+    }
+
     public void changeUserHomeGroup(String sessionToken, TechId groupIdOrNull)
     {
         final Session session = getSessionManager().getSession(sessionToken);

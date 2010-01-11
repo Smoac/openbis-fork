@@ -732,6 +732,11 @@ public abstract class Dict
     public static final String USE_WILDCARD_SEARCH_MODE_TOOLTIP =
             "use_wildcard_search_mode_tooltip";
 
+    public static final String RESET_USER_SETTINGS_BUTTON = "reset_user_settings_button";
+
+    public static final String RESET_USER_SETTINGS_CONFIRMATION_MSG =
+            "reset_user_settings_confirmation_msg";
+
     //
     // Unclassified
     //

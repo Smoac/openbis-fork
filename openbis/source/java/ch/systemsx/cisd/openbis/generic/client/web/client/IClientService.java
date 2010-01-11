@@ -51,14 +51,24 @@ public interface IClientService extends RemoteService
     public SessionContext tryToLogin(String userID, String password) throws UserFailureException;
 
     /**
-     * Sets the base URL that the client uses to connect the web server. 
+     * Sets the base URL that the client uses to connect the web server.
      */
     public void setBaseURL(String baseURL);
-    
+
     /**
      * Updates display settings on the server.
      */
     public void updateDisplaySettings(DisplaySettings displaySettings);
+
+    /**
+     * Resets display settings of the logged user to the default settings.
+     * <p>
+     * NOTE: this changes user display settings only on the DB level. Old settings are still in the
+     * session and needs to be updated with the settings returned by this function.
+     * 
+     * @return default display settings
+     */
+    public DisplaySettings resetDisplaySettings();
 
     /**
      * Changes logged user home group on the server.

@@ -167,6 +167,12 @@ public abstract class AbstractServerLogger implements IServer
         logTracking(sessionToken, "save_display_settings", "");
     }
 
+    public DisplaySettings getDefaultDisplaySettings(String sessionToken)
+    {
+        logTracking(sessionToken, "get_default_display_settings", "");
+        return null;
+    }
+
     public void changeUserHomeGroup(String sessionToken, TechId groupIdOrNull)
     {
         String groupId = groupIdOrNull == null ? "null" : groupIdOrNull.toString();

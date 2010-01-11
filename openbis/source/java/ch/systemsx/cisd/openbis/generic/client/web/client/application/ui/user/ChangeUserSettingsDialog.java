@@ -16,9 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.user;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -28,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
 
 /**
@@ -59,7 +68,12 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
         addField(homeGroupField = createHomeGroupField());
         addField(useWildcardSearchModeCheckbox = createUseWildcardSearchModeField());
+        fbar.insert(createResetButton(), 1); // inserting Reset button in between Save and Cancel
     }
+
+    //
+    // Change
+    //
 
     private final GroupSelectionWidget createHomeGroupField()
     {
@@ -94,5 +108,57 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     private boolean extractUseWildcardSearchMode()
     {
         return useWildcardSearchModeCheckbox.getValue();
+    }
+
+    //
+    // Reset
+    //
+
+    private Button createResetButton()
+    {
+        final String buttonTitle = viewContext.getMessage(Dict.RESET_USER_SETTINGS_BUTTON);
+        final Button button = new Button(buttonTitle, new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public final void componentSelected(ButtonEvent ce)
+                {
+                    final String title = viewContext.getMessage(Dict.CONFIRM_TITLE);
+                    final String msg =
+                            viewContext.getMessage(Dict.RESET_USER_SETTINGS_CONFIRMATION_MSG);
+                    MessageBox.confirm(title, msg, new Listener<MessageBoxEvent>()
+                        {
+                            public void handleEvent(MessageBoxEvent messageEvent)
+                            {
+                                if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))
+                                {
+                                    resetUserSettings();
+                                }
+                            }
+                        });
+                }
+            });
+        return button;
+    }
+
+    private void resetUserSettings()
+    {
+        viewContext.getService().resetDisplaySettings(new ResetUserSettingsCallback(viewContext));
+    }
+
+    public final class ResetUserSettingsCallback extends AbstractAsyncCallback<DisplaySettings>
+    {
+        private ResetUserSettingsCallback(IViewContext<?> viewContext)
+        {
+            super(viewContext);
+        }
+
+        @Override
+        public final void process(final DisplaySettings defaultDisplaySettings)
+        {
+            // reinitialize DisplaySettingsManager with updated SessionContext
+            viewContext.getModel().getSessionContext().setDisplaySettings(defaultDisplaySettings);
+            viewContext.initDisplaySettingsManager();
+            hide();
+        }
     }
 }

@@ -81,7 +81,9 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
 
     public void initDisplaySettingsManager()
     {
-        displaySettingsManager = createDisplaySettingsManager();
+        final DisplaySettings loggedUserDisplaySettings =
+                viewModel.getSessionContext().getDisplaySettings();
+        displaySettingsManager = createDisplaySettingsManager(loggedUserDisplaySettings);
     }
 
     public DisplaySettingsManager getDisplaySettingsManager()
@@ -90,9 +92,9 @@ public final class CommonViewContext implements IViewContext<ICommonClientServic
         return displaySettingsManager;
     }
 
-    private DisplaySettingsManager createDisplaySettingsManager()
+    private DisplaySettingsManager createDisplaySettingsManager(
+            final DisplaySettings displaySettings)
     {
-        final DisplaySettings displaySettings = viewModel.getSessionContext().getDisplaySettings();
         IDelegatedAction settingsUpdater = new IDelegatedAction()
             {
                 public void execute()

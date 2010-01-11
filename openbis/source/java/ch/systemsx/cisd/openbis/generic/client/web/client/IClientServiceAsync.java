@@ -40,9 +40,12 @@ public interface IClientServiceAsync
 
     /** @see IClientService#setBaseURL(String) */
     public void setBaseURL(String baseURL, AsyncCallback<SessionContext> callback);
-    
+
     /** @see IClientService#updateDisplaySettings(DisplaySettings) */
     public void updateDisplaySettings(DisplaySettings displaySettings, AsyncCallback<Void> callback);
+
+    /** @see IClientService#resetDisplaySettings() */
+    public void resetDisplaySettings(AsyncCallback<DisplaySettings> resetUserSettingsCallback);
 
     /** @see IClientService#changeUserHomeGroup(TechId) */
     public void changeUserHomeGroup(TechId groupIdOrNull, AsyncCallback<Void> callback);
