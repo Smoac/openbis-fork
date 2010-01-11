@@ -84,6 +84,7 @@ final class AppView extends View
     private final void createCenter()
     {
         center = new MainTabPanel(viewContext);
+        componentProvider.setMainTabPanel(center);
         final BorderLayoutData data = new BorderLayoutData(LayoutRegion.CENTER);
         data.setMargins(new Margins(5));
         viewport.add(center, data);
@@ -116,7 +117,6 @@ final class AppView extends View
         } else if (event.getType() == AppEvents.NAVI_EVENT)
         {
             activateTab(getData(event));
-
         }
     }
 }

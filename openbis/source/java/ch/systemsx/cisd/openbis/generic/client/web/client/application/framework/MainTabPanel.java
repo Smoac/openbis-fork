@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -122,6 +123,15 @@ public class MainTabPanel extends TabPanel
             add(newTab);
             openTabs.put(tabId, newTab);
             setSelection(newTab);
+        }
+    }
+
+    /** closes all opened tabs */
+    public final void reset()
+    {
+        for (TabItem openTab : new ArrayList<TabItem>(openTabs.values()))
+        {
+            openTab.close();
         }
     }
 

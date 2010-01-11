@@ -32,22 +32,35 @@ public class ChangeUserSettingsAction implements IDelegatedAction
 
     private final LoggedUserMenu menu;
 
-    public ChangeUserSettingsAction(final IViewContext<?> viewContext, LoggedUserMenu menu)
+    private final IDelegatedAction onDisplaySettingsResetAction;
+
+    public ChangeUserSettingsAction(final IViewContext<?> viewContext, LoggedUserMenu menu,
+            IDelegatedAction onDisplaySettingsResetAction)
     {
         this.viewContext = viewContext;
         this.menu = menu;
+        this.onDisplaySettingsResetAction = onDisplaySettingsResetAction;
     }
 
     public void execute()
     {
+        IDelegatedAction saveCallback = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    menu.refreshTitle();
+                }
+            };
+        IDelegatedAction resetCallback = new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    onDisplaySettingsResetAction.execute();
+                }
+            };
+
         ChangeUserSettingsDialog dialog =
-                new ChangeUserSettingsDialog(viewContext, new IDelegatedAction()
-                    {
-                        public void execute()
-                        {
-                            menu.refreshTitle();
-                        }
-                    });
+                new ChangeUserSettingsDialog(viewContext, saveCallback, resetCallback);
         dialog.show();
     }
 }

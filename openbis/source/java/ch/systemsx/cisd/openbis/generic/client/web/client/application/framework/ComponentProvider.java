@@ -63,6 +63,8 @@ public final class ComponentProvider
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
+    private MainTabPanel mainTabPanelOrNull;
+
     public ComponentProvider(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
@@ -608,5 +610,15 @@ public final class ComponentProvider
                     return FileFormatTypeGrid.BROWSER_ID;
                 }
             };
+    }
+
+    public MainTabPanel tryGetMainTabPanel()
+    {
+        return mainTabPanelOrNull;
+    }
+
+    public void setMainTabPanel(MainTabPanel mainTabPanel)
+    {
+        this.mainTabPanelOrNull = mainTabPanel;
     }
 }

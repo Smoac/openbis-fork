@@ -57,12 +57,15 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
     private final CheckBoxField useWildcardSearchModeCheckbox;
 
+    private final IDelegatedAction resetCallback;
+
     public ChangeUserSettingsDialog(final IViewContext<?> viewContext,
-            final IDelegatedAction saveCallback)
+            final IDelegatedAction saveCallback, final IDelegatedAction resetCallback)
     {
         super(viewContext, viewContext.getMessage(Dict.CHANGE_USER_SETTINGS_DIALOG_TITLE),
                 saveCallback);
         this.viewContext = viewContext;
+        this.resetCallback = resetCallback;
         form.setLabelWidth(150);
         form.setFieldWidth(400);
 
@@ -158,6 +161,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
             // reinitialize DisplaySettingsManager with updated SessionContext
             viewContext.getModel().getSessionContext().setDisplaySettings(defaultDisplaySettings);
             viewContext.initDisplaySettingsManager();
+            resetCallback.execute();
             hide();
         }
     }
