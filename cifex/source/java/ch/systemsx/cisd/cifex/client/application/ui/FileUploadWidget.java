@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -33,12 +34,15 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
+import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
@@ -47,6 +51,7 @@ import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
+import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
@@ -72,7 +77,7 @@ public final class FileUploadWidget extends LayoutContainer
 
     private final FormPanel formPanel;
 
-    private final ContentPanel downloaderPanel;
+    private final ContentPanel uploaderPanel;
 
     private final List<FileUploadField> uploadFields;
 
@@ -101,12 +106,12 @@ public final class FileUploadWidget extends LayoutContainer
 
         createForm();
 
-        downloaderPanel = new ContentPanel();
-        initializeDownloaderPanel();
+        uploaderPanel = new ContentPanel();
+        initializeUploaderPanel();
 
         // Add top-level widgets to the container
         add(formPanel, new TableData("66%", ""));
-        add(downloaderPanel, new TableData("34%", ""));
+        add(uploaderPanel, new TableData("34%", ""));
 
         if (SUBSCRIBE_TO_WINDOW_CHANGES)
             setMonitorWindowResize(true);
@@ -134,16 +139,29 @@ public final class FileUploadWidget extends LayoutContainer
         formPanel.setAction(ServletPathConstants.FILE_UPLOAD_SERVLET_NAME);
         formPanel.setMethod(Method.POST);
         formPanel.setEncoding(Encoding.MULTIPART);
+        formPanel.setHeight(335);
     }
 
-    private void initializeDownloaderPanel()
+    private void initializeUploaderPanel()
     {
-        downloaderPanel.setHeading(context.getMessageResources()
-                .getUploadFilesPartTitleGreater2GB());
-        downloaderPanel.setHeaderVisible(true);
-        downloaderPanel.setBodyBorder(false);
-        downloaderPanel.setBorders(true);
-        downloaderPanel.setHeight(400);
+        IMessageResources messageResources = context.getMessageResources();
+
+        uploaderPanel.setHeading(messageResources.getUploadFilesPartTitleGreater2GB());
+        uploaderPanel.setHeaderVisible(true);
+        uploaderPanel.setBodyBorder(false);
+        uploaderPanel.setBorders(true);
+        uploaderPanel.setHeight(335);
+
+        String webStartTitle = messageResources.getUploadFilesHelpJavaUploaderTitle();
+
+        final Image uploaderScreenshot = ImageUtils.getCIFEXUploaderScreenshot();
+        uploaderScreenshot.setTitle(webStartTitle);
+        uploaderScreenshot.setPixelSize(290, 290);
+        Anchor uploaderScreenshotLinked =
+                new Anchor(uploaderScreenshot.getElement().getString(), true,
+                        ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME, "_blank");
+
+        uploaderPanel.add(uploaderScreenshotLinked, new FlowData(new Margins(10, 20, 10, 20)));
     }
 
     private final void createForm()
@@ -298,7 +316,6 @@ public final class FileUploadWidget extends LayoutContainer
         textAreaConfig.setFieldLabel(messageResources.getCommentLabel());
         textAreaConfig.setName("upload-comment");
         textAreaConfig.setPreventScrollbars(true);
-        // textAreaConfig.setWidth(FIELD_WIDTH);
         trySetInitialValueFromURL(textAreaConfig, Constants.COMMENT_PARAMETER);
         return textAreaConfig;
     }
@@ -308,7 +325,6 @@ public final class FileUploadWidget extends LayoutContainer
         final FileUploadField fileField = new FileUploadField();
         fileField.setFieldLabel(context.getMessageResources().getFileUploadFieldLabel(index + 1));
         fileField.setName(getFilenameFieldName(index));
-        // fileField.setWidth(FIELD_WIDTH);
         fileField.setWidth("100%");
         fileField.setAllowBlank(index > 0);
         fileField.setValidateOnBlur(false);
@@ -389,10 +405,10 @@ public final class FileUploadWidget extends LayoutContainer
     {
         super.onWindowResize(aWidth, aHeight);
         // Don't resize the upload fields -- this causes more problems than it solves.
-//        for (FileUploadField uploadField : uploadFields)
-//        {
-//            uploadField.setWidth((aWidth / 2));
-//        }
+        // for (FileUploadField uploadField : uploadFields)
+        // {
+        // uploadField.setWidth((aWidth / 2));
+        // }
         formPanel.layout(true);
         uploadFilesFieldSet.layout(true);
     }

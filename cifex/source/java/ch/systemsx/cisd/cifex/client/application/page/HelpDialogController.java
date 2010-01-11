@@ -55,9 +55,11 @@ public class HelpDialogController extends AbstractDialogController
     {
         IMessageResources messageResources = context.getMessageResources();
         StringBuffer sb = new StringBuffer();
-        appendBlockAnchor(sb, "documentation.html", messageResources
-                .getFooterDocumentationLinkLabel());
+        appendBlockAnchor(sb, "https://wiki-bsse.ethz.ch/display/CISDDoc/CIFEX#CIFEX-UseCases",
+                messageResources.getHelpDocumentationLinkLabel());
+        appendBlockAnchor(sb, "documentation.html", messageResources.getHelpFAQLinkLabel());
         appendBlockAnchor(sb, "disclaimer.html", messageResources.getFooterDisclaimerLinkLabel());
+        appendBlockAnchor(sb, "tools.html", messageResources.getHelpToolsLinkLabel());
         appendBlock(sb, DOMUtils.createEmailAnchor(context.getModel().getConfiguration()
                 .getAdministratorEmail(), messageResources.getFooterContactAdministrator()));
         sb.append(getApplicationDescriptionHTMLString());

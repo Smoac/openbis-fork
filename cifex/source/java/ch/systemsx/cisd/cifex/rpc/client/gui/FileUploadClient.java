@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -47,7 +46,6 @@ import javax.swing.JTextArea;
 import javax.swing.Spring;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
@@ -64,8 +62,6 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
  */
 public class FileUploadClient extends AbstractSwingGUI
 {
-    private final static boolean USE_OLD_GUI = false;
-
     private static final int LINE_HEIGHT = 30;
 
     private static final int INPUT_WIDTH = 130;
@@ -230,89 +226,42 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private void createGUI()
     {
+        // To add borders, don't put the GUI panel directly in the window, instead embed it in a
+        // panel.
         JFrame window = getWindowFrame();
 
-        if (USE_OLD_GUI)
-        {
-            JPanel panel = createGUIOld();
+        JLabel spacer;
+        JPanel panel = createGUIPanel();
+        window.add(panel, BorderLayout.CENTER);
 
-            window.add(panel, BorderLayout.CENTER);
-            window.setBounds(200, 200, 500, 400);
-            window.setVisible(true);
-        } else
-        {
-            JLabel spacer;
-            JPanel panel = createGUINew();
-            window.add(panel, BorderLayout.CENTER);
+        // Add small gaps to the left and right of the frame, to give a bit of space
+        spacer = new JLabel("");
+        spacer.setPreferredSize(new Dimension(5, 5));
+        window.add(spacer, BorderLayout.WEST);
+        spacer = new JLabel("");
+        spacer.setPreferredSize(new Dimension(5, 5));
+        window.add(spacer, BorderLayout.EAST);
 
-            // Add small gaps to the left and right of the frame, to give a bit of space
-            spacer = new JLabel("");
-            spacer.setPreferredSize(new Dimension(5, 5));
-            window.add(spacer, BorderLayout.WEST);
-            spacer = new JLabel("");
-            spacer.setPreferredSize(new Dimension(5, 5));
-            window.add(spacer, BorderLayout.EAST);
+        // Add a small gap at the bottom of the frame, to the GUI doesn't look too constrained
+        spacer = new JLabel("");
+        spacer.setPreferredSize(new Dimension(600, 15));
+        window.add(spacer, BorderLayout.SOUTH);
 
-            // Add a small gap at the bottom of the frame, to the GUI doesn't look too constrained
-            spacer = new JLabel("");
-            spacer.setPreferredSize(new Dimension(600, 15));
-            window.add(spacer, BorderLayout.SOUTH);
+        // Add a small gap at the top of the frame, to the GUI doesn't look too constrained
+        spacer = new JLabel("");
+        spacer.setPreferredSize(new Dimension(600, 15));
+        window.add(spacer, BorderLayout.NORTH);
 
-            // Add a small gap at the top of the frame, to the GUI doesn't look too constrained
-            spacer = new JLabel("");
-            spacer.setPreferredSize(new Dimension(600, 15));
-            window.add(spacer, BorderLayout.NORTH);
+        window.setBounds(200, 200, 770, 300);
+        window.setVisible(true);
 
-            window.setBounds(200, 200, 770, 300);
-            window.setVisible(true);
-        }
     }
 
-    private JPanel createGUIOld()
-    {
-        JPanel panel = new JPanel(new BorderLayout());
-        JPanel centerPanel = new JPanel();
-        panel.add(centerPanel, BorderLayout.CENTER);
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.add(createFilePanel());
-        recipientsTextArea = createAndAddTextArea(centerPanel, "Recipients");
-        commentTextArea = createAndAddTextArea(centerPanel, "Comment");
-        JPanel buttonPanel = new JPanel(new BorderLayout());
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-        JPanel centerButtonPanel = new JPanel();
-        buttonPanel.add(centerButtonPanel, BorderLayout.CENTER);
-        uploadButton = createUploadButton(tableModel);
-        centerButtonPanel.add(uploadButton);
-        cancelButton = new JButton("Cancel");
-        cancelButton.setEnabled(false);
-        cancelButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    cancel();
-                }
-            });
-        centerButtonPanel.add(cancelButton);
-        JPanel closeButtonPanel = new JPanel();
-        buttonPanel.add(closeButtonPanel, BorderLayout.EAST);
-        JButton closeButton = new JButton("Close");
-        closeButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    logout();
-                }
-            });
-        closeButtonPanel.add(closeButton);
-
-        return panel;
-    }
-
-    private JPanel createGUINew()
+    private JPanel createGUIPanel()
     {
         // The panel for the GUI
         JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
+        panel.setLayout(new BorderLayout(0, 5));
 
         // The panel for the upload form
         JPanel fileListPanel = createFileListPanel();
@@ -381,7 +330,6 @@ public class FileUploadClient extends AbstractSwingGUI
         JPanel fileListPanel = new JPanel();
         fileListPanel.setLayout(new BorderLayout());
         JPanel buttonsPanel = createFileListButtonsPanel();
-        buttonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         fileListPanel.add(panel, BorderLayout.CENTER);
         fileListPanel.add(buttonsPanel, BorderLayout.PAGE_END);
 
@@ -404,7 +352,6 @@ public class FileUploadClient extends AbstractSwingGUI
             });
         buttonsPanel.add(Box.createHorizontalGlue());
         buttonsPanel.add(addButton);
-        buttonsPanel.add(Box.createHorizontalGlue());
 
         return buttonsPanel;
     }
@@ -464,50 +411,6 @@ public class FileUploadClient extends AbstractSwingGUI
                 }
             });
         return button;
-    }
-
-    private JTextArea createAndAddTextArea(JPanel centerPanel, String title)
-    {
-        JTextArea textArea = new JTextArea(5, 20);
-        JPanel panel = new JPanel(new BorderLayout());
-        Border border = BorderFactory.createEtchedBorder();
-        panel.setBorder(BorderFactory.createTitledBorder(border, title));
-        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
-        centerPanel.add(panel);
-        return textArea;
-    }
-
-    private JPanel createFilePanel()
-    {
-        JPanel filePanel = new JPanel(new BorderLayout());
-        Border border = BorderFactory.createEtchedBorder();
-        filePanel.setBorder(BorderFactory.createTitledBorder(border, "Files to upload"));
-        final JTable table = new JTable(tableModel)
-            {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public String getToolTipText(MouseEvent evt)
-                {
-                    int index = rowAtPoint(evt.getPoint());
-                    File file = tableModel.getFileItem(index).getFile();
-                    String size = FileUtilities.byteCountToDisplaySize(file.length());
-                    return file.getAbsolutePath() + " (" + size + ")";
-                }
-            };
-        table.setColumnModel(createTableColumnModel());
-        popupMenu = createPopupMenu(table);
-        filePanel.add(new JScrollPane(table), BorderLayout.CENTER);
-        addButton = new JButton("Add File");
-        addButton.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    chooseAndAddFile();
-                }
-            });
-        filePanel.add(addButton, BorderLayout.SOUTH);
-        return filePanel;
     }
 
     private JPopupMenu createPopupMenu(final JTable table)

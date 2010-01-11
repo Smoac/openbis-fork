@@ -27,13 +27,11 @@ import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
 import ch.systemsx.cisd.cifex.client.application.Model;
-import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.IHistoryController.Page;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.ui.FileUploadWidget;
-import ch.systemsx.cisd.cifex.client.application.utils.DOMUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -103,24 +101,10 @@ class ShareTabController extends AbstractMainPageTabController
 
     private LayoutContainer createUploadPart(HTML explanationWidget)
     {
-        IMessageResources messageResources = context.getMessageResources();
         final LayoutContainer verticalPanel = createContainer();
         addTitlePart(verticalPanel, context.getMessageResources().getUploadFilesPartTitle());
         verticalPanel.add(explanationWidget);
         verticalPanel.add(fileUploadWidget, new FlowData(5));
-        addTitlePart(verticalPanel, messageResources.getUploadFilesPartTitleGreater2GB());
-        String webStartLink = messageResources.getUploadFilesHelpJavaUploaderLink();
-        String webStartTitle = messageResources.getUploadFilesHelpJavaUploaderTitle();
-        String anchorWebstart =
-                DOMUtils.createAnchor(webStartTitle, webStartLink,
-                        ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME, null, null, false);
-        String cliLink = messageResources.getUploadFilesHelpCLILink();
-        String cliTitle = messageResources.getUploadFilesHelpCLITitle();
-        String anchorCLI =
-                DOMUtils.createAnchor(cliTitle, cliLink,
-                        ServletPathConstants.COMMAND_LINE_CLIENT_DISTRIBUTION, null, null, false);
-        verticalPanel.add(new HTML(messageResources.getUploadFilesHelpJavaUpload(anchorWebstart,
-                anchorCLI)));
         return verticalPanel;
     }
 

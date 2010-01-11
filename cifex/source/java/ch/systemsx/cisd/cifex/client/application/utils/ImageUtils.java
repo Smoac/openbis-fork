@@ -40,14 +40,24 @@ public final class ImageUtils
     {
         return new Image(IMG_DIR + fileName);
     }
-    
+
     public final static Image getCIFEXLogoImage()
     {
         return createImage("cifex.png");
     }
-    
+
     public final static Image getCIFEXLogoImageSmall()
     {
         return createImage("cifex_small.png");
+    }
+
+    public final static Image getCIFEXUploaderScreenshot()
+    {
+        return createImage("CIFEXUploader.png");
+    }
+
+    public final static Image getCIFEXDownloaderScreenshot()
+    {
+        return createImage("CIFEXDownloader.png");
     }
 }
