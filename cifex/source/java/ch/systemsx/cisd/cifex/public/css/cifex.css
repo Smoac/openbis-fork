@@ -47,12 +47,3 @@ body, div, td, table td, select {
 }
 
 /** Overwrite gxt styles */
-.x-form-item-label {
-	font-weight: bold;
-	color: #15428B
-}
-
-.x-form-item label {
-	font-weight: bold;
-	color: #15428B
-}
