@@ -27,7 +27,6 @@ import org.springframework.web.servlet.mvc.AbstractController;
 
 import ch.systemsx.cisd.common.utilities.Template;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.onlinehelp.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.onlinehelp.IOnlineHelpResourceLocatorService;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 
@@ -36,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  * appropriate page for that identifier.
  * 
  * @author Chandrasekhar Ramakrishnan
+ * @author Piotr Buczek
  */
 @Controller
 @RequestMapping(
@@ -70,6 +70,7 @@ public class HelpRedirectServlet extends AbstractController
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
             HttpServletResponse response) throws Exception
     {
+        System.err.println("got: " + getHelpPageAbsoluteURLForRequest(request));
         response.sendRedirect(getHelpPageAbsoluteURLForRequest(request));
         return null;
     }
@@ -135,45 +136,14 @@ public class HelpRedirectServlet extends AbstractController
 
     /**
      * Construct the portion of the URL that identifies a particular help page from the request. The
-     * parameters GenericConstants.HELP_REDIRECT_DOMAIN_KEY and
-     * GenericConstants.HELP_REDIRECT_ACTION_KEY are used to do this.
+     * parameter {@link GenericConstants#HELP_REDIRECT_PAGE_TITLE_KEY} is used to do this.
      */
     String tryGetHelpPageTitleForRequest(HttpServletRequest request)
     {
-        final String helpPageDomain =
-                request.getParameter(GenericConstants.HELP_REDIRECT_DOMAIN_KEY);
-        final String helpPageAction =
-                request.getParameter(GenericConstants.HELP_REDIRECT_ACTION_KEY);
-        if (helpPageDomain == null)
-            return null;
-        // Make sure the domain is valid
-        try
-        {
-            HelpPageIdentifier.HelpPageDomain.valueOf(helpPageDomain);
-        } catch (IllegalArgumentException ex)
-        {
-            // this is not a valid domain
-            return null;
-        }
-
-        StringBuffer sb = new StringBuffer();
-        String helpTitleDomain = helpPageDomain.replace("_", "+");
-        sb.append(helpTitleDomain);
-
-        if (helpPageAction != null)
-        {
-            // Make sure the action is valid
-            try
-            {
-                HelpPageIdentifier.HelpPageAction.valueOf(helpPageAction);
-                sb.append("+");
-                sb.append(helpPageAction);
-            } catch (IllegalArgumentException ex)
-            {
-                // this is not a valid action -- don't alter the string buffer
-            }
-        }
-        return sb.toString();
+        final String helpPageTitle =
+                request.getParameter(GenericConstants.HELP_REDIRECT_PAGE_TITLE_KEY);
+        // helpPageTitle = helpPageTitle.replace("_", "+");
+        return helpPageTitle;
     }
 
 }

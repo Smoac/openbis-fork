@@ -161,10 +161,8 @@ public class MainTabPanel extends TabPanel
                                 new URLMethodWithParameters(
                                         GenericConstants.HELP_REDIRECT_SERVLET_NAME);
                         HelpPageIdentifier helpPageId = selectedTab.getHelpPageIdentifier();
-                        url.addParameter(GenericConstants.HELP_REDIRECT_DOMAIN_KEY, helpPageId
-                                .getHelpPageDomain());
-                        url.addParameter(GenericConstants.HELP_REDIRECT_ACTION_KEY, helpPageId
-                                .getHelpPageAction());
+                        url.addParameter(GenericConstants.HELP_REDIRECT_PAGE_TITLE_KEY, helpPageId
+                                .getHelpPageTitle(viewContext));
                         WindowUtils.openWindow(URL.encode(url.toString()));
                     }
                 });

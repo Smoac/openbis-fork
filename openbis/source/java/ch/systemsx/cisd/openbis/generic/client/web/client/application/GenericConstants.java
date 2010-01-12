@@ -92,11 +92,8 @@ public final class GenericConstants
     /** Name of the servlet that redirects to the URL for a help page. */
     public static final String HELP_REDIRECT_SERVLET_NAME = createServicePath("help");
 
-    /** The HTTP URL parameter that specifies the domain for which we want help. */
-    public static final String HELP_REDIRECT_DOMAIN_KEY = "hd";
-
-    /** The HTTP URL parameter that specifies the action for which we want help. */
-    public static final String HELP_REDIRECT_ACTION_KEY = "ha";
+    /** The HTTP URL parameter that specifies the title of the help page we want to show. */
+    public static final String HELP_REDIRECT_PAGE_TITLE_KEY = "pageTitle";
 
     /** The HTTP URL parameter that specifies whether we want generic or specific help. */
     public static final String HELP_REDIRECT_SPECIFIC_KEY = "specific";
