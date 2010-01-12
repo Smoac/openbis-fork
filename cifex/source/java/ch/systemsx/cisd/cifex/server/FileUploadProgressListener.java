@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.cifex.server;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
@@ -40,7 +42,9 @@ final class FileUploadProgressListener extends ThresholdProgressListener
 
     private final HttpSession httpSession;
 
-    private final String[] pathnamesToUpload;
+    // A list that stores the pathnames specified in the form at the same index it appears in
+    // the form. If the form parameter at a given index is not a pathname, store a null.
+    private final List<String> formIndexedPathnamesAndNulls;
 
     /**
      * Registers the time at which this object has been instantiated.
@@ -51,11 +55,12 @@ final class FileUploadProgressListener extends ThresholdProgressListener
      */
     private final long start;
 
-    FileUploadProgressListener(final HttpSession httpSession, final String[] pathnamesToUpload)
+    FileUploadProgressListener(final HttpSession httpSession,
+            final List<String> formIndexedPathnamesAndNulls)
     {
         super(THRESHOLD);
         this.httpSession = httpSession;
-        this.pathnamesToUpload = pathnamesToUpload;
+        this.formIndexedPathnamesAndNulls = formIndexedPathnamesAndNulls;
         start = System.currentTimeMillis();
     }
 
@@ -65,9 +70,9 @@ final class FileUploadProgressListener extends ThresholdProgressListener
         final FileUploadFeedback feedback = new FileUploadFeedback();
         feedback.setBytesRead(bytesRead);
         feedback.setContentLength(contentLength);
-        if (items > 0)
+        if (items > 0 && (formIndexedPathnamesAndNulls.get(items) != null))
         {
-            feedback.setFileName(FilenameUtils.getName(pathnamesToUpload[items - 1]));
+            feedback.setFileName(FilenameUtils.getName(formIndexedPathnamesAndNulls.get(items)));
         }
         feedback.setTimeLeft(createTimeLeft(bytesRead, contentLength));
         return feedback;

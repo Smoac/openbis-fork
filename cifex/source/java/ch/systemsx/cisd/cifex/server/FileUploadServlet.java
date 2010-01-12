@@ -158,25 +158,50 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
         }
     }
 
+    /**
+     * Loop over the POST parameters and extract the email addresses, the comment, and the files.
+     * Cannot use getParameterValue because the data was encoded as "multipart/form-data" to support
+     * file upload.
+     */
     private final void extractEmailsAndUploadFilesAndComment(final HttpServletRequest request,
             final UserDTO requestUser, final String[] pathnamesToUpload, final List<FileDTO> files,
             final List<String> userIdentifier, final StringBuffer comment)
             throws FileUploadException, IOException
     {
+        // TODO This logic is complex enough that it makes sense to encapsulate it in an object, a
+        // FormDataExtractor
         final ServletFileUpload upload = new ServletFileUpload();
-        upload.setProgressListener(new FileUploadProgressListener(request.getSession(false),
-                pathnamesToUpload));
+
+        // A list that stores the pathnames specified in the form at the same index it appears in
+        // the form. If the form parameter at a given index is not a pathname, store a null.
+        List<String> formIndexedPathnamesAndNulls = new ArrayList<String>();
         final IFileManager fileManager = domainModel.getFileManager();
         final FileItemIterator iter = upload.getItemIterator(request);
-        for (int fileIndex = 0; iter.hasNext(); fileIndex++)
+
+        // Iterate over the form fields
+        for (int fileIndex = 0; iter.hasNext();)
         {
             final String pathnameToUpload =
                     fileIndex < pathnamesToUpload.length ? pathnamesToUpload[fileIndex] : null;
             final String filenameToUpload = FilenameUtils.getName(pathnameToUpload);
             final FileItemStream item = iter.next();
             final InputStream stream = item.openStream();
-            if (item.isFormField() == false)
+            if (item.isFormField())
             {
+                // This is a simple form field, not a file
+                formIndexedPathnamesAndNulls.add(null);
+                if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
+                {
+                    userIdentifier.addAll(StringUtilities.tokenize(Streams.asString(stream)));
+                }
+                if (item.getFieldName().equals(COMMENT_FIELD_NAME))
+                {
+                    comment.append(Streams.asString(stream));
+                }
+            } else
+            {
+                // This is a file
+                formIndexedPathnamesAndNulls.add(filenameToUpload);
                 final String filenameInStream = FilenameUtils.getName(item.getName());
                 if (StringUtils.isBlank(filenameToUpload))
                 {
@@ -219,23 +244,18 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                                 .getFieldName()));
                     }
                 }
-            } else
-            {
-                if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
-                {
-                    userIdentifier.addAll(StringUtilities.tokenize(Streams.asString(stream)));
-                }
-                if (item.getFieldName().equals(COMMENT_FIELD_NAME))
-                {
-                    comment.append(Streams.asString(stream));
-                    for (final FileDTO file : files)
-                    {
-                        file.setComment(comment.toString());
-                        fileManager.updateFile(file, requestUser);
-                    }
-                }
+                fileIndex++;
             }
         }
-    }
 
+        // After processing the form data, set the comments on the files
+        for (final FileDTO file : files)
+        {
+            file.setComment(comment.toString());
+            fileManager.updateFile(file, requestUser);
+        }
+
+        upload.setProgressListener(new FileUploadProgressListener(request.getSession(false),
+                formIndexedPathnamesAndNulls));
+    }
 }
