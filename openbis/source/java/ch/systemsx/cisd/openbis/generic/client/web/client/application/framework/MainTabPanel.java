@@ -82,7 +82,7 @@ public class MainTabPanel extends TabPanel
         layoutContainer.addText(createWelcomeText());
         final MainTabItem intro =
                 new MainTabItem(DefaultTabItem.createUnaware("&nbsp;", layoutContainer, false),
-                        layoutContainerId);
+                        layoutContainerId, null);
         intro.setClosable(false);
         return intro;
     }
@@ -115,11 +115,13 @@ public class MainTabPanel extends TabPanel
             setSelection(tab);
         } else
         {
-            String tabId = tabItemFactory.getId();
+            final String tabId = tabItemFactory.getId();
             // Note that if not set, is then automatically generated. So this is why we test for
             // 'ID_PREFIX'. We want the user to set an unique id.
             assert tabId.startsWith(GenericConstants.ID_PREFIX) : "Unspecified component id.";
-            final MainTabItem newTab = new MainTabItem(tabItemFactory.create(), tabId);
+            final HelpPageIdentifier helpId = tabItemFactory.getHelpPageIdentifier();
+            assert helpId != null : "Unspecified help identifier";
+            final MainTabItem newTab = new MainTabItem(tabItemFactory.create(), tabId, helpId);
             add(newTab);
             openTabs.put(tabId, newTab);
             setSelection(newTab);
@@ -163,6 +165,8 @@ public class MainTabPanel extends TabPanel
                         HelpPageIdentifier helpPageId = selectedTab.getHelpPageIdentifier();
                         url.addParameter(GenericConstants.HELP_REDIRECT_PAGE_TITLE_KEY, helpPageId
                                 .getHelpPageTitle(viewContext));
+                        url.addParameter(GenericConstants.HELP_REDIRECT_SPECIFIC_KEY, Boolean
+                                .toString(helpPageId.isSpecific()));
                         WindowUtils.openWindow(URL.encode(url.toString()));
                     }
                 });
@@ -181,10 +185,14 @@ public class MainTabPanel extends TabPanel
 
         private final String idPrefix;
 
-        public MainTabItem(final ITabItem tabItem, final String idPrefix)
+        private final HelpPageIdentifier helpPageIdentifier;
+
+        public MainTabItem(final ITabItem tabItem, final String idPrefix,
+                final HelpPageIdentifier helpPageIdentifier)
         {
             this.tabItem = tabItem;
             this.idPrefix = idPrefix;
+            this.helpPageIdentifier = helpPageIdentifier;
             setId(idPrefix + TAB_SUFFIX);
             setClosable(true);
             setLayout(new FitLayout());
@@ -202,7 +210,7 @@ public class MainTabPanel extends TabPanel
 
         public HelpPageIdentifier getHelpPageIdentifier()
         {
-            return tabItem.getHelpPageIdentifier();
+            return helpPageIdentifier;
         }
 
         @Override

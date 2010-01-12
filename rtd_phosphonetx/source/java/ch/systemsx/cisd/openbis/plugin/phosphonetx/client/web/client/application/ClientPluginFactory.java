@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
@@ -110,6 +111,11 @@ public class ClientPluginFactory extends
                     {
                         return "phosphonetx-viewer-" + sampleId;
                     }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return HelpPageIdentifier.createSpecific("PhosphoNetX Sample Viewer");
+                    }
                 };
         }
 
@@ -143,6 +149,11 @@ public class ClientPluginFactory extends
                     public String getId()
                     {
                         return DummyComponent.ID;
+                    }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return HelpPageIdentifier.createSpecific("PhosphoNetX Sample Edition");
                     }
                 };
         }

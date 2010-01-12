@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
@@ -31,14 +32,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class QueryMenu extends TopMenuItem
 {
     public static final String ID = GenericConstants.ID_PREFIX + "-phosphonetx-";
-    
+
     private static enum ActionMenuKind implements IActionMenuItem
     {
         ALL_PROTEINS_OF_AN_EXPERIMENT()
@@ -58,8 +57,7 @@ public class QueryMenu extends TopMenuItem
             {
                 return RawDataSampleGrid.create(viewContext);
             }
-        }
-        ;
+        };
 
         public String getMenuId()
         {
@@ -70,12 +68,12 @@ public class QueryMenu extends TopMenuItem
         {
             return messageProvider.getMessage(this.name() + "_menu_item");
         }
-        
+
         String getTabLabelKey()
         {
             return this.name() + "_tab_label";
         }
-        
+
         ActionMenu createActionMenu(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
         {
             return new ActionMenu(this, viewContext, new ITabItemFactory()
@@ -91,17 +89,23 @@ public class QueryMenu extends TopMenuItem
                         return DefaultTabItem.create(menuItemText, createComponent(viewContext),
                                 viewContext);
                     }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return HelpPageIdentifier.createSpecific(getMenuText(viewContext));
+                    }
                 });
         }
-        
-        abstract IDisposableComponent createComponent(IViewContext<IPhosphoNetXClientServiceAsync> viewContext);
+
+        abstract IDisposableComponent createComponent(
+                IViewContext<IPhosphoNetXClientServiceAsync> viewContext);
     }
-    
+
     public QueryMenu(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
         super(viewContext.getMessage(Dict.QUERY_MENU_TITLE));
         setIconStyle(TopMenuItem.ICON_STYLE);
-        
+
         Menu submenu = new Menu();
         for (ActionMenuKind actionMenuKind : ActionMenuKind.values())
         {

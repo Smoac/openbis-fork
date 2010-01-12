@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
@@ -133,6 +134,11 @@ public final class ClientPluginFactory extends
                     {
                         return GeneMaterialViewer.createId(materialId);
                     }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return HelpPageIdentifier.createSpecific("Gene Material Viewer");
+                    }
                 };
         }
     }
@@ -160,6 +166,11 @@ public final class ClientPluginFactory extends
                     {
                         final TechId sampleId = TechId.create(identifiable);
                         return PlateSampleViewer.createId(sampleId);
+                    }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return HelpPageIdentifier.createSpecific("Plate Sample Viewer");
                     }
                 };
         }

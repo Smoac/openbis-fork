@@ -29,6 +29,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
@@ -154,6 +157,11 @@ public final class ClientPluginFactory extends
                     {
                         return GenericSampleViewer.createId(identifiable);
                     }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.VIEW);
+                    }
                 };
         }
 
@@ -191,6 +199,11 @@ public final class ClientPluginFactory extends
                     {
                         return GenericSampleEditForm.createId(identifiable, EntityKind.SAMPLE);
                     }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.EDIT);
+                    }
                 };
         }
 
@@ -224,6 +237,11 @@ public final class ClientPluginFactory extends
                     {
                         return GenericMaterialViewer.createId(techId);
                     }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.MATERIAL, HelpPageAction.VIEW);
+                    }
                 };
         }
 
@@ -244,6 +262,11 @@ public final class ClientPluginFactory extends
                     public String getId()
                     {
                         return GenericMaterialEditForm.createId(identifiable, EntityKind.MATERIAL);
+                    }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.MATERIAL, HelpPageAction.EDIT);
                     }
                 };
         }
@@ -274,6 +297,12 @@ public final class ClientPluginFactory extends
                     {
                         return GenericExperimentViewer.createId(identifiable);
                     }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
+                                HelpPageAction.VIEW);
+                    }
                 };
         }
 
@@ -301,7 +330,14 @@ public final class ClientPluginFactory extends
 
                     public String getId()
                     {
-                        return GenericDataSetEditForm.createId(identifiable, EntityKind.EXPERIMENT);
+                        return GenericExperimentEditForm.createId(identifiable,
+                                EntityKind.EXPERIMENT);
+                    }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
+                                HelpPageAction.EDIT);
                     }
                 };
         }
@@ -327,6 +363,11 @@ public final class ClientPluginFactory extends
                     {
                         return GenericDataSetViewer.createId(identifiable);
                     }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.VIEW);
+                    }
                 };
         }
 
@@ -346,6 +387,11 @@ public final class ClientPluginFactory extends
                     public String getId()
                     {
                         return GenericDataSetEditForm.createId(identifiable, EntityKind.DATA_SET);
+                    }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.EDIT);
                     }
                 };
         }

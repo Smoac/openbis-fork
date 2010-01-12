@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -91,6 +92,11 @@ public class ProteinViewer extends AbstractViewer<IEntityInformationHolder> impl
                     return DefaultTabItem.create(viewContext.getMessage(
                             Dict.PROTEIN_IN_EXPERIMENT_TAB_LABEL, description, identifier), c,
                             viewContext, false);
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return HelpPageIdentifier.createSpecific("Protein Viewer");
                 }
             };
     }

@@ -39,7 +39,11 @@ public class HelpPageIdentifier
     public static enum HelpPageDomain
     {
         // base domains (as in menu)
-        EXPERIMENT, SAMPLE, DATA_SET, MATERIAL, ADMINISTRATION,
+        EXPERIMENT, SAMPLE, DATA_SET, MATERIAL, ADMINISTRATION, SEARCH,
+
+        // entity types
+        EXPERIMENT_TYPE(EXPERIMENT), SAMPLE_TYPE(SAMPLE), DATA_SET_TYPE(DATA_SET), MATERIAL_TYPE(
+                MATERIAL),
 
         // administration subdomains
         GROUP(ADMINISTRATION),
@@ -59,7 +63,7 @@ public class HelpPageIdentifier
         USERS(AUTHORIZATION), ROLES(AUTHORIZATION), AUTHORIZATION_GROUPS(AUTHORIZATION),
 
         // other base domains
-        CHANGE_USER_SETTINGS;
+        RELATED_DATA_SETS, ATTACHMENTS, CHANGE_USER_SETTINGS, EXPERIMENT_STATISTICS;
 
         // could be used to create a hierarchy of help pages
         private HelpPageDomain superDomainOrNull;
@@ -107,18 +111,27 @@ public class HelpPageIdentifier
      */
     public static enum HelpPageAction
     {
-        BROWSE, REGISTER, IMPORT, UPLOAD, EDIT, SEARCH, ACTION
+        BROWSE, VIEW, REGISTER, IMPORT, EDIT, BATCH_UPDATE, REPORT, SEARCH, ACTION
     }
 
     private HelpPageDomain domain;
 
     private HelpPageAction action;
 
+    private boolean specific;
+
+    private String specificPageTitle;
+
     /**
-     * Create a new help page identifier for the given domain and action.
-     * 
-     * @param domain
-     * @param action
+     * Create a specific help page identifier with the given page title.
+     */
+    public static HelpPageIdentifier createSpecific(String pageTitle)
+    {
+        return new HelpPageIdentifier(pageTitle);
+    }
+
+    /**
+     * Creates a generic help page identifier for the given domain and action.
      */
     public HelpPageIdentifier(HelpPageDomain domain, HelpPageAction action)
     {
@@ -126,27 +139,47 @@ public class HelpPageIdentifier
         assert action != null;
         this.domain = domain;
         this.action = action;
+        this.specific = false;
     }
 
-    public HelpPageDomain getHelpPageDomain()
+    private HelpPageIdentifier(String pageTitle)
     {
+        this.specific = true;
+        this.specificPageTitle = pageTitle;
+    }
+
+    private HelpPageDomain getHelpPageDomain()
+    {
+        assert domain != null;
         return domain;
     }
 
-    public HelpPageAction getHelpPageAction()
+    private HelpPageAction getHelpPageAction()
     {
+        assert action != null;
         return action;
+    }
+
+    public boolean isSpecific()
+    {
+        return specific;
     }
 
     private static char PAGE_NAME_KEY_SEPARATOR = '.';
 
     public String getHelpPageTitle(IMessageProvider messageProvider)
     {
-        final String messageKey = getHelpPageTitleKey();
-        // If there is no message for the key return the key as the title,
-        // otherwise return the message.
-        return messageProvider.containsKey(messageKey) ? messageProvider.getMessage(messageKey)
-                : messageKey; // TODO 2010-01-12, Piotr Buczek: is it better to return null?
+        if (specific)
+        {
+            return specificPageTitle;
+        } else
+        {
+            final String messageKey = getHelpPageTitleKey();
+            // If there is no message for the key return the key as the title,
+            // otherwise return the message.
+            return messageProvider.containsKey(messageKey) ? messageProvider.getMessage(messageKey)
+                    : messageKey; // TODO 2010-01-12, Piotr Buczek: is it better to return null?
+        }
     }
 
     @Private
@@ -162,4 +195,5 @@ public class HelpPageIdentifier
 
         return messageKeyBuilder.toString();
     }
+
 }

@@ -70,7 +70,6 @@ public class HelpRedirectServlet extends AbstractController
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
             HttpServletResponse response) throws Exception
     {
-        System.err.println("got: " + getHelpPageAbsoluteURLForRequest(request));
         response.sendRedirect(getHelpPageAbsoluteURLForRequest(request));
         return null;
     }
@@ -79,12 +78,7 @@ public class HelpRedirectServlet extends AbstractController
     {
         final String isSpecificString =
                 request.getParameter(GenericConstants.HELP_REDIRECT_SPECIFIC_KEY);
-        boolean isSpecific = false;
-        if (isSpecificString != null)
-        {
-            final String isSpecificCompareString = isSpecificString.toUpperCase();
-            isSpecific = "TRUE".equals(isSpecificCompareString);
-        }
+        boolean isSpecific = new Boolean(isSpecificString);
         return isSpecific;
     }
 
@@ -142,7 +136,6 @@ public class HelpRedirectServlet extends AbstractController
     {
         final String helpPageTitle =
                 request.getParameter(GenericConstants.HELP_REDIRECT_PAGE_TITLE_KEY);
-        // helpPageTitle = helpPageTitle.replace("_", "+");
         return helpPageTitle;
     }
 

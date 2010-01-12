@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.TabItem;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-
 /**
  * An interface which contains everything to create a {@link TabItem}.
  * 
@@ -32,11 +30,6 @@ public interface ITabItem
      * Returns the title updater.
      */
     public TabTitleUpdater getTabTitleUpdater();
-
-    /**
-     * Returns the identifier the help page for this tab item.
-     */
-    public HelpPageIdentifier getHelpPageIdentifier();
 
     /**
      * Returns the {@link Component} which composes this tab item.

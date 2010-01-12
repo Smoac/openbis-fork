@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+
 /**
  * Creates {@link ITabItem} which consist of a description and a content of the tab.<br>
  * Allows to create a tab in a moment when it is needed.
@@ -36,4 +38,10 @@ public interface ITabItemFactory
      * </p>
      */
     public String getId();
+
+    /**
+     * Returns the identifier of the help page for this tab item.
+     */
+    public HelpPageIdentifier getHelpPageIdentifier();
+
 }

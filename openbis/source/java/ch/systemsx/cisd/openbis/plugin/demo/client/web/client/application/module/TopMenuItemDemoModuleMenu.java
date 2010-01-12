@@ -23,6 +23,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
@@ -57,6 +58,11 @@ public class TopMenuItemDemoModuleMenu extends TopMenuItem
         public String getId()
         {
             return StatisticsWidget.ID;
+        }
+
+        public HelpPageIdentifier getHelpPageIdentifier()
+        {
+            return HelpPageIdentifier.createSpecific("Experiment Statistics");
         }
     }
 

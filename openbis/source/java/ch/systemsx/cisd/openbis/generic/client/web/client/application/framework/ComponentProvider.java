@@ -21,6 +21,9 @@ import com.extjs.gxt.ui.client.widget.Component;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonGrid;
@@ -113,6 +116,11 @@ public final class ComponentProvider
                 {
                     return SampleBrowserGrid.BROWSER_ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.BROWSE);
+                }
             };
     }
 
@@ -131,6 +139,11 @@ public final class ComponentProvider
                 {
                     return MaterialBrowserGrid.BROWSER_ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.MATERIAL, HelpPageAction.BROWSE);
+                }
             };
     }
 
@@ -147,6 +160,11 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return GroupGrid.BROWSER_ID;
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.GROUP, HelpPageAction.BROWSE);
                 }
             };
     }
@@ -165,6 +183,12 @@ public final class ComponentProvider
                 {
                     return AuthorizationGroupGrid.BROWSER_ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.AUTHORIZATION_GROUPS,
+                            HelpPageAction.BROWSE);
+                }
             };
     }
 
@@ -182,6 +206,11 @@ public final class ComponentProvider
                 {
                     return RoleAssignmentGrid.BROWSER_ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.ROLES, HelpPageAction.BROWSE);
+                }
             };
     }
 
@@ -198,6 +227,11 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return PersonGrid.createBrowserId();
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.USERS, HelpPageAction.BROWSE);
                 }
             };
     }
@@ -217,6 +251,11 @@ public final class ComponentProvider
                 {
                     return SampleRegistrationPanel.ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.REGISTER);
+                }
             };
     }
 
@@ -234,6 +273,12 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return ExperimentRegistrationPanel.ID;
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
+                            HelpPageAction.REGISTER);
                 }
             };
     }
@@ -253,6 +298,11 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return SampleBatchRegisterUpdatePanel.getId(update);
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.IMPORT);
                 }
             };
     }
@@ -274,6 +324,12 @@ public final class ComponentProvider
                 {
                     return SampleBatchRegisterUpdatePanel.getId(update);
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.SAMPLE,
+                            HelpPageAction.BATCH_UPDATE);
+                }
             };
     }
 
@@ -292,6 +348,11 @@ public final class ComponentProvider
                 {
                     return MaterialBatchRegistrationPanel.ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.MATERIAL, HelpPageAction.IMPORT);
+                }
             };
     }
 
@@ -308,6 +369,12 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return VocabularyRegistrationForm.ID;
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.VOCABULARY,
+                            HelpPageAction.REGISTER);
                 }
             };
     }
@@ -327,6 +394,11 @@ public final class ComponentProvider
                 {
                     return ProjectRegistrationForm.createId();
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.REGISTER);
+                }
             };
     }
 
@@ -343,6 +415,11 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return VocabularyGrid.GRID_ID;
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.VOCABULARY, HelpPageAction.BROWSE);
                 }
             };
     }
@@ -361,6 +438,11 @@ public final class ComponentProvider
                 {
                     return ProjectGrid.BROWSER_ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.PROJECT, HelpPageAction.BROWSE);
+                }
             };
     }
 
@@ -378,6 +460,11 @@ public final class ComponentProvider
                 {
                     return ExperimentBrowserGrid.BROWSER_ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT, HelpPageAction.BROWSE);
+                }
             };
     }
 
@@ -394,6 +481,12 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return PropertyTypeGrid.BROWSER_ID;
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.PROPERTY_TYPE,
+                            HelpPageAction.BROWSE);
                 }
             };
     }
@@ -413,6 +506,12 @@ public final class ComponentProvider
                 {
                     return PropertyTypeRegistrationForm.ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.PROPERTY_TYPE,
+                            HelpPageAction.REGISTER);
+                }
             };
     }
 
@@ -429,6 +528,11 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return PropertyTypeAssignmentGrid.BROWSER_ID;
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.ASSIGNMENT, HelpPageAction.BROWSE);
                 }
             };
     }
@@ -472,6 +576,12 @@ public final class ComponentProvider
                 {
                     return PropertyTypeAssignmentForm.createId(entityKind);
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.ASSIGNMENT,
+                            HelpPageAction.REGISTER);
+                }
             };
     }
 
@@ -488,6 +598,11 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return DataSetSearchHitGrid.BROWSER_ID;
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.SEARCH);
                 }
             };
     }
@@ -506,6 +621,11 @@ public final class ComponentProvider
                 {
                     return SampleSearchHitGrid.SEARCH_BROWSER_ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.SEARCH);
+                }
             };
     }
 
@@ -523,6 +643,12 @@ public final class ComponentProvider
                 {
                     return SampleTypeGrid.BROWSER_ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.SAMPLE_TYPE, HelpPageAction.BROWSE);
+                }
+
             };
     }
 
@@ -539,6 +665,12 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return MaterialTypeGrid.BROWSER_ID;
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.MATERIAL_TYPE,
+                            HelpPageAction.BROWSE);
                 }
             };
     }
@@ -557,6 +689,12 @@ public final class ComponentProvider
                 {
                     return ExperimentTypeGrid.BROWSER_ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT_TYPE,
+                            HelpPageAction.BROWSE);
+                }
             };
     }
 
@@ -573,6 +711,12 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return DataSetTypeGrid.BROWSER_ID;
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.DATA_SET_TYPE,
+                            HelpPageAction.BROWSE);
                 }
             };
     }
@@ -592,6 +736,11 @@ public final class ComponentProvider
                 {
                     return DataSetUploadForm.ID;
                 }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.DATA_SET, HelpPageAction.REGISTER);
+                }
             };
     }
 
@@ -608,6 +757,11 @@ public final class ComponentProvider
                 public String getId()
                 {
                     return FileFormatTypeGrid.BROWSER_ID;
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageDomain.FILE_FORMAT, HelpPageAction.BROWSE);
                 }
             };
     }

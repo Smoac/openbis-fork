@@ -30,6 +30,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
@@ -126,6 +129,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<IDemo
                     {
                         return DemoSampleViewer.createId(sampleId);
                     }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.VIEW);
+                    }
                 };
         }
 
@@ -161,6 +169,11 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<IDemo
                     {
                         return DummyComponent.ID;
                     }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.EDIT);
+                    }
                 };
         }
 
@@ -187,6 +200,12 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<IDemo
                     public String getId()
                     {
                         return DummyComponent.ID;
+                    }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
+                                HelpPageAction.VIEW);
                     }
                 };
         }

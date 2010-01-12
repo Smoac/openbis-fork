@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDrop
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
- * A dropbox processing plugin that gets its dropbox directory from properties.  
+ * A dropbox processing plugin that gets its dropbox directory from properties.
  * 
  * @author Tomasz Pylak
  */
@@ -34,8 +34,6 @@ public class DropboxProcessingPluginYeastX extends AbstractDropboxProcessingPlug
 
     private static final long serialVersionUID = 1L;
 
-    private final String description;
-    
     public DropboxProcessingPluginYeastX()
     {
         this(null, null);
@@ -44,12 +42,6 @@ public class DropboxProcessingPluginYeastX extends AbstractDropboxProcessingPlug
     public DropboxProcessingPluginYeastX(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, new DatasetDropboxHandler(properties));
-        if (properties != null && properties.get(DROPBOX_INCOMING_DIRECTORY_PROPERTY) != null)
-        {
-            description = "COPYTO " + properties.get(DROPBOX_INCOMING_DIRECTORY_PROPERTY);
-        } else {
-            description = "COPYTO <unknown location>";
-        }
     }
 
     private static final class DatasetDropboxHandler extends AbstractDatasetDropboxHandlerYeastX
@@ -82,8 +74,4 @@ public class DropboxProcessingPluginYeastX extends AbstractDropboxProcessingPlug
         }
     }
 
-    public String getDescription()
-    {
-        return description;
-    }
 }
