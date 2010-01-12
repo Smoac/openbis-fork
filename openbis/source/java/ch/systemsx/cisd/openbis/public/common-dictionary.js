@@ -40,8 +40,11 @@ var common = {
   data_view: "Data View",
   main_data_set_path: "Main Data Set Path",
   main_data_set_pattern: "Main Data Set Pattern",
-
-  
+	auto_resolve_label: "Smart View",
+	data_report_label: "Report:",
+	explore_label: "Explore:",
+	
+	  
   //
   // Field
   //
@@ -80,6 +83,7 @@ var common = {
   button_delete: "Delete",
   button_configure: "Settings",  
   button_upload_data_via_cifex: "Upload Data",
+  button_top: "Top",
   
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
   tooltip_refresh_enabled: "Load or update the table.",

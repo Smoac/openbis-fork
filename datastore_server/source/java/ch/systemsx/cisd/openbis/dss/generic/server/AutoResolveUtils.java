@@ -65,6 +65,26 @@ public class AutoResolveUtils
         }
     }
 
+    public static File tryGetTheOnlyMatchingFileOrDir(File root, String pattern)
+    {
+        if (root.isDirectory())
+        {
+            if (continueAutoResolving(pattern, root))
+            {
+                return tryGetTheOnlyMatchingFileOrDir(root.listFiles()[0], pattern);
+            } else
+            {
+                return root;
+            }
+        } else if (root.isFile() && acceptFile(pattern, root))
+        {
+            return root;
+        } else
+        {
+            return null;
+        }
+    }
+
     /**
      * Returns {@link FileFilter} accepting files with canonical path matching the pattern.
      * 
@@ -76,16 +96,25 @@ public class AutoResolveUtils
             {
                 public boolean accept(File pathname)
                 {
-                    if (StringUtils.isBlank(pattern))
-                    {
-                        return false;
-                    }
-                    Pattern p = Pattern.compile(pattern);
-                    Matcher m = p.matcher(FileUtilities.getCanonicalPath(pathname));
-                    return m.find();
+                    return acceptFile(pattern, pathname);
                 }
+
             };
         return filter;
+    }
+
+    /**
+     * Accepts regular files matching pattern and nothing if pattern is empty.
+     */
+    static private boolean acceptFile(final String pattern, File file)
+    {
+        if (StringUtils.isBlank(pattern) || file.isFile() == false)
+        {
+            return false;
+        }
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(FileUtilities.getCanonicalPath(file));
+        return m.find();
     }
 
     /**
@@ -101,10 +130,14 @@ public class AutoResolveUtils
     {
         assert file.isDirectory();
         return file.listFiles().length == 1
-                && (file.listFiles()[0].isDirectory() || file
-                        .listFiles(createCanonicalPathMatchingFilter(mainDataSetPattern)).length == 1);
+                && (file.listFiles()[0].isDirectory() || acceptFile(mainDataSetPattern, file
+                        .listFiles()[0]));
     }
 
+    /**
+     * Recursively browses startingPoint looking for files accepted by the filter. Stops if more
+     * than one file has been already found.
+     */
     private static void findFiles(File startingPoint, FileFilter filter, List<File> result)
     {
         if (result.size() > 1)
@@ -114,10 +147,7 @@ public class AutoResolveUtils
         {
             for (File f : startingPoint.listFiles(filter))
             {
-                if (f.isFile())
-                {
-                    result.add(f);
-                }
+                result.add(f);
             }
             for (File d : startingPoint.listFiles())
             {
@@ -129,6 +159,10 @@ public class AutoResolveUtils
         }
     }
 
+    /**
+     * Returns the directory defined by root and given relative path. If path is not defined or the
+     * result file does not exist or is not a directory, root is returned.
+     */
     private static File createStartingPoint(File root, String path)
     {
         File startingPoint = root;

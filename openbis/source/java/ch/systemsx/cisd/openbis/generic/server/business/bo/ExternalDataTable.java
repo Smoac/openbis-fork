@@ -421,7 +421,9 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
                 String projectCode = project.getCode();
                 String experimentCode = experiment.getCode();
                 result.add(new DatasetDescription(datasetCode, location, sampleCode, groupCode,
-                        projectCode, experimentCode));
+                        projectCode, experimentCode, dataSet.getDataSetType()
+                                .getMainDataSetPattern(), dataSet.getDataSetType()
+                                .getMainDataSetPath()));
             }
         }
         return result;

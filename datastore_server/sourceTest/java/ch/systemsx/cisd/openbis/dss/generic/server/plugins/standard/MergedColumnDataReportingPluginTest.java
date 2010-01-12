@@ -84,7 +84,7 @@ public class MergedColumnDataReportingPluginTest
 
     private DatasetDescription createDatasetDescription(String location)
     {
-        return new DatasetDescription("", location, "", "", "", "");
+        return new DatasetDescription("", location, "", "", "", "", null, null);
     }
 
 }

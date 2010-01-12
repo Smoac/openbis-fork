@@ -70,7 +70,7 @@ public class DatasetFileLines
     /** splits line with '\t' and strips quotes from every token */
     private String[] parseLine(String line)
     {
-        String[] tokens = line.split(separator);
+        String[] tokens = line.split(separator, -1);
         return StringUtils.stripAll(tokens, "'\"");
     }
 

@@ -40,27 +40,37 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopie
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=DataSetCopier.class)
+@Friend(toClasses = DataSetCopier.class)
 public class DataSetCopierTest extends AbstractFileSystemTestCase
 {
     private static final String DS1_LOCATION = "ds1";
+
     private static final String DS2_LOCATION = "ds2";
+
     private Mockery context;
+
     private IPathCopierFactory factory;
+
     private IPathCopier copier;
+
     private File storeRoot;
+
     private File sshExecutableDummy;
+
     private File rsyncExecutableDummy;
+
     private Properties properties;
+
     private DatasetDescription ds1;
+
     private File ds1Data;
+
     private DatasetDescription ds2;
+
     private File ds2Data;
-    
+
     @BeforeMethod
     public void beforeMethod() throws IOException
     {
@@ -76,12 +86,12 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         properties = new Properties();
         properties.setProperty("ssh-executable", sshExecutableDummy.getPath());
         properties.setProperty("rsync-executable", rsyncExecutableDummy.getPath());
-        ds1 = new DatasetDescription("ds1", DS1_LOCATION, "s", "g", "p", "e");
+        ds1 = new DatasetDescription("ds1", DS1_LOCATION, "s", "g", "p", "e", null, null);
         File ds1Folder = new File(storeRoot, DS1_LOCATION + "/original");
         ds1Folder.mkdirs();
         ds1Data = new File(ds1Folder, "data.txt");
         ds1Data.createNewFile();
-        ds2 = new DatasetDescription("ds2", DS2_LOCATION, "s", "g", "p", "e");
+        ds2 = new DatasetDescription("ds2", DS2_LOCATION, "s", "g", "p", "e", null, null);
         File ds2Folder = new File(storeRoot, DS2_LOCATION + "/original");
         ds2Folder.mkdirs();
         ds2Data = new File(ds2Folder, "images");
@@ -108,10 +118,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             assertEquals("Given key '" + DESTINATION_KEY + "' not found in properties '[]'", ex
                     .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingRsyncExecutableFile()
     {
@@ -128,7 +138,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingSshExecutableFile()
     {
@@ -145,7 +155,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testFailingSshConnection()
     {
@@ -159,10 +169,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         {
             assertEquals("No good rsync executable found on host 'host'", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testFailingRsyncConnection()
     {
@@ -177,7 +187,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         {
             assertEquals("Connection to rsync module host::abc failed", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
 
@@ -226,10 +236,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     "Could not copy data set ds1 to destination folder 'tmp/test': error message",
                     ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCopyRemotlyViaSSH()
     {
@@ -248,7 +258,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCopyRemotelyViaSSH()
     {
@@ -273,10 +283,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     "Could not copy data set ds1 to destination folder 'tmp/test' on host 'host': "
                             + "error message", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCopyRemotlyViaRsyncServer()
     {
@@ -297,7 +307,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testCopyRemotelyViaRsyncServer()
     {
@@ -323,10 +333,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
             assertEquals("Could not copy data set ds1 to destination folder 'tmp/test' "
                     + "on host 'host' for rsync module 'abc': error message", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     private void prepareCreateAndCheckCopier(final String hostOrNull,
             final String rsyncModuleOrNull, final boolean checkingResult)
     {
@@ -335,7 +345,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                 {
                     one(factory).create(rsyncExecutableDummy, sshExecutableDummy);
                     will(returnValue(copier));
-                    
+
                     one(copier).check();
                     if (hostOrNull != null)
                     {

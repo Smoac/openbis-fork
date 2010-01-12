@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
-import static org.testng.AssertJUnit.*;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.io.File;
 import java.util.Arrays;
@@ -80,7 +80,7 @@ public class IterativeTableModelBuilderTest
     private DatasetDescription createDatasetDescription()
     {
         return new DatasetDescription("code", "location", "sampleCode", "groupCode", "projCode",
-                "expCode");
+                "expCode", null, null);
     }
 
     @Test

@@ -883,5 +883,13 @@ public abstract class Dict
 
     public static final String MAIN_DATA_SET_PATTERN = "main_data_set_pattern";
 
+    public static final String AUTO_RESOLVE_LABEL = "auto_resolve_label";
+
+    public static final String DATA_REPORT_LABEL = "data_report_label";
+
+    public static final String BUTTON_TOP = "button_top";
+
+    public static final String EXPLORE_LABEL = "explore_label";
+
     // ----- end generic ------------------
 }
