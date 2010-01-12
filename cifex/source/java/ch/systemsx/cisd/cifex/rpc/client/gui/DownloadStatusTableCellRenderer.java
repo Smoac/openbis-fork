@@ -29,6 +29,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo;
+import ch.systemsx.cisd.common.utilities.DateTimeUtils;
 
 /**
  * Displays a button or download status, depending on whether the file has been downloaded or not.
@@ -123,8 +124,8 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
             case DOWNLOADING:
                 panel = progressPanel;
                 progressBar.setValue(fileInfo.getPercentageDownloaded());
-                //progressBar.setStringPainted(true);
-                //progressBar.setString(getAmountDownloadedStringForFileInfo(fileInfo));
+                // progressBar.setStringPainted(true);
+                // progressBar.setString(getAmountDownloadedStringForFileInfo(fileInfo));
                 progressLabel.setText(getAmountDownloadedStringForFileInfo(fileInfo));
                 break;
             case FAILED:
@@ -139,11 +140,16 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
     String getAmountDownloadedStringForFileInfo(FileDownloadInfo fileInfo)
     {
         StringBuffer sb = new StringBuffer();
-        sb.append(FileDetailsTableCellRenderer.numberOfBytesToDisplayString(fileInfo
-                .getNumberOfBytesDownloaded()));
-        sb.append(" of ");
-        sb.append(FileDetailsTableCellRenderer.numberOfBytesToDisplayString(fileInfo
-                .getFileInfoDTO().getSize()));
+        // sb.append(FileDetailsTableCellRenderer.numberOfBytesToDisplayString(fileInfo
+        // .getNumberOfBytesDownloaded()));
+        // sb.append(" of ");
+        // sb.append(FileDetailsTableCellRenderer.numberOfBytesToDisplayString(fileInfo
+        // .getFileInfoDTO().getSize()));
+        String eta = DateTimeUtils.renderDuration(fileInfo.getEstimatedTimeOfArrival());
+        sb.append(fileInfo.getPercentageDownloaded());
+        sb.append("% (ETA: ");
+        sb.append(eta);
+        sb.append(")");
         return sb.toString();
     }
 

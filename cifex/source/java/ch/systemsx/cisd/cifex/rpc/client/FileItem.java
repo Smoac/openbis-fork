@@ -22,32 +22,34 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
  * Encapsulates a a file and its upload status.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public final class FileItem 
+public final class FileItem
 {
-    private final ITimeProvider timeProvider;
     private final File file;
+
     private final long length;
-    
+
     private FileItemStatus status;
-    private long uploadStartTime;
+
     private long numberOfBytesUploaded;
-    
+
+    private final TransmissionSpeedCalculator transmissionSpeedCalculator;
+
     public FileItem(File file, ITimeProvider timeProvider)
     {
         this.file = file;
-        this.timeProvider = timeProvider;
+        transmissionSpeedCalculator = new TransmissionSpeedCalculator(timeProvider);
         length = file.length();
         status = FileItemStatus.NOT_STARTED;
     }
-    
+
     public File getFile()
     {
         return file;
     }
-    
+
     public long getLength()
     {
         return length;
@@ -70,18 +72,17 @@ public final class FileItem
 
     public void setNumberOfBytesUploaded(long numberOfBytesUploaded)
     {
-        if (numberOfBytesUploaded <= 0)
-        {
-            uploadStartTime = timeProvider.getTimeInMilliseconds();
-        }
+        int transmittedSinceLastUpdate = (int) (numberOfBytesUploaded - this.numberOfBytesUploaded);
+        transmissionSpeedCalculator.noteTransmittedBytesSinceLastUpdate(transmittedSinceLastUpdate);
+
         this.numberOfBytesUploaded = numberOfBytesUploaded;
     }
-    
+
     public long getEstimatedTimeOfArrival()
     {
-        long duration = timeProvider.getTimeInMilliseconds() - uploadStartTime;
-        return (long) (duration * (((double) length - numberOfBytesUploaded) / Math.max(
-                numberOfBytesUploaded, 1)));
+        float remainingBytes = (length - numberOfBytesUploaded);
+        return (long) (remainingBytes / transmissionSpeedCalculator
+                .getEstimatedBytesPerMillisecond());
     }
 
     @Override

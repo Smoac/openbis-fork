@@ -27,6 +27,7 @@ import javax.swing.table.AbstractTableModel;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
+import ch.systemsx.cisd.cifex.rpc.client.TransmissionSpeedCalculator;
 import ch.systemsx.cisd.cifex.rpc.client.gui.FileDownloadClientModel.FileDownloadInfo.STATUS;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
@@ -53,7 +54,6 @@ public class FileDownloadClientModel extends AbstractTableModel
 
     private final ICIFEXDownloader downloader;
 
-    @SuppressWarnings("unused")
     private final ITimeProvider timeProvider;
 
     private final ArrayList<FileDownloadInfo> fileDownloadInfos = new ArrayList<FileDownloadInfo>();
@@ -90,6 +90,8 @@ public class FileDownloadClientModel extends AbstractTableModel
 
         private final FileInfoDTO fileInfoDTO;
 
+        private final TransmissionSpeedCalculator transmissionSpeedCalculator;
+
         private File file;
 
         private int percentageDownloaded;
@@ -98,9 +100,10 @@ public class FileDownloadClientModel extends AbstractTableModel
 
         private STATUS status;
 
-        FileDownloadInfo(FileInfoDTO fileInfo)
+        FileDownloadInfo(FileInfoDTO fileInfo, ITimeProvider timeProvider)
         {
             this.fileInfoDTO = fileInfo;
+            transmissionSpeedCalculator = new TransmissionSpeedCalculator(timeProvider);
             percentageDownloaded = 0;
             numberOfBytesDownloaded = 0;
             setStatus(STATUS.TO_DOWNLOAD);
@@ -131,10 +134,20 @@ public class FileDownloadClientModel extends AbstractTableModel
             return numberOfBytesDownloaded;
         }
 
+        public long getEstimatedTimeOfArrival()
+        {
+            float remainingBytes = (fileInfoDTO.getSize() - numberOfBytesDownloaded);
+            return (long) (remainingBytes / transmissionSpeedCalculator
+                    .getEstimatedBytesPerMillisecond());
+        }
+
         void updateProgress(int percent, long numberOfBytes)
         {
+            int transmittedSinceLastUpdate = (int) (numberOfBytes - numberOfBytesDownloaded);
             percentageDownloaded = percent;
             numberOfBytesDownloaded = numberOfBytes;
+            transmissionSpeedCalculator
+                    .noteTransmittedBytesSinceLastUpdate(transmittedSinceLastUpdate);
         }
 
         public void setStatus(STATUS status)
@@ -271,7 +284,7 @@ public class FileDownloadClientModel extends AbstractTableModel
         fileDownloadInfos.clear();
         for (FileInfoDTO fileInfo : downloadableFileInfos)
         {
-            fileDownloadInfos.add(new FileDownloadInfo(fileInfo));
+            fileDownloadInfos.add(new FileDownloadInfo(fileInfo, timeProvider));
         }
 
         fireTableDataChanged();
