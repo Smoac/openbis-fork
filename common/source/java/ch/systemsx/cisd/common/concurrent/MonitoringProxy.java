@@ -44,8 +44,8 @@ import ch.systemsx.cisd.common.logging.LogLevel;
  * failed. (Note that by default no timeout is set and no retrying of failed operations is
  * performed.)
  * <p>
- * On calls to {@link Thread#interrupt()} the proxy will throw a {@link InterruptedExceptionUnchecked}, on timeouts
- * a {@link TimeoutExceptionUnchecked}.
+ * On calls to {@link Thread#interrupt()} the proxy will throw a
+ * {@link InterruptedExceptionUnchecked}, on timeouts a {@link TimeoutExceptionUnchecked}.
  * <p>
  * Retrying failed invocations is enabled by calling {@link #timing(TimingParameters)} with a retry
  * parameter greater than 0. You need to carefully consider whether the methods in the interface are
@@ -115,6 +115,8 @@ public class MonitoringProxy<T>
     private String nameOrNull;
 
     private ISimpleLogger loggerOrNull;
+
+    private IMonitoringProxyLogger invocationLoggerOrNull;
 
     private IActivitySensor sensorOrNull;
 
@@ -216,29 +218,39 @@ public class MonitoringProxy<T>
         {
             int counter = 0;
             ExecutionResult<Object> result = null;
+            boolean willRetry;
             do
             {
                 result = executeInThread(myProxy, method, args);
                 if (result.getStatus() == ExecutionStatus.COMPLETE
-                        || result.getStatus() == ExecutionStatus.INTERRUPTED)
+                        || result.getStatus() == ExecutionStatus.INTERRUPTED
+                        || exceptionStatusUnsuitableForRetry(result))
                 {
-                    break;
-                }
-                if (exceptionStatusUnsuitableForRetry(result))
+                    willRetry = false;
+                } else
                 {
-                    break;
+                    willRetry = (counter++ < timingParameters.getMaxRetriesOnFailure());
                 }
-                if (counter > 0 && timingParameters.getIntervalToWaitAfterFailureMillis() > 0)
+                if (invocationLoggerOrNull != null)
+                {
+                    invocationLoggerOrNull.log(method, result, willRetry);
+                }
+                if (willRetry && timingParameters.getIntervalToWaitAfterFailureMillis() > 0)
                 {
                     try
                     {
                         Thread.sleep(timingParameters.getIntervalToWaitAfterFailureMillis());
                     } catch (InterruptedException ex)
                     {
-                        return ExecutionResult.createInterrupted();
+                        result = ExecutionResult.createInterrupted();
+                        if (invocationLoggerOrNull != null)
+                        {
+                            invocationLoggerOrNull.log(method, result, false);
+                        }
+                        return result;
                     }
                 }
-            } while (counter++ < timingParameters.getMaxRetriesOnFailure());
+            } while (willRetry);
             return result;
         }
 
@@ -416,6 +428,17 @@ public class MonitoringProxy<T>
     public MonitoringProxy<T> errorLog(ISimpleLogger newLogger)
     {
         this.loggerOrNull = newLogger;
+        return this;
+    }
+
+    /**
+     * Sets the logger to be used for all invocations of methods of this proxy.
+     * 
+     * @return This object (for chaining).
+     */
+    public MonitoringProxy<T> invocationLog(IMonitoringProxyLogger newLogger)
+    {
+        this.invocationLoggerOrNull = newLogger;
         return this;
     }
 

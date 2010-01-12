@@ -20,6 +20,10 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
@@ -443,4 +447,33 @@ public class MonitoringProxyTest
     {
         retryingTwiceExceptionThrowingProxy.worksOnThirdInvocation();
     }
+
+    @Test
+    public void testInvocationLog()
+    {
+        final List<ExecutionResult<Object>> results = new ArrayList<ExecutionResult<Object>>();
+        final List<Boolean> retryFlags = new ArrayList<Boolean>();
+        final ITest proxy =
+                MonitoringProxy.create(ITest.class, new TestImpl(observerSensor)).timing(
+                        TimingParameters.create(TIMEOUT_MILLIS, 2, 0L)).name(THREAD_NAME).sensor(
+                        observerSensor).exceptionClassSuitableForRetrying(RetryItException.class)
+                        .invocationLog(new IMonitoringProxyLogger()
+                            {
+                                public void log(Method method, ExecutionResult<Object> result,
+                                        boolean willRetry)
+                                {
+                                    results.add(result);
+                                    retryFlags.add(willRetry);
+                                }
+                            }).get();
+        proxy.worksOnThirdInvocation();
+        assertEquals(Arrays.asList(true, true, false), retryFlags);
+        assertEquals(3, results.size());
+        assertEquals(ExecutionStatus.EXCEPTION, results.get(0).getStatus());
+        assertTrue(results.get(0).tryGetException() instanceof RetryItException);
+        assertEquals(ExecutionStatus.EXCEPTION, results.get(1).getStatus());
+        assertTrue(results.get(1).tryGetException() instanceof RetryItException);
+        assertEquals(ExecutionStatus.COMPLETE, results.get(2).getStatus());
+    }
+
 }
