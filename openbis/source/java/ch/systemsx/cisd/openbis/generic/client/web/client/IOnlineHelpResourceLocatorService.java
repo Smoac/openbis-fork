@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.onlinehelp;
+package ch.systemsx.cisd.openbis.generic.client.web.client;
 
 /**
  * A interface for getting the resources necessary for the help system. Online help is broken into

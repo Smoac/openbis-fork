@@ -23,9 +23,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.client.web.client.onlinehelp.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.onlinehelp.HelpPageIdentifier.HelpPageAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.onlinehelp.HelpPageIdentifier.HelpPageDomain;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 
 /**
  * Test generation of page titles from {@link HelpPageIdentifier}s.

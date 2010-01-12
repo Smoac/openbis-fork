@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.onlinehelp;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.help;
 
 import java.util.ArrayList;
 import java.util.List;
