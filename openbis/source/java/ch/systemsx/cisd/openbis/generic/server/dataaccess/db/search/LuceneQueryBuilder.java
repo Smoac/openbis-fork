@@ -50,14 +50,14 @@ public class LuceneQueryBuilder
     // query adaptation
     //
 
-    // In wildcard mode field separator character needs to be escaped to disable field query.
-    // In basic mode wildcard characters in the query need to be escaped too.
-
     private static final char[] CHARS_ESCAPED_IN_WILCARD_MODE =
         { FIELD_SEPARATOR };
 
-    private static final char[] CHARS_ESCAPED_IN_BASIC_MODE =
-        { FIELD_SEPARATOR, '*', '?' };
+    // For now both wildcard and basic modes escape the same characters. If we decide
+    // to escape wildcard characters in basic mode unescape the following code.
+    // private static final char[] CHARS_ESCAPED_IN_BASIC_MODE =
+    // { FIELD_SEPARATOR, '*', '?' };
+    private static final char[] CHARS_ESCAPED_IN_BASIC_MODE = CHARS_ESCAPED_IN_WILCARD_MODE;
 
     public static String adaptQuery(String userQuery, boolean useWildcardSearchMode)
     {
@@ -95,7 +95,7 @@ public class LuceneQueryBuilder
         }
         return sb.toString();
     }
-    
+
     //
 
     /**
