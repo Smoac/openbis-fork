@@ -54,7 +54,7 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
                     + "table { border-collapse: collapse; padding: 1em; }"
                     + "tr, td { font-family: verdana, tahoma, helvetica; font-size: 11px; }"
                     + ".td_file { font-family: verdana, tahoma, helvetica; font-size: 11px; height: 1.5em }"
-                    + ".wrapper { min-height: 100%; height: auto !important; height: 100%; margin: 0em auto -4em; }"
+                    + ".wrapper { min-height: 100%; height: auto; margin: 0em auto -4em; }"
                     + ".footer { height: 4em; text-align: center; }" + "</style>";
 
     private static final Template ROW_TEMPLATE =
@@ -77,7 +77,7 @@ final class HTMLDirectoryRenderer implements IDirectoryRenderer
             new Template("<tr><td class='td_hd'>Sample:</td><td>${sample}</td></tr>");
 
     private static final Template FOOTER_TEMPLATE =
-            new Template("</table> </div> <div class='footer'>${footer} </div> </body></html>");
+            new Template("</table> <div class='footer'>${footer} </div> </div> </body></html>");
 
     private PrintWriter writer;
 
