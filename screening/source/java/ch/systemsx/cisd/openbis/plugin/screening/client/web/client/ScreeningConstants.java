@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 
 /**
- * Constants which are specific for screening. Hre soem assumptions are made about:
+ * Constants which are specific for screening. Here some assumptions are made about:
  * <ul>
  * <li>initial database content (metadata) of each screening module</li>
  * <li>mandatory part of datastore server configuration</li>
@@ -49,4 +49,6 @@ public class ScreeningConstants
     // code of the gene material type
     public static final String GENE_PLUGIN_TYPE_CODE = "GENE";
 
+    /** path to the datastore screening servlet able to display images in different channels */
+    public static final String DATASTORE_SCREENING_SERVLET_URL = "datastore_server_screening";
 }

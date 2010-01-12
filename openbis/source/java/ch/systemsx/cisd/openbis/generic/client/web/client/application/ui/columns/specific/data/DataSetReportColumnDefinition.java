@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDatastoreImageRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
@@ -71,7 +71,7 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
             int width = imageCell.getMaxThumbnailWidth();
             int height = imageCell.getMaxThumbnailHeight();
             String imagePath = imageCell.getPath();
-            return SimpleDatastoreImageRenderer.createDatastoreImageUrl(imagePath, width, height,
+            return SimpleImageHtmlRenderer.createEmbededDatastoreImageHtml(imagePath, width, height,
                     downloadURL, sessionID);
         }
         if (cell instanceof DateTableCell)

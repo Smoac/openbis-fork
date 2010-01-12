@@ -21,10 +21,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 /**
  * @author Tomasz Pylak
  */
-public class SimpleDatastoreImageRenderer
+public class SimpleImageHtmlRenderer
 {
     /** generates URL of an image on Data Store server */
-    public static String createDatastoreImageUrl(String imagePath, int width, int height,
+    public static String createEmbededDatastoreImageHtml(String imagePath, int width, int height,
             String downloadURL, String sessionID)
     {
         URLMethodWithParameters methodWithParameters =
@@ -34,6 +34,11 @@ public class SimpleDatastoreImageRenderer
 
         methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
         String imageURL = methodWithParameters.toString();
+        return createEmbededImageHtml(imageURL, linkURL);
+    }
+
+    public static String createEmbededImageHtml(String imageURL, String linkURL)
+    {
         return "<div align='center'><a class='link-style' href='" + linkURL
                 + "' target='_blank'><img src='" + imageURL + "' alt='" + "image" + "'/></a></div>";
     }

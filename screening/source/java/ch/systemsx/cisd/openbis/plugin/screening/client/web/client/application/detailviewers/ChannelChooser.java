@@ -66,7 +66,7 @@ class ChannelChooser
                                     SelectionChangedEvent<SimpleComboValue<String>> se)
                             {
                                 String value = se.getSelectedItem().getValue();
-                                int channel = channelNames.indexOf(value) + 1;
+                                int channel = channelNames.indexOf(value);
                                 Widget viewerWidget = viewerFactory.create(channel);
                                 channelState.setDefaultChannel(channel);
                                 GuiUtils.replaceLastItem(container, viewerWidget);
@@ -88,7 +88,7 @@ class ChannelChooser
         combo.add(channelNames);
         combo.setAllowBlank(false);
         combo.setEditable(false);
-        combo.setSimpleValue(channelNames.get(initialChannel - 1));
+        combo.setSimpleValue(channelNames.get(initialChannel));
         return combo;
     }
 
@@ -97,7 +97,7 @@ class ChannelChooser
         assert channelsNum > 0 : "there has to be at least one channel";
 
         final List<String> channelNames = new ArrayList<String>();
-        for (int i = 1; i <= channelsNum; i++)
+        for (int i = 0; i <= channelsNum; i++)
         {
             channelNames.add(createChannelName(i));
         }
@@ -106,10 +106,19 @@ class ChannelChooser
 
     private static String createChannelName(int channel)
     {
-        return "Channel " + channel;
+        if (channel == 0)
+        {
+            return "Merged Channels";
+        } else
+        {
+            return "Channel " + channel;
+        }
     }
 
-    /** Allows to get and set the channel which is chosen by default when well images are shown. */
+    /**
+     * Allows to get and set the channel which is chosen by default when well images are shown.
+     * Channel 0 consists of all other channels merged.
+     */
     public static class DefaultChannelState
     {
         private int defaultChannel = 1;

@@ -245,10 +245,10 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    one(request).getParameter(DatasetDownloadServlet.SESSION_ID_KEY);
+                    one(request).getParameter(DatasetDownloadServlet.SESSION_ID_PARAM);
                     will(returnValue(EXAMPLE_SESSION_ID));
 
-                    one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_KEY);
+                    one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
                     will(returnValue(null));
 
                     one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
@@ -600,10 +600,10 @@ public class DatasetDownloadServletTest
 
     private void prepareParseRequestURLNoSession(Expectations exp)
     {
-        exp.one(request).getParameter(DatasetDownloadServlet.SESSION_ID_KEY);
+        exp.one(request).getParameter(DatasetDownloadServlet.SESSION_ID_PARAM);
         exp.will(Expectations.returnValue(null));
 
-        exp.one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_KEY);
+        exp.one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
         exp.will(Expectations.returnValue("html"));
 
         exp.one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);
@@ -619,10 +619,10 @@ public class DatasetDownloadServletTest
         context.checking(new Expectations()
             {
                 {
-                    one(request).getParameter(DatasetDownloadServlet.SESSION_ID_KEY);
+                    one(request).getParameter(DatasetDownloadServlet.SESSION_ID_PARAM);
                     will(returnValue(EXAMPLE_SESSION_ID));
 
-                    one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_KEY);
+                    one(request).getParameter(DatasetDownloadServlet.DISPLAY_MODE_PARAM);
                     will(returnValue("thumbnail" + width + "x" + height));
 
                     one(request).getParameter(DatasetDownloadServlet.AUTO_RESOLVE_KEY);

@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Tomasz Pylak
  */
-// TODO 2009-12-14, Tomasz Pylak: allow different files to have different headers, merge the same
+// Possible extensions in future: allow different files to have different headers, merge the same
 // columns and fill columns with empty values if they do not occur in some files.
 public class ImageAnalysisMergedRowsReportingPlugin extends AbstractDataMergingReportingPlugin
 {

@@ -31,10 +31,12 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDatastoreImageRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
@@ -154,6 +156,7 @@ public class WellContentDialog
         this.viewContext = viewContext;
     }
 
+    /** @param channel Channel numbers start with 1. Channel 0 consists of all other channels merged. */
     public static LayoutContainer createTilesGrid(WellImages images, int channel,
             IViewContext<?> viewContext, int imageWidth, int imageHeight)
     {
@@ -163,11 +166,10 @@ public class WellContentDialog
             for (int col = 1; col <= images.getTileColsNum(); col++)
             {
                 Component tileContent;
-                String imagePath = images.getImagePath(channel, row, col);
                 String sessionId = getSessionId(viewContext);
                 String imageURL =
-                        SimpleDatastoreImageRenderer.createDatastoreImageUrl(imagePath, imageWidth,
-                                imageHeight, images.getDownloadUrl(), sessionId);
+                        createDatastoreImageUrl(images, channel, row, col, imageWidth, imageHeight,
+                                sessionId);
                 tileContent = new Html(imageURL);
                 tileContent.setHeight("" + imageHeight);
                 PlateStyleSetter.setPointerCursor(tileContent);
@@ -175,6 +177,34 @@ public class WellContentDialog
             }
         }
         return container;
+    }
+
+    /** generates URL of an image on Data Store server */
+    public static String createDatastoreImageUrl(WellImages images, int channel, int tileRow,
+            int tileCol, int width, int height, String sessionID)
+    {
+        URLMethodWithParameters methodWithParameters =
+                new URLMethodWithParameters(images.getDownloadUrl() + "/"
+                        + ScreeningConstants.DATASTORE_SCREENING_SERVLET_URL);
+        methodWithParameters.addParameter("sessionID", sessionID);
+        methodWithParameters.addParameter("dataset", images.getDatasetCode());
+        if (channel == 0)
+        {
+            methodWithParameters.addParameter("channel", images.getChannelsNum());
+            methodWithParameters.addParameter("mergeChannels", "true");
+        } else
+        {
+            methodWithParameters.addParameter("channel", channel);
+        }
+        methodWithParameters.addParameter("wellRow", images.getWellLocation().getRow());
+        methodWithParameters.addParameter("wellCol", images.getWellLocation().getColumn());
+        methodWithParameters.addParameter("tileRow", tileRow);
+        methodWithParameters.addParameter("tileCol", tileCol);
+        String linkURL = methodWithParameters.toString();
+        methodWithParameters.addParameter("mode", "thumbnail" + width + "x" + height);
+
+        String imageURL = methodWithParameters.toString();
+        return SimpleImageHtmlRenderer.createEmbededImageHtml(imageURL, linkURL);
     }
 
     private static String getSessionId(IViewContext<?> viewContext)

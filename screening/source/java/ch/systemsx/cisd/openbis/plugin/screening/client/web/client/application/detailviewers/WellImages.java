@@ -54,13 +54,6 @@ public class WellImages
         this(images.getImageParameters(), images.getDownloadUrl(), location);
     }
 
-    public String getImagePath(int channel, int tileRow, int tileCol)
-    {
-        return datasetCode + "/data/standard/channel" + channel + "/row" + location.getRow()
-                + "/column" + location.getColumn() + "/row" + tileRow + "_column" + tileCol
-                + ".tiff";
-    }
-
     public int getTileRowsNum()
     {
         return tileRowsNum;
@@ -79,5 +72,15 @@ public class WellImages
     public String getDownloadUrl()
     {
         return downloadUrl;
+    }
+
+    public WellLocation getWellLocation()
+    {
+        return location;
+    }
+
+    public String getDatasetCode()
+    {
+        return datasetCode;
     }
 }

@@ -30,7 +30,7 @@ import javax.media.jai.PlanarImage;
 
 /**
  * Utility function on images.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ImageUtil
@@ -56,7 +56,7 @@ public class ImageUtil
         String fileType = name.substring(lastIndexOfDot + 1).toLowerCase();
         return FILE_TYPES.contains(fileType);
     }
-    
+
     /**
      * Loads an image from specified file. Supported file formats are GIF, JPG, PNG, and TIFF.
      * 
@@ -75,10 +75,11 @@ public class ImageUtil
             return planarImage.getAsBufferedImage();
         } catch (RuntimeException ex)
         {
-            throw new IllegalArgumentException("Isn't a valid image file: " + file.getAbsolutePath());
+            throw new IllegalArgumentException("Isn't a valid image file: "
+                    + file.getAbsolutePath() + ". Error: " + ex.getMessage());
         }
     }
-    
+
     /**
      * Creates a thumbnail from the specified image by preserving the aspect ratio.
      * 
@@ -94,12 +95,12 @@ public class ImageUtil
         double scale = Math.min(1, Math.min(widthScale, heightScale));
         int thumbnailWidth = (int) (scale * width + 0.5);
         int thumbnailHeight = (int) (scale * height + 0.5);
-        
+
         BufferedImage thumbnail =
                 new BufferedImage(thumbnailWidth, thumbnailHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics2D = thumbnail.createGraphics();
-        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 
-            RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         graphics2D.drawImage(image, 0, 0, thumbnailWidth, thumbnailHeight, null);
         return thumbnail;
     }

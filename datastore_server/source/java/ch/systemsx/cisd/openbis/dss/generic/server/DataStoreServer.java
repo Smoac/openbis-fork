@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants.DAT
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -40,10 +41,12 @@ import org.springframework.web.HttpRequestHandler;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
+import ch.systemsx.cisd.openbis.dss.generic.server.ConfigParameters.PluginServlet;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PropertyParametersUtil;
@@ -166,7 +169,26 @@ public class DataStoreServer
         context.addServlet(new ServletHolder(new DataStoreServlet()), "/"
                 + DATA_STORE_SERVER_SERVICE_NAME + "/*");
         context.addServlet(DatasetDownloadServlet.class, applicationName + "/*");
+        registerPluginServlets(context, configParameters.getPluginServlets());
         return thisServer;
+    }
+
+    private static void registerPluginServlets(Context context, List<PluginServlet> pluginServlets)
+    {
+        for (PluginServlet servlet : pluginServlets)
+        {
+            Class<?> classInstance;
+            try
+            {
+                classInstance = Class.forName(servlet.getServletClass());
+            } catch (ClassNotFoundException ex)
+            {
+                throw EnvironmentFailureException.fromTemplate(
+                        "Error while loading servlet plugin class '%s': %s", servlet.getClass(), ex
+                                .getMessage());
+            }
+            context.addServlet(classInstance, servlet.getServletPath());
+        }
     }
 
     private static SocketConnector createSocketConnector(ConfigParameters configParameters)
@@ -177,6 +199,12 @@ public class DataStoreServer
         socketConnector.setKeyPassword(configParameters.getKeystoreKeyPassword());
         return socketConnector;
     }
+
+    // Uncomment to test connection from openBIS to DSS in hosted mode
+    // private static SocketConnector createSocketConnector(ConfigParameters configParameters)
+    // {
+    // return new SocketConnector();
+    // }
 
     private final static void selfTest(final ApplicationContext applicationContext)
     {
