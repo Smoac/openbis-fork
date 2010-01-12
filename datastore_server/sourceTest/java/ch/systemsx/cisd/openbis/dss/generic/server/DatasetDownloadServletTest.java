@@ -71,7 +71,7 @@ public class DatasetDownloadServletTest
     private static final String EXPIRATION_MESSAGE =
             "<html><body>Download session expired.</body></html>";
 
-    private static final String LOGGER_NAME = "OPERATION.DatasetDownloadServlet";
+    private static final String LOGGER_NAME = "OPERATION.AbstractDatasetDownloadServlet";
 
     private static final String LOG_INFO = "INFO  " + LOGGER_NAME + " - ";
 
@@ -464,7 +464,7 @@ public class DatasetDownloadServletTest
                         + OSUtilities.LINE_SEPARATOR
                         + LOG_INFO
                         + "For data set '1234-1' deliver file <wd>/db-uuid/0a/28/59/1234-1/read me @home.txt "
-                        + "as a thumbnail.", getNormalizedLogContent());
+                        + "(84 bytes) as a thumbnail.", getNormalizedLogContent());
 
         context.assertIsSatisfied();
     }

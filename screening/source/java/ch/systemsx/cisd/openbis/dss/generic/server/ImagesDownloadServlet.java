@@ -193,9 +193,11 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
     {
         ensureDatasetAccessible(params.getDatasetCode(), session, params.getSessionId());
         File datasetRoot = createDataSetRootDirectory(params.getDatasetCode(), session);
+        List<File> imageFiles = getImageFiles(datasetRoot, params);
 
-        BufferedImage image = mergeImages(datasetRoot, params);
-        ResponseContentStream responseStream = createResponseContentStream(image);
+        BufferedImage image = mergeImages(imageFiles, params);
+        File singleFileOrNull = imageFiles.size() == 1 ? imageFiles.get(0) : null;
+        ResponseContentStream responseStream = createResponseContentStream(image, singleFileOrNull);
         logImageDelivery(params, responseStream);
         writeResponseContent(responseStream, response);
     }
@@ -209,9 +211,9 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
         }
     }
 
-    private static BufferedImage mergeImages(File datasetRoot, RequestParams params)
+    private static BufferedImage mergeImages(List<File> imageFiles, RequestParams params)
     {
-        List<BufferedImage> images = loadImages(datasetRoot, params);
+        List<BufferedImage> images = loadImages(imageFiles, params);
 
         Size thumbnailSizeOrNull = tryAsThumbnailDisplayMode(params.getDisplayMode());
 
@@ -327,10 +329,9 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
         return new Color(rgb[0], rgb[1], rgb[2]).getRGB();
     }
 
-    private static List<BufferedImage> loadImages(File datasetRoot, RequestParams params)
+    private static List<BufferedImage> loadImages(List<File> imageFiles, RequestParams params)
     {
         List<BufferedImage> images = new ArrayList<BufferedImage>();
-        List<File> imageFiles = getImageFiles(datasetRoot, params);
         for (File imageFile : imageFiles)
         {
             BufferedImage image = ImageUtil.loadImage(imageFile);

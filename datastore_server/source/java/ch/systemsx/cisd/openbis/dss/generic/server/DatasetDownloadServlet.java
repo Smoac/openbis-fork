@@ -435,10 +435,10 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         {
             BufferedImage image = createThumbnail(file, thumbnailSize);
             infoPostfix = " as a thumbnail.";
-            responseStream = createResponseContentStream(image);
+            responseStream = createResponseContentStream(image, file);
         } else
         {
-            infoPostfix = "";
+            infoPostfix = ".";
             responseStream = createResponseContentStream(file, displayMode);
         }
         if (operationLog.isInfoEnabled())
