@@ -373,6 +373,16 @@ public final class ConcurrencyUtilities
         } catch (ExecutionException ex)
         {
             final Throwable cause = ex.getCause();
+            if (cause instanceof InterruptedExceptionUnchecked)
+            {
+                future.cancel(true);
+                if (logSettingsOrNull != null)
+                {
+                    logSettingsOrNull.getLogger().log(logSettingsOrNull.getLogLevelForError(),
+                            String.format("%s: interrupted.", logSettingsOrNull.getOperationName()));
+                }
+                return ExecutionResult.createInterrupted();
+            }
             if (logSettingsOrNull != null)
             {
                 final String message =
