@@ -16,8 +16,18 @@
 
 package ch.systemsx.cisd.cifex.rpc.client;
 
+import java.lang.reflect.Method;
+
+import org.springframework.remoting.RemoteAccessException;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
+import ch.systemsx.cisd.common.TimingParameters;
+import ch.systemsx.cisd.common.concurrent.ExecutionResult;
+import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
+import ch.systemsx.cisd.common.concurrent.IMonitoringProxyLogger;
+import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -28,24 +38,97 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * 
  * @author Bernd Rinn
  */
-class CIFEXComponent implements ICIFEXComponent
+public class CIFEXComponent implements ICIFEXComponent
 {
+
+    private static final int MAX_RETRIES = 600;
+
+    private static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L;
+
+    private static final long TIMEOUT_MILLIS = 3600 * 1000L; // FIXME: 20 * 1000L;
+
+    private static final TimingParameters TIMING =
+            TimingParameters.create(TIMEOUT_MILLIS, MAX_RETRIES, WAIT_AFTER_FAILURE_MILLIS);
 
     private final ICIFEXRPCService service;
 
-    CIFEXComponent(ICIFEXRPCService service)
+    public CIFEXComponent(ICIFEXRPCService service)
     {
         this.service = service;
     }
 
+    /**
+     * An invocation logger for exceptional situations in an upload or download invocation.
+     */
+    private static class InvocationLogger implements IMonitoringProxyLogger
+    {
+        private final AbstractUploadDownload uploadDownload;
+
+        public InvocationLogger(AbstractUploadDownload uploadDownload)
+        {
+            this.uploadDownload = uploadDownload;
+        }
+
+        public void log(Method method, ExecutionResult<Object> result, boolean willRetry)
+        {
+            // We log only exceptional invocations here, the regular progress logging is done in the
+            // uploader / downloader itself.
+            if (result.getStatus() == ExecutionStatus.EXCEPTION)
+            {
+                final Throwable th =
+                        (result.tryGetException() instanceof Exception ? CheckedExceptionTunnel
+                                .unwrapIfNecessary((Exception) result.tryGetException()) : result
+                                .tryGetException());
+                if (th instanceof RemoteAccessException && willRetry)
+                {
+                    if (th.getMessage() != null)
+                    {
+                        uploadDownload.fireWarningEvent("Remote operation failed: "
+                                + th.getClass().getSimpleName() + ": '" + th.getMessage()
+                                + "', will retry soon...");
+                    } else
+                    {
+                        uploadDownload.fireWarningEvent("Remote operation failed: "
+                                + th.getClass().getSimpleName() + ", will retry soon...");
+                    }
+                } else
+                {
+                    uploadDownload.fireExceptionEvent(result.tryGetException());
+                }
+            }
+            if (result.getStatus() == ExecutionStatus.TIMED_OUT)
+            {
+                uploadDownload.fireWarningEvent("Remote operation timed out"
+                        + (willRetry ? ", will retry soon." : "."));
+            }
+            if (result.getStatus() != ExecutionStatus.COMPLETE && willRetry == false)
+            {
+                uploadDownload.fireFinishedEvent(false);
+            }
+        }
+
+    }
+
     public ICIFEXDownloader createDownloader(final String sessionID)
     {
-        return new Downloader(service, sessionID);
+        final Downloader downloader = new Downloader(service, sessionID);
+        final InvocationLogger logger = new InvocationLogger(downloader);
+        final ICIFEXDownloader proxy =
+                MonitoringProxy.create(ICIFEXDownloader.class, downloader).sensor(
+                        downloader.getActivitySensor()).exceptionClassSuitableForRetrying(
+                        RemoteAccessException.class).timing(TIMING).errorValueOnInterrupt()
+                        .invocationLog(logger).get();
+        return proxy;
     }
 
     public ICIFEXUploader createUploader(final String sessionID)
     {
-        return new Uploader(service, sessionID);
+        final Uploader uploader = new Uploader(service, sessionID);
+        final InvocationLogger logger = new InvocationLogger(uploader);
+        return MonitoringProxy.create(ICIFEXUploader.class, uploader).sensor(
+                uploader.getActivitySensor()).exceptionClassSuitableForRetrying(
+                RemoteAccessException.class).timing(TIMING).errorValueOnInterrupt().invocationLog(
+                logger).get();
     }
 
     public void deleteFile(final String sessionID, final long fileId)

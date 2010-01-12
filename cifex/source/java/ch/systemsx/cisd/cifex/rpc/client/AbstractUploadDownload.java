@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
+import ch.systemsx.cisd.common.concurrent.IActivitySensor;
+import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
@@ -52,6 +54,9 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
 
     protected final AtomicBoolean inProgress = new AtomicBoolean(false);
 
+    protected final RecordingActivityObserverSensor observerSensor =
+            new RecordingActivityObserverSensor();
+
     /**
      * Creates an instance for the specified service and session ID.
      */
@@ -75,6 +80,14 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     }
 
     /**
+     * Returns the activity sensor of this uplaoder / downloader.
+     */
+    public IActivitySensor getActivitySensor()
+    {
+        return observerSensor;
+    }
+    
+    /**
      * Returns <code>true</code> if the operation (upload or download) is still in progress.
      */
     public boolean isInProgress()
@@ -91,14 +104,14 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     }
 
     /**
-     * Resets the state of cancellation. 
+     * Resets the state of cancellation.
      */
     protected void resetCancel()
     {
         cancelled.set(false);
         Thread.interrupted();
     }
-    
+
     /**
      * Checks whether the operation has been cancelled. Resets the cancel state, i.e. if you call it
      * twice, the second call will return <code>false</code>.

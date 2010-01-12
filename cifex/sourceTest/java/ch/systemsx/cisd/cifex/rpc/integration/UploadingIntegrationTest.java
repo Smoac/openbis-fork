@@ -44,7 +44,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
-import ch.systemsx.cisd.cifex.rpc.client.Uploader;
+import ch.systemsx.cisd.cifex.rpc.client.CIFEXComponent;
+import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
 import ch.systemsx.cisd.cifex.rpc.io.CopyUtils;
 import ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService;
@@ -142,7 +143,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
     private String sessionID;
 
-    private Uploader uploader;
+    private ICIFEXUploader uploader;
 
     private IUploadProgressListener listener;
 
@@ -170,7 +171,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         user.setID(42L);
         user.setUserCode("Isaac");
         sessionID = uploadService.createSession(user, TEST_URL);
-        uploader = new Uploader(uploadService, sessionID);
+        uploader = new CIFEXComponent(uploadService).createUploader(sessionID);
         listener = context.mock(IUploadProgressListener.class);
         uploader.addProgressListener(listener);
 

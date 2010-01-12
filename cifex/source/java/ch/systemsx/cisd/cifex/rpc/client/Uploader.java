@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -123,62 +122,23 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         {
             inProgress.set(true);
             List<Long> fileIds = new ArrayList<Long>(files.size());
-            RemoteAccessException lastExceptionOrNull = null;
             for (File file : files)
             {
-                for (int i = 0; i < MAX_RETRIES; ++i)
+                if (isCancelled())
                 {
-                    if (isCancelled())
-                    {
-                        fireFinishedEvent(false);
-                        return;
-                    }
-                    try
-                    {
-                        uploadFile(file, comment, fileIds);
-                        lastExceptionOrNull = null;
-                        break;
-                    } catch (RemoteAccessException ex)
-                    {
-                        if (isCancelled())
-                        {
-                            fireFinishedEvent(false);
-                            return;
-                        }
-                        lastExceptionOrNull = ex;
-                        if (ex.getMessage() != null)
-                        {
-                            fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName()
-                                    + ": '" + ex.getMessage() + "', will retry download soon...");
-                        } else
-                        {
-                            fireWarningEvent("Error during upload: " + ex.getClass().getSimpleName()
-                                    + ", will retry download soon...");
-                        }
-                        sleepAfterFailure();
-                    }
+                    fireFinishedEvent(false);
+                    return;
                 }
-            }
-            if (lastExceptionOrNull != null)
-            {
-                throw lastExceptionOrNull;
+                uploadFile(file, comment, fileIds);
             }
             if (recipientsOrNull != null && recipientsOrNull.trim().length() > 0)
             {
                 service.shareFiles(sessionID, fileIds, recipientsOrNull);
             }
             fireFinishedEvent(true);
-        } catch (Throwable th2)
+        } catch (IOException ex)
         {
-            if (th2 instanceof InterruptedExceptionUnchecked)
-            {
-                fireFinishedEvent(false);
-                return;
-            }
-            fireExceptionEvent(th2 instanceof Exception ? CheckedExceptionTunnel
-                    .unwrapIfNecessary((Exception) th2) : th2);
-            fireFinishedEvent(false);
-            throw CheckedExceptionTunnel.wrapIfNecessary(th2);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
             fireResetEvent();
@@ -207,6 +167,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                                         {
                                             throw new InterruptedExceptionUnchecked();
                                         }
+                                        observerSensor.update();
                                         final long now = System.currentTimeMillis();
                                         if (now - lastUpdated > PROGRESS_UPDATE_MIN_INTERVAL_MILLIS
                                                 || bytesRead == fileSize)
