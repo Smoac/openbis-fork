@@ -1383,6 +1383,9 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             List<ColumnDataModel> columnModels)
     {
         int newIndex = 0;
+        // do not fire events because of performance problems when hiding/unhiding all columns. View
+        // will be refreshed by refreshColumnsSettings() afterwards.
+        cm.setFiresEvents(false); 
         for (ColumnDataModel m : columnModels)
         {
             String columnID = m.getColumnID();
@@ -1401,6 +1404,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             cm.remove(cm.getColumnCount() - 1);
         }
+        cm.setFiresEvents(true);
     }
 
     // This column config is created just to make user settings persistent.
