@@ -49,14 +49,6 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
     }
 
     /**
-     * Creates an instance for the specified service and session ID.
-     */
-    public Downloader(ICIFEXRPCService service, String sessionID, int blockSize)
-    {
-        super(service, sessionID, blockSize);
-    }
-
-    /**
      * Adds a listener for progress events.
      */
     public void addProgressListener(IProgressListener listener)
@@ -75,7 +67,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
      */
     public void download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull)
     {
-        cancelled.set(false);
+        resetCancel();
         try
         {
             inProgress.set(true);
@@ -90,7 +82,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             RemoteAccessException lastExceptionOrNull = null;
             for (int i = 0; i < MAX_RETRIES; ++i)
             {
-                if (cancelled.get())
+                if (isCancelled())
                 {
                     return;
                 }
@@ -109,7 +101,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
 
                                                 public void update(long bytesWritten, int crc32Value)
                                                 {
-                                                    if (cancelled.get())
+                                                    if (isCancelled())
                                                     {
                                                         throw new InterruptedExceptionUnchecked();
                                                     }
@@ -143,7 +135,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
                     break;
                 } catch (RemoteAccessException ex)
                 {
-                    if (cancelled.get())
+                    if (isCancelled())
                     {
                         return;
                     }

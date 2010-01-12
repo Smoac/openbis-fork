@@ -170,7 +170,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         user.setID(42L);
         user.setUserCode("Isaac");
         sessionID = uploadService.createSession(user, TEST_URL);
-        uploader = new Uploader(uploadService, sessionID, BLOCK_SIZE);
+        uploader = new Uploader(uploadService, sessionID);
         listener = context.mock(IUploadProgressListener.class);
         uploader.addProgressListener(listener);
 

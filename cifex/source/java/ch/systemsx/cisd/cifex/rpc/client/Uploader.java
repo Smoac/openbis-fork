@@ -48,14 +48,6 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     /**
      * Creates an instance for the specified service and session ID.
      */
-    public Uploader(ICIFEXRPCService service, String sessionID, int dummyBlockSize)
-    {
-        super(service, sessionID);
-    }
-
-    /**
-     * Creates an instance for the specified service and session ID.
-     */
     public Uploader(ICIFEXRPCService service, String sessionID)
     {
         super(service, sessionID);
@@ -122,7 +114,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
      */
     public void upload(List<File> files, String recipientsOrNull, String comment)
     {
-        cancelled.set(false);
+        resetCancel();
         if (files.isEmpty())
         {
             return;
@@ -136,7 +128,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
             {
                 for (int i = 0; i < MAX_RETRIES; ++i)
                 {
-                    if (cancelled.get())
+                    if (isCancelled())
                     {
                         fireFinishedEvent(false);
                         return;
@@ -148,7 +140,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                         break;
                     } catch (RemoteAccessException ex)
                     {
-                        if (cancelled.get())
+                        if (isCancelled())
                         {
                             fireFinishedEvent(false);
                             return;
@@ -211,7 +203,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
 
                                     public void update(long bytesRead, int crc32Value)
                                     {
-                                        if (cancelled.get())
+                                        if (isCancelled())
                                         {
                                             throw new InterruptedExceptionUnchecked();
                                         }

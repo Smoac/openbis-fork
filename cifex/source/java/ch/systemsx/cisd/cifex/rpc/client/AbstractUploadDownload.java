@@ -17,12 +17,9 @@
 package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.zip.CRC32;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
@@ -41,13 +38,9 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
 
     protected static final int PROGRESS_UPDATE_MIN_INTERVAL_MILLIS = 1 * 1000; // 1 second
 
-    protected static final int DEFAULT_BLOCK_SIZE = 8 * 1024 * 1024;
-
     protected static final int MAX_RETRIES = 600;
 
     private static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L;
-
-    protected final int blockSize;
 
     protected final ICIFEXRPCService service;
 
@@ -55,7 +48,7 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
 
     protected final Set<IProgressListener> listeners = new LinkedHashSet<IProgressListener>();
 
-    protected final AtomicBoolean cancelled = new AtomicBoolean(false);
+    private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
     protected final AtomicBoolean inProgress = new AtomicBoolean(false);
 
@@ -64,17 +57,8 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
      */
     public AbstractUploadDownload(ICIFEXRPCService service, String sessionID)
     {
-        this(service, sessionID, DEFAULT_BLOCK_SIZE);
-    }
-
-    /**
-     * Creates an instance for the specified service and session ID.
-     */
-    public AbstractUploadDownload(ICIFEXRPCService service, String sessionID, int blockSize)
-    {
         this.service = service;
         this.sessionID = sessionID;
-        this.blockSize = blockSize;
         checkService();
     }
 
@@ -107,26 +91,23 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     }
 
     /**
-     * Computes the checksum of <var>file</var>, up to <var>maxSize</var>, which has to be smaller
-     * or equal to the actual file size. As a side effect, the result will be available in
-     * <var>checksum</var>. <br>
-     * <i>Note: this method resets the <var>checksum</var> object!</i>
+     * Resets the state of cancellation. 
      */
-    protected int calculateCRC32(RandomAccessFile fileProvider, CRC32 checksum, long maxSize)
-            throws IOException
+    protected void resetCancel()
     {
-        checksum.reset();
-        long filePointer = 0L;
-        while (filePointer < maxSize)
-        {
-            final int actualBlockSize = (int) Math.min(maxSize - filePointer, DEFAULT_BLOCK_SIZE);
-            final byte[] bytes = new byte[actualBlockSize];
-            fileProvider.seek(filePointer);
-            fileProvider.readFully(bytes, 0, actualBlockSize);
-            checksum.update(bytes);
-            filePointer += actualBlockSize;
-        }
-        return (int) checksum.getValue();
+        cancelled.set(false);
+        Thread.interrupted();
+    }
+    
+    /**
+     * Checks whether the operation has been cancelled. Resets the cancel state, i.e. if you call it
+     * twice, the second call will return <code>false</code>.
+     */
+    protected boolean isCancelled()
+    {
+        final boolean cancelCalled = cancelled.get();
+        resetCancel();
+        return cancelCalled || Thread.interrupted();
     }
 
     protected void fireStartedEvent(File file, long fileSize)
