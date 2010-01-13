@@ -147,6 +147,9 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     }
 
     // requiredState - true for column filter, false for custom filters
+    /**
+     *
+     */
     private boolean getCustomFilterSelectedState(boolean requiredState)
     {
         GridCustomFilter selected = filterSelectionWidget.tryGetSelected();
@@ -257,16 +260,20 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void resetFilterFields()
     {
         for (Component field : filterContainer.getItems())
         {
-            if (field instanceof Field)
+            if (field instanceof Field<?>)
             {
-                ((Field) field).reset();
+                ((Field<?>) field).reset();
             }
         }
+    }
+
+    public void resetFilterSelection()
+    {
+        filterSelectionWidget.reset();
     }
 
     private void apply()

@@ -264,7 +264,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     }
 
-    protected void showEntityInformationHolderViewer(IEntityInformationHolder entity, boolean editMode)
+    protected void showEntityInformationHolderViewer(IEntityInformationHolder entity,
+            boolean editMode)
     {
         final EntityKind entityKind = entity.getEntityKind();
         final ITabItemFactory tabView;
@@ -910,17 +911,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     pagingToolbar.disableExportButton();
                     pagingToolbar.updateDefaultConfigButton(false);
 
-                    // Need to reset filter fields *before* refreshing the gridso the list can be
-                    // correctly
-                    // retrieved
+                    // Need to reset filter fields *before* refreshing the grid so the list can be
+                    // correctly retrieved
                     filterToolbar.resetFilterFields();
+                    filterToolbar.resetFilterSelection();
 
                     // export and config buttons are enabled when ListEntitiesCallback is complete
                     refresh();
 
                     // Need to refresh the filter toolbar *after* refreshing the grid, because it
-                    // has
-                    // a dependency on information from the grid that gets updated with the refesh
+                    // has a dependency on information from the grid that gets updated with the
+                    // refesh
                     filterToolbar.refresh();
                 }
             };
@@ -1386,7 +1387,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         int newIndex = 0;
         // do not fire events because of performance problems when hiding/unhiding all columns. View
         // will be refreshed by refreshColumnsSettings() afterwards.
-        cm.setFiresEvents(false); 
+        cm.setFiresEvents(false);
         for (ColumnDataModel m : columnModels)
         {
             String columnID = m.getColumnID();
