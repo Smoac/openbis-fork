@@ -71,7 +71,7 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(checkDataSet);
 
-        launchTest(50 * SECOND);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
     public final void testShowExperimentDataSetWithParents()

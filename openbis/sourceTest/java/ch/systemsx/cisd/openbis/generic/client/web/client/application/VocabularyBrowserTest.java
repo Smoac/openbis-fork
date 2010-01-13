@@ -59,7 +59,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.VOCABULARY_MENU_BROWSE);
         showControlledVocabularyTerms(remoteConsole, VOCABULARY_CODE, 5, "FLY", "GORILLA", "HUMAN");
 
-        launchTest(20000);
+        launchTest(DEFAULT_TIMEOUT);
     }
 
     public static void showControlledVocabularyTerms(RemoteConsole remoteConsole,
