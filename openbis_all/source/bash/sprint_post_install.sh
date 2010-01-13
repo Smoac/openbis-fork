@@ -50,7 +50,6 @@ case "$SERVER" in
 	$YEASTX)
 	restore_loginHeader
 	create_individual_greeting_message
-	mv ~openbis/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
 	echo YEASTX:$YEASTX;
 	$BIN/sprint_post_install_yeastx.sh
 	;;
