@@ -83,7 +83,7 @@ var common = {
   button_delete: "Delete",
   button_configure: "Settings",  
   button_upload_data_via_cifex: "Upload Data",
-  button_top: "Top",
+  button_top: "Files",
   
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
   tooltip_refresh_enabled: "Load or update the table.",
