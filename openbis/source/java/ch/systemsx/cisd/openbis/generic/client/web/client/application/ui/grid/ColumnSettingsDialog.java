@@ -16,6 +16,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractDialogWithOnlineHelp;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.column.GridCustomColumnGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.GridCustomFilterGrid;
 
@@ -24,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ex
  * 
  * @author Izabela Adamczyk
  */
-public class ColumnSettingsDialog extends Dialog
+public class ColumnSettingsDialog extends AbstractDialogWithOnlineHelp
 {
     public static final String TAB_PANEL_ID_PREFIX = GenericConstants.ID_PREFIX + "tab-panel";
 
@@ -51,6 +53,8 @@ public class ColumnSettingsDialog extends Dialog
         setLayout(new FitLayout());
         setButtons(OK);
         setHeading(viewContext.getMessage(Dict.GRID_SETTINGS_TITLE));
+
+        addHelpButton(viewContext, getHelpPageIdentifier());
     }
 
     /**
@@ -111,6 +115,16 @@ public class ColumnSettingsDialog extends Dialog
         customColumnsTab.setLayout(new FitLayout());
         customColumnsTab.add(component);
         return customColumnsTab;
+    }
+
+    /**
+     * The default implementation links all column settings dialogs to one help page. Subclasses may
+     * override.
+     */
+    protected HelpPageIdentifier getHelpPageIdentifier()
+    {
+        return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.CHANGE_COLUMN_SETTINGS,
+                HelpPageIdentifier.HelpPageAction.ACTION);
     }
 
 }

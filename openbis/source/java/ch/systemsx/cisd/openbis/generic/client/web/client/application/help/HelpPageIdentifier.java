@@ -64,7 +64,7 @@ public class HelpPageIdentifier
         USERS(AUTHORIZATION), ROLES(AUTHORIZATION), AUTHORIZATION_GROUPS(AUTHORIZATION),
 
         // other base domains
-        RELATED_DATA_SETS, ATTACHMENTS, CHANGE_USER_SETTINGS;
+        RELATED_DATA_SETS, ATTACHMENTS, CHANGE_USER_SETTINGS, CHANGE_COLUMN_SETTINGS;
 
         // could be used to create a hierarchy of help pages
         private HelpPageDomain superDomainOrNull;
@@ -112,7 +112,8 @@ public class HelpPageIdentifier
      */
     public static enum HelpPageAction
     {
-        BROWSE, VIEW, REGISTER, IMPORT, EDIT, BATCH_UPDATE, REPORT, SEARCH, ACTION
+        BROWSE, VIEW, REGISTER, IMPORT, EDIT, BATCH_UPDATE, REPORT, SEARCH, ACTION,
+        CREATE_CUSTOM_FILTER, CREATE_CUSTOM_COLUMN,
     }
 
     private HelpPageDomain domain;
@@ -201,5 +202,4 @@ public class HelpPageIdentifier
 
         return messageKeyBuilder.toString();
     }
-
 }
