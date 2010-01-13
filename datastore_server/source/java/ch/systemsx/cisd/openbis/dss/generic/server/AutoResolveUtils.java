@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
@@ -106,7 +107,8 @@ public class AutoResolveUtils
     /**
      * Accepts regular files matching pattern and nothing if pattern is empty.
      */
-    static private boolean acceptFile(final String pattern, File file)
+    @Private
+    static boolean acceptFile(final String pattern, File file)
     {
         if (StringUtils.isBlank(pattern) || file.isFile() == false)
         {
@@ -128,6 +130,7 @@ public class AutoResolveUtils
      */
     public static boolean continueAutoResolving(String mainDataSetPattern, File file)
     {
+        assert file != null;
         assert file.isDirectory();
         return file.listFiles().length == 1
                 && (file.listFiles()[0].isDirectory() || acceptFile(mainDataSetPattern, file
@@ -163,7 +166,8 @@ public class AutoResolveUtils
      * Returns the directory defined by root and given relative path. If path is not defined or the
      * result file does not exist or is not a directory, root is returned.
      */
-    private static File createStartingPoint(File root, String path)
+    @Private
+    static File createStartingPoint(File root, String path)
     {
         File startingPoint = root;
         if (StringUtils.isBlank(path) == false)
