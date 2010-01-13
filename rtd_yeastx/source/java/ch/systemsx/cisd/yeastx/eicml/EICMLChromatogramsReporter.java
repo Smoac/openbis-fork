@@ -152,9 +152,9 @@ public class EICMLChromatogramsReporter extends AbstractDatastorePlugin implemen
     private static void addReportHeaders(SimpleTableModelBuilder builder)
     {
         builder.addHeader("Label");
-        builder.addHeader("RT Start");
-        builder.addHeader("RT End");
-        builder.addHeader("Max. Intensity");
+        builder.addHeader("RT Start", true);
+        builder.addHeader("RT End", true);
+        builder.addHeader("Max. Intensity", true);
         builder.addHeader("Q1 Mz", true);
         builder.addHeader("Q3Low Mz", true);
         builder.addHeader("Q3High Mz", true);

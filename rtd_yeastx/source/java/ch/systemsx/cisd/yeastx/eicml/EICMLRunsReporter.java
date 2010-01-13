@@ -16,12 +16,11 @@
 
 package ch.systemsx.cisd.yeastx.eicml;
 
-import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder.asDate;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder.asNum;
-import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder.asText;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -94,6 +93,23 @@ public class EICMLRunsReporter extends AbstractDatastorePlugin implements IRepor
         row.add(asNum(run.getEndTime()));
         row.add(asText(run.getOperator()));
         return row;
+    }
+
+    private static ISerializableComparable asDate(Date dateOrNull)
+    {
+        if (dateOrNull != null)
+        {
+            return SimpleTableModelBuilder.asDate(dateOrNull);
+        } else
+        {
+            return SimpleTableModelBuilder.asText("");
+        }
+    }
+
+    private static ISerializableComparable asText(String textOrNull)
+    {
+        String text = textOrNull == null ? "" : textOrNull;
+        return SimpleTableModelBuilder.asText(text);
     }
 
     private static void addReportHeaders(SimpleTableModelBuilder builder)
