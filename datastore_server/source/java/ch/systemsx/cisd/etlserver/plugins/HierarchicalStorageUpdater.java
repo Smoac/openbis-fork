@@ -173,11 +173,23 @@ public class HierarchicalStorageUpdater implements IMaintenanceTask
 
     private static void deleteWithSymbolicLinks(File toDeleteParent)
     {
+        if (toDeleteParent.isDirectory() == false)
+        {
+            operationLog
+                    .error("Directory structure is different than expected. File '"
+                            + toDeleteParent.getPath()
+                            + "' should be a directory. It will not be cleared.");
+            return;
+        }
         for (File file : toDeleteParent.listFiles())
         {
             // all these files should be symbolic links to a dataset directory.
             // We cannot delete recursively here, it would remove the original files.
-            file.delete();
+            boolean ok = file.delete();
+            if (ok == false)
+            {
+                operationLog.error("Cannot delete the file: " + file.getPath());
+            }
         }
         toDeleteParent.delete();
     }
