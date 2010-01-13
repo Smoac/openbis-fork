@@ -1175,6 +1175,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         {
             assert this.contentPanel.isHeaderVisible() : "header was switched off";
             this.contentPanel.setHeading(headerOrNull);
+            contentPanel.syncSize();
         }
     }
 
