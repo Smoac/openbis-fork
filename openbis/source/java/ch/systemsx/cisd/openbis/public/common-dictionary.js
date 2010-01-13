@@ -382,6 +382,8 @@ var common = {
   HELP__ADMINISTRATION__AUTHORIZATION__USERS__BROWSE: "Person Browser", 
   HELP__SEARCH__ACTION: "Global Search",
   HELP__ATTACHMENTS__VIEW: "Attachment Versions",
+  HELP__CHANGE_COLUMN_SETTINGS__ACTION: "Table Settings",
+  HELP__CHANGE_COLUMN_SETTINGS__CREATE_CUSTOM_COLUMN: "Custom Column",
     
   //
   // User Settings Dialog
