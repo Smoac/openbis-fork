@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.en
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesCriteriaProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.entity.PropertyTypesFilterUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
@@ -92,7 +91,6 @@ public abstract class AbstractExternalDataGrid
         updateCriteriaProviderAndRefresh();
 
         addEntityOperationsLabel();
-        addButton(createBrowseExternalDataButton());
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_SHOW_DETAILS),
                 browserId + SHOW_DETAILS_BUTTON_ID_SUFFIX, asShowEntityInvoker(false)));
         addButton(createSelectedItemButton(viewContext.getMessage(Dict.BUTTON_EDIT),
@@ -283,31 +281,6 @@ public abstract class AbstractExternalDataGrid
                 {
                     return new SelectedAndDisplayedItems(getSelectedBaseObjects(),
                             createTableExportCriteria(), getTotalCount());
-                }
-            };
-    }
-
-    private Button createBrowseExternalDataButton()
-    {
-        String text = viewContext.getMessage(Dict.BUTTON_VIEW);
-        String title = viewContext.getMessage(Dict.TOOLTIP_VIEW_DATASET);
-
-        Button result = createSelectedItemButton(text, asBrowseExternalDataInvoker());
-        result.setTitle(title);
-        return result;
-    }
-
-    private final ISelectedEntityInvoker<BaseEntityModel<ExternalData>> asBrowseExternalDataInvoker()
-    {
-        return new ISelectedEntityInvoker<BaseEntityModel<ExternalData>>()
-            {
-                public void invoke(BaseEntityModel<ExternalData> selectedItem)
-                {
-                    if (selectedItem != null)
-                    {
-                        DataSetUtils.showDataSet(selectedItem.getBaseObject(), viewContext
-                                .getModel());
-                    }
                 }
             };
     }
