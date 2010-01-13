@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins;
 
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder.asNum;
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder.asText;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -30,8 +33,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractData
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -104,16 +105,6 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
                         asNum(wellGeometry.getRows()), asNum(wellGeometry.getColumns()),
                         asNum(channels));
         builder.addRow(row);
-    }
-
-    private static ISerializableComparable asText(String text)
-    {
-        return new StringTableCell(text);
-    }
-
-    private static ISerializableComparable asNum(int num)
-    {
-        return new IntegerTableCell(num);
     }
 
     private IHCSImageFormattedData getImageAccessor(IDataStructureV1_0 structure)

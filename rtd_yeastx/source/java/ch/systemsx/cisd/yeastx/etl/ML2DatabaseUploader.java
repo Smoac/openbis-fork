@@ -26,7 +26,6 @@ import javax.sql.DataSource;
 import org.apache.commons.io.FilenameUtils;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.etlserver.IDataSetUploader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
@@ -51,8 +50,6 @@ public class ML2DatabaseUploader implements IDataSetUploader
 {
     private static final String UNKNOWN_NAME = "unknown";
 
-    private static final String DATABASE_PROPERTIES_PREFIX = "database.";
-
     private final IDatasetLoader eicML2Database;
 
     private final IDatasetLoader fiaML2Database;
@@ -71,10 +68,7 @@ public class ML2DatabaseUploader implements IDataSetUploader
 
     public ML2DatabaseUploader(Properties properties)
     {
-        final Properties dbProps =
-                ExtendedProperties.getSubset(properties, DATABASE_PROPERTIES_PREFIX, true);
-        final DatabaseConfigurationContext dbContext = DBUtils.createDBContext(dbProps);
-        DBUtils.init(dbContext);
+        final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(properties);
         DataSource dataSource = dbContext.getDataSource();
         this.eicML2Database = new EICML2Database(dataSource);
         this.fiaML2Database = new FIAML2Database(dataSource);

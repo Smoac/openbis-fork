@@ -27,6 +27,7 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -40,6 +41,8 @@ import ch.systemsx.cisd.yeastx.db.DMDataSetDTO;
  */
 public class EICMLTest extends AbstractDBTest
 {
+
+    private static final String DATA_SET_PERM_ID = "data set perm id eicml";
 
     private IEICMSRunDAO eicmlDAO;
 
@@ -60,8 +63,16 @@ public class EICMLTest extends AbstractDBTest
 
     private DMDataSetDTO createDataset()
     {
-        return new DMDataSetDTO("data set perm id eicml", "sample perm id eicml",
-                "sample name eicml", "experiment perm id eicml", "experiment name eicml");
+        return new DMDataSetDTO(DATA_SET_PERM_ID, "sample perm id eicml", "sample name eicml",
+                "experiment perm id eicml", "experiment name eicml");
+    }
+
+    @Test(dependsOnMethods = "testUploadEicML")
+    public void testGetMSRunByDatasetPermId() throws ParseException
+    {
+        EICMSRunDTO run = eicmlDAO.getMSRunByDatasetPermId(DATA_SET_PERM_ID);
+        AssertJUnit.assertNotNull(run);
+        assertRunCorrect(run);
     }
 
     private void checkChromatograms(int count, ChromatogramDTO chrom)
@@ -132,6 +143,20 @@ public class EICMLTest extends AbstractDBTest
         final EICMSRunDTO run = runs.next();
         assertFalse(runs.hasNext());
         assertEquals(4, run.getChromCount());
+        assertRunCorrect(run);
+        final DataIterator<ChromatogramDTO> chromatograms = eicmlDAO.getChromatogramsForRun(run);
+        int count = 0;
+        while (chromatograms.hasNext())
+        {
+            final ChromatogramDTO chrom = chromatograms.next();
+            checkChromatograms(count, chrom);
+            ++count;
+        }
+        assertEquals(run.getChromCount(), count);
+    }
+
+    private void assertRunCorrect(final EICMSRunDTO run) throws ParseException
+    {
         assertEquals(EICMLParser.getDateFormat().parse("16-Jun-2009 11:58:14"), run
                 .getAcquisitionDate());
         assertEquals(370.109f, run.getStartTime());
@@ -146,14 +171,5 @@ public class EICMLTest extends AbstractDBTest
         assertEquals(17L, run.getMsRunId().longValue());
         assertEquals(32L, run.getSetId().longValue());
         assertEquals("???", run.getOperator());
-        final DataIterator<ChromatogramDTO> chromatograms = eicmlDAO.getChromatogramsForRun(run);
-        int count = 0;
-        while (chromatograms.hasNext())
-        {
-            final ChromatogramDTO chrom = chromatograms.next();
-            checkChromatograms(count, chrom);
-            ++count;
-        }
-        assertEquals(run.getChromCount(), count);
     }
 }

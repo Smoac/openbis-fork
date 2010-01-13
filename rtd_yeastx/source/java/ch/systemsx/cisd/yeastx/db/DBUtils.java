@@ -23,6 +23,7 @@ import net.lemnik.eodsql.TransactionQuery;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.dbmigration.DBMigrationEngine;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 
@@ -37,9 +38,20 @@ public class DBUtils
     /** Current version of the database. */
     public static final String DATABASE_VERSION = "004";
 
+    private static final String DATABASE_PROPERTIES_PREFIX = "database.";
+
     static
     {
         QueryTool.getTypeMap().put(float[].class, new FloatArrayMapper());
+    }
+
+    public static DatabaseConfigurationContext createAndInitDBContext(Properties properties)
+    {
+        final Properties dbProps =
+                ExtendedProperties.getSubset(properties, DATABASE_PROPERTIES_PREFIX, true);
+        final DatabaseConfigurationContext dbContext = DBUtils.createDBContext(dbProps);
+        DBUtils.init(dbContext);
+        return dbContext;
     }
 
     public static DatabaseConfigurationContext createDBContext(Properties dbProps)

@@ -17,9 +17,14 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
@@ -50,7 +55,7 @@ public class SimpleTableModelBuilder
     {
         addHeader(title, false);
     }
-    
+
     public void addRow(List<ISerializableComparable> values)
     {
         assert values.size() == header.size() : "header has different number of columns than a row";
@@ -60,5 +65,25 @@ public class SimpleTableModelBuilder
     public TableModel getTableModel()
     {
         return new TableModel(header, rows);
+    }
+
+    public static ISerializableComparable asText(String text)
+    {
+        return new StringTableCell(text);
+    }
+
+    public static ISerializableComparable asNum(int num)
+    {
+        return new IntegerTableCell(num);
+    }
+
+    public static ISerializableComparable asNum(double num)
+    {
+        return new DoubleTableCell(num);
+    }
+
+    public static ISerializableComparable asDate(Date date)
+    {
+        return new DateTableCell(date);
     }
 }

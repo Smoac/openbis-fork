@@ -61,25 +61,9 @@ public interface IEICMSRunDAO extends IGenericDAO
     @Select(sql = "select * from EIC_MS_RUNS where RAW_DATA_FILE_NAME=?{1}")
     public DataIterator<EICMSRunDTO> getMsRunsForRawDataFile(String rawDataFileName);
 
-    @Select("select EIC_MS_RUNS.*, count(EIC_CHROMATOGRAMS.*) AS chromCount from EIC_MS_RUNS "
-            + "left join EIC_CHROMATOGRAMS on EIC_MS_RUN_ID = EIC_MS_RUNS.ID where EIC_MS_RUNS.EIC_MS_RUN_ID=?{1} group by "
-            + ALL_EIC_MSRUN_COLUMNS)
-    public EICMSRunDTO getMSRunById(long id);
-
-    @Select("select EIC_MS_RUNS.*, count(EIC_CHROMATOGRAMS.*) AS chromCount from EIC_MS_RUNS "
-            + "left join EIC_CHROMATOGRAMS on EIC_MS_RUN_ID = eic_ms_run.id where EIC_MS_RUNS.DATA_SET_PERM_ID=?{1} group by "
-            + ALL_EIC_MSRUN_COLUMNS)
-    public EICMSRunDTO getMSRunByPermId(String permId);
-
-    @Select("select EIC_MS_RUNS.* FROM msrun LEFT JOIN EIC_CHROMATOGRAMS USING(ID) "
-            + "where EIC_CHROMATOGRAMS.ID = ?{1.id}")
-    public EICMSRunDTO getMSRunForChromatogram(ChromatogramDTO chromatogram);
-
-    @Select("select EIC_CHROMATOGRAMS.* FROM EIC_CHROMATOGRAMS where ID=?{1}")
-    public ChromatogramDTO getChromatogramById(long id);
-
-    @Select("select EIC_CHROMATOGRAMS.* FROM EIC_CHROMATOGRAMS where LABEL=?{1}")
-    public ChromatogramDTO getChromatogramByLabel(String label);
+    @Select(sql = "select EIC_MS_RUNS.* from EIC_MS_RUNS left join DATA_SETS on DATA_SETS.id = EIC_MS_RUNS.ds_id "
+            + "where DATA_SETS.perm_id = ?{1} group by " + ALL_EIC_MSRUN_COLUMNS)
+    public EICMSRunDTO getMSRunByDatasetPermId(String datasetPermId);
 
     @Select("select * FROM EIC_CHROMATOGRAMS where EIC_MS_RUN_ID=?{1.id}")
     public DataIterator<ChromatogramDTO> getChromatogramsForRun(EICMSRunDTO msRun);
