@@ -335,6 +335,55 @@ var common = {
 
   
   //
+  // Help Page Titles
+  //
+  
+  HELP__EXPERIMENT__BROWSE: "Experiment Browser",
+  HELP__EXPERIMENT__VIEW: "Experiment Viewer",
+  HELP__EXPERIMENT__EDIT: "Experiment Editor",
+  HELP__EXPERIMENT__REGISTER: "Experiment Registration",
+  HELP__EXPERIMENT__EXPERIMENT_TYPE__BROWSE: "Experiment Type Browser",
+  HELP__SAMPLE__BROWSE: "Sample Browser",
+  HELP__SAMPLE__VIEW: "Sample Viewer",
+  HELP__SAMPLE__EDIT: "Sample Editor",
+  HELP__SAMPLE__SEARCH: "Sample Advanced Search",
+  HELP__SAMPLE__REGISTER: "Sample Registration",
+  HELP__SAMPLE__IMPORT: "Sample Import",
+  HELP__SAMPLE__BATCH_UPDATE: "Sample Batch Update",
+  HELP__SAMPLE__SAMPLE_TYPE__BROWSE: "Sample Type Browser",
+  HELP__MATERIAL__BROWSE: "Material Browser",
+  HELP__MATERIAL__VIEW: "Material Viewer",
+  HELP__MATERIAL__EDIT: "Material Editor",
+  HELP__MATERIAL__IMPORT: "Sample Import",
+  HELP__MATERIAL__MATERIAL_TYPE__BROWSE: "Material Type Browser",
+  HELP__DATA_SET__VIEW: "Data Set Viewer",
+  HELP__DATA_SET__EDIT: "Data Set Editor",
+  HELP__DATA_SET__SEARCH: "Data Set Advanced Search",
+  HELP__DATA_SET__REGISTER: "Data Set Upload",
+  HELP__DATA_SET__REPORT: "Data Set Report",
+  HELP__DATA_SET__DATA_SET_TYPE__BROWSE: "Data Set Type Browser",
+  HELP__RELATED_DATA_SETS__BROWSE: "Related Data Sets Browser",
+  HELP__ADMINISTRATION__FILE_TYPE__BROWSE: "File Type Browser",
+  HELP__ADMINISTRATION__GROUP__BROWSE: "Group Browser",
+  HELP__ADMINISTRATION__VOCABULARY__BROWSE: "Vocabulary Browser",
+  HELP__ADMINISTRATION__VOCABULARY__REGISTER: "Vocabulary Registration",
+  HELP__ADMINISTRATION__VOCABULARY__TERM__Browser: "Vocabulary Terms Browser",
+  HELP__ADMINISTRATION__PROJECT__VIEW: "Project Viewer",
+  HELP__ADMINISTRATION__PROJECT__EDIT: "Project Editor",
+  HELP__ADMINISTRATION__PROJECT__BROWSE: "Project Browser",
+  HELP__ADMINISTRATION__PROJECT__REGISTER: "Project Registration",
+  HELP__ADMINISTRATION__PROPERTY_TYPE__BROWSE: "Property Type Browser",
+  HELP__ADMINISTRATION__PROPERTY_TYPE__REGISTER: "Property Type Registration",
+  HELP__ADMINISTRATION__PROPERTY_TYPE__ASSIGNMENT__BROWSE: "Property Type Assignment Browser",
+  HELP__ADMINISTRATION__PROPERTY_TYPE__ASSIGNMENT__REGISTER: "Property Type Assignment",
+  HELP__ADMINISTRATION__AUTHORIZATION__AUTHORIZATION_GROUPS__BROWSE: "Authorization Group Browser",
+  HELP__ADMINISTRATION__AUTHORIZATION__AUTHORIZATION_GROUPS__VIEW: "Users From Authorization Group",
+  HELP__ADMINISTRATION__AUTHORIZATION__ROLES__BROWSE: "Role Assignment Browser",
+  HELP__ADMINISTRATION__AUTHORIZATION__USERS__BROWSE: "Person Browser", 
+  HELP__SEARCH__ACTION: "Global Search",
+  HELP__ATTACHMENTS__VIEW: "Attachment Versions",
+    
+  //
   // User Settings Dialog
   //
   

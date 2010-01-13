@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.help;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -51,19 +50,21 @@ public class HelpPageIdentifier
         PROJECT(ADMINISTRATION),
 
         VOCABULARY(ADMINISTRATION),
+        // vocabulary subdomains
+        TERM(VOCABULARY),
 
         PROPERTY_TYPE(ADMINISTRATION),
         // property type subdomains
         ASSIGNMENT(PROPERTY_TYPE),
 
-        FILE_FORMAT(ADMINISTRATION),
+        FILE_TYPE(ADMINISTRATION),
 
         AUTHORIZATION(ADMINISTRATION),
         // authorization subdomains
         USERS(AUTHORIZATION), ROLES(AUTHORIZATION), AUTHORIZATION_GROUPS(AUTHORIZATION),
 
         // other base domains
-        RELATED_DATA_SETS, ATTACHMENTS, CHANGE_USER_SETTINGS, EXPERIMENT_STATISTICS;
+        RELATED_DATA_SETS, ATTACHMENTS, CHANGE_USER_SETTINGS;
 
         // could be used to create a hierarchy of help pages
         private HelpPageDomain superDomainOrNull;
@@ -165,7 +166,9 @@ public class HelpPageIdentifier
         return specific;
     }
 
-    private static char PAGE_NAME_KEY_SEPARATOR = '.';
+    private static String PAGE_NAME_KEY_PREFIX = "HELP";
+
+    private static String PAGE_NAME_KEY_SEPARATOR = "__";
 
     public String getHelpPageTitle(IMessageProvider messageProvider)
     {
@@ -182,10 +185,13 @@ public class HelpPageIdentifier
         }
     }
 
-    @Private
+    /** @deprecated only for private usage and tests */
+    @Deprecated
     public String getHelpPageTitleKey()
     {
         final StringBuilder messageKeyBuilder = new StringBuilder();
+        messageKeyBuilder.append(PAGE_NAME_KEY_PREFIX);
+        messageKeyBuilder.append(PAGE_NAME_KEY_SEPARATOR);
         final List<HelpPageDomain> domainPath = getHelpPageDomain().getDomainPath();
         for (HelpPageDomain d : domainPath)
         {

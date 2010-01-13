@@ -761,7 +761,7 @@ public final class ComponentProvider
 
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
-                    return new HelpPageIdentifier(HelpPageDomain.FILE_FORMAT, HelpPageAction.BROWSE);
+                    return new HelpPageIdentifier(HelpPageDomain.FILE_TYPE, HelpPageAction.BROWSE);
                 }
             };
     }

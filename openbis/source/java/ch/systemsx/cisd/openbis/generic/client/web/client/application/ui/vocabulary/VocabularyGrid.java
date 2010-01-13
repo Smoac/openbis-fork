@@ -234,7 +234,7 @@ public class VocabularyGrid extends AbstractSimpleBrowserGrid<Vocabulary>
 
                 public HelpPageIdentifier getHelpPageIdentifier()
                 {
-                    return new HelpPageIdentifier(HelpPageDomain.VOCABULARY, HelpPageAction.VIEW);
+                    return new HelpPageIdentifier(HelpPageDomain.TERM, HelpPageAction.BROWSE);
                 }
             };
         DispatcherHelper.dispatchNaviEvent(tabFactory);

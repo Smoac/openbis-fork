@@ -75,13 +75,14 @@ public class HelpPageIdentifierTest extends AssertJUnit
         return new Object[][]
             {
                         { HelpPageDomain.CHANGE_USER_SETTINGS, HelpPageAction.ACTION,
-                                "CHANGE_USER_SETTINGS.ACTION" },
+                                "HELP__CHANGE_USER_SETTINGS__ACTION" },
                         { HelpPageDomain.USERS, HelpPageAction.BROWSE,
-                                "ADMINISTRATION.AUTHORIZATION.USERS.BROWSE" },
+                                "HELP__ADMINISTRATION__AUTHORIZATION__USERS__BROWSE" },
 
             };
     }
 
+    @SuppressWarnings("deprecation")
     @Test(dataProvider = "pageTitlesToTest")
     public void testHelpPageTitleKey(final HelpPageDomain domain, final HelpPageAction action,
             final String expectedKey)
