@@ -67,9 +67,13 @@ public class SimpleTableModelBuilder
         return new TableModel(header, rows);
     }
 
-    public static ISerializableComparable asText(String text)
+    public static ISerializableComparable asText(String textOrNull)
     {
-        return new StringTableCell(text);
+        if (textOrNull == null)
+        {
+            return createNullCell();
+        }
+        return new StringTableCell(textOrNull);
     }
 
     public static ISerializableComparable asNum(int num)
@@ -82,8 +86,17 @@ public class SimpleTableModelBuilder
         return new DoubleTableCell(num);
     }
 
-    public static ISerializableComparable asDate(Date date)
+    public static ISerializableComparable asDate(Date dateOrNull)
     {
-        return new DateTableCell(date);
+        if (dateOrNull == null)
+        {
+            return createNullCell();
+        }
+        return new DateTableCell(dateOrNull);
+    }
+
+    private static ISerializableComparable createNullCell()
+    {
+        return new StringTableCell("");
     }
 }
