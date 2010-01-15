@@ -75,26 +75,8 @@ public class CIFEXComponent implements ICIFEXComponent
             // uploader / downloader itself.
             if (result.getStatus() == ExecutionStatus.EXCEPTION)
             {
-                final Throwable th =
-                        (result.tryGetException() instanceof Exception ? CheckedExceptionTunnel
-                                .unwrapIfNecessary((Exception) result.tryGetException()) : result
-                                .tryGetException());
-                if (th instanceof RemoteAccessException && willRetry)
-                {
-                    if (th.getMessage() != null)
-                    {
-                        uploadDownload.fireWarningEvent("Remote operation failed: "
-                                + th.getClass().getSimpleName() + ": '" + th.getMessage()
-                                + "', will retry soon...");
-                    } else
-                    {
-                        uploadDownload.fireWarningEvent("Remote operation failed: "
-                                + th.getClass().getSimpleName() + ", will retry soon...");
-                    }
-                } else
-                {
-                    uploadDownload.fireExceptionEvent(result.tryGetException());
-                }
+                Throwable originalException = result.tryGetException();
+                logException(willRetry, originalException);
             }
             if (result.getStatus() == ExecutionStatus.TIMED_OUT)
             {
@@ -105,6 +87,33 @@ public class CIFEXComponent implements ICIFEXComponent
             {
                 uploadDownload.fireFinishedEvent(false);
             }
+        }
+
+        private void logException(boolean willRetry, Throwable originalException)
+        {
+            final Throwable th = unwrapException(originalException);
+            if (th instanceof RemoteAccessException && willRetry)
+            {
+                if (th.getMessage() != null)
+                {
+                    uploadDownload.fireWarningEvent("Remote operation failed: "
+                            + th.getClass().getSimpleName() + ": '" + th.getMessage()
+                            + "', will retry soon...");
+                } else
+                {
+                    uploadDownload.fireWarningEvent("Remote operation failed: "
+                            + th.getClass().getSimpleName() + ", will retry soon...");
+                }
+            } else
+            {
+                uploadDownload.fireExceptionEvent(originalException);
+            }
+        }
+
+        private Throwable unwrapException(Throwable oirginalException)
+        {
+            return (oirginalException instanceof Exception ? CheckedExceptionTunnel
+                    .unwrapIfNecessary((Exception) oirginalException) : oirginalException);
         }
 
     }
