@@ -9,6 +9,7 @@
 		<antcall target="_dist"><param name="project" value="deep_sequencing_unit"/></antcall>
 		<antcall target="_dist"><param name="project" value="rtd_phosphonetx"/></antcall>
 		<antcall target="_dist"><param name="project" value="rtd_yeastx"/></antcall>
+		<antcall target="_dist"><param name="project" value="screening"/></antcall>
 		<antcall target="_dist"><param name="project" value="eu_basysbio"/></antcall>
 	</target>
 	
@@ -32,6 +33,7 @@
 		<antcall target="_clean"><param name="project" value="deep_sequencing_unit"/></antcall>
 		<antcall target="_clean"><param name="project" value="rtd_phosphonetx"/></antcall>
 		<antcall target="_clean"><param name="project" value="rtd_yeastx"/></antcall>
+		<antcall target="_clean"><param name="project" value="screening"/></antcall>
 		<antcall target="_clean"><param name="project" value="eu_basysbio"/></antcall>
 	</target>
 
