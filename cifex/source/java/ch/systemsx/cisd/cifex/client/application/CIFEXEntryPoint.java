@@ -27,7 +27,7 @@ import ch.systemsx.cisd.cifex.client.Configuration;
 import ch.systemsx.cisd.cifex.client.ICIFEXService;
 import ch.systemsx.cisd.cifex.client.ICIFEXServiceAsync;
 import ch.systemsx.cisd.cifex.client.InvalidSessionException;
-import ch.systemsx.cisd.cifex.client.application.ui.FileDownloadHelper;
+import ch.systemsx.cisd.cifex.client.application.ui.PageControllerHelper;
 import ch.systemsx.cisd.cifex.client.application.utils.GWTUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
@@ -114,23 +114,8 @@ public final class CIFEXEntryPoint implements EntryPoint
 
                             public final void onSuccess(final CurrentUserInfoDTO currentUser)
                             {
-                                final IPageController pageController =
-                                        viewContext.getPageController();
-                                if (currentUser != null)
-                                {
-                                    final Model model = viewContext.getModel();
-                                    model.setUser(currentUser);
-                                    if (FileDownloadHelper.startFileDownload(model)
-                                            || currentUser.hasFilesForDownload())
-                                    {
-                                        pageController.showInboxPage();
-                                    } else {
-                                        pageController.showSharePage();
-                                    }
-                                } else
-                                {
-                                    pageController.showLoginPage();
-                                }
+                                PageControllerHelper.activatePageBasedOnCurrentContext(viewContext,
+                                        currentUser);
                             }
 
                             public final void onFailure(final Throwable caught)

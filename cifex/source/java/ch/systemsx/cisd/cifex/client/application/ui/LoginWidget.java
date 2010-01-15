@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
-import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexDict;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
@@ -182,15 +181,7 @@ public class LoginWidget extends VerticalPanel
      */
     protected void loginSuccessful(final CurrentUserInfoDTO currentUser)
     {
-        final Model model = context.getModel();
-        model.setUser(currentUser);
-        if (FileDownloadHelper.startFileDownload(model) || currentUser.hasFilesForDownload())
-        {
-            context.getPageController().showInboxPage();
-        } else
-        {
-            context.getPageController().showSharePage();
-        }
+        PageControllerHelper.activatePageBasedOnCurrentContext(context, currentUser);
     }
 
     public final TextField<String> getUserField()
