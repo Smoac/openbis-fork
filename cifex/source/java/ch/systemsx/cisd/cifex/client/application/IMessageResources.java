@@ -127,6 +127,14 @@ public interface IMessageResources extends Messages
     @Key(value = "downloadfiles.help.javaDownload")
     public String getDownloadFilesHelpJavaDownload(Object linkWebstart);
 
+    /** Returns the label of Java dowloader button title. */
+    @Key(value = "downloadfiles.launchJavaDownloaderButtonTitle")
+    public String getLaunchJavaDownloaderButtonTitle();
+
+    /** Returns the text with pros of WebStart download client. */
+    @Key(value = "downloadfiles.javaDownloaderPros")
+    public String getJavaDownloaderPros();
+
     /** Returns label for the button of editing a user. */
     @Key(value = "edituser.button.label")
     public String getEditUserButtonLabel();
@@ -561,6 +569,14 @@ public interface IMessageResources extends Messages
     @Key(value = "uploadfiles.help.javaUploaderTitle")
     public String getUploadFilesHelpJavaUploaderTitle();
 
+    /** Returns the label of Java uploader button title. */
+    @Key(value = "uploadfiles.launchJavaUploaderButtonTitle")
+    public String getLaunchJavaUploaderButtonTitle();
+
+    /** Returns the text with pros of WebStart upload client. */
+    @Key(value = "uploadfiles.javaUploaderPros")
+    public String getJavaUploaderPros();
+
     /** Returns the name of the Command Line Client ZIP file. */
     @Key(value = "uploadfiles.help.cliLink")
     public String getUploadFilesHelpCLILink();
@@ -680,4 +696,8 @@ public interface IMessageResources extends Messages
     /** Returns the expiration date for user / file creation editing */
     @Key(value = "userfile.expiration.date")
     public String getExpirationDateLabel();
+
+    /** Returns the title of Java Web Start Applications button. */
+    @Key(value = "launchJWSApplicationTitle")
+    public String getLaunchJWSApplicationTitle();
 }

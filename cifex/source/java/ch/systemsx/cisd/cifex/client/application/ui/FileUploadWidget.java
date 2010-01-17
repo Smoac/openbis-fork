@@ -20,11 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -41,8 +43,7 @@ import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
 import com.google.gwt.http.client.URL;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
@@ -53,6 +54,7 @@ import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
@@ -152,16 +154,25 @@ public final class FileUploadWidget extends LayoutContainer
         uploaderPanel.setBorders(true);
         uploaderPanel.setHeight(335);
 
-        String webStartTitle = messageResources.getUploadFilesHelpJavaUploaderTitle();
+        final String webStartTitle = messageResources.getLaunchJWSApplicationTitle();
+        final String servletName = ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME;
+        final String buttonTitle = messageResources.getLaunchJavaUploaderButtonTitle();
+        final Button launchButton = new Button(buttonTitle, new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    WindowUtils.openNewDependentWindow(servletName);
+                }
+            });
+        launchButton.setIcon(AbstractImagePrototype.create(ImageUtils.ICONS.getUploaderIcon()));
+        launchButton.setTitle(webStartTitle);
+        launchButton.setHeight(30);
+        launchButton.setIconAlign(IconAlign.LEFT);
 
-        final Image uploaderScreenshot = ImageUtils.getCIFEXUploaderScreenshot();
-        uploaderScreenshot.setTitle(webStartTitle);
-        uploaderScreenshot.setPixelSize(290, 290);
-        Anchor uploaderScreenshotLinked =
-                new Anchor(uploaderScreenshot.getElement().getString(), true,
-                        ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME, "_blank");
-
-        uploaderPanel.add(uploaderScreenshotLinked, new FlowData(new Margins(10, 20, 10, 20)));
+        uploaderPanel.add(launchButton, new FlowData(new Margins(20)));
+        uploaderPanel.add(new Html(messageResources.getJavaUploaderPros()), new FlowData(
+                new Margins(0, 0, 0, 10)));
     }
 
     private final void createForm()

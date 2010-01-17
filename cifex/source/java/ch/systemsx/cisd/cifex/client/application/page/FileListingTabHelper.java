@@ -19,15 +19,19 @@ package ch.systemsx.cisd.cifex.client.application.page;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.IconAlign;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.FileCommentGridCellListener;
@@ -42,6 +46,7 @@ import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.DownloadFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.OwnedFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
@@ -141,15 +146,26 @@ class FileListingTabHelper
     {
         AbstractMainPageTabController.addTitlePart(verticalPanel, messageResources
                 .getDownloadFilesPartTitleGreater2GB());
-        String webStartTitle = messageResources.getDownloadFilesHelpJavaDownloaderTitle();
-        final Image downloaderScreenshot = ImageUtils.getCIFEXDownloaderScreenshot();
-        downloaderScreenshot.setTitle(webStartTitle);
-        downloaderScreenshot.setPixelSize(569, 239);
-        Anchor downloaderScreenshotLinked =
-                new Anchor(downloaderScreenshot.getElement().getString(), true,
-                        ServletPathConstants.FILE2GB_DOWNLOAD_SERVLET_NAME, "_blank");
 
-        verticalPanel.add(downloaderScreenshotLinked, new FlowData(new Margins(10, 0, 10, 0)));
+        String webStartTitle = messageResources.getLaunchJWSApplicationTitle();
+        final String servletName = ServletPathConstants.FILE2GB_DOWNLOAD_SERVLET_NAME;
+        final String buttonTitle = messageResources.getLaunchJavaDownloaderButtonTitle();
+        final Button launchButton = new Button(buttonTitle, new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    WindowUtils.openNewDependentWindow(servletName);
+                }
+            });
+        launchButton.setIcon(AbstractImagePrototype.create(ImageUtils.ICONS.getDownloaderIcon()));
+        launchButton.setTitle(webStartTitle);
+        launchButton.setHeight(30);
+        launchButton.setIconAlign(IconAlign.LEFT);
+
+        verticalPanel.add(launchButton, new FlowData(new Margins(20)));
+        verticalPanel.add(new Html(messageResources.getJavaDownloaderPros()), new FlowData(
+                new Margins(0, 0, 0, 10)));
     }
 
     static void createListOwnedFilesGrid(final ViewContext context,

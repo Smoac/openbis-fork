@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.cifex.client.application.utils;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Image;
+
+import ch.systemsx.cisd.cifex.client.application.ICIFEXImageBundle;
 
 /**
  * A static class to access the images.
@@ -30,6 +33,8 @@ import com.google.gwt.user.client.ui.Image;
 public final class ImageUtils
 {
     private final static String IMG_DIR = "images/";
+
+    public static final ICIFEXImageBundle ICONS = GWT.create(ICIFEXImageBundle.class);
 
     private ImageUtils()
     {
@@ -51,13 +56,4 @@ public final class ImageUtils
         return createImage("cifex_small.png");
     }
 
-    public final static Image getCIFEXUploaderScreenshot()
-    {
-        return createImage("CIFEXUploader.png");
-    }
-
-    public final static Image getCIFEXDownloaderScreenshot()
-    {
-        return createImage("CIFEXDownloader.png");
-    }
 }
