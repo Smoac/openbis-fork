@@ -94,16 +94,19 @@ public class CIFEXComponent implements ICIFEXComponent
             final Throwable th = unwrapException(originalException);
             if (th instanceof RemoteAccessException && willRetry)
             {
+                String warningMessage;
                 if (th.getMessage() != null)
                 {
-                    uploadDownload.fireWarningEvent("Remote operation failed: "
-                            + th.getClass().getSimpleName() + ": '" + th.getMessage()
-                            + "', will retry soon...");
+                    warningMessage =
+                            "Remote operation failed: " + th.getClass().getSimpleName() + ": '"
+                                    + th.getMessage() + "', will retry soon...";
                 } else
                 {
-                    uploadDownload.fireWarningEvent("Remote operation failed: "
-                            + th.getClass().getSimpleName() + ", will retry soon...");
+                    warningMessage =
+                            "Remote operation failed: " + th.getClass().getSimpleName()
+                                    + ", will retry soon...";
                 }
+                uploadDownload.fireWarningEvent(warningMessage);
             } else
             {
                 uploadDownload.fireExceptionEvent(originalException);

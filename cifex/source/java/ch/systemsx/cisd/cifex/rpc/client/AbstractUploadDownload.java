@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -57,6 +59,10 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     protected final RecordingActivityObserverSensor observerSensor =
             new RecordingActivityObserverSensor();
 
+    private final List<String> encounteredWarningMessages;
+
+    private final List<Throwable> encounteredExceptions;
+
     /**
      * Creates an instance for the specified service and session ID.
      */
@@ -64,6 +70,8 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     {
         this.service = service;
         this.sessionID = sessionID;
+        this.encounteredWarningMessages = new ArrayList<String>();
+        this.encounteredExceptions = new ArrayList<Throwable>();
         checkService();
     }
 
@@ -86,7 +94,7 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     {
         return observerSensor;
     }
-    
+
     /**
      * Returns <code>true</code> if the operation (upload or download) is still in progress.
      */
@@ -158,40 +166,24 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
         {
             try
             {
-                listener.finished(successful);
+                listener.finished(successful, encounteredWarningMessages, encounteredExceptions);
             } catch (Throwable th)
             {
                 th.printStackTrace();
             }
         }
+        encounteredExceptions.clear();
+        encounteredWarningMessages.clear();
     }
 
     protected void fireExceptionEvent(Throwable throwable)
     {
-        for (IProgressListener listener : listeners)
-        {
-            try
-            {
-                listener.exceptionOccured(throwable);
-            } catch (Throwable th)
-            {
-                th.printStackTrace();
-            }
-        }
+        encounteredExceptions.add(throwable);
     }
 
     protected void fireWarningEvent(String warningMessage)
     {
-        for (IProgressListener listener : listeners)
-        {
-            try
-            {
-                listener.warningOccured(warningMessage);
-            } catch (Throwable th)
-            {
-                th.printStackTrace();
-            }
-        }
+        encounteredWarningMessages.add(warningMessage);
     }
 
     /**

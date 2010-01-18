@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -36,7 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
@@ -44,7 +44,6 @@ import javax.swing.table.TableColumn;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXDownloader;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
 /**
@@ -275,49 +274,11 @@ public class FileDownloadClient extends AbstractSwingGUI
                 {
                 }
 
-                public void finished(boolean successful)
+                public void finished(boolean successful, List<String> warningMessages,
+                        List<Throwable> exceptions)
                 {
-
+                    showErrorsAndWarningsIfAny(getWindowFrame(), null, warningMessages, exceptions);
                 }
-
-                public void exceptionOccured(Throwable throwable)
-                {
-                    final String message;
-                    if (throwable instanceof UserFailureException)
-                    {
-                        message = throwable.getMessage();
-                    } else
-                    {
-                        message = "ERROR: " + throwable;
-                    }
-                    SwingUtilities.invokeLater(new Runnable()
-                        {
-                            public void run()
-                            {
-                                JOptionPane.showMessageDialog(getWindowFrame(), message, "Error",
-                                        JOptionPane.ERROR_MESSAGE);
-                            }
-                        });
-                }
-
-                private String lastWarningMessage;
-
-                public void warningOccured(final String warningMessage)
-                {
-                    if (warningMessage.equals(lastWarningMessage) == false)
-                    {
-                        lastWarningMessage = warningMessage;
-                        SwingUtilities.invokeLater(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    JOptionPane.showMessageDialog(getWindowFrame(), warningMessage,
-                                            "Warning", JOptionPane.WARNING_MESSAGE);
-                                }
-                            });
-                    }
-                }
-
             });
     }
 

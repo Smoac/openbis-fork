@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.rpc.client.gui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -219,7 +220,8 @@ public class FileDownloadClientModel extends AbstractTableModel
                     }
                 }
 
-                public void finished(boolean successful)
+                public void finished(boolean successful, List<String> warningMessages,
+                        List<Throwable> exceptions)
                 {
                     if (currentlyDownloadingFile != null)
                     {
@@ -234,14 +236,6 @@ public class FileDownloadClientModel extends AbstractTableModel
                         }
                         fireChanged();
                     }
-                }
-
-                public void exceptionOccured(Throwable throwable)
-                {
-                }
-
-                public void warningOccured(String warningMessage)
-                {
                 }
 
                 private FileDownloadInfo tryToFindDownloadInfoForFile(File file)

@@ -45,7 +45,6 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.Spring;
 import javax.swing.SpringLayout;
-import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
@@ -53,7 +52,6 @@ import javax.swing.table.TableColumn;
 
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 
@@ -152,64 +150,32 @@ public class FileUploadClient extends AbstractSwingGUI
                 {
                 }
 
-                public void finished(boolean successful)
+                public void finished(boolean successful, List<String> warningMessages,
+                        List<Throwable> exceptions)
                 {
                     setEnableStateOfButtons(true);
+                    showErrorsAndWarningsIfAny(getWindowFrame(), getFinishedMessage(successful),
+                            warningMessages, exceptions);
                     if (successful)
                     {
-                        JOptionPane.showMessageDialog(getWindowFrame(),
-                                "Uploading finished. Please refresh CIFEX in your Web browser.");
                         System.exit(0);
+                    }
+                }
+
+                private String getFinishedMessage(boolean successful)
+                {
+                    if (successful)
+                    {
+                        return "Uploading finished. Please refresh CIFEX in your Web browser.";
                     } else
                     {
-                        JOptionPane
-                                .showMessageDialog(
-                                        getWindowFrame(),
-                                        "Operation did not complete successfully. "
-                                                + "Check the status in the CIFEX Web GUI (Uploaded Files > Edit Sharing)");
+                        return "Operation did not complete successfully. "
+                                + "Check the status in the CIFEX Web GUI (Uploaded Files > Edit Sharing)";
                     }
                 }
 
                 public void fileUploaded()
                 {
-                }
-
-                public void exceptionOccured(Throwable throwable)
-                {
-                    final String message;
-                    if (throwable instanceof UserFailureException)
-                    {
-                        message = throwable.getMessage();
-                    } else
-                    {
-                        message = "ERROR: " + throwable;
-                    }
-                    SwingUtilities.invokeLater(new Runnable()
-                        {
-                            public void run()
-                            {
-                                JOptionPane.showMessageDialog(getWindowFrame(), message, "Error",
-                                        JOptionPane.ERROR_MESSAGE);
-                            }
-                        });
-                }
-
-                private String lastWarningMessage;
-
-                public void warningOccured(final String warningMessage)
-                {
-                    if (warningMessage.equals(lastWarningMessage) == false)
-                    {
-                        lastWarningMessage = warningMessage;
-                        SwingUtilities.invokeLater(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    JOptionPane.showMessageDialog(getWindowFrame(), warningMessage,
-                                            "Warning", JOptionPane.WARNING_MESSAGE);
-                                }
-                            });
-                    }
                 }
 
                 public void reset()

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.cifex.rpc.client.gui;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.cifex.rpc.client.RPCServiceFactory;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -163,6 +165,96 @@ public abstract class AbstractSwingGUI
         {
             // just ignore -- no big deal
         }
+    }
+
+    // -------- errors reporting -----------------
+
+    protected static void showErrorsAndWarningsIfAny(JFrame frame, String firstMessageOrNull,
+            List<String> warningMessages, List<Throwable> exceptions)
+    {
+        String message = (firstMessageOrNull == null ? "" : firstMessageOrNull + "\n");
+        message += joinMessages(warningMessages, exceptions);
+        if (exceptions.size() > 0)
+        {
+            showErrorMessage(frame, message);
+        } else if (warningMessages.size() > 0)
+        {
+            showWarningMessage(frame, message);
+        }
+    }
+
+    private static void showErrorMessage(JFrame frame, String message)
+    {
+        showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private static void showWarningMessage(JFrame frame, String message)
+    {
+        showMessageDialog(frame, message, "Warning", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private static void showMessageDialog(JFrame frame, String message, String title,
+            int messageType)
+    {
+        JOptionPane.showMessageDialog(frame, message, title, messageType);
+    }
+
+    private static String joinMessages(List<String> warningMessages, List<Throwable> exceptions)
+    {
+        StringBuffer sb = new StringBuffer();
+        addErrorMessages(exceptions, sb);
+        addWarningMessages(warningMessages, sb);
+        return sb.toString();
+    }
+
+    private static void addErrorMessages(List<Throwable> exceptions, StringBuffer sb)
+    {
+        if (exceptions.size() > 0)
+        {
+            if (exceptions.size() > 1)
+            {
+                sb.append("Following errors occured: \n");
+            }
+            for (Throwable exception : exceptions)
+            {
+                sb.append(getErrorMessage(exception));
+                sb.append("\n");
+            }
+        }
+    }
+
+    private static void addWarningMessages(List<String> warningMessages, StringBuffer sb)
+    {
+        if (warningMessages.size() > 0)
+        {
+            if (warningMessages.size() > 1)
+            {
+                sb.append("Following warnings occured: \n");
+            }
+            String lastWarningMessage = "";
+            for (String warningMessage : warningMessages)
+            {
+                if (lastWarningMessage.equals(warningMessage) == false)
+                {
+                    sb.append(warningMessage);
+                    sb.append("\n");
+                    lastWarningMessage = warningMessage;
+                }
+            }
+        }
+    }
+
+    private static String getErrorMessage(Throwable throwable)
+    {
+        final String message;
+        if (throwable instanceof UserFailureException)
+        {
+            message = throwable.getMessage();
+        } else
+        {
+            message = "ERROR: " + throwable;
+        }
+        return message;
     }
 }
 

@@ -57,7 +57,13 @@ final class UploadTableModel extends AbstractTableModel
                     fireChanged();
                 }
 
-                public void finished(boolean successful)
+                public void finished(boolean successful, List<String> warningMessages,
+                        List<Throwable> exceptions)
+                {
+                    uploadFinished(successful);
+                }
+
+                private void uploadFinished(boolean successful)
                 {
                     if (currentFileToBeUploaded != null)
                     {
@@ -84,15 +90,7 @@ final class UploadTableModel extends AbstractTableModel
 
                 public void fileUploaded()
                 {
-                    finished(true);
-                }
-
-                public void exceptionOccured(Throwable throwable)
-                {
-                }
-
-                public void warningOccured(String warningMessage)
-                {
+                    uploadFinished(true);
                 }
 
                 private FileItem tryToFind(File file)

@@ -68,14 +68,10 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         listeners.add(new IUploadProgressListener()
             {
 
-                public void exceptionOccured(Throwable throwable)
+                public void finished(boolean successful, List<String> warningMessages,
+                        List<Throwable> exceptions)
                 {
-                    listener.exceptionOccured(throwable);
-                }
-
-                public void finished(boolean successful)
-                {
-                    listener.finished(successful);
+                    listener.finished(successful, warningMessages, exceptions);
                 }
 
                 public void reportProgress(int percentage, long numberOfBytes)
@@ -86,11 +82,6 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                 public void start(File file, long fileSize)
                 {
                     listener.start(file, fileSize);
-                }
-
-                public void warningOccured(String warningMessage)
-                {
-                    listener.warningOccured(warningMessage);
                 }
 
                 public void fileUploaded()
