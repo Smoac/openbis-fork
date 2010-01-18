@@ -34,17 +34,17 @@ public class DateTimeUtilsTest extends AssertJUnit
     @Test
     public void testRenderDuration()
     {
-        assertEquals("42 milliseconds", DateTimeUtils.renderDuration(42));
-        assertEquals("1 second", DateTimeUtils.renderDuration(1000));
-        assertEquals("42 seconds", DateTimeUtils.renderDuration(42 * 1000 + 499));
-        assertEquals("42 seconds", DateTimeUtils.renderDuration(42 * 1000 - 499));
-        assertEquals("99 seconds", DateTimeUtils.renderDuration(99 * 1000));
-        assertEquals("2 minutes", DateTimeUtils.renderDuration(100 * 1000));
-        assertEquals("42 minutes", DateTimeUtils.renderDuration(42 * 1000 * 60));
-        assertEquals("59 minutes", DateTimeUtils.renderDuration(59 * 1000 * 60));
-        assertEquals("1 hour and 0 minutes", DateTimeUtils.renderDuration(60 * 1000 * 60));
-        assertEquals("1 hour and 1 minute", DateTimeUtils.renderDuration(61 * 1000 * 60));
-        assertEquals("2 hours and 3 minutes", DateTimeUtils.renderDuration(123 * 1000 * 60));
+        assertEquals("1sec", DateTimeUtils.renderDuration(42));
+        assertEquals("1sec", DateTimeUtils.renderDuration(1000));
+        assertEquals("42sec", DateTimeUtils.renderDuration(42 * 1000 + 499));
+        assertEquals("42sec", DateTimeUtils.renderDuration(42 * 1000 - 499));
+        assertEquals("99sec", DateTimeUtils.renderDuration(99 * 1000));
+        assertEquals("2min", DateTimeUtils.renderDuration(100 * 1000));
+        assertEquals("42min", DateTimeUtils.renderDuration(42 * 1000 * 60));
+        assertEquals("59min", DateTimeUtils.renderDuration(59 * 1000 * 60));
+        assertEquals("1h 0min", DateTimeUtils.renderDuration(60 * 1000 * 60));
+        assertEquals("1h 1min", DateTimeUtils.renderDuration(61 * 1000 * 60));
+        assertEquals("2h 3min", DateTimeUtils.renderDuration(123 * 1000 * 60));
     }
 
     @Test

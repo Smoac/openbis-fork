@@ -57,41 +57,45 @@ public final class DateTimeUtils
         zoneString.append(prependZeroIfNeeded(num));
         return "GMT" + zoneString.toString();
     }
-    
+
     private final static String prependZeroIfNeeded(final int num)
     {
         return num < 10 ? "0" + num : "" + num;
     }
-    
+
     /**
-     * Renders the specified duration.
+     * Renders the specified duration. If time is negative it is rendered as "?".
      */
-    public static String renderDuration(long durationInMilliseconds)
+    public static String renderDuration(long durationInMillisecondsOrNeg)
     {
-        if (durationInMilliseconds < 1000)
+        if (durationInMillisecondsOrNeg < 0)
         {
-            return render(durationInMilliseconds, "millisecond");
+            return "?";
         }
-        long durationInSeconds = (durationInMilliseconds + 500) / 1000;
+        if (durationInMillisecondsOrNeg < 1000)
+        {
+            return render(1, "sec");
+        }
+        long durationInSeconds = (durationInMillisecondsOrNeg + 500) / 1000;
         if (durationInSeconds < 100)
         {
-            return render(durationInSeconds, "second");
+            return render(durationInSeconds, "sec");
         }
         long durationInMinutes = (durationInSeconds + 30) / 60;
         if (durationInMinutes < 60)
         {
-            return render(durationInMinutes, "minute");
+            return render(durationInMinutes, "min");
         }
         long minutes = durationInMinutes % 60;
         long hours = durationInMinutes / 60;
-        return render(hours, "hour") + " and " + render(minutes, "minute");
+        return render(hours, "h") + " " + render(minutes, "min");
     }
-    
+
     private static String render(long value, String unit)
     {
-        return value == 1 ? value + " " + unit : value + " " + unit + "s"; 
+        return value + unit;
     }
-    
+
     /**
      * Extends the given <var>date</var> until the end of the day.
      */
@@ -100,6 +104,5 @@ public final class DateTimeUtils
         return DateUtils.addMilliseconds(DateUtils.addDays(DateUtils.truncate(date,
                 Calendar.DAY_OF_MONTH), 1), -1);
     }
-
 
 }
