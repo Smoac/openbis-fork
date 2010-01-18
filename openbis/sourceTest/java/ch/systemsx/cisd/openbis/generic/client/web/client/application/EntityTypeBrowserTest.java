@@ -67,6 +67,6 @@ public class EntityTypeBrowserTest extends AbstractGWTTestCase
         table.expectedRow(new Row().withCell(EntityTypeColDefKind.CODE.id(), expectedCode));
         remoteConsole.prepare(table.expectedSize(expectedRowsNum));
 
-        launchTest(20000);
+        launchTest();
     }
 }

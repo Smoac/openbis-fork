@@ -93,7 +93,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(GROUP_CL)
                 .identifier("CISD", "CISD")));
-        launchTest(30000);
+        launchTest();
     }
 
     /**
@@ -113,7 +113,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                                 + "'[GROUP.USER, GROUP.POWER_USER, GROUP.ADMIN, INSTANCE.ADMIN]' "
                                 + "could be found in roles of user 'observer'.");
         remoteConsole.prepare(failureExpectation);
-        launchTest(30000);
+        launchTest();
     }
 
     public final void testRegisterGroupSampleWithParent()
@@ -127,7 +127,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode
                 .toUpperCase()).identifier("CISD", "CISD")));
-        launchTest(30000);
+        launchTest();
     }
 
     public final void testRegisterGroupSampleWithExperiment()
@@ -141,7 +141,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ListSamples("CISD", sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(sampleCode
                 .toUpperCase()).identifier("CISD", "CISD").experiment("CISD", "NEMO", "EXP1")));
-        launchTest(30000);
+        launchTest();
     }
 
     public final void testRegisterGroupSampleWithContainer()
@@ -164,7 +164,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent,
                 containerCode + ":" + sampleCode).withCell(sampleSubcodeFieldIdent, sampleCode));
         remoteConsole.prepare(checkSample);
-        launchTest(60000);
+        launchTest();
     }
 
     public final void testRegisterSharedSample()
@@ -183,6 +183,6 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
                 sampleTypeCode));
         remoteConsole.prepare(new CheckSampleTable().expectedRow(new SampleRow(SHARED_CL)
                 .identifier("CISD").withUserPropertyCell("DESCRIPTION", description)));
-        launchTest(30000);
+        launchTest();
     }
 }

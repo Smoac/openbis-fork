@@ -52,7 +52,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
         checkResultTableCmd.expectedColumnsNumber(TOTAL_NUM_OF_COLUMNS);
         remoteConsole.prepare(checkResultTableCmd);
 
-        launchTest(20000);
+        launchTest();
     }
 
     public final void testSearchForFileType()
@@ -73,7 +73,7 @@ public class DataSetSearchTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(checkResultTableCmd);
 
-        launchTest(20000);
+        launchTest();
     }
 
     private Row createTiffRow()

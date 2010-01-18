@@ -54,7 +54,7 @@ public class AuthorizationGroupsTest extends AbstractGWTTestCase
                 .withCell(GroupColDefKind.CODE.id(), authGroupCode.toUpperCase()));
         remoteConsole.prepare(table);
 
-        launchTest(30000);
+        launchTest();
     }
 
     public final void testAddPerson()
@@ -71,7 +71,7 @@ public class AuthorizationGroupsTest extends AbstractGWTTestCase
         table.expectedRow(new Row().withCell(PersonColDefKind.USER_ID.id(), userId));
         remoteConsole.prepare(table);
 
-        launchTest(30000);
+        launchTest();
     }
 
     public final void testAddMultiplePerson()
@@ -91,7 +91,7 @@ public class AuthorizationGroupsTest extends AbstractGWTTestCase
         remoteConsole.prepare(FillAddPersonForm.multipleUsers(codes, authGroup));
         remoteConsole.prepare(table);
 
-        launchTest(30000);
+        launchTest();
     }
 
     private AuthorizationGroup createAuthGroup()

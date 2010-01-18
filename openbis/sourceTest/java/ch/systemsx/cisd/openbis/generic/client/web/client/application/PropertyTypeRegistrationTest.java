@@ -53,6 +53,6 @@ public class PropertyTypeRegistrationTest extends AbstractGWTTestCase
         table.expectedRow(new Row().withCell(PropertyTypeColDefKind.CODE.id(), PROPERTY_TYPE_CODE));
         remoteConsole.prepare(table.expectedSize(17));
 
-        launchTest(20000);
+        launchTest();
     }
 }

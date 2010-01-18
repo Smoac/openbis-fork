@@ -81,7 +81,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, COMMENT, SIRNA_HCS,
                 "a comment", EXPERIMENT));
         prepareListingAfterAssignment(COMMENT, SIRNA_HCS, EXPERIMENT, 35, mandatory);
-        launchTest(20000);
+        launchTest();
     }
 
     public final void testAssignDataSetPropertyType()
@@ -91,7 +91,7 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         remoteConsole.prepare(new FillPropertyTypeAssignmentForm(mandatory, DESCRIPTION, HCS_IMAGE,
                 null, DATA_SET));
         prepareListingAfterAssignment(DESCRIPTION, HCS_IMAGE, DATA_SET, 36, mandatory);
-        launchTest(20000);
+        launchTest();
     }
 
     public final void testGlobalValueAssignmentSamplePropertyType()
@@ -104,6 +104,6 @@ public class EntityTypePropertyTypeAssignmentTest extends AbstractGWTTestCase
         CheckSampleTable table = new CheckSampleTable();
         table.expectedRow(new SampleRow(CONTROL_LAYOUT_C1).identifier(CISD, CISD).valid()
                 .withUserPropertyCell(COMMENT, NO_COMMENT));
-        launchTest(20000);
+        launchTest();
     }
 }

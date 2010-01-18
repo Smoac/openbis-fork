@@ -68,7 +68,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         checkCommand.expectedColumnsNumber(17);
         remoteConsole.prepare(checkCommand);
 
-        launchTest(DEFAULT_TIMEOUT);
+        launchTest();
     }
 
     @DoNotRunWith(Platform.HtmlUnit)
@@ -97,7 +97,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedColumnsNumber(25);
         remoteConsole.prepare(table.expectedSize(40));
 
-        launchTest(20000);
+        launchTest();
     }
 
     public final void testListMasterPlates()
@@ -115,7 +115,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                         DEFAULT_PLATE_GEOMETRY_VALUE));
         remoteConsole.prepare(table.expectedSize(5));
 
-        launchTest(DEFAULT_TIMEOUT);
+        launchTest();
     }
 
     public final void testExportMasterPlates()
@@ -129,7 +129,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         String firstLine = "MP\t\t\tDoe, John\t2008-11-05 09:20:47 GMT+01:00";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 2));
 
-        launchTest(DEFAULT_TIMEOUT);
+        launchTest();
     }
 
     public final void testListOnlySharedMasterPlates()
@@ -144,7 +144,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedRow(expectedRow);
         remoteConsole.prepare(table.expectedSize(1));
 
-        launchTest(DEFAULT_TIMEOUT);
+        launchTest();
     }
 
     public final void testExportCellPlates()
@@ -159,7 +159,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
                 "3VCP1\tEXP1\tNEMO\tDoe, John\t2008-11-05 09:21:46 GMT+01:00\tCISD:/CISD/3V-123\tCISD:/CISD/MP001-1";
         remoteConsole.prepare(exportCommand.createCheckExportCommand(header, firstLine, 16));
 
-        launchTest(DEFAULT_TIMEOUT);
+        launchTest();
     }
 
     public final void testListCellPlates()
@@ -173,7 +173,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         table.expectedColumnsNumber(22);
         remoteConsole.prepare(table.expectedSize(15));
 
-        launchTest(DEFAULT_TIMEOUT);
+        launchTest();
     }
 
     private void loginAndGotoListSamplesTab()

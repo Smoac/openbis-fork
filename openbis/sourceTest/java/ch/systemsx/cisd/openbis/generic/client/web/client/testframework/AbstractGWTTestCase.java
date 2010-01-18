@@ -109,6 +109,14 @@ public abstract class AbstractGWTTestCase extends GWTTestCase
     }
 
     /**
+     * Starts the tests. Sets the timeout after which the test is terminated to {@value #DEFAULT_TIMEOUT}.
+     */
+    protected void launchTest()
+    {
+        launchTest(DEFAULT_TIMEOUT);
+    }
+    
+    /**
      * Starts the tests. Sets the timeout after which the test is terminated.
      */
     protected void launchTest(int delayInMilliseconds)

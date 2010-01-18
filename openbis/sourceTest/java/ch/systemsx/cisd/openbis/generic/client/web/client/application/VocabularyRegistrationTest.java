@@ -47,6 +47,6 @@ public class VocabularyRegistrationTest extends AbstractGWTTestCase
         VocabularyBrowserTest.showControlledVocabularyTerms(remoteConsole, VOCABULARY_CODE, 3,
                 TERMS);
 
-        launchTest(20000);
+        launchTest();
     }
 }

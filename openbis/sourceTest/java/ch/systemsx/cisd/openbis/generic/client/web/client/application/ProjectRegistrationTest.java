@@ -47,6 +47,6 @@ public class ProjectRegistrationTest extends AbstractGWTTestCase
                 .withCell(ProjectColDefKind.DESCRIPTION.id(), DESCRIPTION_PROJECT_007));
         remoteConsole.prepare(table.expectedSize(5));
 
-        launchTest(20000);
+        launchTest();
     }
 }

@@ -120,7 +120,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 .with("Authorization failure: User 'observer' does not have enough privileges"
                         + " to access data in the group 'CISD:/CISD'."));
 
-        launchTest(20000);
+        launchTest();
     }
 
     public final void testShowExperimentDetails()
@@ -140,7 +140,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 "exampleExperiments.txt").withCell(AttachmentColDefKind.VERSION.id(), 4));
         remoteConsole.prepare(checkExperiment);
 
-        launchTest(60000);
+        launchTest();
     }
 
     public final void testShowInvalidExperimentDetails()
@@ -163,7 +163,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         checkExperiment.property("Description").asProperty(A_SIMPLE_EXPERIMENT);
         remoteConsole.prepare(checkExperiment);
 
-        launchTest(DEFAULT_TIMEOUT);
+        launchTest();
     }
 
     public final void testListOfAttachments()
@@ -181,7 +181,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 "cellPlates.txt").withCell(AttachmentColDefKind.VERSION.id(), 1));
         remoteConsole.prepare(checkExperiment);
 
-        launchTest(60000);
+        launchTest();
     }
 
     public final void testListOfSamples()
@@ -208,7 +208,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
                 "CISD:/CISD/CP2-A1", "CISD:/CISD/DP2-A", "CISD:/CISD/MP2-NO-CL"));
         remoteConsole.prepare(checkExperiment);
 
-        launchTest(60000);
+        launchTest();
     }
 
     public final void testListOfDataSets()
@@ -228,7 +228,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
 
         remoteConsole.prepare(checkExperiment);
 
-        launchTest(60000);
+        launchTest();
     }
 
     private void prepareShowExperiment(final String projectName, final String experimentTypeName,

@@ -43,7 +43,7 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
         table.expectedRow(new Row().withCell(TypeColDefKind.CODE.id(), "XML"));
         remoteConsole.prepare(table.expectedSize(8));
 
-        launchTest(20000);
+        launchTest();
     }
 
     public void testCreateNewType()
@@ -59,7 +59,7 @@ public class FileFormatTypeGridTest extends AbstractGWTTestCase
         table.expectedSize(9);
         remoteConsole.prepare(table);
 
-        launchTest(20000);
+        launchTest();
     }
 
     private AbstractDefaultTestCommand addNewTypeCommand()

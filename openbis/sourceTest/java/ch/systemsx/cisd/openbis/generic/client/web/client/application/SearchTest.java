@@ -47,7 +47,7 @@ public class SearchTest extends AbstractGWTTestCase
                 createCheckMatchingEntitiesTableCommand(1, "CISD:/MP");
         remoteConsole.prepare(checkDatasetsTableCommand);
 
-        launchTest(20000);
+        launchTest();
     }
 
     @DoNotRunWith(Platform.HtmlUnit)
@@ -61,7 +61,7 @@ public class SearchTest extends AbstractGWTTestCase
                         "/CISD/NEMO/EXP1");
         remoteConsole.prepare(checkDatasetsTableCommand);
 
-        launchTest(20000);
+        launchTest();
     }
 
     @DoNotRunWith(Platform.HtmlUnit)
@@ -75,7 +75,7 @@ public class SearchTest extends AbstractGWTTestCase
                         "20081105092159111-1");
         remoteConsole.prepare(checkDatasetsTableCommand);
 
-        launchTest(20000);
+        launchTest();
     }
 
     private final static String SAMPLE_T1 = "CISD:/CISD/CP-TEST-1";
@@ -107,7 +107,7 @@ public class SearchTest extends AbstractGWTTestCase
         remoteConsole.prepare(showDatasetsRelatedToAllDisplayedEntities());
         remoteConsole.prepare(createCheckRelatedDatasetsTableCommand(DS_LOC1, DS_LOC2, DS_LOC3));
 
-        launchTest(30000);
+        launchTest();
     }
 
     public final void testShowDatasetsRelatedToExperiments()
@@ -121,7 +121,7 @@ public class SearchTest extends AbstractGWTTestCase
         remoteConsole.prepare(showDatasetsRelatedToAllDisplayedEntities());
         remoteConsole.prepare(createCheckRelatedDatasetsTableCommand(DS_LOC1, DS_LOC2, DS_LOC3));
 
-        launchTest(30000);
+        launchTest();
     }
 
     public final void testShowDatasetsRelatedToAll()
@@ -138,7 +138,7 @@ public class SearchTest extends AbstractGWTTestCase
         remoteConsole.prepare(createCheckRelatedDatasetsTableCommand(DS_LOC1, DS_LOC2, DS_LOC3,
                 "xml/result-8", "xml/result-9", "xml/result-10", "xml/result-11", "xml/result-12"));
 
-        launchTest(30000);
+        launchTest();
     }
 
     private CheckTableCommand createCheckMatchingEntitiesTableCommand(int size,

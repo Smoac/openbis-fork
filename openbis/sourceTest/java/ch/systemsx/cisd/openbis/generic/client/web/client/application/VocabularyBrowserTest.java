@@ -51,7 +51,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
         table.expectedColumn(VocabularyColDefKind.CODE.id(), VOCABULARY_CODE);
         remoteConsole.prepare(table.expectedSize(5));
 
-        launchTest(20000);
+        launchTest();
     }
 
     public final void testShowTermDetails()
@@ -59,7 +59,7 @@ public class VocabularyBrowserTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.VOCABULARY_MENU_BROWSE);
         showControlledVocabularyTerms(remoteConsole, VOCABULARY_CODE, 5, "FLY", "GORILLA", "HUMAN");
 
-        launchTest(DEFAULT_TIMEOUT);
+        launchTest();
     }
 
     public static void showControlledVocabularyTerms(RemoteConsole remoteConsole,

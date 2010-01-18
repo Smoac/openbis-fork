@@ -92,7 +92,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         checkSample.dataTable().expectedSize(0);
         remoteConsole.prepare(checkSample);
 
-        launchTest(DEFAULT_TIMEOUT);
+        launchTest();
     }
 
     public final void testShowCellPlateView()
@@ -153,7 +153,7 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         // browse shown dataset
         remoteConsole.prepare(new BrowseDataSet(DIRECTLY_CONNECTED_DATA_SET_CODE));
 
-        launchTest(DEFAULT_TIMEOUT);
+        launchTest();
     }
 
     @DoNotRunWith(Platform.HtmlUnit)
@@ -211,6 +211,6 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
                 }
             });
 
-        launchTest(DEFAULT_TIMEOUT);
+        launchTest();
     }
 }
