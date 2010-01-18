@@ -27,6 +27,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
  */
 public class SectionsPanel extends ContentPanel
 {
+    public static final String PART_OF_TOGGLE_BUTTON_ID = "_button_";
+    
     List<SectionElement> elements = new ArrayList<SectionElement>();
 
     private final ToolBar toolbar;
@@ -40,7 +42,7 @@ public class SectionsPanel extends ContentPanel
         this(true, viewContext);
     }
 
-    public SectionsPanel(boolean withShowHide, IViewContext<ICommonClientServiceAsync> viewContext)
+    private SectionsPanel(boolean withShowHide, IViewContext<ICommonClientServiceAsync> viewContext)
     {
         this.withShowHide = withShowHide;
         this.viewContext = viewContext;
@@ -213,6 +215,7 @@ public class SectionsPanel extends ContentPanel
     private class SectionElement
     {
 
+
         private final ToggleButton button;
 
         private SingleSectionPanel panel;
@@ -256,6 +259,7 @@ public class SectionsPanel extends ContentPanel
                 final String displayId)
         {
             final ToggleButton result = new ToggleButton(getHeading(heading, pressed));
+            result.setId(displayId + PART_OF_TOGGLE_BUTTON_ID + heading);
             initializePressedState(result, pressed);
 
             // when user clicks toggle button we store changed settings
