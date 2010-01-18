@@ -142,7 +142,7 @@ public class FileUploadClient extends AbstractSwingGUI
     {
         uploader.addProgressListener(new IUploadProgressListener()
             {
-                public void start(File file, long fileSize)
+                public void start(File file, long fileSize, Long fileIdOrNull)
                 {
                 }
 

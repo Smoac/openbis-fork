@@ -79,9 +79,9 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                     listener.reportProgress(percentage, numberOfBytes);
                 }
 
-                public void start(File file, long fileSize)
+                public void start(File file, long fileSize, Long fileIdOrNull)
                 {
-                    listener.start(file, fileSize);
+                    listener.start(file, fileSize, fileIdOrNull);
                 }
 
                 public void fileUploaded()
@@ -145,7 +145,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         ResumingAndChecksummingInputStream contentStream = null;
         try
         {
-            fireStartedEvent(file, fileSize);
+            fireStartedEvent(file, fileSize, null);
             contentStream =
                     new ResumingAndChecksummingInputStream(file, PROGRESS_REPORT_BLOCK_SIZE,
                             new IWriteProgressListener()

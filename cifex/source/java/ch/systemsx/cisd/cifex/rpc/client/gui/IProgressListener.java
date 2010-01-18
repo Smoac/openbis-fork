@@ -26,7 +26,7 @@ import java.util.List;
  */
 public interface IProgressListener
 {
-    public void start(File file, long fileSize);
+    public void start(File file, long fileSize, Long fileIdOrNull);
 
     public void reportProgress(int percentage, long numberOfBytes);
 

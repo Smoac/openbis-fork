@@ -44,7 +44,7 @@ final class UploadTableModel extends AbstractTableModel
         this.timeProvider = timeProvider;
         uploader.addProgressListener(new IUploadProgressListener()
             {
-                public void start(File file, long fileSize)
+                public void start(File file, long fileSize, Long fileIdOrNull)
                 {
                     currentFileToBeUploaded = tryToFind(file);
                     setNumberOfBytes(0);

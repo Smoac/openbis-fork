@@ -266,7 +266,7 @@ public class FileDownloadClient extends AbstractSwingGUI
     {
         downloader.addProgressListener(new IProgressListener()
             {
-                public void start(File file, long fileSize)
+                public void start(File file, long fileSize, Long fileIdOrNull)
                 {
                 }
 

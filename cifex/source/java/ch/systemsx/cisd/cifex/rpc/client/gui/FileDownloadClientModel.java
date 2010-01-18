@@ -199,12 +199,12 @@ public class FileDownloadClientModel extends AbstractTableModel
     {
         downloader.addProgressListener(new IProgressListener()
             {
-                public void start(File file, long fileSize)
+                public void start(File file, long fileSize, Long fileIdOrNull)
                 {
                     System.out
                             .println("DEBUG DownloadTableModel::addProgessListener start download + "
                                     + file.getName());
-                    currentlyDownloadingFile = tryToFindDownloadInfoForFile(file);
+                    currentlyDownloadingFile = tryToFindDownloadInfoForFile(fileIdOrNull);
                     if (currentlyDownloadingFile != null)
                     {
                         currentlyDownloadingFile.updateProgress(0, 0);
@@ -243,15 +243,14 @@ public class FileDownloadClientModel extends AbstractTableModel
                     }
                 }
 
-                private FileDownloadInfo tryToFindDownloadInfoForFile(File file)
+                private FileDownloadInfo tryToFindDownloadInfoForFile(Long fileIdOrNull)
                 {
-                    String fileName = file.getName();
-                    if (null == fileName)
+                    if (null == fileIdOrNull)
                         return null;
 
                     for (FileDownloadInfo fileDownloadInfo : fileDownloadInfos)
                     {
-                        if (fileName.equals(fileDownloadInfo.fileInfoDTO.getName()))
+                        if (fileIdOrNull.equals(fileDownloadInfo.fileInfoDTO.getID()))
                             return fileDownloadInfo;
                     }
                     return null;

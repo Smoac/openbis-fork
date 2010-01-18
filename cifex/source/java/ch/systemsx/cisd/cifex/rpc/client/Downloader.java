@@ -78,7 +78,7 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             final String fileName = fileNameOrNull != null ? fileNameOrNull : fileInfo.getName();
             final File file = new File(directory, fileName);
             final long fileSize = fileInfo.getSize();
-            fireStartedEvent(file, fileSize);
+            fireStartedEvent(file, fileSize, fileID);
             if (isCancelled())
             {
                 return;

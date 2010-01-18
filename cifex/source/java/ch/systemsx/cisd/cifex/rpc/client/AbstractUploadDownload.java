@@ -131,13 +131,13 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
         return cancelCalled || Thread.interrupted();
     }
 
-    protected void fireStartedEvent(File file, long fileSize)
+    protected void fireStartedEvent(File file, long fileSize, Long fileIdOrNull)
     {
         for (IProgressListener listener : listeners)
         {
             try
             {
-                listener.start(file, fileSize);
+                listener.start(file, fileSize, fileIdOrNull);
             } catch (Throwable th)
             {
                 th.printStackTrace();
