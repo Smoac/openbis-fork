@@ -700,4 +700,8 @@ public interface IMessageResources extends Messages
     /** Returns the title of Java Web Start Applications button. */
     @Key(value = "launchJWSApplicationTitle")
     public String getLaunchJWSApplicationTitle();
+
+    /** Returns the title of the reset button */
+    @Key(value = "reset.button.title")
+    public String getResetButtonTitle();
 }

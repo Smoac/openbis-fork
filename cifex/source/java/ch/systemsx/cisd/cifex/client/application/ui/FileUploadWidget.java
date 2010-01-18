@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -42,6 +43,8 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableRowLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
@@ -190,10 +193,22 @@ public final class FileUploadWidget extends LayoutContainer
                 }
 
             });
+        submitButton.setIcon(AbstractImagePrototype.create(ImageUtils.ICONS.getUploaderIcon()));
 
         formPanel.addButton(validateButton =
                 new Button(context.getMessageResources().getValidateUsersButtonLabel()));
         validateButton.addSelectionListener(getUserValidateButtonListener());
+
+        formPanel.addButton(new Button(context.getMessageResources().getResetButtonTitle(),
+                new SelectionListener<ButtonEvent>()
+                    {
+
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            formPanel.reset();
+                        }
+                    }));
 
         LayoutContainer formContainer = new LayoutContainer();
         FormLayout layout = new FormLayout();
@@ -333,12 +348,32 @@ public final class FileUploadWidget extends LayoutContainer
 
     private final FileUploadField createFileField(final int index)
     {
-        final FileUploadField fileField = new FileUploadField();
+        final FileUploadField fileField = new FileUploadField()
+            {
+                @Override
+                public void setReadOnly(boolean readOnly)
+                {
+                    // WORKAROUND to keep the button enabled after field reset
+                    this.readOnly = readOnly;
+                }
+            };
         fileField.setFieldLabel(context.getMessageResources().getFileUploadFieldLabel(index + 1));
         fileField.setName(getFilenameFieldName(index));
         fileField.setWidth("100%");
         fileField.setAllowBlank(index > 0);
         fileField.setValidateOnBlur(false);
+        Menu menu = new Menu();
+        menu.add(new MenuItem(context.getMessageResources().getResetButtonTitle(),
+                new SelectionListener<MenuEvent>()
+                    {
+
+                        @Override
+                        public void componentSelected(MenuEvent ce)
+                        {
+                            fileField.reset();
+                        }
+                    }));
+        fileField.setContextMenu(menu);
         return fileField;
     }
 
