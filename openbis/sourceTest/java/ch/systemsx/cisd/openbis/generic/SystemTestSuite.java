@@ -25,10 +25,26 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Authentica
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationGroupsTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationManagementConsolTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.DataSetSearchTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityTypeBrowserTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityTypePropertyTypeAssignmentTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ExperimentBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.FileFormatTypeGridTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.MaterialBrowserTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ProjectRegistrationTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeAssignmentBrowserTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeBrowserTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeRegistrationTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrowserTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyBrowserTest;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.VocabularyRegistrationTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditorTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewerTest;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentAttachmentDownloadTest;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditorTest;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewerTest;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationTest;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewerTest;
 
 /**
  * @author Franz-Josef Elmer
@@ -49,6 +65,7 @@ public class SystemTestSuite extends GWTTestSuite
  /*      
   * TODO 2010-01-11 Commented out tests until we can figure out what the problem is with
   * running the new tests under GWT 2.0. 
+  */        
         testSuite.addTestSuite(SampleBrowserTest.class);
         testSuite.addTestSuite(GenericSampleViewerTest.class);
         testSuite.addTestSuite(SearchTest.class);
@@ -71,7 +88,6 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
         testSuite.addTestSuite(ProjectRegistrationTest.class);
         testSuite.addTestSuite(EntityTypeBrowserTest.class);
-*/        
         return testSuite;
     }
 }
