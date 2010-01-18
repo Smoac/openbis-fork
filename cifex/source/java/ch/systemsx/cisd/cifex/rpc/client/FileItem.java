@@ -78,11 +78,16 @@ public final class FileItem
         this.numberOfBytesUploaded = numberOfBytesUploaded;
     }
 
+    /** return -1 if the estimated time is unknown */
     public long getEstimatedTimeOfArrival()
     {
         float remainingBytes = (length - numberOfBytesUploaded);
-        return (long) (remainingBytes / transmissionSpeedCalculator
-                .getEstimatedBytesPerMillisecond());
+        float bytesPerMillisecond = transmissionSpeedCalculator.getEstimatedBytesPerMillisecond();
+        if (bytesPerMillisecond < 0.001)
+        {
+            return -1;
+        }
+        return (long) (remainingBytes / bytesPerMillisecond);
     }
 
     @Override

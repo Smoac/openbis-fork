@@ -65,7 +65,7 @@ final class UploadTableCellRenderer implements TableCellRenderer
         progressBar.setValue((int) percentage);
         progressBar.setStringPainted(true);
         String eta = DateTimeUtils.renderDuration(fileItem.getEstimatedTimeOfArrival());
-        progressBar.setString(percentage + "% (ETA: " + eta + ")");
+        progressBar.setString(percentage + "% (remaining: " + eta + ")");
         return progressBar;
     }
 

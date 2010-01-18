@@ -229,7 +229,7 @@ public abstract class AbstractSwingGUI
         {
             if (warningMessages.size() > 1)
             {
-                sb.append("Following warnings occured: \n");
+                sb.append("Following warnings occured (you can most probably ignore them): \n");
             }
             String lastWarningMessage = "";
             for (String warningMessage : warningMessages)

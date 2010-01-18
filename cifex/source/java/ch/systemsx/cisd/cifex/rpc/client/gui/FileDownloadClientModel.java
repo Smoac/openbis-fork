@@ -138,8 +138,13 @@ public class FileDownloadClientModel extends AbstractTableModel
         public long getEstimatedTimeOfArrival()
         {
             float remainingBytes = (fileInfoDTO.getSize() - numberOfBytesDownloaded);
-            return (long) (remainingBytes / transmissionSpeedCalculator
-                    .getEstimatedBytesPerMillisecond());
+            float bytesPerMillisecond =
+                    transmissionSpeedCalculator.getEstimatedBytesPerMillisecond();
+            if (bytesPerMillisecond < 0.001)
+            {
+                return -1;
+            }
+            return (long) (remainingBytes / bytesPerMillisecond);
         }
 
         void updateProgress(int percent, long numberOfBytes)
