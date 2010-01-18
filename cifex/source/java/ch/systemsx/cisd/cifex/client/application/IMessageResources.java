@@ -316,6 +316,14 @@ public interface IMessageResources extends Messages
     @Key(value = "fileupload.legend")
     public String getFileUploadLegend();
 
+    /** Returns title for confirmation window when uploading files with duplicated names. */
+    @Key(value = "fileupload.duplicates.title")
+    public String getFileUploadDuplicatesTitle();
+
+    /** Returns message for confirmation window when uploading files with duplicated names. */
+    @Key(value = "fileupload.duplicates.msg")
+    public String getFileUploadDuplicatesMsg();
+
     /** Returns application description. */
     @Key(value = "footer.application.description")
     public String getFooterApplicationDescription();

@@ -108,8 +108,8 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
             final List<FileDTO> files = new ArrayList<FileDTO>();
             final List<String> userIdentifier = new ArrayList<String>();
             final StringBuffer comment = new StringBuffer();
-            extractEmailsAndUploadFilesAndComment(request, requestUser, filenamesToUpload, files,
-                    userIdentifier, comment);
+            new FormDataExtractor(request, requestUser, filenamesToUpload, files, userIdentifier,
+                    comment).execute();
             final String url = getURLForEmail(request);
             final IFileManager fileManager = domainModel.getFileManager();
             final List<String> invalidUserIdentifiers =
@@ -159,103 +159,144 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
     }
 
     /**
-     * Loop over the POST parameters and extract the email addresses, the comment, and the files.
-     * Cannot use getParameterValue because the data was encoded as "multipart/form-data" to support
-     * file upload.
+     * Encapsulation of form data extraction.
      */
-    private final void extractEmailsAndUploadFilesAndComment(final HttpServletRequest request,
-            final UserDTO requestUser, final String[] pathnamesToUpload, final List<FileDTO> files,
-            final List<String> userIdentifier, final StringBuffer comment)
-            throws FileUploadException, IOException
+    private final class FormDataExtractor
     {
-        // TODO This logic is complex enough that it makes sense to encapsulate it in an object, a
-        // FormDataExtractor
-        final ServletFileUpload upload = new ServletFileUpload();
 
-        // A list that stores the pathnames specified in the form at the same index it appears in
-        // the form. If the form parameter at a given index is not a pathname, store a null.
-        List<String> formIndexedPathnamesAndNulls = new ArrayList<String>();
-        final IFileManager fileManager = domainModel.getFileManager();
-        final FileItemIterator iter = upload.getItemIterator(request);
+        private final HttpServletRequest request;
 
-        // Iterate over the form fields
-        for (int fileIndex = 0; iter.hasNext();)
+        private final UserDTO requestUser;
+
+        private final String[] pathnamesToUpload;
+
+        private final List<FileDTO> files;
+
+        private final List<String> userIdentifier;
+
+        private final StringBuffer comment;
+
+        public FormDataExtractor(final HttpServletRequest request, final UserDTO requestUser,
+                final String[] pathnamesToUpload, final List<FileDTO> files,
+                final List<String> userIdentifier, final StringBuffer comment)
+        {
+            this.request = request;
+            this.requestUser = requestUser;
+            this.pathnamesToUpload = pathnamesToUpload;
+            this.files = files;
+            this.userIdentifier = userIdentifier;
+            this.comment = comment;
+        }
+
+        /**
+         * Loop over the POST parameters and extract the email addresses, the comment, and the
+         * files. Cannot use getParameterValue because the data was encoded as "multipart/form-data"
+         * to support file upload.
+         */
+        public void execute() throws FileUploadException, IOException
+        {
+
+            final ServletFileUpload upload = new ServletFileUpload();
+
+            // A list that stores the pathnames specified in the form at the same index it appears
+            // in the form. If the form parameter at a given index is not a pathname, store a null.
+            List<String> formIndexedPathnamesAndNulls = new ArrayList<String>();
+            final IFileManager fileManager = domainModel.getFileManager();
+            final FileItemIterator iter = upload.getItemIterator(request);
+
+            // Iterate over the form fields
+            for (int fileIndex = 0; iter.hasNext();)
+            {
+                final FileItemStream item = iter.next();
+                final InputStream stream = item.openStream();
+                if (item.isFormField())
+                {
+                    // This is a simple form field, not a file
+                    extractSimpleFieldData(formIndexedPathnamesAndNulls, item, stream);
+                } else
+                {
+                    // This is a file
+                    extractFileFieldData(formIndexedPathnamesAndNulls, item, stream, fileManager,
+                            fileIndex);
+                    fileIndex++;
+                }
+            }
+
+            // After processing the form data, set the comments on the files
+            for (final FileDTO file : files)
+            {
+                file.setComment(comment.toString());
+                fileManager.updateFile(file, requestUser);
+            }
+
+            upload.setProgressListener(new FileUploadProgressListener(request.getSession(false),
+                    formIndexedPathnamesAndNulls));
+        }
+
+        private void extractSimpleFieldData(List<String> formIndexedPathnamesAndNulls,
+                final FileItemStream item, final InputStream stream) throws IOException
+        {
+            formIndexedPathnamesAndNulls.add(null);
+            if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
+            {
+                userIdentifier.addAll(StringUtilities.tokenize(Streams.asString(stream)));
+            }
+            if (item.getFieldName().equals(COMMENT_FIELD_NAME))
+            {
+                comment.append(Streams.asString(stream));
+            }
+        }
+
+        private void extractFileFieldData(List<String> formIndexedPathnamesAndNulls,
+                FileItemStream item, InputStream stream, IFileManager fileManager, int fileIndex)
+                throws IOException
         {
             final String pathnameToUpload =
                     fileIndex < pathnamesToUpload.length ? pathnamesToUpload[fileIndex] : null;
             final String filenameToUpload = FilenameUtils.getName(pathnameToUpload);
-            final FileItemStream item = iter.next();
-            final InputStream stream = item.openStream();
-            if (item.isFormField())
+            formIndexedPathnamesAndNulls.add(filenameToUpload);
+            final String filenameInStream = FilenameUtils.getName(item.getName());
+            if (StringUtils.isBlank(filenameToUpload))
             {
-                // This is a simple form field, not a file
-                formIndexedPathnamesAndNulls.add(null);
-                if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
+                if (StringUtils.isBlank(filenameInStream))
                 {
-                    userIdentifier.addAll(StringUtilities.tokenize(Streams.asString(stream)));
-                }
-                if (item.getFieldName().equals(COMMENT_FIELD_NAME))
-                {
-                    comment.append(Streams.asString(stream));
-                }
-            } else
-            {
-                // This is a file
-                formIndexedPathnamesAndNulls.add(filenameToUpload);
-                final String filenameInStream = FilenameUtils.getName(item.getName());
-                if (StringUtils.isBlank(filenameToUpload))
-                {
-                    if (StringUtils.isBlank(filenameInStream))
-                    {
-                        continue;
-                    } else
-                    {
-                        throw UserFailureException.fromTemplate("Unexpected file '%s'.",
-                                filenameInStream);
-                    }
-                }
-                // Note: this is quite a hack. The first condition can be false when there are
-                // special characters in the name, thus we add the check for stream.available().
-                if (filenameToUpload.equals(filenameInStream) == false && stream.available() == 0)
-                {
-                    fileManager.throwExceptionOnFileDoesNotExist(pathnameToUpload);
-                }
-                // Blank file name are empty file fields.
-                if (StringUtils.isNotBlank(filenameToUpload))
-                {
-                    if (operationLog.isDebugEnabled())
-                    {
-                        operationLog.debug(String.format("Handle field '%s' with file '%s'.", item
-                                .getFieldName(), item.getName()));
-                    }
-                    final String fileName =
-                            FilenameUtilities.ensureMaximumSize(filenameToUpload,
-                                    MAX_FILENAME_LENGTH);
-                    final String contentType = FilenameUtilities.getMimeType(item.getName());
-                    final FileDTO file =
-                            fileManager.saveFile(requestUser, fileName, comment.toString(),
-                                    contentType, stream);
-                    files.add(file);
+                    return;
                 } else
                 {
-                    if (operationLog.isDebugEnabled())
-                    {
-                        operationLog.debug(String.format("No file specified in field '%s'.", item
-                                .getFieldName()));
-                    }
+                    throw UserFailureException.fromTemplate("Unexpected file '%s'.",
+                            filenameInStream);
                 }
-                fileIndex++;
+            }
+            // Note: this is quite a hack. The first condition can be false when there are
+            // special characters in the name, thus we add the check for stream.available().
+            if (filenameToUpload.equals(filenameInStream) == false && stream.available() == 0)
+            {
+                fileManager.throwExceptionOnFileDoesNotExist(pathnameToUpload);
+            }
+            // Blank file name are empty file fields.
+            if (StringUtils.isNotBlank(filenameToUpload))
+            {
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug(String.format("Handle field '%s' with file '%s'.", item
+                            .getFieldName(), item.getName()));
+                }
+                final String fileName =
+                        FilenameUtilities.ensureMaximumSize(filenameToUpload, MAX_FILENAME_LENGTH);
+                final String contentType = FilenameUtilities.getMimeType(item.getName());
+                final FileDTO file =
+                        fileManager.saveFile(requestUser, fileName, comment.toString(),
+                                contentType, stream);
+                files.add(file);
+            } else
+            {
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug(String.format("No file specified in field '%s'.", item
+                            .getFieldName()));
+                }
             }
         }
 
-        // After processing the form data, set the comments on the files
-        for (final FileDTO file : files)
-        {
-            file.setComment(comment.toString());
-            fileManager.updateFile(file, requestUser);
-        }
-
-        upload.setProgressListener(new FileUploadProgressListener(request.getSession(false),
-                formIndexedPathnamesAndNulls));
     }
 }

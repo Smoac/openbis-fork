@@ -17,18 +17,24 @@
 package ch.systemsx.cisd.cifex.client.application.ui;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
@@ -397,7 +403,7 @@ public final class FileUploadWidget extends LayoutContainer
         return "upload-file-" + index;
     }
 
-    private final String[] getFilePaths()
+    private final List<String> getFilePaths()
     {
         final List<String> filePaths = new ArrayList<String>(FILE_FIELD_NUMBER);
         for (int i = 0; i < FILE_FIELD_NUMBER; i++)
@@ -405,13 +411,15 @@ public final class FileUploadWidget extends LayoutContainer
             final String fieldValue = uploadFields.get(i).getFileInput().getValue();
             assert fieldValue != null : "Must not be null.";
             final String filePath = fieldValue.trim();
-            // Ignore duplicates.
-            if (filePath.length() > 0 && filePaths.contains(filePath) == false)
-            {
-                filePaths.add(filePath);
-            }
+            filePaths.add(filePath);
         }
-        return filePaths.toArray(StringUtils.EMPTY_STRING_ARRAY);
+        return filePaths;
+    }
+
+    private boolean noDuplicates(List<String> names)
+    {
+        final Set<String> set = new HashSet<String>(names);
+        return names.size() == set.size();
     }
 
     protected final void submitForm()
@@ -421,13 +429,40 @@ public final class FileUploadWidget extends LayoutContainer
             return;
         }
         submitButton.disable();
-        final String[] filenames = getFilePaths();
-        if (filenames.length == 0)
+        final List<String> filenames = getFilePaths();
+        if (filenames.size() == 0)
         {
             submitButton.enable();
             return;
         }
-        context.getCifexService().registerFilenamesForUpload(filenames,
+        if (noDuplicates(filenames))
+        {
+            registerFilenames(filenames);
+        } else
+        {
+            final IMessageResources messageResources = context.getMessageResources();
+            final String title = messageResources.getFileUploadDuplicatesTitle();
+            final String msg = messageResources.getFileUploadDuplicatesMsg();
+            MessageBox.confirm(title, msg, new Listener<MessageBoxEvent>()
+                {
+                    public void handleEvent(MessageBoxEvent messageEvent)
+                    {
+                        if (messageEvent.getButtonClicked().getItemId().equals(Dialog.YES))
+                        {
+                            registerFilenames(filenames);
+                        } else
+                        {
+                            submitButton.enable();
+                        }
+                    }
+                });
+        }
+    }
+
+    private void registerFilenames(final List<String> filenames)
+    {
+        context.getCifexService().registerFilenamesForUpload(
+                filenames.toArray(StringUtils.EMPTY_STRING_ARRAY),
                 new AbstractAsyncCallback<Void>(context)
                     {
                         public final void onSuccess(final Void result)
