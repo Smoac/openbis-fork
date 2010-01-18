@@ -279,14 +279,23 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                 escapeSampleCode(sampleCode)
                         + META_DATA_FILE_TYPE;
         FileUtilities.writeToFile(new File(flowLaneDataSet, metaFileName), builder.toString());
-        if (dropBox != null)
+        copyToDropBox(dropBox, flowLaneDataSet);
+    }
+
+    private void copyToDropBox(File dropBoxOrNull, File flowLaneDataSet)
+    {
+        if (dropBoxOrNull != null)
         {
-            createHartLink(flowLaneDataSet, dropBox);
-            addFileForUndo(new File(dropBox, flowLaneDataSet.getName()));
+            File[] files = flowLaneDataSet.listFiles();
+            for (File file : files)
+            {
+                createHartLink(file, dropBoxOrNull);
+                addFileForUndo(new File(dropBoxOrNull, file.getName()));
+            }
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info("Flow lane data set '" + flowLaneDataSet.getName()
-                        + "' successfully transfered to drop box '" + dropBox + "'");
+                        + "' successfully transfered to drop box '" + dropBoxOrNull + "'");
             }
         }
     }

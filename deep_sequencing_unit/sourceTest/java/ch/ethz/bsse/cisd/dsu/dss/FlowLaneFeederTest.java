@@ -19,7 +19,6 @@ package ch.ethz.bsse.cisd.dsu.dss;
 import static ch.ethz.bsse.cisd.dsu.dss.FlowLaneDataSetInfoExtractor.FLOW_LANE_NUMBER_SEPARATOR;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -262,13 +261,12 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         checkFlowLaneDataSet(originalFlowLane2, "2");
 
         File[] transferedFiles = transferDropBox.listFiles();
-        assertEquals(1, transferedFiles.length);
-        String sampleName = SAMPLE_CODE + FLOW_LANE_NUMBER_SEPARATOR + "2";
-        assertEquals("G2_" + FlowLaneFeeder.escapeSampleCode(sampleName), transferedFiles[0].getName());
-        File metaFile = getFile(transferedFiles[0], FlowLaneFeeder.META_DATA_FILE_TYPE);
-        String myFileName = SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE;
-        assertEquals(myFileName, metaFile.getName());
-        assertHardLinkOnSameFile(originalFlowLane2, getFile(transferedFiles[0], "2.srf"));
+        Arrays.sort(transferedFiles);
+        assertEquals(2, transferedFiles.length);
+        assertEquals("2.srf", transferedFiles[0].getName());
+        File metaFile = transferedFiles[1];
+        assertEquals(SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE, metaFile.getName());
+        assertHardLinkOnSameFile(originalFlowLane2, transferedFiles[0]);
 
         context.assertIsSatisfied();
     }
@@ -302,10 +300,10 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         checkFlowLaneDataSet(originalFlowLane2, "2");
 
         File[] transferedFiles = transferDropBox.listFiles();
-        assertEquals(1, transferedFiles.length);
-        String sampleName = SAMPLE_CODE + FLOW_LANE_NUMBER_SEPARATOR + "2";
-        assertEquals("G2_" + sampleName, transferedFiles[0].getName());
-        File metaFile = getFile(transferedFiles[0], FlowLaneFeeder.META_DATA_FILE_TYPE);
+        Arrays.sort(transferedFiles);
+        assertEquals(2, transferedFiles.length);
+        assertEquals("2.srf", transferedFiles[0].getName());
+        File metaFile = transferedFiles[1];
         assertEquals(SAMPLE_CODE + "_2" + FlowLaneFeeder.META_DATA_FILE_TYPE, metaFile
                 .getName());
         List<String> metaData = FileUtilities.loadToStringList(metaFile);
@@ -315,7 +313,7 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
                 + "==== SRF Info ====, option: -l1]", metaData.toString());
         AssertionUtil.assertContains("file: ", lastLine);
         assertEquals(8, metaData.size());
-        assertHardLinkOnSameFile(originalFlowLane2, getFile(transferedFiles[0], "2.srf"));
+        assertHardLinkOnSameFile(originalFlowLane2, transferedFiles[0]);
 
         context.assertIsSatisfied();
     }
@@ -346,26 +344,13 @@ public class FlowLaneFeederTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    private File getFile(File folder, final String fileNameExtension)
-    {
-        File[] files = folder.listFiles(new FilenameFilter()
-            {
-                public boolean accept(File dir, String name)
-                {
-                    return FlowLaneFeeder.escapeSampleCode(name).endsWith(FlowLaneFeeder.escapeSampleCode(fileNameExtension));
-                }
-            });
-        assertEquals(1, files.length);
-        return files[0];
-    }
-
     @Test
     public void testUndoLastOperation()
     {
         testHappyCase();
         assertEquals(2, dropBox1.list().length);
         assertEquals(2, dropBox2.list().length);
-        assertEquals(1, transferDropBox.list().length);
+        assertEquals(2, transferDropBox.list().length);
 
         flowLaneFeeder.undoLastOperation();
 
