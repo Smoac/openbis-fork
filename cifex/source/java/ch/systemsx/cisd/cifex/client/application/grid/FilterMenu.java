@@ -15,8 +15,14 @@ import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 
 /**
- * Button with menu allowing to switch on/off filters. Menu items and filters availability depends
- * on visibility of corresponding columns.
+ * Button with menu allowing to switch on/off filters.Filters are switched off if column is hidden,
+ * column is made visible if filter is switched on:
+ * <ul>
+ * <li>filter: on => column: on
+ * <li>filter: off => column: no change
+ * <li>column: on => filter: no change
+ * <li>column: off => filter: off
+ * </ul>
  * 
  * @author Izabela Adamczyk
  */
@@ -30,12 +36,12 @@ class FilterMenu extends SplitButton
     {
         super(label);
         Menu filterMenu = new Menu();
-        for (final AbstractFilterField<M> ff : filterFields)
+        for (final AbstractFilterField<M> filter : filterFields)
         {
-            final CheckMenuItem menuItem = createMenuItem(ff);
-            updateFilterAndMenu(ff, menuItem, columnModel.isHidden(columnModel.getIndexById(ff
-                    .getProperty())) == false);
-            bindColumnsAndFilters(columnModel, ff, menuItem);
+            final CheckMenuItem menuItem = createMenuItem(filter);
+            updateFilterAndMenu(filter, menuItem, columnModel.isHidden(columnModel
+                    .getIndexById(filter.getProperty())) == false);
+            bindColumnsAndFilters(columnModel, filter, menuItem);
             filterMenu.add(menuItem);
         }
         setMenu(filterMenu);
@@ -49,51 +55,61 @@ class FilterMenu extends SplitButton
             menuItem.setChecked(columnVisible);
             showFilter(filter, columnVisible);
         }
-        menuItem.setEnabled(columnVisible);
     }
 
-    private static <M extends ModelData> void bindColumnsAndFilters(ColumnModel columnModel,
-            final AbstractFilterField<M> ff, final CheckMenuItem menuItem)
+    private static <M extends ModelData> void bindColumnsAndFilters(final ColumnModel columnModel,
+            final AbstractFilterField<M> filter, final CheckMenuItem menuItem)
     {
         columnModel.addListener(Events.HiddenChange, new Listener<ColumnModelEvent>()
             {
                 public void handleEvent(ColumnModelEvent be)
                 {
                     ColumnConfig column = be.getColumnModel().getColumn(be.getColIndex());
-                    if (ff.getProperty().equals(column.getId()))
+                    if (filter.getProperty().equals(column.getId()))
                     {
-                        updateFilterAndMenu(ff, menuItem, column.isHidden() == false);
+                        updateFilterAndMenu(filter, menuItem, column.isHidden() == false);
                     }
                 }
-
+            });
+        menuItem.addSelectionListener(new SelectionListener<MenuEvent>()
+            {
+                @Override
+                public void componentSelected(MenuEvent ce)
+                {
+                    if (menuItem.isChecked())
+                    {
+                        int index = columnModel.getIndexById(filter.getProperty());
+                        columnModel.setHidden(index, false);
+                    }
+                }
             });
     }
 
     private static <M extends ModelData> CheckMenuItem createMenuItem(
-            final AbstractFilterField<M> ff)
+            final AbstractFilterField<M> filter)
     {
-        final CheckMenuItem menuItem = new CheckMenuItem(ff.getEmptyText());
-        menuItem.setChecked(ff.isEnabled(), false);
+        final CheckMenuItem menuItem = new CheckMenuItem(filter.getEmptyText());
+        menuItem.setChecked(filter.isEnabled(), false);
         menuItem.setHideOnClick(false);
         menuItem.addSelectionListener(new SelectionListener<MenuEvent>()
             {
                 @Override
                 public void componentSelected(MenuEvent ce)
                 {
-                    showFilter(ff, menuItem.isChecked());
+                    showFilter(filter, menuItem.isChecked());
                 }
             });
         return menuItem;
     }
 
-    private static <M extends ModelData> void showFilter(final AbstractFilterField<M> ff,
+    private static <M extends ModelData> void showFilter(final AbstractFilterField<M> filter,
             boolean show)
     {
         if (show == false)
         {
-            ff.clear();
+            filter.clear();
         }
-        ff.setEnabled(show);
-        ff.setVisible(show);
+        filter.setEnabled(show);
+        filter.setVisible(show);
     }
 }
