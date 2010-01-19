@@ -26,18 +26,13 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.PagingModelMemoryProxy;
 import com.extjs.gxt.ui.client.data.SortInfo;
-import com.extjs.gxt.ui.client.event.MenuEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.button.SplitButton;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
@@ -99,7 +94,8 @@ public class GridWidget<M extends IModelDataWithID>
                     refreshStore();
                 }
             };
-        return createFilterAndPagingToolbar(filterFields, onFilterAction, messageResources);
+        return createFilterAndPagingToolbar(filterFields, onFilterAction, new FilterMenu(
+                filterFields, messageResources.getGridFiltersLabel(), grid.getColumnModel()));
     }
 
     public void setDataAndRefresh(List<M> models)
@@ -209,10 +205,9 @@ public class GridWidget<M extends IModelDataWithID>
 
     private static <M extends ModelData> PagingToolBar createFilterAndPagingToolbar(
             List<AbstractFilterField<M>> filterFields, IDelegatedAction onFilterAction,
-            IMessageResources messageResources)
+            FilterMenu filterMenu)
     {
-        List<Component> filterItems =
-                createFilterItems(filterFields, onFilterAction, messageResources);
+        List<Component> filterItems = createFilterItems(filterFields, onFilterAction, filterMenu);
         return new PagingToolBarWithItems(PAGE_SIZE, filterItems);
     }
 
@@ -242,45 +237,16 @@ public class GridWidget<M extends IModelDataWithID>
 
     private static <M extends ModelData> List<Component> createFilterItems(
             List<AbstractFilterField<M>> filterFields, IDelegatedAction onFilterAction,
-            IMessageResources messageResources)
+            FilterMenu filterMenu)
     {
         List<Component> filterItems = new ArrayList<Component>();
-        filterItems.add(createFiltersMenu(filterFields, messageResources.getGridFiltersLabel()));
+        filterItems.add(filterMenu);
         for (AbstractFilterField<M> filterField : filterFields)
         {
             filterItems.add(filterField);
             filterField.bind(onFilterAction);
         }
         return filterItems;
-    }
-
-    private static <M extends ModelData> SplitButton createFiltersMenu(
-            List<AbstractFilterField<M>> filterFields, String label)
-    {
-        SplitButton button = new SplitButton(label);
-        Menu menu = new Menu();
-        for (final AbstractFilterField<M> ff : filterFields)
-        {
-            final CheckMenuItem menuItem = new CheckMenuItem(ff.getEmptyText());
-            menuItem.setChecked(ff.isEnabled(), false);
-            menuItem.setHideOnClick(false);
-            menuItem.addSelectionListener(new SelectionListener<MenuEvent>()
-                {
-                    @Override
-                    public void componentSelected(MenuEvent ce)
-                    {
-                        if (menuItem.isChecked() == false)
-                        {
-                            ff.clear();
-                        }
-                        ff.setEnabled(menuItem.isChecked());
-                        ff.setVisible(menuItem.isChecked());
-                    }
-                });
-            menu.add(menuItem);
-        }
-        button.setMenu(menu);
-        return button;
     }
 
     private static <M extends ModelData> Grid<M> createGrid(List<ColumnConfig> columnConfigs)
