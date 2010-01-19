@@ -205,6 +205,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // finished.
     private ResultSetFetchConfig<String> pendingFetchConfigOrNull;
 
+    private boolean disableFetch = false;
+
     private IDataRefreshCallback refreshCallback;
 
     private LayoutContainer bottomToolbars;
@@ -379,10 +381,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 {
                     if (resultSetKeyOrNull != null && pendingFetchConfigOrNull == null)
                     {
-                        // TODO 2009-09-16, Piotr Buczek: reload of data is not needed in some cases
-                        // - when filters with no text are removed,
-                        // - when new filters are created,
-                        // but when filter with text is removed it is needed.
                         ResultSetFetchConfig<String> fetchConfig =
                                 ResultSetFetchConfig.createFetchFromCache(resultSetKeyOrNull);
                         reloadData(fetchConfig);
@@ -504,7 +502,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         if (pendingFetchConfigOrNull == null)
         {
-            // this can happen when we user wants to sort data - the refresh method is not called
+            // this can happen when user wants to sort data - the refresh method is not called
             if (resultSetKeyOrNull == null)
             {
                 // data are not yet cached, so we ignore this call - should not really happen
@@ -911,10 +909,17 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     pagingToolbar.disableExportButton();
                     pagingToolbar.updateDefaultConfigButton(false);
 
+                    // We don't want to fetch data from cache when filters are reset.
+                    // refresh() invokes fetching of data from DB and would be ignored because of a
+                    // pending fetch.
+                    disableFetch();
+
                     // Need to reset filter fields *before* refreshing the grid so the list can be
                     // correctly retrieved
                     filterToolbar.resetFilterFields();
                     filterToolbar.resetFilterSelection();
+
+                    enableFetch();
 
                     // export and config buttons are enabled when ListEntitiesCallback is complete
                     refresh();
@@ -1056,10 +1061,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // Refreshes the data, does not clear the cache. Does not change the column model.
     private void reloadData(ResultSetFetchConfig<String> resultSetFetchConfig)
     {
-        if (pendingFetchConfigOrNull != null)
+        if (isFetchDisabled() || pendingFetchConfigOrNull != null)
         {
-            debug("Cannot reload the data with the mode '" + resultSetFetchConfig
-                    + "', there is an unfinished request already: " + pendingFetchConfigOrNull);
+            final String reason =
+                    isFetchDisabled() ? "fetch is disabled"
+                            : "there is an unfinished request already: " + pendingFetchConfigOrNull;
+            debug("Cannot reload the data with the mode '" + resultSetFetchConfig + "'; " + reason);
             return;
         }
         pendingFetchConfigOrNull = resultSetFetchConfig;
@@ -1350,6 +1357,26 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected final GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
     {
         return new InternalLinkCellRenderer();
+    }
+
+    protected final boolean isFetchDisabled()
+    {
+        return disableFetch;
+    }
+
+    protected final void disableFetch()
+    {
+        setDisableFetch(true);
+    }
+
+    protected final void enableFetch()
+    {
+        setDisableFetch(false);
+    }
+
+    private void setDisableFetch(boolean disableFetch)
+    {
+        this.disableFetch = disableFetch;
     }
 
     // ------- generic static helpers

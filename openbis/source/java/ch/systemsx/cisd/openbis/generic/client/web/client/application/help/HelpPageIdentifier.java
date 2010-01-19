@@ -182,7 +182,7 @@ public class HelpPageIdentifier
             // If there is no message for the key return the key as the title,
             // otherwise return the message.
             return messageProvider.containsKey(messageKey) ? messageProvider.getMessage(messageKey)
-                    : messageKey; // TODO 2010-01-12, Piotr Buczek: is it better to return null?
+                    : messageKey;
         }
     }
 

@@ -72,7 +72,7 @@ public class AttachmentFileUploadField extends FileUploadField
     }
 
     private String getFilePathValue()
-    {// FIXME: correct?
+    {// FIXME: this is only relative path, not absolute
         return getFileInput().getValue(); // its not only file name, but full file path
     }
 
