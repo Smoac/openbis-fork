@@ -51,6 +51,19 @@ public class SearchTest extends AbstractGWTTestCase
     }
 
     @DoNotRunWith(Platform.HtmlUnit)
+    public final void testContainedSampleSearch()
+    {
+        remoteConsole.prepare(new Login("test", "a"));
+        remoteConsole.prepare(new SearchCommand("MP:A10"));
+
+        final CheckTableCommand checkDatasetsTableCommand =
+                createCheckMatchingEntitiesTableCommand(1, "CISD:/MP:A10");
+        remoteConsole.prepare(checkDatasetsTableCommand);
+
+        launchTest();
+    }
+
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testExperimentSearch()
     {
         remoteConsole.prepare(new Login("test", "a"));

@@ -62,10 +62,6 @@ public class SystemTestSuite extends GWTTestSuite
         testSuite.addTestSuite(GenericDataSetViewerTest.class);
         testSuite.addTestSuite(GenericDataSetEditorTest.class);
         testSuite.addTestSuite(AuthorizationManagementConsolTest.class);
- /*      
-  * TODO 2010-01-11 Commented out tests until we can figure out what the problem is with
-  * running the new tests under GWT 2.0. 
-  */        
         testSuite.addTestSuite(SampleBrowserTest.class);
         testSuite.addTestSuite(GenericSampleViewerTest.class);
         testSuite.addTestSuite(SearchTest.class);
