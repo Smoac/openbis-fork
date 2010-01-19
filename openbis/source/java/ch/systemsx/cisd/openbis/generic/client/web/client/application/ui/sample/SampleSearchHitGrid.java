@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -66,6 +67,29 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
                 new DetailedSearchToolbar(grid, viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY),
                         searchWindow);
         searchWindow.setUpdateListener(toolbar);
+        return grid.asDisposableWithToolbar(toolbar);
+    }
+
+    public static IDisposableComponent createWithInitialSearchCriterion(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            IAttributeSearchFieldKind initialKind, String initialSearchString)
+    {
+        ISampleCriteriaProvider criteriaProvider =
+                new SampleCriteriaProvider(viewContext, ListSampleDisplayCriteria.createForSearch());
+        SampleSearchHitGrid grid = new SampleSearchHitGrid(viewContext, criteriaProvider);
+        final DetailedSearchWindow searchWindow =
+                new DetailedSearchWindow(viewContext, EntityKind.SAMPLE);
+
+        // Set the initial search string before creating the toolbar because the toolbar will use
+        // the initial search string in its own initialization.
+        searchWindow.setInitialSearchCriterion(initialKind, initialSearchString);
+        criteriaProvider.tryGetCriteria().updateSearchCriteria(searchWindow.tryGetCriteria());
+
+        final DetailedSearchToolbar toolbar =
+                new DetailedSearchToolbar(grid, viewContext.getMessage(Dict.BUTTON_CHANGE_QUERY),
+                        searchWindow, true);
+        searchWindow.setUpdateListener(toolbar);
+
         return grid.asDisposableWithToolbar(toolbar);
     }
 
@@ -136,5 +160,4 @@ public class SampleSearchHitGrid extends SampleBrowserGrid implements IDetailedS
     {
         return null;
     }
-
 }

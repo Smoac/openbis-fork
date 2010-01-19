@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -170,6 +171,17 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
             removeCriterion(cw);
         }
         layout();
+    }
+
+    /**
+     * Set the initial search string to the argument. This should be called after creation but
+     * before the user has had a chance to use the window, otherwise user input may be overwritten.
+     */
+    public void setInitialSearchCriterion(IAttributeSearchFieldKind initialKind,
+            String initialSearchString)
+    {
+        DetailedSearchCriterionWidget widget = criteriaWidgets.get(0);
+        widget.setSearchCriterion(initialKind, initialSearchString);
     }
 
 }

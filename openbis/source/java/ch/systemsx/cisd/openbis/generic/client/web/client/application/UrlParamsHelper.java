@@ -21,17 +21,29 @@ import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.SearchlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 
 /**
  * A class with helper methods for URL parameters handling and opening initial tab.
@@ -44,6 +56,8 @@ public final class UrlParamsHelper
     private static final String KEY_VALUE_SEPARATOR = "=";
 
     private static final String PARAMETER_SEPARATOR = "&";
+
+    private static final String DEFAULT_SEARCH_STRING = "*";
 
     /**
      * Parses given URL <var>string</var> and returns the key-value pairs
@@ -93,8 +107,19 @@ public final class UrlParamsHelper
         final String paramString = GWTUtils.getParamString();
         if (StringUtils.isBlank(paramString) == false)
         {
-            setUrlParams(parseParamString(paramString));
+            initializeUrlParameters(paramString);
         }
+    }
+
+    /**
+     * Parse the parameter string and store the result. This method is not declared private because
+     * it is used by a test.
+     * 
+     * @param nonEmptyParameterString A non-empty URL parameter string
+     */
+    final void initializeUrlParameters(String nonEmptyParameterString)
+    {
+        setUrlParams(parseParamString(nonEmptyParameterString));
     }
 
     public final IDelegatedAction getOpenInitialTabAction()
@@ -102,7 +127,11 @@ public final class UrlParamsHelper
         return new OpenInitialTabAction();
     }
 
-    private class OpenInitialTabAction implements IDelegatedAction
+    /**
+     * An action that opens the initial tab specified by the URL parameters. This class is given
+     * package visibility so it can be used by a test.
+     */
+    class OpenInitialTabAction implements IDelegatedAction
     {
 
         public void execute()
@@ -110,30 +139,77 @@ public final class UrlParamsHelper
             openInitialTab();
         }
 
-        /** opens an initial tab if a parameter is specified in URL */
+        /**
+         * Opens the initial tab and handles any user failure exceptions that may result in the
+         * process.
+         */
         private void openInitialTab()
         {
-            String entityKindValueOrNull =
-                    tryGetUrlParamValue(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
-            String permIdValueOrNull = tryGetUrlParamValue(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
             try
             {
-                if (entityKindValueOrNull != null || permIdValueOrNull != null)
-                {
-                    checkMissingURLParameter(entityKindValueOrNull,
-                            PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
-                    checkMissingURLParameter(permIdValueOrNull,
-                            PermlinkUtilities.PERM_ID_PARAMETER_KEY);
-                    EntityKind entityKind = getEntityKind(entityKindValueOrNull);
-                    openEntityDetailsTab(entityKind, permIdValueOrNull);
-                }
+                openInitialTabUnderExceptionHandler();
             } catch (UserFailureException exception)
             {
                 MessageBox.alert("Error", exception.getMessage(), null);
             }
         }
 
+        /**
+         * Opens an initial tab if a parameter is specified in URL. Given package visibility so it
+         * can be used by a test.
+         */
+        void openInitialTabUnderExceptionHandler() throws UserFailureException
+        {
+            // If a permlink has been specified, open a viewer on the specified object
+            String entityKindValueOrNull =
+                    tryGetUrlParamValue(PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
+            String permIdValueOrNull = tryGetUrlParamValue(PermlinkUtilities.PERM_ID_PARAMETER_KEY);
+            if (null != entityKindValueOrNull || null != permIdValueOrNull)
+            {
+                // Make sure the permlink has been specified correctly, if not throw an error
+                checkMissingURLParameter(entityKindValueOrNull,
+                        PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
+                checkMissingURLParameter(permIdValueOrNull, PermlinkUtilities.PERM_ID_PARAMETER_KEY);
+                openInitialEntityViewer(entityKindValueOrNull, permIdValueOrNull);
+            }
+
+            // If a searchlink has been specified, open a search on the specified object
+            String searchEntityKindValueOrNull =
+                    tryGetUrlParamValue(SearchlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
+            if (null != searchEntityKindValueOrNull)
+            {
+                openInitialEntitySearch(searchEntityKindValueOrNull);
+            }
+        }
+
+        /**
+         * Open the entity details tab for the specified entity kind and permId.
+         */
+        private void openInitialEntityViewer(String entityKindValue, String permIdValue)
+                throws UserFailureException
+        {
+            EntityKind entityKind = getEntityKind(entityKindValue);
+            openEntityDetailsTab(entityKind, permIdValue);
+        }
+
+        private void openInitialEntitySearch(String entityKindValue) throws UserFailureException
+        {
+            EntityKind entityKind = getEntityKind(entityKindValue);
+
+            String searchStringOrNull =
+                    tryGetUrlParamValue(SearchlinkUtilities.SEARCH_FIELD_PARAMETER_KEY);
+            if (searchStringOrNull != null)
+            {
+                openEntitySearch(entityKind, searchStringOrNull);
+            } else
+            {
+                // default the search string
+                openEntitySearch(entityKind, DEFAULT_SEARCH_STRING);
+            }
+        }
+
         private void checkMissingURLParameter(String valueOrNull, String parameter)
+                throws UserFailureException
         {
             if (valueOrNull == null)
             {
@@ -146,6 +222,11 @@ public final class UrlParamsHelper
             viewContext.getCommonService().getEntityInformationHolder(entityKind, permId,
                     new OpenEntityDetailsTabCallback(viewContext));
 
+        }
+
+        private void openEntitySearch(EntityKind entityKind, String searchString)
+        {
+            DispatcherHelper.dispatchNaviEvent(new OpenEntitySearchTabCallback(searchString));
         }
 
         private EntityKind getEntityKind(String entityKindValueOrNull)
@@ -182,6 +263,47 @@ public final class UrlParamsHelper
         protected final void process(final IEntityInformationHolder result)
         {
             new OpenEntityDetailsTabAction(result, viewContext).execute();
+        }
+    }
+
+    private class OpenEntitySearchTabCallback implements ITabItemFactory
+    {
+        private final String searchString;
+
+        OpenEntitySearchTabCallback(String searchString)
+        {
+            this.searchString = searchString;
+        }
+
+        private String getMessage(String key)
+        {
+            return viewContext.getMessage(key);
+        }
+
+        private ITabItem createTab(String dictionaryMsgKey, IDisposableComponent component)
+        {
+            String title = getMessage(dictionaryMsgKey);
+            return DefaultTabItem.create(title, component, viewContext);
+        }
+
+        @SuppressWarnings("unchecked")
+        public ITabItem create()
+        {
+            IDisposableComponent browser =
+                    SampleSearchHitGrid.createWithInitialSearchCriterion(
+                            (IViewContext<ICommonClientServiceAsync>) viewContext,
+                            SampleAttributeSearchFieldKind.CODE, searchString);
+            return createTab(Dict.SAMPLE_SEARCH, browser);
+        }
+
+        public String getId()
+        {
+            return SampleSearchHitGrid.SEARCH_BROWSER_ID;
+        }
+
+        public HelpPageIdentifier getHelpPageIdentifier()
+        {
+            return new HelpPageIdentifier(HelpPageDomain.SAMPLE, HelpPageAction.SEARCH);
         }
     }
 

@@ -30,10 +30,12 @@ import com.extjs.gxt.ui.client.widget.layout.TableData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DetailedSearchFieldComboModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -198,4 +200,15 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
         return nameField.getAvailablePropertyTypes();
     }
 
+    /**
+     * Set the search string to the argument.
+     */
+    public void setSearchCriterion(IAttributeSearchFieldKind kind, String searchString)
+    {
+        DetailedSearchFieldComboModel model =
+                new DetailedSearchFieldComboModel(kind.getDescription(), DetailedSearchField
+                        .createAttributeField(kind));
+        nameField.setValue(model);
+        valueField.setValue(searchString);
+    }
 }

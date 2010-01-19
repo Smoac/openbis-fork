@@ -18,6 +18,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -95,6 +96,16 @@ public class DetailedSearchWindow extends AbstractDialogWithOnlineHelp
         addHelpButton(viewContext, getHelpPageIdentifier(entityKind));
     }
 
+    public DetailedSearchCriteria tryGetCriteria()
+    {
+        return criteriaWidget.tryGetCriteria();
+    }
+
+    public String getCriteriaDescription()
+    {
+        return criteriaWidget.getCriteriaDescription();
+    }
+
     public void setUpdateListener(DetailedSearchToolbar toolbar)
     {
         this.updateListener = toolbar;
@@ -113,5 +124,17 @@ public class DetailedSearchWindow extends AbstractDialogWithOnlineHelp
         // .toString()), HelpPageIdentifier.HelpPageAction.ACTION);
         return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.SEARCH,
                 HelpPageIdentifier.HelpPageAction.ACTION);
+    }
+
+    /**
+     * Set the initial search string for this window to the argument. Call this after instantiation,
+     * but before the user has provided input, otherwise user input will be overwritten. This method
+     * does not notify the listener of any changes -- the caller must keep the window and toolbar in
+     * sync.
+     */
+    public void setInitialSearchCriterion(IAttributeSearchFieldKind initialKind, String searchString)
+    {
+        // Set the widget
+        criteriaWidget.setInitialSearchCriterion(initialKind, searchString);
     }
 }

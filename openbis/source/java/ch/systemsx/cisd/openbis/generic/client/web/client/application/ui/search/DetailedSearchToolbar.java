@@ -28,9 +28,18 @@ public class DetailedSearchToolbar extends ToolBar
 
     private final DetailedSearchWindow searchWindow;
 
+    private final boolean shouldShowSearchWindowOnRender;
+
     public DetailedSearchToolbar(final IDetailedSearchHitGrid grid, String buttonName,
             final DetailedSearchWindow searchWindow)
     {
+        this(grid, buttonName, searchWindow, false);
+    }
+
+    public DetailedSearchToolbar(final IDetailedSearchHitGrid grid, String buttonName,
+            final DetailedSearchWindow searchWindow, boolean initializeDescriptionFromSearchWindow)
+    {
+        this.shouldShowSearchWindowOnRender = !initializeDescriptionFromSearchWindow;
         this.grid = grid;
         this.searchWindow = searchWindow;
         add(description = new LabelToolItem());
@@ -43,12 +52,22 @@ public class DetailedSearchToolbar extends ToolBar
                     searchWindow.show();
                 }
             }));
+        if (initializeDescriptionFromSearchWindow)
+        {
+            System.out.println("Desc " + searchWindow.getCriteriaDescription());
+            updateDescription(searchWindow.getCriteriaDescription());
+        }
     }
 
     public void updateSearchResults(DetailedSearchCriteria searchCriteria,
             String searchDescription, List<PropertyType> availablePropertyTypes)
     {
         grid.refresh(searchCriteria, availablePropertyTypes);
+        updateDescription(searchDescription);
+    }
+
+    private void updateDescription(String searchDescription)
+    {
         description.setLabel(StringUtils.abbreviate(searchDescription, 100));
         description.setToolTip(searchDescription);
     }
@@ -57,6 +76,7 @@ public class DetailedSearchToolbar extends ToolBar
     protected void onRender(Element target, int index)
     {
         super.onRender(target, index);
-        searchWindow.show();
+        if (shouldShowSearchWindowOnRender)
+            searchWindow.show();
     }
 }
