@@ -15,6 +15,7 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager.Modification;
@@ -27,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
  */
 public class SectionsPanel extends ContentPanel
 {
-    public static final String PART_OF_TOGGLE_BUTTON_ID = "_button_";
+    public static final String POSTFIX_BUTTON_ID = "_button";
     
     List<SectionElement> elements = new ArrayList<SectionElement>();
 
@@ -158,6 +159,7 @@ public class SectionsPanel extends ContentPanel
         removeAll();
         for (SectionElement el : elements)
         {
+            System.out.println("ADD SECTION PANEL: "+el.getButton().getText()+" "+el.getButton().isPressed());
             if (el.getButton().isPressed())
             {
                 internalAdd(el);
@@ -259,7 +261,7 @@ public class SectionsPanel extends ContentPanel
                 final String displayId)
         {
             final ToggleButton result = new ToggleButton(getHeading(heading, pressed));
-            result.setId(displayId + PART_OF_TOGGLE_BUTTON_ID + heading);
+            result.setId(GenericConstants.ID_PREFIX + displayId + POSTFIX_BUTTON_ID);
             initializePressedState(result, pressed);
 
             // when user clicks toggle button we store changed settings
@@ -277,6 +279,7 @@ public class SectionsPanel extends ContentPanel
                 {
                     public void handleEvent(BaseEvent be)
                     {
+                        System.out.println("TOGGLE:" + result.getId() + " "+result.isPressed());
                         result.setText(getHeading(heading, result.isPressed()));
                     }
                 });

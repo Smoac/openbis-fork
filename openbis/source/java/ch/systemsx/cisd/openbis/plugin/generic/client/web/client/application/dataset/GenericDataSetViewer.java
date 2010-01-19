@@ -57,7 +57,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> implements
         IDatabaseModificationObserver
 {
-    private static final String PREFIX = "generic-dataset-viewer_";
+    public static final String PREFIX = "generic-dataset-viewer_";
 
     public static final String ID_PREFIX = GenericConstants.ID_PREFIX + PREFIX;
 

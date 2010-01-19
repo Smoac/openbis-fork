@@ -16,8 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.AbstractDefaultTestCommand;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTableCommand;
+import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.GWTTestUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IPropertyChecker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.IValueAssertion;
 import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.PropertyCheckingManager;

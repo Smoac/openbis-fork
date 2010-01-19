@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.da
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSetChildrenAndParents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSetEditor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.columns.DataSetRow;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search.FillSearchCriteria;
@@ -99,6 +100,7 @@ public class GenericDataSetEditorTest extends AbstractGWTTestCase
         loginAndInvokeAction(ActionMenuKind.DATA_SET_MENU_SEARCH);
         remoteConsole.prepare(FillSearchCriteria.searchForDataSetWithCode(dataSetCode));
         remoteConsole.prepare(new ShowDataSet(dataSetCode));
+        remoteConsole.prepare(new ShowDataSetChildrenAndParents("HCS_IMAGE"));
         remoteConsole.prepare(new ShowDataSetEditor());
     }
 
