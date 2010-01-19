@@ -317,6 +317,7 @@ final class HibernateSearchDAO extends HibernateDaoSupport implements IHibernate
             result.setTextFragment(matchingText);
 
             // IIdentifiable properties
+            // NOTE: for contained sample this code is full code with container code part
             result.setCode(getFieldValue(doc, SearchFieldConstants.CODE));
             result.setId(Long.parseLong(getFieldValue(doc, SearchFieldConstants.ID)));
             result.setIdentifier(getFieldValue(doc, SearchFieldConstants.IDENTIFIER));

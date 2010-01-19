@@ -369,10 +369,19 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     @NotNull(message = ValidationMessages.CODE_NOT_NULL_MESSAGE)
     @Length(min = 1, max = Code.CODE_LENGTH_MAX, message = ValidationMessages.CODE_LENGTH_MESSAGE)
     @Pattern(regex = AbstractIdAndCodeHolder.CODE_PATTERN, flags = java.util.regex.Pattern.CASE_INSENSITIVE, message = ValidationMessages.CODE_PATTERN_MESSAGE)
-    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
     public String getCode()
     {
         return code;
+    }
+
+    // used only by Hibernate Search
+    @SuppressWarnings("unused")
+    @Transient
+    @Field(index = Index.TOKENIZED, store = Store.YES, name = SearchFieldConstants.CODE)
+    private String getFullCode()
+    {
+        // full code of contained sample consists of <container code>:<contained sample code>
+        return (getContainer() != null ? getContainer().getCode() + ":" : "") + getCode();
     }
 
     @Column(name = ColumnNames.REGISTRATION_TIMESTAMP_COLUMN, nullable = false, insertable = false, updatable = false)
