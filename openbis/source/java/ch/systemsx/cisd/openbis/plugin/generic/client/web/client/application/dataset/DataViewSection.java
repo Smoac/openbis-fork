@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -33,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSect
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.ModelDataPropertyNames;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator.IOnReportComponentGeneratedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
@@ -58,59 +61,110 @@ public class DataViewSection extends SingleSectionPanel
     {
         super(viewContext.getMessage(Dict.DATA_VIEW));
 
-        final Frame iFrame = new Frame();
-
         final DatastoreServiceViewerSelectionWidget serviceSelectionWidget =
                 new DatastoreServiceViewerSelectionWidget(viewContext, dataset);
         getHeader().addTool(new LabelToolItem(serviceSelectionWidget.getFieldLabel() + ":&nbsp;"));
         getHeader().addTool(serviceSelectionWidget);
-        serviceSelectionWidget
-                .addSelectionChangedListener(new SelectionChangedListener<DatastoreServiceDescriptionModel>()
+        serviceSelectionWidget.addSelectionChangedListener(createServiceSelectionChangedListener(
+                viewContext, dataset));
+    }
+
+    private SelectionChangedListener<DatastoreServiceDescriptionModel> createServiceSelectionChangedListener(
+            final IViewContext<?> viewContext, final ExternalData dataset)
+    {
+        return new SelectionChangedListener<DatastoreServiceDescriptionModel>()
+            {
+                private Widget currentViewerOrNull;
+
+                @Override
+                public void selectionChanged(
+                        SelectionChangedEvent<DatastoreServiceDescriptionModel> se)
+                {
+                    final DatastoreServiceDescriptionModel selectedItem = se.getSelectedItem();
+                    if (selectedItem != null)
                     {
+                        DatastoreServiceDescription service = selectedItem.getBaseObject();
 
-                        @Override
-                        public void selectionChanged(
-                                SelectionChangedEvent<DatastoreServiceDescriptionModel> se)
+                        // TODO 2010-01-19, PTR: remove after testing with DS
+                        System.err.println("selected " + service.getLabel());
+
+                        if (service.getLabel().equals(FILES_SMART_VIEW))
                         {
-                            final DatastoreServiceDescriptionModel selectedItem =
-                                    se.getSelectedItem();
-                            if (selectedItem != null)
-                            {
-                                DatastoreServiceDescription service = selectedItem.getBaseObject();
-
-                                // TODO 2010-01-19, PTR: remove after testing with DS
-                                System.err.println("selected " + service.getLabel());
-
-                                if (service.getLabel().equals(FILES_SMART_VIEW))
-                                {
-                                    showDataSetFilesView(true);
-                                } else if (service.getLabel().equals(FILES_HOME_VIEW))
-                                {
-                                    showDataSetFilesView(false);
-                                } else
-                                {
-                                    DisplayedOrSelectedDatasetCriteria criteria =
-                                            DisplayedOrSelectedDatasetCriteria
-                                                    .createSelectedItems(Arrays.asList(dataset
-                                                            .getCode()));
-                                    DataSetReportGenerator.generate(service, criteria, viewContext
-                                            .getCommonViewContext());
-                                }
-                            }
-
-                        }
-
-                        private void showDataSetFilesView(boolean autoResolve)
+                            showDataSetFilesView(true);
+                        } else if (service.getLabel().equals(FILES_HOME_VIEW))
                         {
-                            // TODO 2010-01-19, PTR: remove after testing with DS
-                            System.err.println("autoResolve " + autoResolve);
-                            iFrame.setUrl(DataSetUtils.createDataViewUrl(dataset, viewContext
-                                    .getModel(), "simpleHtml", autoResolve));
+                            showDataSetFilesView(false);
+                        } else
+                        {
+                            showGeneratedReportComponentView(service);
                         }
+                    }
 
-                    });
+                }
 
-        add(iFrame);
+                private void showGeneratedReportComponentView(DatastoreServiceDescription service)
+                {
+                    IOnReportComponentGeneratedAction action =
+                            new IOnReportComponentGeneratedAction()
+                                {
+
+                                    public void execute(IDisposableComponent reportComponent)
+                                    {
+                                        // replace current viewer with report grid
+                                        Widget reportGrid = reportComponent.getComponent();
+                                        if (currentViewerOrNull != null)
+                                        {
+                                            remove(currentViewerOrNull);
+                                        }
+                                        currentViewerOrNull = reportGrid;
+                                        add(reportGrid);
+                                        layout();
+                                    }
+
+                                };
+
+                    DisplayedOrSelectedDatasetCriteria criteria =
+                            DisplayedOrSelectedDatasetCriteria.createSelectedItems(Arrays
+                                    .asList(dataset.getCode()));
+                    DataSetReportGenerator.generateAndInvoke(viewContext.getCommonViewContext(),
+                            service, criteria, action);
+                }
+
+                private void showDataSetFilesView(boolean autoResolve)
+                {
+                    Frame iFrame;
+                    // WORKAROUND Cannot remove Frame and add it once again because of
+                    // Widget#removeFromParent():128 throws IllegalStateException
+                    // "This widget's parent does not implement HasWidgets".
+                    // Frame can be reused only if it was used by previous viewer.
+
+                    // replace current viewer with frame with data set files view
+                    if (currentViewerOrNull == null)
+                    {
+                        iFrame = new Frame();
+                        add(iFrame);
+                    } else
+                    {
+                        if (currentViewerOrNull instanceof Frame)
+                        {
+                            iFrame = (Frame) currentViewerOrNull;
+                        } else
+                        {
+                            remove(currentViewerOrNull);
+                            iFrame = new Frame();
+                            add(iFrame);
+                        }
+                    }
+                    currentViewerOrNull = iFrame;
+
+                    // TODO 2010-01-19, PTR: remove after testing with DS
+                    System.err.println("autoResolve " + autoResolve);
+                    iFrame.setUrl(DataSetUtils.createDataViewUrl(dataset, viewContext.getModel(),
+                            "simpleHtml", autoResolve));
+                    layout();
+                }
+
+            };
     }
 
     private static class DatastoreServiceViewerSelectionWidget extends
@@ -128,7 +182,7 @@ public class DataViewSection extends SingleSectionPanel
                     ModelDataPropertyNames.LABEL, "viewer", "viewers");
             this.viewContext = viewContext;
             this.dataset = dataset;
-            setAutoSelectFirst(true); // TODO 2010-01-19, PTR: use saved display settings
+            // setAutoSelectFirst(true); // TODO 2010-01-19, PTR: use saved display settings
         }
 
         @Override

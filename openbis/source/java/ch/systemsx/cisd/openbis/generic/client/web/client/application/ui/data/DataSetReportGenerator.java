@@ -36,20 +36,77 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
 
 /**
  * @author Tomasz Pylak
+ * @auhor Piotr Buczek
  */
 public class DataSetReportGenerator
 {
-    /** Generates a report for specified datasets and displays it in a new tab. */
-    public static void generate(DatastoreServiceDescription service,
-            DisplayedOrSelectedDatasetCriteria criteria,
-            IViewContext<ICommonClientServiceAsync> viewContext)
+
+    public interface IOnReportComponentGeneratedAction
     {
-        ReportDisplayCallback callback = new ReportDisplayCallback(viewContext, service);
+        void execute(final IDisposableComponent reportComponent);
+    }
+
+    /** Generates a report for specified datasets and displays it in a new tab. */
+    public static void generate(final IViewContext<ICommonClientServiceAsync> viewContext,
+            final DatastoreServiceDescription service,
+            final DisplayedOrSelectedDatasetCriteria criteria)
+    {
+        IOnReportComponentGeneratedAction action =
+                createDisplayInTabAction(viewContext, service, criteria);
+        generateAndInvoke(viewContext, service, criteria, action);
+    }
+
+    /**
+     * Generates a report for specified datasets and invokes specified action with component
+     * containing this report.
+     */
+    public static void generateAndInvoke(IViewContext<ICommonClientServiceAsync> viewContext,
+            DatastoreServiceDescription service, DisplayedOrSelectedDatasetCriteria criteria,
+            IOnReportComponentGeneratedAction action)
+    {
+        ReportGeneratedCallback callback =
+                new ReportGeneratedCallback(viewContext, service, action);
         viewContext.getService().createReportFromDatasets(service, criteria, callback);
     }
 
-    private static final class ReportDisplayCallback extends
-            AbstractAsyncCallback<TableModelReference>
+    private static IOnReportComponentGeneratedAction createDisplayInTabAction(
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            final DatastoreServiceDescription service,
+            final DisplayedOrSelectedDatasetCriteria criteria)
+    {
+        return new IOnReportComponentGeneratedAction()
+            {
+
+                public void execute(final IDisposableComponent reportComponent)
+                {
+                    final ITabItemFactory tabFactory = new ITabItemFactory()
+                        {
+                            public ITabItem create()
+                            {
+                                final String reportTitle = service.getLabel();
+                                return DefaultTabItem.create(reportTitle, reportComponent,
+                                        viewContext);
+                            }
+
+                            public String getId()
+                            {
+                                final String reportKey = service.getKey(); // TODO escape?
+                                return DataSetReporterGrid.createId(reportKey);
+                            }
+
+                            public HelpPageIdentifier getHelpPageIdentifier()
+                            {
+                                return new HelpPageIdentifier(HelpPageDomain.DATA_SET,
+                                        HelpPageAction.REPORT);
+                            }
+                        };
+                    DispatcherHelper.dispatchNaviEvent(tabFactory);
+                }
+
+            };
+    }
+
+    private static class ReportGeneratedCallback extends AbstractAsyncCallback<TableModelReference>
     {
         private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -57,42 +114,25 @@ public class DataSetReportGenerator
 
         private final DatastoreServiceDescription service;
 
-        public ReportDisplayCallback(IViewContext<ICommonClientServiceAsync> viewContext,
-                DatastoreServiceDescription service)
+        private final IOnReportComponentGeneratedAction action;
+
+        public ReportGeneratedCallback(IViewContext<ICommonClientServiceAsync> viewContext,
+                DatastoreServiceDescription service, IOnReportComponentGeneratedAction action)
         {
             super(viewContext);
             this.viewContext = viewContext;
-            this.progressBar = createAndShowProgressBar();
             this.service = service;
+            this.action = action;
+            this.progressBar = createAndShowProgressBar();
         }
 
         @Override
         protected void process(final TableModelReference tableModelReference)
         {
             progressBar.hide();
-            final ITabItemFactory tabFactory = new ITabItemFactory()
-                {
-                    public ITabItem create()
-                    {
-                        IDisposableComponent component =
-                                DataSetReporterGrid.create(viewContext, tableModelReference,
-                                        service);
-                        String reportTitle = service.getLabel();
-                        return DefaultTabItem.create(reportTitle, component, viewContext);
-                    }
-
-                    public String getId()
-                    {
-                        return DataSetReporterGrid.createId(tableModelReference.getResultSetKey());
-                    }
-
-                    public HelpPageIdentifier getHelpPageIdentifier()
-                    {
-                        return new HelpPageIdentifier(HelpPageDomain.DATA_SET,
-                                HelpPageAction.REPORT);
-                    }
-                };
-            DispatcherHelper.dispatchNaviEvent(tabFactory);
+            final IDisposableComponent reportComponent =
+                    DataSetReporterGrid.create(viewContext, tableModelReference, service);
+            action.execute(reportComponent);
         }
 
         @Override

@@ -159,7 +159,7 @@ public class DataSetComputeMenu extends TextToolItem
                             createCriteria(selectedAndDisplayedItems, computeOnSelected);
                     if (pluginTaskKind == DataStoreServiceKind.QUERIES)
                     {
-                        DataSetReportGenerator.generate(service, criteria, viewContext);
+                        DataSetReportGenerator.generate(viewContext, service, criteria);
                     } else
                     {
                         viewContext.getService().processDatasets(service, criteria,
