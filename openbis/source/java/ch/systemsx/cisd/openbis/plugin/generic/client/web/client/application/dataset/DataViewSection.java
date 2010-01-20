@@ -85,9 +85,6 @@ public class DataViewSection extends SingleSectionPanel
                     {
                         DatastoreServiceDescription service = selectedItem.getBaseObject();
 
-                        // TODO 2010-01-19, PTR: remove after testing with DS
-                        System.err.println("selected " + service.getLabel());
-
                         if (service.getLabel().equals(FILES_SMART_VIEW))
                         {
                             showDataSetFilesView(true);
@@ -157,8 +154,6 @@ public class DataViewSection extends SingleSectionPanel
                     }
                     currentViewerOrNull = iFrame;
 
-                    // TODO 2010-01-19, PTR: remove after testing with DS
-                    System.err.println("autoResolve " + autoResolve);
                     iFrame.setUrl(DataSetUtils.createDataViewUrl(dataset, viewContext.getModel(),
                             "simpleHtml", autoResolve));
                     layout();
