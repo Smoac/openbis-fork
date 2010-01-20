@@ -65,6 +65,14 @@ public abstract class AbstractRegistrationForm extends ContentPanel
 
     public static final int DEFAULT_FIELD_WIDTH = 500;
 
+    public static final int SECTION_LABEL_WIDTH = DEFAULT_LABEL_WIDTH + 9;
+
+    public static final int SECTION_FIELD_WIDTH = DEFAULT_FIELD_WIDTH;
+
+    public static final int SECTION_DEFAULT_FIELD_WIDTH = DEFAULT_FIELD_WIDTH - 15;
+
+    public static final int SECTION_WIDTH = SECTION_FIELD_WIDTH + SECTION_LABEL_WIDTH + 16;
+
     protected InfoBox infoBox;
 
     protected FormPanel formPanel;

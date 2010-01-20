@@ -115,7 +115,8 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         Map<String, String> result = new HashMap<String, String>();
         for (IEntityProperty p : properties)
         {
-            result.put(p.getPropertyType().getCode(), StringEscapeUtils.unescapeHtml(p.tryGetAsString()));
+            result.put(p.getPropertyType().getCode(), StringEscapeUtils.unescapeHtml(p
+                    .tryGetAsString()));
         }
         return result;
     }
@@ -231,14 +232,8 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
     private static final class PropertiesSectionFileSet extends FieldSet
     {
 
-        private final int labelWidth;
-
-        private final int fieldWidth;
-
         public PropertiesSectionFileSet(final String sectionName)
         {
-            this.labelWidth = AbstractRegistrationForm.DEFAULT_LABEL_WIDTH;
-            this.fieldWidth = AbstractRegistrationForm.DEFAULT_FIELD_WIDTH;
             createForm(sectionName);
         }
 
@@ -246,14 +241,14 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
         {
             setHeading(sectionName);
             setLayout(createFormLayout());
-            setWidth(labelWidth + fieldWidth + 3);
+            setWidth(AbstractRegistrationForm.SECTION_WIDTH);
         }
 
         private final FormLayout createFormLayout()
         {
             final FormLayout formLayout = new FormLayout();
-            formLayout.setLabelWidth(labelWidth);
-            formLayout.setDefaultWidth(fieldWidth - 15);
+            formLayout.setLabelWidth(AbstractRegistrationForm.SECTION_LABEL_WIDTH);
+            formLayout.setDefaultWidth(AbstractRegistrationForm.SECTION_DEFAULT_FIELD_WIDTH);
             return formLayout;
         }
 

@@ -89,10 +89,6 @@ public class AttachmentFileUploadField extends FileUploadField
     private static final class AttachmentsFileSet extends FieldSet
     {
 
-        private final int labelWidth;
-
-        private final int fieldWidth;
-
         private final FileUploadField fileUploadField;
 
         private VarcharField titleField;
@@ -102,8 +98,6 @@ public class AttachmentFileUploadField extends FileUploadField
         public AttachmentsFileSet(final IMessageProvider messageProvider,
                 FileUploadField fileUploadField)
         {
-            this.labelWidth = AbstractRegistrationForm.DEFAULT_LABEL_WIDTH;
-            this.fieldWidth = AbstractRegistrationForm.DEFAULT_FIELD_WIDTH;
             this.fileUploadField = fileUploadField;
             createForm(messageProvider);
         }
@@ -119,7 +113,7 @@ public class AttachmentFileUploadField extends FileUploadField
         {
             setHeading(messageProvider.getMessage(Dict.ATTACHMENT));
             setLayout(createFormLayout());
-            setWidth(labelWidth + fieldWidth + 3);
+            setWidth(AbstractRegistrationForm.SECTION_WIDTH);
             add(fileUploadField);
             add(descriptionField = new DescriptionField(messageProvider, false));
             add(titleField = createTitleField(messageProvider.getMessage(Dict.TITLE)));
@@ -128,8 +122,8 @@ public class AttachmentFileUploadField extends FileUploadField
         private final FormLayout createFormLayout()
         {
             final FormLayout formLayout = new FormLayout();
-            formLayout.setLabelWidth(labelWidth);
-            formLayout.setDefaultWidth(fieldWidth - 15);
+            formLayout.setLabelWidth(AbstractRegistrationForm.SECTION_LABEL_WIDTH);
+            formLayout.setDefaultWidth(AbstractRegistrationForm.SECTION_DEFAULT_FIELD_WIDTH);
             return formLayout;
         }
 
