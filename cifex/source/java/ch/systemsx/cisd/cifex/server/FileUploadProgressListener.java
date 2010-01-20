@@ -70,9 +70,11 @@ final class FileUploadProgressListener extends ThresholdProgressListener
         final FileUploadFeedback feedback = new FileUploadFeedback();
         feedback.setBytesRead(bytesRead);
         feedback.setContentLength(contentLength);
-        if (items > 0 && (formIndexedPathnamesAndNulls.get(items) != null))
+        // The MultipartStream class which drives this uses 1-offset indexing for the items
+        int item = items - 1;
+        if (formIndexedPathnamesAndNulls.get(item) != null)
         {
-            feedback.setFileName(FilenameUtils.getName(formIndexedPathnamesAndNulls.get(items)));
+            feedback.setFileName(FilenameUtils.getName(formIndexedPathnamesAndNulls.get(item)));
         }
         feedback.setTimeLeft(createTimeLeft(bytesRead, contentLength));
         return feedback;

@@ -177,6 +177,12 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
 
         private final StringBuffer comment;
 
+        private final ServletFileUpload upload;
+
+        private final List<String> formIndexedPathnamesAndNulls;
+
+        private final FileUploadProgressListener progressListener;
+
         public FormDataExtractor(final HttpServletRequest request, final UserDTO requestUser,
                 final String[] pathnamesToUpload, final List<FileDTO> files,
                 final List<String> userIdentifier, final StringBuffer comment)
@@ -187,6 +193,17 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
             this.files = files;
             this.userIdentifier = userIdentifier;
             this.comment = comment;
+
+            upload = new ServletFileUpload();
+
+            formIndexedPathnamesAndNulls = new ArrayList<String>();
+            // The progress listener needs a reference to the pathnames and nulls -- it uses the
+            // list to figure out the names of files being updated.
+            progressListener =
+                    new FileUploadProgressListener(request.getSession(false),
+                            formIndexedPathnamesAndNulls);
+
+            upload.setProgressListener(progressListener);
         }
 
         /**
@@ -196,12 +213,8 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
          */
         public void execute() throws FileUploadException, IOException
         {
-
-            final ServletFileUpload upload = new ServletFileUpload();
-
             // A list that stores the pathnames specified in the form at the same index it appears
             // in the form. If the form parameter at a given index is not a pathname, store a null.
-            List<String> formIndexedPathnamesAndNulls = new ArrayList<String>();
             final IFileManager fileManager = domainModel.getFileManager();
             final FileItemIterator iter = upload.getItemIterator(request);
 
@@ -213,12 +226,11 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                 if (item.isFormField())
                 {
                     // This is a simple form field, not a file
-                    extractSimpleFieldData(formIndexedPathnamesAndNulls, item, stream);
+                    extractSimpleFieldData(item, stream);
                 } else
                 {
                     // This is a file
-                    extractFileFieldData(formIndexedPathnamesAndNulls, item, stream, fileManager,
-                            fileIndex);
+                    extractFileFieldData(item, stream, fileManager, fileIndex);
                     fileIndex++;
                 }
             }
@@ -229,14 +241,13 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                 file.setComment(comment.toString());
                 fileManager.updateFile(file, requestUser);
             }
-
-            upload.setProgressListener(new FileUploadProgressListener(request.getSession(false),
-                    formIndexedPathnamesAndNulls));
         }
 
-        private void extractSimpleFieldData(List<String> formIndexedPathnamesAndNulls,
-                final FileItemStream item, final InputStream stream) throws IOException
+        private void extractSimpleFieldData(final FileItemStream item, final InputStream stream)
+                throws IOException
         {
+            // Need to update the list of pathnames before doing anything else because the progress
+            // listener needs the up-to-date list of parameters.
             formIndexedPathnamesAndNulls.add(null);
             if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
             {
@@ -248,14 +259,16 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
             }
         }
 
-        private void extractFileFieldData(List<String> formIndexedPathnamesAndNulls,
-                FileItemStream item, InputStream stream, IFileManager fileManager, int fileIndex)
-                throws IOException
+        private void extractFileFieldData(FileItemStream item, InputStream stream,
+                IFileManager fileManager, int fileIndex) throws IOException
         {
+            // Need to update the list of pathnames before doing anything else because the progress
+            // listener needs the up-to-date list of parameters.
             final String pathnameToUpload =
                     fileIndex < pathnamesToUpload.length ? pathnamesToUpload[fileIndex] : null;
             final String filenameToUpload = FilenameUtils.getName(pathnameToUpload);
             formIndexedPathnamesAndNulls.add(filenameToUpload);
+
             final String filenameInStream = FilenameUtils.getName(item.getName());
             if (StringUtils.isBlank(filenameToUpload))
             {
@@ -268,6 +281,7 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
                             filenameInStream);
                 }
             }
+
             // Note: this is quite a hack. The first condition can be false when there are
             // special characters in the name, thus we add the check for stream.available().
             if (filenameToUpload.equals(filenameInStream) == false && stream.available() == 0)
