@@ -35,7 +35,8 @@ public final class StringUtils
     /**
      * Whether given <var>value</var> is empty or not.
      */
-    public static boolean isEmpty(String value) {
+    public static boolean isEmpty(String value)
+    {
         return value == null || value.length() == 0;
     }
 
@@ -116,5 +117,27 @@ public final class StringUtils
         {
             return value;
         }
+    }
+
+    /**
+     * Escapes <var>escapedChars</var> characters in specified <var>text</var>.
+     */
+    public final static String escape(String text, char... escapedChars)
+    {
+        final char escapeChar = '\\';
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < text.length(); i++)
+        {
+            char ch = text.charAt(i);
+            for (char escapedChar : escapedChars)
+            {
+                if (ch == escapedChar)
+                {
+                    sb.append(escapeChar);
+                }
+            }
+            sb.append(ch);
+        }
+        return sb.toString();
     }
 }

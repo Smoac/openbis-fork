@@ -57,8 +57,9 @@ public class DataSetUtils
             methodWithParameters.addParameter(AUTO_RESOLVE, autoResolve);
             if (StringUtils.isBlank(dataSet.getDataSetType().getMainDataSetPattern()) == false)
             {
-                methodWithParameters.addParameter(MAIN_DATA_SET_PATTERN, dataSet.getDataSetType()
-                        .getMainDataSetPattern());
+                final String regexpPattern =
+                        translateToRegexp(dataSet.getDataSetType().getMainDataSetPattern());
+                methodWithParameters.addParameter(MAIN_DATA_SET_PATTERN, regexpPattern);
             }
             if (StringUtils.isBlank(dataSet.getDataSetType().getMainDataSetPath()) == false)
             {
@@ -69,4 +70,32 @@ public class DataSetUtils
         String url = methodWithParameters.toString();
         return url;
     }
+
+    public static final String REGEXP_PREFIX = "regexp:";
+
+    // all regexp metacharacters except '*', '?', '[' and ']' that need to be escaped in translation
+    private static final char[] REGEXP_METACHARACTERS_TO_ESCAPE =
+        { '\\', '|', '(', ')', '{', '}', '^', '$', '+', '.', '<', '>' };
+
+    /**
+     * @return Given wildcard pattern e.g. '*.tsv' translated to regexp pattern. No translation is
+     *         done if given pattern starts with {@link #REGEXP_PREFIX}.
+     */
+    public static String translateToRegexp(final String wildcardPattern)
+    {
+        assert wildcardPattern != null;
+
+        String result = wildcardPattern;
+        if (false == wildcardPattern.startsWith(REGEXP_PREFIX))
+        {
+            // escape meta characters and replace the wildcard meta-characters:
+            // - "*" with ".*"
+            // - "?" with "."
+            result = StringUtils.escape(result, REGEXP_METACHARACTERS_TO_ESCAPE);
+            result = result.replace("*", ".*");
+            result = result.replace("?", ".");
+        }
+        return result;
+    }
+
 }
