@@ -54,7 +54,6 @@ public class DetailedSearchToolbar extends ToolBar
             }));
         if (initializeDescriptionFromSearchWindow)
         {
-            System.out.println("Desc " + searchWindow.getCriteriaDescription());
             updateDescription(searchWindow.getCriteriaDescription());
         }
     }

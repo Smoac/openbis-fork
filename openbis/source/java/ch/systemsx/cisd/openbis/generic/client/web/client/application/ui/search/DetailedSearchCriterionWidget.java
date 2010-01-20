@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -203,11 +202,25 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
     /**
      * Set the search string to the argument.
      */
-    public void setSearchCriterion(IAttributeSearchFieldKind kind, String searchString)
+    public void setSearchCriterion(DetailedSearchField field, String searchString)
     {
-        DetailedSearchFieldComboModel model =
-                new DetailedSearchFieldComboModel(kind.getDescription(), DetailedSearchField
-                        .createAttributeField(kind));
+        String description = "";
+        switch (field.getKind())
+        {
+            case ATTRIBUTE:
+                description = field.getAttributeCode();
+                break;
+            case PROPERTY:
+                description = field.getPropertyCode();
+                break;
+            case ANY_FIELD:
+                description = "Any Field";
+                break;
+            case ANY_PROPERTY:
+                description = "Any Property";
+                break;
+        }
+        DetailedSearchFieldComboModel model = new DetailedSearchFieldComboModel(description, field);
         nameField.setValue(model);
         valueField.setValue(searchString);
     }

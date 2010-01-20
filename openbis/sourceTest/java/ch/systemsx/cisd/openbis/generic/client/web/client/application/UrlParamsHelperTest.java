@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper.OpenInitialTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
@@ -161,6 +162,7 @@ public class UrlParamsHelperTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testOpenInitialSearchTab()
     {
@@ -169,17 +171,42 @@ public class UrlParamsHelperTest extends AssertJUnit
                 {
                     allowing(viewContext).getCommonService();
                     will(returnValue(commonService));
-                    //
-                    // one(commonService).getEntityInformationHolder(with(EntityKind.SAMPLE),
-                    // with("20100104150239401-871"),
-                    // with(Expectations.any(AbstractAsyncCallback.class)));
+
+                    one(commonService).listSamples(
+                            with(Expectations.any(ListSampleDisplayCriteria.class)),
+                            with(Expectations.any(AbstractAsyncCallback.class)));
                 }
 
             });
 
         final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper
-                .initializeUrlParameters("searchEntity=SAMPLE&searchString=20100104150239401-871");
+        urlParamsHelper.initializeUrlParameters("searchEntity=SAMPLE&code=CL1");
+
+        IDelegatedAction action = urlParamsHelper.getOpenInitialTabAction();
+        action.execute();
+
+        context.assertIsSatisfied();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testOpenInitialSearchTabWithoutCode()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(viewContext).getCommonService();
+                    will(returnValue(commonService));
+
+                    one(commonService).listSamples(
+                            with(Expectations.any(ListSampleDisplayCriteria.class)),
+                            with(Expectations.any(AbstractAsyncCallback.class)));
+                }
+
+            });
+
+        final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
+        urlParamsHelper.initializeUrlParameters("searchEntity=SAMPLE");
 
         IDelegatedAction action = urlParamsHelper.getOpenInitialTabAction();
         action.execute();
@@ -188,27 +215,31 @@ public class UrlParamsHelperTest extends AssertJUnit
     }
 
     @Test
-    public void testOpenInitialSearchTabDefaultingSearchString()
+    public void testOpenInitialSearchTabWithDataset()
     {
         context.checking(new Expectations()
             {
                 {
                     allowing(viewContext).getCommonService();
                     will(returnValue(commonService));
-
-                    // one(commonService).getEntityInformationHolder(with(EntityKind.SAMPLE),
-                    // with("20100104150239401-871"),
-                    // with(Expectations.any(AbstractAsyncCallback.class)));
                 }
 
             });
 
         final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper
-                .initializeUrlParameters("searchEntity=SAMPLE&searchString=20100104150239401-871");
+        urlParamsHelper.initializeUrlParameters("searchEntity=DATA_SET");
 
-        IDelegatedAction action = urlParamsHelper.getOpenInitialTabAction();
-        action.execute();
+        OpenInitialTabAction action =
+                (OpenInitialTabAction) urlParamsHelper.getOpenInitialTabAction();
+
+        try
+        {
+            action.openInitialTabUnderExceptionHandler();
+            fail("Only SAMPLE is supported by the search link mechanism right now.");
+        } catch (UserFailureException expected)
+        {
+            // Do nothing -- this should happen
+        }
 
         context.assertIsSatisfied();
     }

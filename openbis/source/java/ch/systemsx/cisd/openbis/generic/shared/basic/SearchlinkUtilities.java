@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 public class SearchlinkUtilities
 {
     /** The HTTP URL parameter used to specify the entity identifier. */
-    public static final String SEARCH_FIELD_PARAMETER_KEY = "searchString";
+    public static final String CODE_PARAMETER_KEY = "code";
 
     /** The HTTP URL parameter used to specify the entity kind. */
     public static final String ENTITY_KIND_PARAMETER_KEY = "searchEntity";
@@ -36,7 +36,7 @@ public class SearchlinkUtilities
     {
         URLMethodWithParameters ulrWithParameters = new URLMethodWithParameters(baseIndexURL);
         ulrWithParameters.addParameter(ENTITY_KIND_PARAMETER_KEY, entityKind.name());
-        ulrWithParameters.addParameter(SEARCH_FIELD_PARAMETER_KEY, searchString);
+        ulrWithParameters.addParameter(CODE_PARAMETER_KEY, searchString);
         return ulrWithParameters.toString();
     }
 }

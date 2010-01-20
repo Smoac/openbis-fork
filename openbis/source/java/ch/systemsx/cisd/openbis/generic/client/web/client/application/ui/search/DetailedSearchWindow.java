@@ -17,8 +17,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpP
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractDialogWithOnlineHelp;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 
 /**
@@ -132,9 +132,9 @@ public class DetailedSearchWindow extends AbstractDialogWithOnlineHelp
      * does not notify the listener of any changes -- the caller must keep the window and toolbar in
      * sync.
      */
-    public void setInitialSearchCriterion(IAttributeSearchFieldKind initialKind, String searchString)
+    public void setInitialSearchCriterion(DetailedSearchField initialField, String searchString)
     {
         // Set the widget
-        criteriaWidget.setInitialSearchCriterion(initialKind, searchString);
+        criteriaWidget.setInitialSearchCriterion(initialField, searchString);
     }
 }
