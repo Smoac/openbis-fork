@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -28,12 +29,17 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.authentication.IAuthenticationService;
+import ch.systemsx.cisd.authentication.NullAuthenticationService;
+import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
@@ -41,8 +47,11 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  * 
  * @author Izabela Adamczyk
  */
+@Friend(toClasses = UserManager.class)
 public class UserManagerTest extends AbstractFileSystemTestCase
 {
+
+    private static final String TOKEN = "token";
 
     private Mockery context;
 
@@ -62,6 +71,8 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
     private IUserSessionInvalidator userSessionInvalidator;
 
+    private IAuthenticationService externalAuthService;
+
     @Override
     @BeforeMethod
     public final void setUp()
@@ -74,7 +85,8 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         boFactory = new BusinessObjectFactory(daoFactory, businessContext);
         businessContext = context.mock(IBusinessContext.class);
         userSessionInvalidator = context.mock(IUserSessionInvalidator.class);
-        userManager = new UserManager(daoFactory, boFactory, businessContext);
+        externalAuthService = context.mock(IAuthenticationService.class);
+        userManager = new UserManager(daoFactory, boFactory, businessContext, externalAuthService);
 
     }
 
@@ -456,4 +468,132 @@ public class UserManagerTest extends AbstractFileSystemTestCase
             });
         userManager.deleteUser(id, null);
     }
+
+    @Test
+    public void testCreateExternalUsers() throws Exception
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+        final String firstName = "New";
+        final String lastName = "User";
+        final String email = "new@users.com";
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsers();
+                    will(returnValue(new ArrayList<UserDTO>()));
+
+                    one(externalAuthService).authenticateApplication();
+                    will(returnValue(TOKEN));
+
+                    one(externalAuthService).getPrincipal(TOKEN, userId);
+                    will(returnValue(new Principal(userId, firstName, lastName, email)));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+
+                    // create user
+                    one(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).createUser(
+                            UserManager.createExternalUser(userId, firstName + " " + lastName,
+                                    email, active));
+                    allowing(businessContext).getUserActionLog();
+                    will(returnValue(new DummyUserActionLog()));
+                }
+            });
+        userManager.createExternalUsers(Arrays.asList("id:" + userId, "e@mail.com"));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCreateExternalUsersNoAuthenticationService() throws Exception
+    {
+        final String userId = "newuser";
+        new UserManager(daoFactory, boFactory, businessContext, null).createExternalUsers(Arrays
+                .asList("id:" + userId, "e@mail.com"));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCreateExternalUsersNullAuthenticationService() throws Exception
+    {
+        final String userId = "newuser";
+        new UserManager(daoFactory, boFactory, businessContext, new NullAuthenticationService())
+                .createExternalUsers(Arrays.asList("id:" + userId, "e@mail.com"));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCreateExternalUsersUserExists() throws Exception
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+        final String firstName = "New";
+        final String lastName = "User";
+        final String email = "new@users.com";
+        final UserDTO user =
+                UserManager.createExternalUser(userId, firstName + " " + lastName, email, active);
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsers();
+                    will(returnValue(Arrays.asList(user)));
+                }
+            });
+        userManager.createExternalUsers(Arrays.asList("id:" + userId, "e@mail.com"));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCreateExternalUsersUserNotFoundInExtAuth() throws Exception
+    {
+        final String userId = "newuser";
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsers();
+                    will(returnValue(new ArrayList<UserDTO>()));
+
+                    one(externalAuthService).authenticateApplication();
+                    will(returnValue(TOKEN));
+
+                    one(externalAuthService).getPrincipal(TOKEN, userId);
+                    will(returnValue(null));
+                }
+            });
+        userManager.createExternalUsers(Arrays.asList("id:" + userId, "e@mail.com"));
+        context.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptions = EnvironmentFailureException.class)
+    public void testCreateExternalUsersAuthenticationFails() throws Exception
+    {
+        final String userId = "newuser";
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsers();
+                    will(returnValue(new ArrayList<UserDTO>()));
+
+                    one(externalAuthService).authenticateApplication();
+                    will(returnValue(null));
+                }
+            });
+        userManager.createExternalUsers(Arrays.asList("id:" + userId, "e@mail.com"));
+        context.assertIsSatisfied();
+    }
+
 }

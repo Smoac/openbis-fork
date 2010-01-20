@@ -24,6 +24,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
+import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.cifex.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
@@ -59,6 +60,8 @@ public final class DomainModel implements IDomainModel
 
     private final BusinessObjectFactory boFactory;
 
+    private final IAuthenticationService externalAuthenticationService;
+
     /**
      * Creates an instance based on the specified DAO Factory and mail client. The specified bean
      * post processor is needed to create proxies for the various manager objects which handle
@@ -68,7 +71,8 @@ public final class DomainModel implements IDomainModel
      */
     public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient,
             final IUserActionLog userActionLog, final BeanPostProcessor processor,
-            final UserHttpSessionHolder userSessionHolder, final String overrideURL)
+            final UserHttpSessionHolder userSessionHolder, final String overrideURL,
+            IAuthenticationService externalAuthenticationService)
     {
         assert daoFactory != null : "Undefined DAO Factory";
         assert mailClient != null : "Undefined mail client";
@@ -76,6 +80,7 @@ public final class DomainModel implements IDomainModel
 
         this.daoFactory = daoFactory;
         this.processor = processor;
+        this.externalAuthenticationService = externalAuthenticationService;
         businessContext = new BusinessContext();
         businessContext.setMailClient(mailClient);
         businessContext.setPasswordGenerator(new PasswordGenerator());
@@ -254,7 +259,8 @@ public final class DomainModel implements IDomainModel
         if (userManager == null)
         {
             userManager =
-                    createLoggingProxy(new UserManager(daoFactory, boFactory, businessContext));
+                    createLoggingProxy(new UserManager(daoFactory, boFactory, businessContext,
+                            externalAuthenticationService));
         }
         return userManager;
     }

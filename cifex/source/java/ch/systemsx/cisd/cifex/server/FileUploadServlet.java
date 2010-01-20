@@ -106,14 +106,15 @@ public final class FileUploadServlet extends AbstractFileUploadServlet
             }
             checkQuota(requestUser, filenamesToUpload.length, contentLength);
             final List<FileDTO> files = new ArrayList<FileDTO>();
-            final List<String> userIdentifier = new ArrayList<String>();
+            final List<String> userIdentifiers = new ArrayList<String>();
             final StringBuffer comment = new StringBuffer();
-            new FormDataExtractor(request, requestUser, filenamesToUpload, files, userIdentifier,
+            new FormDataExtractor(request, requestUser, filenamesToUpload, files, userIdentifiers,
                     comment).execute();
             final String url = getURLForEmail(request);
             final IFileManager fileManager = domainModel.getFileManager();
+            domainModel.getUserManager().createExternalUsers(userIdentifiers);
             final List<String> invalidUserIdentifiers =
-                    fileManager.shareFilesWith(url, requestUser, userIdentifier, files, comment
+                    fileManager.shareFilesWith(url, requestUser, userIdentifiers, files, comment
                             .toString());
             if (invalidUserIdentifiers.isEmpty() == false)
             {

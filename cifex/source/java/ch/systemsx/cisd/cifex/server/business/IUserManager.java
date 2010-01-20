@@ -174,4 +174,13 @@ public interface IUserManager
     @LogAnnotation(logCategory = LogCategory.OPERATION)
     public List<UserDTO> listUsersFileSharedWith(long fileId) throws UserFailureException;
 
+    /**
+     * Creates users with specified user ids, that don't exist in CIFEX but are known to external
+     * authentication service.
+     * 
+     * @param userIdentifiers - list of emails (user@domain.net) and user ids (id:userId)
+     */
+    @LogAnnotation(logCategory = LogCategory.OPERATION)
+    public void createExternalUsers(List<String> userIdentifiers);
+
 }

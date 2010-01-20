@@ -33,6 +33,7 @@ import ch.systemsx.cisd.cifex.rpc.server.Session;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
 import ch.systemsx.cisd.cifex.server.business.IUserManager;
+import ch.systemsx.cisd.cifex.server.business.UserUtils;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
 import ch.systemsx.cisd.cifex.server.util.FileUploadFeedbackProvider;
@@ -60,11 +61,6 @@ abstract public class AbstractCIFEXService
 
     /** The attribute name that holds the queue that has the feedbacks of the upload. */
     static final String UPLOAD_FEEDBACK_QUEUE = "upload-feedback-queue";
-
-    /**
-     * The Crowd property for the display name.
-     */
-    private static final String DISPLAY_NAME_PROPERTY = "displayName";
 
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
@@ -310,16 +306,7 @@ abstract public class AbstractCIFEXService
     {
         final String code = principal.getUserId();
         final String email = principal.getEmail();
-        final String firstName = principal.getFirstName();
-        final String lastName = principal.getLastName();
-        final String displayName;
-        if (principal.getProperty(DISPLAY_NAME_PROPERTY) != null)
-        {
-            displayName = principal.getProperty(DISPLAY_NAME_PROPERTY);
-        } else
-        {
-            displayName = firstName + " " + lastName;
-        }
+        final String displayName = UserUtils.extractDisplayName(principal);
         final IUserManager userManager = domainModel.getUserManager();
         UserDTO userDTO = userManager.tryFindUserByCode(code);
         if (userDTO == null)

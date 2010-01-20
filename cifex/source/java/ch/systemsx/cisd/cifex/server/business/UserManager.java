@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,12 +25,17 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.authentication.IAuthenticationService;
+import ch.systemsx.cisd.authentication.NullAuthenticationService;
+import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.bo.IUserBO;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.common.Password;
+import ch.systemsx.cisd.common.collections.TableMap;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -49,10 +55,14 @@ class UserManager extends AbstractManager implements IUserManager
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, UserManager.class);
 
+    private final IAuthenticationService authenticationServiceOrNull;
+
     public UserManager(final IDAOFactory daoFactory, final IBusinessObjectFactory boFactory,
-            final IBusinessContext businessContext)
+            final IBusinessContext businessContext,
+            IAuthenticationService authenticationServiceOrNull)
     {
         super(daoFactory, boFactory, businessContext);
+        this.authenticationServiceOrNull = authenticationServiceOrNull;
     }
 
     private final static String getUserDescription(final UserDTO user)
@@ -277,8 +287,7 @@ class UserManager extends AbstractManager implements IUserManager
             }
         } catch (DataAccessException ex)
         {
-            final String msg =
-                    String.format("Could not delete user id=%s (id not found)", id);
+            final String msg = String.format("Could not delete user id=%s (id not found)", id);
             operationLog.warn(msg);
             throw new IllegalArgumentException(msg);
         } finally
@@ -298,9 +307,9 @@ class UserManager extends AbstractManager implements IUserManager
     }
 
     @Transactional
-    public final UserDTO updateUser(final UserDTO oldUserToUpdateOrNull, final UserDTO userToUpdate,
-            final Password passwordOrNull, final UserDTO requestUserOrNull)
-            throws UserFailureException, IllegalArgumentException
+    public final UserDTO updateUser(final UserDTO oldUserToUpdateOrNull,
+            final UserDTO userToUpdate, final Password passwordOrNull,
+            final UserDTO requestUserOrNull) throws UserFailureException, IllegalArgumentException
     {
         assert userToUpdate != null : "Unspecified user";
 
@@ -431,6 +440,76 @@ class UserManager extends AbstractManager implements IUserManager
         {
             businessContext.getUserActionLog().logChangeUserCodeUser(before, after, success);
         }
+    }
+
+	@Transactional
+    public void createExternalUsers(List<String> userIdentifiers)
+    {
+        if (authenticationServiceOrNull != null
+                && authenticationServiceOrNull instanceof NullAuthenticationService == false)
+        {
+            TableMap<String, UserDTO> existingUsers =
+                    UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(daoFactory
+                            .getUserDAO().listUsers());
+            List<String> nonexistentUserIds = new ArrayList<String>();
+            for (String identifier : userIdentifiers)
+            {
+                String lowerCaseIdentifier = identifier.toLowerCase();
+                if (UserUtils.isUserCodeWithIdPrefix(lowerCaseIdentifier))
+                {
+                    String userId = UserUtils.extractUserId(lowerCaseIdentifier);
+                    final UserDTO userOrNull = existingUsers.tryGet(userId);
+                    if (userOrNull == null)
+                    {
+                        nonexistentUserIds.add(userId);
+                    }
+                }
+            }
+            if (nonexistentUserIds.isEmpty() == false)
+            {
+                String token = authenticationServiceOrNull.authenticateApplication();
+                if (token == null)
+                {
+                    String message =
+                            "Authentication of application in external authentocation service failed";
+                    operationLog.error(message);
+                    throw new EnvironmentFailureException(message);
+                }
+                for (String userId : nonexistentUserIds)
+                {
+                    Principal userDetails;
+                    try
+                    {
+                        userDetails = authenticationServiceOrNull.getPrincipal(token, userId);
+                    } catch (IllegalArgumentException ex)
+                    {
+                        userDetails = null;
+                    }
+                    if (userDetails != null)
+                    {
+                        createUser(createExternalUser(userDetails.getUserId(), UserUtils
+                                .extractDisplayName(userDetails), userDetails.getEmail(),
+                                businessContext.isNewExternallyAuthenticatedUserStartActive()),
+                                null);
+                    }
+                }
+            }
+        }
+    }
+
+    @Private
+    static UserDTO createExternalUser(String code, String displayName, String email,
+            boolean isNewExternallyAuthenticatedUserStartActive)
+    {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserCode(code);
+        userDTO.setUserFullName(displayName);
+        userDTO.setEmail(email);
+        userDTO.setPassword(null);
+        userDTO.setExternallyAuthenticated(true);
+        userDTO.setAdmin(false);
+        userDTO.setActive(isNewExternallyAuthenticatedUserStartActive);
+        return userDTO;
     }
 
 }

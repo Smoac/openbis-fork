@@ -36,7 +36,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -87,11 +86,6 @@ final class FileManager extends AbstractManager implements IFileManager
 {
     private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
-    private static final Pattern USER_CODE_WITH_ID_PREFIX_PATTERN =
-            Pattern.compile(Constants.USER_CODE_WITH_ID_PREFIX_REGEX);
-
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(Constants.EMAIL_REGEX);
-
     private static final int PROGRESS_UPDATE_CHUNK_SIZE = 128 * 1024; // 128 kB
 
     private static final int PROGRESS_UPDATE_MIN_INTERVAL_MILLIS = 2 * 1000; // 2 seconds
@@ -101,8 +95,6 @@ final class FileManager extends AbstractManager implements IFileManager
 
     private static final Logger notificationLog =
             LogFactory.getLogger(LogCategory.NOTIFY, FileManager.class);
-
-    public final static String USER_ID_PREFIX = Constants.USER_ID_PREFIX;
 
     private final ITimeProvider timeProvider;
 
@@ -708,7 +700,8 @@ final class FileManager extends AbstractManager implements IFileManager
             final TableMapNonUniqueKey<String, UserDTO> existingUsers =
                     createTableMapOfExistingUsersWithEmailAsKey();
             final TableMap<String, UserDTO> existingUniqueUsers =
-                    createTableMapOfExistingUsersWithUserCodeAsKey();
+                    UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(daoFactory
+                            .getUserDAO().listUsers());
             for (final String identifier : userIdentifiers)
             {
                 final Set<UserDTO> users = new LinkedHashSet<UserDTO>();
@@ -745,11 +738,10 @@ final class FileManager extends AbstractManager implements IFileManager
         String password = null;
         final String lowerCaseIdentifier = identifier.toLowerCase();
         // If the Identifier start with "id:", it is not a email
-        if (USER_CODE_WITH_ID_PREFIX_PATTERN.matcher(lowerCaseIdentifier).matches())
+        if (UserUtils.isUserCodeWithIdPrefix(lowerCaseIdentifier))
         {
             final UserDTO userOrNull =
-                    existingUniqueUsers.tryGet(lowerCaseIdentifier.substring(USER_ID_PREFIX
-                            .length()));
+                    existingUniqueUsers.tryGet(UserUtils.extractUserId(lowerCaseIdentifier));
             if (userOrNull != null && StringUtils.isNotBlank(userOrNull.getEmail()))
             {
                 users.add(userOrNull);
@@ -757,7 +749,7 @@ final class FileManager extends AbstractManager implements IFileManager
             {
                 invalidEmailAdresses.add(lowerCaseIdentifier);
             }
-        } else if (EMAIL_PATTERN.matcher(lowerCaseIdentifier).matches())
+        } else if (UserUtils.EMAIL_PATTERN.matcher(lowerCaseIdentifier).matches())
         {
             Set<UserDTO> existingUsersOrNull = existingUsers.tryGet(lowerCaseIdentifier);
             if (existingUsersOrNull == null)
@@ -907,19 +899,6 @@ final class FileManager extends AbstractManager implements IFileManager
                         public String getKey(final UserDTO user)
                         {
                             return user.getEmail();
-                        }
-                    });
-    }
-
-    private TableMap<String, UserDTO> createTableMapOfExistingUsersWithUserCodeAsKey()
-    {
-        final IUserDAO userDAO = daoFactory.getUserDAO();
-        return new TableMap<String, UserDTO>(userDAO.listUsers(),
-                new IKeyExtractor<String, UserDTO>()
-                    {
-                        public String getKey(final UserDTO user)
-                        {
-                            return user.getUserCode();
                         }
                     });
     }
