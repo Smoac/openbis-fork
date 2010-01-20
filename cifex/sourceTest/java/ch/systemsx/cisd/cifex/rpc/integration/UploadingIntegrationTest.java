@@ -634,7 +634,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                                     public boolean matches(Object item)
                                     {
-                                        if (item instanceof List)
+                                        if (item instanceof List<?>)
                                         {
                                             UserFailureException e =
                                                     (UserFailureException) ((List<?>) item).get(0);
