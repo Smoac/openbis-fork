@@ -68,6 +68,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private final TextToolItem resetTool;
 
+    private boolean disableApply = false;
+
     public FilterToolbar(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
             IDisplayTypeIDProvider displayTypeIDProvider, IDelegatedAction applyFiltersAction)
     {
@@ -271,15 +273,20 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         }
     }
 
-    public void resetFilterSelection()
+    /** resets filter selection to column filter but doesn't invoke apply */
+    public void resetFilterSelectionWithoutApply()
     {
+        disableApply = true;
         filterSelectionWidget.reset();
+        disableApply = false;
     }
 
     private void apply()
     {
-        // if filter is invalid the action only refreshes the grid without applying any filters
-        applyFiltersAction.execute();
+        if (disableApply == false)
+        {
+            applyFiltersAction.execute();
+        }
     }
 
     private void updateApplyToolEnabledState()

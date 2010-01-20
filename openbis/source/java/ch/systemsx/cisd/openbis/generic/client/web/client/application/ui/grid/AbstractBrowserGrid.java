@@ -205,8 +205,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // finished.
     private ResultSetFetchConfig<String> pendingFetchConfigOrNull;
 
-    private boolean disableFetch = false;
-
     private IDataRefreshCallback refreshCallback;
 
     private LayoutContainer bottomToolbars;
@@ -909,17 +907,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                     pagingToolbar.disableExportButton();
                     pagingToolbar.updateDefaultConfigButton(false);
 
-                    // We don't want to fetch data from cache when filters are reset.
-                    // refresh() invokes fetching of data from DB and would be ignored because of a
-                    // pending fetch.
-                    disableFetch();
-
                     // Need to reset filter fields *before* refreshing the grid so the list can be
                     // correctly retrieved
                     filterToolbar.resetFilterFields();
-                    filterToolbar.resetFilterSelection();
-
-                    enableFetch();
+                    filterToolbar.resetFilterSelectionWithoutApply();
 
                     // export and config buttons are enabled when ListEntitiesCallback is complete
                     refresh();
@@ -1061,12 +1052,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     // Refreshes the data, does not clear the cache. Does not change the column model.
     private void reloadData(ResultSetFetchConfig<String> resultSetFetchConfig)
     {
-        if (isFetchDisabled() || pendingFetchConfigOrNull != null)
+        if (pendingFetchConfigOrNull != null)
         {
-            final String reason =
-                    isFetchDisabled() ? "fetch is disabled"
-                            : "there is an unfinished request already: " + pendingFetchConfigOrNull;
-            debug("Cannot reload the data with the mode '" + resultSetFetchConfig + "'; " + reason);
+            debug("Cannot reload the data with the mode '" + resultSetFetchConfig
+                    + "'; there is an unfinished request already: " + pendingFetchConfigOrNull);
             return;
         }
         pendingFetchConfigOrNull = resultSetFetchConfig;
@@ -1357,26 +1346,6 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     protected final GridCellRenderer<BaseEntityModel<?>> createInternalLinkCellRenderer()
     {
         return new InternalLinkCellRenderer();
-    }
-
-    protected final boolean isFetchDisabled()
-    {
-        return disableFetch;
-    }
-
-    protected final void disableFetch()
-    {
-        setDisableFetch(true);
-    }
-
-    protected final void enableFetch()
-    {
-        setDisableFetch(false);
-    }
-
-    private void setDisableFetch(boolean disableFetch)
-    {
-        this.disableFetch = disableFetch;
     }
 
     // ------- generic static helpers
