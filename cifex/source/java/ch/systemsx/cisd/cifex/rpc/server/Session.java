@@ -25,11 +25,6 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
  */
 public final class Session
 {
-    public enum Operation
-    {
-        NONE, UPLOAD, DOWNLOAD;
-    }
-
     private final String sessionID;
 
     private final UserDTO user;
