@@ -26,8 +26,8 @@ import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -411,7 +411,10 @@ public final class FileUploadWidget extends LayoutContainer
             final String fieldValue = uploadFields.get(i).getFileInput().getValue();
             assert fieldValue != null : "Must not be null.";
             final String filePath = fieldValue.trim();
-            filePaths.add(filePath);
+            if (filePath.length() > 0)
+            {
+                filePaths.add(filePath);
+            }
         }
         return filePaths;
     }
