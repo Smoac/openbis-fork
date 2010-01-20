@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,28 +17,28 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.user.action;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
-/**
- * An {@link IDelegatedAction} that causes user logout.
- * 
- * @author Piotr Buczek
- */
-public class LogoutAction implements IDelegatedAction
+final class LogoutCallback extends AbstractAsyncCallback<Void>
 {
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-    public LogoutAction(final IViewContext<ICommonClientServiceAsync> viewContext)
+    LogoutCallback(IViewContext<ICommonClientServiceAsync> viewContext)
     {
-        this.viewContext = viewContext;
+        super(viewContext);
+        System.out.println("CREATE "+this);
     }
 
-    public void execute()
+    @Override
+    protected void finalize() throws Throwable
     {
-        DisplaySettings displaySettings =
-                viewContext.getModel().getSessionContext().getDisplaySettings();
-        viewContext.getService().logout(displaySettings, new LogoutCallback(viewContext));
+        System.out.println("FINALIZE "+this);
+    }
+
+    @Override
+    public final void process(final Void result)
+    {
+        viewContext.getPageController().reload(true);
+        GWTUtils.setAllowConfirmOnExit(false);
     }
 }
