@@ -65,6 +65,8 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.Treatment;
  */
 class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinInfo>
 {
+    private static final String ABUNDANCE_PROPERTY_KEY = "ABUNDANCE";
+
     private static final String PREFIX =
             GenericConstants.ID_PREFIX + "protein-by-experiment-browser";
 
@@ -184,18 +186,20 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
             String header = definition.getSampleCode();
             final long sampleID = definition.getID();
             List<Treatment> treatments = definition.getTreatments();
-            Map<String, String> properties = null;
+            Map<String, String> properties = new HashMap<String, String>();
             if (treatments.isEmpty() == false)
             {
                 header = "";
                 String delim = "";
-                properties = new HashMap<String, String>();
                 for (Treatment treatment : treatments)
                 {
                     header += delim + treatment;
                     delim = ", ";
                     properties.put(treatment.getTypeCode(), treatment.getValue());
                 }
+            } else
+            {
+                properties.put(ABUNDANCE_PROPERTY_KEY, header);
             }
             columns.add(new InternalAbundanceColumnDefinition(header, properties, 100, false,
                     sampleID));
