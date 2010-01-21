@@ -139,7 +139,7 @@ public class PlateLayoutSection extends SingleSectionPanel
         DisplayedOrSelectedDatasetCriteria criteria =
                 DisplayedOrSelectedDatasetCriteria.createSelectedItems(Arrays.asList(dataset
                         .getCode()));
-        DataSetReportGenerator.generate(service, criteria, viewContext.getCommonViewContext());
+        DataSetReportGenerator.generate(viewContext.getCommonViewContext(), service, criteria);
     }
 
     private DatastoreServiceDescription createImageAnalysisReporter(DatasetReference dataset,
