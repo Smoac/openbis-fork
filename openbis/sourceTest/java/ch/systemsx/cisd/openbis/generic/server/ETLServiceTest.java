@@ -79,7 +79,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private static final int PORT = 443;
 
-    private static final String URL = "https://" + SESSION.getRemoteHost() + ":" + PORT;
+    private static final String URL = "http://" + SESSION.getRemoteHost() + ":" + PORT;
 
     private ICommonBusinessObjectFactory boFactory;
 
@@ -304,7 +304,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         assertEquals(experiment.getCode(), actualExperiment.getCode());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testGetSampleType()
     {
@@ -312,7 +312,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             {
                 {
                     one(sessionManager).getSession(SESSION_TOKEN);
-                    
+
                     one(sampleTypeDAO).tryFindSampleTypeByCode("MY_TYPE");
                     SampleTypePE sampleTypePE = new SampleTypePE();
                     sampleTypePE.setListable(Boolean.TRUE);
@@ -323,7 +323,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                 }
             });
         SampleType sampleType = createService().getSampleType(SESSION_TOKEN, "MY_TYPE");
-        
+
         assertEquals(true, sampleType.isListable());
         assertEquals(2, sampleType.getGeneratedFromHierarchyDepth());
         assertEquals(1, sampleType.getContainerHierarchyDepth());
