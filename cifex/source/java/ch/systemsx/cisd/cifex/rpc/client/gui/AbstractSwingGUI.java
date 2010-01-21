@@ -260,9 +260,9 @@ public abstract class AbstractSwingGUI
 
 class CIFEXCommunicationState
 {
-    final String sessionId;
+    private final String sessionId;
 
-    final ICIFEXComponent cifex;
+    private final ICIFEXComponent cifex;
 
     /**
      * If possible, create a new instance of the CIFEXCommunicationState based info in the
