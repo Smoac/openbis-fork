@@ -442,30 +442,18 @@ class UserManager extends AbstractManager implements IUserManager
         }
     }
 
-	@Transactional
-    public void createExternalUsers(List<String> userIdentifiers)
+    @Transactional
+    public void createExternalUsers(List<String> userCodes)
     {
+        if (userCodes.isEmpty())
+        {
+            return;
+        }
         if (authenticationServiceOrNull != null
                 && authenticationServiceOrNull instanceof NullAuthenticationService == false)
         {
-            TableMap<String, UserDTO> existingUsers =
-                    UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(daoFactory
-                            .getUserDAO().listUsers());
-            List<String> nonexistentUserIds = new ArrayList<String>();
-            for (String identifier : userIdentifiers)
-            {
-                String lowerCaseIdentifier = identifier.toLowerCase();
-                if (UserUtils.isUserCodeWithIdPrefix(lowerCaseIdentifier))
-                {
-                    String userId = UserUtils.extractUserId(lowerCaseIdentifier);
-                    final UserDTO userOrNull = existingUsers.tryGet(userId);
-                    if (userOrNull == null)
-                    {
-                        nonexistentUserIds.add(userId);
-                    }
-                }
-            }
-            if (nonexistentUserIds.isEmpty() == false)
+            List<String> nonexistentUserCodes = listUnexistentUsers(userCodes);
+            if (nonexistentUserCodes.isEmpty() == false)
             {
                 String token = authenticationServiceOrNull.authenticateApplication();
                 if (token == null)
@@ -475,7 +463,7 @@ class UserManager extends AbstractManager implements IUserManager
                     operationLog.error(message);
                     throw new EnvironmentFailureException(message);
                 }
-                for (String userId : nonexistentUserIds)
+                for (String userId : nonexistentUserCodes)
                 {
                     Principal userDetails;
                     try
@@ -495,6 +483,34 @@ class UserManager extends AbstractManager implements IUserManager
                 }
             }
         }
+    }
+
+    private List<String> listUnexistentUsers(List<String> userCodes)
+    {
+        List<UserDTO> users = new ArrayList<UserDTO>();
+        if (userCodes.size() == 1)
+        {
+            UserDTO userOrNull = daoFactory.getUserDAO().tryFindUserByCode(userCodes.get(0));
+            if (userOrNull != null)
+            {
+                users.add(userOrNull);
+            }
+        } else if (userCodes.size() > 1)
+        {
+            users.addAll(daoFactory.getUserDAO().listUsers());
+        }
+        TableMap<String, UserDTO> existingUsers =
+                UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(users);
+        List<String> nonexistentUserCodes = new ArrayList<String>();
+        for (String userCode : userCodes)
+        {
+            final UserDTO userOrNull = existingUsers.tryGet(userCode);
+            if (userOrNull == null)
+            {
+                nonexistentUserCodes.add(userCode);
+            }
+        }
+        return nonexistentUserCodes;
     }
 
     @Private

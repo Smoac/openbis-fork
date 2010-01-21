@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -50,10 +51,10 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
-import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
 import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
@@ -697,6 +698,16 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     {
         privGetCurrentUser();
         final IUserManager userManager = domainModel.getUserManager();
+        final UserDTO userDTO = userManager.tryFindUserByCode(userCode);
+        return BeanUtils.createBean(UserInfoDTO.class, userDTO);
+    }
+
+    public UserInfoDTO tryFindUserByUserCodeOrCreate(final String userCode)
+            throws InvalidSessionException
+    {
+        privGetCurrentUser();
+        final IUserManager userManager = domainModel.getUserManager();
+        userManager.createExternalUsers(Arrays.asList(userCode));
         final UserDTO userDTO = userManager.tryFindUserByCode(userCode);
         return BeanUtils.createBean(UserInfoDTO.class, userDTO);
     }

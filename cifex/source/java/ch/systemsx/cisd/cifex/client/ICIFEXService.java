@@ -24,9 +24,9 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
-import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 
 /**
@@ -94,6 +94,13 @@ public interface ICIFEXService extends RemoteService
      * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists.
      */
     public UserInfoDTO tryFindUserByUserCode(final String userCode) throws InvalidSessionException;
+
+    /**
+     * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists
+     * ann could not be created as externally authenticated user.
+     */
+    public UserInfoDTO tryFindUserByUserCodeOrCreate(final String userCode)
+            throws InvalidSessionException;
 
     /**
      * Returns a list with all users, which have the given email address.

@@ -229,7 +229,7 @@ abstract class AbstractFileShareUserDialog extends DefaultLayoutDialog
                     {
                         final String userCode =
                                 emailOrCode.substring(Constants.USER_ID_PREFIX.length());
-                        viewContext.getCifexService().tryFindUserByUserCode(userCode,
+                        viewContext.getCifexService().tryFindUserByUserCodeOrCreate(userCode,
                                 new AbstractAsyncCallback<UserInfoDTO>(viewContext)
                                     {
                                         public void onSuccess(UserInfoDTO result)

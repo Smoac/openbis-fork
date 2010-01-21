@@ -36,9 +36,9 @@ import ch.systemsx.cisd.cifex.client.UserNotFoundException;
 import ch.systemsx.cisd.cifex.shared.basic.EnvironmentFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.UserFailureException;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
-import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileUploadFeedback;
+import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -202,6 +202,12 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     public UserInfoDTO tryFindUserByUserCode(final String userCode) throws InvalidSessionException
     {
         return cifexServiceDelegate.tryFindUserByUserCode(userCode);
+    }
+
+    public UserInfoDTO tryFindUserByUserCodeOrCreate(final String userCode)
+            throws InvalidSessionException
+    {
+        return cifexServiceDelegate.tryFindUserByUserCodeOrCreate(userCode);
     }
 
     public List<UserInfoDTO> findUserByEmail(final String email) throws InvalidSessionException

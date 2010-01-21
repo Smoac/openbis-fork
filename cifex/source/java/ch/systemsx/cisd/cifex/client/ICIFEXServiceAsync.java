@@ -81,6 +81,10 @@ public interface ICIFEXServiceAsync
     public void tryFindUserByUserCode(final String userCode,
             final AsyncCallback<UserInfoDTO> callback);
 
+    /** Gets the user by the userCode, creates it if user exists in external authentication service. */
+    public void tryFindUserByUserCodeOrCreate(final String userCode,
+            final AsyncCallback<UserInfoDTO> callback);
+
     /** Returns a list of users with the given email. */
     public void findUserByEmail(final String email, final AsyncCallback<List<UserInfoDTO>> callback);
 

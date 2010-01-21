@@ -325,7 +325,7 @@ public final class FileUploadWidget extends LayoutContainer
     private final void tryFindUserByUserCode(final String userCode,
             final FileShareUploadDialog dialog, final List<UserInfoDTO> existingUsers)
     {
-        context.getCifexService().tryFindUserByUserCode(userCode,
+        context.getCifexService().tryFindUserByUserCodeOrCreate(userCode,
                 new AbstractAsyncCallback<UserInfoDTO>(context)
                     {
                         public void onSuccess(UserInfoDTO result)

@@ -470,7 +470,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testCreateExternalUsers() throws Exception
+    public void testCreateOneExternalUser() throws Exception
     {
         final boolean active = true;
         final String userId = "newuser";
@@ -483,8 +483,8 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
 
-                    one(userDAO).listUsers();
-                    will(returnValue(new ArrayList<UserDTO>()));
+                    one(userDAO).tryFindUserByCode(userId);
+                    will(returnValue(null));
 
                     one(externalAuthService).authenticateApplication();
                     will(returnValue(TOKEN));
@@ -505,7 +505,58 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(new DummyUserActionLog()));
                 }
             });
-        userManager.createExternalUsers(Arrays.asList("id:" + userId, "e@mail.com"));
+        userManager.createExternalUsers(Arrays.asList(userId));
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCreateManyExternalUser() throws Exception
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+        final String firstName = "New";
+        final String lastName = "User";
+        final String email = "new@users.com";
+        final String userId2 = "newuser2";
+        context.checking(new Expectations()
+            {
+                {
+                    one(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsers();
+                    will(returnValue(new ArrayList<UserDTO>()));
+
+                    one(externalAuthService).authenticateApplication();
+                    will(returnValue(TOKEN));
+
+                    one(externalAuthService).getPrincipal(TOKEN, userId);
+                    will(returnValue(new Principal(userId, firstName, lastName, email)));
+
+                    one(externalAuthService).getPrincipal(TOKEN, userId2);
+                    will(returnValue(new Principal(userId2, firstName, lastName, email)));
+
+                    exactly(2).of(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+
+                    // create user
+                    one(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).createUser(
+                            UserManager.createExternalUser(userId, firstName + " " + lastName,
+                                    email, active));
+
+                    // create user
+                    one(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+                    one(userDAO).createUser(
+                            UserManager.createExternalUser(userId2, firstName + " " + lastName,
+                                    email, active));
+                    allowing(businessContext).getUserActionLog();
+                    will(returnValue(new DummyUserActionLog()));
+                }
+            });
+        userManager.createExternalUsers(Arrays.asList(userId, userId2));
         context.assertIsSatisfied();
     }
 
@@ -514,7 +565,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     {
         final String userId = "newuser";
         new UserManager(daoFactory, boFactory, businessContext, null).createExternalUsers(Arrays
-                .asList("id:" + userId, "e@mail.com"));
+                .asList(userId));
         context.assertIsSatisfied();
     }
 
@@ -523,7 +574,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     {
         final String userId = "newuser";
         new UserManager(daoFactory, boFactory, businessContext, new NullAuthenticationService())
-                .createExternalUsers(Arrays.asList("id:" + userId, "e@mail.com"));
+                .createExternalUsers(Arrays.asList(userId));
         context.assertIsSatisfied();
     }
 
@@ -543,11 +594,11 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
 
-                    one(userDAO).listUsers();
-                    will(returnValue(Arrays.asList(user)));
+                    one(userDAO).tryFindUserByCode(userId);
+                    will(returnValue(user));
                 }
             });
-        userManager.createExternalUsers(Arrays.asList("id:" + userId, "e@mail.com"));
+        userManager.createExternalUsers(Arrays.asList(userId));
         context.assertIsSatisfied();
     }
 
@@ -561,8 +612,8 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(daoFactory).getUserDAO();
                     will(returnValue(userDAO));
 
-                    one(userDAO).listUsers();
-                    will(returnValue(new ArrayList<UserDTO>()));
+                    one(userDAO).tryFindUserByCode(userId);
+                    will(returnValue(null));
 
                     one(externalAuthService).authenticateApplication();
                     will(returnValue(TOKEN));
@@ -571,7 +622,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(null));
                 }
             });
-        userManager.createExternalUsers(Arrays.asList("id:" + userId, "e@mail.com"));
+        userManager.createExternalUsers(Arrays.asList(userId));
         context.assertIsSatisfied();
     }
 
@@ -592,7 +643,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(null));
                 }
             });
-        userManager.createExternalUsers(Arrays.asList("id:" + userId, "e@mail.com"));
+        userManager.createExternalUsers(Arrays.asList(userId, "other"));
         context.assertIsSatisfied();
     }
 
