@@ -130,4 +130,8 @@ public class DummyUserActionLog implements IUserActionLog
     {
     }
 
+    public void logSetSessionUser(String oldUserCode, String newUserCode, boolean success)
+    {
+    }
+
 }

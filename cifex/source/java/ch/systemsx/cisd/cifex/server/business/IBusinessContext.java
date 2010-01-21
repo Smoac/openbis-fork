@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.File;
+import java.util.Set;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
@@ -108,5 +109,10 @@ public interface IBusinessContext
 
     /** Returns the full version information of this server. */
     public String getSystemVersion();
+    
+    /**
+     * Returns the set of allowed IPs from which setting the session user explicitely is allowed.
+     */
+    public Set<String> getAllowedIPsForSetSessionUser();
 
 }

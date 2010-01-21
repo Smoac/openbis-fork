@@ -45,7 +45,7 @@ public class CIFEXComponent implements ICIFEXComponent
 
     private static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L;
 
-    private static final long TIMEOUT_MILLIS = 3600 * 1000L; // FIXME: 20 * 1000L;
+    private static final long TIMEOUT_MILLIS = 20 * 1000L;
 
     private static final TimingParameters TIMING =
             TimingParameters.create(TIMEOUT_MILLIS, MAX_RETRIES, WAIT_AFTER_FAILURE_MILLIS);
@@ -170,6 +170,11 @@ public class CIFEXComponent implements ICIFEXComponent
     public void logout(final String sessionID)
     {
         service.logout(sessionID);
+    }
+
+    public void setSessionUser(String sessionID, String newSessionUser)
+    {
+        service.setSessionUser(sessionID, newSessionUser);
     }
 
     public void checkSession(final String sessionID) throws InvalidSessionException

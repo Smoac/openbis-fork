@@ -50,6 +50,7 @@ import ch.systemsx.cisd.cifex.server.business.FileInformation;
 import ch.systemsx.cisd.cifex.server.business.IDomainModel;
 import ch.systemsx.cisd.cifex.server.business.IFileManager;
 import ch.systemsx.cisd.cifex.server.business.IUserActionLog;
+import ch.systemsx.cisd.cifex.server.business.IUserManager;
 import ch.systemsx.cisd.cifex.server.business.dto.FileDTO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.cifex.server.util.FilenameUtilities;
@@ -89,6 +90,8 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
 
     private final IFileManager fileManager;
 
+    private final IUserManager userManager;
+
     // used by spring in applicationContext.xml
     public CIFEXRPCService(final IDomainModel domainModel,
             final IRequestContextProvider requestContextProvider,
@@ -112,6 +115,7 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         super(domainModel, requestContextProvider, userBehaviorLog, externalAuthenticationService,
                 createLoggingContextHandler(requestContextProvider), sessionExpirationPeriodMinutes);
         this.fileManager = fileManager;
+        this.userManager = domainModel.getUserManager();
         this.sessionManager = sessionManager;
         if ("true".equals(testingFlag))
         {
@@ -561,6 +565,37 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("[" + sessionID + "]: " + message);
+        }
+    }
+
+    public void setSessionUser(String sessionID, String userCode)
+    {
+        boolean success = false;
+        String oldUserCode = "UNKNOWN";
+        try
+        {
+            final Session session = sessionManager.getSession(sessionID);
+            oldUserCode = session.getUser().getUserCode();
+            if (session.getUser().isAdmin() == false)
+            {
+                throw new AuthorizationFailureException("Changing session user not allowed.");
+            }
+            final Set<String> allowedIpsForSetSessionUser =
+                    domainModel.getBusinessContext().getAllowedIPsForSetSessionUser();
+            if (allowedIpsForSetSessionUser.contains(remoteHostProvider.getRemoteHost()) == false)
+            {
+                throw new AuthorizationFailureException("Changing session user not allowed.");
+            }
+            final UserDTO newUser = userManager.tryFindUserByCode(userCode);
+            session.setUser(newUser);
+            success = true;
+        } finally
+        {
+            if (userBehaviorLogOrNull != null)
+            {
+                userBehaviorLogOrNull.logSetSessionUser(oldUserCode, userCode, success);
+            }
+
         }
     }
 

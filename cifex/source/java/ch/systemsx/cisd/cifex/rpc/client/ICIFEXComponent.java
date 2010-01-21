@@ -76,5 +76,14 @@ public interface ICIFEXComponent
      * Creates a new file uploader for the given session.
      */
     public ICIFEXUploader createUploader(String sessionID);
+    
+    /**
+     * Sets the user that owns this session. All methods called after this method are called with
+     * the privileges of the user specified by <var>userCode</code>.
+     * <p>
+     * This method may only be called by an administrator and only from an explicitly allowed IP
+     * address or else it will throw an {@link AuthorizationFailureException}.
+     */
+    public void setSessionUser(String sessionID, String newSessionUser);
 
 }

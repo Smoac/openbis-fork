@@ -63,6 +63,7 @@ import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 
 /**
  * @author Franz-Josef Elmer
@@ -155,6 +156,8 @@ public class UploadingIntegrationTest extends AssertJUnit
 
     private IUserActionLog userActionLog;
 
+    private IRequestContextProvider requestContextProvider;
+
     private UserDTO user;
 
     @BeforeMethod
@@ -165,10 +168,19 @@ public class UploadingIntegrationTest extends AssertJUnit
         userManager = context.mock(IUserManager.class);
         domainModel = context.mock(IDomainModel.class);
         businessContext = context.mock(IBusinessContext.class);
+        context.checking(new Expectations()
+        {
+            {
+                allowing(domainModel).getUserManager();
+                will(returnValue(userManager));
+            }
+        });
         userActionLog = context.mock(IUserActionLog.class);
+        requestContextProvider = context.mock(IRequestContextProvider.class);
         uploadService =
-                new CIFEXRPCService(fileManager, domainModel, null, userActionLog, null,
-                        new SessionManager(null, null, "false"), 60000L, 10, "false");
+                new CIFEXRPCService(fileManager, domainModel, requestContextProvider,
+                        userActionLog, null, new SessionManager(null, null, "false"), 60000L, 10,
+                        "false");
         user = new UserDTO();
         user.setID(42L);
         user.setUserCode("Isaac");

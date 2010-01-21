@@ -27,7 +27,7 @@ public final class Session
 {
     private final String sessionID;
 
-    private final UserDTO user;
+    private UserDTO user;
 
     private final String url;
 
@@ -49,6 +49,11 @@ public final class Session
     public UserDTO getUser()
     {
         return user;
+    }
+
+    public void setUser(UserDTO user)
+    {
+        this.user = user;
     }
 
     final String getUrl()

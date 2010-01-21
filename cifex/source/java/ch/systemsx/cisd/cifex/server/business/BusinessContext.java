@@ -17,6 +17,10 @@
 package ch.systemsx.cisd.cifex.server.business;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.utilities.PasswordGenerator;
@@ -78,6 +82,8 @@ class BusinessContext implements IBusinessContext
 
     private int triggerPermits;
 
+    private final Set<String> allowedIPsForSetSessionUser = new HashSet<String>();
+    
     public int getTriggerPermits()
     {
         return triggerPermits;
@@ -243,6 +249,20 @@ class BusinessContext implements IBusinessContext
     public final void setSystemVersion(final String systemVersion)
     {
         this.systemVersion = systemVersion;
+    }
+
+    public final Set<String> getAllowedIPsForSetSessionUser()
+    {
+        return allowedIPsForSetSessionUser;
+    }
+    
+    public final void setAllowedIPsForSetSessionUser(String allowedIPs)
+    {
+        allowedIPsForSetSessionUser.clear();
+        for (String ip : StringUtils.split(allowedIPs, ','))
+        {
+            allowedIPsForSetSessionUser.add(ip.trim());
+        }
     }
 
 }

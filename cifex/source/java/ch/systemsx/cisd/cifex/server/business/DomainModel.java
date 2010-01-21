@@ -232,6 +232,14 @@ public final class DomainModel implements IDomainModel
         businessContext.setTriggerPermits(triggerPermits);
     }
 
+    /**
+     * Sets the allowed IPs for calling <code>setSessionUser()</code> as a comma-separated list.
+     */
+    public void setAllowedIPsForSetSessionUser(String allowedIPs)
+    {
+        businessContext.setAllowedIPsForSetSessionUser(allowedIPs);
+    }
+
     private final <T> T createLoggingProxy(final T manager)
     {
         final Object proxy =
@@ -319,5 +327,5 @@ public final class DomainModel implements IDomainModel
     {
         businessContext.setAdministratorEmail(administratorEmail);
     }
-
+    
 }

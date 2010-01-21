@@ -54,10 +54,6 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
 
     private static final String ADMIN_STR = "ADMIN";
 
-    private static final String FAILED = "FAILED";
-
-    private static final String OK = "OK";
-
     private static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss zzz";
 
     private static final SimpleDateFormat dateTimeFormat =
@@ -236,11 +232,6 @@ public final class UserActionLog extends AbstractActionLog implements IUserActio
             trackingLog.info(String.format("{SYSTEM} delete_user '%s': %s",
                     getUserDescription(user), getSuccessString(success)));
         }
-    }
-
-    private static String getSuccessString(final boolean success)
-    {
-        return success ? OK : FAILED;
     }
 
     private static String getUserDescription(final UserDTO user)

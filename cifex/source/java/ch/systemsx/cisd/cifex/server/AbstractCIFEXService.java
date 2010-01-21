@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LoggingContextHandler;
+import ch.systemsx.cisd.common.server.IRemoteHostProvider;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.common.servlet.RequestContextProviderAdapter;
 
@@ -73,6 +74,8 @@ abstract public class AbstractCIFEXService
     protected final IDomainModel domainModel;
 
     protected final IRequestContextProvider requestContextProvider;
+    
+    protected final IRemoteHostProvider remoteHostProvider;
 
     protected final LoggingContextHandler loggingContextHandler;
 
@@ -105,6 +108,7 @@ abstract public class AbstractCIFEXService
     {
         this.domainModel = domainModel;
         this.requestContextProvider = requestContextProvider;
+        this.remoteHostProvider = new RequestContextProviderAdapter(requestContextProvider);
         this.userBehaviorLogOrNull = userBehaviorLogOrNull;
         this.externalAuthenticationService = externalAuthenticationService;
         this.loggingContextHandler = loggingContextHandler;

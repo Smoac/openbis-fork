@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 
 /**
- * Service interface for file uploading.
+ * RPC service interface for CIFEX.
  * 
  * @author Franz-Josef Elmer
  */
@@ -37,7 +37,7 @@ public interface ICIFEXRPCService
     //
 
     /** The version of this service interface. */
-    public static final int VERSION = 4;
+    public static final int VERSION = 5;
 
     /** Returns the version of the server side interface. */
     public int getVersion();
@@ -98,8 +98,8 @@ public interface ICIFEXRPCService
      * @throws InvalidSessionException if there is no session with specified session ID.
      * @throws IOExceptionUnchecked if the file with that <var>fileID</var> cannot be found.
      */
-    public FileInfoDTO getFileInfo(String sessionID, long fileID)
-            throws InvalidSessionException, IOExceptionUnchecked;
+    public FileInfoDTO getFileInfo(String sessionID, long fileID) throws InvalidSessionException,
+            IOExceptionUnchecked;
 
     //
     // Upload
@@ -164,4 +164,16 @@ public interface ICIFEXRPCService
     public InputStream download(String sessionID, long fileID, long startPosition)
             throws InvalidSessionException, IOExceptionUnchecked;
 
+    //
+    // Special service methods
+    //
+
+    /**
+     * Sets the user that owns this session. All methods called after this method are called with
+     * the privileges of the user specified by <var>userCode</code>.
+     * <p>
+     * This method may only be called by an administrator and only from an explicitly allowed IP
+     * address or else it will throw an {@link AuthorizationFailureException}.
+     */
+    public void setSessionUser(String sessionID, String userCode);
 }

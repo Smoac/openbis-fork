@@ -61,6 +61,7 @@
         <property name="maxFileSizePerQuotaGroupInMB" value="${quota-file-size}" />
         <property name="newExternallyAuthenticatedUserStartActive" value="${new-externally-authenticated-user-start-active}" />
         <property name="triggerPermits" value="${trigger-permits}" />
+        <property name="allowedIPsForSetSessionUser" value="${allowed-ips-for-set-session-user}" />
         <property name="administratorEmail" value="${administrator.email}" />
     </bean>
 
