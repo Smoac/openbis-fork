@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -119,6 +120,8 @@ public class MonitoringProxy<T>
     private IMonitoringProxyLogger invocationLoggerOrNull;
 
     private IActivitySensor sensorOrNull;
+
+    private Set<Thread> currentThreads = Collections.synchronizedSet(new HashSet<Thread>());
 
     private static class DelegatingInvocationHandler<T> implements InvocationHandler
     {
@@ -265,62 +268,69 @@ public class MonitoringProxy<T>
                 final Object[] args)
         {
             final String callingThreadName = Thread.currentThread().getName();
-            final Future<Object> future = executor.submit(new NamedCallable<Object>()
-                {
-                    public Object call() throws Exception
+            currentThreads.add(Thread.currentThread());
+            try
+            {
+                final Future<Object> future = executor.submit(new NamedCallable<Object>()
                     {
-                        try
+                        public Object call() throws Exception
                         {
-                            return delegate.invoke(myProxy, method, args);
-                        } catch (Throwable th)
-                        {
-                            if (th instanceof Error)
+                            try
                             {
-                                throw (Error) th;
-                            } else
+                                return delegate.invoke(myProxy, method, args);
+                            } catch (Throwable th)
                             {
-                                throw (Exception) th;
-                            }
-                        }
-                    }
-
-                    public String getCallableName()
-                    {
-                        if (nameOrNull != null)
-                        {
-                            return callingThreadName + "::" + nameOrNull;
-                        } else
-                        {
-                            return callingThreadName + "::" + describe(method);
-                        }
-                    }
-                });
-            final ILogSettings logSettingsOrNull =
-                    (loggerOrNull == null) ? null : new ILogSettings()
-                        {
-                            public LogLevel getLogLevelForError()
-                            {
-                                return LogLevel.ERROR;
-                            }
-
-                            public ISimpleLogger getLogger()
-                            {
-                                return loggerOrNull;
-                            }
-
-                            public String getOperationName()
-                            {
-                                if (nameOrNull != null)
+                                if (th instanceof Error)
                                 {
-                                    return describe(method) + "[" + nameOrNull + "]";
+                                    throw (Error) th;
                                 } else
                                 {
-                                    return describe(method);
+                                    throw (Exception) th;
                                 }
                             }
-                        };
-            return ConcurrencyUtilities.getResult(future, timingParameters.getTimeoutMillis(),
-                    true, logSettingsOrNull, sensorOrNull);
+                        }
+
+                        public String getCallableName()
+                        {
+                            if (nameOrNull != null)
+                            {
+                                return callingThreadName + "::" + nameOrNull;
+                            } else
+                            {
+                                return callingThreadName + "::" + describe(method);
+                            }
+                        }
+                    });
+                final ILogSettings logSettingsOrNull =
+                        (loggerOrNull == null) ? null : new ILogSettings()
+                            {
+                                public LogLevel getLogLevelForError()
+                                {
+                                    return LogLevel.ERROR;
+                                }
+
+                                public ISimpleLogger getLogger()
+                                {
+                                    return loggerOrNull;
+                                }
+
+                                public String getOperationName()
+                                {
+                                    if (nameOrNull != null)
+                                    {
+                                        return describe(method) + "[" + nameOrNull + "]";
+                                    } else
+                                    {
+                                        return describe(method);
+                                    }
+                                }
+                            };
+                return ConcurrencyUtilities.getResult(future, timingParameters.getTimeoutMillis(),
+                        true, logSettingsOrNull, sensorOrNull);
+            } finally
+            {
+                currentThreads.remove(Thread.currentThread());
+            }
         }
 
         private Object getErrorValue(final Method method)
@@ -502,6 +512,21 @@ public class MonitoringProxy<T>
     public T get()
     {
         return proxy;
+    }
+
+    /**
+     * Cancel all currently running operations.
+     */
+    public void cancelCurrentOperations()
+    {
+        synchronized (currentThreads)
+        {
+            for (Thread t : currentThreads)
+            {
+                t.interrupt();
+
+            }
+        }
     }
 
 }
