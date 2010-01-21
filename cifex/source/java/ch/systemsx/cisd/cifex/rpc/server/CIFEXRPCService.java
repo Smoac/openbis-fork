@@ -586,8 +586,12 @@ public class CIFEXRPCService extends AbstractCIFEXService implements IExtendedCI
             {
                 throw new AuthorizationFailureException("Changing session user not allowed.");
             }
-            final UserDTO newUser = userManager.tryFindUserByCode(userCode);
-            session.setUser(newUser);
+            final UserDTO newUserOrNull = userManager.tryFindUserByCode(userCode);
+            if (newUserOrNull == null)
+            {
+                throw new IllegalArgumentException("User '" + userCode + "' is unknown.");
+            }
+            session.setUser(newUserOrNull);
             success = true;
         } finally
         {
