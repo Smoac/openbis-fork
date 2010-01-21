@@ -131,6 +131,14 @@ public final class UrlParamsHelper
         setUrlParams(parseParamString(nonEmptyParameterString));
     }
 
+    /**
+     * A public version of initializeUrlParamters used by a test case
+     */
+    public final void initializeUrlParametersForTest(String nonEmptyParameterString)
+    {
+        initializeUrlParameters(nonEmptyParameterString);
+    }
+
     public final IDelegatedAction getOpenInitialTabAction()
     {
         return new OpenInitialTabAction();
@@ -138,9 +146,9 @@ public final class UrlParamsHelper
 
     /**
      * An action that opens the initial tab specified by the URL parameters. This class is given
-     * package visibility so it can be used by a test.
+     * public visibility so it can be used by a test.
      */
-    class OpenInitialTabAction implements IDelegatedAction
+    public class OpenInitialTabAction implements IDelegatedAction
     {
 
         public void execute()
@@ -164,10 +172,9 @@ public final class UrlParamsHelper
         }
 
         /**
-         * Opens an initial tab if a parameter is specified in URL. Given package visibility so it
-         * can be used by a test.
+         * Opens an initial tab if a parameter is specified in URL.
          */
-        void openInitialTabUnderExceptionHandler() throws UserFailureException
+        private void openInitialTabUnderExceptionHandler() throws UserFailureException
         {
             // If a permlink has been specified, open a viewer on the specified object
             String entityKindValueOrNull =
@@ -189,6 +196,14 @@ public final class UrlParamsHelper
             {
                 openInitialEntitySearch(searchEntityKindValueOrNull);
             }
+        }
+
+        /**
+         * A public version of openInitialTabUnderExceptionHandler() used by the test case.
+         */
+        public void openInitialTabUnderExceptionHandlerForTest() throws UserFailureException
+        {
+            openInitialTabUnderExceptionHandler();
         }
 
         /**

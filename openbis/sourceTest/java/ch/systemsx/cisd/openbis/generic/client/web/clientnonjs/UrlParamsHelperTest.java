@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application;
+package ch.systemsx.cisd.openbis.generic.client.web.clientnonjs;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -24,6 +24,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper.OpenInitialTabAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ListSampleDisplayCriteria;
@@ -76,7 +79,7 @@ public class UrlParamsHelperTest extends AssertJUnit
             });
 
         final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper.initializeUrlParameters("entity=SAMPLE&permId=20100104150239401-871");
+        urlParamsHelper.initializeUrlParametersForTest("entity=SAMPLE&permId=20100104150239401-871");
 
         IDelegatedAction action = urlParamsHelper.getOpenInitialTabAction();
         action.execute();
@@ -102,12 +105,12 @@ public class UrlParamsHelperTest extends AssertJUnit
 
         // No permId supplied
         urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper.initializeUrlParameters("entity=SAMPLE");
+        urlParamsHelper.initializeUrlParametersForTest("entity=SAMPLE");
 
         action = (OpenInitialTabAction) urlParamsHelper.getOpenInitialTabAction();
         try
         {
-            action.openInitialTabUnderExceptionHandler();
+            action.openInitialTabUnderExceptionHandlerForTest();
             fail("A URL with no permId should result in an exception.");
         } catch (UserFailureException expected)
         {
@@ -116,12 +119,12 @@ public class UrlParamsHelperTest extends AssertJUnit
 
         // No entity supplied
         urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper.initializeUrlParameters("permId=20100104150239401-871");
+        urlParamsHelper.initializeUrlParametersForTest("permId=20100104150239401-871");
 
         action = (OpenInitialTabAction) urlParamsHelper.getOpenInitialTabAction();
         try
         {
-            action.openInitialTabUnderExceptionHandler();
+            action.openInitialTabUnderExceptionHandlerForTest();
             fail("A URL with no entity should result in an exception.");
         } catch (UserFailureException expected)
         {
@@ -147,12 +150,12 @@ public class UrlParamsHelperTest extends AssertJUnit
         UrlParamsHelper.OpenInitialTabAction action;
 
         urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper.initializeUrlParameters("entity=JUNK");
+        urlParamsHelper.initializeUrlParametersForTest("entity=JUNK");
 
         action = (OpenInitialTabAction) urlParamsHelper.getOpenInitialTabAction();
         try
         {
-            action.openInitialTabUnderExceptionHandler();
+            action.openInitialTabUnderExceptionHandlerForTest();
             fail("A URL with invalid entity should result in an exception.");
         } catch (UserFailureException expected)
         {
@@ -180,7 +183,7 @@ public class UrlParamsHelperTest extends AssertJUnit
             });
 
         final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper.initializeUrlParameters("searchEntity=SAMPLE&code=CL1");
+        urlParamsHelper.initializeUrlParametersForTest("searchEntity=SAMPLE&code=CL1");
 
         IDelegatedAction action = urlParamsHelper.getOpenInitialTabAction();
         action.execute();
@@ -206,7 +209,7 @@ public class UrlParamsHelperTest extends AssertJUnit
             });
 
         final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper.initializeUrlParameters("searchEntity=SAMPLE");
+        urlParamsHelper.initializeUrlParametersForTest("searchEntity=SAMPLE");
 
         IDelegatedAction action = urlParamsHelper.getOpenInitialTabAction();
         action.execute();
@@ -227,14 +230,14 @@ public class UrlParamsHelperTest extends AssertJUnit
             });
 
         final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
-        urlParamsHelper.initializeUrlParameters("searchEntity=DATA_SET");
+        urlParamsHelper.initializeUrlParametersForTest("searchEntity=DATA_SET");
 
         OpenInitialTabAction action =
                 (OpenInitialTabAction) urlParamsHelper.getOpenInitialTabAction();
 
         try
         {
-            action.openInitialTabUnderExceptionHandler();
+            action.openInitialTabUnderExceptionHandlerForTest();
             fail("Only SAMPLE is supported by the search link mechanism right now.");
         } catch (UserFailureException expected)
         {
