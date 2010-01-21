@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
@@ -156,7 +154,6 @@ public class GenericSampleViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testShowIndirectlyConnectedDataSets()
     {
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);
