@@ -16,14 +16,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.CodeConverter;
 /**
  * A binding for the {@link IPropertyListingQuery#getPropertyTypes()} query.
  */
-public class PropertyTypeDataObjectBinding extends
-        NonUpdateCapableDataObjectBinding<PropertyType>
+public class PropertyTypeDataObjectBinding extends NonUpdateCapableDataObjectBinding<PropertyType>
 {
     @Override
     public void unmarshall(ResultSet row, PropertyType into) throws SQLException, EoDException
     {
         into.setId(row.getLong("pt_id"));
-        into.setInternalNamespace(row.getBoolean("is_managed_internally"));
+        into.setInternalNamespace(row.getBoolean("is_internal_namespace"));
         into.setSimpleCode(StringEscapeUtils.escapeHtml(row.getString("pt_code")));
         into.setCode(StringEscapeUtils.escapeHtml(CodeConverter.tryToBusinessLayer(into
                 .getSimpleCode(), into.isInternalNamespace())));
