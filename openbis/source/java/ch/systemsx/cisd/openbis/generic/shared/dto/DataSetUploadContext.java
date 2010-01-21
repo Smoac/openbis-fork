@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -45,7 +46,9 @@ public class DataSetUploadContext implements Serializable
     private String comment;
 
     private String email;
-
+    
+    private String sessionUserID;
+    
     public final String getFileName()
     {
         return fileName;
@@ -104,6 +107,16 @@ public class DataSetUploadContext implements Serializable
     public final void setUserEMail(String email)
     {
         this.email = email;
+    }
+
+    public final boolean isUserAuthenticated()
+    {
+        return ObjectUtils.equals(userID, sessionUserID);
+    }
+
+    public final void setSessionUserID(String sessionUserID)
+    {
+        this.sessionUserID = sessionUserID;
     }
 
     @Override

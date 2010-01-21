@@ -217,6 +217,7 @@ public final class ExternalDataTable extends AbstractExternalDataBusinessObject 
         Map<DataStorePE, List<ExternalDataPE>> map = groupDataSetsByDataStores();
         assertDataSetsAreKnown(map);
         uploadContext.setUserEMail(session.getPrincipal().getEmail());
+        uploadContext.setSessionUserID(session.getUserName());
         if (StringUtils.isBlank(uploadContext.getComment()))
         {
             uploadContext.setComment(createUploadComment(externalData));

@@ -265,6 +265,12 @@ class UploadingCommand implements IDataSetCommand
 
     private final String userEMail;
 
+    private final boolean userAuthenticated;
+
+    private final String cifexAdminUserOrNull;
+
+    private final String cifexAdminPasswordOrNull;
+
     private final MailClientParameters mailClientParameters;
 
     private final TokenGenerator tokenGenerator;
@@ -274,13 +280,17 @@ class UploadingCommand implements IDataSetCommand
 
     UploadingCommand(ICIFEXRPCServiceFactory cifexServiceFactory,
             MailClientParameters mailClientParameters, List<ExternalData> dataSets,
-            DataSetUploadContext context)
+            DataSetUploadContext context, String cifexAdminUserOrNull,
+            String cifexAdminPasswordOrNull)
     {
         this.cifexServiceFactory = cifexServiceFactory;
         this.mailClientParameters = mailClientParameters;
         this.dataSets = dataSets;
         this.userID = context.getUserID();
         this.password = context.getPassword();
+        this.userAuthenticated = context.isUserAuthenticated();
+        this.cifexAdminUserOrNull = cifexAdminUserOrNull;
+        this.cifexAdminPasswordOrNull = cifexAdminPasswordOrNull;
         fileName = context.getFileName();
         userEMail = context.getUserEMail();
         this.comment = context.getComment();
@@ -301,7 +311,7 @@ class UploadingCommand implements IDataSetCommand
                         + " data sets has been successfully created.");
             }
             ICIFEXComponent cifex = cifexServiceFactory.createCIFEXComponent();
-            String sessionToken = cifex.login(userID, password);
+            String sessionToken = getCIFEXSession(cifex);
             ICIFEXUploader uploader = cifex.createUploader(sessionToken);
             uploader.addProgressListener(new ProgressListener(zipFile));
             uploader.upload(Arrays.asList(zipFile), Constants.USER_ID_PREFIX + userID, comment);
@@ -312,6 +322,21 @@ class UploadingCommand implements IDataSetCommand
         if (deleteAfterUploading)
         {
             zipFile.delete();
+        }
+    }
+
+    private String getCIFEXSession(ICIFEXComponent cifex)
+    {
+        if (userAuthenticated && StringUtils.isBlank(password)
+                && StringUtils.isNotBlank(cifexAdminUserOrNull)
+                && StringUtils.isNotBlank(cifexAdminPasswordOrNull))
+        {
+            final String token = cifex.login(cifexAdminUserOrNull, cifexAdminPasswordOrNull);
+            cifex.setSessionUser(token, userID);
+            return token;
+        } else
+        {
+            return cifex.login(userID, password);
         }
     }
 

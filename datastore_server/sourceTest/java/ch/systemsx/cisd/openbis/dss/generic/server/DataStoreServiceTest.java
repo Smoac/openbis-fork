@@ -269,7 +269,7 @@ public class DataStoreServiceTest extends AssertJUnit
                     will(returnValue("token"));
 
                     one(commandExecutor).scheduleUploadingDataSetsToCIFEX(cifexServiceFactory,
-                            mailClientParameters, dataSets, uploadContext);
+                            mailClientParameters, dataSets, uploadContext, null, null);
                 }
             });
 

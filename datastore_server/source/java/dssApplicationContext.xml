@@ -46,6 +46,8 @@
                     </bean>
                 </constructor-arg>
                 <constructor-arg ref="plugin-tasks" />
+                <property name="cifexAdminUserOrNull" value="${cifex-admin-username}" />
+                <property name="cifexAdminPasswordOrNull" value="${cifex-admin-password}" />
                 <property name="storeRoot" value="${storeroot-dir}"/>
                 <property name="commandQueueDir" value="${commandqueue-dir}"/>
             </bean>

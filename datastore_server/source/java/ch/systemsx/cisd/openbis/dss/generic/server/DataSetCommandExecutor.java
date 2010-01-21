@@ -114,10 +114,11 @@ class DataSetCommandExecutor implements IDataSetCommandExecutor
 
     public void scheduleUploadingDataSetsToCIFEX(ICIFEXRPCServiceFactory cifexServiceFactory,
             MailClientParameters mailClientParameters, List<ExternalData> dataSets,
-            DataSetUploadContext uploadContext)
+            DataSetUploadContext uploadContext, String cifexAdminUserOrNull,
+            String cifexAdminPasswordOrNull)
     {
         scheduleCommand(new UploadingCommand(cifexServiceFactory, mailClientParameters, dataSets,
-                uploadContext));
+                uploadContext, cifexAdminUserOrNull, cifexAdminPasswordOrNull));
     }
 
     public void scheduleProcessDatasets(IProcessingPluginTask task,

@@ -45,6 +45,7 @@ import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
@@ -105,7 +106,17 @@ public class UploadingCommandTest extends AssertJUnit
 
     private DataSetUploadContext uploadContext;
 
+    private DataSetUploadContext uploadContextNoPasswordAuthenticated;
+
+    private DataSetUploadContext uploadContextNoPasswordNotAuthenticated;
+
+    private List<ExternalData> dataSets;
+
     private UploadingCommand command;
+
+    private UploadingCommand commandAdminSession;
+
+    private UploadingCommand commandAdminSessionNotAuthenticated;
 
     private File ds2;
 
@@ -128,6 +139,20 @@ public class UploadingCommandTest extends AssertJUnit
         uploadContext.setPassword("pwd");
         uploadContext.setUserEMail("user@bc.de");
         uploadContext.setFileName(ZIP_FILENAME);
+        uploadContextNoPasswordAuthenticated = new DataSetUploadContext();
+        uploadContextNoPasswordAuthenticated.setCifexURL("cifexURL");
+        uploadContextNoPasswordAuthenticated.setUserID("user");
+        uploadContextNoPasswordAuthenticated.setPassword("");
+        uploadContextNoPasswordAuthenticated.setSessionUserID("user");
+        uploadContextNoPasswordAuthenticated.setUserEMail("user@bc.de");
+        uploadContextNoPasswordAuthenticated.setFileName(ZIP_FILENAME);
+        uploadContextNoPasswordNotAuthenticated = new DataSetUploadContext();
+        uploadContextNoPasswordNotAuthenticated.setCifexURL("cifexURL");
+        uploadContextNoPasswordNotAuthenticated.setUserID("user");
+        uploadContextNoPasswordNotAuthenticated.setPassword("");
+        uploadContextNoPasswordNotAuthenticated.setSessionUserID("anotherUser");
+        uploadContextNoPasswordNotAuthenticated.setUserEMail("user@bc.de");
+        uploadContextNoPasswordNotAuthenticated.setFileName(ZIP_FILENAME);
         createTestData(LOCATION1);
         ds2 = createTestData(LOCATION2);
         ExternalData dataSet1 =
@@ -137,9 +162,19 @@ public class UploadingCommandTest extends AssertJUnit
         ExternalData dataSet2 =
                 ExternalDataTranslator.translate(createDataSet("2", LOCATION2), "?", "?",
                         ExperimentTranslator.LoadableFields.PROPERTIES);
-        List<ExternalData> dataSets = Arrays.<ExternalData> asList(dataSet1, dataSet2);
-        command = new UploadingCommand(factory, mailClientParameters, dataSets, uploadContext);
+        dataSets = Arrays.<ExternalData> asList(dataSet1, dataSet2);
+        command =
+                new UploadingCommand(factory, mailClientParameters, dataSets, uploadContext, null,
+                        null);
+        commandAdminSession =
+                new UploadingCommand(factory, mailClientParameters, dataSets,
+                        uploadContextNoPasswordAuthenticated, "admin", "admpwd");
+        commandAdminSessionNotAuthenticated =
+                new UploadingCommand(factory, mailClientParameters, dataSets,
+                        uploadContextNoPasswordNotAuthenticated, "admin", "admpwd");
         command.deleteAfterUploading = false;
+        commandAdminSession.deleteAfterUploading = false;
+        commandAdminSessionNotAuthenticated.deleteAfterUploading = false;
     }
 
     private ExternalDataPE createDataSet(String code, String location)
@@ -234,6 +269,7 @@ public class UploadingCommandTest extends AssertJUnit
     @Test
     public void testExecute() throws Exception
     {
+        uploadContext.setPassword("pwd");
         context.checking(new Expectations()
             {
                 {
@@ -286,8 +322,91 @@ public class UploadingCommandTest extends AssertJUnit
     }
 
     @Test
+    public void testExecuteAdminSession() throws Exception
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(factory).createCIFEXComponent();
+                    will(returnValue(cifex));
+
+                    one(cifex).login("admin", "admpwd");
+                    will(returnValue(SESSION_TOKEN));
+
+                    one(cifex).setSessionUser(SESSION_TOKEN,
+                            uploadContextNoPasswordAuthenticated.getUserID());
+
+                    one(cifex).createUploader(SESSION_TOKEN);
+                    will(returnValue(uploader));
+
+                    final IProgressListener[] listener = new IProgressListener[1];
+                    one(uploader).addProgressListener(with(any(IProgressListener.class)));
+                    will(new CustomAction("store listener")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                listener[0] = (IProgressListener) invocation.getParameter(0);
+                                return null;
+                            }
+                        });
+
+                    one(uploader).upload(
+                            Collections.singletonList(new File(TMP, ZIP_FILENAME + ".zip")),
+                            "id:user", null);
+                    will(new CustomAction("report 'finish' to listener")
+                        {
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                listener[0].finished(true, Collections.<String> emptyList(),
+                                        Collections.<Throwable> emptyList());
+                                return null;
+                            }
+                        });
+                }
+            });
+
+        logRecorder.resetLogContent();
+        commandAdminSession.execute(STORE);
+
+        assertEquals("no emails expected", false, EMAILS.exists());
+        assertEquals(1, TMP.listFiles().length);
+        checkZipFileContent(TMP.listFiles()[0]);
+        assertEquals(INFO_UPLOAD_PREFIX
+                + "Zip file <zipfile> with 2 data sets has been successfully created."
+                + OSUtilities.LINE_SEPARATOR + INFO_UPLOAD_PREFIX
+                + "Zip file <zipfile> has been successfully uploaded.", getNormalizedLogContent());
+        context.assertIsSatisfied();
+    }
+
+    @Test(expectedExceptions = AuthorizationFailureException.class)
+    public void testExecuteAdminSessionNotAuthenticated() throws Exception
+    {
+        try
+        {
+            context.checking(new Expectations()
+                {
+                    {
+                        one(factory).createCIFEXComponent();
+                        will(returnValue(cifex));
+    
+                        one(cifex).login(uploadContextNoPasswordNotAuthenticated.getUserID(),
+                                uploadContextNoPasswordNotAuthenticated.getPassword());
+                        will(throwException(new AuthorizationFailureException("forget it!")));
+                    }
+                });
+    
+            logRecorder.resetLogContent();
+            commandAdminSessionNotAuthenticated.execute(STORE);
+        } finally
+        {
+            context.assertIsSatisfied();
+        }
+    }
+
+    @Test
     public void testExecuteWithFailedZipFileCreation()
     {
+        uploadContext.setPassword("pwd");
         FileUtilities.deleteRecursively(ds2);
         command.execute(STORE);
 
@@ -302,6 +421,7 @@ public class UploadingCommandTest extends AssertJUnit
     @Test
     public void testExecuteWithFailedUpload()
     {
+        uploadContext.setPassword("pwd");
         context.checking(new Expectations()
             {
                 {

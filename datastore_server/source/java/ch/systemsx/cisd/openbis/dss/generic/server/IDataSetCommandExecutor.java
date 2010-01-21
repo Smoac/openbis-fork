@@ -48,10 +48,15 @@ interface IDataSetCommandExecutor
      * @param cifexServiceFactory Factory for creating CIFEX upload service.
      * @param mailClientParameters Parameters needed for sending an e-mail to the user if uploading
      *            failed.
+     * @param cifexAdminUserOrNull The name of the CIFEX admin user, or <code>null</code>, if no
+     *            connection as admin should be used.
+     * @param cifexAdminPasswordOrNull The password of the CIFEX admin user, or <code>null</code>,
+     *            if no connection as admin should be used.
      */
     void scheduleUploadingDataSetsToCIFEX(ICIFEXRPCServiceFactory cifexServiceFactory,
             MailClientParameters mailClientParameters, List<ExternalData> dataSets,
-            DataSetUploadContext uploadContext);
+            DataSetUploadContext uploadContext, String cifexAdminUserOrNull,
+            String cifexAdminPasswordOrNull);
 
     /**
      * Schedules the specified processing task for provided datasets.
