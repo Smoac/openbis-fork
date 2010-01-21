@@ -35,13 +35,15 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  * <li>the unique code of the DSS.
  * </ul>
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class DataStoreServerInfo implements Serializable
 {
     private static final long serialVersionUID = IServer.VERSION;
 
     private int port;
+
+    private boolean useSSL;
 
     private String dataStoreCode;
 
@@ -59,6 +61,16 @@ public class DataStoreServerInfo implements Serializable
     public final void setPort(int port)
     {
         this.port = port;
+    }
+
+    public boolean isUseSSL()
+    {
+        return useSSL;
+    }
+
+    public void setUseSSL(boolean useSSL)
+    {
+        this.useSSL = useSSL;
     }
 
     public final String getDataStoreCode()
@@ -100,4 +112,5 @@ public class DataStoreServerInfo implements Serializable
     {
         this.servicesDescriptions = servicesDescriptions;
     }
+
 }

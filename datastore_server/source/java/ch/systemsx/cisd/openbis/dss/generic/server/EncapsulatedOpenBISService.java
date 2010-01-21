@@ -76,6 +76,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private int port;
 
+    private boolean useSSL;
+
     private String username;
 
     private String password;
@@ -114,6 +116,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     public final void setPort(int port)
     {
         this.port = port;
+    }
+
+    public final void setUseSSL(String useSSL)
+    {
+        // NOTE: 'use-ssl' property is optional. If it is not specified in DS properties file
+        // String value passed by Spring is "${use-ssl}". Default value, which is 'true',
+        // should be used in such case.
+        boolean booleanValue = true;
+        if (useSSL.equalsIgnoreCase("false"))
+        {
+            booleanValue = false;
+        }
+        this.useSSL = booleanValue;
     }
 
     public final void setUsername(String username)
@@ -168,6 +183,7 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
         DataStoreServerInfo dataStoreServerInfo = new DataStoreServerInfo();
         dataStoreServerInfo.setPort(port);
+        dataStoreServerInfo.setUseSSL(useSSL);
         dataStoreServerInfo.setDataStoreCode(dataStoreCode);
         dataStoreServerInfo.setDownloadUrl(downloadUrl);
         dataStoreServerInfo.setSessionToken(sessionTokenManager.drawSessionToken());

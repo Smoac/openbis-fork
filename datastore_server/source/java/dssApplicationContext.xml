@@ -26,6 +26,7 @@
         <property name="username" value="${username}"/>
         <property name="password" value="${password}"/>
         <property name="port" value="${port}"/>
+        <property name="useSSL" value="${use-ssl}"/>
         <property name="downloadUrl" value="${download-url}"/>
         <property name="dataStoreCode" value="${data-store-server-code}"/>
         <constructor-arg ref="plugin-tasks" />

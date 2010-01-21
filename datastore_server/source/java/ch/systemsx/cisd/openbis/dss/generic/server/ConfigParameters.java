@@ -51,6 +51,8 @@ final class ConfigParameters
 
     private static final String KEYSTORE = "keystore.";
 
+    static final String USE_SSL = "use-ssl";
+
     static final String KEYSTORE_PATH_KEY = KEYSTORE + "path";
 
     static final String KEYSTORE_PASSWORD_KEY = KEYSTORE + "password";
@@ -72,6 +74,8 @@ final class ConfigParameters
     private final String serverURL;
 
     private final int sessionTimeout;
+
+    private final boolean useSSL;
 
     private final String keystorePath;
 
@@ -123,10 +127,18 @@ final class ConfigParameters
         port = getMandatoryIntegerProperty(properties, PORT_KEY);
         serverURL = PropertyUtils.getMandatoryProperty(properties, SERVER_URL_KEY);
         sessionTimeout = getMandatoryIntegerProperty(properties, SESSION_TIMEOUT_KEY) * 60;
-        keystorePath = PropertyUtils.getMandatoryProperty(properties, KEYSTORE_PATH_KEY);
-        keystorePassword = PropertyUtils.getMandatoryProperty(properties, KEYSTORE_PASSWORD_KEY);
-        keystoreKeyPassword =
-                PropertyUtils.getMandatoryProperty(properties, KEYSTORE_KEY_PASSWORD_KEY);
+        useSSL = PropertyUtils.getBoolean(properties, USE_SSL, true);
+        if (useSSL == true)
+        {
+            keystorePath = PropertyUtils.getMandatoryProperty(properties, KEYSTORE_PATH_KEY);
+            keystorePassword =
+                    PropertyUtils.getMandatoryProperty(properties, KEYSTORE_PASSWORD_KEY);
+            keystoreKeyPassword =
+                    PropertyUtils.getMandatoryProperty(properties, KEYSTORE_KEY_PASSWORD_KEY);
+        } else
+        {
+            keystorePath = keystorePassword = keystoreKeyPassword = null;
+        }
         pluginServlets = extractPluginServletsProperties(properties);
     }
 
@@ -202,6 +214,11 @@ final class ConfigParameters
         return pluginServlets;
     }
 
+    public boolean isUseSSL()
+    {
+        return useSSL;
+    }
+
     public final void log()
     {
         if (operationLog.isInfoEnabled())
@@ -209,7 +226,8 @@ final class ConfigParameters
             operationLog.info(String.format("Store root directory: '%s'.", storePath));
             operationLog.info(String.format("Port number: %d.", port));
             operationLog.info(String.format("URL of openBIS server: '%s'.", serverURL));
-            operationLog.info(String.format("Session timeout (minutes): %d.", sessionTimeout));
+            operationLog.info(String.format("Session timeout (seconds): %d.", sessionTimeout));
+            operationLog.info(String.format("Use SSL: '%s'.", useSSL));
             operationLog.info(String.format("Keystore path: '%s'.", keystorePath));
             for (PluginServlet pluginServlet : pluginServlets)
             {

@@ -152,7 +152,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
     {
         int port = info.getPort();
         String remoteHost = session.getRemoteHost() + ":" + port;
-        String dssURL = "https://" + remoteHost;
+        String dssURL = (info.isUseSSL() ? "https://" : "http://") + remoteHost;
         checkVersion(dssSessionToken, dssURL);
         return dssURL;
     }
@@ -505,7 +505,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return ExternalDataTranslator.translate(externalDataBO.getExternalData(),
                 dataStoreBaseURLProvider.getDataStoreBaseURL(), session.getBaseIndexURL());
     }
-    
+
     public void checkDataSetAccess(String sessionToken, String dataSetCode)
             throws UserFailureException
     {

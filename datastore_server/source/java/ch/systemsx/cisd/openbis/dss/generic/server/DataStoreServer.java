@@ -193,18 +193,19 @@ public class DataStoreServer
 
     private static SocketConnector createSocketConnector(ConfigParameters configParameters)
     {
-        SslSocketConnector socketConnector = new SslSocketConnector();
-        socketConnector.setKeystore(configParameters.getKeystorePath());
-        socketConnector.setPassword(configParameters.getKeystorePassword());
-        socketConnector.setKeyPassword(configParameters.getKeystoreKeyPassword());
-        return socketConnector;
+        if (configParameters.isUseSSL())
+        {
+            SslSocketConnector socketConnector = new SslSocketConnector();
+            socketConnector.setKeystore(configParameters.getKeystorePath());
+            socketConnector.setPassword(configParameters.getKeystorePassword());
+            socketConnector.setKeyPassword(configParameters.getKeystoreKeyPassword());
+            return socketConnector;
+        } else
+        {
+            operationLog.warn("creating connector to openBIS without SSL");
+            return new SocketConnector();
+        }
     }
-
-    // Uncomment to test connection from openBIS to DSS in hosted mode
-    // private static SocketConnector createSocketConnector(ConfigParameters configParameters)
-    // {
-    // return new SocketConnector();
-    // }
 
     private final static void selfTest(final ApplicationContext applicationContext)
     {
