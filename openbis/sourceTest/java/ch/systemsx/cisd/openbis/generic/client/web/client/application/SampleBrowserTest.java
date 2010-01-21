@@ -18,9 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
 
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
@@ -71,7 +68,6 @@ public class SampleBrowserTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testListAllSamples()
     {
         loginAndInvokeAction(ActionMenuKind.SAMPLE_MENU_BROWSE);

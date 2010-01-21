@@ -23,6 +23,8 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -54,6 +56,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ShowExperiment(experimentCode));
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testDownloadAttachment()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);

@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -123,6 +126,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testShowExperimentDetails()
     {
         prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);
@@ -143,6 +147,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testShowInvalidExperimentDetails()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_X);
@@ -166,6 +171,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testListOfAttachments()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
@@ -184,6 +190,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testListOfSamples()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);
@@ -211,6 +218,7 @@ public class GenericExperimentViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testListOfDataSets()
     {
         prepareShowExperiment(NEMO, SIRNA_HCS, EXP1);

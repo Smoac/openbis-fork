@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.ShowDataSetChildrenAndParents;
@@ -29,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
  * 
  * @author Piotr Buczek
  */
+@DoNotRunWith(Platform.HtmlUnit)
 public class GenericDataSetViewerTest extends AbstractGWTTestCase
 {
 

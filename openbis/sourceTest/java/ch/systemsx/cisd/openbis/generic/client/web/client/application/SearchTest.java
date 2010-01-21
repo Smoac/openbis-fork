@@ -50,7 +50,6 @@ public class SearchTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testContainedSampleSearch()
     {
         remoteConsole.prepare(new Login("test", "a"));
@@ -63,7 +62,6 @@ public class SearchTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testExperimentSearch()
     {
         remoteConsole.prepare(new Login("test", "a"));
@@ -77,7 +75,6 @@ public class SearchTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testDataSetSearch()
     {
         remoteConsole.prepare(new Login("test", "a"));
