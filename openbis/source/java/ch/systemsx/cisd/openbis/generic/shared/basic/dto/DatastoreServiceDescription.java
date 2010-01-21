@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -27,7 +28,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class DatastoreServiceDescription implements IsSerializable, Serializable
 {
-     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
+    private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String key;
 
@@ -86,7 +87,7 @@ public class DatastoreServiceDescription implements IsSerializable, Serializable
     {
         this.downloadURL = downloadURL;
     }
-    
+
     @Override
     public String toString()
     {
@@ -105,5 +106,12 @@ public class DatastoreServiceDescription implements IsSerializable, Serializable
         }
         sb.append("]");
         return sb.toString();
+    }
+
+    public static boolean isMatching(DatastoreServiceDescription service, ExternalData dataset)
+    {
+        return service.getDatastoreCode().equals(dataset.getDataStore().getCode())
+                && (Arrays.asList(service.getDatasetTypeCodes())).contains(dataset.getDataSetType()
+                        .getCode());
     }
 }

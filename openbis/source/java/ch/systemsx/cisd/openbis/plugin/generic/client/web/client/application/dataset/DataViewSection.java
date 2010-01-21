@@ -61,8 +61,8 @@ public class DataViewSection extends SingleSectionPanel
     {
         super(viewContext.getMessage(Dict.DATA_VIEW));
 
-        final DatastoreServiceViewerSelectionWidget serviceSelectionWidget =
-                new DatastoreServiceViewerSelectionWidget(viewContext, dataset);
+        final DatastoreServiceSelectionWidget serviceSelectionWidget =
+                new DatastoreServiceSelectionWidget(viewContext, dataset);
         getHeader().addTool(new LabelToolItem(serviceSelectionWidget.getFieldLabel() + ":&nbsp;"));
         getHeader().addTool(serviceSelectionWidget);
         serviceSelectionWidget.addSelectionChangedListener(createServiceSelectionChangedListener(
@@ -162,7 +162,12 @@ public class DataViewSection extends SingleSectionPanel
             };
     }
 
-    private static class DatastoreServiceViewerSelectionWidget extends
+    /**
+     * {@link DropDownList} for selection of reporting plugin or datastore 'Files' viewer.
+     * 
+     * @author Piotr Buczek
+     */
+    private static class DatastoreServiceSelectionWidget extends
             DropDownList<DatastoreServiceDescriptionModel, DatastoreServiceDescription>
     {
 
@@ -170,7 +175,7 @@ public class DataViewSection extends SingleSectionPanel
 
         private final ExternalData dataset;
 
-        public DatastoreServiceViewerSelectionWidget(final IViewContext<?> viewContext,
+        public DatastoreServiceSelectionWidget(final IViewContext<?> viewContext,
                 final ExternalData dataset)
         {
             super(viewContext, ("data-set_" + dataset.getCode() + "_viewer"), Dict.BUTTON_SHOW,
@@ -217,7 +222,7 @@ public class DataViewSection extends SingleSectionPanel
      * 
      * @author Piotr Buczek
      */
-    public static class DatastoreServiceDescriptionModel extends NonHierarchicalBaseModelData
+    private static class DatastoreServiceDescriptionModel extends NonHierarchicalBaseModelData
     {
 
         private static final long serialVersionUID = 1L;
@@ -235,9 +240,7 @@ public class DataViewSection extends SingleSectionPanel
                     new ArrayList<DatastoreServiceDescriptionModel>();
             for (final DatastoreServiceDescription service : services)
             {
-                if (service.getDatastoreCode().equals(dataset.getDataStore().getCode())
-                        && (Arrays.asList(service.getDatasetTypeCodes())).contains(dataset
-                                .getDataSetType().getCode()))
+                if (DatastoreServiceDescription.isMatching(service, dataset))
                 {
                     result.add(new DatastoreServiceDescriptionModel(service));
                 }

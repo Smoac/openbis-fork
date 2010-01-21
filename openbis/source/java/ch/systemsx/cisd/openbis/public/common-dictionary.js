@@ -83,6 +83,7 @@ var common = {
   button_delete: "Delete",
   button_configure: "Settings",  
   button_upload_data_via_cifex: "Upload Data",
+  button_process: "Process",
   button_top: "Files",
   
   tooltip_refresh_disabled: "To activate select appropriate criteria first.",
@@ -513,7 +514,12 @@ var common = {
  confirm_dataset_upload_user_field: "CIFEX user",
  confirm_dataset_upload_password_field: "CIFEX password",
  
+ //
+ // Data Set Viewer
+ //
  
+ processing_info_title: "Processing",
+ processing_info_msg: "'{0}' has been scheduled successfully. Email will be send to you when it is finished.",
  
  //
  // Material Browser

@@ -446,6 +446,12 @@ public abstract class Dict
 
     public static final String BUTTON_UPLOAD_DATASETS = "button_upload_datasets";
 
+    public static final String BUTTON_PROCESS = "button_process";
+
+    public static final String PROCESSING_INFO_TITLE = "processing_info_title";
+
+    public static final String PROCESSING_INFO_MSG = "processing_info_msg";
+
     public static final String CONFIRM_DATASET_UPLOAD_TITLE = "confirm_dataset_upload_title";
 
     public static final String CONFIRM_DATASET_UPLOAD_MSG = "confirm_dataset_upload_msg";

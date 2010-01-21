@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -25,8 +26,10 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
@@ -37,14 +40,20 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSect
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -64,6 +73,8 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     public static final String VIEW_BUTTON_ID_SUFFIX = "_view-button";
 
     private final BrowseButtonHolder browseButtonHolder;
+
+    private final ProcessButtonHolder processButtonHolder;
 
     protected final TechId datasetId;
 
@@ -94,6 +105,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         this.viewContext = viewContext;
         this.datasetId = TechId.create(identifiable);
         this.browseButtonHolder = new BrowseButtonHolder();
+        this.processButtonHolder = new ProcessButtonHolder();
         extendToolBar();
     }
 
@@ -122,6 +134,8 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
                 }
 
             }));
+
+        addToolBarButton(processButtonHolder.getButton());
     }
 
     public static final String createId(final IIdentifiable identifiable)
@@ -245,6 +259,23 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     {
         super.updateOriginalData(result);
         browseButtonHolder.setupData(result);
+        processButtonHolder.setupData(result);
+    }
+
+    public DatabaseModificationKind[] getRelevantModifications()
+    {
+        return new DatabaseModificationKind[]
+            { DatabaseModificationKind.edit(ObjectKind.DATA_SET),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
+                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM), };
+    }
+
+    public void update(Set<DatabaseModificationKind> observedModifications)
+    {
+        reloadData(); // reloads everything
     }
 
     /**
@@ -288,20 +319,149 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         }
     }
 
-    public DatabaseModificationKind[] getRelevantModifications()
+    /**
+     * Holder of a {@link Button} that has a menu with items that schedule dataset plugin
+     * processing. The button is hidden at the beginning. When data set is successfully loaded by
+     * the viewer and there is a nonempty list of plugins assigned to its data type data then the
+     * menu is filled and button is shown.
+     */
+    private class ProcessButtonHolder
     {
-        return new DatabaseModificationKind[]
-            { DatabaseModificationKind.edit(ObjectKind.DATA_SET),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
-                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM), };
+        private final Button button;
+
+        public ProcessButtonHolder()
+        {
+            this.button = createProcessButton();
+        }
+
+        private Button createProcessButton()
+        {
+            final Button result = new Button(viewContext.getMessage(Dict.BUTTON_PROCESS));
+            // need to set menu here, otherwise menu button will not be displayed
+            result.setMenu(new Menu());
+            result.hide();
+            return result;
+        }
+
+        public Button getButton()
+        {
+            return this.button;
+        }
+
+        /** @param data external data that will be processed */
+        public void setupData(final ExternalData data)
+        {
+            viewContext.getCommonService().listDataStoreServices(DataStoreServiceKind.PROCESSING,
+                    new ProcessingServicesCallback(viewContext, getOriginalData(), button));
+        }
     }
 
-    public void update(Set<DatabaseModificationKind> observedModifications)
+    private static final class ProcessingServicesCallback extends
+            AbstractAsyncCallback<List<DatastoreServiceDescription>>
     {
-        reloadData(); // reloads everything
+
+        private final ExternalData dataset;
+
+        private final Button processButton;
+
+        public ProcessingServicesCallback(IViewContext<?> viewContext, ExternalData dataset,
+                Button processButton)
+        {
+            super(viewContext);
+            this.dataset = dataset;
+            this.processButton = processButton;
+        }
+
+        @Override
+        protected void process(List<DatastoreServiceDescription> result)
+        {
+            List<DatastoreServiceDescription> matchingServices = filterNotMatching(result);
+            if (matchingServices.size() > 0)
+            {
+                processButton.setMenu(createPerformProcessingMenu(matchingServices));
+                processButton.show();
+            }
+        }
+
+        private List<DatastoreServiceDescription> filterNotMatching(
+                List<DatastoreServiceDescription> services)
+        {
+            List<DatastoreServiceDescription> matchingServices =
+                    new ArrayList<DatastoreServiceDescription>();
+            for (DatastoreServiceDescription service : services)
+            {
+                if (DatastoreServiceDescription.isMatching(service, dataset))
+                {
+                    matchingServices.add(service);
+                }
+            }
+            return matchingServices;
+        }
+
+        private Menu createPerformProcessingMenu(List<DatastoreServiceDescription> services)
+        {
+            Menu result = new Menu();
+            final DisplayedOrSelectedDatasetCriteria criteria =
+                    DisplayedOrSelectedDatasetCriteria.createSelectedItems(Arrays.asList(dataset
+                            .getCode()));
+            for (DatastoreServiceDescription service : services)
+            {
+                result.add(new ActionMenu(createActionMenuItem(service), viewContext,
+                        createProcessDatasetAction(service, criteria)));
+            }
+            return result;
+        }
+
+        private IActionMenuItem createActionMenuItem(final DatastoreServiceDescription service)
+        {
+            return new IActionMenuItem()
+                {
+                    public String getMenuId()
+                    {
+                        return service.getKey();
+                    }
+
+                    public String getMenuText(IMessageProvider messageProvider)
+                    {
+                        return service.getLabel();
+                    }
+                };
+        }
+
+        private IDelegatedAction createProcessDatasetAction(
+                final DatastoreServiceDescription service,
+                final DisplayedOrSelectedDatasetCriteria criteria)
+        {
+            return new IDelegatedAction()
+                {
+                    public void execute()
+                    {
+                        viewContext.getCommonService().processDatasets(service, criteria,
+                                new ProcessingDisplayCallback(viewContext, service));
+                    }
+                };
+        }
+
+    }
+
+    private static final class ProcessingDisplayCallback extends AbstractAsyncCallback<Void>
+    {
+        private final DatastoreServiceDescription service;
+
+        private ProcessingDisplayCallback(IViewContext<?> viewContext,
+                DatastoreServiceDescription service)
+        {
+            super(viewContext);
+            this.service = service;
+        }
+
+        @Override
+        public final void process(final Void result)
+        {
+            final String title = viewContext.getMessage(Dict.PROCESSING_INFO_TITLE);
+            final String msg = viewContext.getMessage(Dict.PROCESSING_INFO_MSG, service.getLabel());
+            MessageBox.info(title, msg, null);
+        }
     }
 
 }
