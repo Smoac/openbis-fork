@@ -19,9 +19,12 @@ package ch.systemsx.cisd.cifex.rpc.client;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -33,6 +36,7 @@ import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.ChecksumHandling;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.IWriteProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
+import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
@@ -44,12 +48,37 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public final class Uploader extends AbstractUploadDownload implements ICIFEXUploader
 {
+
+    private static interface IFileUploader
+    {
+        void uploadFile(File file, String comment, Set<Long> fileIds) throws IOException;
+    }
+
+    private final IFileUploader retryingFileUloader;
+
     /**
      * Creates an instance for the specified service and session ID.
      */
     public Uploader(ICIFEXRPCService service, String sessionID)
     {
         super(service, sessionID);
+        this.retryingFileUloader = createFileUploader();
+    }
+
+    private IFileUploader createFileUploader()
+    {
+        IFileUploader rawFileUploader = new IFileUploader()
+            {
+                public void uploadFile(File file, String comment, Set<Long> fileIds)
+                        throws IOException
+                {
+                    doUploadFile(file, comment, fileIds);
+                }
+            };
+        final InvocationLogger logger = new InvocationLogger(this);
+        return MonitoringProxy.create(IFileUploader.class, rawFileUploader).sensor(
+                getActivitySensor()).exceptionClassSuitableForRetrying(RemoteAccessException.class)
+                .timing(TIMING).errorValueOnInterrupt().invocationLog(logger).get();
     }
 
     /**
@@ -112,7 +141,7 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         try
         {
             inProgress.set(true);
-            List<Long> fileIds = new ArrayList<Long>(files.size());
+            Set<Long> fileIds = new HashSet<Long>();
             for (File file : files)
             {
                 if (isCancelled())
@@ -120,11 +149,11 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                     fireFinishedEvent(false);
                     return;
                 }
-                uploadFile(file, comment, fileIds);
+                retryingFileUloader.uploadFile(file, comment, fileIds);
             }
             if (recipientsOrNull != null && recipientsOrNull.trim().length() > 0)
             {
-                service.shareFiles(sessionID, fileIds, recipientsOrNull);
+                service.shareFiles(sessionID, new ArrayList<Long>(fileIds), recipientsOrNull);
             }
             fireFinishedEvent(true);
         } catch (IOException ex)
@@ -137,7 +166,8 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         }
     }
 
-    private void uploadFile(File file, String comment, List<Long> fileIds) throws IOException
+    // NOTE: this is a non-retrying version used by retryingFileUloader
+    private void doUploadFile(File file, String comment, Set<Long> fileIds) throws IOException
     {
         final long fileSize = file.length();
         final FilePreregistrationDTO fileSpecs =

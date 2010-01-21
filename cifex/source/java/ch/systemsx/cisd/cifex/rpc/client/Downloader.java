@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingOutputStream;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingOutputStream.IWriteProgressListener;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
+import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 
 /**
  * Class which downloads file via an implementation of {@link ICIFEXRPCService}, handling the
@@ -43,7 +45,17 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
     /**
      * Creates an instance for the specified service and session ID.
      */
-    public Downloader(ICIFEXRPCService service, String sessionID)
+    public static ICIFEXDownloader create(ICIFEXRPCService service, String sessionID)
+    {
+        Downloader downloader = new Downloader(service, sessionID);
+        final InvocationLogger logger = new InvocationLogger(downloader);
+        return MonitoringProxy.create(ICIFEXDownloader.class, downloader).sensor(
+                downloader.getActivitySensor()).exceptionClassSuitableForRetrying(
+                RemoteAccessException.class).timing(TIMING).errorValueOnInterrupt().invocationLog(
+                logger).get();
+    }
+
+    private Downloader(ICIFEXRPCService service, String sessionID)
     {
         super(service, sessionID);
     }
@@ -141,5 +153,4 @@ public final class Downloader extends AbstractUploadDownload implements ICIFEXDo
             inProgress.set(false);
         }
     }
-
 }

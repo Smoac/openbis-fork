@@ -17,16 +17,24 @@
 package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.springframework.remoting.RemoteAccessException;
+
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
+import ch.systemsx.cisd.common.TimingParameters;
+import ch.systemsx.cisd.common.concurrent.ExecutionResult;
+import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
 import ch.systemsx.cisd.common.concurrent.IActivitySensor;
+import ch.systemsx.cisd.common.concurrent.IMonitoringProxyLogger;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -42,9 +50,14 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
 
     protected static final int PROGRESS_UPDATE_MIN_INTERVAL_MILLIS = 1 * 1000; // 1 second
 
+    private static final long TIMEOUT_MILLIS = 20 * 1000L;
+
     protected static final int MAX_RETRIES = 600;
 
     private static final long WAIT_AFTER_FAILURE_MILLIS = 10 * 1000L;
+
+    protected static final TimingParameters TIMING =
+            TimingParameters.create(TIMEOUT_MILLIS, MAX_RETRIES, WAIT_AFTER_FAILURE_MILLIS);
 
     protected final ICIFEXRPCService service;
 
@@ -199,6 +212,70 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
         {
             throw new InterruptedExceptionUnchecked(ex);
         }
+    }
+
+    /**
+     * An invocation logger for exceptional situations in an upload or download invocation.
+     */
+    static class InvocationLogger implements IMonitoringProxyLogger
+    {
+        private final AbstractUploadDownload uploadDownload;
+
+        public InvocationLogger(AbstractUploadDownload uploadDownload)
+        {
+            this.uploadDownload = uploadDownload;
+        }
+
+        public void log(Method method, ExecutionResult<Object> result, boolean willRetry)
+        {
+            // We log only exceptional invocations here, the regular progress logging is done in the
+            // uploader / downloader itself.
+            if (result.getStatus() == ExecutionStatus.EXCEPTION)
+            {
+                Throwable originalException = result.tryGetException();
+                logException(willRetry, originalException);
+            }
+            if (result.getStatus() == ExecutionStatus.TIMED_OUT)
+            {
+                uploadDownload.fireWarningEvent("Remote operation timed out"
+                        + (willRetry ? ", will retry soon." : "."));
+            }
+            if (result.getStatus() != ExecutionStatus.COMPLETE && willRetry == false)
+            {
+                uploadDownload.fireFinishedEvent(false);
+            }
+        }
+
+        private void logException(boolean willRetry, Throwable originalException)
+        {
+            final Throwable th = unwrapException(originalException);
+            if (th instanceof RemoteAccessException && willRetry)
+            {
+                String warningMessage;
+                if (th.getMessage() != null)
+                {
+                    warningMessage =
+                            "Remote operation failed: " + th.getClass().getSimpleName() + ": '"
+                                    + th.getMessage() + "', will retry soon...";
+                } else
+                {
+                    warningMessage =
+                            "Remote operation failed: " + th.getClass().getSimpleName()
+                                    + ", will retry soon...";
+                }
+                uploadDownload.fireWarningEvent(warningMessage);
+            } else
+            {
+                uploadDownload.fireExceptionEvent(originalException);
+            }
+        }
+
+        private Throwable unwrapException(Throwable oirginalException)
+        {
+            return (oirginalException instanceof Exception ? CheckedExceptionTunnel
+                    .unwrapIfNecessary((Exception) oirginalException) : oirginalException);
+        }
+
     }
 
 }
