@@ -252,7 +252,7 @@ public abstract class AbstractClientService implements IClientService,
         return getOrCreateHttpSession(false);
     }
 
-    private final HttpSession creatHttpSession()
+    private final HttpSession createHttpSession()
     {
         return getOrCreateHttpSession(true);
     }
@@ -338,18 +338,19 @@ public abstract class AbstractClientService implements IClientService,
             {
                 return null;
             }
-            final HttpSession httpSession = creatHttpSession();
+            final HttpSession httpSession = createHttpSession();
             // Expiration time of httpSession is 10 seconds less than of session
             final int sessionExpirationTimeInMillis = session.getSessionExpirationTime();
             final int sessionExpirationTimeInSeconds = sessionExpirationTimeInMillis / 1000;
             if (sessionExpirationTimeInMillis < 0)
             {
                 httpSession.setMaxInactiveInterval(-1);
-            } else if (sessionExpirationTimeInMillis < 1000 || sessionExpirationTimeInSeconds < 10)
+            } else if (sessionExpirationTimeInSeconds < 10)
             {
                 httpSession.setMaxInactiveInterval(0);
             } else
             {
+                System.err.println(sessionExpirationTimeInSeconds - 10);
                 httpSession.setMaxInactiveInterval(sessionExpirationTimeInSeconds - 10);
             }
             httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, session
