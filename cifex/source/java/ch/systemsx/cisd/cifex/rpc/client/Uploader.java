@@ -51,10 +51,12 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
 
     private static interface IFileUploader
     {
-        void uploadFile(File file, String comment, Set<Long> fileIds) throws IOException;
+        boolean uploadFile(File file, String comment, Set<Long> fileIds) throws IOException;
     }
 
-    private final IFileUploader retryingFileUloader;
+    private final MonitoringProxy<IFileUploader> proxyForOperation;
+
+    private final IFileUploader retryingFileUploader;
 
     /**
      * Creates an instance for the specified service and session ID.
@@ -62,23 +64,33 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
     public Uploader(ICIFEXRPCService service, String sessionID)
     {
         super(service, sessionID);
-        this.retryingFileUloader = createFileUploader();
+        this.proxyForOperation = createFileUploaderProxy();
+        this.retryingFileUploader = proxyForOperation.get();
     }
 
-    private IFileUploader createFileUploader()
+    @Override
+    protected MonitoringProxy<?> getProxyForOperation()
+    {
+        return proxyForOperation;
+    }
+
+    private MonitoringProxy<IFileUploader> createFileUploaderProxy()
     {
         IFileUploader rawFileUploader = new IFileUploader()
             {
-                public void uploadFile(File file, String comment, Set<Long> fileIds)
+                // This method can return false only if error occurred
+                public boolean uploadFile(File file, String comment, Set<Long> fileIds)
                         throws IOException
                 {
                     doUploadFile(file, comment, fileIds);
+                    return true;
                 }
             };
         final InvocationLogger logger = new InvocationLogger(this);
         return MonitoringProxy.create(IFileUploader.class, rawFileUploader).sensor(
                 getActivitySensor()).exceptionClassSuitableForRetrying(RemoteAccessException.class)
-                .timing(TIMING).errorValueOnInterrupt().invocationLog(logger).get();
+                .timing(TIMING).errorValueOnInterrupt().errorTypeValueMapping(Boolean.TYPE, false)
+                .invocationLog(logger);
     }
 
     /**
@@ -149,7 +161,11 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                     fireFinishedEvent(false);
                     return;
                 }
-                retryingFileUloader.uploadFile(file, comment, fileIds);
+                boolean ok = retryingFileUploader.uploadFile(file, comment, fileIds);
+                if (ok == false)
+                {
+                    return; // upload cancelled
+                }
             }
             if (recipientsOrNull != null && recipientsOrNull.trim().length() > 0)
             {

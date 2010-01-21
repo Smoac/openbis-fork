@@ -211,7 +211,7 @@ public class FileDownloadClient extends AbstractSwingGUI
         column =
                 fileTable.getColumnModel()
                         .getColumn(FileDownloadClientModel.DOWNLOAD_STATUS_COLUMN);
-        column.setPreferredWidth(100);
+        column.setPreferredWidth(120);
         column.setCellRenderer(new DownloadStatusTableCellRenderer(tableModel));
         column.setCellEditor(new DownloadStatusTableCellEditor(tableModel));
         JScrollPane scrollPane = new JScrollPane(fileTable);

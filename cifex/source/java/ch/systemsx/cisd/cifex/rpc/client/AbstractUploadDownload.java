@@ -35,6 +35,7 @@ import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
 import ch.systemsx.cisd.common.concurrent.IActivitySensor;
 import ch.systemsx.cisd.common.concurrent.IMonitoringProxyLogger;
+import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
@@ -75,6 +76,8 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     private final List<String> encounteredWarningMessages;
 
     private final List<Throwable> encounteredExceptions;
+
+    abstract protected MonitoringProxy<?> getProxyForOperation();
 
     /**
      * Creates an instance for the specified service and session ID.
@@ -121,6 +124,7 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
      */
     public void cancel()
     {
+        getProxyForOperation().cancelCurrentOperations();
         cancelled.set(true);
     }
 

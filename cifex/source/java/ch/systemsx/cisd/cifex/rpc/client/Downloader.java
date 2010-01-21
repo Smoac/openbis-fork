@@ -42,22 +42,48 @@ import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 public final class Downloader extends AbstractUploadDownload implements ICIFEXDownloader
 {
 
+    private static interface IFileDownloader
+    {
+        void download(long fileID, File directoryToDownloadOrNull, String fileNameOrNull);
+    }
+
     /**
      * Creates an instance for the specified service and session ID.
      */
     public static ICIFEXDownloader create(ICIFEXRPCService service, String sessionID)
     {
-        Downloader downloader = new Downloader(service, sessionID);
-        final InvocationLogger logger = new InvocationLogger(downloader);
-        return MonitoringProxy.create(ICIFEXDownloader.class, downloader).sensor(
-                downloader.getActivitySensor()).exceptionClassSuitableForRetrying(
-                RemoteAccessException.class).timing(TIMING).errorValueOnInterrupt().invocationLog(
-                logger).get();
+        return new Downloader(service, sessionID);
     }
+
+    private final MonitoringProxy<?> proxyForOperation;
 
     private Downloader(ICIFEXRPCService service, String sessionID)
     {
         super(service, sessionID);
+        this.proxyForOperation = createFileDownloaderProxy();
+    }
+
+    @Override
+    protected MonitoringProxy<?> getProxyForOperation()
+    {
+        return proxyForOperation;
+    }
+
+    private MonitoringProxy<IFileDownloader> createFileDownloaderProxy()
+    {
+        IFileDownloader downloader = new IFileDownloader()
+            {
+                public void download(long fileID, File directoryToDownloadOrNull,
+                        String fileNameOrNull)
+                {
+                    download(fileID, directoryToDownloadOrNull, fileNameOrNull);
+                }
+            };
+        final InvocationLogger logger = new InvocationLogger(this);
+        return MonitoringProxy.create(IFileDownloader.class, downloader)
+                .sensor(getActivitySensor()).exceptionClassSuitableForRetrying(
+                        RemoteAccessException.class).timing(TIMING).errorValueOnInterrupt()
+                .invocationLog(logger);
     }
 
     /**
