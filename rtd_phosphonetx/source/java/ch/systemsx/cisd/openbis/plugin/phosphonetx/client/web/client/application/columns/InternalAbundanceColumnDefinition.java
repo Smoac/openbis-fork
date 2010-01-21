@@ -24,7 +24,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.ProteinInfo;
 
 public final class InternalAbundanceColumnDefinition extends AbstractColumnDefinition<ProteinInfo>
 {
-    private static final Double ZERO = new Double(1e-9);
+    private static final Double ZERO = new Double(1e-40);
 
     private long sampleID;
 
