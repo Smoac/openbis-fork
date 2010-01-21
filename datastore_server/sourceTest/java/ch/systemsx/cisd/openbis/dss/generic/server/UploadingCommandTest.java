@@ -260,13 +260,15 @@ public class UploadingCommandTest extends AssertJUnit
                     one(uploader).upload(
                             Collections.singletonList(new File(TMP, ZIP_FILENAME + ".zip")),
                             "id:user", null);
-                    will(new CustomAction("report 'finish' to listener") {
-                        public Object invoke(Invocation invocation) throws Throwable
+                    will(new CustomAction("report 'finish' to listener")
                         {
-                            listener[0].finished(true);
-                            return null;
-                        }
-                    });
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                listener[0].finished(true, Collections.<String> emptyList(),
+                                        Collections.<Throwable> emptyList());
+                                return null;
+                            }
+                        });
                 }
             });
 
@@ -326,13 +328,15 @@ public class UploadingCommandTest extends AssertJUnit
                     one(uploader).upload(
                             Collections.singletonList(new File(TMP, ZIP_FILENAME + ".zip")),
                             "id:user", null);
-                    will(new CustomAction("report 'abort' to listener") {
-                        public Object invoke(Invocation invocation) throws Throwable
+                    will(new CustomAction("report 'abort' to listener")
                         {
-                            listener[0].finished(false);
-                            return null;
-                        }
-                    });
+                            public Object invoke(Invocation invocation) throws Throwable
+                            {
+                                listener[0].finished(false, Collections.<String> emptyList(),
+                                        Collections.<Throwable> emptyList());
+                                return null;
+                            }
+                        });
                 }
             });
 
@@ -377,20 +381,23 @@ public class UploadingCommandTest extends AssertJUnit
                 assertEquals("data_set\tcode\t1\n" + "data_set\tproduction_timestamp\t\n"
                         + "data_set\tproducer_code\t\n" + "data_set\tdata_set_type\tD\n"
                         + "data_set\tis_measured\tFALSE\n" + "data_set\tis_complete\tFALSE\n"
-                        + "data_set\tparent_codes\tparent2,parent1\n" + "experiment\tgroup_code\tg1\n"
-                        + "experiment\tproject_code\tp1\n" + "experiment\texperiment_code\texp1\n"
+                        + "data_set\tparent_codes\tparent2,parent1\n"
+                        + "experiment\tgroup_code\tg1\n" + "experiment\tproject_code\tp1\n"
+                        + "experiment\texperiment_code\texp1\n"
                         + "experiment\texperiment_type_code\tE\n"
                         + "experiment\tregistration_timestamp\t1970-01-01 01:00:00 +0100\n"
                         + "experiment\tregistrator\tCharles Darwin <cd@cd.org>\n", outputStream
                         .toString());
             } catch (AssertionError err)
             {
-                // We have an ambiguity here: sometimes we get "parent1,parent2", sometimes we get "parent2,parent1"
+                // We have an ambiguity here: sometimes we get "parent1,parent2", sometimes we get
+                // "parent2,parent1"
                 assertEquals("data_set\tcode\t1\n" + "data_set\tproduction_timestamp\t\n"
                         + "data_set\tproducer_code\t\n" + "data_set\tdata_set_type\tD\n"
                         + "data_set\tis_measured\tFALSE\n" + "data_set\tis_complete\tFALSE\n"
-                        + "data_set\tparent_codes\tparent1,parent2\n" + "experiment\tgroup_code\tg1\n"
-                        + "experiment\tproject_code\tp1\n" + "experiment\texperiment_code\texp1\n"
+                        + "data_set\tparent_codes\tparent1,parent2\n"
+                        + "experiment\tgroup_code\tg1\n" + "experiment\tproject_code\tp1\n"
+                        + "experiment\texperiment_code\texp1\n"
                         + "experiment\texperiment_type_code\tE\n"
                         + "experiment\tregistration_timestamp\t1970-01-01 01:00:00 +0100\n"
                         + "experiment\tregistrator\tCharles Darwin <cd@cd.org>\n", outputStream

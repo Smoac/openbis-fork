@@ -80,12 +80,7 @@ class UploadingCommand implements IDataSetCommand
             this.zipFile = zipFile;
         }
 
-        public void warningOccured(String warningMessage)
-        {
-            operationLog.warn(warningMessage);
-        }
-
-        public void start(File file, long fileSize)
+        public void start(File file, long fileSize, Long fileIdOrNull)
         {
             if (operationLog.isInfoEnabled())
             {
@@ -97,7 +92,8 @@ class UploadingCommand implements IDataSetCommand
         {
         }
 
-        public void finished(boolean successful)
+        public void finished(boolean successful, List<String> warningMessages,
+                List<Throwable> exceptions)
         {
             if (successful)
             {
@@ -109,22 +105,29 @@ class UploadingCommand implements IDataSetCommand
             {
                 operationLog.warn("Uploading of zip file " + zipFile
                         + " has been aborted or failed.");
+                for (String warningMessage : warningMessages)
+                {
+                    operationLog.warn(warningMessage);
+
+                }
+                for (Throwable throwable : exceptions)
+                {
+                    notificationLog.error("An error occured during uploading of zip file "
+                            + zipFile + ".", throwable);
+                }
                 sendEMail("Uploading of zip file " + zipFile.getName()
                         + " with requested data sets failed.");
             }
         }
 
-        public void exceptionOccured(Throwable throwable)
-        {
-            notificationLog.error("An error occured during uploading of zip file " + zipFile + ".",
-                    throwable);
-        }
     }
 
     private static final class MetaDataBuilder
     {
         private static final String DATA_SET = "data_set";
+
         private static final String SAMPLE = "sample";
+
         private static final String EXPERIMENT = "experiment";
 
         private static final char DELIM = '\t';
@@ -133,22 +136,22 @@ class UploadingCommand implements IDataSetCommand
                 new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 
         private final StringBuilder builder = new StringBuilder();
-        
+
         void dataSetProperties(List<IEntityProperty> properties)
         {
             addProperties(DATA_SET, properties);
         }
-        
+
         void sampleProperties(List<IEntityProperty> properties)
         {
             addProperties(SAMPLE, properties);
         }
-        
+
         void experimentProperties(List<IEntityProperty> properties)
         {
             addProperties(EXPERIMENT, properties);
         }
-        
+
         void addProperties(String category, List<IEntityProperty> properties)
         {
             for (IEntityProperty property : properties)
