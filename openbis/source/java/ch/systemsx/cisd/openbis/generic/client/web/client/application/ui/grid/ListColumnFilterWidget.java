@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.DelayedTask;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.IColumnFilterWidget;
@@ -76,6 +77,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
                     onFilterAction.execute();
                 }
             });
+
         setStore(distinctValues);
 
         setWidth(WIDGET_WIDTH);
@@ -103,7 +105,7 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         // combobox entries, which matches the user query.
         // This feature did not work properly after delayedFilterApplierTask has been called (the
         // filtering was cleared, looked like GXT bug).
-        if (!fe.isSpecialKey())
+        if (!fe.isSpecialKey() || fe.getKeyCode() == KeyCodes.KEY_BACKSPACE)
         {
             delayedFilterApplierTask.delay(FILTER_APPLICATION_TIMEOUT_MS);
         }
@@ -205,4 +207,5 @@ public class ListColumnFilterWidget<T> extends ComboBox<ModelData> implements
         setRawValue(getEmptyText());
         applyEmptyText();
     }
+
 }
