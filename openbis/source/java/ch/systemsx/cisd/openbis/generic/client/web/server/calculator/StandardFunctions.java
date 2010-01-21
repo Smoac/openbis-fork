@@ -117,6 +117,26 @@ final class StandardFunctions
     }
 
     /**
+     * Calculates the sum of the specified values. 
+     * Blank strings or <code>null</code> values in the list are ignored.
+     * 
+     * @throws NumberFormatException if an element can not be parsed as a floating-point number.
+     * @throws IllegalArgumentException if the list is empty.
+     */
+    public static Double sum(List<Object> values)
+    {
+        List<Double> array = toDoubleArray(values);
+        String functionName = "sum";
+        assertNotEmpty(array, functionName);
+        double sum = 0.0;
+        for (double value : array)
+        {
+            sum += value;
+        }
+        return sum;
+    }
+    
+    /**
      * Calculates the mean of the specified values. 
      * Blank strings or <code>null</code> values in the list are ignored.
      * 
