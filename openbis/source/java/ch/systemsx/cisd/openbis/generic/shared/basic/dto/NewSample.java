@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.annotation.BeanProperty;
  * 
  * @author Christian Ribeaud
  */
-public class NewSample extends Identifier<NewSample>
+public class NewSample extends Identifier<NewSample> implements Comparable<NewSample>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -156,5 +156,34 @@ public class NewSample extends Identifier<NewSample>
     public final String toString()
     {
         return getIdentifier();
+    }
+
+    // NOTE:
+    // Special equality check for NewSamples that is not complete but speeds up uniqueness check
+    // of new sample codes during import. The check on the DB level is complete.
+    //
+    // Here we compare a pair of container's identifier and new sample's identifier.
+    // 1. This comparison doesn't have the knowledge about home group so it will say that
+    // 'SAMPLE_1' != /HOME_GROUP/SAMPLE_1'.
+    // 2. We need to also use container identifier because when samples are registered container
+    // code is not required in its identifier.
+    //
+    // So this equals may return 'false' for NewSample objects that would in fact create
+    // samples with the same identifiers, but when it returns 'true' it is always correct.
+    @Override
+    public final boolean equals(final Object obj)
+    {
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof NewSample == false)
+        {
+            return false;
+        }
+        final NewSample that = (NewSample) obj;
+        final String thisCombinedIdentifier = this.getIdentifier() + this.getContainerIdentifier();
+        final String thatCombinedIdentifier = that.getIdentifier() + that.getContainerIdentifier();
+        return thisCombinedIdentifier.equals(thatCombinedIdentifier);
     }
 }
