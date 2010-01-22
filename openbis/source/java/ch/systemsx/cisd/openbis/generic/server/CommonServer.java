@@ -1596,6 +1596,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
                 result.add(convert(service));
             }
         }
+        Collections.sort(result);
         return result;
     }
 

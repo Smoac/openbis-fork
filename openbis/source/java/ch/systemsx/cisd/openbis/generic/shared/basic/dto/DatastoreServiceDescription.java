@@ -26,7 +26,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * 
  * @author Tomasz Pylak
  */
-public class DatastoreServiceDescription implements IsSerializable, Serializable
+public class DatastoreServiceDescription implements IsSerializable, Serializable,
+        Comparable<DatastoreServiceDescription>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
@@ -113,5 +114,14 @@ public class DatastoreServiceDescription implements IsSerializable, Serializable
         return service.getDatastoreCode().equals(dataset.getDataStore().getCode())
                 && (Arrays.asList(service.getDatasetTypeCodes())).contains(dataset.getDataSetType()
                         .getCode());
+    }
+
+    //
+    // Comparable
+    //
+
+    public int compareTo(DatastoreServiceDescription o)
+    {
+        return this.getLabel().compareTo(o.getLabel());
     }
 }

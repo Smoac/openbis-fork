@@ -23,6 +23,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Widget;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.Da
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator.IOnReportComponentGeneratedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -52,6 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
  */
 public class DataViewSection extends SingleSectionPanel
 {
+    private static String DEFAULT_SERVICE_KEY_PREFIX = "default-";
 
     private static String FILES_SMART_VIEW = "Files (Smart View)";
 
@@ -175,6 +178,8 @@ public class DataViewSection extends SingleSectionPanel
 
         private final ExternalData dataset;
 
+        private DatastoreServiceDescriptionModel defaultModel;
+
         public DatastoreServiceSelectionWidget(final IViewContext<?> viewContext,
                 final ExternalData dataset)
         {
@@ -182,7 +187,33 @@ public class DataViewSection extends SingleSectionPanel
                     ModelDataPropertyNames.LABEL, "viewer", "viewers");
             this.viewContext = viewContext;
             this.dataset = dataset;
-            // setAutoSelectFirst(true); // TODO 2010-01-19, PTR: use saved display settings
+            addPostRefreshCallback(createDefaultServiceSelectionAction());
+        }
+
+        private IDataRefreshCallback createDefaultServiceSelectionAction()
+        {
+            return new IDataRefreshCallback()
+                {
+                    public void postRefresh(boolean wasSuccessful)
+                    {
+                        // - select first service that has 'default-' prefix in key
+                        // - if such service doesn't exist select 'Files (Smart View)' service
+                        final ListStore<DatastoreServiceDescriptionModel> modelsStore = getStore();
+                        for (int i = 0; i < modelsStore.getCount(); i++)
+                        {
+                            final DatastoreServiceDescriptionModel serviceModel =
+                                    modelsStore.getAt(i);
+                            System.err.println(serviceModel.getBaseObject().getKey());
+                            if (serviceModel.getBaseObject().getKey().startsWith(
+                                    DEFAULT_SERVICE_KEY_PREFIX))
+                            {
+                                defaultModel = serviceModel;
+                                break;
+                            }
+                        }
+                        setSelection(Arrays.asList(defaultModel));
+                    }
+                };
         }
 
         @Override
@@ -191,8 +222,8 @@ public class DataViewSection extends SingleSectionPanel
         {
             List<DatastoreServiceDescriptionModel> models =
                     DatastoreServiceDescriptionModel.convert(result, dataset);
-            models.add(0, createServiceDescription(FILES_SMART_VIEW));
-            models.add(1, createServiceDescription(FILES_HOME_VIEW));
+            models.add(0, defaultModel = createFilesServiceDescription(FILES_SMART_VIEW));
+            models.add(1, createFilesServiceDescription(FILES_HOME_VIEW));
             return models;
         }
 
@@ -210,10 +241,10 @@ public class DataViewSection extends SingleSectionPanel
 
     }
 
-    private static DatastoreServiceDescriptionModel createServiceDescription(String label)
+    private static DatastoreServiceDescriptionModel createFilesServiceDescription(String label)
     {
         final DatastoreServiceDescription service =
-                new DatastoreServiceDescription(null, label, null, null);
+                new DatastoreServiceDescription("files", label, null, null);
         return new DatastoreServiceDescriptionModel(service);
     }
 
