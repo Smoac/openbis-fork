@@ -1,37 +1,34 @@
 # This is a very simple version of the script which installs the cifex
-# You have to change the INSTALL_URL, PREV and NEW variables by yourself!
 
-PREV=cifex-SNAPSHOT-S68
-NEW=cifex-S68
-INSTALL_URL=http://cisd-ci.ethz.ch:8090/cruisecontrol/artifacts/cifex/20091111140651/cifex-SNAPSHOT-r13316.zip
+PREV=cifex-S72
+NEW=cifex-$1
+OLD_INSTALL=~/old/$PREV/jetty
 
 test -d $PREV || echo Directory $PREV does not exist!
 test -d $PREV || exit 1
 
-unalias cp
-unalias rm
+alias cp='cp'
+alias rm='rm'
 
-./cifex/jetty/bin/shutdown.sh
-mv cifex-* old/
+./$PREV/jetty/bin/shutdown.sh
+mv $PREV old/
 rm -f cifex
 
 mkdir $NEW
 ln -s $NEW cifex
 cd cifex
-wget $INSTALL_URL
 
-
-unzip cifex-*.zip
-OLD_INSTALL=~/old/$PREV/jetty
+mv ../cifex*.zip .
+unzip cifex*.zip
 cd cifex
-cp $OLD_INSTALL/etc/service.properties .
+cp $OLD_INSTALL/work/webapp/WEB-INF/classes/service.properties ~/cifex/jetty/work/webapp/WEB-INF/classes/service.properties
 cp $OLD_INSTALL/etc/keystore .
 cp $OLD_INSTALL/etc/jetty.xml .
 ./install.sh ..
 cd ../jetty
-cp $OLD_INSTALL/etc/jetty.properties etc/
-cp $OLD_INSTALL/etc/triggers.txt etc/
-cp $OLD_INSTALL/dssTrigger.properties .
+cp $OLD_INSTALL/bin/jetty.properties ~/cifex/jetty/bin/jetty.properties
+cp $OLD_INSTALL/etc/triggers.txt ~/cifex/jetty/etc/triggers.txt
+cp $OLD_INSTALL/dssTrigger.properties ~/cifex/jetty/
 
 cd ..
 rm -fr cifex
