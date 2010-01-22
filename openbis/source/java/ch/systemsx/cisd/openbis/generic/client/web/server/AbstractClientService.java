@@ -350,7 +350,6 @@ public abstract class AbstractClientService implements IClientService,
                 httpSession.setMaxInactiveInterval(0);
             } else
             {
-                System.err.println(sessionExpirationTimeInSeconds - 10);
                 httpSession.setMaxInactiveInterval(sessionExpirationTimeInSeconds - 10);
             }
             httpSession.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, session
