@@ -197,13 +197,13 @@ public class DataViewSection extends SingleSectionPanel
                     public void postRefresh(boolean wasSuccessful)
                     {
                         // - select first service that has 'default-' prefix in key
+                        // (services should be listed in alphabetical order by label)
                         // - if such service doesn't exist select 'Files (Smart View)' service
                         final ListStore<DatastoreServiceDescriptionModel> modelsStore = getStore();
                         for (int i = 0; i < modelsStore.getCount(); i++)
                         {
                             final DatastoreServiceDescriptionModel serviceModel =
                                     modelsStore.getAt(i);
-                            System.err.println(serviceModel.getBaseObject().getKey());
                             if (serviceModel.getBaseObject().getKey().startsWith(
                                     DEFAULT_SERVICE_KEY_PREFIX))
                             {
