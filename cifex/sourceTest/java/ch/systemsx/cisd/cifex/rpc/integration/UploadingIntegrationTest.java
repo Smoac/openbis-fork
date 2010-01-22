@@ -169,12 +169,12 @@ public class UploadingIntegrationTest extends AssertJUnit
         domainModel = context.mock(IDomainModel.class);
         businessContext = context.mock(IBusinessContext.class);
         context.checking(new Expectations()
-        {
             {
-                allowing(domainModel).getUserManager();
-                will(returnValue(userManager));
-            }
-        });
+                {
+                    allowing(domainModel).getUserManager();
+                    will(returnValue(userManager));
+                }
+            });
         userActionLog = context.mock(IUserActionLog.class);
         requestContextProvider = context.mock(IRequestContextProvider.class);
         uploadService =
@@ -617,7 +617,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    one(userActionLog).logUploadFile(SMALL_FILE, true);
+                    atMost(1).of(userActionLog).logUploadFile(SMALL_FILE, true);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L, null);
                     one(listener).reportProgress(0, 0L);
                     one(listener).reportProgress(100, SMALL_FILE_SIZE * 1024L);
@@ -659,14 +659,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                 }
             });
 
-        try
-        {
-            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
-            fail("UserFailureException expected");
-        } catch (UserFailureException e)
-        {
-            assertEquals("Some user identifiers are invalid: [id:unknown]", e.getMessage());
-        }
+        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
 
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
@@ -694,7 +687,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     one(userManager).refreshQuotaInformation(user);
-                    one(userActionLog).logUploadFile(SMALL_FILE, true);
+                    atMost(1).of(userActionLog).logUploadFile(SMALL_FILE, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
                             SMALL_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L, null);
@@ -724,14 +717,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                 }
             });
 
-        try
-        {
-            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
-            fail("RuntimeException expected");
-        } catch (RuntimeException e)
-        {
-            assertSame(exception, e);
-        }
+        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
 
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
@@ -794,7 +780,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                                 return null;
                             }
                         });
-                    one(userActionLog).logUploadFile(LARGE_FILE, false);
+                    atMost(1).of(userActionLog).logUploadFile(LARGE_FILE, false);
                     prepareFailure(this);
                     one(listener).reset();
                 }
@@ -826,9 +812,9 @@ public class UploadingIntegrationTest extends AssertJUnit
                     allowing(domainModel).getUserManager();
                     will(returnValue(userManager));
                     exactly(3).of(userManager).refreshQuotaInformation(user);
-                    one(userActionLog).logUploadFile(SMALL_FILE, true);
-                    one(userActionLog).logUploadFile(LARGE_FILE, false);
-                    one(userActionLog).logUploadFile(LARGE_FILE, true);
+                    allowing(userActionLog).logUploadFile(SMALL_FILE, true);
+                    allowing(userActionLog).logUploadFile(LARGE_FILE, false);
+                    allowing(userActionLog).logUploadFile(LARGE_FILE, true);
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
                             SMALL_FILE_SIZE * 1024L);
                     one(listener).start(fileOnClient1, SMALL_FILE_SIZE * 1024L, null);

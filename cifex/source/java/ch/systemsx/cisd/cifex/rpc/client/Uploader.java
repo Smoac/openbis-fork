@@ -26,7 +26,6 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.springframework.remoting.RemoteAccessException;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
@@ -172,9 +171,10 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                 service.shareFiles(sessionID, new ArrayList<Long>(fileIds), recipientsOrNull);
             }
             fireFinishedEvent(true);
-        } catch (IOException ex)
+        } catch (Exception ex)
         {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+            fireExceptionEvent(ex);
+            fireFinishedEvent(false);
         } finally
         {
             fireResetEvent();
