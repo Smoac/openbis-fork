@@ -70,7 +70,7 @@ public class Identifier<T extends Identifier<T>> implements IsSerializable, Comp
     //
 
     @Override
-    public final boolean equals(final Object obj)
+    public boolean equals(final Object obj)
     {
         if (obj == this)
         {
