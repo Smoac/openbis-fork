@@ -52,7 +52,7 @@
 	<target name="run-system-tests" depends="prepare-gwt, compile-tests">
 		<delete dir="${output.test}" />
 		<mkdir dir="${output.test}" />
-		<junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
+		<junit dir="." fork="true" forkmode="perBatch" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
 			<classpath>
 				<pathelement location="${sources}" />
 				<pathelement location="${sources.test}" />
@@ -70,6 +70,7 @@
 			<sysproperty key="hibernate.search.index-mode" value="NO_INDEX" />
 			<sysproperty key="hibernate.search.indexing_strategy" value="manual" />
 			<sysproperty key="data-store-server-base-url" value="https://localhost:8889" />
+			<sysproperty key="gwt.args" value="-testMethodTimeout 3 -Xtries 1" />
 			<formatter type="xml" />
 			<test name="ch.systemsx.cisd.openbis.generic.EditingTestSuite" todir="${output.test}" />
 		</junit>
