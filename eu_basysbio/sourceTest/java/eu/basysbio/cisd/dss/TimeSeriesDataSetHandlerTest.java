@@ -301,50 +301,54 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
         {
             {
-                exactly(2).of(service).tryToGetExperiment(new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
-                will(returnValue(createExperiment("GM_BR_B1")));
-                
-                exactly(2).of(service).listSamples(with(new BaseMatcher<ListSampleCriteria>()
+                    exactly(2).of(service).tryToGetExperiment(
+                            new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
+                    will(returnValue(createExperiment("GM_BR_B1")));
+
+                    exactly(2).of(service).listSamples(with(new BaseMatcher<ListSampleCriteria>()
                         {
-                    private TechId experimentId;
-                    
-                    public void describeTo(Description description)
-                    {
-                        description.appendText("Experiment ID: expected: " + EXP_ID + ", actual: " + experimentId);
-                    }
-                    
-                    public boolean matches(Object item)
-                    {
-                        if (item instanceof ListSampleCriteria)
-                        {
-                            experimentId = ((ListSampleCriteria) item).getExperimentId();
-                            return experimentId.getId().equals(EXP_ID);
-                        }
-                        return false;
-                    }
+                            private TechId experimentId;
+
+                            public void describeTo(Description description)
+                            {
+                                description.appendText("Experiment ID: expected: " + EXP_ID
+                                        + ", actual: " + experimentId);
+                            }
+
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof ListSampleCriteria)
+                                {
+                                    experimentId = ((ListSampleCriteria) item).getExperimentId();
+                                    return experimentId.getId().equals(EXP_ID);
+                                }
+                                return false;
+                            }
                         }));
-                Sample sample200 = createSample(SAMPLE_EX_200);
-                will(returnValue(Arrays.<Sample> asList(sample200)));
-                
-                one(service).listDataSetsBySampleID(sample200.getId(), true);
-                will(returnValue(Arrays.asList()));
-                
-                final NewSample sample = createNewSample(SAMPLE_EX_7200);
-                one(service).registerSample(with(new BaseMatcher<NewSample>()
+                    Sample sample200 = createSample(SAMPLE_EX_200);
+                    will(returnValue(Arrays.<Sample> asList(sample200)));
+
+                    one(service).listDataSetsBySampleID(sample200.getId(), true);
+                    will(returnValue(Arrays.asList()));
+
+                    final NewSample sample = createNewSample(SAMPLE_EX_7200);
+                    one(service).registerSample(with(new BaseMatcher<NewSample>()
                         {
-                    public boolean matches(Object item)
-                    {
-                        if (sample.equals(item))
-                        {
-                            IEntityProperty[] p = ((NewSample) item).getProperties();
-                            assertEquals(1, p.length);
-                            assertEquals("7200", p[0].getValue());
-                            assertEquals("TIME_POINT", p[0].getPropertyType().getCode());
-                            return true;
-                        }
-                        return false;
-                    }
-                    
+                            public boolean matches(Object item)
+                            {
+                                if (item instanceof NewSample)
+                                {
+                                    NewSample actualSample = (NewSample) item;
+                                    assertEquals(sample.getIdentifier(), actualSample.getIdentifier());
+                                    IEntityProperty[] p = actualSample.getProperties();
+                                    assertEquals(1, p.length);
+                                    assertEquals("7200", p[0].getValue());
+                                    assertEquals("TIME_POINT", p[0].getPropertyType().getCode());
+                                    return true;
+                                }
+                                return false;
+                            }
+
                     public void describeTo(Description description)
                     {
                         description.appendValue(sample);
