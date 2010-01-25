@@ -28,11 +28,13 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AuthorizationGroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PersonSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
@@ -116,6 +118,8 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
                             person, authGroup);
                 }
             });
+
+        DialogWithOnlineHelpUtils.addHelpButton(viewContext, this, createHelpPageIdentifier());
     }
 
     @Override
@@ -137,5 +141,11 @@ public class AddRoleAssignmentDialog extends AbstractRegistrationDialog
                     ((RoleListBox) roleBox.getWidget()).getValue(), groupOrNull.getCode(), grantee,
                     registrationCallback);
         }
+    }
+
+    private HelpPageIdentifier createHelpPageIdentifier()
+    {
+        return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.ROLES,
+                HelpPageIdentifier.HelpPageAction.REGISTER);
     }
 }

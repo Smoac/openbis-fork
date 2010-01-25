@@ -17,16 +17,16 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractDialogWithOnlineHelp;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.column.GridCustomColumnGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.expressions.filter.GridCustomFilterGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 
 /**
  * {@link Dialog} displaying {@link ColumnSettingsChooser}.
  * 
  * @author Izabela Adamczyk
  */
-public class ColumnSettingsDialog extends AbstractDialogWithOnlineHelp
+public class ColumnSettingsDialog extends Dialog
 {
     public static final String TAB_PANEL_ID_PREFIX = GenericConstants.ID_PREFIX + "tab-panel";
 
@@ -54,7 +54,7 @@ public class ColumnSettingsDialog extends AbstractDialogWithOnlineHelp
         setButtons(OK);
         setHeading(viewContext.getMessage(Dict.GRID_SETTINGS_TITLE));
 
-        addHelpButton(viewContext, getHelpPageIdentifier());
+        DialogWithOnlineHelpUtils.addHelpButton(viewContext, this, createHelpPageIdentifier());
     }
 
     /**
@@ -121,9 +121,9 @@ public class ColumnSettingsDialog extends AbstractDialogWithOnlineHelp
      * The default implementation links all column settings dialogs to one help page. Subclasses may
      * override.
      */
-    protected HelpPageIdentifier getHelpPageIdentifier()
+    protected HelpPageIdentifier createHelpPageIdentifier()
     {
-        return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.CHANGE_COLUMN_SETTINGS,
+        return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.TABLE_SETTINGS,
                 HelpPageIdentifier.HelpPageAction.ACTION);
     }
 

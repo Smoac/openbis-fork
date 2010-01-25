@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelL
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
@@ -65,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -432,6 +434,9 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                                 }
                             }
                         });
+                    
+                    DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
+                            createHelpPageIdentifier());
                 }
 
                 private FileUploadField createImportFileField()
@@ -463,6 +468,12 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
 
                 }
 
+                private HelpPageIdentifier createHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.TERM,
+                            HelpPageIdentifier.HelpPageAction.BATCH_UPDATE);
+                }
+
             };
     }
 
@@ -477,6 +488,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 private final TextArea newTermCodesArea;
 
                 {
+
                     form.setLabelWidth(LABEL_WIDTH);
                     form.setFieldWidth(FIELD_WIDTH);
                     this.setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
@@ -493,6 +505,9 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                     {
                         termSelectionWidget = null;
                     }
+
+                    DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
+                            createHelpPageIdentifier());
                 }
 
                 @Override
@@ -550,6 +565,12 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                         VocabularyTermModel selectedItem = termSelectionWidget.getValue();
                         return selectedItem != null ? selectedItem.getTerm().getOrdinal() : 0L;
                     }
+                }
+
+                private HelpPageIdentifier createHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.TERM,
+                            HelpPageIdentifier.HelpPageAction.REGISTER);
                 }
             };
     }
@@ -709,6 +730,8 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                 }
 
             });
+        DialogWithOnlineHelpUtils.addHelpButton(viewContext, dialog, new HelpPageIdentifier(
+                HelpPageIdentifier.HelpPageDomain.TERM, HelpPageIdentifier.HelpPageAction.DELETE));
         dialog.show();
     }
 

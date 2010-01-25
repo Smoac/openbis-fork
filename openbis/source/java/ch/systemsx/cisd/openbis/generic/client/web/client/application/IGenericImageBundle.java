@@ -41,4 +41,10 @@ public interface IGenericImageBundle extends ClientBundle
     @Source("openBIS_logo_229x100.png")
     public ImageResource getOpenBISLogo();
 
+    /**
+     * Returns info icon.
+     */
+    @Source("info.png")
+    public ImageResource getInfoIcon();
+
 }

@@ -30,10 +30,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -72,6 +74,9 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         addField(homeGroupField = createHomeGroupField());
         addField(useWildcardSearchModeCheckbox = createUseWildcardSearchModeField());
         fbar.insert(createResetButton(), 1); // inserting Reset button in between Save and Cancel
+
+        DialogWithOnlineHelpUtils.addHelpButton(viewContext.getCommonViewContext(), this,
+                createHelpPageIdentifier());
     }
 
     //
@@ -164,5 +169,11 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
             resetCallback.execute();
             hide();
         }
+    }
+
+    private HelpPageIdentifier createHelpPageIdentifier()
+    {
+        return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.CHANGE_USER_SETTINGS,
+                HelpPageIdentifier.HelpPageAction.ACTION);
     }
 }

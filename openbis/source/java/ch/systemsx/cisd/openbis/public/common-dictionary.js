@@ -45,7 +45,6 @@ var common = {
 	auto_resolve_label: "Smart View",
 	data_report_label: "Report:",
 	explore_label: "Explore:",
-	
 	  
   //
   // Field
@@ -66,7 +65,7 @@ var common = {
   messagebox_warning: "Warning",
   messagebox_info: "Info",
   
-  //
+	//
   // Buttons
   //
   
@@ -121,6 +120,14 @@ var common = {
   
   header_userWithoutHomegroup: "{0}",
   header_userWithHomegroup: "{0} ({1})",
+  
+  //
+  // Help Info
+  //
+
+  info_button_tooltip: "Displays short help information about the application.",
+  info_box_title: "OpenBIS Help",
+  info_box_msg: "There is an online help under construction for tabs and dialog windows opened in openBIS.<br/><br/>To get help information about specific:<li><b>tab</b> - right click on an opened tab's header and select <i>Help</i> from its context menu,<li><b>dialog window</b> - click on <i>?</i> icon visible in window's header in the right corner.",
   
   //
   // Search
@@ -354,6 +361,8 @@ var common = {
   HELP__SAMPLE__IMPORT: "Sample Import",
   HELP__SAMPLE__BATCH_UPDATE: "Sample Batch Update",
   HELP__SAMPLE__SAMPLE_TYPE__BROWSE: "Sample Type Browser",
+  HELP__SAMPLE__SAMPLE_TYPE__REGISTER: "Add/Edit Sample Type",
+  HELP__SAMPLE__SAMPLE_TYPE__EDIT: "Add/Edit Sample Type",
   HELP__MATERIAL__BROWSE: "Material Browser",
   HELP__MATERIAL__VIEW: "Material Viewer",
   HELP__MATERIAL__EDIT: "Material Editor",
@@ -365,12 +374,17 @@ var common = {
   HELP__DATA_SET__REGISTER: "Data Set Upload",
   HELP__DATA_SET__REPORT: "Data Set Report",
   HELP__DATA_SET__DATA_SET_TYPE__BROWSE: "Data Set Type Browser",
+  HELP__DATA_SET__DATA_SET_TYPE__REGISTER: "Add/Edit Data Set Type",
+  HELP__DATA_SET__DATA_SET_TYPE__EDIT: "Add/Edit Data Set Type",
   HELP__RELATED_DATA_SETS__BROWSE: "Related Data Sets Browser",
   HELP__ADMINISTRATION__FILE_TYPE__BROWSE: "File Type Browser",
   HELP__ADMINISTRATION__GROUP__BROWSE: "Group Browser",
   HELP__ADMINISTRATION__VOCABULARY__BROWSE: "Vocabulary Browser",
   HELP__ADMINISTRATION__VOCABULARY__REGISTER: "Vocabulary Registration",
-  HELP__ADMINISTRATION__VOCABULARY__TERM__Browser: "Vocabulary Terms Browser",
+  HELP__ADMINISTRATION__VOCABULARY__TERM__BROWSE: "Vocabulary Terms Browser",
+  HELP__ADMINISTRATION__VOCABULARY__TERM__REGISTER: "Adding Vocabulary Terms",
+  HELP__ADMINISTRATION__VOCABULARY__TERM__DELETE: "Deletion of Vocabulary Terms with Replacements",
+  HELP__ADMINISTRATION__VOCABULARY__TERM__BATCH_UPDATE: "Vocabulary Terms Batch Update",
   HELP__ADMINISTRATION__PROJECT__VIEW: "Project Viewer",
   HELP__ADMINISTRATION__PROJECT__EDIT: "Project Editor",
   HELP__ADMINISTRATION__PROJECT__BROWSE: "Project Browser",
@@ -382,11 +396,19 @@ var common = {
   HELP__ADMINISTRATION__AUTHORIZATION__AUTHORIZATION_GROUPS__BROWSE: "Authorization Group Browser",
   HELP__ADMINISTRATION__AUTHORIZATION__AUTHORIZATION_GROUPS__VIEW: "Users From Authorization Group",
   HELP__ADMINISTRATION__AUTHORIZATION__ROLES__BROWSE: "Role Assignment Browser",
+  HELP__ADMINISTRATION__AUTHORIZATION__ROLES__REGISTER: "Role Assignment",
   HELP__ADMINISTRATION__AUTHORIZATION__USERS__BROWSE: "Person Browser", 
+  HELP__ADMINISTRATION__AUTHORIZATION__USERS__REGISTER: "Person Registration", 
   HELP__SEARCH__ACTION: "Global Search",
   HELP__ATTACHMENTS__VIEW: "Attachment Versions",
-  HELP__CHANGE_COLUMN_SETTINGS__ACTION: "Table Settings",
-  HELP__CHANGE_COLUMN_SETTINGS__CREATE_CUSTOM_COLUMN: "Custom Column",
+  HELP__CHANGE_USER_SETTINGS__ACTION: "Change User Settings",
+  HELP__TABLE_SETTINGS__ACTION: "Table Settings",
+  HELP__TABLE_SETTINGS__CUSTOM_COLUMN__REGISTER: "Add/Edit Custom Column",
+  HELP__TABLE_SETTINGS__CUSTOM_COLUMN__EDIT: "Add/Edit Custom Column",
+  HELP__TABLE_SETTINGS__CUSTOM_FILTER__REGISTER: "Add/Edit Custom Filter",
+  HELP__TABLE_SETTINGS__CUSTOM_FILTER__EDIT: "Add/Edit Custom Filter",
+  HELP__EXPORT_DATA__ACTION: "Data Exporting",
+  HELP__PERFORM_COMPUTATION__ACTION: "Performing Computations on Data Sets",
     
   //
   // User Settings Dialog

@@ -744,6 +744,16 @@ public abstract class Dict
             "reset_user_settings_confirmation_msg";
 
     //
+    // Help Info
+    //
+
+    public static final String INFO_BUTTON_TOOLTIP = "info_button_tooltip";
+
+    public static final String INFO_BOX_TITLE = "info_box_title";
+
+    public static final String INFO_BOX_MSG = "info_box_msg";
+
+    //
     // Unclassified
     //
 

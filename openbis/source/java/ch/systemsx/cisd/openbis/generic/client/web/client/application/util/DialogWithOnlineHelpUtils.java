@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
+package ch.systemsx.cisd.openbis.generic.client.web.client.application.util;
 
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.google.gwt.http.client.URL;
 
@@ -26,22 +27,25 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 
 /**
- * An abstract superclass for dialogs that support online help. Subclasses may override protected
- * methods to configure how help is invoked.
+ * An utility class used for enhancing {@link Window} with online help functionality.
+ * <p>
+ * NOTE: Adding abstract superclass to our dialog hierarchy doesn't work well in our case as we
+ * already have complex dialog hierarchy subclassing either {@link Window} and {@link Dialog} and we
+ * don't want all our dialogs to have help.
  * 
  * @author Chandrasekhar Ramakrishnan
+ * @author Piotr Buczek
  */
-public abstract class AbstractDialogWithOnlineHelp extends Dialog
+public class DialogWithOnlineHelpUtils
 {
     /**
-     * By default, adds a help button to the header. Subclasses may alter this behavior.
+     * Adds a help button to the header.
      */
-    protected void addHelpButton(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final HelpPageIdentifier helpPageIdentifier)
+    public static void addHelpButton(final IViewContext<ICommonClientServiceAsync> viewContext,
+            final Window window, final HelpPageIdentifier helpPageIdentifier)
     {
         ToolButton toolButton =
                 new ToolButton("x-tool-help", new SelectionListener<IconButtonEvent>()
@@ -53,13 +57,13 @@ public abstract class AbstractDialogWithOnlineHelp extends Dialog
                         }
                     });
 
-        getHeader().addTool(toolButton);
+        window.getHeader().addTool(toolButton);
     }
 
     /**
      * Called when the user presses the help button.
      */
-    protected void onInvokeHelp(final IViewContext<ICommonClientServiceAsync> viewContext,
+    private static void onInvokeHelp(final IViewContext<ICommonClientServiceAsync> viewContext,
             final HelpPageIdentifier helpPageIdentifier)
     {
         URLMethodWithParameters url =

@@ -64,7 +64,10 @@ public class HelpPageIdentifier
         USERS(AUTHORIZATION), ROLES(AUTHORIZATION), AUTHORIZATION_GROUPS(AUTHORIZATION),
 
         // other base domains
-        RELATED_DATA_SETS, ATTACHMENTS, CHANGE_USER_SETTINGS, CHANGE_COLUMN_SETTINGS;
+        RELATED_DATA_SETS, ATTACHMENTS, CHANGE_USER_SETTINGS, PERFORM_COMPUTATION, EXPORT_DATA,
+
+        // table settings
+        TABLE_SETTINGS, CUSTOM_COLUMN(TABLE_SETTINGS), CUSTOM_FILTER(TABLE_SETTINGS);
 
         // could be used to create a hierarchy of help pages
         private HelpPageDomain superDomainOrNull;
@@ -112,8 +115,7 @@ public class HelpPageIdentifier
      */
     public static enum HelpPageAction
     {
-        BROWSE, VIEW, REGISTER, IMPORT, EDIT, BATCH_UPDATE, REPORT, SEARCH, ACTION,
-        CREATE_CUSTOM_FILTER, CREATE_CUSTOM_COLUMN,
+        BROWSE, VIEW, REGISTER, IMPORT, EDIT, DELETE, BATCH_UPDATE, REPORT, SEARCH, ACTION,
     }
 
     private HelpPageDomain domain;

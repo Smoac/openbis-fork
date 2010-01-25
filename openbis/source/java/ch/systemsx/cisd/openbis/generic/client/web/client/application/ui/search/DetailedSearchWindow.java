@@ -5,6 +5,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
@@ -14,8 +15,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractDialogWithOnlineHelp;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetSearchHitGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
@@ -27,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * @author Izabela Adamczyk
  * @author Piotr Buczek
  */
-public class DetailedSearchWindow extends AbstractDialogWithOnlineHelp
+public class DetailedSearchWindow extends Dialog
 {
     public static final String SEARCH_BUTTON_ID = DataSetSearchHitGrid.BROWSER_ID + "search_button";
 
@@ -93,7 +94,8 @@ public class DetailedSearchWindow extends AbstractDialogWithOnlineHelp
         searchButton.setId(SEARCH_BUTTON_ID);
         bar.add(searchButton);
 
-        addHelpButton(viewContext, getHelpPageIdentifier(entityKind));
+        DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
+                createHelpPageIdentifier(entityKind));
     }
 
     public DetailedSearchCriteria tryGetCriteria()
@@ -116,7 +118,7 @@ public class DetailedSearchWindow extends AbstractDialogWithOnlineHelp
      * default implementation ignores the entity kind and returns an identifier referencing the
      * advanced search domain. Subclasses may override.
      */
-    protected HelpPageIdentifier getHelpPageIdentifier(final EntityKind entityKind)
+    protected HelpPageIdentifier createHelpPageIdentifier(final EntityKind entityKind)
     {
         // Do not use the entity kind -- in general we want all advanced search dialogs to refer to
         // the same help page.

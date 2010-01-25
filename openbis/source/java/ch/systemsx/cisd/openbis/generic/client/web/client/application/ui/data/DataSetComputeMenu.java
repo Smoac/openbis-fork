@@ -42,11 +42,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.ColumnConfigFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
@@ -258,6 +260,8 @@ public class DataSetComputeMenu extends TextToolItem
 
             this.dataStoreOrNull = tryGetSingleDatastore(data);
             setWidth(DIALOG_WIDTH);
+
+            DialogWithOnlineHelpUtils.addHelpButton(viewContext, this, createHelpPageIdentifier());
         }
 
         @Override
@@ -531,6 +535,12 @@ public class DataSetComputeMenu extends TextToolItem
                 }
             }
             return store;
+        }
+
+        private HelpPageIdentifier createHelpPageIdentifier()
+        {
+            return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.PERFORM_COMPUTATION,
+                    HelpPageIdentifier.HelpPageAction.ACTION);
         }
     }
 

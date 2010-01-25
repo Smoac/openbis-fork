@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data;
 
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -26,6 +25,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetTypeColDefKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_type.AbstractEntityTypeGrid;
@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity_
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.DescriptionField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -133,6 +134,8 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                             .getMainDataSetPath()));
                     addField(mainDataSetPathField);
 
+                    DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
+                            createHelpPageIdentifier());
                 }
 
                 @Override
@@ -144,6 +147,13 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                     viewContext.getService().updateEntityType(entityKind, dataSetType,
                             registrationCallback);
                 }
+
+                private HelpPageIdentifier createHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.DATA_SET_TYPE,
+                            HelpPageIdentifier.HelpPageAction.EDIT);
+                }
+
             };
     }
 
@@ -158,8 +168,6 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
 
                 private TextField<String> mainDataSetPathField;
 
-                @Override
-                protected void onRender(Element parent, int pos)
                 {
                     mainDataSetPatternField = createMainDataSettPatternField();
                     addField(mainDataSetPatternField);
@@ -167,7 +175,8 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                     mainDataSetPathField = createMainDataSetPathField();
                     addField(mainDataSetPathField);
 
-                    super.onRender(parent, pos);
+                    DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
+                            createHelpPageIdentifier());
                 }
 
                 @Override
@@ -177,6 +186,12 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                     dataSetType.setMainDataSetPath(mainDataSetPathField.getValue());
                     dataSetType.setMainDataSetPattern(mainDataSetPatternField.getValue());
                     DataSetTypeGrid.this.register(dataSetType, registrationCallback);
+                }
+
+                private HelpPageIdentifier createHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.DATA_SET_TYPE,
+                            HelpPageIdentifier.HelpPageAction.REGISTER);
                 }
             };
     }

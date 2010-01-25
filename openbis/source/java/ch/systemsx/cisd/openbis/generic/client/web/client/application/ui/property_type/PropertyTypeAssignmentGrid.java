@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.PropertyTypeAssignmentColDefKind;
@@ -49,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IB
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
@@ -293,6 +295,9 @@ public class PropertyTypeAssignmentGrid extends
 
                     etptSelectionWidget = createETPTSelectionWidget(etpts);
                     addField(etptSelectionWidget);
+
+                    DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
+                            createHelpPageIdentifier());
                 }
 
                 private SectionSelectionWidget createSectionSelectionWidget(
@@ -366,6 +371,12 @@ public class PropertyTypeAssignmentGrid extends
                             propertyTypeCode, entityTypeCode, getMandatoryValue(),
                             getDefaultValue(), getSectionValue(), getPreviousETPTOrdinal(),
                             registrationCallback);
+                }
+
+                private HelpPageIdentifier createHelpPageIdentifier()
+                {
+                    return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.ASSIGNMENT,
+                            HelpPageIdentifier.HelpPageAction.EDIT);
                 }
             };
     }

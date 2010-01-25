@@ -14,8 +14,6 @@ import com.google.gwt.user.client.Event;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractDialogWithOnlineHelp;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractColumnSettingsDataModelProvider;
 
 /**
@@ -24,7 +22,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Ab
  * 
  * @author Izabela Adamczyk
  */
-class GridColumnChooserDialog extends AbstractDialogWithOnlineHelp
+class GridColumnChooserDialog extends Dialog
 {
     private final IViewContext<ICommonClientServiceAsync> viewContext;
 
@@ -45,8 +43,6 @@ class GridColumnChooserDialog extends AbstractDialogWithOnlineHelp
         setLayout(new FitLayout());
         setHeading(viewContext.getMessage(Dict.COLUMNS) + " [" + gridId + "]");
         setModal(true); // without it the dialog goes under filter edit/register dialog
-
-        addHelpButton(viewContext, getHelpPageIdentifier());
     }
 
     /**
@@ -102,9 +98,4 @@ class GridColumnChooserDialog extends AbstractDialogWithOnlineHelp
         hide();
     }
 
-    protected HelpPageIdentifier getHelpPageIdentifier()
-    {
-        return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.CHANGE_COLUMN_SETTINGS,
-                HelpPageIdentifier.HelpPageAction.CREATE_CUSTOM_COLUMN);
-    }
 }

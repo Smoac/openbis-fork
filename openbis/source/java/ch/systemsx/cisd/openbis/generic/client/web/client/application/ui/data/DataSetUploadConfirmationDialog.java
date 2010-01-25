@@ -27,9 +27,11 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.AbstractExternalDataGrid.SelectedAndDisplayedItems;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WidgetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUploadParameters;
@@ -126,6 +128,9 @@ final class DataSetUploadConfirmationDialog extends
         passwordField.addKeyListener(keyListener);
         passwordField.setAutoValidate(true);
         formPanel.add(passwordField);
+
+        DialogWithOnlineHelpUtils.addHelpButton(viewContext.getCommonViewContext(), this,
+                createHelpPageIdentifier());
     }
 
     private final RadioGroup createDataSetsRadio()
@@ -184,4 +189,11 @@ final class DataSetUploadConfirmationDialog extends
     {
         return selectedAndDisplayedItems.createCriteria(uploadSelected);
     }
+
+    private HelpPageIdentifier createHelpPageIdentifier()
+    {
+        return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.EXPORT_DATA,
+                HelpPageIdentifier.HelpPageAction.ACTION);
+    }
+
 }

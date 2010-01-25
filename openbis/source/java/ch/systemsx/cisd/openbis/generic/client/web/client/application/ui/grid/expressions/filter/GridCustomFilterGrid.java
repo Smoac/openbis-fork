@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.CustomGridFilterColDefKind;
@@ -164,6 +165,13 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
             NewColumnOrFilter newItem = getNewItemInfo();
             viewContext.getService().registerFilter(newItem, registrationCallback);
         }
+
+        @Override
+        protected HelpPageIdentifier createHelpPageIdentifier()
+        {
+            return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.CUSTOM_FILTER,
+                    HelpPageIdentifier.HelpPageAction.REGISTER);
+        }
     }
 
     private static class EditDialog extends AbstractGridCustomExpressionEditOrRegisterDialog
@@ -190,6 +198,13 @@ public class GridCustomFilterGrid extends AbstractSimpleBrowserGrid<GridCustomFi
         {
             update(itemToUpdate);
             viewContext.getService().updateFilter(itemToUpdate, registrationCallback);
+        }
+
+        @Override
+        protected HelpPageIdentifier createHelpPageIdentifier()
+        {
+            return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.CUSTOM_FILTER,
+                    HelpPageIdentifier.HelpPageAction.EDIT);
         }
     }
 

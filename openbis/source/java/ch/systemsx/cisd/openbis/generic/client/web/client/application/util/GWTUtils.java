@@ -128,7 +128,9 @@ public final class GWTUtils
     public final static void setSelectedItem(final TreeGrid<ModelData> tree, final String property,
             final String value)
     {
+        System.err.println("set selected " + property + "=" + value);
         ModelData model = tryFindModel(tree.getTreeStore().getAllItems(), property, value);
+        System.err.println(model);
         if (model != null)
         {
             tree.getSelectionModel().select(model, false);
