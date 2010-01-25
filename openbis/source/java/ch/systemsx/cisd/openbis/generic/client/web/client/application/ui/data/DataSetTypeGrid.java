@@ -185,6 +185,8 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     {
         TextField<String> mainDataSetPatternField = new TextField<String>();
         mainDataSetPatternField.setFieldLabel(viewContext.getMessage(Dict.MAIN_DATA_SET_PATTERN));
+        mainDataSetPatternField.setToolTip(viewContext
+                .getMessage(Dict.TOOLTIP_MAIN_DATA_SET_PATTERN));
         return mainDataSetPatternField;
     }
 
@@ -192,6 +194,7 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     {
         TextField<String> mainDataSetPathField = new TextField<String>();
         mainDataSetPathField.setFieldLabel(viewContext.getMessage(Dict.MAIN_DATA_SET_PATH));
+        mainDataSetPathField.setToolTip(viewContext.getMessage(Dict.TOOLTIP_MAIN_DATA_SET_PATH));
         return mainDataSetPathField;
     }
 }
