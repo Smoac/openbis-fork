@@ -34,9 +34,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeade
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SerializableComparableIDDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
 
@@ -76,14 +76,9 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
             values.add(value);
         }
         
-        void addNumber(int index, Long number)
+        void addStringWithID(int index, String string, Long id)
         {
-            add(index, new IntegerTableCell(number));
-        }
-        
-        void addString(int index, String string)
-        {
-            add(index, new StringTableCell(string));
+            add(index, new SerializableComparableIDDecorator(new StringTableCell(string), id));
         }
         
         void addDate(int index, Date date)
@@ -154,29 +149,6 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
         }
     }
     
-    private static final class ColumnsWithIDColumn
-    {
-        private final List<Column> columns;
-        private final Column idColumn;
-
-        public ColumnsWithIDColumn(List<Column> columns, Column idColumn)
-        {
-            this.columns = columns;
-            this.idColumn = idColumn;
-        }
-
-        public List<Column> getColumns()
-        {
-            return columns;
-        }
-
-        public Column getIdColumn()
-        {
-            return idColumn;
-        }
-        
-    }
-    
     private final IRawDataServiceInternal service;
     private final String sessionToken;
 
@@ -188,8 +160,7 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
     
     public List<GenericTableRow> getOriginalData() throws UserFailureException
     {
-        ColumnsWithIDColumn columnsWithIDColumn = getColumns();
-        List<Column> columns = columnsWithIDColumn.getColumns();
+        List<Column> columns = getColumns();
         int numberOfRows = columns.get(0).getValues().size();
         List<GenericTableRow> result = new ArrayList<GenericTableRow>(numberOfRows);
         for(int i = 0; i < numberOfRows; i++)
@@ -208,7 +179,7 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
     
     public List<GenericTableColumnHeader> getHeaders()
     {
-        List<Column> columns = getColumns().getColumns();
+        List<Column> columns = getColumns();
         List<GenericTableColumnHeader> headers = new ArrayList<GenericTableColumnHeader>(columns.size());
         for (Column column : columns)
         {
@@ -217,11 +188,10 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
         return headers;
     }
 
-    private ColumnsWithIDColumn getColumns()
+    private List<Column> getColumns()
     {
         List<Sample> samples = service.listRawDataSamples(sessionToken);
-        Column idColumn = new Column(GenericTableColumnHeader.untitledStringHeader(0, "ID"));
-        Column codeColumn = new Column(GenericTableColumnHeader.untitledStringHeader(0, "CODE"));
+        Column codeColumn = new Column(GenericTableColumnHeader.untitledLinkableStringHeader(0, "CODE"));
         Column dateColumn = new Column(GenericTableColumnHeader.untitledStringHeader(1, "REGISTRATION_DATE"));
         Column parentColumn = new Column(GenericTableColumnHeader.untitledStringHeader(2, "PARENT"));
         List<Column> columns = new ArrayList<Column>();
@@ -234,10 +204,10 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
         for (int i = 0; i < samples.size(); i++)
         {
             Sample sample = samples.get(i);
-            idColumn.addNumber(i, sample.getId());
-            codeColumn.addString(i, sample.getCode());
+            codeColumn.addStringWithID(i, sample.getCode(), sample.getId());
             dateColumn.addDate(i, sample.getRegistrationDate());
-            parentColumn.addString(i, sample.getGeneratedFrom().getIdentifier());
+            Sample parent = sample.getGeneratedFrom();
+            parentColumn.addStringWithID(i, parent.getIdentifier(), parent.getId());
             addPropertyTypes(samplePropertyColumns, i, sample);
             addPropertyTypes(parentPropertyColumns, i, sample.getGeneratedFrom());
         }
@@ -251,7 +221,7 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
         }
         columns.addAll(samplePropertyColumns.getColumns());
         columns.addAll(parentPropertyColumns.getColumns());
-        return new ColumnsWithIDColumn(columns, idColumn);
+        return columns;
     }
 
     private void addPropertyTypes(PropertyColumns columns, int index, Sample sample)
