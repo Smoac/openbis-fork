@@ -33,22 +33,37 @@ import ch.systemsx.cisd.cifex.shared.basic.Constants;
 public final class FileSizeRenderer implements GridCellRenderer<BaseModelData>
 {
 
-    public final static FileSizeRenderer FILE_SIZE_RENDERER = new FileSizeRenderer();
+    public final static FileSizeRenderer FILE_SIZE_RENDERER = new FileSizeRenderer(false);
 
-    private FileSizeRenderer()
+    public final static FileSizeRenderer FILE_SIZE_NULL_AS_MISSING_RENDERER =
+            new FileSizeRenderer(true);
+
+    private final boolean treatZeroAsNull;
+
+    private FileSizeRenderer(boolean treatZeroAsNull)
     {
-        // Can not be instantiated.
+        this.treatZeroAsNull = treatZeroAsNull;
     }
 
     public Object render(BaseModelData model, String property, ColumnData config, int rowIndex,
             int colIndex, ListStore<BaseModelData> store, Grid<BaseModelData> grid)
     {
-        Object value = model.get(property);
+        final Number value = model.get(property);
         if (value == null)
         {
             return Constants.TABLE_NULL_VALUE;
+        } 
+        final long longValue = value.longValue();
+        if (treatZeroAsNull && longValue == 0L)
+        {
+            return Constants.TABLE_NULL_VALUE;
+        } else if (longValue == Long.MAX_VALUE)
+        {
+            return Constants.UNLIMITED_VALUE;
+        } else
+        {
+            return FileUtils.byteCountToDisplaySize(longValue);
         }
-        return FileUtils.byteCountToDisplaySize(((Number) value).longValue());
     }
 
 }

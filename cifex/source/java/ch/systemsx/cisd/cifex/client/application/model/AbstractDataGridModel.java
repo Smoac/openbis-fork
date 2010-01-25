@@ -81,7 +81,8 @@ public abstract class AbstractDataGridModel extends BaseModelData implements IMo
         {
             if (false == cc.isHidden() || false == cc.isFixed())
             {
-                ContainFilterField<M> field = new ContainFilterField<M>(cc.getId(), cc.getHeader());
+                ContainFilterField<M> field =
+                        new ContainFilterField<M>(cc.getId(), cc.getHeader(), cc.getRenderer());
                 boolean initiallyVisible = initialFilters.contains(cc.getId());
                 field.setVisible(initiallyVisible);
                 field.setEnabled(initiallyVisible);

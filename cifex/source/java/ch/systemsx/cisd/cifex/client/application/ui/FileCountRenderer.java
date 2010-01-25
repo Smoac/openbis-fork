@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,48 +16,44 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import java.util.Date;
-
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
-import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
- * A <code>GridCellRenderer</code> implementation suitable for date.
+ * A renderer for the (custom) file count quota.
  * 
- * @author Christian Ribeaud
+ * @author Bernd Rinn
  */
-public final class DateRenderer implements GridCellRenderer<BaseModelData>
+public class FileCountRenderer implements GridCellRenderer<BaseModelData>
 {
 
-    /** The unique instance of this class for <code>fullDateTime = false</code>. */
-    public final static DateRenderer DATE_RENDERER = new DateRenderer(false);
+    public final static FileCountRenderer FILE_COUNT_RENDERER =
+            new FileCountRenderer();
 
-    /** The unique instance of this class for <code>fullDateTime = true</code>. */
-    public final static DateRenderer FULL_DATE_RENDERER = new DateRenderer(true);
-
-    private final boolean fullDateTime;
-
-    private DateRenderer(boolean fullDateTime)
+    private FileCountRenderer()
     {
-        this.fullDateTime = fullDateTime;
+        // Can not be instantiated.
     }
 
     public Object render(BaseModelData model, String property, ColumnData config, int rowIndex,
             int colIndex, ListStore<BaseModelData> store, Grid<BaseModelData> grid)
     {
-        Object value = model.get(property);
-        if (value == null)
+        final Integer value = model.get(property);
+        if (value == null || value == 0)
         {
             return Constants.TABLE_NULL_VALUE;
+        } else if (value == Integer.MAX_VALUE)
+        {
+            return Constants.UNLIMITED_VALUE;
+        } else
+        {
+            return value.toString();
         }
-        return DateTimeUtils.formatDate((Date) value,
-                fullDateTime ? DateTimeUtils.FULL_DATE_TIME_FORMAT
-                        : DateTimeUtils.DEFAULT_DATE_TIME_FORMAT);
     }
+
 }

@@ -44,11 +44,13 @@ public final class DateTimeUtils
 
     /**
      * Default date/time format.
-     * <p>
-     * <code>zzz</code> produces <code>GMT+01:00</code>.
-     * </p>
      */
-    public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss zzz";
+    public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd";
+
+    /**
+     * Full date/time format.
+     */
+    public static final String FULL_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     /** Default <code>DateTimeFormat</code> used here. */
     private static final DateTimeFormat defaultDateTimeFormat =

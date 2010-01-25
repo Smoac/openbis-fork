@@ -90,7 +90,7 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     {
         final ColumnConfig expirationDateConfig =
                 createSortableColumnConfig(EXPIRATION_DATE, messageResources
-                        .getFileExpirationDateLabel(), 200);
+                        .getFileExpirationDateLabel(), 120);
         expirationDateConfig.setRenderer(DateRenderer.DATE_RENDERER);
         return expirationDateConfig;
     }
@@ -100,8 +100,8 @@ public abstract class AbstractFileGridModel extends AbstractDataGridModel
     {
         final ColumnConfig columnConfig =
                 createSortableColumnConfig(REGISTRATION_DATE, messageResources
-                        .getFileRegistrationDateLabel(), 200);
-        columnConfig.setRenderer(DateRenderer.DATE_RENDERER);
+                        .getFileRegistrationDateLabel(), 150);
+        columnConfig.setRenderer(DateRenderer.FULL_DATE_RENDERER);
         return columnConfig;
     }
 

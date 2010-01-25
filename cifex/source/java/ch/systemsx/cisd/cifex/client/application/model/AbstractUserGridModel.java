@@ -25,6 +25,8 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import ch.systemsx.cisd.cifex.client.application.IMessageResources;
 import ch.systemsx.cisd.cifex.client.application.Model;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
+import ch.systemsx.cisd.cifex.client.application.ui.FileCountRenderer;
+import ch.systemsx.cisd.cifex.client.application.ui.FileSizeRenderer;
 import ch.systemsx.cisd.cifex.client.application.ui.UserRenderer;
 import ch.systemsx.cisd.cifex.client.application.utils.DateTimeUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
@@ -48,6 +50,14 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
     public static final String STATUS = "status";
 
     public static final String ACTIVE = "active";
+
+    public static final String FILE_SIZE = "fileSize";
+
+    public static final String FILE_COUNT = "fileCount";
+
+    public static final String QUOTA_SIZE = "quotaSize";
+
+    public static final String QUOTA_COUNT = "quotaCount";
 
     public static final String REGISTRATOR = "registrator";
 
@@ -104,6 +114,25 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
         return columnConfig;
     }
 
+    protected final static ColumnConfig createTotalFileSizeColumnConfig(
+            IMessageResources messageResources)
+    {
+        final ColumnConfig columnConfig =
+                createSortableColumnConfig(FILE_SIZE, messageResources.getTotalFileSizeLabel(), 80);
+        columnConfig.setRenderer(FileSizeRenderer.FILE_SIZE_NULL_AS_MISSING_RENDERER);
+        return columnConfig;
+    }
+
+    protected final static ColumnConfig createTotalFileCountColumnConfig(
+            IMessageResources messageResources)
+    {
+        final ColumnConfig columnConfig =
+                createSortableColumnConfig(FILE_COUNT, messageResources.getTotalFileCountLabel(),
+                        60);
+        columnConfig.setRenderer(FileCountRenderer.FILE_COUNT_RENDERER);
+        return columnConfig;
+    }
+
     /**
      * Note that this column is NOT sortable.
      */
@@ -117,18 +146,38 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
 
     protected final static ColumnConfig createStatusColumnConfig(IMessageResources messageResources)
     {
-        return createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 250);
+        return createSortableColumnConfig(STATUS, messageResources.getStatusLabel(), 200);
     }
 
     protected final static ColumnConfig createActiveColumnConfig(IMessageResources messageResources)
     {
-        return createSortableColumnConfig(ACTIVE, messageResources.getUserActiveLabel(), 100);
+        return createSortableColumnConfig(ACTIVE, messageResources.getUserActiveLabel(), 80);
     }
 
     protected final static ColumnConfig createFullNameColumnConfig(
             IMessageResources messageResources)
     {
         return createSortableColumnConfig(FULL_NAME, messageResources.getUserFullNameLabel(), 180);
+    }
+
+    protected final static ColumnConfig createQuotaSizeColumnConfig(
+            IMessageResources messageResources)
+    {
+        final ColumnConfig columnConfig =
+                createSortableColumnConfig(QUOTA_SIZE, messageResources.getQuotaSizeLabel(), 80);
+        columnConfig.setRenderer(FileSizeRenderer.FILE_SIZE_NULL_AS_MISSING_RENDERER);
+        columnConfig.setHidden(true);
+        return columnConfig;
+    }
+
+    protected final static ColumnConfig createQuotaCountColumnConfig(
+            IMessageResources messageResources)
+    {
+        final ColumnConfig columnConfig =
+                createSortableColumnConfig(QUOTA_COUNT, messageResources.getQuotaCountLabel(), 80);
+        columnConfig.setRenderer(FileCountRenderer.FILE_COUNT_RENDERER);
+        columnConfig.setHidden(true);
+        return columnConfig;
     }
 
     protected final String getUserRoleDescription(final UserInfoDTO user)
@@ -146,8 +195,7 @@ public abstract class AbstractUserGridModel extends AbstractDataGridModel
             if (user.getExpirationDate() != null)
             {
                 stateField +=
-                        " User expires on ".concat(DateTimeUtils.formatDate(user
-                                .getExpirationDate()));
+                        " User until ".concat(DateTimeUtils.formatDate(user.getExpirationDate()));
             }
         }
         return stateField;

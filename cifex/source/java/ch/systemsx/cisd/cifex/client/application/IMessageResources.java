@@ -500,6 +500,22 @@ public interface IMessageResources extends Messages
     @Key(value = "userlist.registrator.label")
     public String getRegistratorLabel();
 
+    /** Returns the label of the user "Total File Size" column. */
+    @Key(value = "userlist.total-filesize.label")
+    public String getTotalFileSizeLabel();
+
+    /** Returns the label of the user "Total File Count" column. */
+    @Key(value = "userlist.total-filecount.label")
+    public String getTotalFileCountLabel();
+    
+    /** Returns the label of the user "Custom Quota Size" column. */
+    @Key(value = "userlist.custom-quota-size.label")
+    public String getQuotaSizeLabel();
+
+    /** Returns the label of the user "Total File Count" column. */
+    @Key(value = "userlist.custom-quota-count.label")
+    public String getQuotaCountLabel();
+    
     /** Returns text for the 'rename' confirm box. */
     @Key(value = "rename.confirm.text")
     public String getRenameConfirmText(String before, String after);

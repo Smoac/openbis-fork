@@ -37,6 +37,8 @@ public final class UserGridModel extends AbstractUserGridModel
 {
     private static final long serialVersionUID = Constants.VERSION;
 
+    private static final long MB = 1024 * 1024L;
+
     public UserGridModel(final ViewContext viewContext, UserInfoDTO user)
     {
         super(viewContext.getMessageResources(), viewContext.getModel().getUser());
@@ -49,11 +51,51 @@ public final class UserGridModel extends AbstractUserGridModel
         set(USER_CODE, user.getUserCode());// String
         set(USER_EMAIL, user.getEmail());// String
         set(FULL_NAME, user.getUserFullName());// String
+        set(FILE_SIZE, user.getCurrentFileSize());// long
+        set(FILE_COUNT, user.getCurrentFileCount());// int
         set(STATUS, getUserRoleDescription(user));// String
         set(ACTIVE, new Boolean(user.isActive()));// Boolean
+        set(QUOTA_SIZE, getMaxFileSizePerQuotaGroup(user));// Long
+        set(QUOTA_COUNT, getMaxFileCountPerQuotaGroup(user));// Integer
         set(REGISTRATOR, (registratorAnchor));// String
         set(ACTION, listActionsForUser(user));// String
 
+    }
+
+    private Long getMaxFileSizePerQuotaGroup(UserInfoDTO user)
+    {
+        if (user.isCustomMaxFileSizePerQuotaGroup())
+        {
+            final Long value = user.getMaxFileSizePerQuotaGroupInMB();
+            if (value == null)
+            {
+                return Long.MAX_VALUE;
+            } else
+            {
+                return value * MB;
+            }
+        } else
+        {
+            return null;
+        }
+    }
+
+    private Integer getMaxFileCountPerQuotaGroup(UserInfoDTO user)
+    {
+        if (user.isCustomMaxFileCountPerQuotaGroup())
+        {
+            final Integer value = user.getMaxFileCountPerQuotaGroup();
+            if (value == null)
+            {
+                return Integer.MAX_VALUE;
+            } else
+            {
+                return value;
+            }
+        } else
+        {
+            return null;
+        }
     }
 
     public long getID()
@@ -80,9 +122,13 @@ public final class UserGridModel extends AbstractUserGridModel
         configs.add(createIdColumnConfig());
         configs.add(createUserCodeColumnConfig(messageResources));
         configs.add(createUserEmailColumnConfig(messageResources));
+        configs.add(createTotalFileSizeColumnConfig(messageResources));
+        configs.add(createTotalFileCountColumnConfig(messageResources));
         configs.add(createFullNameColumnConfig(messageResources));
         configs.add(createStatusColumnConfig(messageResources));
         configs.add(createActiveColumnConfig(messageResources));
+        configs.add(createQuotaSizeColumnConfig(messageResources));
+        configs.add(createQuotaCountColumnConfig(messageResources));
         configs.add(createRegistratorColumnConfig(messageResources));
         configs.add(createActionColumnConfig(messageResources));
         return configs;

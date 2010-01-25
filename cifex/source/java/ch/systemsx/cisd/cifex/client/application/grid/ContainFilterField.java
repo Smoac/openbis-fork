@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.cifex.client.application.grid;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 
 import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 
@@ -27,9 +28,13 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
  */
 public class ContainFilterField<M extends ModelData> extends AbstractFilterField<M>
 {
-    public ContainFilterField(String filteredPropertyKey, String title)
+    private final GridCellRenderer<ModelData> renderer;
+
+    public ContainFilterField(String filteredPropertyKey, String title,
+            GridCellRenderer<ModelData> renderer)
     {
         super(filteredPropertyKey, title);
+        this.renderer = renderer;
     }
 
     @Override
@@ -38,15 +43,22 @@ public class ContainFilterField<M extends ModelData> extends AbstractFilterField
         return doSelect(record, getRawValue(), getProperty());
     }
 
-    private static boolean doSelect(ModelData record, String filterText, String filteredPropertyKey)
+    private boolean doSelect(ModelData record, String filterText, String filteredPropertyKey)
     {
         if (StringUtils.isBlank(filterText))
         {
             return true;
         }
-        Object rawValue = record.get(filteredPropertyKey);
-        return rawValue != null
-                && rawValue.toString().toLowerCase().contains(filterText.toLowerCase());
+        final String renderedText =
+                ((String) renderer.render(record, filteredPropertyKey, null, 0, 0, null, null))
+                        .toLowerCase();
+        if (filterText.startsWith("!"))
+        {
+            return (renderedText.contains(filterText.substring(1).toLowerCase()) == false);
+        } else
+        {
+            return renderedText.contains(filterText.toLowerCase());
+        }
 
     }
 }
