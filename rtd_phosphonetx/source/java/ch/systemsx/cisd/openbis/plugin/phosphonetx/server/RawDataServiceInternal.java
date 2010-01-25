@@ -135,7 +135,9 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         criteria.setSampleType(SampleTypeTranslator.translate(sampleTypePE, null));
         criteria.setIncludeGroup(true);
         criteria.setGroupCode(GROUP_CODE);
-        return sampleLister.list(new ListOrSearchSampleCriteria(criteria));
+        ListOrSearchSampleCriteria criteria2 = new ListOrSearchSampleCriteria(criteria);
+        criteria2.setEnrichDependentSamplesWithProperties(true);
+        return sampleLister.list(criteria2);
     }
     
     private String findDataStoreServer()

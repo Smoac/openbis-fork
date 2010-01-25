@@ -19,13 +19,13 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
@@ -86,10 +86,10 @@ public interface IPhosphoNetXClientService extends IClientService
             TableExportCriteria<SampleWithPropertiesAndAbundance> exportCriteria)
             throws UserFailureException;
 
-    public ResultSetWithEntityTypes<Sample> listRawDataSamples(IResultSetConfig<String, Sample> criteria)
+    public GenericTableResultSet listRawDataSamples(IResultSetConfig<String, GenericTableRow> criteria)
             throws UserFailureException;
-
-    public String prepareExportRawDataSamples(TableExportCriteria<Sample> exportCriteria)
+    
+    public String prepareExportRawDataSamples(TableExportCriteria<GenericTableRow> exportCriteria)
             throws UserFailureException;
     
     public void copyRawData(long[] rawDataSampleIDs) throws UserFailureException;

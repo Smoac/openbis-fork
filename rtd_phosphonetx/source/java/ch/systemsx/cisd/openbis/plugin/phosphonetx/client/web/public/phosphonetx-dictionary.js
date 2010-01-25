@@ -40,8 +40,9 @@ var phosphonetx = {
   
   ALL_RAW_DATA_SAMPLES_menu_item: "All MS INJECTION Samples",  
   ALL_RAW_DATA_SAMPLES_tab_label: "MS INJECTION Samples and Related Biological Samples",  
-  ms_injection_sample_code: "MS INJECTION Sample",
-  biological_sample_identifier: "Biological Sample",
+  openbis_raw_data_sample_browser_CODE: "MS INJECTION Sample",
+  openbis_raw_data_sample_browser_REGISTRATION_DATE: "Regustration Date",
+  openbis_raw_data_sample_browser_PARENT: "Biological Sample",
   copy_data_sets_button_label: "Copy Data Sets",
   copy_data_sets_title: "Copy Data Sets Confirmation",
   copy_data_sets_message: "Do you want to make the data sets of the samples {0} available for processing?", 

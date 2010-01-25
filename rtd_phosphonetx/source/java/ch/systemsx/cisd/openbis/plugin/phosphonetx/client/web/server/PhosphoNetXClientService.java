@@ -24,15 +24,15 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSetWithEntityTypes;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
@@ -186,19 +186,21 @@ public class PhosphoNetXClientService extends AbstractClientService implements
         return prepareExportEntities(exportCriteria);
     }
 
-    public ResultSetWithEntityTypes<Sample> listRawDataSamples(IResultSetConfig<String, Sample> criteria)
+    public GenericTableResultSet listRawDataSamples(IResultSetConfig<String, GenericTableRow> criteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         final String sessionToken = getSessionToken();
-        return listEntitiesWithTypes(criteria, new RawDataSampleProvider(rawDataService, sessionToken));
+        RawDataSampleProvider rawDataSampleProvider = new RawDataSampleProvider(rawDataService, sessionToken);
+        ResultSet<GenericTableRow> resultSet = listEntities(criteria, rawDataSampleProvider);
+        return new GenericTableResultSet(resultSet, rawDataSampleProvider.getHeaders());
     }
 
-    public String prepareExportRawDataSamples(TableExportCriteria<Sample> exportCriteria)
+    public String prepareExportRawDataSamples(TableExportCriteria<GenericTableRow> exportCriteria)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         return prepareExportEntities(exportCriteria);
     }
-
+    
     public void copyRawData(long[] rawDataSampleIDs)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
