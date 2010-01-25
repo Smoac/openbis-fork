@@ -69,6 +69,10 @@ public abstract class AbstractServerLogger implements IServer
 
     protected final void logAccess(final String sessionToken, final String commandName)
     {
+        long freeMemory = Runtime.getRuntime().freeMemory();
+        long totalMemory = Runtime.getRuntime().totalMemory();
+        System.out.println("MEMORY: " + (totalMemory - freeMemory) / 1024 / 1024 + " of " + totalMemory
+                / 1024 / 1024 + " used " + commandName);
         logAccess(sessionToken, commandName, "");
     }
 
