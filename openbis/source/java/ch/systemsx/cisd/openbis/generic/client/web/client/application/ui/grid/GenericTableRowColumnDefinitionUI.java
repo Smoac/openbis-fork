@@ -18,17 +18,32 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 
+/**
+ * UI extension of {@link GenericTableRowColumnDefinition}.
+ * 
+ *
+ * @author Franz-Josef Elmer
+ */
 public class GenericTableRowColumnDefinitionUI extends GenericTableRowColumnDefinition implements
         IColumnDefinitionUI<GenericTableRow>
 {
+    private int width;
+
     public GenericTableRowColumnDefinitionUI(GenericTableColumnHeader header, String title)
     {
-        super(header, title);
+        this(header, title, 100);
     }
 
+    public GenericTableRowColumnDefinitionUI(GenericTableColumnHeader header, String title, int width)
+    {
+        super(header, title);
+        this.width = width;
+    }
+    
     // GWT only
     @SuppressWarnings("unused")
     private GenericTableRowColumnDefinitionUI()
@@ -38,7 +53,7 @@ public class GenericTableRowColumnDefinitionUI extends GenericTableRowColumnDefi
 
     public int getWidth()
     {
-        return 100;
+        return width;
     }
 
     public boolean isHidden()
@@ -48,7 +63,13 @@ public class GenericTableRowColumnDefinitionUI extends GenericTableRowColumnDefi
 
     public boolean isNumeric()
     {
-        return false;
+        DataTypeCode type = header.getType();
+        return type == DataTypeCode.INTEGER || type == DataTypeCode.REAL;
+    }
+
+    public boolean isLink()
+    {
+        return header.isLinkable();
     }
     
 }

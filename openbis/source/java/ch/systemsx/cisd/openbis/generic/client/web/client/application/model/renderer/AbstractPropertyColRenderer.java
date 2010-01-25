@@ -76,6 +76,11 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
         return colDef.getComparableValue(rowModel);
     }
 
+    public boolean isLink()
+    {
+        return false;
+    }
+
     /**
      * @return given <var>value</var> rendered depending on property type
      */

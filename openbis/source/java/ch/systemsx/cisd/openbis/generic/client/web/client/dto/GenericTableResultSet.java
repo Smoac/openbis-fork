@@ -20,12 +20,14 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.GenericTableRowColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 
 /**
+ * Class for the {@link ResultSet} of {@link GenericTableRow}. It also contains the
+ * {@link GenericTableRowColumnDefinition}s.
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class GenericTableResultSet implements IsSerializable

@@ -79,6 +79,17 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
         return false;
     }
 
+    public boolean isLink()
+    {
+        return false;
+    }
+
+    public String getIdentifier()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     public String tryToGetProperty(String key)
     {
         return null;

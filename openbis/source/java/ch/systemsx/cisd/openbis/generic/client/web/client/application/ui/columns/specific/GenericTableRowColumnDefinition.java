@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
  */
 public class GenericTableRowColumnDefinition implements IColumnDefinition<GenericTableRow>
 {
-    private GenericTableColumnHeader header;
+    protected GenericTableColumnHeader header;
 
     private String title;
 

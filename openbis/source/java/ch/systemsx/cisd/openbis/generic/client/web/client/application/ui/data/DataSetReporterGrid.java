@@ -98,6 +98,11 @@ public class DataSetReporterGrid extends
             return isHidden;
         }
 
+        public boolean isLink()
+        {
+            return false;
+        }
+
         // GWT only
         @SuppressWarnings("unused")
         private DatasetReportColumnUI()

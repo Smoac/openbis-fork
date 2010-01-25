@@ -51,6 +51,11 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
         return false;
     }
 
+    public boolean isLink()
+    {
+        return false;
+    }
+
     public Comparable<?> getComparableValue(GridRowModel<T> rowModel)
     {
         return getPrimitiveValue(rowModel).getComparableValue();

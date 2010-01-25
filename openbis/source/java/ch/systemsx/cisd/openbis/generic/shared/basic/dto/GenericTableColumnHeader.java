@@ -20,8 +20,17 @@ import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+
 /**
- * 
+ * Definition of a column header for {@link GenericTableRow} data. 
+ * A column had has
+ * <ul><li>an index (needed to access a cell in a {@link GenericTableRow} object),
+ * <li>a code which has to be unique among all other headers,
+ * <li>a data type
+ * </ul>
+ * The header title is optional. If not specified the code will be the title. Usually it will be
+ * set in the client code by using a translation mechanism (like {@link IMessageProvider}).
  *
  * @author Franz-Josef Elmer
  */
@@ -29,26 +38,41 @@ public class GenericTableColumnHeader implements Serializable, IsSerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
     
-    public static GenericTableColumnHeader untitledStringHeader(int identifier, String code)
+    /**
+     * Creates a header without a title.
+     */
+    public static GenericTableColumnHeader untitledStringHeader(int index, String code)
     {
         GenericTableColumnHeader header = new GenericTableColumnHeader();
-        header.setIndex(identifier);
+        header.setIndex(index);
         header.setCode(code);
         header.setType(DataTypeCode.VARCHAR);
         return header;
     }
 
+    /**
+     * Creates a header without a title and <code>linkable</code> flag set <code>true</code>..
+     */
+    public static GenericTableColumnHeader untitledLinkableStringHeader(int index, String code)
+    {
+        GenericTableColumnHeader header = untitledStringHeader(index, code);
+        header.setLinkable(true);
+        return header;
+    }
+    
     private String title;
     
     private int index;
     
     private String code;
     
+    private boolean linkable;
+    
     private DataTypeCode type;
 
     public String getTitle()
     {
-        return title;
+        return title == null ? code : title;
     }
 
     public void setTitle(String title)
@@ -85,6 +109,15 @@ public class GenericTableColumnHeader implements Serializable, IsSerializable
     {
         this.type = type;
     }
-    
+
+    public void setLinkable(boolean linkable)
+    {
+        this.linkable = linkable;
+    }
+
+    public boolean isLinkable()
+    {
+        return linkable;
+    }
     
 }

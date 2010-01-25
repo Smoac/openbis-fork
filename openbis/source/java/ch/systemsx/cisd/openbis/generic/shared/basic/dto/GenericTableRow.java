@@ -20,8 +20,10 @@ import java.io.Serializable;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
+
 /**
- * 
+ * The values of a row of a {@link GenericTableResultSet}.
  *
  * @author Franz-Josef Elmer
  */
@@ -31,14 +33,22 @@ public class GenericTableRow implements Serializable, IsSerializable
     
     private ISerializableComparable[] cells;
     
+    /**
+     * Creates an instance for specified cells.
+     */
     public GenericTableRow(ISerializableComparable... cells)
     {
         this.cells = cells;
     }
-    
-    public ISerializableComparable tryToGetValue(int columnID)
+
+    /**
+     * Returns the value of cell with specified index.
+     * 
+     * @return <code>null</code> if cell value is <code>null</code>.
+     */
+    public ISerializableComparable tryToGetValue(int index)
     {
-        return cells[columnID]; 
+        return cells[index]; 
     }
 
     // GWT only

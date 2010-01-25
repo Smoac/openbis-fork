@@ -19,4 +19,9 @@ public interface IColumnDefinitionUI<T> extends IColumnDefinition<T>
      * Returns <code>true</code> if the values of the column are numerically.
      */
     boolean isNumeric();
+    
+    /**
+     * Returns <code>true</code> if the column cell should be rendered as a link.
+     */
+    boolean isLink();
 }

@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeade
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 
 /**
- * 
+ * Implementation of a table browser grid for {@link GenericTableRow} data.
  *
  * @author Franz-Josef Elmer
  */
@@ -50,7 +50,18 @@ public abstract class GenericTableBrowserGrid
     private static final String BROWSER_ID_PATTERN = "[a-z0-9_]*";
     
     private List<GenericTableColumnHeader> headers;
-    
+
+    /**
+     * Creates an instane for specified view context, browserID, gridID, and display type ID
+     * generator. The browser ID is also used to create dictionary keys for message providing in
+     * according to the following schema:
+     * 
+     * <pre>
+     *    &lt;browser ID&gt;_&lt;column code&gt;
+     * </pre>
+     * 
+     * @param browserId Only lower-case letter, digits, and '_' are allowed as browser ID.
+     */
     protected GenericTableBrowserGrid(IViewContext<ICommonClientServiceAsync> viewContext,
             String browserId, String gridId, boolean showHeader, boolean refreshAutomatically,
             IDisplayTypeIDGenerator displayTypeIDGenerator)
