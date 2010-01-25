@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -77,6 +78,7 @@ class ChannelChooser
             container.add(GuiUtils.withLabel(channelChooser, "Channel:"), channelLayoutData);
         }
         container.add(viewerFactory.create(initialChannel));
+        container.setScrollMode(Scroll.AUTO);
         return container;
     }
 
