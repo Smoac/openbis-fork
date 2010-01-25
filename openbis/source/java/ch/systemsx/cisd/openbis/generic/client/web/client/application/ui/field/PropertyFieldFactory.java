@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field;
 import java.util.Date;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -48,7 +49,8 @@ public class PropertyFieldFactory
         String description = pt.getDescription();
         if (StringUtils.isBlank(description) == false)
         {
-            FieldUtil.addInfoIcon(field, description);
+            AbstractImagePrototype infoIcon = AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
+            FieldUtil.addInfoIcon(field, description, infoIcon.createImage());
         }
         return fieldHolder;
     }

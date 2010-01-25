@@ -229,3 +229,7 @@ body,div,td {
 .cisd-hidden {
 	visibility: hidden !important;
 }
+
+.hands {
+    cursor:hand;
+}

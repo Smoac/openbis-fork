@@ -25,14 +25,10 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.Widget;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import com.google.gwt.user.client.ui.Image;
 
 /**
  * Utilities for {@link Field} class.
@@ -41,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.L
  */
 public class FieldUtil
 {
-    private static final String INFO_LINK_LABEL = "[?]";
 
     private static final int[] INFO_LINK_FIELD_OFFSETS = new int[]
         { 20, 3 };
@@ -108,8 +103,9 @@ public class FieldUtil
 
     /**
      * Adds '?' to the field and allows to display chosen message in the info box.
+     * @param image 
      */
-    public static void addInfoIcon(final Field<?> field, final String message)
+    public static void addInfoIcon(final Field<?> field, final String message, final Image image)
     {
         // WORKAROUND: Based on GXT functionality for displaying error icon, until there is no
         // dedicated mechanism for showing info icons in GXT
@@ -117,15 +113,15 @@ public class FieldUtil
             {
                 public void handleEvent(BaseEvent be)
                 {
-                    final Widget detailsLink =
-                            LinkRenderer.getLinkWidget(INFO_LINK_LABEL, new ClickHandler()
-                                {
-                                    public void onClick(ClickEvent event)
-                                    {
-                                        MessageBox.info("Info", message, null);
-                                    }
-                                });
-                    final WidgetComponent info = new WidgetComponent(detailsLink);
+                    final WidgetComponent info = new WidgetComponent(image);
+                    info.setStyleName("hands");
+                    info.sinkEvents(Events.OnClick.getEventCode());
+                    info.addListener(Events.OnClick, new Listener<BaseEvent>(){
+                        public void handleEvent(BaseEvent e)
+                        {
+                            MessageBox.info("Info", message, null);
+                        }});
+                    
                     Element parent = field.el().getParent().dom;
                     info.render(parent);
                     info.setStyleAttribute("display", "block");
