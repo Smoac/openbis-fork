@@ -25,6 +25,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.DateRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -43,6 +45,11 @@ public class PropertyFieldFactory
                 doCreateField(pt, isMandatory, label, fieldId, originalRawValue, viewContext);
         Field<?> field = fieldHolder.get();
         field.setId(fieldId);
+        String description = pt.getDescription();
+        if (StringUtils.isBlank(description) == false)
+        {
+            FieldUtil.addInfoIcon(field, description);
+        }
         return fieldHolder;
     }
 

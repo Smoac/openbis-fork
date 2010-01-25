@@ -55,6 +55,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
  */
 public abstract class AbstractRegistrationForm extends ContentPanel
 {
+    private static final int PANEL_MARGIN = 100;
+
     private static final String SESSION_KEY_PREFIX = "sessionKey_";
 
     public static final String SESSION_KEYS_NUMBER = "sessionKeysNumber";
@@ -69,9 +71,9 @@ public abstract class AbstractRegistrationForm extends ContentPanel
 
     public static final int SECTION_FIELD_WIDTH = DEFAULT_FIELD_WIDTH;
 
-    public static final int SECTION_DEFAULT_FIELD_WIDTH = DEFAULT_FIELD_WIDTH - 15;
+    public static final int SECTION_DEFAULT_FIELD_WIDTH = DEFAULT_FIELD_WIDTH;// -15
 
-    public static final int SECTION_WIDTH = SECTION_FIELD_WIDTH + SECTION_LABEL_WIDTH + 16;
+    public static final int SECTION_WIDTH = SECTION_FIELD_WIDTH + SECTION_LABEL_WIDTH + 60;// +16
 
     protected InfoBox infoBox;
 
@@ -152,7 +154,7 @@ public abstract class AbstractRegistrationForm extends ContentPanel
         panel.addClickListener(new InfoBoxResetListener(infoBox));
         panel.setHeaderVisible(false);
         panel.setBodyBorder(false);
-        panel.setWidth(labelWidth + fieldWidth + 40);
+        panel.setWidth(labelWidth + fieldWidth + PANEL_MARGIN);
         panel.setLabelWidth(labelWidth);
         panel.setFieldWidth(fieldWidth);
         panel.setButtonAlign(HorizontalAlignment.RIGHT);
@@ -310,8 +312,6 @@ public abstract class AbstractRegistrationForm extends ContentPanel
     protected final void addUploadFeatures(List<String> sessionKeys)
     {
         assert sessionKeysInitiated == false : "This method should be called only once.";
-        formPanel.setWidth(AbstractRegistrationForm.DEFAULT_LABEL_WIDTH
-                + AbstractRegistrationForm.DEFAULT_FIELD_WIDTH + 50);
         formPanel.setAction(GenericConstants.createServicePath("upload"));
         formPanel.setEncoding(Encoding.MULTIPART);
         formPanel.setMethod(Method.POST);
