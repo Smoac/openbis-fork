@@ -50,12 +50,12 @@ public class PluginTaskProvider<P>
     /** creates an instance of the plugin with the given key */
     public P createPluginInstance(String pluginKey, File storeRoot)
     {
-        return factories.tryGet(pluginKey).createPluginInstance(storeRoot);
+        return getFactory(pluginKey).createPluginInstance(storeRoot);
     }
 
     public DatastoreServiceDescription getPluginDescription(String pluginKey)
     {
-        return factories.tryGet(pluginKey).getPluginDescription();
+        return getFactory(pluginKey).getPluginDescription();
     }
 
     public List<DatastoreServiceDescription> getPluginDescriptions()
@@ -87,4 +87,14 @@ public class PluginTaskProvider<P>
         }
     }
 
+    private AbstractPluginTaskFactory<P> getFactory(String pluginKey)
+    {
+        AbstractPluginTaskFactory<P> factory = factories.tryGet(pluginKey);
+        if (factory == null)
+        {
+            throw new IllegalArgumentException("No plugin registered for key '" + pluginKey + "'.");
+        }
+        return factory;
+    }
 }
+
