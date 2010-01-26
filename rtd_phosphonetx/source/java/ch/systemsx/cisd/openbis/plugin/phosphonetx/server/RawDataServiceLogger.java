@@ -44,11 +44,13 @@ class RawDataServiceLogger extends AbstractServerLogger implements IRawDataServi
         return null;
     }
 
-    public void copyRawData(String sessionToken, String userID, long[] rawDataSampleIDs)
+    public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
+            long[] rawDataSampleIDs)
     {
         int numberOfDataSets = rawDataSampleIDs == null ? 0 : rawDataSampleIDs.length;
-        logAccess(sessionToken, "copy_raw_data", "USER_ID(%s) NUMBER_OF_DATA_SETS(%s)", userID,
-                numberOfDataSets);
+        logAccess(sessionToken, "copy_raw_data",
+                "USER_ID(%s) DSS_PROCESSING_PLUGIN(%s) NUMBER_OF_DATA_SETS(%s)", userID,
+                dataSetProcessingKey, numberOfDataSets);
     }
 
 }

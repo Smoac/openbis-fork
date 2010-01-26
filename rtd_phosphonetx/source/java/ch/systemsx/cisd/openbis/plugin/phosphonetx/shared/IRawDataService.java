@@ -39,8 +39,14 @@ public interface IRawDataService extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
     public List<Sample> listRawDataSamples(String sessionToken, String userID);
-    
+
+    /**
+     * Processes the data sets of specified samples by the DSS processing plug-in of specified key
+     * for the specified user. Implementations should check that the specified user is allowed
+     * to read specified samples.
+     */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
-    public void copyRawData(String sessionToken, String userID, long[] rawDataSampleIDs);
+    public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
+            long[] rawDataSampleIDs);
 }

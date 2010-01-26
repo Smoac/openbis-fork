@@ -42,11 +42,11 @@ var phosphonetx = {
   ALL_RAW_DATA_SAMPLES_menu_item: "All MS INJECTION Samples",  
   ALL_RAW_DATA_SAMPLES_tab_label: "MS INJECTION Samples and Related Biological Samples",  
   openbis_raw_data_sample_browser_CODE: "MS INJECTION Sample",
-  openbis_raw_data_sample_browser_REGISTRATION_DATE: "Regustration Date",
+  openbis_raw_data_sample_browser_REGISTRATION_DATE: "Registration Date",
   openbis_raw_data_sample_browser_PARENT: "Biological Sample",
-  copy_data_sets_button_label: "Copy Data Sets",
-  copy_data_sets_title: "Copy Data Sets Confirmation",
-  copy_data_sets_message: "Do you want to make the data sets of the samples {0} available for processing?", 
+  copy_data_sets_button_label: "Process Data Sets",
+  copy_data_sets_title: "Process Data Sets Confirmation",
+  copy_data_sets_message: "Do you want to process '{0}' for the data sets of the samples {1}?", 
   
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

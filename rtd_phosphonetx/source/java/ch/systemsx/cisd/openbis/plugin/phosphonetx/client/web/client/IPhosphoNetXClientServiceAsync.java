@@ -111,6 +111,6 @@ public interface IPhosphoNetXClientServiceAsync extends IClientServiceAsync
     public void prepareExportRawDataSamples(TableExportCriteria<GenericTableRow> exportCriteria,
             AsyncCallback<String> callback);
     
-    /** @see IPhosphoNetXClientService#copyRawData(long[]) */
-    public void copyRawData(long[] rawDataSampleIDs, AsyncCallback<Void> callback);
+    /** @see IPhosphoNetXClientService#processRawData(String, long[]) */
+    public void processRawData(String dataSetProcessingKey, long[] rawDataSampleIDs, AsyncCallback<Void> callback);
 }

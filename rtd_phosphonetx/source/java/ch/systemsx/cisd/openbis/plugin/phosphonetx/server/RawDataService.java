@@ -67,13 +67,15 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         }
     }
 
-    public void copyRawData(String sessionToken, String userID, long[] rawDataSampleIDs)
+    public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
+            long[] rawDataSampleIDs)
     {
         checkSession(sessionToken);
         SessionContextDTO session = login(userID);
         try
         {
-            service.copyRawData(session.getSessionToken(), rawDataSampleIDs);
+            service.processRawData(session.getSessionToken(), dataSetProcessingKey,
+                    rawDataSampleIDs);
         } finally
         {
             service.logout(session.getSessionToken());

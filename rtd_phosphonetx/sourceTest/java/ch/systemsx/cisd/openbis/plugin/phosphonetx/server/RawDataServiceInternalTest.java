@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.PROCESSING;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind.QUERIES;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.COPY_PROCESSING_KEY;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.GROUP_CODE;
 import static ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal.RAW_DATA_SAMPLE_TYPE;
 
@@ -57,6 +56,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInterna
 @Friend(toClasses=RawDataServiceInternal.class)
 public class RawDataServiceInternalTest extends AbstractServerTestCase
 {
+    private static final String COPY_PROCESSING_KEY = "copy-data-sets";
     private IRawDataServiceInternal service;
     private ICommonBusinessObjectFactory boFactory;
     private ISampleLister sampleLister;
@@ -126,7 +126,7 @@ public class RawDataServiceInternalTest extends AbstractServerTestCase
                 
             });
         
-        service.copyRawData(SESSION_TOKEN, ids);
+        service.processRawData(SESSION_TOKEN, COPY_PROCESSING_KEY, ids);
         
         context.assertIsSatisfied();
     }

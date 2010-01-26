@@ -67,6 +67,6 @@ public class RawDataTestClient
             Sample sample = samples.get(i);
             ids[i] = sample.getId();
         }
-        service.copyRawData(sessionToken, "test_a", ids);
+        service.processingRawData(sessionToken, "test_a", "copy-data-sets", ids);
     }
 }

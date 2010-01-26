@@ -18,25 +18,18 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.createOrDelete;
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.edit;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.Dict.COPY_DATA_SETS_BUTTON_LABEL;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.Dict.COPY_DATA_SETS_MESSAGE;
-import static ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.Dict.COPY_DATA_SETS_TITLE;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.VoidAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.GenericTableBrowserGrid;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IBrowserGridActionInvoker;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ICellListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractDataConfirmationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
@@ -45,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SerializableComparableIDDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
@@ -66,59 +58,6 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
         return grid.asDisposableWithoutToolbar();
     }
 
-    private static final class CopyConfirmationDialog extends
-            AbstractDataConfirmationDialog<List<GenericTableRow>>
-    {
-        private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
-
-        private final List<GenericTableRow> samples;
-
-        private CopyConfirmationDialog(
-                IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext,
-                List<GenericTableRow> samples, String title)
-        {
-            super(specificViewContext, samples, title);
-            this.specificViewContext = specificViewContext;
-            this.samples = samples;
-        }
-
-        @Override
-        protected String createMessage()
-        {
-            String list = "[";
-            String delim = "";
-            for (GenericTableRow sample : samples)
-            {
-                list += delim + sample.tryToGetValue(0);
-                delim = ", ";
-            }
-            list += "]";
-            return specificViewContext.getMessage(COPY_DATA_SETS_MESSAGE, list);
-        }
-
-        @Override
-        protected void executeConfirmedAction()
-        {
-            long[] rawDataSampleIDs = new long[samples.size()];
-            for (int i = 0; i < samples.size(); i++)
-            {
-                GenericTableRow row = samples.get(i);
-                ISerializableComparable c = row.tryToGetValue(0);
-                if (c instanceof SerializableComparableIDDecorator == false)
-                {
-                    throw new IllegalArgumentException("Missing id: " + c);
-                }
-                rawDataSampleIDs[i] = ((SerializableComparableIDDecorator) c).getID();
-            }
-            specificViewContext.getService().copyRawData(rawDataSampleIDs,
-                    new VoidAsyncCallback<Void>(specificViewContext));
-        }
-
-        @Override
-        protected void extendForm()
-        {
-        }
-    }
 
    private final IViewContext<IPhosphoNetXClientServiceAsync> specificViewContext;
     
@@ -136,20 +75,16 @@ class RawDataSampleGrid extends GenericTableBrowserGrid
                 });
         allowMultipleSelection();
         addEntityOperationsLabel();
-        Button uploadButton =
-                new Button(viewContext.getMessage(COPY_DATA_SETS_BUTTON_LABEL),
-                        new AbstractCreateDialogListener()
-                            {
-                                @Override
-                                protected Dialog createDialog(List<GenericTableRow> samples,
-                                        IBrowserGridActionInvoker invoker)
-                                {
-                                    return new CopyConfirmationDialog(specificViewContext, samples,
-                                            specificViewContext.getMessage(COPY_DATA_SETS_TITLE));
-                                }
-                            });
-        addButton(uploadButton);
-
+        RawDataProcessingMenu button = new RawDataProcessingMenu(viewContext,
+                new IDelegatedActionWithResult<List<GenericTableRow>>()
+                    {
+                        public List<GenericTableRow> execute()
+                        {
+                            return getSelectedBaseObjects();
+                        }
+                    });
+        enableButtonOnSelectedItems(button);
+        addButton(button);
     }
 
     @Override

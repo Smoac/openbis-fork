@@ -99,7 +99,7 @@ public class RawDataServiceTest extends AbstractServerTestCase
 
         try
         {
-            service.copyRawData(SESSION_TOKEN, "abc", new long[0]);
+            service.processingRawData(SESSION_TOKEN, "abc", null, new long[0]);
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -118,11 +118,11 @@ public class RawDataServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(internalService).copyRawData(session2.getSessionToken(), ids);
+                    one(internalService).processRawData(session2.getSessionToken(), null, ids);
                 }
             });
 
-        service.copyRawData(SESSION_TOKEN, "abc", ids);
+        service.processingRawData(SESSION_TOKEN, "abc", null, ids);
 
         context.assertIsSatisfied();
     }

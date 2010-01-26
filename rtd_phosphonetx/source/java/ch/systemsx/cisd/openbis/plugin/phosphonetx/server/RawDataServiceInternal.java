@@ -56,9 +56,7 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.authorization.validato
  */
 public class RawDataServiceInternal extends AbstractServer<IRawDataServiceInternal> implements IRawDataServiceInternal
 {
-    @Private static final String COPY_PROCESSING_KEY = "copy-data-sets";
-
-    @Private static final String GROUP_CODE = "MS_DATA";
+     @Private static final String GROUP_CODE = "MS_DATA";
 
     @Private static final String RAW_DATA_SAMPLE_TYPE = "MS_INJECTION";
     
@@ -95,11 +93,12 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         return loadAllRawDataSamples(getSession(sessionToken));
     }
     
-    public void copyRawData(String sessionToken, long[] rawDataSampleIDs)
+    public void processRawData(String sessionToken, String dataSetProcessingKey,
+            long[] rawDataSampleIDs)
     {
         Session session = getSession(sessionToken);
         PersonPE person = session.tryGetPerson();
-        
+
         List<Sample> samples = loadAllRawDataSamples(session);
         Set<Long> sampleIDs = new HashSet<Long>();
         for (Sample sample : samples)
@@ -109,7 +108,7 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
                 sampleIDs.add(sample.getId());
             }
         }
-        
+
         ISampleDAO sampleDAO = getDAOFactory().getSampleDAO();
         IExternalDataDAO externalDataDAO = getDAOFactory().getExternalDataDAO();
         List<String> dataSetCodes = new ArrayList<String>();
@@ -127,10 +126,10 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
                 dataSetCodes.add(dataSet.getCode());
             }
         }
-        String dataStoreServerCode = findDataStoreServer();
+        String dataStoreServerCode = findDataStoreServer(dataSetProcessingKey);
         IExternalDataTable externalDataTable =
                 businessObjectFactory.createExternalDataTable(session);
-        externalDataTable.processDatasets(COPY_PROCESSING_KEY, dataStoreServerCode, dataSetCodes);
+        externalDataTable.processDatasets(dataSetProcessingKey, dataStoreServerCode, dataSetCodes);
     }
 
     private List<Sample> loadAllRawDataSamples(Session session)
@@ -147,7 +146,7 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
         return sampleLister.list(criteria2);
     }
     
-    private String findDataStoreServer()
+    private String findDataStoreServer(String dataSetProcessingKey)
     {
         List<DataStorePE> dataStores = getDAOFactory().getDataStoreDAO().listDataStores();
         for (DataStorePE dataStore : dataStores)
@@ -156,13 +155,13 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
             for (DataStoreServicePE dataStoreService : services)
             {
                 if (DataStoreServiceKind.PROCESSING.equals(dataStoreService.getKind())
-                        && COPY_PROCESSING_KEY.equals(dataStoreService.getKey()))
+                        && dataSetProcessingKey.equals(dataStoreService.getKey()))
                 {
                     return dataStore.getCode();
                 }
             }
         }
         throw new EnvironmentFailureException("No data store processing service with key '"
-                + COPY_PROCESSING_KEY + "' found.");
+                + dataSetProcessingKey + "' found.");
     }
 }
