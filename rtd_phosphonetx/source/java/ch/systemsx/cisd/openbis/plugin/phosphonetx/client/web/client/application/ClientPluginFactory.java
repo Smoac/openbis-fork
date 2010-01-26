@@ -19,24 +19,32 @@ package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.applicatio
 import java.util.Collections;
 import java.util.Set;
 
-import com.google.gwt.user.client.ui.Widget;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractClientPluginFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DummyComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ClientPluginAdapter;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
@@ -66,9 +74,9 @@ public class ClientPluginFactory extends
 
     public Set<String> getEntityTypeCodes(EntityKind entityKind)
     {
-        if (entityKind == EntityKind.SAMPLE)
+        if (entityKind == EntityKind.EXPERIMENT)
         {
-            return Collections.singleton("TEST");
+            return Collections.singleton("MS_SEARCH");
         }
         return Collections.emptySet();
     }
@@ -77,9 +85,9 @@ public class ClientPluginFactory extends
     public <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
             EntityKind entityKind)
     {
-        if (EntityKind.SAMPLE.equals(entityKind))
+        if (EntityKind.EXPERIMENT.equals(entityKind))
         {
-            return (IClientPlugin<T, I>) new SampleClientPlugin();
+            return (IClientPlugin<T, I>) new ExperimentClientPlugin();
         }
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
@@ -89,75 +97,91 @@ public class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final class SampleClientPlugin implements IClientPlugin<SampleType, IIdentifiable>
+    private final class ExperimentClientPlugin extends
+            ClientPluginAdapter<ExperimentType, IIdentifiable>
     {
         //
         // IViewClientPlugin
         //
-
+        
+        @Override
         public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
-
-            final TechId sampleId = TechId.create(identifiable);
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
-                        return DefaultTabItem.createUnaware(identifiable.getCode(),
-                                new DummyComponent("PhosphoNetX plugin coming soon."), false);
+                        final DatabaseModificationAwareComponent experimentViewer =
+                                ExperimentViewer.create(getViewContext(), identifiable);
+                        return DefaultTabItem.create(getViewerTitle(Dict.EXPERIMENT, identifiable),
+                                experimentViewer, getViewContext(), false);
                     }
 
                     public String getId()
                     {
-                        return "phosphonetx-viewer-" + sampleId;
+                        return GenericExperimentViewer.createId(identifiable);
                     }
 
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
-                        return HelpPageIdentifier.createSpecific("PhosphoNetX Sample Viewer");
+                        return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
+                                HelpPageAction.VIEW);
                     }
                 };
         }
 
-        public final DatabaseModificationAwareWidget createRegistrationForEntityType(
-                final SampleType sampleTypeCode)
+        @Override
+        public DatabaseModificationAwareWidget createRegistrationForEntityType(
+                ExperimentType entityType)
         {
-            return DatabaseModificationAwareWidget.wrapUnaware(new DummyComponent(
-                    "Creating of a sample for PhosphoNetX is coming soon."));
+            GenericExperimentRegistrationForm form =
+                    new GenericExperimentRegistrationForm(getGenericViewContext(), entityType);
+            return new DatabaseModificationAwareWidget(form, form);
         }
 
-        public final Widget createBatchRegistrationForEntityType(final SampleType sampleType)
-        {
-            return new DummyComponent();
-        }
-
-        public final Widget createBatchUpdateForEntityType(final SampleType sampleType)
-        {
-            return new DummyComponent();
-        }
-
+        @Override
         public ITabItemFactory createEntityEditor(final IIdentifiable identifiable)
         {
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
-                        return DefaultTabItem.createUnaware(identifiable.getCode(),
-                                new DummyComponent(), false);
+                        DatabaseModificationAwareComponent component =
+                                GenericExperimentEditForm.create(getGenericViewContext(), identifiable);
+                        String title = getEditorTitle(Dict.EXPERIMENT, identifiable);
+                        return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
 
                     public String getId()
                     {
-                        return DummyComponent.ID;
+                        return GenericExperimentEditForm.createId(identifiable,
+                                EntityKind.EXPERIMENT);
                     }
 
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
-                        return HelpPageIdentifier.createSpecific("PhosphoNetX Sample Edition");
+                        return new HelpPageIdentifier(HelpPageDomain.EXPERIMENT,
+                                HelpPageAction.EDIT);
                     }
                 };
         }
+        
+        private String getViewerTitle(final String entityKindDictKey, final IIdentifiable identifiable)
+        {
+            return AbstractViewer.getTitle(getViewContext(), entityKindDictKey, identifiable);
+        }
 
+        private String getEditorTitle(final String entityKindDictKey, final IIdentifiable identifiable)
+        {
+            return AbstractRegistrationForm.getEditTitle(getViewContext(), entityKindDictKey,
+                    identifiable);
+        }
+        
+        private IViewContext<IGenericClientServiceAsync> getGenericViewContext()
+        {
+            return new GenericViewContext(getViewContext().getCommonViewContext());
+        }
     }
 
 }
+

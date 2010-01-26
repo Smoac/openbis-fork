@@ -49,6 +49,8 @@ public class Dict
     
 
     // Protein Viewer
+    public static final String PROTEINS_SECTION = "proteins_section";
+
     public static final String PROTEIN_IN_EXPERIMENT_TAB_LABEL = "protein_in_experiment_tab_label";
 
     public static final String EXPERIMENT_LABEL = "experiment_label";

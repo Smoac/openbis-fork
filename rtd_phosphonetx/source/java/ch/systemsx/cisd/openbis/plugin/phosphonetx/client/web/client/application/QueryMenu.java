@@ -40,15 +40,15 @@ public class QueryMenu extends TopMenuItem
 
     private static enum ActionMenuKind implements IActionMenuItem
     {
-        ALL_PROTEINS_OF_AN_EXPERIMENT()
-        {
-            @Override
-            IDisposableComponent createComponent(
-                    IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
-            {
-                return ProteinByExperimentBrowserGrid.create(viewContext);
-            }
-        },
+//        ALL_PROTEINS_OF_AN_EXPERIMENT()
+//        {
+//            @Override
+//            IDisposableComponent createComponent(
+//                    IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
+//            {
+//                return ProteinByExperimentBrowserGrid.create(viewContext);
+//            }
+//        },
         ALL_RAW_DATA_SAMPLES()
         {
             @Override

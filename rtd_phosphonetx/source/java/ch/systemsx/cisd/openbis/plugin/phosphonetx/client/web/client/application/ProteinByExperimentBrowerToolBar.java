@@ -36,10 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.NonHierarchicalBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IChosenEntityListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -154,8 +151,6 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
     private final ComboBox<FalseDiscoveryRateModel> fdrComboBox;
 
-    private final ExperimentChooserFieldAdaptor chooser;
-
     private final ComboBox<AggregateFunctionModel> aggregateFunctionComboBox;
 
     private final VocabularyTermSelectionWidget treatmentTypeComboBox;
@@ -168,32 +163,14 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
 
     private ProteinSummaryGrid summaryGrid;
 
-    ProteinByExperimentBrowerToolBar(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
+    ProteinByExperimentBrowerToolBar(IViewContext<IPhosphoNetXClientServiceAsync> viewContext, Experiment experiment)
     {
         this.viewContext = viewContext;
+        this.experiment = experiment;
         setBorders(true);
         // WORKAROUND to get all elements in the toolbar present independent of the original width
         // of the parent
         setWidth(3000);
-        add(new LabelToolItem(viewContext.getMessage(Dict.SELECTED_EXPERIMENT_LABEL)
-                + GenericConstants.LABEL_SEPARATOR));
-        chooser =
-                ExperimentChooserField.create("", false, null, viewContext.getCommonViewContext());
-        ExperimentChooserField chooserField = chooser.getChooserField();
-        chooserField.setEditable(false);
-        chooserField.addChosenEntityListener(new IChosenEntityListener<Experiment>()
-            {
-                public void entityChosen(Experiment entity)
-                {
-                    if (entity != null)
-                    {
-                        experiment = entity;
-                        update();
-                    }
-                }
-            });
-        add(chooserField);
-
         add(new LabelToolItem(viewContext.getMessage(Dict.FDR_FILTER_LABEL)
                 + GenericConstants.LABEL_SEPARATOR));
         fdrComboBox = createFDRComboBox(new SelectionChangedListener<FalseDiscoveryRateModel>()

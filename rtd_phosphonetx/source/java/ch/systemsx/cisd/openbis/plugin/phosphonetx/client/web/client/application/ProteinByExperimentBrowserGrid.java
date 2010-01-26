@@ -50,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.InternalAbundanceColumnDefinition;
@@ -84,13 +85,13 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     private List<AbundanceColumnDefinition> abundanceColumnDefinitions;
     
     static IDisposableComponent create(
-            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
+            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext, Experiment experiment)
     {
         final IDisposableComponent summaryGrid = ProteinSummaryGrid.create(viewContext);
         ProteinByExperimentBrowserGrid browserGrid =
-                new ProteinByExperimentBrowserGrid(viewContext);
+                new ProteinByExperimentBrowserGrid(viewContext, experiment);
         final IDisposableComponent disposableBrowerGrid = browserGrid.asDisposableWithoutToolbar();
-        ProteinByExperimentBrowerToolBar toolBar = browserGrid.toolbar;
+        final ProteinByExperimentBrowerToolBar toolBar = browserGrid.toolbar;
         toolBar.setSummaryGrid((ProteinSummaryGrid) summaryGrid.getComponent());
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
@@ -99,6 +100,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         tabPanel.add(createTab(disposableBrowerGrid, viewContext, Dict.PROTEIN_BROWSER));
         tabPanel.add(createTab(summaryGrid, viewContext, Dict.PROTEIN_SUMMARY));
         container.add(tabPanel, new RowData(1, 1));
+        toolBar.update();
         return new IDisposableComponent()
             {
                 public void update(Set<DatabaseModificationKind> observedModifications)
@@ -137,12 +139,12 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     }
     
     private ProteinByExperimentBrowserGrid(
-            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
+            final IViewContext<IPhosphoNetXClientServiceAsync> viewContext, Experiment experiment)
     {
         super(viewContext.getCommonViewContext(), BROWSER_ID, GRID_ID, false,
                 PhosphoNetXDisplayTypeIDGenerator.PROTEIN_BY_EXPERIMENT_BROWSER_GRID);
         specificViewContext = viewContext;
-        toolbar = new ProteinByExperimentBrowerToolBar(viewContext);
+        toolbar = new ProteinByExperimentBrowerToolBar(viewContext, experiment);
         toolbar.setBrowserGrid(this);
         registerLinkClickListenerFor(ProteinColDefKind.ACCESSION_NUMBER.id(),
                 new ICellListener<ProteinInfo>()
@@ -154,7 +156,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
                         }
                     });
     }
-
+    
     void update(TechId experimentID, double falseDiscoveryRate,
             AggregateFunction aggregateFunction, String treatmentTypeCode,
             boolean aggregateOriginal, List<AbundanceColumnDefinition> definitions)
@@ -167,6 +169,14 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         criteria.setAggregateOriginal(aggregateOriginal);
         abundanceColumnDefinitions = definitions;
         refresh(true);
+    }
+
+    @Override
+    protected void refresh()
+    {
+        System.out.println("ProteinByExperimentBrowserGrid.refresh() "+this);
+        // TODO Auto-generated method stub
+        super.refresh();
     }
 
     @Override

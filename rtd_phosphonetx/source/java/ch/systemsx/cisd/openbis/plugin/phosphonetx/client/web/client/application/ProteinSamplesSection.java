@@ -21,8 +21,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
@@ -39,7 +39,7 @@ public class ProteinSamplesSection extends SingleSectionPanel
     private IDisposableComponent sampleDisposableGrid;
 
     public ProteinSamplesSection(final IViewContext<IPhosphoNetXClientServiceAsync> viewContext,
-            final TechId proteinReferenceID, Experiment experimentOrNull)
+            final TechId proteinReferenceID, IIdentifiable experimentOrNull)
     {
         super("Samples");
         Long experimentID = experimentOrNull == null ? null : experimentOrNull.getId();
