@@ -18,11 +18,6 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import java.util.Map;
 
-import ch.systemsx.cisd.cifex.client.application.ui.LoginWidget;
-import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
-import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
-import ch.systemsx.cisd.cifex.shared.basic.Constants;
-
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
@@ -30,6 +25,12 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
+
+import ch.systemsx.cisd.cifex.client.application.ui.LoginPanelAutofill;
+import ch.systemsx.cisd.cifex.client.application.ui.LoginWidget;
+import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
+import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
+import ch.systemsx.cisd.cifex.shared.basic.Constants;
 
 /**
  * The login page.
@@ -42,20 +43,30 @@ final class LoginPage extends VerticalPanel
 
     private final ViewContext viewContext;
 
+    private static final boolean SUPPORT_AUTOFILL = false;
+
     LoginPage(final ViewContext viewContext)
     {
         this.viewContext = viewContext;
         setSpacing(CELL_SPACING);
         setWidth("100%");
-        // WORKAROUND: avoid having a horizontal scrollbar on the login page in Safari by setting 
+        // WORKAROUND: avoid having a horizontal scrollbar on the login page in Safari by setting
         // the height to 97% rather than 100%
         setHeight("97%");
         setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
-        final LoginWidget loginWidget = createLoginWidget();
+
         // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this
         // panel.
         DockPanel loginPanel = new DockPanel();
-        loginPanel.add(loginWidget, DockPanel.CENTER);
+        if (SUPPORT_AUTOFILL)
+        {
+            final LoginPanelAutofill loginPanelAutofill = createLoginPanelAutofill();
+            loginPanel.add(loginPanelAutofill, DockPanel.CENTER);
+        } else
+        {
+            final LoginWidget loginWidget = createLoginWidget();
+            loginPanel.add(loginWidget, DockPanel.CENTER);
+        }
 
         Image cisdLogo = createImage();
         Anchor logo =
@@ -83,6 +94,18 @@ final class LoginPage extends VerticalPanel
             loginWidget.getUserField().setValue(userCode);
         }
         return loginWidget;
+    }
+
+    private final LoginPanelAutofill createLoginPanelAutofill()
+    {
+        final LoginPanelAutofill loginPanel = LoginPanelAutofill.get(viewContext);
+        final Map<String, String> urlParams = viewContext.getModel().getUrlParams();
+        final String userCode = urlParams.get(Constants.USERCODE_PARAMETER);
+        if (StringUtils.isBlank(userCode) == false)
+        {
+            loginPanel.getUsernameElement().setValue(userCode);
+        }
+        return loginPanel;
     }
 
     private final static CellPanel createNorthPanel()

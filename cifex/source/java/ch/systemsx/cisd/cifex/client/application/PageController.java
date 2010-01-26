@@ -45,6 +45,8 @@ final class PageController implements IPageController, IHistoryController
     // Keeps track of whether or not the main page is visible
     private boolean isMainPageShowing;
 
+    private LoginPage loginPage;
+
     final void setViewContext(final ViewContext viewContext)
     {
         this.viewContext = viewContext;
@@ -86,7 +88,10 @@ final class PageController implements IPageController, IHistoryController
     public final void showLoginPage()
     {
         clearRootPanel();
-        final LoginPage loginPage = new LoginPage(viewContext);
+
+        // lazy initialize the login page
+        if (null == loginPage)
+            loginPage = new LoginPage(viewContext);
         setCurrentPage(Page.LOGIN_PAGE);
         RootPanel.get().add(loginPage);
     }

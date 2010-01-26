@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
@@ -37,13 +34,21 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 
 /**
+ * This class uses a trick described in the GWT discussion forum to support autofill. Browsers do
+ * not support autofill on input fields that are generated on the client by javascript, so it is
+ * necessary for the page to statically contain the input fields we want to autofill. These fields
+ * are unhidden and used on the login page. TODO This implementation currently supports Firefox, but
+ * not Safari or Chrome. To support Safari, we cannot use javascript in the action, instead we need
+ * to have the login post data to a server.
+ * 
+ * @see <a href
+ *      ="http://groups.google.com/group/Google-Web-Toolkit/browse%5Fthread/thread/2b2ce0b6aaa82461">GWT
+ *      Discussion Forum</a>
  * @author Chandrasekhar Ramakrishnan
  */
 public class LoginPanelAutofill extends VerticalPanel
 {
     private final ViewContext context;
-
-    private final Button button;
 
     private final FormPanel formPanel;
 
@@ -53,26 +58,47 @@ public class LoginPanelAutofill extends VerticalPanel
 
     private static final String PASSWORD_ID = "cifex-password";
 
-    public LoginPanelAutofill(final ViewContext context)
+    private static final String SUBMIT_ID = "cifex-submit";
+
+    private static LoginPanelAutofill singleton = null;
+
+    private static native void injectLoginFunction() /*-{ 
+                                                     $wnd.__gwt_login = @ch.systemsx.cisd.cifex.client.application.ui.LoginPanelAutofill::doLoginStatic(); 
+                                                     }-*/;
+
+    // Used dynamically
+    @SuppressWarnings("unused")
+    private static void doLoginStatic()
+    {
+        singleton.doLogin();
+    }
+
+    /**
+     * Method to get the singleton instance of the login autofill panel
+     */
+    public static LoginPanelAutofill get(final ViewContext context)
+    {
+        if (singleton == null)
+            singleton = new LoginPanelAutofill(context);
+        return singleton;
+    }
+
+    private LoginPanelAutofill(final ViewContext context)
     {
         this.context = context;
 
-        // RootPanel rootPanel = RootPanel.get(LOGIN_FORM_ID);
-        // System.err.println(rootPanel);
-        // rootPanel.setVisible(true);
-
         Element formElement = Document.get().getElementById(LOGIN_FORM_ID);
-        // UIObject.setVisible(formElement, true);
         if (formElement == null)
         {
-            System.err.println("Formelement is null!");
+            // This is an error and should not happen
             formPanel = null;
-            button = null;
             return;
         }
         formPanel = FormPanel.wrap(Document.get().getElementById(LOGIN_FORM_ID), false);
-        button = createButton();
-        formPanel.add(button);
+
+        // This is the trick mentioned in the class comment
+        injectLoginFunction();
+        formPanel.setAction("javascript:__gwt_login()");
         formPanel.addSubmitHandler(new SubmitHandler()
             {
 
@@ -80,8 +106,6 @@ public class LoginPanelAutofill extends VerticalPanel
                 {
                     if (!isUserInputValid())
                         event.cancel();
-                    else
-                        doLogin(context);
                 }
 
             });
@@ -98,22 +122,6 @@ public class LoginPanelAutofill extends VerticalPanel
         add(label);
     }
 
-    private final Button createButton()
-    {
-        final Button b = new Button(context.getMessageResources().getLoginButtonLabel());
-        b.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public void componentSelected(ButtonEvent ce)
-                {
-                    // Need the sumbit so Firefox knows that it can remember the password
-                    // information.
-                    formPanel.submit();
-                }
-            });
-        return b;
-    }
-
     private final boolean isUserInputValid()
     {
         String username = getUsernameElement().getValue();
@@ -127,23 +135,16 @@ public class LoginPanelAutofill extends VerticalPanel
         getUsernameElement().focus();
     }
 
-    /** Returns the button that will starts the login process. */
-    public final Button getButton()
-    {
-        return button;
-    }
-
     @Override
     protected final void onLoad()
     {
         super.onLoad();
-        button.enable();
-        System.err.println("onLoad " + Document.get().getElementById(LOGIN_FORM_ID));
+        getButtonElement().setDisabled(false);
     }
 
-    private final void doLogin(final ViewContext viewContext)
+    private final void doLogin()
     {
-        button.disable();
+        getButtonElement().setDisabled(true);
 
         InputElement usernameElement = getUsernameElement();
         InputElement passwordElement = getPasswordElement();
@@ -151,7 +152,9 @@ public class LoginPanelAutofill extends VerticalPanel
         final String user = usernameElement.getValue();
         final String password = passwordElement.getValue();
 
-        viewContext.getCifexService().tryLogin(user, password, new LoginAsyncCallBack());
+        System.err.println("doLogin " + user + " " + password);
+
+        context.getCifexService().tryLogin(user, password, new LoginAsyncCallBack());
     }
 
     public InputElement getPasswordElement()
@@ -162,6 +165,11 @@ public class LoginPanelAutofill extends VerticalPanel
     public InputElement getUsernameElement()
     {
         return InputElement.as(Document.get().getElementById(USERNAME_ID));
+    }
+
+    public final InputElement getButtonElement()
+    {
+        return InputElement.as(Document.get().getElementById(SUBMIT_ID));
     }
 
     /**
@@ -191,7 +199,7 @@ public class LoginPanelAutofill extends VerticalPanel
         public final void onFailure(final Throwable caught)
         {
             super.onFailure(caught);
-            getButton().enable();
+            getButtonElement().setDisabled(false);
         }
 
         public final void onSuccess(final CurrentUserInfoDTO result)
@@ -204,7 +212,7 @@ public class LoginPanelAutofill extends VerticalPanel
                 final IMessageResources messageResources = context.getMessageResources();
                 final String title = messageResources.getMessageBoxWarningTitle();
                 MessageBox.alert(title, messageResources.getLoginFailedMessage(), null);
-                getButton().enable();
+                getButtonElement().setDisabled(false);
             }
         }
     }
