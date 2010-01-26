@@ -43,7 +43,7 @@ final class LoginPage extends VerticalPanel
 
     private final ViewContext viewContext;
 
-    private static final boolean SUPPORT_AUTOFILL = false;
+    private static final boolean SUPPORT_AUTOFILL = true;
 
     LoginPage(final ViewContext viewContext)
     {
