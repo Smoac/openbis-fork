@@ -23,8 +23,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -40,8 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 /**
  * @author Tomasz Pylak
  */
-// FIXME
-@DoNotRunWith(Platform.HtmlUnit)
 public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
 {
     private static final String DEFAULT = "DEFAULT (CISD)";
@@ -75,7 +71,7 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         // wait for the command which fetches URL content to finish
         remoteConsole.prepare(new WaitForAllActiveCallbacksFinish());
 
-        remoteConsole.finish(60000);
+        remoteConsole.finish(DEFAULT_TIMEOUT);
         client.onModuleLoad(controller);
     }
 
