@@ -90,7 +90,7 @@
     <modificationset>
       <svn localWorkingCopy="${openbis.nightly-build.dir}"/>
     </modificationset>
-    <schedule interval="31536000">
+    <schedule interval="86400">
       <ant target="run-system-tests" buildfile="${openbis.nightly-build.dir}/build/build.xml" anthome="apache-ant"/>
     </schedule>
     <log>
