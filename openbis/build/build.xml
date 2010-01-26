@@ -52,7 +52,7 @@
 	<target name="run-system-tests" depends="prepare-gwt, compile-tests">
 		<delete dir="${output.test}" />
 		<mkdir dir="${output.test}" />
-		<junit dir="." fork="true" forkmode="perBatch" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
+		<junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
 			<classpath>
 				<pathelement location="${sources}" />
 				<pathelement location="${sources.test}" />
@@ -588,7 +588,5 @@
 			<arg value="dev_indexed"/>
 			<arg value="${targets}/dev_indexed-index"/>
 		</java>
-	</target>
-
-	
+	</target>	
 </project>
