@@ -66,6 +66,8 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
 
     private ICommonBusinessObjectFactory businessObjectFactory;
 
+    private ISessionManager<Session> sessionManagerFromConstructor;
+
     public RawDataServiceInternal()
     {
     }
@@ -74,9 +76,14 @@ public class RawDataServiceInternal extends AbstractServer<IRawDataServiceIntern
             ICommonBusinessObjectFactory businessObjectFactory)
     {
         super(sessionManager, daoFactory);
+        sessionManagerFromConstructor = sessionManager;
         this.businessObjectFactory = businessObjectFactory;
     }
-    
+
+    public void replaceAutoWiredSesseionManagerByConstructorSessionManager()
+    {
+        sessionManager = sessionManagerFromConstructor;
+    }
 
     public IRawDataServiceInternal createLogger(boolean invocationSuccessful, long elapsedTime)
     {

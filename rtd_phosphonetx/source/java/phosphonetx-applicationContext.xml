@@ -65,7 +65,8 @@
     </bean>
     
     <bean id="phosphonetx-raw-data-service-internal" 
-          class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal">
+          class="ch.systemsx.cisd.openbis.plugin.phosphonetx.server.RawDataServiceInternal" 
+          init-method="replaceAutoWiredSesseionManagerByConstructorSessionManager">
         <constructor-arg>
             <bean class="ch.systemsx.cisd.authentication.DefaultSessionManager">
                 <constructor-arg>

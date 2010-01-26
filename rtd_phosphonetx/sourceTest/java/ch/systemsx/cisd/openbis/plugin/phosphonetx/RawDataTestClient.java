@@ -43,7 +43,7 @@ public class RawDataTestClient
             try
             {
                 System.out.println("User: " + user);
-                SessionContextDTO session = service.tryToAuthenticate("test_b", "t");
+                SessionContextDTO session = service.tryToAuthenticate("test", "a");
                 String sessionToken = session.getSessionToken();
                 List<Sample> samples = service.listRawDataSamples(sessionToken, user);
                 for (Sample sample : samples)
