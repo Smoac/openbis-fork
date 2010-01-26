@@ -16,10 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic;
 
-import com.google.gwt.junit.tools.GWTTestSuite;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import com.google.gwt.junit.tools.GWTTestSuite;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthenticationTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthorizationGroupsTest;
@@ -33,8 +33,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.exp
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationTest;
 
 /**
- * 
- *
  * @author Chandrasekhar Ramakrishnan
  */
 public class EditingTestSuite extends GWTTestSuite

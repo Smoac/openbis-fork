@@ -125,6 +125,8 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     {
         final TreeGrid<ModelData> treeGrid =
                 new TreeGrid<ModelData>(new TreeStore<ModelData>(), columnModel);
+        // WORKAROUND see comment in AbstractBrowserGrid constructor
+        treeGrid.setLazyRowRender(0);
         treeGrid.setId(ID);
         treeGrid.setBorders(true);
         treeGrid.setAutoExpandColumn(ModelDataPropertyNames.CODE);
@@ -142,10 +144,11 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                         @Override
                         public void selectionChanged(SelectionChangedEvent<ModelData> se)
                         {
-                            if (selectedProjectLinkOrNull != null)
+                            if (selectedProjectOrNull != null)
                             {
                                 selectedProjectLinkOrNull.setVisible(false);
                                 selectedProjectLinkOrNull = null;
+                                selectedProjectOrNull = null;
                             }
 
                             ModelData selected = se.getSelectedItem();
@@ -352,7 +355,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
     private void clearTree()
     {
         projectLinks.clear();
-        tree.getStore().removeAll();
+        tree.getTreeStore().removeAll();
     }
 
     /**
@@ -383,6 +386,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                 }
             }
         }
+
     }
 
     /** @return a sorted set of groups of given <var>projects</var> */

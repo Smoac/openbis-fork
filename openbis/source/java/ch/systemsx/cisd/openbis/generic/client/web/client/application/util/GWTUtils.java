@@ -24,7 +24,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.ListBox;
 
@@ -128,22 +127,7 @@ public final class GWTUtils
     public final static void setSelectedItem(final TreeGrid<ModelData> tree, final String property,
             final String value)
     {
-        System.err.println("set selected " + property + "=" + value);
         ModelData model = tryFindModel(tree.getTreeStore().getAllItems(), property, value);
-        System.err.println(model);
-        if (model != null)
-        {
-            tree.getSelectionModel().select(model, false);
-        }
-    }
-
-    /**
-     * Selects given <var>value</var> of given <var>tree</var>.
-     */
-    public final static void setSelectedItem(final TreePanel<ModelData> tree,
-            final String property, final String value)
-    {
-        ModelData model = tryFindModel(tree.getStore().getAllItems(), property, value);
         if (model != null)
         {
             tree.getSelectionModel().select(model, false);

@@ -235,6 +235,12 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         this.customColumnsMetadataProvider = new CustomColumnsMetadataProvider();
 
         this.grid = createGrid(pagingLoader, gridId);
+        // WORKAROUND
+        // Lazy loading of rows causes tests using experiment browser fail (selection of
+        // project in project tree grid doesn't work).
+        // Turning it off for all grids is the safest solution for our system tests framework
+        // and should improve GUI speed in development mode a bit.
+        grid.setLazyRowRender(0);
         this.pagingToolbar =
                 new BrowserGridPagingToolBar(asActionInvoker(), viewContext, PAGE_SIZE, gridId);
         pagingToolbar.bind(pagingLoader);

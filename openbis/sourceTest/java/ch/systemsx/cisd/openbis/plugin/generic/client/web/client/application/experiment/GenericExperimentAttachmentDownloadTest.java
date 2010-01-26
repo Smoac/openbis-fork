@@ -40,6 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 /**
  * @author Tomasz Pylak
  */
+// FIXME
+@DoNotRunWith(Platform.HtmlUnit)
 public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
 {
     private static final String DEFAULT = "DEFAULT (CISD)";
@@ -56,7 +58,6 @@ public class GenericExperimentAttachmentDownloadTest extends AbstractGWTTestCase
         remoteConsole.prepare(new ShowExperiment(experimentCode));
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testDownloadAttachment()
     {
         prepareShowExperiment(DEFAULT, SIRNA_HCS, EXP_REUSE);

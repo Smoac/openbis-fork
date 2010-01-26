@@ -90,7 +90,7 @@ public class DataSetReportGenerator
 
                             public String getId()
                             {
-                                final String reportKey = service.getKey(); // TODO escape?
+                                final String reportKey = service.getKey();
                                 return DataSetReporterGrid.createId(reportKey);
                             }
 

@@ -18,9 +18,6 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.ex
 
 import java.util.Date;
 
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.CheckExperimentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
@@ -35,7 +32,6 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  * 
  * @author Izabela Adamczyk
  */
-@DoNotRunWith(Platform.HtmlUnit)
 public class GenericExperimentEditorTest extends AbstractGWTTestCase
 {
     private static final String SIRNA_HCS = "SIRNA_HCS";
