@@ -11,3 +11,7 @@ export DESTINATION=~openbis/logs
 $RSYNC -av $TOMCAT_LOGS/*auth* $DESTINATION
 $RSYNC -av $TOMCAT_LOGS/*usage* $DESTINATION
 $RSYNC -av $DSS_LOGS/* $DESTINATION
+
+if [ -f $DESTINATION/check_logins.sh ]; then
+	$DESTINATION/check_logins.sh
+fi
