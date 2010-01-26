@@ -27,5 +27,6 @@ public class InfoButton extends Button
                     MessageBox.info(title, msg, null);
                 }
             });
+        setWidth(24);
     }
 }
