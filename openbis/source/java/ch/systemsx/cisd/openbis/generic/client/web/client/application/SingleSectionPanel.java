@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 
 /**
  * {@link ContentPanel} configured for Experiment Viewer.
@@ -40,7 +40,7 @@ public class SingleSectionPanel extends ContentPanel
         setLayout(new FitLayout());
     }
 
-    public void setDisplayID(DisplayTypeIDGenerator generator, String suffix)
+    public void setDisplayID(IDisplayTypeIDGenerator generator, String suffix)
     {
         if (suffix != null)
         {

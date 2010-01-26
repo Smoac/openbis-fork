@@ -159,7 +159,6 @@ public class SectionsPanel extends ContentPanel
         removeAll();
         for (SectionElement el : elements)
         {
-            System.out.println("ADD SECTION PANEL: "+el.getButton().getText()+" "+el.getButton().isPressed());
             if (el.getButton().isPressed())
             {
                 internalAdd(el);
@@ -279,7 +278,6 @@ public class SectionsPanel extends ContentPanel
                 {
                     public void handleEvent(BaseEvent be)
                     {
-                        System.out.println("TOGGLE:" + result.getId() + " "+result.isPressed());
                         result.setText(getHeading(heading, result.isPressed()));
                     }
                 });

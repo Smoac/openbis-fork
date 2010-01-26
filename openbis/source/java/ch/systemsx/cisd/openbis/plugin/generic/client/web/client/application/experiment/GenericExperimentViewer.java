@@ -16,17 +16,22 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AttachmentVersionsSection;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.BrowserSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ExperimentListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
@@ -41,7 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Izabela Adamczyk
  */
-public final class GenericExperimentViewer extends AbstractViewer<Experiment>
+public class GenericExperimentViewer extends AbstractViewer<Experiment>
 {
     private static final String GENERIC_EXPERIMENT_VIEWER = "generic-experiment-viewer";
 
@@ -51,30 +56,37 @@ public final class GenericExperimentViewer extends AbstractViewer<Experiment>
 
     private final IViewContext<IGenericClientServiceAsync> viewContext;
 
-    private final TechId experimentId;
-
     private final CompositeDatabaseModificationObserverWithMainObserver modificationObserver;
+
+    protected final IIdentifiable identifiable;
+    
+    protected Experiment experimentOrNull;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final IIdentifiable identifiable)
     {
         GenericExperimentViewer viewer = new GenericExperimentViewer(viewContext, identifiable);
-        return new DatabaseModificationAwareComponent(viewer, viewer.modificationObserver);
+        return new DatabaseModificationAwareComponent(viewer, viewer.getModificationObserver());
     }
 
-    private GenericExperimentViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
-            final IIdentifiable identifiable)
+    protected GenericExperimentViewer(final IViewContext<IGenericClientServiceAsync> viewContext,
+            final IIdentifiable experiment)
     {
-        super(viewContext, createId(identifiable));
+        super(viewContext, createId(experiment));
+        this.identifiable = experiment;
         setLayout(new BorderLayout());
-        this.experimentId = TechId.create(identifiable);
         this.modificationObserver = new CompositeDatabaseModificationObserverWithMainObserver();
         this.viewContext = viewContext;
         extendToolBar();
         reloadAllData();
     }
 
+    public IDatabaseModificationObserver getModificationObserver()
+    {
+        return modificationObserver;
+    }
+    
     private void extendToolBar()
     {
         addToolBarButton(createDeleteButton(new IDelegatedAction()
@@ -108,6 +120,7 @@ public final class GenericExperimentViewer extends AbstractViewer<Experiment>
      */
     protected void reloadData(AbstractAsyncCallback<Experiment> callback)
     {
+        TechId experimentId = TechId.create(identifiable);
         viewContext.getService().getExperimentInfo(experimentId, callback);
     }
 
@@ -117,25 +130,25 @@ public final class GenericExperimentViewer extends AbstractViewer<Experiment>
         super.updateOriginalData(newData);
     }
 
-    private final Component createLeftPanel(final Experiment experiment,
+    private final Component createLeftPanel(final Experiment newExperiment,
             final CompositeDatabaseModificationObserverWithMainObserver observer)
     {
-        final ExperimentPropertiesPanel panel = createExperimentPropertiesPanel(experiment);
+        final ExperimentPropertiesPanel panel = createExperimentPropertiesPanel(newExperiment);
         panel.setScrollMode(Scroll.AUTOY);
         observer.addMainObserver(panel.getDatabaseModificationObserver());
         return panel;
     }
 
-    private ExperimentPropertiesPanel createExperimentPropertiesPanel(final Experiment experiment)
+    private ExperimentPropertiesPanel createExperimentPropertiesPanel(final Experiment newExperiment)
     {
-        return new ExperimentPropertiesPanel(experiment, viewContext, this);
+        return new ExperimentPropertiesPanel(newExperiment, viewContext, this);
     }
 
     private AttachmentVersionsSection<Experiment> createAttachmentsSection(
-            final Experiment experiment)
+            final Experiment newExperiment)
     {
         return new AttachmentVersionsSection<Experiment>(viewContext.getCommonViewContext(),
-                experiment);
+                newExperiment);
     }
 
     private static final class ExperimentInfoCallback extends AbstractAsyncCallback<Experiment>
@@ -166,6 +179,7 @@ public final class GenericExperimentViewer extends AbstractViewer<Experiment>
         @Override
         protected final void process(final Experiment result)
         {
+            genericExperimentViewer.experimentOrNull = result;
             genericExperimentViewer.updateOriginalData(result);
             genericExperimentViewer.removeAll();
 
@@ -190,6 +204,13 @@ public final class GenericExperimentViewer extends AbstractViewer<Experiment>
     {
         final SectionsPanel container = new SectionsPanel(viewContext.getCommonViewContext());
         final String displayIdSuffix = getDisplayIdSuffix(result.getExperimentType().getCode());
+        
+        List<BrowserSectionPanel> additionalPanels = createAdditionalBrowserSectionPanels(displayIdSuffix);
+        for (BrowserSectionPanel panel : additionalPanels)
+        {
+            container.addPanel(panel);
+            observer.addObserver(panel.getDatabaseModificationObserver());
+        }
 
         final ExperimentSamplesSection sampleSection =
                 new ExperimentSamplesSection(viewContext, result);
@@ -211,6 +232,11 @@ public final class GenericExperimentViewer extends AbstractViewer<Experiment>
 
         container.layout();
         return container;
+    }
+    
+    protected List<BrowserSectionPanel> createAdditionalBrowserSectionPanels(String displyIdSuffix)
+    {
+        return Collections.emptyList();
     }
 
 }

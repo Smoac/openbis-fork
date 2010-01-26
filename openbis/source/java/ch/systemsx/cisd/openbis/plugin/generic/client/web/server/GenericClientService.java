@@ -89,7 +89,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
  * @author Franz-Josef Elmer
  */
 @Component(value = ResourceNames.GENERIC_PLUGIN_SERVICE)
-public final class GenericClientService extends AbstractClientService implements
+public class GenericClientService extends AbstractClientService implements
         IGenericClientService
 {
 
@@ -101,7 +101,7 @@ public final class GenericClientService extends AbstractClientService implements
     }
 
     @Private
-    GenericClientService(final IGenericServer genericServer,
+    protected GenericClientService(final IGenericServer genericServer,
             final IRequestContextProvider requestContextProvider)
     {
         super(requestContextProvider);
