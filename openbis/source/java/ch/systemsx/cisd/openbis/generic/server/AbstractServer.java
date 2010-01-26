@@ -69,7 +69,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
 
     @Resource(name = ComponentNames.SESSION_MANAGER)
-    private ISessionManager<Session> sessionManager;
+    protected ISessionManager<Session> sessionManager;
 
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
