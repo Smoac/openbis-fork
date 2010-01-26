@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis;
+package ch.systemsx.cisd.openbis.plugin.phosphonetx;
 
 import ch.systemsx.cisd.base.utilities.AbstractBuildAndEnvironmentInfo;
 
