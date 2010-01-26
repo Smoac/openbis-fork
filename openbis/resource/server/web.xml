@@ -21,6 +21,16 @@
         <param-value>ch.systemsx.cisd.openbis.BuildAndEnvironmentInfo</param-value>
     </context-param>
 
+    <context-param>
+        <!-- 
+        The path of cookie with openBIS session id needs to be set explicitly here. Otherwise 
+        this cookie will be overwritten with a cookie created for the openBIS-DSS session.
+        -->
+        <param-name>org.mortbay.jetty.servlet.SessionPath</param-name>
+        <param-value>/openbis</param-value>
+    </context-param>
+
+
     <listener>
         <listener-class>
             ch.systemsx.cisd.openbis.generic.server.GenericHttpSessionListener
