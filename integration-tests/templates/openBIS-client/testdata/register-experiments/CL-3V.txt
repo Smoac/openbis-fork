@@ -1,3 +1,0 @@
-code	material
-A01	SCRAM
-A02	GFP

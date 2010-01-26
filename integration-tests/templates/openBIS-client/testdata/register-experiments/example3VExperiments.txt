@@ -1,2 +1,0 @@
-code	user.description	study_object	study_object_type	project	cell_plates	processing_instructions
-EXP1	A simple experiment	SV40	VIRUS	NEMO	> cellPlates.txt	> processing-instructions.txt

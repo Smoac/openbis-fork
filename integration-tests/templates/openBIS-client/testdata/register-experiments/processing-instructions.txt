@@ -1,2 +1,0 @@
-procedure_type	path	parameters
-DATA_ACQUISITION	processing-dir	> processing-parameters.txt
