@@ -115,6 +115,7 @@ public class FieldUtil
                 {
                     final WidgetComponent info = new WidgetComponent(image);
                     info.setStyleName("hands");
+                    info.setToolTip(message);
                     info.sinkEvents(Events.OnClick.getEventCode());
                     info.addListener(Events.OnClick, new Listener<BaseEvent>(){
                         public void handleEvent(BaseEvent e)
