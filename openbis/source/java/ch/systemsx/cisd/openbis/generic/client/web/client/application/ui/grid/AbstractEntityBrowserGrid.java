@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.Base
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.ShowDetailsLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.SetUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
@@ -129,6 +130,20 @@ public abstract class AbstractEntityBrowserGrid<T extends IEntityPropertiesHolde
             suffix += "-" + entityTypeOrNull.getCode();
         }
         return suffix;
+    }
+
+    protected final IDelegatedAction createGridRefreshDelegatedAction()
+    {
+        return new IDelegatedAction()
+            {
+                public void execute()
+                {
+                    if (getCriteriaProvider().tryGetCriteria() != null)
+                    {
+                        refreshGridWithFilters();
+                    }
+                }
+            };
     }
 
     /**

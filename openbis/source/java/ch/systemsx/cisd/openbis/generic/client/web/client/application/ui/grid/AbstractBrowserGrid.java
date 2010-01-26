@@ -895,32 +895,25 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
             };
     }
 
-    protected final IDelegatedAction createGridRefreshDelegatedAction()
+    /** Refreshes grid and filters (resets filter selection) */
+    protected final void refreshGridWithFilters()
     {
-        return new IDelegatedAction()
-            {
-                public void execute()
-                {
-                    // N. B. -- The order in which things are refreshed and configured is
-                    // significant
+        // N.B. -- The order in which things are refreshed and configured is significant
 
-                    pagingToolbar.disableExportButton();
-                    pagingToolbar.updateDefaultConfigButton(false);
+        // export and config buttons are enabled when ListEntitiesCallback is complete
+        pagingToolbar.disableExportButton();
+        pagingToolbar.updateDefaultConfigButton(false);
 
-                    // Need to reset filter fields *before* refreshing the grid so the list can be
-                    // correctly retrieved
-                    filterToolbar.resetFilterFields();
-                    filterToolbar.resetFilterSelectionWithoutApply();
+        // Need to reset filter fields *before* refreshing the grid so the list can
+        // be correctly retrieved
+        filterToolbar.resetFilterFields();
+        filterToolbar.resetFilterSelectionWithoutApply();
 
-                    // export and config buttons are enabled when ListEntitiesCallback is complete
-                    refresh();
+        refresh();
 
-                    // Need to refresh the filter toolbar *after* refreshing the grid, because it
-                    // has a dependency on information from the grid that gets updated with the
-                    // refesh
-                    filterToolbar.refresh();
-                }
-            };
+        // Need to refresh the filter toolbar *after* refreshing the grid, because it
+        // has a dependency on information from the grid that gets updated with the refresh
+        filterToolbar.refresh();
     }
 
     protected final void updateDefaultRefreshButton()

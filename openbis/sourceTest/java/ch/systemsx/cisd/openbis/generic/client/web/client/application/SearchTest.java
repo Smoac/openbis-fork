@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
-import com.google.gwt.junit.DoNotRunWith;
-import com.google.gwt.junit.Platform;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.MatchingEntityModel.MatchingEntityColumnKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Login;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.CommonExternalDataColDefKind;
@@ -37,14 +34,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.Row;
  */
 public class SearchTest extends AbstractGWTTestCase
 {
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testAllSearch()
     {
         remoteConsole.prepare(new Login("test", "a"));
-        remoteConsole.prepare(new SearchCommand("MP"));
+        remoteConsole.prepare(new SearchCommand("EXP-REUSE"));
 
         final CheckTableCommand checkDatasetsTableCommand =
-                createCheckMatchingEntitiesTableCommand(1, "CISD:/MP");
+                createCheckMatchingEntitiesTableCommand(1, "/CISD/DEFAULT/EXP-REUSE");
         remoteConsole.prepare(checkDatasetsTableCommand);
 
         launchTest();
