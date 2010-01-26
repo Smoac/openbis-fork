@@ -34,12 +34,12 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 
 /**
- * This class uses a trick described in the GWT discussion forum to support autofill. Browsers do
- * not support autofill on input fields that are generated on the client by javascript, so it is
- * necessary for the page to statically contain the input fields we want to autofill. These fields
- * are unhidden and used on the login page. TODO This implementation currently supports Firefox, but
- * not Safari or Chrome. To support Safari, we cannot use javascript in the action, instead we need
- * to have the login post data to a server.
+ * This class uses a variant of a trick described in the GWT discussion forum to support autofill.
+ * Browsers do not support autofill on input fields that are generated on the client by javascript,
+ * so it is necessary for the page to statically contain the input fields we want to autofill. These
+ * fields are unhidden and used on the login page. TODO This implementation currently supports
+ * Firefox, but not Safari or Chrome. To support Safari, we cannot use javascript in the action,
+ * instead we need to have the login post data to a server.
  * 
  * @see <a href
  *      ="http://groups.google.com/group/Google-Web-Toolkit/browse%5Fthread/thread/2b2ce0b6aaa82461">GWT
@@ -62,17 +62,6 @@ public class LoginPanelAutofill extends VerticalPanel
 
     private static LoginPanelAutofill singleton = null;
 
-    private static native void injectLoginFunction() /*-{ 
-                                                     $wnd.__gwt_login = @ch.systemsx.cisd.cifex.client.application.ui.LoginPanelAutofill::doLoginStatic(); 
-                                                     }-*/;
-
-    // Used dynamically
-    @SuppressWarnings("unused")
-    private static void doLoginStatic()
-    {
-        singleton.doLogin();
-    }
-
     /**
      * Method to get the singleton instance of the login autofill panel
      */
@@ -94,11 +83,8 @@ public class LoginPanelAutofill extends VerticalPanel
             formPanel = null;
             return;
         }
-        formPanel = FormPanel.wrap(Document.get().getElementById(LOGIN_FORM_ID), false);
+        formPanel = FormPanel.wrap(formElement, false);
 
-        // This is the trick mentioned in the class comment
-        injectLoginFunction();
-        formPanel.setAction("javascript:__gwt_login()");
         formPanel.addSubmitHandler(new SubmitHandler()
             {
 
@@ -106,13 +92,11 @@ public class LoginPanelAutofill extends VerticalPanel
                 {
                     if (!isUserInputValid())
                         event.cancel();
+                    else
+                        doLogin();
                 }
 
             });
-
-        // NOTE: it would be better to invoke it on reset but it somehow doesn't
-        // have any effect
-        focusOnFirstField();
 
         add(formPanel);
 
@@ -130,7 +114,7 @@ public class LoginPanelAutofill extends VerticalPanel
         return !StringUtils.isBlank(username) && !StringUtils.isBlank(password);
     }
 
-    private void focusOnFirstField()
+    private void giveFocusToFirstField()
     {
         getUsernameElement().focus();
     }
@@ -140,6 +124,7 @@ public class LoginPanelAutofill extends VerticalPanel
     {
         super.onLoad();
         getButtonElement().setDisabled(false);
+        giveFocusToFirstField();
     }
 
     private final void doLogin()
@@ -151,8 +136,6 @@ public class LoginPanelAutofill extends VerticalPanel
 
         final String user = usernameElement.getValue();
         final String password = passwordElement.getValue();
-
-        System.err.println("doLogin " + user + " " + password);
 
         context.getCifexService().tryLogin(user, password, new LoginAsyncCallBack());
     }
@@ -180,6 +163,8 @@ public class LoginPanelAutofill extends VerticalPanel
      */
     protected void loginSuccessful(final CurrentUserInfoDTO currentUser)
     {
+        // Clear the password
+        getPasswordElement().setValue(getPasswordElement().getDefaultValue());
         PageControllerHelper.activatePageBasedOnCurrentContext(context, currentUser);
     }
 
