@@ -31,6 +31,7 @@
 	<property name="gwt.war.web-inf.lib" value="${gwt.war.web-inf}/lib" />
 	<property name="gwt.war.web-inf.classes" value="${gwt.war.web-inf}/classes" />
 	<property name="cifex.cli.zip" value="${dist}/cifex_cli.zip" />
+	<property name="usermanual.pdf" value="${original.dist.server}/CIFEX-10.01-User_Manual.pdf" />
 
 	<!-- 
 	// Cleans distribution directory.
@@ -273,6 +274,7 @@
 				<include name="*.jar" />
 			</fileset>
 		</copy>
+		<copy file="${usermanual.pdf}" todir="${webapp.dist}" failonerror="true" />
 		<!-- Create an empty 'gwt.xml' file. -->
 		<echo file="${webapp.dist.web-inf}/gwt.xml" message="" />
 		<war warfile="${webapp.file}" webxml="${cifex.server.resource}/web.xml">
