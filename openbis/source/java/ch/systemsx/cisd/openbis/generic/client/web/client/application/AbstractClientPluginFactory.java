@@ -26,10 +26,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IMo
  * 
  * @author Christian Ribeaud
  */
-public abstract class AbstractClientPluginFactory<S extends IClientServiceAsync> implements
-        IClientPluginFactory
+public abstract class AbstractClientPluginFactory<V extends IViewContext<? extends IClientServiceAsync>>
+        implements IClientPluginFactory
 {
-    private final IViewContext<S> viewContext;
+    private final V viewContext;
 
     protected AbstractClientPluginFactory(
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
@@ -37,10 +37,10 @@ public abstract class AbstractClientPluginFactory<S extends IClientServiceAsync>
         this.viewContext = createViewContext(originalViewContext);
     }
 
-    protected abstract IViewContext<S> createViewContext(
+    protected abstract V createViewContext(
             IViewContext<ICommonClientServiceAsync> originalViewContext);
 
-    public final IViewContext<S> getViewContext()
+    public final V getViewContext()
     {
         return viewContext;
     }

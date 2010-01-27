@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityType;
@@ -171,10 +172,10 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     }
 
     public static String getTitle(final IMessageProvider messageProvider,
-            final String entityKindDictKey, final IIdentifiable identifiable)
+            final String entityKindDictKey, final ICodeProvider codeProvider)
     {
         return messageProvider.getMessage(Dict.DETAILS_TITLE, messageProvider
-                .getMessage(entityKindDictKey), identifiable.getCode());
+                .getMessage(entityKindDictKey), codeProvider.getCode());
     }
 
     /** Updates data displayed in the browser (needed to open editor view). */

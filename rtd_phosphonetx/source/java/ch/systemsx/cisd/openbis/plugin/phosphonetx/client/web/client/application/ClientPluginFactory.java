@@ -45,13 +45,11 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Gen
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewer;
-import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class ClientPluginFactory extends
-        AbstractClientPluginFactory<IPhosphoNetXClientServiceAsync>
+public class ClientPluginFactory extends AbstractClientPluginFactory<ViewContext>
 {
 
     public ClientPluginFactory(IViewContext<ICommonClientServiceAsync> originalViewContext)
@@ -60,7 +58,7 @@ public class ClientPluginFactory extends
     }
 
     @Override
-    protected IViewContext<IPhosphoNetXClientServiceAsync> createViewContext(
+    protected ViewContext createViewContext(
             IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         return new ViewContext(originalViewContext);
@@ -103,7 +101,7 @@ public class ClientPluginFactory extends
         //
         // IViewClientPlugin
         //
-        
+
         @Override
         public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
         {
@@ -147,7 +145,8 @@ public class ClientPluginFactory extends
                     public ITabItem create()
                     {
                         DatabaseModificationAwareComponent component =
-                                GenericExperimentEditForm.create(getGenericViewContext(), identifiable);
+                                GenericExperimentEditForm.create(getGenericViewContext(),
+                                        identifiable);
                         String title = getEditorTitle(Dict.EXPERIMENT, identifiable);
                         return DefaultTabItem.create(title, component, getViewContext(), true);
                     }
@@ -165,18 +164,20 @@ public class ClientPluginFactory extends
                     }
                 };
         }
-        
-        private String getViewerTitle(final String entityKindDictKey, final IIdentifiable identifiable)
+
+        private String getViewerTitle(final String entityKindDictKey,
+                final IIdentifiable identifiable)
         {
             return AbstractViewer.getTitle(getViewContext(), entityKindDictKey, identifiable);
         }
 
-        private String getEditorTitle(final String entityKindDictKey, final IIdentifiable identifiable)
+        private String getEditorTitle(final String entityKindDictKey,
+                final IIdentifiable identifiable)
         {
             return AbstractRegistrationForm.getEditTitle(getViewContext(), entityKindDictKey,
                     identifiable);
         }
-        
+
         private IViewContext<IGenericClientServiceAsync> getGenericViewContext()
         {
             return new GenericViewContext(getViewContext().getCommonViewContext());
@@ -184,4 +185,3 @@ public class ClientPluginFactory extends
     }
 
 }
-

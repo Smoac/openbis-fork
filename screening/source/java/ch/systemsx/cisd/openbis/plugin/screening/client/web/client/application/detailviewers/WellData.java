@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
@@ -32,10 +33,18 @@ class WellData
 
     private WellImages imagesOrNull;
 
+    private ExperimentIdentifier experimentIdentifier;
+
     public static WellData create(PlateContent plateContent, WellLocation location)
     {
+        ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(plateContent);
         WellImages wellImages = tryCreateWellImages(plateContent, location);
-        return new WellData(wellImages);
+        return new WellData(wellImages, experimentIdentifier);
+    }
+
+    private static ExperimentIdentifier getExperimentIdentifier(PlateContent plateContent)
+    {
+        return ExperimentIdentifier.createIdentifier(plateContent.getPlate().getExperiment());
     }
 
     private static WellImages tryCreateWellImages(PlateContent plateContent, WellLocation location)
@@ -50,9 +59,10 @@ class WellData
         }
     }
 
-    private WellData(WellImages imagesOrNull)
+    private WellData(WellImages imagesOrNull, ExperimentIdentifier experimentIdentifier)
     {
         this.imagesOrNull = imagesOrNull;
+        this.experimentIdentifier = experimentIdentifier;
     }
 
     public void setMetadata(WellMetadata well)
@@ -68,6 +78,11 @@ class WellData
     public WellImages tryGetImages()
     {
         return imagesOrNull;
+    }
+
+    public ExperimentIdentifier getExperiment()
+    {
+        return experimentIdentifier;
     }
 
     public String getWellContentDescription()

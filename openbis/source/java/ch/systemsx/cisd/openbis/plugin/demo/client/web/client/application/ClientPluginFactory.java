@@ -42,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.GenericViewContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleRegistrationForm;
 
@@ -54,7 +53,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
  * 
  * @author Christian Ribeaud
  */
-public final class ClientPluginFactory extends AbstractClientPluginFactory<IDemoClientServiceAsync>
+public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoViewContext>
 {
 
     public ClientPluginFactory(final IViewContext<ICommonClientServiceAsync> originalViewContext)
@@ -67,7 +66,7 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<IDemo
     //
 
     @Override
-    protected final IViewContext<IDemoClientServiceAsync> createViewContext(
+    protected final DemoViewContext createViewContext(
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         return new DemoViewContext(originalViewContext);

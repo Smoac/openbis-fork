@@ -21,14 +21,13 @@ import java.util.List;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewer;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 
 /**
  * The <i>screening</i> plate sample viewer.
@@ -37,8 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
  */
 public final class PlateSampleViewer extends GenericSampleViewer
 {
-    public static DatabaseModificationAwareComponent create(
-            final IViewContext<IScreeningClientServiceAsync> viewContext,
+    public static DatabaseModificationAwareComponent create(final ScreeningViewContext viewContext,
             final IIdentifiable identifiable)
     {
         PlateSampleViewer viewer = new PlateSampleViewer(viewContext, identifiable);
@@ -46,9 +44,9 @@ public final class PlateSampleViewer extends GenericSampleViewer
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
-    private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
+    private final ScreeningViewContext screeningViewContext;
 
-    public PlateSampleViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
+    public PlateSampleViewer(final ScreeningViewContext viewContext,
             final IIdentifiable identifiable)
     {
         super(viewContext, identifiable);

@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -78,8 +79,7 @@ public class PlateLayoutSection extends SingleSectionPanel
 
     private final TechId sampleId;
 
-    public PlateLayoutSection(IViewContext<IScreeningClientServiceAsync> viewContext,
-            TechId sampleId)
+    public PlateLayoutSection(ScreeningViewContext viewContext, TechId sampleId)
     {
         super("Plate Layout");
         this.sampleId = sampleId;
@@ -89,7 +89,7 @@ public class PlateLayoutSection extends SingleSectionPanel
     }
 
     private AsyncCallback<PlateContent> createDisplayPlateCallback(
-            final IViewContext<IScreeningClientServiceAsync> context)
+            final ScreeningViewContext context)
     {
         return new AbstractAsyncCallback<PlateContent>(context)
             {
@@ -100,7 +100,7 @@ public class PlateLayoutSection extends SingleSectionPanel
                     setLayout(new RowLayout());
                     setScrollMode(Scroll.AUTO);
 
-                    renderPlate(plateContent, viewContext);
+                    renderPlate(plateContent, context);
                     addImageAnalysisButton(plateContent, viewContext);
 
                     addMetadataTable(plateContent, context);
@@ -164,7 +164,7 @@ public class PlateLayoutSection extends SingleSectionPanel
                 reportLabel, new String[] {}, dataset.getDatastoreCode());
     }
 
-    private void renderPlate(PlateContent plateContent, IViewContext<?> viewContext)
+    private void renderPlate(PlateContent plateContent, ScreeningViewContext viewContext)
     {
         LayoutContainer container = new LayoutContainer();
         Widget datasetNumberLegend = tryRenderImageDatasetsNumberLegend(plateContent, viewContext);
@@ -231,7 +231,8 @@ public class PlateLayoutSection extends SingleSectionPanel
         return legend;
     }
 
-    private LayoutContainer renderWellsMatrix(PlateContent plateContent, IViewContext<?> viewContext)
+    private LayoutContainer renderWellsMatrix(PlateContent plateContent,
+            ScreeningViewContext viewContext)
     {
         WellData[][] wellMatrix = createMatrix(plateContent);
         List<Widget> wellWidgets = createWellWidgets(wellMatrix, plateContent, viewContext);
@@ -248,7 +249,7 @@ public class PlateLayoutSection extends SingleSectionPanel
     }
 
     private static List<Widget> createWellWidgets(WellData[][] wellMatrix,
-            PlateContent plateContent, IViewContext<?> viewContext)
+            PlateContent plateContent, ScreeningViewContext viewContext)
     {
         List<Widget> wellWidgets = new ArrayList<Widget>();
         int rowsNum = wellMatrix.length;
@@ -333,7 +334,7 @@ public class PlateLayoutSection extends SingleSectionPanel
 
     private static Component createWellWidget(final WellData wellData,
             final PlateContent plateContent, final DefaultChannelState channelState,
-            final IViewContext<?> viewContext)
+            final ScreeningViewContext viewContext)
     {
         Component widget = createContentWell(wellData);
         widget.addListener(Events.OnMouseDown, new Listener<BaseEvent>()

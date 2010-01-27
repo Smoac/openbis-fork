@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
@@ -44,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.E
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -67,10 +69,16 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
 
     private static final String PREFIX = GenericConstants.ID_PREFIX + "ScreeningGeneViewer_";
 
+    /**
+     * @param experimentIdentifierOrNull if the experiment is specified, it will be chosen
+     *            automatically when the window opens.
+     */
     public static DatabaseModificationAwareComponent create(
-            final IViewContext<IScreeningClientServiceAsync> viewContext, final TechId materialId)
+            IViewContext<IScreeningClientServiceAsync> viewContext, IIdentifiable materialId,
+            ExperimentIdentifier experimentIdentifierOrNull)
     {
-        GeneMaterialViewer viewer = new GeneMaterialViewer(viewContext, materialId);
+        GeneMaterialViewer viewer =
+                new GeneMaterialViewer(viewContext, materialId, experimentIdentifierOrNull);
 
         return new DatabaseModificationAwareComponent(viewer, viewer.propertiesSection);
     }
@@ -81,26 +89,37 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
 
     private final DefaultChannelState channelState;
 
-    protected GeneMaterialViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
-            final TechId materialId)
+    private GeneMaterialViewer(final IViewContext<IScreeningClientServiceAsync> viewContext,
+            final IIdentifiable materialId, ExperimentIdentifier experimentIdentifierOrNull)
     {
         super(viewContext, createId(materialId));
-        this.propertiesSection = new MaterialPropertiesComponent(viewContext, materialId, -1, 1)
-            {
-                @Override
-                protected void getMaterialInfo(AsyncCallback<Material> materialInfoCallback)
-                {
-                    viewContext.getService().getMaterialInfo(materialId, materialInfoCallback);
-                }
-            };
+        TechId materialTechId = TechId.create(materialId);
+        this.propertiesSection =
+                new MaterialPropertiesComponent(viewContext, materialTechId, -1, 1)
+                    {
+                        @Override
+                        protected void getMaterialInfo(AsyncCallback<Material> materialInfoCallback)
+                        {
+                            viewContext.getService().getMaterialInfo(materialId,
+                                    materialInfoCallback);
+                        }
+                    };
         this.viewContext = viewContext;
         this.channelState = new DefaultChannelState();
         setLayout(new BorderLayout());
         add(propertiesSection, createLeftBorderLayoutData());
-        add(createLocationsPanel(materialId), createRightBorderLayoutData());
+        LayoutContainer locationsPanel =
+                createLocationsPanel(materialTechId, experimentIdentifierOrNull);
+        add(locationsPanel, createRightBorderLayoutData());
+
+        if (experimentIdentifierOrNull != null)
+        {
+            loadGeneLocationsPanel(materialTechId, experimentIdentifierOrNull, locationsPanel);
+        }
     }
 
-    private Widget createLocationsPanel(final TechId materialId)
+    private LayoutContainer createLocationsPanel(final TechId materialId,
+            ExperimentIdentifier experimentIdentifierOrNull)
     {
         final LayoutContainer container = new LayoutContainer();
 
@@ -113,11 +132,18 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
                 {
                     if (entity != null)
                     {
-                        loadGeneLocationsPanel(materialId, entity, container);
+                        ExperimentIdentifier experimentIdentifier =
+                                new ExperimentIdentifier(entity.getIdentifier());
+                        loadGeneLocationsPanel(materialId, experimentIdentifier, container);
                     }
                 }
             });
         chooserField.setEditable(false);
+        if (experimentIdentifierOrNull != null)
+        {
+            chooserField.updateValue(experimentIdentifierOrNull);
+        }
+
         container.add(GuiUtils.withLabel(experimentChooser.getField(), "Experiment:", 10));
         container.add(new Text(
                 "Choose an experiment to find wells where this gene has been suppressed."));
@@ -125,13 +151,12 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
         return container;
     }
 
-    private void loadGeneLocationsPanel(TechId materialId, Experiment entity,
-            final LayoutContainer container)
+    private void loadGeneLocationsPanel(TechId materialId,
+            ExperimentIdentifier experimentIdentifier, final LayoutContainer container)
     {
         GuiUtils
                 .replaceLastItem(container, new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
-        viewContext.getService().getPlateLocations(materialId,
-                new ExperimentIdentifier(entity.getIdentifier()),
+        viewContext.getService().getPlateLocations(materialId, experimentIdentifier,
                 new AbstractAsyncCallback<List<WellContent>>(viewContext)
                     {
                         @Override
@@ -240,8 +265,13 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
         return LinkRenderer.getLinkWidget(label, listener);
     }
 
-    public static final String createId(final TechId materialId)
+    public static final String createId(final IIdentifiable materialId)
     {
-        return PREFIX + materialId;
+        return PREFIX + materialId.getId();
+    }
+
+    public static HelpPageIdentifier getHelpPageIdentifier()
+    {
+        return HelpPageIdentifier.createSpecific("Gene Material Viewer");
     }
 }

@@ -27,16 +27,21 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
@@ -51,8 +56,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.d
  * 
  * @author Tomasz Pylak
  */
-public final class ClientPluginFactory extends
-        AbstractClientPluginFactory<IScreeningClientServiceAsync>
+public final class ClientPluginFactory extends AbstractClientPluginFactory<ScreeningViewContext>
 {
 
     public ClientPluginFactory(final IViewContext<ICommonClientServiceAsync> originalViewContext)
@@ -65,7 +69,7 @@ public final class ClientPluginFactory extends
     //
 
     @Override
-    protected final IViewContext<IScreeningClientServiceAsync> createViewContext(
+    protected final ScreeningViewContext createViewContext(
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         return new ScreeningViewContext(originalViewContext);
@@ -93,7 +97,7 @@ public final class ClientPluginFactory extends
     public <T extends EntityType, I extends IIdentifiable> IClientPlugin<T, I> createClientPlugin(
             final EntityKind entityKind)
     {
-        IViewContext<IScreeningClientServiceAsync> viewContext = getViewContext();
+        ScreeningViewContext viewContext = getViewContext();
         if (EntityKind.MATERIAL.equals(entityKind))
         {
             return (IClientPlugin<T, I>) new MaterialClientPlugin(viewContext);
@@ -110,7 +114,7 @@ public final class ClientPluginFactory extends
     // Helper classes
     //
 
-    private final class MaterialClientPlugin extends DelegatedClientPlugin<SampleType>
+    private final class MaterialClientPlugin extends DelegatedClientPlugin<MaterialType>
     {
         private MaterialClientPlugin(IViewContext<IScreeningClientServiceAsync> viewContext)
         {
@@ -118,16 +122,16 @@ public final class ClientPluginFactory extends
         }
 
         @Override
-        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        public final ITabItemFactory createEntityViewer(final IIdentifiable materialId)
         {
-            final TechId materialId = TechId.create(identifiable);
             return new ITabItemFactory()
                 {
                     public ITabItem create()
                     {
+                        IViewContext<IScreeningClientServiceAsync> viewContext = getViewContext();
                         final DatabaseModificationAwareComponent viewer =
-                                GeneMaterialViewer.create(getViewContext(), materialId);
-                        return createViewerTab(viewer, identifiable, Dict.MATERIAL);
+                                GeneMaterialViewer.create(viewContext, materialId, null);
+                        return createMaterialViewerTab(materialId, viewer, viewContext);
                     }
 
                     public String getId()
@@ -137,17 +141,54 @@ public final class ClientPluginFactory extends
 
                     public HelpPageIdentifier getHelpPageIdentifier()
                     {
-                        return HelpPageIdentifier.createSpecific("Gene Material Viewer");
+                        return GeneMaterialViewer.getHelpPageIdentifier();
                     }
                 };
         }
     }
 
+    /** opens gene viewer with a selected experiment */
+    public static final void openGeneMaterialViewer(final IIdentifiable materialId,
+            final ExperimentIdentifier experimentIdentifier,
+            final IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        ITabItemFactory tab = new ITabItemFactory()
+            {
+                public ITabItem create()
+                {
+                    final DatabaseModificationAwareComponent viewer =
+                            GeneMaterialViewer
+                                    .create(viewContext, materialId, experimentIdentifier);
+                    return createMaterialViewerTab(materialId, viewer, viewContext);
+                }
+
+                public String getId()
+                {
+                    return GeneMaterialViewer.createId(materialId);
+                }
+
+                public HelpPageIdentifier getHelpPageIdentifier()
+                {
+                    return GeneMaterialViewer.getHelpPageIdentifier();
+                }
+            };
+        DispatcherHelper.dispatchNaviEvent(tab);
+    }
+
+    private static ITabItem createMaterialViewerTab(final IIdentifiable materialId,
+            final DatabaseModificationAwareComponent viewer, IViewContext<?> viewContext)
+    {
+        return createViewerTab(viewer, materialId, Dict.MATERIAL, viewContext);
+    }
+
     private final class SampleClientPlugin extends DelegatedClientPlugin<SampleType>
     {
-        private SampleClientPlugin(IViewContext<IScreeningClientServiceAsync> viewContext)
+        private ScreeningViewContext screeningViewContext;
+
+        private SampleClientPlugin(ScreeningViewContext viewContext)
         {
             super(viewContext, EntityKind.SAMPLE);
+            this.screeningViewContext = viewContext;
         }
 
         @Override
@@ -158,8 +199,9 @@ public final class ClientPluginFactory extends
                     public ITabItem create()
                     {
                         final DatabaseModificationAwareComponent viewer =
-                                PlateSampleViewer.create(getViewContext(), identifiable);
-                        return createViewerTab(viewer, identifiable, Dict.SAMPLE);
+                                PlateSampleViewer.create(screeningViewContext, identifiable);
+                        return createViewerTab(viewer, identifiable, Dict.SAMPLE,
+                                screeningViewContext);
                     }
 
                     public String getId()
@@ -176,16 +218,17 @@ public final class ClientPluginFactory extends
         }
     }
 
-    private ITabItem createViewerTab(DatabaseModificationAwareComponent viewer,
-            IIdentifiable identifiable, String dictTitleKey)
+    private static ITabItem createViewerTab(DatabaseModificationAwareComponent viewer,
+            ICodeProvider codeProvider, String dictTitleKey, IViewContext<?> viewContext)
     {
-        String title = getViewerTitle(dictTitleKey, identifiable);
-        return DefaultTabItem.create(title, viewer, getViewContext(), false);
+        String title = getViewerTitle(dictTitleKey, codeProvider, viewContext);
+        return DefaultTabItem.create(title, viewer, viewContext, false);
     }
 
-    private String getViewerTitle(String dictTitleKey, IIdentifiable identifiable)
+    private static String getViewerTitle(String dictTitleKey, ICodeProvider codeProvider,
+            IMessageProvider messageProvider)
     {
-        return AbstractViewer.getTitle(getViewContext(), dictTitleKey, identifiable);
+        return AbstractViewer.getTitle(messageProvider, dictTitleKey, codeProvider);
     }
 
     /**

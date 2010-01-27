@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetEditForm;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewer;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentEditForm;
@@ -65,8 +64,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sam
  * 
  * @author Christian Ribeaud
  */
-public final class ClientPluginFactory extends
-        AbstractClientPluginFactory<IGenericClientServiceAsync>
+public final class ClientPluginFactory extends AbstractClientPluginFactory<GenericViewContext>
 {
     public ClientPluginFactory(final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
@@ -78,7 +76,7 @@ public final class ClientPluginFactory extends
     //
 
     @Override
-    protected final IViewContext<IGenericClientServiceAsync> createViewContext(
+    protected final GenericViewContext createViewContext(
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         return new GenericViewContext(originalViewContext);

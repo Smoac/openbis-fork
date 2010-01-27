@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -33,11 +34,13 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleImageHtmlRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabClickListener;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
@@ -47,20 +50,17 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  * 
  * @author Tomasz Pylak
  */
-public class WellContentDialog
+public class WellContentDialog extends Dialog
 {
-    private final WellMetadata metadataOrNull;
-
-    private final IViewContext<?> viewContext;
-
     public static void showContentDialog(final WellData wellData, DefaultChannelState channelState,
-            final IViewContext<?> viewContext)
+            final ScreeningViewContext viewContext)
     {
         final LayoutContainer container = new LayoutContainer();
         container.setLayout(new RowLayout());
 
         final WellContentDialog contentDialog =
-                new WellContentDialog(wellData.tryGetMetadata(), viewContext);
+                new WellContentDialog(wellData.tryGetMetadata(), wellData.getExperiment(),
+                        viewContext);
         LayoutContainer descriptionContainer = contentDialog.createContentDescription();
         container.add(descriptionContainer);
 
@@ -84,22 +84,35 @@ public class WellContentDialog
             dialogHeight = 160;
         }
         String title = "Well Content: " + wellData.getWellContentDescription();
-        showWellContentDialog(container, dialogWidth, dialogHeight, title);
+        contentDialog.setupContentAndShow(container, dialogWidth, dialogHeight, title);
     }
 
-    private static LayoutContainer createImageViewer(final WellImages images,
-            DefaultChannelState channelState, final IViewContext<?> viewContext,
-            final int imageWidth, final int imageHeight)
+    // ----------------
+
+    private final WellMetadata metadataOrNull;
+
+    private final ExperimentIdentifier experimentIdentifier;
+
+    private final ScreeningViewContext viewContext;
+
+    private WellContentDialog(WellMetadata metadataOrNull,
+            ExperimentIdentifier experimentIdentifier, ScreeningViewContext viewContext)
     {
-        final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
-            {
-                public LayoutContainer create(int channel)
-                {
-                    return createTilesGrid(images, channel, viewContext, imageWidth, imageHeight);
-                }
-            };
-        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
-                .getChannelsNum());
+        this.metadataOrNull = metadataOrNull;
+        this.experimentIdentifier = experimentIdentifier;
+        this.viewContext = viewContext;
+    }
+
+    private void setupContentAndShow(LayoutContainer container, int width, int height, String title)
+    {
+        setHeading(title);
+        setLayout(new FitLayout());
+        setScrollMode(Scroll.AUTO);
+        setHideOnButtonClick(true);
+        add(container);
+        setWidth(width);
+        setHeight(height);
+        show();
     }
 
     private LayoutContainer createContentDescription()
@@ -122,7 +135,7 @@ public class WellContentDialog
                 if (gene != null)
                 {
                     container.add(new Text("Inhibited gene: "), cellLayout);
-                    container.add(createEntityLink(gene));
+                    container.add(createGeneViewerLink(gene));
 
                     container.add(new Text("Gene details: "), cellLayout);
                     container.add(createEntityExternalLink(gene));
@@ -144,16 +157,40 @@ public class WellContentDialog
         return new Html(LinkRenderer.renderAsLinkWithAnchor("gene database", url, true));
     }
 
+    private Widget createGeneViewerLink(final IEntityInformationHolder gene)
+    {
+        return LinkRenderer.getLinkWidget(gene.getCode(), new ClickHandler()
+            {
+                public void onClick(ClickEvent event)
+                {
+                    WellContentDialog.this.hide();
+                    ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ClientPluginFactory
+                            .openGeneMaterialViewer(gene, experimentIdentifier, viewContext);
+                }
+            });
+    }
+
     private Widget createEntityLink(IEntityInformationHolder entity)
     {
         final ClickHandler listener = new OpenEntityDetailsTabClickListener(entity, viewContext);
         return LinkRenderer.getLinkWidget(entity.getCode(), listener);
     }
 
-    private WellContentDialog(WellMetadata metadataOrNull, IViewContext<?> viewContext)
+    // -------------
+
+    private static LayoutContainer createImageViewer(final WellImages images,
+            DefaultChannelState channelState, final IViewContext<?> viewContext,
+            final int imageWidth, final int imageHeight)
     {
-        this.metadataOrNull = metadataOrNull;
-        this.viewContext = viewContext;
+        final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
+            {
+                public LayoutContainer create(int channel)
+                {
+                    return createTilesGrid(images, channel, viewContext, imageWidth, imageHeight);
+                }
+            };
+        return ChannelChooser.createViewerWithChannelChooser(viewerFactory, channelState, images
+                .getChannelsNum());
     }
 
     /** @param channel Channel numbers start with 1. Channel 0 consists of all other channels merged. */
@@ -180,7 +217,7 @@ public class WellContentDialog
     }
 
     /** generates URL of an image on Data Store server */
-    public static String createDatastoreImageUrl(WellImages images, int channel, int tileRow,
+    private static String createDatastoreImageUrl(WellImages images, int channel, int tileRow,
             int tileCol, int width, int height, String sessionID)
     {
         URLMethodWithParameters methodWithParameters =
@@ -210,19 +247,5 @@ public class WellContentDialog
     private static String getSessionId(IViewContext<?> viewContext)
     {
         return viewContext.getModel().getSessionContext().getSessionID();
-    }
-
-    private static void showWellContentDialog(LayoutContainer container, int width, int height,
-            String title)
-    {
-        Dialog dialog = new Dialog();
-        dialog.setHeading(title);
-        dialog.setLayout(new FitLayout());
-        dialog.setScrollMode(Scroll.AUTO);
-        dialog.setHideOnButtonClick(true);
-        dialog.add(container);
-        dialog.setWidth(width);
-        dialog.setHeight(height);
-        dialog.show();
     }
 }
