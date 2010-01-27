@@ -723,8 +723,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    // Just doesn't work reliable in Cruise Control :-(
-    @Test(groups = "broken")
+    @Test(invocationCount = 10, successPercentage = 10, sequential = true)
     public void testCanceling() throws IOException
     {
         final File fileOnClient = new File(CLIENT_FOLDER, LARGE_FILE);
@@ -792,7 +791,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(invocationCount = 10, successPercentage = 10, sequential = true)
     public void testUploading2FilesWhereSecondIsCanceledAndSecondUpload() throws IOException
     {
         final File fileOnClient1 = new File(CLIENT_FOLDER, SMALL_FILE);
