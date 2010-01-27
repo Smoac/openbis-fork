@@ -124,7 +124,7 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                     descriptionField.setValueAndUnescape(dataSetType.getDescription());
                     addField(descriptionField);
 
-                    mainDataSetPatternField = createMainDataSettPatternField();
+                    mainDataSetPatternField = createMainDataSetPatternField();
                     mainDataSetPatternField.setValue(StringEscapeUtils.unescapeHtml(dataSetType
                             .getMainDataSetPattern()));
                     addField(mainDataSetPatternField);
@@ -169,7 +169,7 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
                 private TextField<String> mainDataSetPathField;
 
                 {
-                    mainDataSetPatternField = createMainDataSettPatternField();
+                    mainDataSetPatternField = createMainDataSetPatternField();
                     addField(mainDataSetPatternField);
 
                     mainDataSetPathField = createMainDataSetPathField();
@@ -196,12 +196,14 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
             };
     }
 
-    private TextField<String> createMainDataSettPatternField()
+    private TextField<String> createMainDataSetPatternField()
     {
         TextField<String> mainDataSetPatternField = new TextField<String>();
         mainDataSetPatternField.setFieldLabel(viewContext.getMessage(Dict.MAIN_DATA_SET_PATTERN));
         mainDataSetPatternField.setToolTip(viewContext
-                .getMessage(Dict.TOOLTIP_MAIN_DATA_SET_PATTERN));
+                .getMessage(Dict.MAIN_DATA_SET_PATTERN_TOOLTIP));
+        mainDataSetPatternField.setEmptyText(viewContext
+                .getMessage(Dict.MAIN_DATA_SET_PATTERN_EXAMPLE));
         return mainDataSetPatternField;
     }
 
@@ -209,7 +211,8 @@ public class DataSetTypeGrid extends AbstractEntityTypeGrid<DataSetType>
     {
         TextField<String> mainDataSetPathField = new TextField<String>();
         mainDataSetPathField.setFieldLabel(viewContext.getMessage(Dict.MAIN_DATA_SET_PATH));
-        mainDataSetPathField.setToolTip(viewContext.getMessage(Dict.TOOLTIP_MAIN_DATA_SET_PATH));
+        mainDataSetPathField.setToolTip(viewContext.getMessage(Dict.MAIN_DATA_SET_PATH_TOOLTIP));
+        mainDataSetPathField.setEmptyText(viewContext.getMessage(Dict.MAIN_DATA_SET_PATH_EXAMPLE));
         return mainDataSetPathField;
     }
 }

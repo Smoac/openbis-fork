@@ -897,7 +897,15 @@ public abstract class Dict
 
     public static final String MAIN_DATA_SET_PATH = "main_data_set_path";
 
+    public static final String MAIN_DATA_SET_PATH_TOOLTIP = "main_data_set_path_tooltip";
+
+    public static final String MAIN_DATA_SET_PATH_EXAMPLE = "main_data_set_path_example";
+
     public static final String MAIN_DATA_SET_PATTERN = "main_data_set_pattern";
+
+    public static final String MAIN_DATA_SET_PATTERN_TOOLTIP = "main_data_set_pattern_tooltip";
+
+    public static final String MAIN_DATA_SET_PATTERN_EXAMPLE = "main_data_set_pattern_example";
 
     public static final String AUTO_RESOLVE_LABEL = "auto_resolve_label";
 
@@ -906,10 +914,6 @@ public abstract class Dict
     public static final String BUTTON_TOP = "button_top";
 
     public static final String EXPLORE_LABEL = "explore_label";
-
-    public static final String TOOLTIP_MAIN_DATA_SET_PATTERN = "tooltip_main_data_set_pattern";
-
-    public static final String TOOLTIP_MAIN_DATA_SET_PATH = "tooltip_main_data_set_path";
 
     // ----- end generic ------------------
 }
