@@ -163,8 +163,7 @@ BEGIN
 	--   constraint violation when inserting a user without QUOTA_GROUP_ID set explicitly even when
 	--   the UPDATE_QUOTA_GROUP_ID_ON_INSERT_USER trigger would rectify the situation. 
 	IF NEW.QUOTA_GROUP_ID IS NULL THEN
-		RAISE EXCEPTION 'Quota group of user % must not be set to NULL', NEW.USER_CODE 
-			USING ERRCODE = 'not_null_violation';
+		RAISE EXCEPTION 'Quota group of user % must not be set to NULL', NEW.USER_CODE;
 	END IF;
 	IF OLD.QUOTA_GROUP_ID <> NEW.QUOTA_GROUP_ID THEN
 		PERFORM CALC_ACCOUNTING_FOR_QUOTA_GROUPS(OLD.QUOTA_GROUP_ID, NEW.QUOTA_GROUP_ID);
