@@ -10,7 +10,7 @@ export CIF2TXT=/usr/local/dsu/bin/cif2txt.sh
 export LANES2SRF=/usr/local/dsu/bin/lanes2srf_RTA
 export NUMBER_OF_LANES=`cat $LATEST_FOLDER/$INTENSITY_FOLDER/RTAConfiguration.xml | grep NumberOfLanes | cut -d \> -f2 | cut -d \< -f1`
 export NUMBER_OF_TILES=`cat $LATEST_FOLDER/$INTENSITY_FOLDER/RTAConfiguration.xml | grep TilesPerLane | cut -d \> -f2 | cut -d \< -f1`
-export PAIRED_END=`cat RTAConfiguration.xml | grep IsPairedEndRun  | cut -d \> -f2 | cut -d \< -f1`
+export PAIRED_END=`cat  $LATEST_FOLDER/$INTENSITY_FOLDER/RTAConfiguration.xml | grep IsPairedEndRun  | cut -d \> -f2 | cut -d \< -f1`
 export NUMBER_OF_CYCLES=`ls -1tr $LATEST_FOLDER/$INTENSITY_FOLDER/L00$NUMBER_OF_LANES/ | tail -1 | cut -d . -f1 | cut -d C -f2`
 export MAILX=/bin/mailx
 export MAIL_LIST="manuel.kohler@bsse.ethz.ch"
@@ -56,18 +56,19 @@ $CIF2TXT $LATEST_FOLDER/$INTENSITY_FOLDER $NUMBER_OF_CYCLES $NUMBER_OF_TILES
 export SRF_DIR=Srf
 #export ILLUMINA2SRF=/usr/local/dsu/bin/illumina2srf
 export ILLUMINA2SRF=/usr/local/bin/illumina2srf
+export LF=`echo $LATEST_FOLDER | cut -d / -f7`
 
 [ -d $SRF_DIR ] || mkdir $SRF_DIR
 #for  (( a=1; a<=$NUMBER_OF_LANES; a++ )); do
 #  echo "Starting SRF $a"
-  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LATEST_FOLDER"_1.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_1_*_qseq.txt &
-  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LATEST_FOLDER"_2.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_2_*_qseq.txt &
-  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LATEST_FOLDER"_3.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_3_*_qseq.txt &
-  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LATEST_FOLDER"_4.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_4_*_qseq.txt &
-  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LATEST_FOLDER"_5.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_5_*_qseq.txt &
-  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LATEST_FOLDER"_6.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_6_*_qseq.txt &
-  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LATEST_FOLDER"_7.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_7_*_qseq.txt &
-  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LATEST_FOLDER"_8.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_8_*_qseq.txt &
+  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LF"_1.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_1_*_qseq.txt &
+  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LF"_2.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_2_*_qseq.txt &
+  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LF"_3.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_3_*_qseq.txt &
+  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LF"_4.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_4_*_qseq.txt &
+  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LF"_5.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_5_*_qseq.txt &
+  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LF"_6.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_6_*_qseq.txt &
+  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LF"_7.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_7_*_qseq.txt &
+  $ILLUMINA2SRF -clobber -b -o $SRF_DIR/"ETHZ_BSSE_"$LF"_8.srf" $LATEST_FOLDER/$INTENSITY_FOLDER/BaseCalls/s_8_*_qseq.txt &
   wait $!
 #done
 
