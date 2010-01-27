@@ -164,6 +164,17 @@ public abstract class AbstractClientService implements IClientService,
         }
     }
 
+    protected static <T> IOriginalDataProvider<T> createDummyDataProvider()
+    {
+        return new IOriginalDataProvider<T>()
+            {
+                public List<T> getOriginalData() throws UserFailureException
+                {
+                    throw new IllegalStateException("Data not found in the cache");
+                }
+            };
+    }
+
     public final void setCifexURL(String cifexURL)
     {
         this.cifexURL = cifexURL;
@@ -295,6 +306,22 @@ public abstract class AbstractClientService implements IClientService,
                             return getServer().listGridCustomColumns(sessionToken, gridDisplayId);
                         }
                     });
+    }
+
+    // Saves the specified rows in the cache.
+    // Returns a key in the cache where the data were saved.
+    protected <T> String saveInCache(final List<T> tableModelRows)
+    {
+        DefaultResultSetConfig<String, T> criteria = new DefaultResultSetConfig<String, T>();
+        criteria.setLimit(0); // we do not need any data now, just a key
+        ResultSet<T> resultSet = listEntities(criteria, new IOriginalDataProvider<T>()
+            {
+                public List<T> getOriginalData() throws UserFailureException
+                {
+                    return tableModelRows;
+                }
+            });
+        return resultSet.getResultSetKey();
     }
 
     /** Returns the {@link IServer} implementation for this client service. */

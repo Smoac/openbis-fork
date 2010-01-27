@@ -19,9 +19,14 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -63,4 +68,19 @@ public interface IScreeningClientService extends IClientService
      */
     public List<WellContent> getPlateLocations(TechId geneMaterialId,
             ExperimentIdentifier experimentIdentifier) throws UserFailureException;
+
+    /**
+     * Returns {@link GenericTableResultSet} containing plate metadata.
+     */
+    public GenericTableResultSet listPlateMetadata(
+            IResultSetConfig<String, GenericTableRow> resultSetConfig, TechId sampleId)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+
+    /**
+     * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for
+     * GenericTableRow.
+     */
+    public String prepareExportPlateMetadata(TableExportCriteria<GenericTableRow> exportCriteria)
+            throws UserFailureException;
+
 }

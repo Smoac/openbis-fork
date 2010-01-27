@@ -191,7 +191,7 @@ public final class CommonClientService extends AbstractClientService implements
         return exportCriteria;
     }
 
-    private final <T> GridRowModels<T> fetchCachedEntities(
+    protected final <T> GridRowModels<T> fetchCachedEntities(
             final TableExportCriteria<T> exportCriteria)
     {
         IResultSetConfig<String, T> resultSetConfig = createExportListCriteria(exportCriteria);
@@ -199,17 +199,6 @@ public final class CommonClientService extends AbstractClientService implements
         final IResultSet<String, T> result = getResultSet(resultSetConfig, dummyDataProvider);
         final ResultSet<T> entities = ResultSetTranslator.translate(result);
         return entities.getList();
-    }
-
-    private static <T> IOriginalDataProvider<T> createDummyDataProvider()
-    {
-        return new IOriginalDataProvider<T>()
-            {
-                public List<T> getOriginalData() throws UserFailureException
-                {
-                    throw new IllegalStateException("Data not found in the cache");
-                }
-            };
     }
 
     private static <T> IResultSetConfig<String, T> createExportListCriteria(
@@ -1977,24 +1966,6 @@ public final class CommonClientService extends AbstractClientService implements
         {
             throw UserFailureExceptionTranslator.translate(e);
         }
-    }
-
-    // Saves the specified rows in the cache.
-    // Returns a key in the cache where the data were saved.
-    private String saveInCache(final List<TableModelRow> tableModelRows)
-    {
-        DefaultResultSetConfig<String, TableModelRow> criteria =
-                new DefaultResultSetConfig<String, TableModelRow>();
-        criteria.setLimit(0); // we do not need any data now, just a key
-        ResultSet<TableModelRow> resultSet =
-                listEntities(criteria, new IOriginalDataProvider<TableModelRow>()
-                    {
-                        public List<TableModelRow> getOriginalData() throws UserFailureException
-                        {
-                            return tableModelRows;
-                        }
-                    });
-        return resultSet.getResultSetKey();
     }
 
     public ResultSet<TableModelRow> listDatasetReport(

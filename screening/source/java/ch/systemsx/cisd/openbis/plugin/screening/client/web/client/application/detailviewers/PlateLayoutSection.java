@@ -39,9 +39,17 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -68,18 +76,22 @@ public class PlateLayoutSection extends SingleSectionPanel
 
     public static final String ID_SUFFIX = "PlateLayoutSection";
 
+    private final TechId sampleId;
+
     public PlateLayoutSection(IViewContext<IScreeningClientServiceAsync> viewContext,
             TechId sampleId)
     {
         super("Plate Layout");
+        this.sampleId = sampleId;
         add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
         viewContext.getService().getPlateContent(sampleId, createDisplayPlateCallback(viewContext));
         setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
     }
 
-    private AsyncCallback<PlateContent> createDisplayPlateCallback(final IViewContext<?> viewContext)
+    private AsyncCallback<PlateContent> createDisplayPlateCallback(
+            final IViewContext<IScreeningClientServiceAsync> context)
     {
-        return new AbstractAsyncCallback<PlateContent>(viewContext)
+        return new AbstractAsyncCallback<PlateContent>(context)
             {
                 @Override
                 protected void process(PlateContent plateContent)
@@ -90,6 +102,8 @@ public class PlateLayoutSection extends SingleSectionPanel
 
                     renderPlate(plateContent, viewContext);
                     addImageAnalysisButton(plateContent, viewContext);
+
+                    addMetadataTable(plateContent, context);
 
                     layout();
                 }
@@ -428,5 +442,43 @@ public class PlateLayoutSection extends SingleSectionPanel
             }
         }
         return data;
+    }
+
+    private void addMetadataTable(final PlateContent plateContent,
+            final IViewContext<IScreeningClientServiceAsync> viewContext)
+    {
+        final Button generateButton =
+                new Button("Show Plate Report", new SelectionListener<ButtonEvent>()
+                    {
+
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            final ITabItemFactory tabFactory = new ITabItemFactory()
+                                {
+                                    public ITabItem create()
+                                    {
+                                        return DefaultTabItem.create("Plate Report: "
+                                                + plateContent.getPlate().getCode(),
+                                                PlateMetadataBrowser.create(viewContext, sampleId),
+                                                viewContext);
+                                    }
+
+                                    public String getId()
+                                    {
+                                        return GenericConstants.ID_PREFIX + "plate-metadata-"
+                                                + plateContent.getPlate().getId();
+                                    }
+
+                                    public HelpPageIdentifier getHelpPageIdentifier()
+                                    {
+                                        return new HelpPageIdentifier(HelpPageDomain.SAMPLE,
+                                                HelpPageAction.VIEW);
+                                    }
+                                };
+                            DispatcherHelper.dispatchNaviEvent(tabFactory);
+                        }
+                    });
+        add(generateButton, createMarginLayoutData());
     }
 }

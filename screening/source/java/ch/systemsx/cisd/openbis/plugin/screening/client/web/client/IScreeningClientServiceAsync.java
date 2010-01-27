@@ -22,7 +22,11 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
@@ -52,4 +56,16 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
      */
     public void getPlateLocations(TechId geneMaterialId, ExperimentIdentifier experimentIdentifier,
             AsyncCallback<List<WellContent>> callback);
+
+    /**
+     * @see IScreeningClientService#listPlateMetadata(IResultSetConfig, TechId)
+     */
+    public void listPlateMetadata(IResultSetConfig<String, GenericTableRow> resultSetConfig,
+            TechId sampleId, AsyncCallback<GenericTableResultSet> callback);
+
+    /**
+     * @see IScreeningClientService#prepareExportPlateMetadata(TableExportCriteria)
+     */
+    public void prepareExportPlateMetadata(TableExportCriteria<GenericTableRow> exportCriteria,
+            AsyncCallback<String> callback);
 }

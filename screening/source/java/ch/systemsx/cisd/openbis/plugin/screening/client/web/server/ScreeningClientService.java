@@ -25,11 +25,16 @@ import org.springframework.stereotype.Component;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -131,6 +136,22 @@ public final class ScreeningClientService extends AbstractClientService implemen
     {
         return new ExperimentIdentifierFactory(experimentIdentifier.getIdentifier())
                 .createIdentifier();
+    }
+
+    public GenericTableResultSet listPlateMetadata(
+            IResultSetConfig<String, GenericTableRow> criteria, TechId sampleId)
+            throws UserFailureException
+    {
+        PlateMetadataProvider dataProvider =
+                new PlateMetadataProvider(server, getSessionToken(), sampleId);
+        ResultSet<GenericTableRow> resultSet = listEntities(criteria, dataProvider);
+        return new GenericTableResultSet(resultSet, dataProvider.getHeaders());
+    }
+
+    public String prepareExportPlateMetadata(TableExportCriteria<GenericTableRow> criteria)
+            throws UserFailureException
+    {
+        return prepareExportEntities(criteria);
     }
 
 }
