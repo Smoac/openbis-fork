@@ -91,13 +91,16 @@ public class PreprocessingExecutor
                                 // returns null on error, non-null on success
                                 public Object call() throws Exception
                                 {
-                                    boolean ok =
-                                            callScript(preprocessingScriptPath, getClass(),
-                                                    filePath);
+                                    boolean ok = executeOnce(filePath);
                                     return ok ? true : null;
                                 }
                             });
         return (result != null);
+    }
+
+    public boolean executeOnce(final String filePath)
+    {
+        return callScript(preprocessingScriptPath, getClass(), filePath);
     }
 
     private static boolean callScript(String scriptPath, Class<?> logClass, String... args)

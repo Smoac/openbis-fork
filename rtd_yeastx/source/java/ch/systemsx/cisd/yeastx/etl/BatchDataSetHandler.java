@@ -115,7 +115,7 @@ public class BatchDataSetHandler implements IDataSetHandler
                     String.format("No datasets from '%s' directory can be processed because "
                             + "the try to acquire write access by openBIS has failed.", batchDir
                             .getName());
-            log.error(errorMsg + " Try again or contact your administrator.");
+            log.error(errorMsg + " Try again after some time or contact your administrator.");
             log.adminError(errorMsg);
         }
         return ok;
@@ -134,7 +134,9 @@ public class BatchDataSetHandler implements IDataSetHandler
             unknownMappings.remove(file.getName().toLowerCase());
             // we have already tries to acquire write access to all files in batch directory,
             // but some new files may have appeared since that time.
-            boolean isWritable = acquireWriteAccess(batchDir, file, log);
+            // We do not retry if the operation fails - it could take hours if the problem cannot be
+            // solved by retries (we usually are dealing with hundreds of files)
+            boolean isWritable = acquireWriteAccessWithoutRetries(batchDir, file, log);
             if (isWritable == false)
             {
                 logNonWritable(file, log);
@@ -188,9 +190,9 @@ public class BatchDataSetHandler implements IDataSetHandler
                 + "Try again or contact your administrator.", file.getPath());
     }
 
-    // Acquires write access if the file is not writable.
+    // Acquires write access if the file is not writable. Does not retry if the operation fails.
     // Returns true if file is writable afterwards.
-    private boolean acquireWriteAccess(File batchDir, File file, LogUtils log)
+    private boolean acquireWriteAccessWithoutRetries(File batchDir, File file, LogUtils log)
     {
         if (file.exists() == false)
         {
@@ -201,7 +203,7 @@ public class BatchDataSetHandler implements IDataSetHandler
         {
             String path =
                     batchDir.getName() + System.getProperty("file.separator") + file.getName();
-            boolean ok = writeAccessSetter.execute(path);
+            boolean ok = writeAccessSetter.executeOnce(path);
             if (ok == false)
             {
                 log.adminError("Cannot acquire write access to '%s' "
