@@ -18,28 +18,28 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
 
 /**
  * Defines static columns of plate metadata row.
- *
+ * 
  * @author Izabela Adamczyk
  */
-public enum StaticColumns
+public enum PlateMetadataStaticColumns
 {
-    WELL("CODE"),
+    WELL("Code"),
 
-    TYPE("TYPE"),
+    TYPE("Type"),
 
-    CONTENT("CONTENT"),
+    CONTENT("Content"),
 
-    CONTENT_TYPE("CONTENT_TYPE"),
+    CONTENT_TYPE("Content Type"),
 
-    INHIBITED_GENE("INHIBITED_GENE"),
+    INHIBITED_GENE("Inhibited Gene"),
 
-    GENE_DETAILS("GENE_DETAILS"),
+    GENE_DETAILS("Gene Details"),
 
     THUMBNAIL("THUMBNAIL");
 
     private final String id;
 
-    private StaticColumns(String id)
+    private PlateMetadataStaticColumns(String id)
     {
         this.id = id;
     }

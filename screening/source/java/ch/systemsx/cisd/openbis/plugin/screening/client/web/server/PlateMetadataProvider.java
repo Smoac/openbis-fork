@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.StaticColumns;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadataStaticColumns;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
@@ -89,34 +89,34 @@ class PlateMetadataProvider implements IOriginalDataProvider<GenericTableRow>
     {
         List<Column> columns = new ArrayList<Column>();
         Column codeColumn =
-                new Column(GenericTableColumnHeader.untitledLinkableStringHeader(StaticColumns.WELL
-                        .ordinal(), StaticColumns.WELL.colId()));
+                new Column(GenericTableColumnHeader.untitledLinkableStringHeader(PlateMetadataStaticColumns.WELL
+                        .ordinal(), PlateMetadataStaticColumns.WELL.colId()));
         columns.add(codeColumn);
 
         Column typeColumn =
-                new Column(GenericTableColumnHeader.untitledStringHeader(StaticColumns.TYPE
-                        .ordinal(), StaticColumns.TYPE.colId()));
+                new Column(GenericTableColumnHeader.untitledStringHeader(PlateMetadataStaticColumns.TYPE
+                        .ordinal(), PlateMetadataStaticColumns.TYPE.colId()));
         columns.add(typeColumn);
 
         Column contentColumn =
                 new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
-                        StaticColumns.CONTENT.ordinal(), StaticColumns.CONTENT.colId()));
+                        PlateMetadataStaticColumns.CONTENT.ordinal(), PlateMetadataStaticColumns.CONTENT.colId()));
         columns.add(contentColumn);
 
         Column contentTypeColumn =
-                new Column(GenericTableColumnHeader.untitledStringHeader(StaticColumns.CONTENT_TYPE
-                        .ordinal(), StaticColumns.CONTENT_TYPE.colId()));
+                new Column(GenericTableColumnHeader.untitledStringHeader(PlateMetadataStaticColumns.CONTENT_TYPE
+                        .ordinal(), PlateMetadataStaticColumns.CONTENT_TYPE.colId()));
         columns.add(contentTypeColumn);
 
         Column geneCodeColumn =
                 new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
-                        StaticColumns.INHIBITED_GENE.ordinal(), StaticColumns.INHIBITED_GENE
+                        PlateMetadataStaticColumns.INHIBITED_GENE.ordinal(), PlateMetadataStaticColumns.INHIBITED_GENE
                                 .colId()));
         columns.add(geneCodeColumn);
 
         Column showGeneColumn =
                 new Column(GenericTableColumnHeader.untitledLinkableStringHeader(
-                        StaticColumns.GENE_DETAILS.ordinal(), StaticColumns.GENE_DETAILS.colId()));
+                        PlateMetadataStaticColumns.GENE_DETAILS.ordinal(), PlateMetadataStaticColumns.GENE_DETAILS.colId()));
         columns.add(showGeneColumn);
         int fixedColumns = columns.size();
         PropertyColumns contentPropertyColumns = new PropertyColumns();
