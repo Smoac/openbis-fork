@@ -139,7 +139,7 @@ public class Client implements EntryPoint
         final UrlParamsHelper urlParamsHelper = new UrlParamsHelper(viewContext);
         urlParamsHelper.initUrlParams();
 
-        final IClientServiceAsync service = viewContext.getService();
+        final IClientServiceAsync service = getServiceForRetrievingApplicationInfo(viewContext);
         service.getApplicationInfo(new AbstractAsyncCallback<ApplicationInfo>(viewContext)
             {
 
@@ -159,6 +159,12 @@ public class Client implements EntryPoint
                     service.tryToGetCurrentSessionContext(sessionContextCallback);
                 }
             });
+    }
+    
+    protected IClientServiceAsync getServiceForRetrievingApplicationInfo(
+            IViewContext<ICommonClientServiceAsync> context)
+    {
+        return context.getService();
     }
 
     /**

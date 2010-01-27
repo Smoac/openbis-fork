@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -46,5 +47,13 @@ public class PhosphoNetXClient extends Client
     {
         return new ClientPluginFactoryProvider(commonContext);
     }
+
+    @Override
+    protected IClientServiceAsync getServiceForRetrievingApplicationInfo(
+            IViewContext<ICommonClientServiceAsync> context)
+    {
+        return new ViewContext(context).getService();
+    }
+
 
 }
