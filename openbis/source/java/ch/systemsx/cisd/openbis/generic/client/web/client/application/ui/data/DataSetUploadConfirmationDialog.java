@@ -124,7 +124,7 @@ final class DataSetUploadConfirmationDialog extends
         passwordField.setPassword(true);
         passwordField.setFieldLabel(viewContext
                 .getMessage(Dict.CONFIRM_DATASET_UPLOAD_PASSWORD_FIELD));
-        FieldUtil.setMandatoryFlag(passwordField, true);
+        FieldUtil.setMandatoryFlag(passwordField, false);
         passwordField.addKeyListener(keyListener);
         passwordField.setAutoValidate(true);
         formPanel.add(passwordField);
