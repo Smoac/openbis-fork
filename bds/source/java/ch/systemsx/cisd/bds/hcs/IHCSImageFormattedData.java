@@ -35,12 +35,15 @@ public interface IHCSImageFormattedData extends IFormattedData
      * Returns <code>true</code> if the data structure contains the original data.
      */
     public boolean containsOriginalData();
-    
+
+    /** see {@link HCSImageFormatV1_0#IS_INCOMING_SYMBOLIC_LINK} */
+    public boolean isIncomingSymbolicLink();
+
     /**
      * Returns the number of channels.
      */
     public int getChannelCount();
-    
+
     /**
      * Returns the geometric arrangement of the tiles of a well.
      */
@@ -51,11 +54,9 @@ public interface IHCSImageFormattedData extends IFormattedData
      */
     public Geometry getPlateGeometry();
 
-    
     /**
      * For given <var>channel</var>, given <var>wellLocation</var> and given <var>tileLocation</var>
-     * returns the corresponding <code>INode</code> (found in <code>data/standard</code>
-     * directory).
+     * returns the corresponding <code>INode</code> (found in <code>data/standard</code> directory).
      * 
      * @return this could be, for instance, a {@link ILink} pointing to the
      *         <code>data/original</code> directory or a {@link IFile} that can be extracted
@@ -71,15 +72,14 @@ public interface IHCSImageFormattedData extends IFormattedData
      *            incoming data set directory.
      * @param imageRelativePath relative path (to <var>imageRootDirectory</var>) name of the image
      *            file that is going to be added in the <code>standard</code> directory.
-     * @return the new <code>INode</code> just added (encapsulated in returned
-     *         <code>NodePath</code>) with its path in the <code>standard</code> directory.
-     *         Never returns <code>null</code>.
+     * @return the new <code>INode</code> just added (encapsulated in returned <code>NodePath</code>
+     *         ) with its path in the <code>standard</code> directory. Never returns
+     *         <code>null</code>.
      * @throws DataStructureException if a node already exists at given coordinates.
      */
     public NodePath addStandardNode(final File imageRootDirectory, final String imageRelativePath,
             final int channel, final Location wellLocation, final Location tileLocation)
             throws DataStructureException;
-    
 
     //
     // Helper classes

@@ -56,6 +56,9 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
 
     private final boolean containsOriginalData;
 
+    /** see {@link HCSImageFormatV1_0#IS_INCOMING_SYMBOLIC_LINK} */
+    private final boolean isIncomingSymbolicLink;
+
     private final Geometry wellGeometry;
 
     private final Geometry plateGeometry;
@@ -72,7 +75,8 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     public HCSImageFormattedData(final FormattedDataContext context)
     {
         super(context);
-        this.containsOriginalData = figureContainsOriginalData(getFormatParameters());
+        IFormatParameters formatParameters = getFormatParameters();
+        this.containsOriginalData = figureContainsOriginalData(formatParameters);
         if (containsOriginalData)
         {
             this.originalDataDirectoryOrNull =
@@ -81,15 +85,16 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         {
             this.originalDataDirectoryOrNull = null;
         }
+        this.isIncomingSymbolicLink = figureIsIncomingSymbolicLink(formatParameters);
 
         IDirectory standardDataDirectory =
                 Utilities.getSubDirectory(dataDirectory, DataStructureV1_0.DIR_STANDARD);
         this.standardDataDirectoryCache =
                 new DirectoryContentCache(standardDataDirectory, createChannelDirNameProvider());
 
-        this.wellGeometry = figureWellGeometry(getFormatParameters());
-        this.plateGeometry = figurePlateGeometry(getFormatParameters());
-        this.channelCount = figureChannelCount(getFormatParameters());
+        this.wellGeometry = figureWellGeometry(formatParameters);
+        this.plateGeometry = figurePlateGeometry(formatParameters);
+        this.channelCount = figureChannelCount(formatParameters);
     }
 
     private static int figureChannelCount(IFormatParameters params)
@@ -113,9 +118,27 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
                 .toBoolean();
     }
 
+    private static boolean figureIsIncomingSymbolicLink(IFormatParameters params)
+    {
+        String paramName = HCSImageFormatV1_0.IS_INCOMING_SYMBOLIC_LINK;
+        if (params.containsParameter(paramName))
+        {
+            return ((Utilities.Boolean) params.getValue(paramName)).toBoolean();
+        } else
+        {
+            return false; // default value
+        }
+    }
+
     public final boolean containsOriginalData()
     {
         return containsOriginalData;
+    }
+
+    /** see {@link HCSImageFormatV1_0#IS_INCOMING_SYMBOLIC_LINK} */
+    public final boolean isIncomingSymbolicLink()
+    {
+        return isIncomingSymbolicLink;
     }
 
     public final Geometry getWellGeometry()
@@ -489,7 +512,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         super.assertValidFormatAndFormatParameters();
         final IFormatParameters formatParameters = getFormatParameters();
         final Set<String> notPresent = new HashSet<String>();
-        for (final String formatParameterName : format.getParameterNames())
+        for (final String formatParameterName : format.getMandatoryParameterNames())
         {
             if (formatParameters.containsParameter(formatParameterName) == false)
             {

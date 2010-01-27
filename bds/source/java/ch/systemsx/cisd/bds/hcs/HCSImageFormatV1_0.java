@@ -46,14 +46,24 @@ public final class HCSImageFormatV1_0 extends Format
     public final static String NUMBER_OF_CHANNELS = "number_of_channels";
 
     /**
+     * Boolean flag specifying whether the items in the incoming folder are just a symbolic links to
+     * the original data. In this case we do not move any data. Instead we create symbolic link to
+     * original data which points to the same place as the link in incoming directory.
+     */
+    public final static String IS_INCOMING_SYMBOLIC_LINK = "incoming_items_are_symbolic_link";
+
+    /**
      * The format parameters that must be defined so that this implementation is able to work
      * properly.
      * <p>
      * These parameters are located in <code>metadata/parameters</code>.
      * </p>
      */
-    private final static String[] FORMAT_PARAMETERS = new String[]
+    private final static String[] MANDATORY_FORMAT_PARAMETERS = new String[]
         { WellGeometry.WELL_GEOMETRY, NUMBER_OF_CHANNELS, CONTAINS_ORIGINAL_DATA };
+
+    private final static String[] OPTIONAL_FORMAT_PARAMETERS = new String[]
+        { IS_INCOMING_SYMBOLIC_LINK };
 
     /**
      * The one and only one instance.
@@ -70,9 +80,15 @@ public final class HCSImageFormatV1_0 extends Format
     //
 
     @Override
-    public final List<String> getParameterNames()
+    public final List<String> getMandatoryParameterNames()
     {
-        return Arrays.asList(FORMAT_PARAMETERS);
+        return Arrays.asList(MANDATORY_FORMAT_PARAMETERS);
+    }
+
+    @Override
+    public List<String> getOptionalParameterNames()
+    {
+        return Arrays.asList(OPTIONAL_FORMAT_PARAMETERS);
     }
 
     @Override

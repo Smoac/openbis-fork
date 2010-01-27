@@ -77,10 +77,17 @@ public final class FormatParameterFactory implements IFormatParameterFactory
                     .parseInt(value));
         } else if (nodeName.equals(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA))
         {
-            return new FormatParameter(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, Utilities.Boolean
-                    .fromString(value));
+            return createBooleanParameter(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA, value);
+        } else if (nodeName.equals(HCSImageFormatV1_0.IS_INCOMING_SYMBOLIC_LINK))
+        {
+            return createBooleanParameter(HCSImageFormatV1_0.IS_INCOMING_SYMBOLIC_LINK, value);
         }
         return formatParameter;
+    }
+
+    private static FormatParameter createBooleanParameter(String name, String value)
+    {
+        return new FormatParameter(name, Utilities.Boolean.fromString(value));
     }
 
     public final FormatParameter createFormatParameter(final String name, final String value)
@@ -103,6 +110,9 @@ public final class FormatParameterFactory implements IFormatParameterFactory
         {
             return new FormatParameter(name, Integer.parseInt(value));
         } else if (name.equals(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA))
+        {
+            return new FormatParameter(name, Utilities.Boolean.fromString(value));
+        } else if (name.equals(HCSImageFormatV1_0.IS_INCOMING_SYMBOLIC_LINK))
         {
             return new FormatParameter(name, Utilities.Boolean.fromString(value));
         }

@@ -165,8 +165,7 @@ public class Format implements IStorable
     }
 
     /**
-     * Returns the <code>IFormatParameterFactory</code> implementation for this
-     * <code>Format</code>.
+     * Returns the <code>IFormatParameterFactory</code> implementation for this <code>Format</code>.
      */
     public IFormatParameterFactory getFormatParameterFactory()
     {
@@ -180,7 +179,18 @@ public class Format implements IStorable
      * returns an empty list.
      * </p>
      */
-    public List<String> getParameterNames()
+    public List<String> getMandatoryParameterNames()
+    {
+        return Collections.emptyList();
+    }
+
+    /**
+     * Returns an unmodifiable list of optional parameters that are specific to this format.
+     * <p>
+     * Default implementation returns an empty list.
+     * </p>
+     */
+    public List<String> getOptionalParameterNames()
     {
         return Collections.emptyList();
     }

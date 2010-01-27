@@ -94,7 +94,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    for (final String formatParameterName : format.getParameterNames())
+                    for (final String formatParameterName : format.getMandatoryParameterNames())
                     {
                         one(formatParameters).containsParameter(formatParameterName);
                         will(returnValue(true));
