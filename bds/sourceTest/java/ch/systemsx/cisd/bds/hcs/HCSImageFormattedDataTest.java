@@ -99,6 +99,11 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
                         one(formatParameters).containsParameter(formatParameterName);
                         will(returnValue(true));
                     }
+                    for (final String formatParameterName : format.getOptionalParameterNames())
+                    {
+                        one(formatParameters).containsParameter(formatParameterName);
+                        will(returnValue(true));
+                    }
                     addParameterCheckExpectations(this, GEOMETRY, GEOMETRY, NUMBER_OF_CHANNELS);
                     prepareGetDataDirectories(this, standardDirNode, originalNodeOrNull);
                 }
@@ -117,6 +122,9 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         exp.one(formatParameters).getValue(HCSImageFormatV1_0.CONTAINS_ORIGINAL_DATA);
         boolean containsOriginalData = originalNodeOrNull != null;
         exp.will(Expectations.returnValue(Utilities.Boolean.fromBoolean(containsOriginalData)));
+
+        exp.one(formatParameters).getValue(HCSImageFormatV1_0.IS_INCOMING_SYMBOLIC_LINK);
+        exp.will(Expectations.returnValue(Utilities.Boolean.fromBoolean(false)));
 
         if (containsOriginalData)
         {
