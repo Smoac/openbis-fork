@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrow
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewerTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentAttachmentDownloadTest;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentViewerTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewerTest;
 
 /**
@@ -55,7 +54,6 @@ public class ViewingTestSuite2 extends GWTTestSuite
         // (NS_ERROR_DOM_SECURITY_ERR): Security error on CC
         // testSuite.addTestSuite(GenericExperimentRegistrationTest.class);
 
-        testSuite.addTestSuite(GenericExperimentViewerTest.class);
         testSuite.addTestSuite(PropertyTypeBrowserTest.class);
         testSuite.addTestSuite(PropertyTypeAssignmentBrowserTest.class);
         testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
