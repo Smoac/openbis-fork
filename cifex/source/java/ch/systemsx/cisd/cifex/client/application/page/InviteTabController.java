@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
@@ -47,17 +47,15 @@ final class InviteTabController extends AbstractMainPageTabController
     @Override
     protected final Widget getWidget()
     {
-        final LayoutContainer contentPanel = createOutermostWidgetContainer();
+        final ContentPanel contentPanel = createOutermostWidgetContainer();
         Model model = context.getModel();
         final UserInfoDTO user = model.getUser();
-        LayoutContainer createUserPanel = createUserPanel(user.isAdmin(), context);
-        LayoutContainer listCreatedUserPanel = createContainer();
-        createListCreatedUserPanel(listCreatedUserPanel, context);
+        ContentPanel createUserPanel = createUserPanel(user.isAdmin(), context);
+        createListCreatedUserPanel(contentPanel, context);
         if (user.isPermanent() && user.isAdmin() == false)
         {
             contentPanel.add(createUserPanel);
         }
-        contentPanel.add(listCreatedUserPanel);
         return contentPanel;
     }
 
@@ -66,7 +64,7 @@ final class InviteTabController extends AbstractMainPageTabController
         context.getPageController().setCurrentPage(Page.INVITE_PAGE);
     }
 
-    static private void createListCreatedUserPanel(LayoutContainer listCreatedUserPanel,
+    static private void createListCreatedUserPanel(ContentPanel listCreatedUserPanel,
             ViewContext context)
     {
         final GridWidget<UserGridModel> gridWidget =

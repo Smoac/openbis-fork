@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.google.gwt.user.client.ui.Widget;
@@ -58,23 +58,18 @@ class AdminTabController extends AbstractMainPageTabController
     @Override
     protected Widget getWidget()
     {
-        final LayoutContainer mainPanel = createOutermostWidgetContainer();
-        LayoutContainer createUserPanel = createUserPanel(true, context);
+        final ContentPanel mainPanel = createOutermostWidgetContainer();
+        ContentPanel createUserPanel = createUserPanel(true, context);
+        mainPanel.add(createUserPanel);
 
-        LayoutContainer listFilesPanel = createContainer();
         GridWidget<AbstractFileGridModel> filesGrid =
                 createFileTable(new OwnerFileInfoDTO[0], context, fileGridWidgets);
-        addTitlePart(listFilesPanel, context.getMessageResources().getFilesPartTitle());
-        listFilesPanel.add(filesGrid.getWidget());
+        addTitlePart(mainPanel, context.getMessageResources().getFilesPartTitle());
+        mainPanel.add(filesGrid.getWidget());
 
-        LayoutContainer listUserPanel = createContainer();
-        createListUserGrid(listUserPanel, filesGrid, context);
-
+        createListUserGrid(mainPanel, filesGrid, context);
         loadListFileGrid(filesGrid, context);
 
-        mainPanel.add(createUserPanel);
-        mainPanel.add(listUserPanel);
-        mainPanel.add(listFilesPanel);
         return mainPanel;
     }
 
@@ -84,7 +79,7 @@ class AdminTabController extends AbstractMainPageTabController
         context.getCifexService().listFiles(new FileAdminAsyncCallback(context, filesGrid));
     }
 
-    static private final void createListUserGrid(LayoutContainer listUserPanel,
+    static private final void createListUserGrid(ContentPanel listUserPanel,
             GridWidget<AbstractFileGridModel> filesGrid, ViewContext context)
     {
         addTitlePart(listUserPanel, context.getMessageResources().getUsersPartTitle());
@@ -95,6 +90,8 @@ class AdminTabController extends AbstractMainPageTabController
         // Delete user and change code function
         userGridWidget.getGrid().addListener(Events.CellClick,
                 new UserActionGridCellListener(context, filesGrid, userGridWidget));
+        // WORKAROUND: without this the horizontal scroll bar is not fully visible in GXT 2.1.0 
+        userGridWidget.getWidget().setWidth("99%");
         listUserPanel.add(userGridWidget.getWidget());
         context.getCifexService().listUsers(new UserAsyncCallback(context, userGridWidget));
     }
@@ -124,6 +121,8 @@ class AdminTabController extends AbstractMainPageTabController
                 .addListener(Events.CellClick, new AdminFileActionGridCellListener(context,
                         gridWidget, fileGridWidgets));
         grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
+        // WORKAROUND: without this the horizontal scroll bar is not fully visible in GXT 2.1.0 
+        gridWidget.getWidget().setWidth("99%");
         return gridWidget;
     }
 

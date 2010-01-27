@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.client.application.page;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
@@ -41,7 +41,7 @@ class InboxTabController extends AbstractMainPageTabController
     @Override
     protected Widget getWidget()
     {
-        final LayoutContainer contentPanel = createOutermostWidgetContainer();
+        final ContentPanel contentPanel = createOutermostWidgetContainer();
         FileListingTabHelper.createListDownloadFilesGrid(contentPanel, context, fileGridWidgets,
                 null);
         return contentPanel;

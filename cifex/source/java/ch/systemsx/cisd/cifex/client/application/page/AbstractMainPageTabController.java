@@ -22,8 +22,8 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -67,9 +67,9 @@ public abstract class AbstractMainPageTabController
      * since a listener is automatically added to the container which informs the page context about
      * tab changes.
      */
-    protected LayoutContainer createOutermostWidgetContainer()
+    protected ContentPanel createOutermostWidgetContainer()
     {
-        LayoutContainer container = new LayoutContainer()
+        ContentPanel container = new ContentPanel()
             {
                 @Override
                 protected void onWindowResize(int aWidth, int aHeight)
@@ -80,6 +80,8 @@ public abstract class AbstractMainPageTabController
                 }
             };
         container.setMonitorWindowResize(true);
+        container.setHeaderVisible(false);
+        container.setFrame(false);
         // LayoutContainer container = new LayoutContainer();
         container.addListener(Events.Show, new Listener<ComponentEvent>()
             {
@@ -103,24 +105,24 @@ public abstract class AbstractMainPageTabController
         // }
     }
 
-    public static final LayoutContainer createContainer()
+    public static final ContentPanel createContainer()
     {
-        final LayoutContainer container = new LayoutContainer();
-        container.setWidth("100%");
+        final ContentPanel container = new ContentPanel();
+        container.setHeaderVisible(false);
         return container;
     }
 
-    public static final void addTitlePart(LayoutContainer container, final String text)
+    public static final void addTitlePart(ContentPanel container, final String text)
     {
         final Html html = new Html(text);
         html.setStyleName("cifex-heading");
         container.add(html, new FlowData(new Margins(3, 0, 0, 0)));
     }
 
-    protected static final LayoutContainer createUserPanel(final boolean allowPermanentUsers,
+    protected static final ContentPanel createUserPanel(final boolean allowPermanentUsers,
             ViewContext context)
     {
-        LayoutContainer createUserPanel = createContainer();
+        ContentPanel createUserPanel = createContainer();
         if (allowPermanentUsers)
         {
             addTitlePart(createUserPanel, context.getMessageResources().getAdminCreateUserLabel());

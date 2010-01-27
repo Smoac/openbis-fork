@@ -24,8 +24,8 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -90,7 +90,7 @@ class FileListingTabHelper
         return FILE_SIZE_FORMAT.format((double) currentFileSize / MB) + " MB";
     }
 
-    static void createListDownloadFilesGrid(final LayoutContainer contentPanel,
+    static void createListDownloadFilesGrid(final ContentPanel contentPanel,
             final ViewContext context,
             final List<GridWidget<AbstractFileGridModel>> fileGridWidgets,
             final IQuotaInformationUpdater quotaUpdaterOrNull)
@@ -112,14 +112,12 @@ class FileListingTabHelper
         grid.addListener(Events.CellClick, new FileDownloadGridCellListener());
         grid.addListener(Events.CellClick, new FileCommentGridCellListener(context));
 
-        final LayoutContainer verticalPanel = AbstractMainPageTabController.createContainer();
-        AbstractMainPageTabController.addTitlePart(verticalPanel, messageResources
+        AbstractMainPageTabController.addTitlePart(contentPanel, messageResources
                 .getDownloadFilesPartTitle());
-        verticalPanel.add(gridWidget.getWidget());
+        contentPanel.add(gridWidget.getWidget());
 
-        addWebStartDownloadClientLink(messageResources, verticalPanel);
+        addWebStartDownloadClientLink(messageResources, contentPanel);
 
-        contentPanel.add(verticalPanel);
         contentPanel.layout();
 
         context.getCifexService().listDownloadFiles(
@@ -142,7 +140,7 @@ class FileListingTabHelper
     }
 
     private static void addWebStartDownloadClientLink(IMessageResources messageResources,
-            final LayoutContainer verticalPanel)
+            final ContentPanel verticalPanel)
     {
         AbstractMainPageTabController.addTitlePart(verticalPanel, messageResources
                 .getDownloadFilesPartTitleGreater2GB());
@@ -169,7 +167,7 @@ class FileListingTabHelper
     }
 
     static void createListOwnedFilesGrid(final ViewContext context,
-            final LayoutContainer contentPanel,
+            final ContentPanel contentPanel,
             final List<GridWidget<AbstractFileGridModel>> fileGridWidgets,
             final IQuotaInformationUpdater quotaUpdaterOrNull)
     {

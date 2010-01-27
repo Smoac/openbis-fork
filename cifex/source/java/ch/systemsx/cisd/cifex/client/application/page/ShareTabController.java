@@ -18,7 +18,7 @@ package ch.systemsx.cisd.cifex.client.application.page;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -55,7 +55,7 @@ class ShareTabController extends AbstractMainPageTabController
     @Override
     protected Widget getWidget()
     {
-        final LayoutContainer contentPanel = createOutermostWidgetContainer();
+        final ContentPanel contentPanel = createOutermostWidgetContainer();
         final HTML explanationWidget = new HTML(createExplanationText());
         final IQuotaInformationUpdater quotaInformationUpdater =
                 new QuotaInformationUpdater(explanationWidget);
@@ -99,9 +99,9 @@ class ShareTabController extends AbstractMainPageTabController
         return notesText.toString();
     }
 
-    private LayoutContainer createUploadPart(HTML explanationWidget)
+    private ContentPanel createUploadPart(HTML explanationWidget)
     {
-        final LayoutContainer verticalPanel = createContainer();
+        final ContentPanel verticalPanel = createContainer();
         addTitlePart(verticalPanel, context.getMessageResources().getUploadFilesPartTitle());
         verticalPanel.add(explanationWidget);
         verticalPanel.add(fileUploadWidget, new FlowData(5));
