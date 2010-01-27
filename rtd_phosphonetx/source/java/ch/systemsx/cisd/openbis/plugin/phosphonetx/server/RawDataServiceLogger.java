@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService;
@@ -41,6 +42,12 @@ class RawDataServiceLogger extends AbstractServerLogger implements IRawDataServi
     public List<Sample> listRawDataSamples(String sessionToken, String userID)
     {
         logAccess(sessionToken, "list_raw_data_samples", "USER_ID(%s)", userID);
+        return null;
+    }
+
+    public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken)
+    {
+        logAccess(sessionToken, "list_data_store_services", "");
         return null;
     }
 

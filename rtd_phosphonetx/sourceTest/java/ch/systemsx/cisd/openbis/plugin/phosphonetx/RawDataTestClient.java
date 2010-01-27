@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService;
@@ -45,6 +46,12 @@ public class RawDataTestClient
                 System.out.println("User: " + user);
                 SessionContextDTO session = service.tryToAuthenticate("test", "a");
                 String sessionToken = session.getSessionToken();
+                List<DatastoreServiceDescription> services = service.listDataStoreServices(sessionToken);
+                for (DatastoreServiceDescription datastoreServiceDescription : services)
+                {
+                    System.out.print(datastoreServiceDescription.getLabel()+" ");
+                }
+                System.out.println();
                 List<Sample> samples = service.listRawDataSamples(sessionToken, user);
                 for (Sample sample : samples)
                 {

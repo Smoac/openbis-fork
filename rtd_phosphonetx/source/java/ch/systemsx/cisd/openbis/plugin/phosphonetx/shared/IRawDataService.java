@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RoleSet;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAllowed;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -40,6 +41,13 @@ public interface IRawDataService extends IServer
     @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
     public List<Sample> listRawDataSamples(String sessionToken, String userID);
 
+    /**
+     * Lists all processing DSS services.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.INSTANCE_ADMIN_OBSERVER)
+    public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken);
+    
     /**
      * Processes the data sets of specified samples by the DSS processing plug-in of specified key
      * for the specified user. Implementations should check that the specified user is allowed

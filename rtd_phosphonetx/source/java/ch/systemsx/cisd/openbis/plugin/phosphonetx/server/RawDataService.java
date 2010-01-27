@@ -16,15 +16,22 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.server;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInternal;
 
@@ -65,6 +72,26 @@ public class RawDataService extends AbstractServer<IRawDataService> implements I
         {
             service.logout(session.getSessionToken());
         }
+    }
+
+    public List<DatastoreServiceDescription> listDataStoreServices(String sessionToken)
+    {
+        checkSession(sessionToken);
+
+        List<DatastoreServiceDescription> result = new ArrayList<DatastoreServiceDescription>();
+        List<DataStorePE> dataStores = getDAOFactory().getDataStoreDAO().listDataStores();
+        for (DataStorePE dataStore : dataStores)
+        {
+            Set<DataStoreServicePE> services = dataStore.getServices();
+            for (DataStoreServicePE dataStoreService : services)
+            {
+                if (dataStoreService.getKind() == DataStoreServiceKind.PROCESSING)
+                {
+                    result.add(DataStoreServiceTranslator.translate(dataStoreService));
+                }
+            }
+        }
+        return result;
     }
 
     public void processingRawData(String sessionToken, String userID, String dataSetProcessingKey,
