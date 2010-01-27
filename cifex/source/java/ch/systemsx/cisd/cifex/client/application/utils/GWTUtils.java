@@ -49,12 +49,6 @@ public final class GWTUtils
                 return search.indexOf("?") == 0 ? search.substring(1) : search;
             }-*/;
 
-    public static native String getUserAgent() /*-{
-                return navigator.userAgent.toLowerCase();
-            }-*/;
-
-    public static final boolean IS_MS_INTERNET_EXPLORER = getUserAgent().contains("msie");
-
     /**
      * Parses given URL <var>string</var> and returns the key-value pairs
      */
