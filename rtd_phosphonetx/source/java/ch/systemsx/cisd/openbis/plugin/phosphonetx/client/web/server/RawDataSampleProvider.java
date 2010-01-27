@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.IOriginalDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.DataTypeUtils;
@@ -47,6 +48,10 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.IRawDataServiceInterna
  */
 class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
 {
+    @Private static final String PARENT = "PARENT";
+    @Private static final String REGISTRATION_DATE = "REGISTRATION_DATE";
+    @Private static final String CODE = "CODE";
+
     private static final class Column
     {
         private final List<ISerializableComparable> values = new ArrayList<ISerializableComparable>();
@@ -191,9 +196,9 @@ class RawDataSampleProvider implements IOriginalDataProvider<GenericTableRow>
     private List<Column> getColumns()
     {
         List<Sample> samples = service.listRawDataSamples(sessionToken);
-        Column codeColumn = new Column(GenericTableColumnHeader.untitledLinkableStringHeader(0, "CODE"));
-        Column dateColumn = new Column(GenericTableColumnHeader.untitledStringHeader(1, "REGISTRATION_DATE"));
-        Column parentColumn = new Column(GenericTableColumnHeader.untitledStringHeader(2, "PARENT"));
+        Column codeColumn = new Column(GenericTableColumnHeader.untitledLinkableStringHeader(0, CODE));
+        Column dateColumn = new Column(GenericTableColumnHeader.untitledStringHeader(1, REGISTRATION_DATE));
+        Column parentColumn = new Column(GenericTableColumnHeader.untitledStringHeader(2, PARENT));
         List<Column> columns = new ArrayList<Column>();
         columns.add(codeColumn);
         columns.add(dateColumn);
