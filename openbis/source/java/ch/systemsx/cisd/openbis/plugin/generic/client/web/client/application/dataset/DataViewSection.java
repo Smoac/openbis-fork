@@ -21,9 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.Util;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.Widget;
@@ -237,6 +239,22 @@ public class DataViewSection extends SingleSectionPanel
         public DatabaseModificationKind[] getRelevantModifications()
         {
             return new DatabaseModificationKind[0]; // don't update
+        }
+
+        @Override
+        public void setValue(DatastoreServiceDescriptionModel value)
+        {
+            // fire SelectionChange event on each combo box selection, even if selected item
+            // did't change, to refresh viewer
+            DatastoreServiceDescriptionModel oldValue = getValue();
+            super.setValue(value);
+            if (Util.equalWithNull(oldValue, value))
+            {
+                SelectionChangedEvent<DatastoreServiceDescriptionModel> se =
+                        new SelectionChangedEvent<DatastoreServiceDescriptionModel>(this,
+                                getSelection());
+                fireEvent(Events.SelectionChange, se);
+            }
         }
 
     }
