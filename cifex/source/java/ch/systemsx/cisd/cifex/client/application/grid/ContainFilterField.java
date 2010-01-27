@@ -28,13 +28,13 @@ import ch.systemsx.cisd.cifex.client.application.utils.StringUtils;
  */
 public class ContainFilterField<M extends ModelData> extends AbstractFilterField<M>
 {
-    private final GridCellRenderer<ModelData> renderer;
+    private final GridCellRenderer<ModelData> rendererOrNull;
 
     public ContainFilterField(String filteredPropertyKey, String title,
-            GridCellRenderer<ModelData> renderer)
+            GridCellRenderer<ModelData> rendererOrNull)
     {
         super(filteredPropertyKey, title);
-        this.renderer = renderer;
+        this.rendererOrNull = rendererOrNull;
     }
 
     @Override
@@ -50,8 +50,9 @@ public class ContainFilterField<M extends ModelData> extends AbstractFilterField
             return true;
         }
         final String renderedText =
-                ((String) renderer.render(record, filteredPropertyKey, null, 0, 0, null, null))
-                        .toLowerCase();
+                ((rendererOrNull == null) ? record.get(filteredPropertyKey).toString()
+                        : ((String) rendererOrNull.render(record, filteredPropertyKey, null, 0, 0,
+                                null, null))).toLowerCase();
         if (filterText.startsWith("!"))
         {
             return (renderedText.contains(filterText.substring(1).toLowerCase()) == false);
