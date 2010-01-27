@@ -163,6 +163,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreServiceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
@@ -1593,34 +1594,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         {
             if (service.getKind() == dataStoreServiceKind)
             {
-                result.add(convert(service));
+                result.add(DataStoreServiceTranslator.translate(service));
             }
         }
         Collections.sort(result);
         return result;
-    }
-
-    private static DatastoreServiceDescription convert(DataStoreServicePE service)
-    {
-        String[] datasetTypeCodes = extractCodes(service.getDatasetTypes());
-        String dssCode = service.getDataStore().getCode();
-        DatastoreServiceDescription dssDescription =
-                new DatastoreServiceDescription(service.getKey(), service.getLabel(),
-                        datasetTypeCodes, dssCode);
-        dssDescription.setDownloadURL(service.getDataStore().getDownloadUrl());
-        return dssDescription;
-    }
-
-    private static String[] extractCodes(Set<DataSetTypePE> datasetTypes)
-    {
-        String[] codes = new String[datasetTypes.size()];
-        int i = 0;
-        for (DataSetTypePE datasetType : datasetTypes)
-        {
-            codes[i] = datasetType.getCode();
-            i++;
-        }
-        return codes;
     }
 
     public TableModel createReportFromDatasets(String sessionToken,
