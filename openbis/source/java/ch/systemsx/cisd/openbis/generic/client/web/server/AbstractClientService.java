@@ -334,10 +334,15 @@ public abstract class AbstractClientService implements IClientService,
     public final ApplicationInfo getApplicationInfo()
     {
         final ApplicationInfo applicationInfo = new ApplicationInfo();
-        applicationInfo.setVersion(BuildAndEnvironmentInfo.INSTANCE.getFullVersion());
+        applicationInfo.setVersion(getVersion());
         applicationInfo.setCIFEXURL(cifexURL);
         applicationInfo.setCifexRecipient(cifexRecipient);
         return applicationInfo;
+    }
+
+    protected String getVersion()
+    {
+        return BuildAndEnvironmentInfo.INSTANCE.getFullVersion();
     }
 
     public final SessionContext tryToGetCurrentSessionContext()

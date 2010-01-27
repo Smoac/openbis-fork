@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.plugin.phosphonetx.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientService;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentAndReferenceCriteria;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.dto.ListProteinByExperimentCriteria;
@@ -79,6 +80,12 @@ public class PhosphoNetXClientService extends AbstractClientService implements
     protected IServer getServer()
     {
         return server;
+    }
+
+    @Override
+    protected String getVersion()
+    {
+        return BuildAndEnvironmentInfo.INSTANCE.getFullVersion();
     }
 
     public Vocabulary getTreatmentTypeVocabulary()
