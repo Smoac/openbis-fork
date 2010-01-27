@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IMaintenanceTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -52,9 +51,6 @@ public class HierarchicalStorageUpdater implements IMaintenanceTask
 
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, HierarchicalStorageUpdater.class);
-
-    private static final Logger machineLog =
-            LogFactory.getLogger(LogCategory.MACHINE, HierarchicalStorageUpdater.class);
 
     private IEncapsulatedOpenBISService openBISService;
 
@@ -205,8 +201,7 @@ public class HierarchicalStorageUpdater implements IMaintenanceTask
             String sourcePath = linkMappings.get(targetPath);
             File sourceFile = new File(sourcePath);
             targetDir.mkdirs();
-            ProcessExecutionHelper.runAndLog(new SoftLinkMaker().createCommand(sourceFile,
-                    targetDir), operationLog, machineLog);
+            SoftLinkMaker.createSymbolicLink(sourceFile, targetDir);
         }
     }
 

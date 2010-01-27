@@ -74,7 +74,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
 /**
  * Test cases for corresponding {@link TransferredDataSetHandler} class.
@@ -110,7 +109,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
 
     private static final Date DATA_PRODUCTION_DATE = new Date(2001);
 
-    private static final String EXAMPLE_PROCESSOR_ID = ProcedureTypeCode.DATA_ACQUISITION.getCode();
+    private static final String EXAMPLE_PROCESSOR_ID = "DATA_ACQUISITION";
 
     private static final class ExternalDataMatcher extends BaseMatcher<NewExternalData>
     {
@@ -417,7 +416,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
             {
                 {
                     one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE, dataSet);
-                    
+
                     one(typeExtractor).getLocatorType(dataSet);
                     will(returnValue(LOCATOR_TYPE));
 
@@ -676,7 +675,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
                 {
                     one(typeExtractor).getProcessorType(folder);
                     will(returnValue(EXAMPLE_PROCESSOR_ID));
-                    
+
                     one(dataSetValidator).assertValidDataSet(DATA_SET_TYPE, folder);
 
                     one(storageProcessor).storeData(dataSetInformation, typeExtractor, mailClient,

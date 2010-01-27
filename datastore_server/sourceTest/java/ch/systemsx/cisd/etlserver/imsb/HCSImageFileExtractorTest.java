@@ -39,6 +39,7 @@ import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.filesystem.NodeFactory;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.etlserver.IHCSImageFileAccepter;
+import ch.systemsx.cisd.etlserver.plugins.AbstractHCSImageFileExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
@@ -46,7 +47,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Christian Ribeaud
  */
-@Friend(toClasses = HCSImageFileExtractor.class)
+@Friend(toClasses =
+    { HCSImageFileExtractor.class, AbstractHCSImageFileExtractor.class })
 public final class HCSImageFileExtractorTest extends AbstractFileSystemTestCase
 {
 
@@ -151,7 +153,7 @@ public final class HCSImageFileExtractorTest extends AbstractFileSystemTestCase
     {
         try
         {
-            fileExtractor.process(null, null, null);
+            fileExtractor.process((IDirectory) null, null, null);
             fail("Null values not allowed here.");
         } catch (final AssertionError ex)
         {
@@ -246,17 +248,20 @@ public final class HCSImageFileExtractorTest extends AbstractFileSystemTestCase
     @Test
     public final void testZigZagTileConvertion() throws IOException
     {
-        HCSImageFileExtractor extractor = new HCSImageFileExtractor(new WellGeometry(4, 3));
-        assertLocation(extractor, 8, new Location(2, 2));
-        assertLocation(extractor, 12, new Location(1, 1));
-        assertLocation(extractor, 1, new Location(1, 4));
-        assertLocation(extractor, 5, new Location(2, 3));
+        WellGeometry geom = new WellGeometry(4, 3);
+        HCSImageFileExtractor extractor = new HCSImageFileExtractor(geom);
+        assertLocation(extractor, 8, new Location(2, 2), geom);
+        assertLocation(extractor, 12, new Location(1, 1), geom);
+        assertLocation(extractor, 1, new Location(1, 4), geom);
+        assertLocation(extractor, 5, new Location(2, 3), geom);
     }
 
     private void assertLocation(HCSImageFileExtractor extractor, int tileNumber,
-            Location expectedLocation)
+            Location expectedLocation, WellGeometry wellGeometry)
     {
-        Location location = extractor.tryGetWellLocation("" + tileNumber);
+        Location location =
+                AbstractHCSImageFileExtractor.tryGetZigZagWellLocation("" + tileNumber,
+                        wellGeometry);
         assertEquals(expectedLocation, location);
     }
 }

@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
 /**
  * Test cases for corresponding {@link DefaultStorageProcessor} class.
@@ -123,8 +122,6 @@ public final class DefaultStorageProcessorTest extends AbstractFileSystemTestCas
 
     final static class TestProcedureAndDataTypeExtractor implements ITypeExtractor
     {
-
-        static final String PROCEDURE_TYPE = ProcedureTypeCode.DATA_ACQUISITION.getCode();
 
         static final String DATA_SET_TYPE = "dataSetType";
 

@@ -57,6 +57,7 @@ import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.types.BooleanOrUnknown;
+import ch.systemsx.cisd.etlserver.plugins.SoftLinkMaker;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -183,13 +184,25 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
 
     private final File createOriginalDataInDir() throws IOException
     {
-        final File incoming = new File(workingDirectory, "incoming");
-        incoming.mkdir();
-        final File dir = new File(incoming, INCOMING_DATA_SET_DIR);
-        dir.mkdir();
+        final File dir = createDirInIncoming(INCOMING_DATA_SET_DIR);
         final File originalData = new File(dir, ORIGINAL_DATA_TXT);
         FileUtilities.writeToFile(originalData, EXAMPLE_DATA);
         return dir;
+    }
+
+    private File createDirInIncoming(String incomingItemName)
+    {
+        final File incoming = getIncomingDir();
+        final File dir = new File(incoming, incomingItemName);
+        dir.mkdir();
+        return dir;
+    }
+
+    private File getIncomingDir()
+    {
+        final File incoming = new File(workingDirectory, "incoming");
+        incoming.mkdir();
+        return incoming;
     }
 
     static final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample createSample()
@@ -331,6 +344,35 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         }
     }
 
+    @Test
+    // we check the mode where the incoming folder has just a link to the real data. The original
+    // data folder in the store should point to this data (and not to the data in incoming folder)
+    public final void testStoreDataWithSymbolicLink() throws Exception
+    {
+        final Properties properties = createProperties(UnknownFormatV1_0.UNKNOWN_1_0);
+        properties.setProperty(HCSImageFormatV1_0.IS_INCOMING_SYMBOLIC_LINK, "true");
+        final BDSStorageProcessor storageProcessor = new BDSStorageProcessor(properties);
+
+        final File orgData = new File(workingDirectory, "org-data.txt");
+        FileUtilities.writeToFile(orgData, "hello!");
+
+        final File incoming = getIncomingDir();
+        SoftLinkMaker.createSymbolicLink(orgData, incoming);
+
+        final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
+        final DataSetInformation dataSetInformation = createDataSetInformation();
+        dataSetInformation.setSample(baseSample);
+
+        storeData(storageProcessor, new File(incoming, orgData.getName()), dataSetInformation);
+        File datasetOriginalDir = new File(getStoreDir(), "data/original/" + orgData.getName());
+        assertTrue("link to original file has not been created", datasetOriginalDir.isFile());
+        String orgDataAbsPath = orgData.getAbsolutePath();
+        String datasetOriginalDirReference = datasetOriginalDir.getCanonicalPath();
+        assertEquals("link to original file does not point to the original data " + orgDataAbsPath
+                + ", but to " + datasetOriginalDirReference, datasetOriginalDirReference,
+                orgDataAbsPath);
+    }
+
     @DataProvider(name = "formatProvider")
     public Object[][] getFormats()
     {
@@ -349,15 +391,12 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         final File incomingDataSetDirectory = createOriginalDataInDir();
         assertEquals(true, incomingDataSetDirectory.exists());
         final ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample baseSample = createSample();
-        final Experiment baseExperiment = baseSample.getExperiment();
         final DataSetInformation dataSetInformation = createDataSetInformation();
         dataSetInformation.setSample(baseSample);
         prepareMailClient(format);
         final File dataFile =
-                storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
-                        incomingDataSetDirectory, new File(workingDirectory, STORE_ROOT_DIR));
-        assertEquals(new File(workingDirectory, STORE_ROOT_DIR).getAbsolutePath(), dataFile
-                .getAbsolutePath());
+                storeData(storageProcessor, incomingDataSetDirectory, dataSetInformation);
+        assertEquals(getStoreDir().getAbsolutePath(), dataFile.getAbsolutePath());
         final IDataStructure dataStructure =
                 new DataStructureLoader(workingDirectory).load(STORE_ROOT_DIR, true);
         assertEquals(true, dataStructure instanceof IDataStructureV1_1);
@@ -371,6 +410,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         assertEquals(dataSetInformation.getExperimentIdentifier().getExperimentCode(), eid
                 .getExperimentCode());
         final ExperimentRegistrator registrator = ds.getExperimentRegistrator();
+        final Experiment baseExperiment = baseSample.getExperiment();
         assertEquals(baseExperiment.getRegistrator().getFirstName(), registrator.getFirstName());
         assertEquals(baseExperiment.getRegistrator().getLastName(), registrator.getLastName());
         assertEquals(baseExperiment.getRegistrator().getEmail(), registrator.getEmail());
@@ -396,6 +436,18 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
+    private File storeData(final BDSStorageProcessor storageProcessor,
+            final File incomingDataSetDirectory, final DataSetInformation dataSetInformation)
+    {
+        return storageProcessor.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
+                incomingDataSetDirectory, getStoreDir());
+    }
+
+    private File getStoreDir()
+    {
+        return new File(workingDirectory, STORE_ROOT_DIR);
+    }
+
     @Test(dataProvider = "formatProvider")
     public final void testUnstoreData(final Format format) throws Exception
     {
@@ -410,7 +462,7 @@ public final class BDSStorageProcessorTest extends AbstractFileSystemTestCase
         dataSetInformation.setSample(baseSample);
         // NEMO.EXP1==CP001A-3AB in 'workingDirectory'
         prepareMailClient(format);
-        final File storeRootDir = new File(workingDirectory, STORE_ROOT_DIR);
+        final File storeRootDir = getStoreDir();
         final File dataStore =
                 storageAdapter.storeData(dataSetInformation, TYPE_EXTRACTOR, mailClient,
                         incomingDirectoryData, storeRootDir);

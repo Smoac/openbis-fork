@@ -60,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.GroupIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.types.ProcedureTypeCode;
 
 /**
  * @author Franz-Josef Elmer
@@ -219,8 +218,7 @@ public class ExternalDataBOTest extends AbstractBOTest
                     one(externalDataDAO).tryToFindDataSetByCode(PARENT_CODE);
                     will(returnValue(null));
 
-                    one(dataSetTypeDAO).tryToFindDataSetTypeByCode(
-                            ProcedureTypeCode.UNKNOWN.getCode());
+                    one(dataSetTypeDAO).tryToFindDataSetTypeByCode("UNKNOWN");
                     will(returnValue(dataSetTypeUnknown));
 
                     one(externalDataDAO).createDataSet(parentData);

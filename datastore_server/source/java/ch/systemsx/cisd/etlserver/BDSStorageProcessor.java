@@ -162,10 +162,9 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
 
     private void createFormatParameters()
     {
-        final List<String> parameterNames = format.getParameterNames();
         final IFormatParameterFactory formatParameterFactory = format.getFormatParameterFactory();
         formatParameters = new ArrayList<FormatParameter>();
-        for (final String parameterName : parameterNames)
+        for (final String parameterName : format.getMandatoryParameterNames())
         {
             final String value = properties.getProperty(parameterName);
             if (value == null)
@@ -173,16 +172,30 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
                 throw ConfigurationFailureException.fromTemplate(
                         "No value has been defined for parameter '%s'", parameterName);
             }
-            final FormatParameter formatParameter =
-                    formatParameterFactory.createFormatParameter(parameterName, value);
-            if (formatParameter == null)
-            {
-                throw ConfigurationFailureException.fromTemplate(
-                        "Given value '%s' is not understandable for parameter '%s'", value,
-                        parameterName);
-            }
-            formatParameters.add(formatParameter);
+            addFormatParameter(formatParameterFactory, parameterName, value);
         }
+        for (final String parameterName : format.getOptionalParameterNames())
+        {
+            final String value = properties.getProperty(parameterName);
+            if (value != null)
+            {
+                addFormatParameter(formatParameterFactory, parameterName, value);
+            }
+        }
+    }
+
+    private void addFormatParameter(final IFormatParameterFactory formatParameterFactory,
+            final String parameterName, final String value)
+    {
+        final FormatParameter formatParameter =
+                formatParameterFactory.createFormatParameter(parameterName, value);
+        if (formatParameter == null)
+        {
+            throw ConfigurationFailureException.fromTemplate(
+                    "Given value '%s' is not understandable for parameter '%s'", value,
+                    parameterName);
+        }
+        formatParameters.add(formatParameter);
     }
 
     final static Version parseVersion(final String versionString)
@@ -459,7 +472,16 @@ public final class BDSStorageProcessor extends AbstractStorageProcessor implemen
             checkCompleteness(dataSetInformation, incomingDataSetDirectory.getName(), mailClient);
         } else
         {
-            dataStructure.getOriginalData().addFile(incomingDataSetDirectory, null, true);
+            if (imageFormattedData != null && imageFormattedData.isIncomingSymbolicLink())
+            {
+                ILink symbolicLink = NodeFactory.createSymbolicLinkNode(incomingDataSetDirectory);
+                dataStructure.getOriginalData().tryAddLink(symbolicLink.getName(),
+                        symbolicLink.getReference());
+
+            } else
+            {
+                dataStructure.getOriginalData().addFile(incomingDataSetDirectory, null, true);
+            }
             if (operationLog.isInfoEnabled())
             {
                 operationLog.info(String.format("File '%s' added to original data.",

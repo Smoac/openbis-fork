@@ -136,6 +136,11 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
             return displayMode;
         }
 
+        public boolean isMergeAllChannels()
+        {
+            return mergeAllChannels;
+        }
+
         public List<String> getImagePaths()
         {
             List<String> paths = new ArrayList<String>();
