@@ -723,7 +723,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(invocationCount = 10, successPercentage = 10, sequential = true)
     public void testCanceling() throws IOException
     {
         final File fileOnClient = new File(CLIENT_FOLDER, LARGE_FILE);
