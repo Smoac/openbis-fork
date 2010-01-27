@@ -33,14 +33,15 @@ public class DataSetUtilsTest extends AssertJUnit
     {
         return new Object[][]
             {
-                        { DataSetUtils.REGEXP_PREFIX + "file_.+\\.*",
-                                DataSetUtils.REGEXP_PREFIX + "file_.+\\.*" },
-                        { "file$^.|(1){2}<3>+", "file\\$\\^\\.\\|\\(1\\)\\{2\\}\\<3\\>\\+" },
-                        { "dir\\file", "dir\\\\file" },
-                        { "file.*", "file\\..*" },
-                        { "file.?", "file\\.." },
-                        { "*.tsv", ".*\\.tsv" },
-                        { "file[0-9].txt", "file[0-9]\\.txt" },
+                { DataSetUtils.REGEXP_PREFIX + "file_.+\\.*", "file_.+\\.*" },
+                { "file$^.|(1){2}<3>+", "file\\$\\^\\.\\|\\(1\\)\\{2\\}\\<3\\>\\+" },
+                { "dir\\file", "dir\\\\file" },
+                { "file.*", "file\\..*" },
+                { "file.?", "file\\.." },
+                { "*.tsv", ".*\\.tsv" },
+                { "file[0-9].txt", "file[0-9]\\.txt" },
+                { "*.", ".*\\." },
+                { ".*", "\\..*" }
 
             };
     }

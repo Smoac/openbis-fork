@@ -94,6 +94,9 @@ public class DataSetUtils
             result = StringUtils.escape(result, REGEXP_METACHARACTERS_TO_ESCAPE);
             result = result.replace("*", ".*");
             result = result.replace("?", ".");
+        } else
+        {
+            result = result.substring(REGEXP_PREFIX.length());
         }
         return result;
     }
