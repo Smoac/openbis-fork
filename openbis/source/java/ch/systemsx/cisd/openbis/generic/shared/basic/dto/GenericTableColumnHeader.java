@@ -29,7 +29,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
  * <li>a code which has to be unique among all other headers,
  * <li>a data type
  * </ul>
- * The header title is optional. If not specified the code will be the title. Usually it will be
+ * The header title is optional. If not specified <code>null</code> is returned. Usually it will be
  * set in the client code by using a translation mechanism (like {@link IMessageProvider}).
  *
  * @author Franz-Josef Elmer
@@ -72,7 +72,7 @@ public class GenericTableColumnHeader implements Serializable, IsSerializable
 
     public String getTitle()
     {
-        return title == null ? code : title;
+        return title;
     }
 
     public void setTitle(String title)
