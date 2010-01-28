@@ -58,7 +58,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private final PluginTaskProviders pluginTaskParameters;
 
     private String cifexAdminUserOrNull;
-    
+
     private String cifexAdminPasswordOrNull;
 
     private File storeRoot;
@@ -66,7 +66,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private File commandQueueDirOrNull;
 
     private IDataSetCommandExecutor commandExecuter;
-    
+
     public DataStoreService(SessionTokenManager sessionTokenManager,
             MailClientParameters mailClientParameters, PluginTaskProviders pluginTaskParameters)
     {
@@ -194,9 +194,10 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         ICIFEXComponent cifex = serviceFactory.createCIFEXComponent();
         String userID = context.getUserID();
         String password = context.getPassword();
-        if (cifex.login(userID, password) == null)
+        if (UploadingCommand.canLoginToCIFEX(cifex, context.isUserAuthenticated(), userID,
+                password, cifexAdminUserOrNull, cifexAdminPasswordOrNull) == false)
         {
-            throw new InvalidSessionException("User couldn't be authenticated at CIFEX.");
+            throw new InvalidSessionException("User failed to be authenticated by CIFEX.");
         }
         commandExecuter.scheduleUploadingDataSetsToCIFEX(serviceFactory, mailClientParameters,
                 dataSets, context, cifexAdminUserOrNull, cifexAdminPasswordOrNull);

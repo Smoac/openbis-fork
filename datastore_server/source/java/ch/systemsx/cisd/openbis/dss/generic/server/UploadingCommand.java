@@ -327,16 +327,51 @@ class UploadingCommand implements IDataSetCommand
 
     private String getCIFEXSession(ICIFEXComponent cifex)
     {
+        return getCIFEXSession(cifex, userAuthenticated, userID, password, cifexAdminUserOrNull,
+                cifexAdminPasswordOrNull);
+    }
+
+    private static String getCIFEXSession(ICIFEXComponent cifex, boolean userAuthenticated,
+            String userID, String password, String cifexAdminUserOrNull,
+            String cifexAdminPasswordOrNull)
+    {
         if (userAuthenticated && StringUtils.isBlank(password)
                 && StringUtils.isNotBlank(cifexAdminUserOrNull)
                 && StringUtils.isNotBlank(cifexAdminPasswordOrNull))
         {
             final String token = cifex.login(cifexAdminUserOrNull, cifexAdminPasswordOrNull);
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(String.format(
+                        "Calling setSessionUser() on CIFEX session to userID=%s", userID));
+            }
             cifex.setSessionUser(token, userID);
             return token;
         } else
         {
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug(String.format("Directly logging into CIFEX as userID=%s "
+                        + "(user authenticated=%s, password provided=%s", userID,
+                        userAuthenticated, StringUtils.isNotBlank(password)));
+            }
             return cifex.login(userID, password);
+        }
+    }
+
+    static boolean canLoginToCIFEX(ICIFEXComponent cifex, boolean userAuthenticated, String userID,
+            String password, String cifexAdminUserOrNull, String cifexAdminPasswordOrNull)
+    {
+        final String tokenOrNull =
+                getCIFEXSession(cifex, userAuthenticated, userID, password, cifexAdminUserOrNull,
+                        cifexAdminPasswordOrNull);
+        if (tokenOrNull != null)
+        {
+            cifex.logout(tokenOrNull);
+            return true;
+        } else
+        {
+            return false;
         }
     }
 
