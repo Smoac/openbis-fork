@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -45,6 +46,13 @@ public class ScreeningClient extends Client
             final IViewContext<ICommonClientServiceAsync> commonContext)
     {
         return new ClientPluginFactoryProvider(commonContext);
+    }
+
+    @Override
+    protected IClientServiceAsync getServiceForRetrievingApplicationInfo(
+            IViewContext<ICommonClientServiceAsync> context)
+    {
+        return new ScreeningViewContext(context).getService();
     }
 
 }

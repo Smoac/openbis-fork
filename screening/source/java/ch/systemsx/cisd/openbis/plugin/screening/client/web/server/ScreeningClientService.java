@@ -38,6 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
@@ -82,6 +83,12 @@ public final class ScreeningClientService extends AbstractClientService implemen
     //
     // IScreeningClientService
     //
+
+    @Override
+    protected String getVersion()
+    {
+        return BuildAndEnvironmentInfo.INSTANCE.getFullVersion();
+    }
 
     public final SampleParentWithDerived getSampleGenerationInfo(final TechId sampleId)
             throws UserFailureException
