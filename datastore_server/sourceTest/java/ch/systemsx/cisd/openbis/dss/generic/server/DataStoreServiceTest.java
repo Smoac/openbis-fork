@@ -245,7 +245,7 @@ public class DataStoreServiceTest extends AssertJUnit
             fail("InvalidSessionException expected");
         } catch (InvalidSessionException e)
         {
-            assertEquals("User couldn't be authenticated at CIFEX.", e.getMessage());
+            assertEquals("User failed to be authenticated by CIFEX.", e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -267,6 +267,7 @@ public class DataStoreServiceTest extends AssertJUnit
 
                     one(cifex).login(uploadContext.getUserID(), uploadContext.getPassword());
                     will(returnValue("token"));
+                    one(cifex).logout("token");
 
                     one(commandExecutor).scheduleUploadingDataSetsToCIFEX(cifexServiceFactory,
                             mailClientParameters, dataSets, uploadContext, null, null);
