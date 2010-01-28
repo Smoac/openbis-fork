@@ -73,7 +73,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
 
     private static final String THUMBNAIL_MODE_DISPLAY = "thumbnail";
 
-    static final String SESSION_ID_PARAM = "sessionID";
+    protected static final String SESSION_ID_PARAM = "sessionID";
 
     static final String DISPLAY_MODE_PARAM = "mode";
 
