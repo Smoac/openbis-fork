@@ -50,11 +50,11 @@ public class EditingTestSuite extends GWTTestSuite
         // (NS_ERROR_DOM_SECURITY_ERR): Security error on CC
         // testSuite.addTestSuite(GenericExperimentRegistrationTest.class);
 
-        testSuite.addTestSuite(GenericExperimentEditorTest.class);
         testSuite.addTestSuite(EntityTypePropertyTypeAssignmentTest.class);
         testSuite.addTestSuite(VocabularyRegistrationTest.class);
         testSuite.addTestSuite(PropertyTypeRegistrationTest.class);
         testSuite.addTestSuite(ProjectRegistrationTest.class);
+        testSuite.addTestSuite(GenericExperimentEditorTest.class);
         return testSuite;
     }
 }
