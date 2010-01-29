@@ -252,6 +252,14 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         contentPanel.setBottomComponent(bottomToolbars);
         contentPanel.setHeaderVisible(showHeader);
         contentPanel.setAutoWidth(true);
+        filterToolbar.addListener(Events.AfterLayout, new Listener<BaseEvent>()
+            {
+                public void handleEvent(BaseEvent be)
+                {
+                    // fixes problem of hidden paging toolbar
+                    contentPanel.syncSize();
+                }
+            });
         columnListener = new ColumnListener<T, M>(grid);
         registerLinkClickListenerFor(Dict.CODE, new ICellListener<T>()
             {

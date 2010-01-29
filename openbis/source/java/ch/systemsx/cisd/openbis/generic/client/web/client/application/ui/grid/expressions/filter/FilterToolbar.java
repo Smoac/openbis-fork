@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -14,10 +13,10 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.button.ButtonGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TriggerField;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.Widget;
@@ -58,7 +57,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     // stores the state of column filters, even if custom filter is currently used
     private final List<IColumnFilterWidget<T>> columnFilters;
 
-    private final LayoutContainer filterContainer;
+    private final ContentPanel filterContainer;
 
     private final FilterSelectionWidget filterSelectionWidget;
 
@@ -79,8 +78,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         add(new LabelToolItem(messageProvider.getMessage(Dict.FILTER) + ": "));
         filterSelectionWidget =
                 new FilterSelectionWidget(viewContext, gridId, displayTypeIDProvider);
-        filterContainer = new LayoutContainer(new FillLayout(Orientation.HORIZONTAL));
-        filterContainer.setLayoutOnChange(true); // fixes jumping filter fields in firefox
+        filterContainer = new ButtonGroup(6); // 6 filter fields fit into browser with 1024px width
         add(filterSelectionWidget);
         add(filterContainer);
         applyTool = new TextToolItem(messageProvider.getMessage(Dict.APPLY_FILTER));
@@ -239,7 +237,8 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     // copes well with cases when one filter widget changes into another.
     private void updateFilterContainer(List<Widget> filterWidgets)
     {
-
+        boolean changed = false;
+        filterContainer.disableEvents(true);
         for (int i = 0; i < filterWidgets.size(); i++)
         {
             Widget filterWidget = filterWidgets.get(i);
@@ -250,15 +249,24 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
                 {
                     filterContainer.remove(previousItem);
                     filterContainer.insert(filterWidget, i);
+                    changed = true;
                 }
             } else
             {
                 filterContainer.add(filterWidget);
+                changed = true;
             }
         }
         for (int i = filterWidgets.size(); i < filterContainer.getItemCount(); i++)
         {
             filterContainer.remove(filterContainer.getItem(i));
+            changed = true;
+        }
+        filterContainer.enableEvents(true);
+        if (changed)
+        {
+            // contentPanel of AbstractBrowserGrid is listening on this layout and synchronizes size
+            layout();
         }
     }
 
@@ -513,4 +521,5 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         }
         return filteredColumnsIds;
     }
+
 }
