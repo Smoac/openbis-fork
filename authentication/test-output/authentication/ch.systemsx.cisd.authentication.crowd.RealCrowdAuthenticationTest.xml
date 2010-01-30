@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="ch.systemsx.cisd.authentication.crowd.RealCrowdAuthenticationTest" failures="0" tests="1" time="0.868" errors="0">
-  <properties/>
-  <testcase name="testCrowdTestAccount" time="0.818" classname="ch.systemsx.cisd.authentication.crowd.RealCrowdAuthenticationTest"/>
-</testsuite>
