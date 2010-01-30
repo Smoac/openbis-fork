@@ -285,7 +285,7 @@ public class ConcurrencyUtilitiesTest
                     }
                 });
             final ExecutionResult<String> result =
-                    ConcurrencyUtilities.getResult(future, 50L, true, logSettings, sensor);
+                    ConcurrencyUtilities.getResult(future, 50L, true, logSettings, null, sensor);
             assertEquals(ExecutionStatus.COMPLETE, result.getStatus());
             assertEquals(msg, result.tryGetResult());
             assertNull(result.tryGetException());

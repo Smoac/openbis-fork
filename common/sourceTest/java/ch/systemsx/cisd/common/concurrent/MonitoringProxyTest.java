@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import org.testng.annotations.AfterClass;
@@ -37,6 +38,7 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.TimingParameters;
+import ch.systemsx.cisd.common.concurrent.MonitoringProxy.IMonitorCommunicator;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.test.Retry10;
@@ -94,6 +96,8 @@ public class MonitoringProxyTest
 
         void busyUpdatingActivity();
 
+        void busyUpdatingActivity(IMonitorCommunicator communicator);
+
         String getString(boolean hang);
 
         boolean getBoolean(boolean hang);
@@ -108,7 +112,14 @@ public class MonitoringProxyTest
 
         void worksOnSecondInvocation() throws RetryItException;
 
+        void resetInvocationsCancelled();
+
+        int getInvocationsCancelled();
+
+        void worksOnSecondInvocation(IMonitorCommunicator communicator) throws RetryItException;
+
         void worksOnThirdInvocation() throws RetryItException;
+
     }
 
     private final static Pattern THREAD_NAME_PATTERN =
@@ -155,6 +166,22 @@ public class MonitoringProxyTest
             while (System.currentTimeMillis() - start < timeToHangMillis)
             {
                 observer.update();
+            }
+        }
+
+        public void busyUpdatingActivity(IMonitorCommunicator communicator)
+        {
+            checkThreadName();
+            threadToStop = Thread.currentThread();
+            final long timeToHangMillis = (long) (TIMEOUT_MILLIS * 1.5);
+            final long start = System.currentTimeMillis();
+            while (System.currentTimeMillis() - start < timeToHangMillis)
+            {
+                if (communicator.isCancelled())
+                {
+                    return;
+                }
+                communicator.update();
             }
         }
 
@@ -212,10 +239,43 @@ public class MonitoringProxyTest
 
         int invocationCount2 = 0;
 
+        AtomicInteger invocationsCancelled = new AtomicInteger();
+
+        public int getInvocationsCancelled()
+        {
+            return invocationsCancelled.get();
+        }
+
+        public void resetInvocationsCancelled()
+        {
+            invocationsCancelled.set(0);
+        }
+
+        public void worksOnSecondInvocation(IMonitorCommunicator communicator)
+                throws RetryItException
+        {
+            checkThreadName();
+            if (++invocationCount2 < 2)
+            {
+                try
+                {
+                    ConcurrencyUtilities.sleep(TIMEOUT_MILLIS * 3);
+                } finally
+                {
+                    if (communicator.isCancelled())
+                    {
+                        invocationsCancelled.incrementAndGet();
+                    }
+                }
+            }
+        }
+
+        int invocationCount3 = 0;
+
         public void worksOnThirdInvocation() throws RetryItException
         {
             checkThreadName();
-            if (++invocationCount2 < 3)
+            if (++invocationCount3 < 3)
             {
                 throw new RetryItException();
             }
@@ -224,7 +284,7 @@ public class MonitoringProxyTest
     }
 
     @BeforeClass
-    public void createMonitoringProxy() throws NoSuchMethodException
+    public void createMonitoringProxies() throws NoSuchMethodException
     {
         final ISimpleLogger logger = new ConsoleLogger();
         observerSensor = new RecordingActivityObserverSensor();
@@ -304,6 +364,12 @@ public class MonitoringProxyTest
     public void testNoTimeoutDueToSensorUpdate()
     {
         exceptionThrowingProxy.busyUpdatingActivity();
+    }
+
+    @Test(groups = "slow")
+    public void testNoTimeoutDueToCommunicatorUpdate()
+    {
+        exceptionThrowingProxy.busyUpdatingActivity(null);
     }
 
     @Test
@@ -434,6 +500,16 @@ public class MonitoringProxyTest
     public void testRetryOnceFailOnce()
     {
         retryingOnceExceptionThrowingProxy.worksOnSecondInvocation();
+    }
+
+    @Test(groups = "slow")
+    public void testRetryOnceFailOnceWithCommunicator()
+    {
+        retryingOnceExceptionThrowingProxy.resetInvocationsCancelled();
+        retryingOnceExceptionThrowingProxy
+                .worksOnSecondInvocation(MonitoringProxy.MONITOR_COMMUNICATOR);
+        ConcurrencyUtilities.sleep(TIMEOUT_MILLIS);
+        assertEquals(1, retryingOnceExceptionThrowingProxy.getInvocationsCancelled());
     }
 
     @Test(expectedExceptions = RetryItException.class, retryAnalyzer = Retry10.class)

@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
@@ -78,13 +80,16 @@ import ch.systemsx.cisd.common.logging.LogLevel;
  *                 .errorTypeValueMapping(String.class, &quot;ERROR&quot;).get();
  * </pre>
  * <p>
- * <i>Note:</i> A MonitoringProxy object can only be used safely from more than one thread if
+ * <strong>Note:</strong> A MonitoringProxy object can only be used safely from more than one thread
+ * if
  * <ol>
  * <li>The proxied object is thread-safe</li>
- * <li>No observer / sensor pattern is used to detect activity (can produce "false negatives" on
- * hanging method calls)</li>
+ * <li>No proxy-wide observer / sensor pattern is used to detect activity (can produce
+ * "false negatives" on hanging method calls), however using a {@link IMonitorCommunicator} is safe.
+ * </li>
  * </ol>
  * 
+ * @see IMonitorCommunicator
  * @author Bernd Rinn
  */
 public class MonitoringProxy<T>
@@ -121,7 +126,8 @@ public class MonitoringProxy<T>
 
     private IActivitySensor sensorOrNull;
 
-    private Set<Thread> currentThreads = Collections.synchronizedSet(new HashSet<Thread>());
+    private Set<MonitorCommunicator> currentOperations =
+            Collections.synchronizedSet(new HashSet<MonitorCommunicator>());
 
     private static class DelegatingInvocationHandler<T> implements InvocationHandler
     {
@@ -268,13 +274,22 @@ public class MonitoringProxy<T>
                 final Object[] args)
         {
             final String callingThreadName = Thread.currentThread().getName();
-            currentThreads.add(Thread.currentThread());
+            final MonitorCommunicator communicator = new MonitorCommunicator();
+            currentOperations.add(communicator);
             try
             {
+                final Class<?>[] types = method.getParameterTypes();
+                if (types.length > 0 && types[types.length - 1] == IMonitorCommunicator.class)
+                {
+                    // Inject communicator into actual arguments
+                    args[args.length - 1] = communicator;
+                }
+
                 final Future<Object> future = executor.submit(new NamedCallable<Object>()
                     {
                         public Object call() throws Exception
                         {
+                            communicator.setMonitoredThread();
                             try
                             {
                                 return delegate.invoke(myProxy, method, args);
@@ -287,6 +302,9 @@ public class MonitoringProxy<T>
                                 {
                                     throw (Exception) th;
                                 }
+                            } finally
+                            {
+                                communicator.clearMonitoredThread();
                             }
                         }
 
@@ -325,11 +343,20 @@ public class MonitoringProxy<T>
                                     }
                                 }
                             };
-                return ConcurrencyUtilities.getResult(future, timingParameters.getTimeoutMillis(),
-                        true, logSettingsOrNull, sensorOrNull);
+                final ExecutionResult<Object> result =
+                        ConcurrencyUtilities.getResult(future, timingParameters.getTimeoutMillis(),
+                                true, logSettingsOrNull,
+                                new ConcurrencyUtilities.ICancellationNotifier()
+                                    {
+                                        public void willCancel()
+                                        {
+                                            communicator.cancel(false);
+                                        }
+                                    }, communicator);
+                return result;
             } finally
             {
-                currentThreads.remove(Thread.currentThread());
+                currentOperations.remove(communicator);
             }
         }
 
@@ -368,6 +395,135 @@ public class MonitoringProxy<T>
                 Proxy.newProxyInstance(interfaceClass.getClassLoader(), interfaceClasses, handler);
         return cast(interfaceClass, proxyInstance);
 
+    }
+
+    /**
+     * A role for communication between the monitor and a monitored method call. The monitored
+     * method will signal activity to the monitor by calling {@link #update()} and learn whether it
+     * has been cancelled by the monitor by calling {@link #isCancelled()}. A
+     * <code>IMonitorCommunicator</code> object is injected into the actual parameters of a method
+     * call by the monitor if and only if the last formal parameter of a proxied method call is of
+     * type <code>IMonitorCommunicator</code>. The actual parameter of the
+     * <code>IMonitorCommunicator</code> provided by the caller is meaningless in this case. The
+     * constant {@link MonitoringProxy#MONITOR_COMMUNICATOR} can be used as a placeholder.
+     * <p>
+     * <em>Example:</em> The interface
+     * 
+     * <pre>
+     * interface IOperationsToBeMonitored
+     * {
+     *     void possiblyHangingAndRetriedOperation(int someArgument, IMonitorCommunicator communicator);
+     * }
+     * </pre>
+     * 
+     * may be implemented as
+     * 
+     * <pre>
+     * public void possiblyHangingAndRetriedOperation(int someArgument, IMonitorCommunicator communicator)
+     * {
+     *     ...
+     *     while (&lt;some condition&gt;)
+     *     {
+     *         if (communicator.isCancelled())
+     *         {
+     *             return;
+     *         }
+     *         communicator.update();
+     *     }
+     *     ...
+     * }
+     * </pre>
+     * 
+     * and called as
+     * 
+     * <pre>
+     * monitoredObject.possiblyHangingAndRetriedOperation(42, MonitoringProxy.MONITOR_COMMUNICATOR);
+     * </pre>
+     * <p>
+     * <strong>Note:</strong> The object is unique to the method call, not even a retried method
+     * call (e.g. in case of timeout) will get the same <code>IMonitorCommunicator</code> object
+     * instance. Thus the injected <code>IMonitorCommunicator</code> is a safe way of communicating
+     * between the {@link MonitoringProxy} and the exact method call.
+     */
+    public interface IMonitorCommunicator extends IActivityObserver
+    {
+        /**
+         * Returns <code>true</code> if the monitor has cancelled execution of the method.
+         */
+        public boolean isCancelled();
+    }
+
+    /**
+     * A placeholder for an {@link IMonitorCommunicator}. To be used in the actual parameter list of
+     * a monitored proxy call as an indication that a {@link IMonitorCommunicator} instance is used
+     * in this method call.
+     */
+    public static final IMonitorCommunicator MONITOR_COMMUNICATOR = new IMonitorCommunicator()
+        {
+            public void update()
+            {
+            }
+
+            public boolean isCancelled()
+            {
+                return false;
+            }
+        };
+
+    private class MonitorCommunicator implements IMonitorCommunicator, IActivitySensor
+    {
+        private final AtomicBoolean cancelled = new AtomicBoolean();
+
+        private final AtomicLong lastActivityAt = new AtomicLong(System.currentTimeMillis());
+
+        private Thread monitoredThreadOrNull;
+
+        synchronized void cancel(boolean interruptThread)
+        {
+            cancelled.set(true);
+            if (monitoredThreadOrNull != null && interruptThread)
+            {
+                monitoredThreadOrNull.interrupt();
+            }
+        }
+
+        synchronized void setMonitoredThread()
+        {
+            monitoredThreadOrNull = Thread.currentThread();
+        }
+
+        synchronized void clearMonitoredThread()
+        {
+            monitoredThreadOrNull = null;
+        }
+
+        public boolean isCancelled()
+        {
+            return cancelled.get();
+        }
+
+        public void update()
+        {
+            lastActivityAt.set(System.currentTimeMillis());
+        }
+
+        public long getLastActivityMillisMoreRecentThan(long thresholdMillis)
+        {
+            return sensorOrNull != null ? Math.max(lastActivityAt.get(), sensorOrNull
+                    .getLastActivityMillisMoreRecentThan(thresholdMillis)) : lastActivityAt.get();
+        }
+
+        public boolean hasActivityMoreRecentThan(long thresholdMillis)
+        {
+            return sensorOrNull != null ? sensorOrNull.hasActivityMoreRecentThan(thresholdMillis)
+                    || primHasActivityMoreRecentThan(thresholdMillis)
+                    : primHasActivityMoreRecentThan(thresholdMillis);
+        }
+
+        private boolean primHasActivityMoreRecentThan(long thresholdMillis)
+        {
+            return (System.currentTimeMillis() - lastActivityAt.get() < thresholdMillis);
+        }
     }
 
     /**
@@ -497,8 +653,17 @@ public class MonitoringProxy<T>
     }
 
     /**
-     * Sets an sensor of fine-grained activity. Activity on this sensor can prevent a method
-     * invocation from timing out.
+     * Sets a sensor for detecting activity during a monitored method call. Activity on this sensor
+     * can prevent the monitored method invocation from timing out.
+     * <p>
+     * <strong>Note:</strong> This sensor is only meant to be used for activity that has to be
+     * detected in the program's execution environment, e.g. recent disk or network activity. If the
+     * activity can be sensed in the monitored method call itself, use the
+     * {@link IMonitorCommunicator} instead. Using the <var>sensor</var> set with this method to
+     * sense activity in the method invocation itself when the invocation may be retried is
+     * inherently unsafe!
+     * 
+     * @see IMonitorCommunicator
      */
     public MonitoringProxy<T> sensor(IActivitySensor sensor)
     {
@@ -519,12 +684,11 @@ public class MonitoringProxy<T>
      */
     public void cancelCurrentOperations()
     {
-        synchronized (currentThreads)
+        synchronized (currentOperations)
         {
-            for (Thread t : currentThreads)
+            for (MonitorCommunicator op : currentOperations)
             {
-                t.interrupt();
-
+                op.cancel(true);
             }
         }
     }

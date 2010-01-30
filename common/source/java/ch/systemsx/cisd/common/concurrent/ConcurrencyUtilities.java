@@ -65,6 +65,18 @@ public final class ConcurrencyUtilities
     }
 
     /**
+     * A role for notifying the caller that a future will be cancelled <em>before</em> it is
+     * actually cancelled.
+     */
+    public interface ICancellationNotifier
+    {
+        /**
+         * Called immediately before the future is cancelled.
+         */
+        void willCancel();
+    }
+
+    /**
      * Tries to get the result of a <var>future</var>, maximally waiting <var>timeoutMillis</var>
      * for the result to become available. Any {@link ExecutionException} that might occur in the
      * future task is unwrapped and re-thrown.
@@ -76,7 +88,8 @@ public final class ConcurrencyUtilities
      *         available within <var>timeoutMillis</var> ms.
      * @throws InterruptedExceptionUnchecked If the thread got interrupted.
      */
-    public static <T> T tryGetResult(Future<T> future, long timeoutMillis) throws InterruptedExceptionUnchecked
+    public static <T> T tryGetResult(Future<T> future, long timeoutMillis)
+            throws InterruptedExceptionUnchecked
     {
         return tryGetResult(future, timeoutMillis, null, true);
     }
@@ -91,8 +104,8 @@ public final class ConcurrencyUtilities
      *            it is smaller than 0, no time-out will apply.
      * @return The result of the future, or <code>null</code>, if the result does not become
      *         available within <var>timeoutMillis</var> ms.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is
-     *             <code>true</code>.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
+     *             <var>stopOnInterrupt</var> is <code>true</code>.
      */
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis, boolean stopOnInterrupt)
             throws InterruptedExceptionUnchecked
@@ -111,16 +124,17 @@ public final class ConcurrencyUtilities
      *            it is smaller than 0, no time-out will apply.
      * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error
      *            conditions should not be logged.
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if the thread gets
-     *            interrupted while waiting on the future.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if
+     *            the thread gets interrupted while waiting on the future.
      * @return The result of the future, or <code>null</code>, if the result does not become
      *         available within <var>timeoutMillis</var> ms or if the waiting thread gets
      *         interrupted.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is
-     *             <code>true</code>.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
+     *             <var>stopOnInterrupt</var> is <code>true</code>.
      */
     public static <T> T tryGetResult(Future<T> future, long timeoutMillis,
-            ILogSettings logSettingsOrNull, boolean stopOnInterrupt) throws InterruptedExceptionUnchecked
+            ILogSettings logSettingsOrNull, boolean stopOnInterrupt)
+            throws InterruptedExceptionUnchecked
     {
         final ExecutionResult<T> result = getResult(future, timeoutMillis, logSettingsOrNull);
         return tryDealWithResult(result, stopOnInterrupt);
@@ -146,13 +160,13 @@ public final class ConcurrencyUtilities
      * with the deviant cases yourself, then call this method to deal with the rest.
      * 
      * @param result A
-     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if the thread gets
-     *            interrupted while waiting on the future.
+     * @param stopOnInterrupt If <code>true</code>, throw a {@link InterruptedExceptionUnchecked} if
+     *            the thread gets interrupted while waiting on the future.
      * @return The value of the <var>result</var> of the future, or <code>null</code>, if the result
      *         status is {@link ExecutionStatus#TIMED_OUT} or {@link ExecutionStatus#INTERRUPTED}
      *         and <var>stopOnInterrupt</var> is <code>false</code>.
-     * @throws InterruptedExceptionUnchecked If the thread got interrupted and <var>stopOnInterrupt</var> is
-     *             <code>true</code>.
+     * @throws InterruptedExceptionUnchecked If the thread got interrupted and
+     *             <var>stopOnInterrupt</var> is <code>true</code>.
      * @throws RuntimeException If the result status is {@link ExecutionStatus#EXCEPTION} and the
      *             exception is derived from {@link RuntimeException}.
      * @throws CheckedExceptionTunnel If the result status is {@link ExecutionStatus#EXCEPTION} and
@@ -195,11 +209,12 @@ public final class ConcurrencyUtilities
      * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
      * are:
      * <ul>
-     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a
-     * result is available, if provided.</li> <li> {@link ExecutionStatus#EXCEPTION}: The execution
-     * has been terminated by an exception.</li> <li> {@link ExecutionStatus#TIMED_OUT}: The
-     * execution timed out.</li> <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the
-     * execution was interrupted (see {@link Thread#interrupt()}).</li>
+     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result
+     * is available, if provided.</li>
+     * <li> {@link ExecutionStatus#EXCEPTION}: The execution has been terminated by an exception.</li>
+     * <li> {@link ExecutionStatus#TIMED_OUT}: The execution timed out.</li>
+     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see
+     * {@link Thread#interrupt()}).</li>
      * </ul>
      * 
      * @param future The future representing the execution to wait for.
@@ -219,11 +234,12 @@ public final class ConcurrencyUtilities
      * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
      * are:
      * <ul>
-     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a
-     * result is available, if provided.</li> <li> {@link ExecutionStatus#EXCEPTION}: The execution
-     * has been terminated by an exception.</li> <li> {@link ExecutionStatus#TIMED_OUT}: The
-     * execution timed out.</li> <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the
-     * execution was interrupted (see {@link Thread#interrupt()}).</li>
+     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result
+     * is available, if provided.</li>
+     * <li> {@link ExecutionStatus#EXCEPTION}: The execution has been terminated by an exception.</li>
+     * <li> {@link ExecutionStatus#TIMED_OUT}: The execution timed out.</li>
+     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see
+     * {@link Thread#interrupt()}).</li>
      * </ul>
      * 
      * @param future The future representing the execution to wait for.
@@ -246,11 +262,12 @@ public final class ConcurrencyUtilities
      * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
      * are:
      * <ul>
-     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a
-     * result is available, if provided.</li> <li> {@link ExecutionStatus#EXCEPTION}: The execution
-     * has been terminated by an exception.</li> <li> {@link ExecutionStatus#TIMED_OUT}: The
-     * execution timed out.</li> <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the
-     * execution was interrupted (see {@link Thread#interrupt()}).</li>
+     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result
+     * is available, if provided.</li>
+     * <li> {@link ExecutionStatus#EXCEPTION}: The execution has been terminated by an exception.</li>
+     * <li> {@link ExecutionStatus#TIMED_OUT}: The execution timed out.</li>
+     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see
+     * {@link Thread#interrupt()}).</li>
      * </ul>
      * 
      * @param future The future representing the execution to wait for.
@@ -266,7 +283,7 @@ public final class ConcurrencyUtilities
     public static <T> ExecutionResult<T> getResult(Future<T> future, long timeoutMillis,
             boolean cancelOnTimeout, ILogSettings logSettingsOrNull)
     {
-        return getResult(future, timeoutMillis, cancelOnTimeout, logSettingsOrNull, null);
+        return getResult(future, timeoutMillis, cancelOnTimeout, logSettingsOrNull, null, null);
     }
 
     private static boolean isActive(IActivitySensor sensorOrNull, long timeoutMillis)
@@ -280,11 +297,12 @@ public final class ConcurrencyUtilities
      * {@link ExecutionResult} that describes the outcome of the execution. The possible outcomes
      * are:
      * <ul>
-     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a
-     * result is available, if provided.</li> <li> {@link ExecutionStatus#EXCEPTION}: The execution
-     * has been terminated by an exception.</li> <li> {@link ExecutionStatus#TIMED_OUT}: The
-     * execution timed out.</li> <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the
-     * execution was interrupted (see {@link Thread#interrupt()}).</li>
+     * <li> {@link ExecutionStatus#COMPLETE}: The execution has been performed correctly and a result
+     * is available, if provided.</li>
+     * <li> {@link ExecutionStatus#EXCEPTION}: The execution has been terminated by an exception.</li>
+     * <li> {@link ExecutionStatus#TIMED_OUT}: The execution timed out.</li>
+     * <li> {@link ExecutionStatus#INTERRUPTED}: The thread of the execution was interrupted (see
+     * {@link Thread#interrupt()}).</li>
      * </ul>
      * 
      * @param future The future representing the execution to wait for.
@@ -294,12 +312,15 @@ public final class ConcurrencyUtilities
      *            time-out.
      * @param logSettingsOrNull The settings for error logging, or <code>null</code>, if error
      *            conditions should not be logged.
+     * @param cancellationNotifierOrNull The notifier for cancellation of the future or
+     *            <code>null</code>
      * @param sensorOrNull A sensor that can prevent the method from timing out by showing activity.
      * @return The {@link ExecutionResult} of the <var>future</var>. May correspond to each one of
      *         the {@link ExecutionStatus} values.
      */
     public static <T> ExecutionResult<T> getResult(Future<T> future, long timeoutMillis,
-            boolean cancelOnTimeout, ILogSettings logSettingsOrNull, IActivitySensor sensorOrNull)
+            boolean cancelOnTimeout, ILogSettings logSettingsOrNull,
+            ICancellationNotifier cancellationNotifierOrNull, IActivitySensor sensorOrNull)
     {
         try
         {
@@ -308,7 +329,8 @@ public final class ConcurrencyUtilities
             {
                 try
                 {
-                    result = ExecutionResult.create(future.get(transform(timeoutMillis),
+                    result =
+                            ExecutionResult.create(future.get(transform(timeoutMillis),
                                     TimeUnit.MILLISECONDS));
                 } catch (TimeoutException ex)
                 {
@@ -319,6 +341,10 @@ public final class ConcurrencyUtilities
             {
                 if (cancelOnTimeout)
                 {
+                    if (cancellationNotifierOrNull != null)
+                    {
+                        cancellationNotifierOrNull.willCancel();
+                    }
                     future.cancel(true);
                 }
                 if (logSettingsOrNull != null)
@@ -336,6 +362,10 @@ public final class ConcurrencyUtilities
             }
         } catch (InterruptedException ex)
         {
+            if (cancellationNotifierOrNull != null)
+            {
+                cancellationNotifierOrNull.willCancel();
+            }
             future.cancel(true);
             if (logSettingsOrNull != null)
             {
@@ -346,6 +376,10 @@ public final class ConcurrencyUtilities
         } catch (InterruptedExceptionUnchecked ex)
         {
             // Happens when Thread.stop(new StopException()) is called.
+            if (cancellationNotifierOrNull != null)
+            {
+                cancellationNotifierOrNull.willCancel();
+            }
             future.cancel(true);
             if (logSettingsOrNull != null)
             {
@@ -355,6 +389,10 @@ public final class ConcurrencyUtilities
             return ExecutionResult.createInterrupted();
         } catch (ThreadDeath ex)
         {
+            if (cancellationNotifierOrNull != null)
+            {
+                cancellationNotifierOrNull.willCancel();
+            }
             future.cancel(true);
             if (logSettingsOrNull != null)
             {
@@ -375,11 +413,18 @@ public final class ConcurrencyUtilities
             final Throwable cause = ex.getCause();
             if (cause instanceof InterruptedExceptionUnchecked)
             {
+                if (cancellationNotifierOrNull != null)
+                {
+                    cancellationNotifierOrNull.willCancel();
+                }
                 future.cancel(true);
                 if (logSettingsOrNull != null)
                 {
-                    logSettingsOrNull.getLogger().log(logSettingsOrNull.getLogLevelForError(),
-                            String.format("%s: interrupted.", logSettingsOrNull.getOperationName()));
+                    logSettingsOrNull.getLogger()
+                            .log(
+                                    logSettingsOrNull.getLogLevelForError(),
+                                    String.format("%s: interrupted.", logSettingsOrNull
+                                            .getOperationName()));
                 }
                 return ExecutionResult.createInterrupted();
             }
@@ -456,8 +501,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Thread#sleep(long)} but throws a {@link InterruptedExceptionUnchecked} on interruption
-     * rather than a {@link InterruptedException}.
+     * The same as {@link Thread#sleep(long)} but throws a {@link InterruptedExceptionUnchecked} on
+     * interruption rather than a {@link InterruptedException}.
      */
     public static void sleep(long millis) throws InterruptedExceptionUnchecked
     {
@@ -471,8 +516,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Thread#join()} but throws a {@link InterruptedExceptionUnchecked} on interruption rather
-     * than a {@link InterruptedException}.
+     * The same as {@link Thread#join()} but throws a {@link InterruptedExceptionUnchecked} on
+     * interruption rather than a {@link InterruptedException}.
      */
     public static void join(Thread thread) throws InterruptedExceptionUnchecked
     {
@@ -486,8 +531,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Thread#join(long)} but throws a {@link InterruptedExceptionUnchecked} on interruption
-     * rather than a {@link InterruptedException}.
+     * The same as {@link Thread#join(long)} but throws a {@link InterruptedExceptionUnchecked} on
+     * interruption rather than a {@link InterruptedException}.
      */
     public static void join(Thread thread, long millis) throws InterruptedExceptionUnchecked
     {
@@ -501,8 +546,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Object#wait()} but throws a {@link InterruptedExceptionUnchecked} on interruption rather
-     * than a {@link InterruptedException}.
+     * The same as {@link Object#wait()} but throws a {@link InterruptedExceptionUnchecked} on
+     * interruption rather than a {@link InterruptedException}.
      */
     public static void wait(Object obj) throws InterruptedExceptionUnchecked
     {
@@ -516,8 +561,8 @@ public final class ConcurrencyUtilities
     }
 
     /**
-     * The same as {@link Object#wait(long)} but throws a {@link InterruptedExceptionUnchecked} on interruption
-     * rather than a {@link InterruptedException}.
+     * The same as {@link Object#wait(long)} but throws a {@link InterruptedExceptionUnchecked} on
+     * interruption rather than a {@link InterruptedException}.
      */
     public static void wait(Object obj, long millis) throws InterruptedExceptionUnchecked
     {
