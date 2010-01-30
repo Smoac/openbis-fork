@@ -18,7 +18,6 @@ package ch.systemsx.cisd.cifex.rpc.client.gui;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -86,7 +85,7 @@ public class FileDownloadClientModel extends AbstractTableModel
     {
         static enum STATUS
         {
-            TO_DOWNLOAD, QUEUED, DOWNLOADING, COMPLETED, FAILED
+            TO_DOWNLOAD, QUEUED, DOWNLOADING, COMPLETED, FAILED, STALLED
         }
 
         private final FileInfoDTO fileInfoDTO;
@@ -149,6 +148,7 @@ public class FileDownloadClientModel extends AbstractTableModel
 
         void updateProgress(int percent, long numberOfBytes)
         {
+            setStatus(STATUS.DOWNLOADING);
             int transmittedSinceLastUpdate = (int) (numberOfBytes - numberOfBytesDownloaded);
             percentageDownloaded = percent;
             numberOfBytesDownloaded = numberOfBytes;
@@ -201,9 +201,6 @@ public class FileDownloadClientModel extends AbstractTableModel
             {
                 public void start(File file, long fileSize, Long fileIdOrNull)
                 {
-                    System.out
-                            .println("DEBUG DownloadTableModel::addProgessListener start download + "
-                                    + file.getName());
                     currentlyDownloadingFile = tryToFindDownloadInfoForFile(fileIdOrNull);
                     if (currentlyDownloadingFile != null)
                     {
@@ -216,17 +213,12 @@ public class FileDownloadClientModel extends AbstractTableModel
                 {
                     if (currentlyDownloadingFile != null)
                     {
-                        System.out
-                                .println("DEBUG DownloadTableModel::reportProgress report progress + "
-                                        + percentage);
-                        currentlyDownloadingFile.setStatus(FileDownloadInfo.STATUS.DOWNLOADING);
                         currentlyDownloadingFile.updateProgress(percentage, numberOfBytes);
                         fireChanged();
                     }
                 }
 
-                public void finished(boolean successful, List<String> warningMessages,
-                        List<Throwable> exceptions)
+                public void finished(boolean successful)
                 {
                     if (currentlyDownloadingFile != null)
                     {
@@ -241,6 +233,15 @@ public class FileDownloadClientModel extends AbstractTableModel
                         }
                         fireChanged();
                     }
+                }
+
+                public void exceptionOccured(Throwable throwable)
+                {
+                }
+
+                public void warningOccured(String warningMessage)
+                {
+                    currentlyDownloadingFile.setStatus(FileDownloadInfo.STATUS.STALLED);
                 }
 
                 private FileDownloadInfo tryToFindDownloadInfoForFile(Long fileIdOrNull)

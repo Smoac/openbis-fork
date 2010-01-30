@@ -69,15 +69,12 @@ public final class RPCServiceFactory
 
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
         {
-            synchronized (service)
+            try
             {
-                try
-                {
-                    return method.invoke(service, args);
-                } catch (InvocationTargetException ex)
-                {
-                    throw ex.getCause();
-                }
+                return method.invoke(service, args);
+            } catch (InvocationTargetException ex)
+            {
+                throw ex.getCause();
             }
         }
     }

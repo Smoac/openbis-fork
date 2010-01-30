@@ -72,6 +72,7 @@ public final class FileItem
 
     public void setNumberOfBytesUploaded(long numberOfBytesUploaded)
     {
+        setStatus(FileItemStatus.UPLOADING);
         int transmittedSinceLastUpdate = (int) (numberOfBytesUploaded - this.numberOfBytesUploaded);
         transmissionSpeedCalculator.noteTransmittedBytesSinceLastUpdate(transmittedSinceLastUpdate);
 

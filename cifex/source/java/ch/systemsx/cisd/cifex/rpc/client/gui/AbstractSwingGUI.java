@@ -18,14 +18,17 @@ package ch.systemsx.cisd.cifex.rpc.client.gui;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.apache.commons.lang.WordUtils;
 import org.springframework.remoting.RemoteAccessException;
 
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXComponent;
@@ -40,6 +43,8 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
  */
 public abstract class AbstractSwingGUI
 {
+    private static final int MESSAGE_WRAP_MAX_CHAR = 100;
+
     /**
      * The interface for communicating with CIFEX
      */
@@ -154,6 +159,75 @@ public abstract class AbstractSwingGUI
     protected abstract String getTitle();
 
     protected abstract boolean cancel();
+
+    /**
+     * Creates a error log listener who doesn't block when logging warnings and exceptions.
+     */
+    protected IProgressListener createErrorLogListener()
+    {
+        return new IProgressListener()
+            {
+                private String lastExceptionMessage;
+
+                public void exceptionOccured(Throwable throwable)
+                {
+                    final String message;
+                    if (throwable instanceof UserFailureException)
+                    {
+                        message = throwable.getMessage();
+                    } else
+                    {
+                        message = "ERROR: " + throwable;
+                    }
+                    if (message.equals(lastExceptionMessage) == false)
+                    {
+                        lastExceptionMessage = message;
+                        SwingUtilities.invokeLater(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    JOptionPane.showMessageDialog(getWindowFrame(), WordUtils.wrap(
+                                            message, MESSAGE_WRAP_MAX_CHAR), "Error",
+                                            JOptionPane.ERROR_MESSAGE);
+                                }
+                            });
+                    }
+                }
+
+                private String lastWarningMessage;
+
+                public void warningOccured(final String warningMessage)
+                {
+                    if (warningMessage.equals(lastWarningMessage) == false)
+                    {
+                        lastWarningMessage = warningMessage;
+                        SwingUtilities.invokeLater(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    JOptionPane.showMessageDialog(getWindowFrame(), WordUtils.wrap(
+                                            warningMessage, 100), "Warning",
+                                            JOptionPane.WARNING_MESSAGE);
+                                }
+                            });
+                    }
+                }
+
+                public void finished(boolean successful)
+                {
+                }
+
+                public void reportProgress(int percentage, long numberOfBytes)
+                {
+                    lastWarningMessage = null;
+                    lastExceptionMessage = null;
+                }
+
+                public void start(File file, long fileSize, Long fileIdOrNull)
+                {
+                }
+            };
+    }
 
     protected static void setLookAndFeelToMetal()
     {

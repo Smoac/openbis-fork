@@ -18,7 +18,6 @@ package ch.systemsx.cisd.cifex.rpc.client.cli;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import jline.ConsoleReader;
 
@@ -161,21 +160,20 @@ abstract class AbstractCommand implements ICommand
                     }
                 }
 
-                public void finished(boolean successful, List<String> warningMessages,
-                        List<Throwable> exceptions)
+                public void finished(boolean successful)
                 {
-                    logWarnings(warningMessages);
-                    // Reporting of exceptions handled in CIFEXClient
                     size = 0L;
                 }
 
-                private void logWarnings(List<String> warningMessages)
+                public void warningOccured(String warningMessage)
                 {
-                    for (String warningMessage : warningMessages)
-                    {
-                        System.out.println();
-                        System.err.println(warningMessage);
-                    }
+                    System.out.println();
+                    System.err.println(warningMessage);
+                }
+
+                public void exceptionOccured(Throwable throwable)
+                {
+                    // Reporting handled in CIFEXClient
                 }
             });
     }

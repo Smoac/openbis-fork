@@ -140,8 +140,31 @@ public class FileUploadClient extends AbstractSwingGUI
 
     private void addProgressListener()
     {
-        uploader.addProgressListener(new IUploadProgressListener()
+        uploader.addProgressListener(createErrorLogListener());
+        uploader.addProgressListener(createFinishLogListenerWhoExitsProgram());
+    }
+
+    private IProgressListener createFinishLogListenerWhoExitsProgram()
+    {
+        return new IProgressListener()
             {
+                public void finished(boolean successful)
+                {
+                    setEnableStateOfButtons(true);
+                    if (successful)
+                    {
+                        JOptionPane.showMessageDialog(getWindowFrame(),
+                                "Uploading finished. Please refresh CIFEX in your Web browser.");
+                        System.exit(0);
+                    } else
+                    {
+                        JOptionPane.showMessageDialog(getWindowFrame(),
+                                "Operation did not complete successfully. "
+                                        + "Check the status in the CIFEX Web GUI "
+                                        + "(Uploaded Files > Edit Sharing)");
+                    }
+                }
+
                 public void start(File file, long fileSize, Long fileIdOrNull)
                 {
                 }
@@ -150,39 +173,14 @@ public class FileUploadClient extends AbstractSwingGUI
                 {
                 }
 
-                public void finished(boolean successful, List<String> warningMessages,
-                        List<Throwable> exceptions)
-                {
-                    setEnableStateOfButtons(true);
-                    showErrorsAndWarningsIfAny(getWindowFrame(), getFinishedMessage(successful),
-                            warningMessages, exceptions);
-                    if (successful)
-                    {
-                        System.exit(0);
-                    }
-                }
-
-                private String getFinishedMessage(boolean successful)
-                {
-                    if (successful)
-                    {
-                        return "Uploading finished. Please refresh CIFEX in your Web browser.";
-                    } else
-                    {
-                        return "Operation did not complete successfully. "
-                                + "Check the status in the CIFEX Web GUI (Uploaded Files > Edit Sharing)";
-                    }
-                }
-
-                public void fileUploaded()
+                public void exceptionOccured(Throwable throwable)
                 {
                 }
 
-                public void reset()
+                public void warningOccured(String warningMessage)
                 {
                 }
-
-            });
+            };
     }
 
     void show()

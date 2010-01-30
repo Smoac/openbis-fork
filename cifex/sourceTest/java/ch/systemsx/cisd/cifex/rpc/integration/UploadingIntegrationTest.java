@@ -23,11 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 import java.util.zip.CRC32;
 
@@ -48,7 +46,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.client.CIFEXComponent;
 import ch.systemsx.cisd.cifex.rpc.client.ICIFEXUploader;
-import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
+import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.cifex.rpc.io.CopyUtils;
 import ch.systemsx.cisd.cifex.rpc.server.CIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.server.SessionManager;
@@ -148,7 +146,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
     private ICIFEXUploader uploader;
 
-    private IUploadProgressListener listener;
+    private IProgressListener listener;
 
     private IDomainModel domainModel;
 
@@ -186,7 +184,7 @@ public class UploadingIntegrationTest extends AssertJUnit
         user.setUserCode("Isaac");
         sessionID = uploadService.createSession(user, TEST_URL);
         uploader = new CIFEXComponent(uploadService).createUploader(sessionID);
-        listener = context.mock(IUploadProgressListener.class);
+        listener = context.mock(IProgressListener.class);
         uploader.addProgressListener(listener);
 
         FileUtilities.deleteRecursively(PLAYGROUND);
@@ -293,9 +291,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(listener).reportProgress(0, 0);
                     one(listener).reportProgress(100, SMALL_FILE_SIZE * 1024L);
-                    one(listener).fileUploaded();
                     finishedSuccessful(this);
-                    one(listener).reset();
                 }
             });
 
@@ -307,7 +303,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
     private void finishedSuccessful(Expectations exp)
     {
-        exp.one(listener).finished(true, new ArrayList<String>(), new ArrayList<Throwable>());
+        exp.one(listener).finished(true);
 
     }
 
@@ -438,9 +434,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                 {
                     one(listener).reportProgress(0, 0L);
                     one(listener).reportProgress(100, LARGE_FILE_INFO.getFileSize());
-                    one(listener).fileUploaded();
                     finishedSuccessful(this);
-                    one(listener).reset();
                 }
             });
     }
@@ -452,9 +446,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                 {
                     one(listener).reportProgress(12, 2 * BLOCK_SIZE);
                     one(listener).reportProgress(100, LARGE_FILE_INFO.getFileSize());
-                    one(listener).fileUploaded();
                     finishedSuccessful(this);
-                    one(listener).reset();
                 }
             });
     }
@@ -566,7 +558,6 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(listener).reportProgress(0, 0);
                     one(listener).reportProgress(100, SMALL_FILE_SIZE * 1024L);
-                    one(listener).fileUploaded();
 
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), SMALL_FILE,
                             SMALL_FILE_SIZE * 1024L);
@@ -621,7 +612,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                     one(listener).start(fileOnClient, SMALL_FILE_SIZE * 1024L, null);
                     one(listener).reportProgress(0, 0L);
                     one(listener).reportProgress(100, SMALL_FILE_SIZE * 1024L);
-                    one(listener).fileUploaded();
 
                     one(fileManager).saveFile(with(equal(user)), with(equal(SMALL_FILE)),
                             with(equal(COMMENT)), with(any(String.class)),
@@ -637,29 +627,18 @@ public class UploadingIntegrationTest extends AssertJUnit
                             with(singleFileDTO(fileDTO)), with(equal(COMMENT)));
                     will(returnValue(Collections.singletonList("id:unknown")));
 
-                    one(listener).finished(with(false), with(new ArrayList<String>()),
-                            with(new BaseMatcher<List<Throwable>>()
-                                {
-                                    public void describeTo(Description description)
-                                    {
-                                    }
-
-                                    public boolean matches(Object item)
-                                    {
-                                        if (item instanceof List<?>)
-                                        {
-                                            UserFailureException e =
-                                                    (UserFailureException) ((List<?>) item).get(0);
-                                            return e.getMessage().contains("unknown");
-                                        }
-                                        return false;
-                                    }
-                                }));
-                    one(listener).reset();
+                    one(listener).exceptionOccured(with(any(UserFailureException.class)));
+                    one(listener).finished(false);
                 }
             });
 
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+        try
+        {
+            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+        } catch (UserFailureException e)
+        {
+            assertEquals("Some user identifiers are invalid: [id:unknown]", e.getMessage());
+        }
 
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
@@ -667,9 +646,7 @@ public class UploadingIntegrationTest extends AssertJUnit
 
     private void prepareFailure(Expectations exp)
     {
-        List<String> emptyWarnings = Collections.emptyList();
-        List<Throwable> emptyExceptions = Collections.emptyList();
-        exp.one(listener).finished(false, emptyWarnings, emptyExceptions);
+        exp.one(listener).finished(false);
     }
 
     @Test
@@ -708,16 +685,19 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(listener).reportProgress(0, 0);
                     one(listener).reportProgress(100, SMALL_FILE_SIZE * 1024L);
-                    one(listener).fileUploaded();
 
-                    List<String> emptyWarnings = Collections.emptyList();
-                    one(listener).finished(false, emptyWarnings, Arrays.asList(exception));
-
-                    one(listener).reset();
+                    one(listener).exceptionOccured(with(any(RuntimeException.class)));
+                    one(listener).finished(false);
                 }
             });
 
-        uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+        try
+        {
+            uploader.upload(Arrays.asList(fileOnClient), "Albert\nGalileo", COMMENT);
+        } catch (RuntimeException ex)
+        {
+            assertEquals("Oops!", ex.getMessage());
+        }
 
         assertEqualContent(fileOnClient, fileInFileStore);
         context.assertIsSatisfied();
@@ -782,7 +762,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                         });
                     atMost(1).of(userActionLog).logUploadFile(LARGE_FILE, false);
                     prepareFailure(this);
-                    one(listener).reset();
                 }
             });
 
@@ -826,7 +805,6 @@ public class UploadingIntegrationTest extends AssertJUnit
 
                     one(listener).reportProgress(0, 0);
                     one(listener).reportProgress(100, SMALL_FILE_SIZE * 1024L);
-                    one(listener).fileUploaded();
 
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
@@ -847,7 +825,6 @@ public class UploadingIntegrationTest extends AssertJUnit
                             }
                         });
                     prepareFailure(this);
-                    one(listener).reset();
 
                     one(fileManager).tryGetUploadResumeCandidate(user.getID(), LARGE_FILE,
                             LARGE_FILE_SIZE * 1024L);
@@ -858,9 +835,7 @@ public class UploadingIntegrationTest extends AssertJUnit
                             with(equal(LARGE_FILE_SIZE * 1024L)), with(any(InputStream.class)));
                     will(new CopyFileAction(fileInFileStore2, fileDTO2, false));
                     allowing(listener).reportProgress(with(any(int.class)), with(any(long.class)));
-                    allowing(listener).fileUploaded();
                     finishedSuccessful(this);
-                    allowing(listener).reset();
                 }
             });
 

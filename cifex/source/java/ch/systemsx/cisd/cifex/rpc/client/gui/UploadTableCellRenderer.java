@@ -48,24 +48,32 @@ final class UploadTableCellRenderer implements TableCellRenderer
                 case NOT_STARTED:
                     return renderText("");
                 case UPLOADING:
-                    return renderProgressBar(fileItem);
+                    return renderProgressBar(fileItem, false);
                 case FINISHED:
                     return renderText("Sucessfully uploaded");
                 case ABORTED:
                     return renderText("Uploading aborted");
+                case STALLED:
+                    return renderProgressBar(fileItem, true);
             }
         }
         return renderText(String.valueOf(value));
     }
 
-    private Component renderProgressBar(FileItem fileItem)
+    private Component renderProgressBar(FileItem fileItem, boolean stalled)
     {
         long percentage =
                 100 * fileItem.getNumberOfBytesUploaded() / Math.max(1, fileItem.getLength());
         progressBar.setValue((int) percentage);
         progressBar.setStringPainted(true);
-        String eta = DateTimeUtils.renderDuration(fileItem.getEstimatedTimeOfArrival());
-        progressBar.setString(percentage + "% (remaining: " + eta + ")");
+        if (stalled)
+        {
+            progressBar.setString(percentage + "% (stalled)");
+        } else
+        {
+            final String eta = DateTimeUtils.renderDuration(fileItem.getEstimatedTimeOfArrival());
+            progressBar.setString(percentage + "% (remaining: " + eta + ")");
+        }
         return progressBar;
     }
 

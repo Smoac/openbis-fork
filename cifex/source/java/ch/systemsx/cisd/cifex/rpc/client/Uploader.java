@@ -26,11 +26,11 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.springframework.remoting.RemoteAccessException;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.FilePreregistrationDTO;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
-import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.ChecksumHandling;
 import ch.systemsx.cisd.cifex.rpc.io.ResumingAndChecksummingInputStream.IWriteProgressListener;
@@ -48,9 +48,12 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 public final class Uploader extends AbstractUploadDownload implements ICIFEXUploader
 {
 
-    private static interface IFileUploader
+    private interface IFileUploader
     {
-        boolean uploadFile(File file, String comment, Set<Long> fileIds) throws IOException;
+        boolean uploadFile(File file, String comment, Set<Long> fileIds,
+                MonitoringProxy.IMonitorCommunicator communicator) throws IOException;
+
+        void shareFiles(List<Long> fileIds, String recipientsOrNull);
     }
 
     private final MonitoringProxy<IFileUploader> proxyForOperation;
@@ -78,61 +81,31 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         IFileUploader rawFileUploader = new IFileUploader()
             {
                 // This method can return false only if error occurred
-                public boolean uploadFile(File file, String comment, Set<Long> fileIds)
-                        throws IOException
+                public boolean uploadFile(File file, String comment, Set<Long> fileIds,
+                        MonitoringProxy.IMonitorCommunicator communicator) throws IOException
                 {
-                    doUploadFile(file, comment, fileIds);
+                    doUploadFile(file, comment, fileIds, communicator);
                     return true;
+                }
+
+                public void shareFiles(List<Long> fileIds, String recipientsOrNull)
+                {
+                    service.shareFiles(sessionID, new ArrayList<Long>(fileIds), recipientsOrNull);
                 }
             };
         final InvocationLogger logger = new InvocationLogger(this);
-        return MonitoringProxy.create(IFileUploader.class, rawFileUploader).sensor(
-                getActivitySensor()).exceptionClassSuitableForRetrying(RemoteAccessException.class)
-                .timing(TIMING).errorValueOnInterrupt().errorTypeValueMapping(Boolean.TYPE, false)
-                .invocationLog(logger);
-    }
-
-    /**
-     * Adds a listener for upload events.
-     */
-    public void addProgressListener(final IUploadProgressListener uploadListener)
-    {
-        listeners.add(uploadListener);
+        return MonitoringProxy.create(IFileUploader.class, rawFileUploader)
+                .exceptionClassSuitableForRetrying(RemoteAccessException.class).timing(TIMING)
+                .errorValueOnInterrupt().errorTypeValueMapping(Boolean.TYPE, false).invocationLog(
+                        logger);
     }
 
     /**
      * Adds a listener for progress events.
      */
-    public void addProgressListener(final IProgressListener listener)
+    public void addProgressListener(final IProgressListener uploadListener)
     {
-        listeners.add(new IUploadProgressListener()
-            {
-
-                public void finished(boolean successful, List<String> warningMessages,
-                        List<Throwable> exceptions)
-                {
-                    listener.finished(successful, warningMessages, exceptions);
-                }
-
-                public void reportProgress(int percentage, long numberOfBytes)
-                {
-                    listener.reportProgress(percentage, numberOfBytes);
-                }
-
-                public void start(File file, long fileSize, Long fileIdOrNull)
-                {
-                    listener.start(file, fileSize, fileIdOrNull);
-                }
-
-                public void fileUploaded()
-                {
-                }
-
-                public void reset()
-                {
-                }
-
-            });
+        listeners.add(uploadListener);
     }
 
     /**
@@ -160,30 +133,35 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                     fireFinishedEvent(false);
                     return;
                 }
-                boolean ok = retryingFileUploader.uploadFile(file, comment, fileIds);
+                fireStartedEvent(file, file.length(), null);
+                boolean ok =
+                        retryingFileUploader.uploadFile(file, comment, fileIds,
+                                MonitoringProxy.MONITOR_COMMUNICATOR);
                 if (ok == false)
                 {
-                    return; // upload cancelled
+                    // upload cancelled
+                    fireFinishedEvent(false);
+                    return; 
                 }
             }
             if (recipientsOrNull != null && recipientsOrNull.trim().length() > 0)
             {
-                service.shareFiles(sessionID, new ArrayList<Long>(fileIds), recipientsOrNull);
+                retryingFileUploader.shareFiles(new ArrayList<Long>(fileIds), recipientsOrNull);
             }
             fireFinishedEvent(true);
         } catch (Exception ex)
         {
-            fireExceptionEvent(ex);
             fireFinishedEvent(false);
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
         } finally
         {
-            fireResetEvent();
             inProgress.set(false);
         }
     }
 
-    // NOTE: this is a non-retrying version used by retryingFileUloader
-    private void doUploadFile(File file, String comment, Set<Long> fileIds) throws IOException
+    // NOTE: this is a non-retrying version used by retryingFileUploader
+    private void doUploadFile(File file, String comment, Set<Long> fileIds,
+            final MonitoringProxy.IMonitorCommunicator communicator) throws IOException
     {
         final long fileSize = file.length();
         final FilePreregistrationDTO fileSpecs =
@@ -191,7 +169,6 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         ResumingAndChecksummingInputStream contentStream = null;
         try
         {
-            fireStartedEvent(file, fileSize, null);
             contentStream =
                     new ResumingAndChecksummingInputStream(file, PROGRESS_REPORT_BLOCK_SIZE,
                             new IWriteProgressListener()
@@ -200,11 +177,11 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
 
                                     public void update(long bytesRead, int crc32Value)
                                     {
-                                        if (isCancelled())
+                                        if (isCancelled() || communicator.isCancelled())
                                         {
                                             throw new InterruptedExceptionUnchecked();
                                         }
-                                        observerSensor.update();
+                                        communicator.update();
                                         final long now = System.currentTimeMillis();
                                         if (now - lastUpdated > PROGRESS_UPDATE_MIN_INTERVAL_MILLIS
                                                 || bytesRead == fileSize)
@@ -214,8 +191,17 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
                                         }
                                     }
                                 }, ChecksumHandling.COMPUTE_AND_APPEND);
+            // If we cancelled, bail out now
+            if (isCancelled() || communicator.isCancelled())
+            {
+                throw new InterruptedExceptionUnchecked();
+            }
             final FileInfoDTO resumeFileInfoOrNull =
                     tryGetFileInfoForResumeUpload(contentStream, fileSpecs);
+            if (isCancelled() || communicator.isCancelled())
+            {
+                throw new InterruptedExceptionUnchecked();
+            }
             final long fileId;
             if (resumeFileInfoOrNull != null)
             {
@@ -227,6 +213,10 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
             {
                 fireProgressEvent(0L, fileSize);
                 fileId = service.upload(sessionID, fileSpecs, comment, contentStream);
+            }
+            if (communicator.isCancelled())
+            {
+                throw new InterruptedExceptionUnchecked();
             }
             fileIds.add(fileId);
             if (fileSize != file.length())
@@ -241,7 +231,6 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
         {
             IOUtils.closeQuietly(contentStream);
         }
-        fireUploadedEvent();
     }
 
     private FileInfoDTO tryGetFileInfoForResumeUpload(
@@ -264,34 +253,6 @@ public final class Uploader extends AbstractUploadDownload implements ICIFEXUplo
             }
         }
         return null;
-    }
-
-    private void fireUploadedEvent()
-    {
-        for (IProgressListener listener : listeners)
-        {
-            try
-            {
-                ((IUploadProgressListener) listener).fileUploaded();
-            } catch (Throwable th)
-            {
-                th.printStackTrace();
-            }
-        }
-    }
-
-    private void fireResetEvent()
-    {
-        for (IProgressListener listener : listeners)
-        {
-            try
-            {
-                ((IUploadProgressListener) listener).reset();
-            } catch (Throwable th)
-            {
-                th.printStackTrace();
-            }
-        }
     }
 
 }

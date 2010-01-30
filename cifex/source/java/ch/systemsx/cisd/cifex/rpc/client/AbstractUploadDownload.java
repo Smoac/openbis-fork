@@ -18,27 +18,21 @@ package ch.systemsx.cisd.cifex.rpc.client;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.springframework.remoting.RemoteAccessException;
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.cifex.rpc.ICIFEXRPCService;
 import ch.systemsx.cisd.cifex.rpc.client.gui.IProgressListener;
 import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ExecutionResult;
 import ch.systemsx.cisd.common.concurrent.ExecutionStatus;
-import ch.systemsx.cisd.common.concurrent.IActivitySensor;
 import ch.systemsx.cisd.common.concurrent.IMonitoringProxyLogger;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
-import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.exceptions.MasqueradingException;
 
 /**
  * A common subclass for file upload and download.
@@ -70,13 +64,6 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
 
     protected final AtomicBoolean inProgress = new AtomicBoolean(false);
 
-    protected final RecordingActivityObserverSensor observerSensor =
-            new RecordingActivityObserverSensor();
-
-    private final List<String> encounteredWarningMessages;
-
-    private final List<Throwable> encounteredExceptions;
-
     abstract protected MonitoringProxy<?> getProxyForOperation();
 
     /**
@@ -86,8 +73,6 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
     {
         this.service = service;
         this.sessionID = sessionID;
-        this.encounteredWarningMessages = new ArrayList<String>();
-        this.encounteredExceptions = new ArrayList<Throwable>();
         checkService();
     }
 
@@ -101,14 +86,6 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
                             + ICIFEXRPCService.VERSION + ", server: " + serverVersion + ").");
         }
         service.checkSession(sessionID);
-    }
-
-    /**
-     * Returns the activity sensor of this uplaoder / downloader.
-     */
-    public IActivitySensor getActivitySensor()
-    {
-        return observerSensor;
     }
 
     /**
@@ -183,38 +160,39 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
         {
             try
             {
-                listener.finished(successful, encounteredWarningMessages, encounteredExceptions);
+                listener.finished(successful);
             } catch (Throwable th)
             {
                 th.printStackTrace();
             }
         }
-        encounteredExceptions.clear();
-        encounteredWarningMessages.clear();
     }
 
     protected void fireExceptionEvent(Throwable throwable)
     {
-        encounteredExceptions.add(throwable);
+        for (IProgressListener listener : listeners)
+        {
+            try
+            {
+                listener.exceptionOccured(throwable);
+            } catch (Throwable th)
+            {
+                th.printStackTrace();
+            }
+        }
     }
 
     protected void fireWarningEvent(String warningMessage)
     {
-        encounteredWarningMessages.add(warningMessage);
-    }
-
-    /**
-     * The same as {@link Thread#sleep(long)} but throws a {@link InterruptedExceptionUnchecked} on
-     * interruption rather than a {@link InterruptedException}.
-     */
-    protected static void sleepAfterFailure() throws InterruptedExceptionUnchecked
-    {
-        try
+        for (IProgressListener listener : listeners)
         {
-            Thread.sleep(WAIT_AFTER_FAILURE_MILLIS);
-        } catch (InterruptedException ex)
-        {
-            throw new InterruptedExceptionUnchecked(ex);
+            try
+            {
+                listener.warningOccured(warningMessage);
+            } catch (Throwable th)
+            {
+                th.printStackTrace();
+            }
         }
     }
 
@@ -244,33 +222,33 @@ public abstract class AbstractUploadDownload implements ICIFEXOperation
                 uploadDownload.fireWarningEvent("Remote operation timed out"
                         + (willRetry ? ", will retry soon." : "."));
             }
-            if (result.getStatus() != ExecutionStatus.COMPLETE && willRetry == false)
-            {
-                uploadDownload.fireFinishedEvent(false);
-            }
         }
 
         private void logException(boolean willRetry, Throwable originalException)
         {
-            final Throwable th = unwrapException(originalException);
-            if (th instanceof RemoteAccessException && willRetry)
+            if (willRetry)
             {
-                String warningMessage;
-                if (th.getMessage() != null)
-                {
-                    warningMessage =
-                            "Remote operation failed: " + th.getClass().getSimpleName() + ": '"
-                                    + th.getMessage() + "', will retry soon...";
-                } else
-                {
-                    warningMessage =
-                            "Remote operation failed: " + th.getClass().getSimpleName()
-                                    + ", will retry soon...";
-                }
+                String warningMessage = getMessageForThrowable(unwrapException(originalException));
                 uploadDownload.fireWarningEvent(warningMessage);
             } else
             {
                 uploadDownload.fireExceptionEvent(originalException);
+            }
+        }
+
+        private String getMessageForThrowable(final Throwable th)
+        {
+            if (th instanceof MasqueradingException)
+            {
+                return th.toString();
+            } else if (th.getMessage() != null)
+            {
+                return "Remote operation failed: " + th.getClass().getSimpleName() + ": '"
+                        + th.getMessage() + "', will retry soon...";
+            } else
+            {
+                return "Remote operation failed: " + th.getClass().getSimpleName()
+                        + ", will retry soon...";
             }
         }
 

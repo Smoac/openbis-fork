@@ -19,8 +19,6 @@ package ch.systemsx.cisd.cifex.rpc.client;
 import java.io.File;
 import java.util.List;
 
-import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
-
 /**
  * Interface for uploading operations in CIFEX.
  * 
@@ -28,11 +26,6 @@ import ch.systemsx.cisd.cifex.rpc.client.gui.IUploadProgressListener;
  */
 public interface ICIFEXUploader extends ICIFEXOperation
 {
-
-    /**
-     * Adds a listener for upload events.
-     */
-    public void addProgressListener(final IUploadProgressListener uploadListener);
 
     /**
      * Uploads the specified files for the specified recipients.

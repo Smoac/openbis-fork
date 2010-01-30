@@ -124,7 +124,12 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
             case DOWNLOADING:
                 panel = progressPanel;
                 progressBar.setValue(fileInfo.getPercentageDownloaded());
-                progressLabel.setText(getAmountDownloadedStringForFileInfo(fileInfo));
+                progressLabel.setText(getAmountDownloadedStringForFileInfo(fileInfo, false));
+                break;
+            case STALLED:
+                panel = progressPanel;
+                progressBar.setValue(fileInfo.getPercentageDownloaded());
+                progressLabel.setText(getAmountDownloadedStringForFileInfo(fileInfo, true));
                 break;
             case FAILED:
                 panel = retryPanel;
@@ -135,14 +140,20 @@ public class DownloadStatusTableCellRenderer implements TableCellRenderer
         return panel;
     }
 
-    String getAmountDownloadedStringForFileInfo(FileDownloadInfo fileInfo)
+    String getAmountDownloadedStringForFileInfo(FileDownloadInfo fileInfo, boolean stalled)
     {
         StringBuffer sb = new StringBuffer();
         String eta = DateTimeUtils.renderDuration(fileInfo.getEstimatedTimeOfArrival());
         sb.append(fileInfo.getPercentageDownloaded());
-        sb.append("% (remaining: ");
-        sb.append(eta);
-        sb.append(")");
+        if (stalled)
+        {
+            sb.append("% (stalled)");
+        } else
+        {
+            sb.append("% (remaining: ");
+            sb.append(eta);
+            sb.append(")");
+        }
         return sb.toString();
     }
 

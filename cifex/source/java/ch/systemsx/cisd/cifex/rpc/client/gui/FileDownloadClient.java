@@ -25,7 +25,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -211,7 +210,7 @@ public class FileDownloadClient extends AbstractSwingGUI
         column =
                 fileTable.getColumnModel()
                         .getColumn(FileDownloadClientModel.DOWNLOAD_STATUS_COLUMN);
-        column.setPreferredWidth(120);
+        column.setPreferredWidth(150);
         column.setCellRenderer(new DownloadStatusTableCellRenderer(tableModel));
         column.setCellEditor(new DownloadStatusTableCellEditor(tableModel));
         JScrollPane scrollPane = new JScrollPane(fileTable);
@@ -264,22 +263,7 @@ public class FileDownloadClient extends AbstractSwingGUI
 
     private void addProgressListener()
     {
-        downloader.addProgressListener(new IProgressListener()
-            {
-                public void start(File file, long fileSize, Long fileIdOrNull)
-                {
-                }
-
-                public void reportProgress(int percentage, long numberOfBytes)
-                {
-                }
-
-                public void finished(boolean successful, List<String> warningMessages,
-                        List<Throwable> exceptions)
-                {
-                    showErrorsAndWarningsIfAny(getWindowFrame(), null, warningMessages, exceptions);
-                }
-            });
+        downloader.addProgressListener(createErrorLogListener());
     }
 
     /**

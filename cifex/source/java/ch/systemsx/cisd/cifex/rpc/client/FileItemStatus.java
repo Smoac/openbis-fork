@@ -18,5 +18,5 @@ package ch.systemsx.cisd.cifex.rpc.client;
 
 public enum FileItemStatus
 {
-    NOT_STARTED, UPLOADING, FINISHED, ABORTED
+    NOT_STARTED, UPLOADING, FINISHED, ABORTED, STALLED
 }

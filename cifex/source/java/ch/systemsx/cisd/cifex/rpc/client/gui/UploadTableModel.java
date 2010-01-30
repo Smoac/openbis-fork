@@ -42,7 +42,7 @@ final class UploadTableModel extends AbstractTableModel
     UploadTableModel(ICIFEXUploader uploader, ITimeProvider timeProvider)
     {
         this.timeProvider = timeProvider;
-        uploader.addProgressListener(new IUploadProgressListener()
+        uploader.addProgressListener(new IProgressListener()
             {
                 public void start(File file, long fileSize, Long fileIdOrNull)
                 {
@@ -53,17 +53,18 @@ final class UploadTableModel extends AbstractTableModel
 
                 public void reportProgress(int percentage, long numberOfBytes)
                 {
-                    setNumberOfBytes(numberOfBytes);
+                    if (percentage == 100)
+                    {
+                        setNumberOfBytes(currentFileToBeUploaded.getLength());
+                        currentFileToBeUploaded.setStatus(FileItemStatus.FINISHED);
+                    } else
+                    {
+                        setNumberOfBytes(numberOfBytes);
+                    }
                     fireChanged();
                 }
 
-                public void finished(boolean successful, List<String> warningMessages,
-                        List<Throwable> exceptions)
-                {
-                    uploadFinished(successful);
-                }
-
-                private void uploadFinished(boolean successful)
+                public void finished(boolean successful)
                 {
                     if (currentFileToBeUploaded != null)
                     {
@@ -79,18 +80,16 @@ final class UploadTableModel extends AbstractTableModel
                     }
                 }
 
-                public void reset()
+                public void exceptionOccured(Throwable throwable)
                 {
-                    if (currentFileToBeUploaded != null)
-                    {
-                        currentFileToBeUploaded.setStatus(FileItemStatus.NOT_STARTED);
-                        fireChanged();
-                    }
+                    currentFileToBeUploaded.setStatus(FileItemStatus.STALLED);
+                    fireChanged();
                 }
 
-                public void fileUploaded()
+                public void warningOccured(String warningMessage)
                 {
-                    uploadFinished(true);
+                    currentFileToBeUploaded.setStatus(FileItemStatus.STALLED);
+                    fireChanged();
                 }
 
                 private FileItem tryToFind(File file)
@@ -110,7 +109,6 @@ final class UploadTableModel extends AbstractTableModel
                     if (currentFileToBeUploaded != null)
                     {
                         currentFileToBeUploaded.setNumberOfBytesUploaded(numberOfBytes);
-                        currentFileToBeUploaded.setStatus(FileItemStatus.UPLOADING);
                     }
                 }
 
