@@ -20,7 +20,7 @@ function compare_configs {
            echo "  cp $config_current $config_template"
            is_update_needed="true"
         else
-           echo "OK: Configuration file $config_template is up to date."
+           #echo "OK: Configuration file $config_template is up to date."
            echo
         fi
 }
