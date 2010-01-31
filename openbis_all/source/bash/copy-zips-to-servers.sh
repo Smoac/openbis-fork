@@ -10,6 +10,7 @@ export AGRONOMICS=bs-dsvr11.ethz.ch
 export DSU=bs-dsvr28-openbis-dsu.ethz.ch
 export SCU=bs-dsvr28-openbis-scu.ethz.ch
 export BASYSBIO=bs-dsvr10.ethz.ch
+export BASYSBIO_TEST=bs-dsvr28-openbis-test.ethz.ch.
 
 # Currently there are three different types of server specific zips we distinguish
 export ZIPS="openBIS-server-S*.zip  datastore_server-S*.zip"
@@ -42,6 +43,7 @@ done
 echo -e "\n Copying dss to $BASYSBIO...\n"
 for m in $ZIPS_BASYSBIO; do
                 echo $BASYSBIO; scp -p $m $BASYSBIO:~openbis
+                echo $BASYSBIO_TEST; scp -p $m $BASYSBIO_TEST:~openbis
 done
 
 echo -e "\nCopying to default dss...\n"
@@ -49,4 +51,5 @@ for l in $DATASTORE_PLUGIN; do
         echo $AGRONOMICS; scp -p $l $AGRONOMICS:~openbis/config
         echo $YEASTX; scp -p $l $YEASTX:~openbis/config
         echo $BASYSBIO; scp -p $l $BASYSBIO:~openbis/config
+        echo $BASYSBIO_TEST; scp -p $l $BASYSBIO_TEST:~openbis/config
 done
