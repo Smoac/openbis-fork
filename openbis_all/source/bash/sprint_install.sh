@@ -33,8 +33,8 @@ else
 fi
 
 # Unalias rm and cp commands
-unalias rm
-unalias cp
+alias cp='cp'
+alias rm='rm'
 
 if [ -e $SERVERS_PREV_VER ]; then
         echo Stopping the components...
@@ -57,7 +57,7 @@ rm -f $SERVERS_DIR_ALIAS
 mkdir $SERVERS_VER
 ln -s $SERVERS_VER $SERVERS_DIR_ALIAS
 cd $SERVERS_DIR_ALIAS
-unzip ../openBIS-server*$VER*
+unzip -q ../openBIS-server*$VER*
 cd openBIS-server
 ./install.sh --nostartup $PWD $CONFIG_DIR/service.properties $CONFIG_DIR/openbis.conf
 if [ -f $KEYSTORE ]; then
@@ -70,12 +70,12 @@ fi
 
 echo Installing datastore server...
 cd ..
-unzip ../datastore_server*$VER*
+unzip -q ../datastore_server*$VER*
 cd datastore_server
 cp -p $CONFIG_DIR/datastore_server-service.properties etc/service.properties
 if [ -f $KEYSTORE ]; then
   cp -p $KEYSTORE etc/openBIS.keystore
-  cp -Rf ~openbis/old/$SERVERS_PREV_VER/datastore_server/data/store/* data/store
+  #cp -Rf ~openbis/old/$SERVERS_PREV_VER/datastore_server/data/store/* data/store
   sed 's/-Djavax.net.ssl.trustStore=etc\/openBIS.keystore //g' datastore_server.sh > xxx
   mv -f xxx datastore_server.sh
 fi
@@ -84,7 +84,7 @@ export JAVA_HOME=/usr
 #./datastore_server.sh start
 
 #echo Doing some cleaning...
-cd
+cd ~openbis
 mv -f *.zip old/
 rm -rf openbis
 cd ~openbis/sprint/openBIS-server
