@@ -1,4 +1,4 @@
 #!/bin/bash
 # Shuts down openBIS server
 
-~/sprint/openBIS-server/apache-tomcat/bin/shutdown.sh
+~openbis/sprint/openBIS-server/apache-tomcat/bin/shutdown.sh

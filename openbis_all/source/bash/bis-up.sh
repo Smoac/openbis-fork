@@ -1,4 +1,4 @@
 #!/bin/bash
 # Starts up openBIS server
 
-~/sprint/openBIS-server/apache-tomcat/bin/startup.sh
+~openbis/sprint/openBIS-server/apache-tomcat/bin/startup.sh
