@@ -150,7 +150,7 @@ public class RawDataSampleProviderTest extends AbstractServerTestCase
     private void assertUntitledHeader(String expectedCode, int expectedIndex,
             boolean expectedlinkableFlag, DataTypeCode expectedType, GenericTableColumnHeader header)
     {
-        assertHeader(expectedCode, expectedCode, expectedIndex, expectedlinkableFlag, expectedType,
+        assertHeader(null, expectedCode, expectedIndex, expectedlinkableFlag, expectedType,
                 header);
     }
 
