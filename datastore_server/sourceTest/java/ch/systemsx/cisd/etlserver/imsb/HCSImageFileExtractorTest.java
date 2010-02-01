@@ -260,8 +260,7 @@ public final class HCSImageFileExtractorTest extends AbstractFileSystemTestCase
             Location expectedLocation, WellGeometry wellGeometry)
     {
         Location location =
-                AbstractHCSImageFileExtractor.tryGetZigZagWellLocation("" + tileNumber,
-                        wellGeometry);
+                HCSImageFileExtractor.tryGetZigZagWellLocation("" + tileNumber, wellGeometry);
         assertEquals(expectedLocation, location);
     }
 }

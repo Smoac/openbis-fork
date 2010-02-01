@@ -27,7 +27,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.bds.hcs.Channel;
 import ch.systemsx.cisd.bds.hcs.Geometry;
@@ -59,6 +58,12 @@ abstract public class AbstractHCSImageFileExtractor
      */
     abstract protected int getChannelWavelength(final String value);
 
+    /**
+     * Extracts the well location from given <var>value</var>. Returns <code>null</code> if the
+     * operation fails.
+     */
+    abstract protected Location tryGetWellLocation(final String value);
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AbstractHCSImageFileExtractor.class);
 
@@ -76,7 +81,7 @@ abstract public class AbstractHCSImageFileExtractor
 
     static final char TOKEN_SEPARATOR = '_';
 
-    private final Geometry wellGeometry;
+    protected final Geometry wellGeometry;
 
     protected AbstractHCSImageFileExtractor(final Properties properties)
     {
@@ -104,47 +109,6 @@ abstract public class AbstractHCSImageFileExtractor
                     "Could not create a geometry from property value '%s'.", property));
         }
         return geometry;
-    }
-
-    /**
-     * Extracts the well location from given <var>value</var>, following the convention adopted
-     * here.<br>
-     * Tiles are numbered in a zig-zag way, starting from left bottom row. For a 3x3 plate it would
-     * be:<br>
-     * 7 8 9<br>
-     * 6 5 4<br>
-     * 1 2 3<br>
-     * <p>
-     * Returns <code>null</code> if the operation fails.
-     * </p>
-     */
-    protected final Location tryGetZigZagWellLocation(final String value)
-    {
-        return tryGetZigZagWellLocation(value, wellGeometry);
-    }
-
-    @Private
-    public static final Location tryGetZigZagWellLocation(final String value, Geometry wellGeometry)
-    {
-        try
-        {
-            int tileNumber = Integer.parseInt(value);
-            Location letterLoc = Location.tryCreateLocationFromPosition(tileNumber, wellGeometry);
-            int row = letterLoc.getY();
-            int col = letterLoc.getX();
-            // microscops starts at the last row, so let's make a mirror
-            row = wellGeometry.getRows() - row + 1;
-            // even rows counting from the bottom have reverted columns
-            if (letterLoc.getY() % 2 == 0)
-            {
-                col = wellGeometry.getColumns() - col + 1;
-            }
-            return new Location(col, row);
-        } catch (final NumberFormatException ex)
-        {
-            // Nothing to do here. Rest of the code can handle this.
-        }
-        return null;
     }
 
     /**
@@ -274,7 +238,7 @@ abstract public class AbstractHCSImageFileExtractor
             final String plateLocationStr = tokens[tokens.length - 3];
             final Location plateLocation = tryGetPlateLocation(plateLocationStr);
             final String wellLocationStr = tokens[tokens.length - 2];
-            final Location wellLocation = tryGetZigZagWellLocation(wellLocationStr);
+            final Location wellLocation = tryGetWellLocation(wellLocationStr);
             final String channelStr = tokens[tokens.length - 1];
             final int channelWavelength = getChannelWavelength(channelStr);
             if (wellLocation != null && plateLocation != null && channelWavelength > 0)

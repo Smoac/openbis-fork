@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.etlserver.plugins;
+package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 import java.util.ArrayList;

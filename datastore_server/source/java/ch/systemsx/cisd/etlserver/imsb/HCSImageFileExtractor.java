@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.bds.hcs.Geometry;
+import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.bds.storage.INode;
@@ -95,6 +96,47 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
             }
         }
         return 0;
+    }
+
+    /**
+     * Extracts the well location from given <var>value</var>, following the convention adopted
+     * here.<br>
+     * Tiles are numbered in a zig-zag way, starting from left bottom row. For a 3x3 plate it would
+     * be:<br>
+     * 7 8 9<br>
+     * 6 5 4<br>
+     * 1 2 3<br>
+     * <p>
+     * Returns <code>null</code> if the operation fails.
+     * </p>
+     */
+    @Override
+    protected final Location tryGetWellLocation(final String value)
+    {
+        return tryGetZigZagWellLocation(value, wellGeometry);
+    }
+
+    public static Location tryGetZigZagWellLocation(String value, Geometry wellGeometry)
+    {
+        try
+        {
+            int tileNumber = Integer.parseInt(value);
+            Location letterLoc = Location.tryCreateLocationFromPosition(tileNumber, wellGeometry);
+            int row = letterLoc.getY();
+            int col = letterLoc.getX();
+            // microscops starts at the last row, so let's make a mirror
+            row = wellGeometry.getRows() - row + 1;
+            // even rows counting from the bottom have reverted columns
+            if (letterLoc.getY() % 2 == 0)
+            {
+                col = wellGeometry.getColumns() - col + 1;
+            }
+            return new Location(col, row);
+        } catch (final NumberFormatException ex)
+        {
+            // Nothing to do here. Rest of the code can handle this.
+        }
+        return null;
     }
 
     //

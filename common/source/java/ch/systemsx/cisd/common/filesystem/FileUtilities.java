@@ -642,6 +642,10 @@ public final class FileUtilities
 
         if (path.isDirectory())
         {
+            if (isSymbolicLink(path))
+            {
+                return deleteSymbolicLink(path, loggerOrNull);
+            }
             for (final File file : path.listFiles())
             {
                 if (Thread.interrupted())
@@ -670,6 +674,23 @@ public final class FileUtilities
         {
             loggerOrNull.log(LogLevel.INFO, String
                     .format("Deleting directory '%s'", path.getPath()));
+        }
+        return path.delete();
+    }
+
+    private static boolean isSymbolicLink(File path)
+    {
+        String canonical = getCanonicalPath(path);
+        String absolute = path.getAbsolutePath();
+        return canonical.equals(absolute) == false;
+    }
+
+    private static boolean deleteSymbolicLink(File path, ISimpleLogger loggerOrNull)
+    {
+        if (loggerOrNull != null)
+        {
+            loggerOrNull.log(LogLevel.INFO, String.format(
+                    "Deleting symbolic link to a directory '%s'", path.getPath()));
         }
         return path.delete();
     }
@@ -1506,8 +1527,9 @@ public final class FileUtilities
     /**
      * Checks remote connections for specified path copier.
      */
-    public static void checkPathCopier(IPathCopier copier, String host, String rsyncExecutableOnHostOrNull,
-            String rsyncModuleOrNull, String rsyncPasswordFileOrNull)
+    public static void checkPathCopier(IPathCopier copier, String host,
+            String rsyncExecutableOnHostOrNull, String rsyncModuleOrNull,
+            String rsyncPasswordFileOrNull)
     {
         if (rsyncModuleOrNull != null)
         {
@@ -1517,8 +1539,7 @@ public final class FileUtilities
             if (connectionOK == false)
             {
                 throw ConfigurationFailureException.fromTemplate(
-                        "Connection to rsync module %s::%s failed", host,
-                        rsyncModuleOrNull);
+                        "Connection to rsync module %s::%s failed", host, rsyncModuleOrNull);
             }
         } else
         {
@@ -1530,7 +1551,7 @@ public final class FileUtilities
                         "No good rsync executable found on host '%s'", host);
             }
         }
-    
+
     }
 
 }

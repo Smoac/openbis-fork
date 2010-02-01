@@ -59,6 +59,9 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
     /** see {@link HCSImageFormatV1_0#IS_INCOMING_SYMBOLIC_LINK} */
     private final boolean isIncomingSymbolicLink;
 
+    /** see {@link HCSImageFormatV1_0#IMAGE_FILE_EXTENSION} */
+    private final String imageFileExtension;
+
     private final Geometry wellGeometry;
 
     private final Geometry plateGeometry;
@@ -86,6 +89,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
             this.originalDataDirectoryOrNull = null;
         }
         this.isIncomingSymbolicLink = figureIsIncomingSymbolicLink(formatParameters);
+        this.imageFileExtension = figureImageFileExtension(formatParameters);
 
         IDirectory standardDataDirectory =
                 Utilities.getSubDirectory(dataDirectory, DataStructureV1_0.DIR_STANDARD);
@@ -127,6 +131,18 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         } else
         {
             return false; // default value
+        }
+    }
+
+    private static String figureImageFileExtension(IFormatParameters params)
+    {
+        String paramName = HCSImageFormatV1_0.IMAGE_FILE_EXTENSION;
+        if (params.containsParameter(paramName))
+        {
+            return (String) params.getValue(paramName);
+        } else
+        {
+            return HCSImageFormatV1_0.DEFAULT_FILE_EXTENSION; // default value
         }
     }
 
@@ -184,10 +200,11 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
      * From given <var>wellLocation</var> creates the leaf file name that is found in
      * <code>data/standard</code>.
      */
-    final static String createWellFileName(final Location wellLocation)
+    final static String createWellFileName(final Location wellLocation, String imageFileExtension)
     {
         assert wellLocation != null : "Well location can not be null.";
-        return ROW + wellLocation.getY() + "_" + COLUMN + wellLocation.getX() + ".tiff";
+        return ROW + wellLocation.getY() + "_" + COLUMN + wellLocation.getX() + "."
+                + imageFileExtension;
     }
 
     private final static String getPlateColumnDirName(final int colNumber)
@@ -246,7 +263,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         try
         {
             final IDirectory plateColumnDir = getWellImagesParentDir(channel, wellLocation);
-            return plateColumnDir.tryGetNode(createWellFileName(tileLocation));
+            return plateColumnDir.tryGetNode(createWellFileName(tileLocation, imageFileExtension));
         } catch (final DataStructureException e)
         {
             return null;
@@ -390,7 +407,7 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
         DirectoryContentCache colDirCache = rowDirCache.getSubdirectory(wellLocation.getX());
         final IDirectory plateColumnDir = colDirCache.getDirectory();
 
-        final String wellFileName = createWellFileName(tileLocation);
+        final String wellFileName = createWellFileName(tileLocation, imageFileExtension);
         final INode node;
         if (containsOriginalData)
         {
@@ -408,10 +425,9 @@ public final class HCSImageFormattedData extends AbstractFormattedData implement
             node = plateColumnDir.tryAddLink(wellFileName, imageNode);
         } else
         {
+            File originalImageFile = new File(imageRootDirectory, imageRelativePath);
             // Copies the file. So we are able to undo the operation.
-            node =
-                    plateColumnDir.addFile(new File(imageRootDirectory, imageRelativePath),
-                            wellFileName, false);
+            node = plateColumnDir.addFile(originalImageFile, wellFileName, false);
         }
         if (node == null)
         {

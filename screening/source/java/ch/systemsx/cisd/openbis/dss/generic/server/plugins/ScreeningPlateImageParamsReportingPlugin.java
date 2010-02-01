@@ -24,11 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import ch.systemsx.cisd.bds.DataStructureLoader;
-import ch.systemsx.cisd.bds.IDataStructure;
 import ch.systemsx.cisd.bds.hcs.Geometry;
-import ch.systemsx.cisd.bds.hcs.IHCSImageFormattedData;
-import ch.systemsx.cisd.bds.v1_0.IDataStructureV1_0;
+import ch.systemsx.cisd.bds.hcs.HCSDatasetLoader;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractDatastorePlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
@@ -71,13 +68,12 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         addReportHeaders(builder);
-        DataStructureLoader loader = new DataStructureLoader(storeRoot);
         for (DatasetDescription dataset : datasets)
         {
-            IDataStructureV1_0 structure = createDatasetAccessor(loader, dataset);
-            IHCSImageFormattedData imageAccessor = getImageAccessor(structure);
+            File datasetFile = new File(storeRoot, dataset.getDataSetLocation());
+            HCSDatasetLoader imageAccessor = new HCSDatasetLoader(datasetFile);
             addReportRows(builder, dataset, imageAccessor);
-            structure.close();
+            imageAccessor.close();
         }
         return builder.getTableModel();
     }
@@ -94,7 +90,7 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
     }
 
     private void addReportRows(SimpleTableModelBuilder builder, DatasetDescription dataset,
-            IHCSImageFormattedData imageAccessor)
+            HCSDatasetLoader imageAccessor)
     {
         Geometry plateGeometry = imageAccessor.getPlateGeometry();
         Geometry wellGeometry = imageAccessor.getWellGeometry();
@@ -107,15 +103,4 @@ public class ScreeningPlateImageParamsReportingPlugin extends AbstractDatastoreP
         builder.addRow(row);
     }
 
-    private IHCSImageFormattedData getImageAccessor(IDataStructureV1_0 structure)
-    {
-        return (IHCSImageFormattedData) structure.getFormattedData();
-    }
-
-    private IDataStructureV1_0 createDatasetAccessor(DataStructureLoader loader,
-            DatasetDescription dataset)
-    {
-        IDataStructure dataStructure = loader.load(dataset.getDataSetLocation(), false);
-        return (IDataStructureV1_0) dataStructure;
-    }
 }

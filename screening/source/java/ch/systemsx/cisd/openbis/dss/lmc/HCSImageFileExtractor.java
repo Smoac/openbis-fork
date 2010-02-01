@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.bds.hcs.Geometry;
+import ch.systemsx.cisd.bds.hcs.Location;
 import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFile;
 import ch.systemsx.cisd.etlserver.HCSImageFileExtractionResult;
@@ -68,6 +69,33 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
         return 0; // unknown channel name
     }
 
+    /**
+     * Extracts the well location from given <var>value</var>, following the convention adopted
+     * here.<br>
+     * Here is a numbering example for a 3x3 plate:<br>
+     * 1 4 7<br>
+     * 2 5 8<br>
+     * 3 6 9<br>
+     * <p>
+     * Returns <code>null</code> if the operation fails.
+     * </p>
+     */
+    @Override
+    protected final Location tryGetWellLocation(final String value)
+    {
+        try
+        {
+            int tileNumber = Integer.parseInt(value);
+            Location letterLoc = Location.tryCreateLocationFromPosition(tileNumber, wellGeometry);
+            // transpose rows with columns
+            return new Location(letterLoc.getY(), letterLoc.getX());
+        } catch (final NumberFormatException ex)
+        {
+            // Nothing to do here. Rest of the code can handle this.
+        }
+        return null;
+    }
+
     //
     // IHCSImageFileExtractor
     //
@@ -82,7 +110,7 @@ public class HCSImageFileExtractor extends AbstractHCSImageFileExtractor impleme
 
     private List<IFile> listImageFiles(final IDirectory directory)
     {
-        return directory.listFiles(IMAGE_EXTENSIONS, true);
+        return directory.listFiles(IMAGE_EXTENSIONS, false);
     }
 
 }

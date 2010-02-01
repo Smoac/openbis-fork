@@ -48,9 +48,18 @@ public final class HCSImageFormatV1_0 extends Format
     /**
      * Boolean flag specifying whether the items in the incoming folder are just a symbolic links to
      * the original data. In this case we do not move any data. Instead we create symbolic link to
-     * original data which points to the same place as the link in incoming directory.
+     * original data which points to the same place as the link in incoming directory.<br>
+     * If this parameter is not present we assume that it has false value.
      */
     public final static String IS_INCOMING_SYMBOLIC_LINK = "incoming_items_are_symbolic_link";
+
+    /**
+     * Extension of the images files in the standard folder.<br>
+     * If this parameter is not present we assume that it has {@link #DEFAULT_FILE_EXTENSION} value.
+     */
+    public final static String IMAGE_FILE_EXTENSION = "file_extension";
+
+    public final static String DEFAULT_FILE_EXTENSION = "tiff";
 
     /**
      * The format parameters that must be defined so that this implementation is able to work
@@ -63,7 +72,7 @@ public final class HCSImageFormatV1_0 extends Format
         { WellGeometry.WELL_GEOMETRY, NUMBER_OF_CHANNELS, CONTAINS_ORIGINAL_DATA };
 
     private final static String[] OPTIONAL_FORMAT_PARAMETERS = new String[]
-        { IS_INCOMING_SYMBOLIC_LINK };
+        { IS_INCOMING_SYMBOLIC_LINK, IMAGE_FILE_EXTENSION };
 
     /**
      * The one and only one instance.

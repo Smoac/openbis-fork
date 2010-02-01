@@ -81,6 +81,9 @@ public final class FormatParameterFactory implements IFormatParameterFactory
         } else if (nodeName.equals(HCSImageFormatV1_0.IS_INCOMING_SYMBOLIC_LINK))
         {
             return createBooleanParameter(HCSImageFormatV1_0.IS_INCOMING_SYMBOLIC_LINK, value);
+        } else if (nodeName.equals(HCSImageFormatV1_0.IMAGE_FILE_EXTENSION))
+        {
+            return new FormatParameter(HCSImageFormatV1_0.IMAGE_FILE_EXTENSION, value);
         }
         return formatParameter;
     }
@@ -115,6 +118,9 @@ public final class FormatParameterFactory implements IFormatParameterFactory
         } else if (name.equals(HCSImageFormatV1_0.IS_INCOMING_SYMBOLIC_LINK))
         {
             return new FormatParameter(name, Utilities.Boolean.fromString(value));
+        } else if (name.equals(HCSImageFormatV1_0.IMAGE_FILE_EXTENSION))
+        {
+            return new FormatParameter(name, value);
         }
         return IFormatParameterFactory.DEFAULT_FORMAT_PARAMETER_FACTORY.createFormatParameter(name,
                 value);

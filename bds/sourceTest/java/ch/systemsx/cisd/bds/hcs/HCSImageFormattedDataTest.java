@@ -53,7 +53,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
 
     private static final String IMAGE_ROOT_DIRECTORY_NAME = "CP001-1";
 
-    private static final String ORIGINAL_TIFF = "original.tiff";
+    private static final String ORIGINAL_IMAGE = "original.jpg";
 
     static final Location PLATE_LOCATION = new Location(2, 1);
 
@@ -126,6 +126,9 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         exp.one(formatParameters).getValue(HCSImageFormatV1_0.IS_INCOMING_SYMBOLIC_LINK);
         exp.will(Expectations.returnValue(Utilities.Boolean.fromBoolean(false)));
 
+        exp.one(formatParameters).getValue(HCSImageFormatV1_0.IMAGE_FILE_EXTENSION);
+        exp.will(Expectations.returnValue("jpg"));
+
         if (containsOriginalData)
         {
             exp.one(directory).tryGetNode(DataStructureV1_0.DIR_ORIGINAL);
@@ -165,7 +168,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     {
         imageRootDirectory = new File(workingDirectory, IMAGE_ROOT_DIRECTORY_NAME);
         imageRootDirectory.mkdir();
-        final File originalFile = new File(imageRootDirectory, ORIGINAL_TIFF);
+        final File originalFile = new File(imageRootDirectory, ORIGINAL_IMAGE);
         FileUtils.writeStringToFile(originalFile, "This is my original file...");
     }
 
@@ -198,7 +201,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         boolean fail = true;
         try
         {
-            HCSImageFormattedData.createWellFileName(null);
+            HCSImageFormattedData.createWellFileName(null, null);
         } catch (AssertionError ex)
         {
             fail = false;
@@ -206,7 +209,8 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         assertEquals(false, fail);
         final Location location = WELL_LOCATION;
         final String expected = "row2_column1.tiff";
-        assertEquals(expected, HCSImageFormattedData.createWellFileName(location));
+        assertEquals(expected, HCSImageFormattedData.createWellFileName(location,
+                HCSImageFormatV1_0.DEFAULT_FILE_EXTENSION));
         context.assertIsSatisfied();
     }
 
@@ -226,9 +230,9 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
 
         final int channelIndex = 1;
         final NodePath nodePath =
-                formattedData.addStandardNode(imageRootDirectory, ORIGINAL_TIFF, channelIndex,
+                formattedData.addStandardNode(imageRootDirectory, ORIGINAL_IMAGE, channelIndex,
                         PLATE_LOCATION, WELL_LOCATION);
-        final String standardFileName = "row2_column1.tiff";
+        final String standardFileName = "row2_column1.jpg";
         assertNotNull(nodePath);
         assertTrue(nodePath.getNode() instanceof ILink);
         assertEquals(standardFileName, nodePath.getNode().getName());
@@ -239,7 +243,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
         assertEquals(standardFileName, standardFile.getName());
         // Node should still be in the 'original' directory.
         assertNotNull(((IDirectory) originalNode.tryGetNode(IMAGE_ROOT_DIRECTORY_NAME))
-                .tryGetNode(ORIGINAL_TIFF));
+                .tryGetNode(ORIGINAL_IMAGE));
         context.assertIsSatisfied();
     }
 
@@ -251,9 +255,9 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
 
         final int channelIndex = 1;
         final NodePath nodePath =
-                formattedData.addStandardNode(imageRootDirectory, ORIGINAL_TIFF, channelIndex,
+                formattedData.addStandardNode(imageRootDirectory, ORIGINAL_IMAGE, channelIndex,
                         PLATE_LOCATION, WELL_LOCATION);
-        final String standardFileName = "row2_column1.tiff";
+        final String standardFileName = "row2_column1.jpg";
         assertNotNull(nodePath);
         assertTrue(nodePath.getNode() instanceof IFile);
         assertEquals(standardFileName, nodePath.getNode().getName());
@@ -285,7 +289,7 @@ public class HCSImageFormattedDataTest extends AbstractFileSystemTestCase
     {
         prepareAndCreateFormattedDataWithoutOriginal();
 
-        final File file = new File(workingDirectory, "row2_column1.tiff");
+        final File file = new File(workingDirectory, "row2_column1.jpg");
         FileUtils.writeStringToFile(file, "This is my original file...");
         standardLeafDirectory.addFile(file, null, true);
         final int channelIndex = 1;

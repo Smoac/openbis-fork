@@ -20,16 +20,17 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import ch.systemsx.cisd.bds.hcs.HCSDatasetLoader;
+import ch.systemsx.cisd.bds.hcs.Location;
+import ch.systemsx.cisd.bds.storage.INode;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
  * Allows to download screening images in a chosen size for a specified channels or with all
@@ -37,11 +38,17 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
  * 
  * @author Tomasz Pylak
  */
-public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
+abstract class AbstractImagesDownloadServlet extends AbstractDatasetDownloadServlet
 {
     private static final long serialVersionUID = 1L;
 
-    private static class RequestParams
+    /**
+     * @throw EnvironmentFailureException if image does not exist
+     */
+    protected abstract ResponseContentStream createImageResponse(RequestParams params,
+            File datasetRoot) throws IOException, EnvironmentFailureException;
+
+    protected static class RequestParams
     {
         // -- optional servlet parameters
 
@@ -67,13 +74,9 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
 
         private final String datasetCode;
 
-        private final String wellRow;
+        private final Location wellLocation;
 
-        private final String wellCol;
-
-        private final String tileRow;
-
-        private final String tileCol;
+        private final Location tileLocation;
 
         private boolean mergeAllChannels;
 
@@ -86,10 +89,12 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
             String displayModeText = request.getParameter(DISPLAY_MODE_PARAM);
             displayMode = displayModeText == null ? "" : displayModeText;
             datasetCode = getParam(request, DATASET_CODE_PARAM);
-            wellRow = getParam(request, WELL_ROW_PARAM);
-            wellCol = getParam(request, WELL_COLUMN_PARAM);
-            tileRow = getParam(request, TILE_ROW_PARAM);
-            tileCol = getParam(request, TILE_COL_PARAM);
+            int wellRow = getIntParam(request, WELL_ROW_PARAM);
+            int wellCol = getIntParam(request, WELL_COLUMN_PARAM);
+            int tileRow = getIntParam(request, TILE_ROW_PARAM);
+            int tileCol = getIntParam(request, TILE_COL_PARAM);
+            this.wellLocation = new Location(wellCol, wellRow);
+            this.tileLocation = new Location(tileCol, tileRow);
             channel = getIntParam(request, CHANNEL_PARAM);
             String mergeChannelsText = request.getParameter(MERGE_CHANNELS_PARAM);
             mergeAllChannels =
@@ -141,33 +146,20 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
             return mergeAllChannels;
         }
 
-        public List<String> getImagePaths()
-        {
-            List<String> paths = new ArrayList<String>();
-            if (mergeAllChannels)
-            {
-                for (int chosenChannel = 1; chosenChannel <= channel; chosenChannel++)
-                {
-                    paths.add(getPath(chosenChannel));
-                }
-            } else
-            {
-                paths.add(getPath(channel));
-            }
-            return paths;
-        }
-
-        private String getPath(int chosenChannel)
-        {
-            return "data/standard/channel" + chosenChannel + "/row" + wellRow + "/column" + wellCol
-                    + "/row" + tileRow + "_column" + tileCol + ".tiff";
-        }
-
         public int getChannel()
         {
             return channel;
         }
 
+        public Location getWellLocation()
+        {
+            return wellLocation;
+        }
+
+        public Location getTileLocation()
+        {
+            return tileLocation;
+        }
     }
 
     @Override
@@ -187,27 +179,52 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
             }
         } catch (Exception e)
         {
-            printErrorResponse(response, "Error: " + e.getMessage());
             e.printStackTrace();
+            printErrorResponse(response, "Error: " + e.getMessage());
         }
 
     }
 
-    private void deliverFile(HttpServletResponse response, RequestParams params, HttpSession session)
-            throws IOException
+    protected void deliverFile(HttpServletResponse response, RequestParams params,
+            HttpSession session) throws IOException
     {
         ensureDatasetAccessible(params.getDatasetCode(), session, params.getSessionId());
         File datasetRoot = createDataSetRootDirectory(params.getDatasetCode(), session);
-        List<File> imageFiles = getImageFiles(datasetRoot, params);
 
-        BufferedImage image = mergeImages(imageFiles, params);
-        File singleFileOrNull = imageFiles.size() == 1 ? imageFiles.get(0) : null;
-        ResponseContentStream responseStream = createResponseContentStream(image, singleFileOrNull);
+        ResponseContentStream responseStream;
+        try
+        {
+            responseStream = createImageResponse(params, datasetRoot);
+        } catch (EnvironmentFailureException e)
+        {
+            operationLog.warn(e.getMessage());
+            printErrorResponse(response, e.getMessage());
+            return;
+        }
         logImageDelivery(params, responseStream);
         writeResponseContent(responseStream, response);
     }
 
-    private static void logImageDelivery(RequestParams params, ResponseContentStream responseStream)
+    /** throws {@link EnvironmentFailureException} when image does not exist */
+    protected final static File getPath(HCSDatasetLoader imageAccessor, RequestParams params,
+            int chosenChannel)
+    {
+        INode image =
+                imageAccessor.tryGetStandardNodeAt(chosenChannel, params.getWellLocation(), params
+                        .getTileLocation());
+        if (image != null)
+        {
+            return new File(image.getPath());
+        } else
+        {
+            throw EnvironmentFailureException.fromTemplate(
+                    "No image found for well %s, tile %s and channel %d", params.getWellLocation(),
+                    params.getTileLocation(), chosenChannel);
+        }
+    }
+
+    protected final static void logImageDelivery(RequestParams params,
+            ResponseContentStream responseStream)
     {
         if (operationLog.isInfoEnabled())
         {
@@ -216,45 +233,21 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
         }
     }
 
-    private static BufferedImage mergeImages(List<File> imageFiles, RequestParams params)
+    protected final static BufferedImage asThumbnailIfRequested(RequestParams params,
+            BufferedImage image)
     {
-        List<BufferedImage> images = loadImages(imageFiles, params);
-
         Size thumbnailSizeOrNull = tryAsThumbnailDisplayMode(params.getDisplayMode());
-
-        BufferedImage resultImage;
-        if (images.size() == 1)
-        {
-            resultImage = transformToChannel(images.get(0), params.getChannel());
-        } else
-        {
-            resultImage = mergeChannels(images);
-        }
         if (thumbnailSizeOrNull != null)
         {
-            resultImage = createThumbnail(resultImage, thumbnailSizeOrNull);
-        }
-        return resultImage;
-    }
-
-    private static BufferedImage mergeChannels(List<BufferedImage> images)
-    {
-        assert images.size() > 1 : "more than 1 image expected, but found: " + images.size();
-        BufferedImage newImage = createNewImage(images.get(0));
-        int width = newImage.getWidth();
-        int height = newImage.getHeight();
-        for (int x = 0; x < width; x++)
+            return createThumbnail(image, thumbnailSizeOrNull);
+        } else
         {
-            for (int y = 0; y < height; y++)
-            {
-                int mergedRGB = mergeRGBColor(images, x, y);
-                newImage.setRGB(x, y, mergedRGB);
-            }
+            return image;
         }
-        return newImage;
     }
 
-    private static BufferedImage transformToChannel(BufferedImage bufferedImage, int channelNumber)
+    protected final static BufferedImage transformToChannel(BufferedImage bufferedImage,
+            int channelNumber)
     {
         BufferedImage newImage = createNewImage(bufferedImage);
         int width = bufferedImage.getWidth();
@@ -271,7 +264,7 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
         return newImage;
     }
 
-    private static BufferedImage createNewImage(BufferedImage bufferedImage)
+    protected final static BufferedImage createNewImage(BufferedImage bufferedImage)
     {
         BufferedImage newImage =
                 new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),
@@ -279,29 +272,13 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
         return newImage;
     }
 
-    // NOTE: we handle only 3 channels until we know that more channels can be used and
-    // what
-    // kind of color manipulation makes sense
-    private static int mergeRGBColor(List<BufferedImage> images, int x, int y)
-    {
-        int color[] = new int[]
-            { 0, 0, 0 };
-        for (int channel = 1; channel <= Math.min(3, images.size()); channel++)
-        {
-            int rgb = images.get(channel - 1).getRGB(x, y);
-            color[getRGBColorIndex(channel)] = extractChannelColorIngredient(rgb, channel);
-        }
-        int mergedRGB = asRGB(color);
-        return mergedRGB;
-    }
-
-    private static int getRGBColorIndex(int channel)
+    protected final static int getRGBColorIndex(int channel)
     {
         assert channel <= 3 : "to many channels: " + channel;
         return 3 - channel;
     }
 
-    private static int getGrayscaleAsChannel(int rgb, int channelNumber)
+    protected final static int getGrayscaleAsChannel(int rgb, int channelNumber)
     {
         // NOTE: we handle only 3 channels until we know that more channels can be used and what
         // kind of color manipulation makes sense
@@ -321,7 +298,7 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
     }
 
     // returns the ingredient for the specified channel
-    private static int extractChannelColorIngredient(int rgb, int channelNumber)
+    protected final static int extractChannelColorIngredient(int rgb, int channelNumber)
     {
         Color c = new Color(rgb);
         int channelColors[] = new int[]
@@ -329,30 +306,8 @@ public class ImagesDownloadServlet extends AbstractDatasetDownloadServlet
         return channelColors[channelNumber - 1];
     }
 
-    private static int asRGB(int[] rgb)
+    protected final static int asRGB(int[] rgb)
     {
         return new Color(rgb[0], rgb[1], rgb[2]).getRGB();
     }
-
-    private static List<BufferedImage> loadImages(List<File> imageFiles, RequestParams params)
-    {
-        List<BufferedImage> images = new ArrayList<BufferedImage>();
-        for (File imageFile : imageFiles)
-        {
-            BufferedImage image = ImageUtil.loadImage(imageFile);
-            images.add(image);
-        }
-        return images;
-    }
-
-    private static List<File> getImageFiles(File datasetRoot, RequestParams params)
-    {
-        List<File> imageFiles = new ArrayList<File>();
-        for (String imagePath : params.getImagePaths())
-        {
-            imageFiles.add(new File(datasetRoot, imagePath));
-        }
-        return imageFiles;
-    }
-
 }

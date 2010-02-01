@@ -202,6 +202,30 @@ public final class FileUtilitiesDeleteRecursivelyTest extends AbstractFileSystem
     }
 
     @Test
+    public void testDeleteRecursivelySymbolicLinks() throws IOException
+    {
+        File dirOrg = createDirectory("dir-org");
+        File fileOrg = createFile(dirOrg, "file");
+
+        File dir = createDirectory("dir");
+        createSymLink(dirOrg, dir);
+        createFile(dir, "file1a");
+
+        boolean ok = FileUtilities.deleteRecursively(dir);
+        assertTrue("delete was not successful", ok);
+        assertFalse("directory was not deleted", dir.exists());
+        String errMsgSymlinkFollowed = "symbolic link was followed, original data has been deleted";
+        assertTrue(errMsgSymlinkFollowed, dirOrg.exists());
+        assertTrue(errMsgSymlinkFollowed, fileOrg.exists());
+
+    }
+
+    private void createSymLink(File sourceItem, File destinationDir)
+    {
+        SoftLinkMaker.createSymbolicLink(sourceItem, destinationDir);
+    }
+
+    @Test
     public void testDeleteRecursivelySelectiveFiles() throws IOException
     {
         createStructure();
