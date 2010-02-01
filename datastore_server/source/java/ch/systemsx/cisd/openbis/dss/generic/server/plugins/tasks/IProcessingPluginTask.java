@@ -30,7 +30,11 @@ public interface IProcessingPluginTask extends Serializable
 {
     /**
      * Processes asynchronously the specified datasets.
+     * 
+     * @returns {@link ProcessingStatus} of the finished processing with statuses of processing for
+     *          all scheduled data sets or null if processing succeeded for all datasets and no
+     *          additional information is provided.
      */
-    void process(List<DatasetDescription> datasets);
+    ProcessingStatus process(List<DatasetDescription> datasets);
 
 }

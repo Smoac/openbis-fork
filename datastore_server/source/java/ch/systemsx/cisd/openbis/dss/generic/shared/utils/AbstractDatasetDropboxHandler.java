@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -44,7 +45,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
  * 
  * @author Tomasz Pylak
  */
-abstract public class AbstractDatasetDropboxHandler implements Serializable, IPostRegistrationDatasetHandler
+abstract public class AbstractDatasetDropboxHandler implements Serializable,
+        IPostRegistrationDatasetHandler
 {
     private static final long serialVersionUID = 1L;
 
@@ -123,7 +125,7 @@ abstract public class AbstractDatasetDropboxHandler implements Serializable, IPo
         return file;
     }
 
-    public final void handle(File originalData, final DataSetInformation dataSetInformation)
+    public final Status handle(File originalData, final DataSetInformation dataSetInformation)
     {
         File dropboxDir = tryGetDropboxDir(originalData, dataSetInformation);
         if (dropboxDir != null)
@@ -132,6 +134,7 @@ abstract public class AbstractDatasetDropboxHandler implements Serializable, IPo
                     createDropboxDestinationFileName(dataSetInformation, originalData);
             copy(originalData, dropboxDir, destinationFileName);
         }
+        return Status.OK;
     }
 
     private void copy(File originalData, File dropboxDir, String destinationFileName)

@@ -23,7 +23,6 @@ import java.util.Properties;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
@@ -54,6 +53,10 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
     @Private
     static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
+
+    private static final String ALREADY_EXIST_MSG = "already exist";
+
+    private static final String COPYING_FAILED_MSG = "copying failed";
 
     private static final String RSYNC_EXEC = "rsync";
 
@@ -128,18 +131,40 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
             return copier;
         }
 
-        public void handle(File originalData, DataSetInformation dataSetInformation)
+        public Status handle(File originalData, DataSetInformation dataSetInformation)
         {
+            if (checkDestinationExists())
+            {
+                operationLog.error("Destination directory '" + destination.getPath()
+                        + "' already exists - dataset files will not be copied.");
+                return Status.createError(ALREADY_EXIST_MSG);
+            }
             Status status =
                     getCopier().copyToRemote(originalData, destination, host, rsyncModule,
                             rsyncPasswordFile);
             if (status.isError())
             {
-                throw new EnvironmentFailureException("Could not copy data set "
-                        + dataSetInformation.getDataSetCode() + " to destination folder '"
-                        + destination + "'" + (host != null ? " on host '" + host + "'" : "")
+                operationLog.error("Could not copy data set " + dataSetInformation.getDataSetCode()
+                        + " to destination folder '" + destination + "'"
+                        + (host != null ? " on host '" + host + "'" : "")
                         + (rsyncModule != null ? " for rsync module '" + rsyncModule + "'" : "")
                         + ": " + status.tryGetErrorMessage());
+                return Status.createError(COPYING_FAILED_MSG);
+            }
+            return status;
+        }
+
+        private boolean checkDestinationExists()
+        {
+            if (host != null)
+            {
+                // TODO 2010-01-29, Piotr Buczek: check if directory already exists
+                // check remotely using ssh
+                return false;
+            } else
+            {
+                // check locally
+                return destination.exists();
             }
         }
 

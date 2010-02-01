@@ -22,10 +22,12 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -42,7 +44,13 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
     private static final long serialVersionUID = 1L;
 
     final static Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, IPostRegistrationDatasetHandler.class);
+            LogFactory.getLogger(LogCategory.OPERATION, AbstractDropboxProcessingPlugin.class);
+
+    private final static String MISSING_DIRECTORY_MSG = "with missing directory";
+
+    private final static String EMPTY_DIRECTORY_MSG = "with empty directory";
+
+    private final static String MORE_THAN_ONE_ITEM_MSG = "with more than one item in the directory";
 
     private final IPostRegistrationDatasetHandler dropboxHandler;
 
@@ -57,30 +65,40 @@ abstract public class AbstractDropboxProcessingPlugin extends AbstractDatastoreP
         this.dropboxHandler = dropboxHandler;
     }
 
-    public void process(List<DatasetDescription> datasets)
+    public ProcessingStatus process(List<DatasetDescription> datasets)
     {
+        final ProcessingStatus result = new ProcessingStatus();
         for (DatasetDescription dataset : datasets)
         {
-            File originalDir = getDataSubDir(dataset);
-            if (originalDir.isDirectory() == false)
-            {
-                operationLog
-                        .warn("Dataset directory does not exist and will be silently excluded from the processing: "
-                                + originalDir.getPath());
-                continue;
-            }
-            File[] datasetFiles = FileUtilities.listFiles(originalDir);
-            if (datasetFiles.length == 1)
-            {
-                DataSetInformation datasetInfo = createDatasetInfo(dataset);
-                dropboxHandler.handle(datasetFiles[0], datasetInfo);
-            } else if (datasetFiles.length > 1)
-            {
-                operationLog.error(String.format(
-                        "Exactly one item was expected in the '%s' directory,"
-                                + " but %d have been found. Nothing will be processed.",
-                        originalDir.getParent(), datasetFiles.length));
-            }
+            Status status = processDataset(dataset);
+            result.addDatasetStatus(dataset, status);
+        }
+        return result;
+    }
+
+    private Status processDataset(DatasetDescription dataset)
+    {
+        File originalDir = getDataSubDir(dataset);
+        if (originalDir.isDirectory() == false)
+        {
+            operationLog
+                    .warn("Dataset directory does not exist and will be silently excluded from the processing: "
+                            + originalDir.getPath());
+            return Status.createError(MISSING_DIRECTORY_MSG);
+        }
+        File[] datasetFiles = FileUtilities.listFiles(originalDir);
+        if (datasetFiles.length == 1)
+        {
+            DataSetInformation datasetInfo = createDatasetInfo(dataset);
+            return dropboxHandler.handle(datasetFiles[0], datasetInfo);
+        } else
+        {
+            operationLog.error(String.format("Exactly one item was expected in the '%s' directory,"
+                    + " but %d have been found. Nothing will be processed.", originalDir
+                    .getParent(), datasetFiles));
+            final String errorMsg =
+                    datasetFiles.length > 1 ? MORE_THAN_ONE_ITEM_MSG : EMPTY_DIRECTORY_MSG;
+            return Status.createError(errorMsg);
         }
     }
 

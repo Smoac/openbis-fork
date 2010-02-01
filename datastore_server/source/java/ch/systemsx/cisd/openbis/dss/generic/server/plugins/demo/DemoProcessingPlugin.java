@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -36,7 +37,7 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
     {
     }
 
-    public void process(List<DatasetDescription> datasets)
+    public ProcessingStatus process(List<DatasetDescription> datasets)
     {
         System.out.println("Processing of the following datasets has been requested: " + datasets);
         System.out.println("sleeping for 10 sec");
@@ -48,6 +49,6 @@ public class DemoProcessingPlugin implements IProcessingPluginTask
             ex.printStackTrace();
         }
         System.out.println("Processing done.");
+        return null;
     }
-
 }

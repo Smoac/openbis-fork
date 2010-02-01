@@ -21,11 +21,13 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IProcessingPluginTask;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -66,9 +68,10 @@ public class ProcessDatasetsCommand implements IDataSetCommand
     public void execute(File store)
     {
         String errorMessageOrNull = null;
+        ProcessingStatus processingStatusOrNull = null;
         try
         {
-            task.process(datasets);
+            processingStatusOrNull = task.process(datasets);
         } catch (RuntimeException e)
         {
             // exception message should be readable for users
@@ -91,26 +94,33 @@ public class ProcessDatasetsCommand implements IDataSetCommand
                 }
                 return;
             }
-            createContentAndSendMessage(errorMessageOrNull);
+            createContentAndSendMessage(errorMessageOrNull, processingStatusOrNull);
         }
     }
 
-    private void createContentAndSendMessage(String errorMessageOrNull)
+    private void createContentAndSendMessage(String errorMessageOrNull,
+            ProcessingStatus processingStatusOrNull)
     {
         final StringBuilder contentBuilder = new StringBuilder();
         final String subject;
         if (errorMessageOrNull != null)
         {
             // create error message content
-            subject = getShortDescription("Failed to perform ");
+            subject = getShortDescription(" processing failed");
             contentBuilder.append(getDescription(subject));
             contentBuilder.append("\n\nError message:\n");
             contentBuilder.append(errorMessageOrNull);
         } else
         {
             // create success message content
-            subject = getShortDescription("Finished ");
-            contentBuilder.append(getDescription(subject));
+            subject = getShortDescription(" processing finished");
+            if (processingStatusOrNull != null)
+            {
+                contentBuilder.append(generateDescription(processingStatusOrNull));
+            } else
+            {
+                contentBuilder.append(getDescription(subject));
+            }
         }
         sendMessage(subject, contentBuilder.toString(), userEmailOrNull);
     }
@@ -126,14 +136,14 @@ public class ProcessDatasetsCommand implements IDataSetCommand
         mailClient.sendMessage(subject, content, null, null, recipient);
     }
 
-    private String getShortDescription(String prefix)
+    private String getShortDescription(String suffix)
     {
-        return String.format("%s'%s'", prefix, serviceDescription.getLabel());
+        return String.format("'%s'%s", serviceDescription.getLabel(), suffix);
     }
 
     private String getDescription(String prefix)
     {
-        return String.format("%s on data set(s): [%s]", prefix, getDataSetCodes());
+        return String.format("%s on data set(s): \n%s", prefix, getDataSetCodes(datasets));
     }
 
     public String getDescription()
@@ -141,7 +151,7 @@ public class ProcessDatasetsCommand implements IDataSetCommand
         return getDescription(getShortDescription(""));
     }
 
-    public String getDataSetCodes()
+    private static String getDataSetCodes(List<DatasetDescription> datasets)
     {
         if (datasets.isEmpty())
         {
@@ -158,4 +168,25 @@ public class ProcessDatasetsCommand implements IDataSetCommand
             return sb.toString();
         }
     }
+
+    private static String generateDescription(ProcessingStatus processingStatus)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Data sets:\n");
+        List<DatasetDescription> successfullyProcessed =
+                processingStatus.getDatasetsByStatus(Status.OK);
+        if (successfullyProcessed.isEmpty() == false)
+        {
+            sb.append("- successfully processed: ");
+            sb.append(getDataSetCodes(successfullyProcessed));
+        }
+        List<Status> errorStatuses = processingStatus.getErrorStatuses();
+        for (Status errorStatus : errorStatuses)
+        {
+            sb.append("\n- " + errorStatus.tryGetErrorMessage() + ": ");
+            sb.append(getDataSetCodes(successfullyProcessed));
+        }
+        return sb.toString();
+    }
+
 }
