@@ -24,9 +24,11 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
+import ch.systemsx.cisd.common.filesystem.ssh.SshCommandExecutor;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFile;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IPostRegistrationDatasetHandler;
@@ -62,6 +64,8 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
     private static final String SSH_EXEC = "ssh";
 
+    private static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s
+
     @Private
     static interface IPathCopierFactory
     {
@@ -89,6 +93,8 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
         private final File sshExecutable;
 
+        private final SshCommandExecutor sshCommandExecutor;
+
         private final Properties properties;
 
         private final String host;
@@ -111,6 +117,7 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
             HostAwareFile hostAwareFile =
                     HostAwareFileWithHighwaterMark.fromProperties(properties, DESTINATION_KEY);
             host = hostAwareFile.tryGetHost();
+            sshCommandExecutor = new SshCommandExecutor(sshExecutable, host);
             rsyncModule = hostAwareFile.tryGetRsyncModule();
             destination = hostAwareFile.getFile();
             getCopier();
@@ -133,11 +140,19 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
         public Status handle(File originalData, DataSetInformation dataSetInformation)
         {
-            if (checkDestinationExists())
+            File destinationFile = new File(destination, originalData.getName());
+            BooleanStatus destinationExists = checkFileExists(destinationFile);
+            if (destinationExists.isSuccess())
             {
-                operationLog.error("Destination directory '" + destination.getPath()
+                operationLog.error("Destination file/directory '" + destinationFile.getPath()
                         + "' already exists - dataset files will not be copied.");
                 return Status.createError(ALREADY_EXIST_MSG);
+            } else if (destinationExists.isError())
+            {
+                operationLog.error("Could not test destination file/directory '" + destinationFile
+                        + "' existance" + (host != null ? " on host '" + host + "'" : "") + ": "
+                        + destinationExists.tryGetMessage());
+                return Status.createError(COPYING_FAILED_MSG);
             }
             Status status =
                     getCopier().copyToRemote(originalData, destination, host, rsyncModule,
@@ -154,17 +169,16 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
             return status;
         }
 
-        private boolean checkDestinationExists()
+        private BooleanStatus checkFileExists(File file)
         {
             if (host != null)
             {
-                // TODO 2010-01-29, Piotr Buczek: check if directory already exists
                 // check remotely using ssh
-                return false;
+                return sshCommandExecutor.exists(file, SSH_TIMEOUT_MILLIS);
             } else
             {
                 // check locally
-                return destination.exists();
+                return BooleanStatus.createFromBoolean(file.exists());
             }
         }
 

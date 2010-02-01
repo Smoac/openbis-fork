@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.filesystem.store;
+package ch.systemsx.cisd.common.filesystem.ssh;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
- * Only for package internal use.
- * 
  * @author Tomasz Pylak
  */
-interface ISshCommandBuilder
+public interface ISshCommandBuilder extends Serializable
 {
     // modifies the command in a way that it's executed on the remote host
     List<String> createSshCommand(String command, String host);

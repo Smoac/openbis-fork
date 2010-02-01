@@ -17,8 +17,6 @@
 package ch.systemsx.cisd.datamover.filesystem.store;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -28,18 +26,18 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusWithResult;
+import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
+import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandBuilder;
+import ch.systemsx.cisd.common.filesystem.ssh.SshCommandExecutor;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.highwatermark.HighwaterMarkWatcher.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
-import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrategy;
 import ch.systemsx.cisd.datamover.filesystem.intf.AbstractFileStore;
-import ch.systemsx.cisd.datamover.filesystem.intf.BooleanStatus;
 import ch.systemsx.cisd.datamover.filesystem.intf.IExtendedFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileSysOperationsFactory;
@@ -53,9 +51,6 @@ import ch.systemsx.cisd.datamover.filesystem.intf.IStoreCopier;
  */
 public class FileStoreRemote extends AbstractFileStore
 {
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, FileStoreRemote.class);
-
     private static final Logger machineLog =
             LogFactory.getLogger(LogCategory.MACHINE, FileStoreRemote.class);
 
@@ -89,22 +84,6 @@ public class FileStoreRemote extends AbstractFileStore
         return "rm -fr " + pathString;
     }
 
-    // Creates bash command. The command returns 0 and its output is empty if the path is a readable
-    // and writable directory
-    private static String mkCheckDirectoryFullyAccessibleCommand(final String path)
-    {
-        // %1$s references always the first argument
-        return String.format("if [ -d %1$s -a -w %1$s -a -r %1$s -a -x %1$s ]; then "
-                + "exit 0; else echo false; fi", path);
-    }
-
-    // Creates bash command. The command returns 0 and its output is empty if the path is an
-    // existing file or directory
-    private static String mkCheckFileExistsCommand(final String path)
-    {
-        return String.format("if [ -e %s ]; then exit 0; else echo false; fi", path);
-    }
-
     // Creates bash command. The command returns 0 if the command exists and is a file
     private static String mkCheckCommandExistsCommand(final String commandName)
     {
@@ -129,7 +108,7 @@ public class FileStoreRemote extends AbstractFileStore
 
     // ---------------
 
-    private final ISshCommandBuilder sshCommandBuilder;
+    private final SshCommandExecutor sshCommandExecutor;
 
     private final HighwaterMarkWatcher highwaterMarkWatcher;
 
@@ -150,9 +129,9 @@ public class FileStoreRemote extends AbstractFileStore
             final boolean skipAccessibilityTest, final String remoteFindExecutableOrNull,
             final String remoteLastchangedExecutableOrNull)
     {
-        this(fileWithHighwaterMark, kind, createSshCommandBuilder(findSSHOrDie(factory)), factory,
-                skipAccessibilityTest, remoteFindExecutableOrNull,
-                remoteLastchangedExecutableOrNull);
+        this(fileWithHighwaterMark, kind, SshCommandExecutor
+                .createSshCommandBuilder(findSSHOrDie(factory)), factory, skipAccessibilityTest,
+                remoteFindExecutableOrNull, remoteLastchangedExecutableOrNull);
     }
 
     @Private
@@ -164,7 +143,9 @@ public class FileStoreRemote extends AbstractFileStore
         super(hostAwareFileWithHighwaterMark, kind, factory);
         assert hostAwareFileWithHighwaterMark.tryGetHost() != null : "Unspecified host";
         this.skipAccessibilityTest = skipAccessibilityTest;
-        this.sshCommandBuilder = sshCommandBuilder;
+        this.sshCommandExecutor =
+                new SshCommandExecutor(sshCommandBuilder, hostAwareFileWithHighwaterMark
+                        .tryGetHost());
         this.highwaterMarkWatcher =
                 createHighwaterMarkWatcher(hostAwareFileWithHighwaterMark, sshCommandBuilder);
         setAndLogLastchangedExecutable(remoteLastchangedExecutableOrNull);
@@ -220,7 +201,8 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String pathString = StoreItem.asFile(getPath(), item).getPath();
         final String cmd = mkDeleteFileCommand(pathString);
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS);
+        final ProcessResult result =
+                sshCommandExecutor.tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS);
         final String errMsg = getErrorMessageOrNull(result);
         if (errMsg == null)
         {
@@ -234,21 +216,7 @@ public class FileStoreRemote extends AbstractFileStore
     public final BooleanStatus exists(final StoreItem item)
     {
         final File itemFile = StoreItem.asFile(getPath(), item);
-        final String cmd = mkCheckFileExistsCommand(itemFile.getPath());
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS);
-        if (result.isOK())
-        {
-            return BooleanStatus.createFromBoolean(isSuccessfulCheck(result));
-        } else
-        {
-            return BooleanStatus.createError("Remote command '" + cmd
-                    + "' failed with exit value: " + result.getExitValue());
-        }
-    }
-
-    private boolean isSuccessfulCheck(final ProcessResult result)
-    {
-        return result.getOutput().size() == 0;
+        return sshCommandExecutor.exists(itemFile, QUICK_SSH_TIMEOUT_MILLIS);
     }
 
     public final IStoreCopier getCopier(final IFileStore destinationDirectory)
@@ -277,7 +245,8 @@ public class FileStoreRemote extends AbstractFileStore
         final String cmd =
                 mkLastchangedCommand(itemPath, stopWhenFindYoungerMillis, isRelative,
                         remoteLastchangedExecutableOrNull);
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
+        final ProcessResult result =
+                sshCommandExecutor.tryExecuteCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
         final String errMsg = getErrorMessageOrNullForLastchanged(result);
         if (errMsg == null)
         {
@@ -296,7 +265,8 @@ public class FileStoreRemote extends AbstractFileStore
 
         final String findExec = getRemoteFindExecutableOrDie();
         final String cmd = mkFindYoungestModificationTimestampSecCommand(itemPath, findExec);
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
+        final ProcessResult result =
+                sshCommandExecutor.tryExecuteCommandRemotely(cmd, LONG_SSH_TIMEOUT_MILLIS);
         final String errMsg = getErrorMessageOrNullForFind(result);
         if (errMsg == null)
         {
@@ -346,8 +316,8 @@ public class FileStoreRemote extends AbstractFileStore
     public final BooleanStatus checkDirectoryFullyAccessible(final long timeOutMillis)
     {
         final BooleanStatus status =
-                skipAccessibilityTest ? BooleanStatus.createTrue() : checkDirectoryAccessible(
-                        getPathString(), timeOutMillis);
+                skipAccessibilityTest ? BooleanStatus.createTrue() : sshCommandExecutor
+                        .checkDirectoryAccessible(getPathString(), timeOutMillis);
         if (status.isSuccess())
         {
             if (this.remoteLastchangedExecutableOrNull != null
@@ -404,7 +374,8 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String cmd = mkCheckCommandExistsCommand(findExec);
         final ProcessResult result =
-                tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
+                sshCommandExecutor.tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS,
+                        false);
         if (machineLog.isDebugEnabled())
         {
             result.log();
@@ -414,7 +385,8 @@ public class FileStoreRemote extends AbstractFileStore
             final String findExecutable = result.getOutput().get(0);
             final String verCmd = getVersionCommand(findExec);
             final ProcessResult verResult =
-                    tryExecuteCommandRemotely(verCmd, QUICK_SSH_TIMEOUT_MILLIS, false);
+                    sshCommandExecutor.tryExecuteCommandRemotely(verCmd,
+                            QUICK_SSH_TIMEOUT_MILLIS, false);
             if (machineLog.isDebugEnabled())
             {
                 verResult.log();
@@ -461,7 +433,8 @@ public class FileStoreRemote extends AbstractFileStore
     {
         final String cmd = mkCheckCommandExistsCommand(exec);
         final ProcessResult result =
-                tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS, false);
+                sshCommandExecutor.tryExecuteCommandRemotely(cmd, QUICK_SSH_TIMEOUT_MILLIS,
+                        false);
         if (machineLog.isDebugEnabled())
         {
             result.log();
@@ -485,58 +458,6 @@ public class FileStoreRemote extends AbstractFileStore
         }
     }
 
-    private BooleanStatus checkDirectoryAccessible(final String pathString, final long timeOutMillis)
-    {
-        final String cmd = mkCheckDirectoryFullyAccessibleCommand(pathString);
-        final ProcessResult result = tryExecuteCommandRemotely(cmd, timeOutMillis);
-        String dirDesc = "'" + getHost() + ":" + pathString + "'";
-        if (result.isOK())
-        {
-            if (isSuccessfulCheck(result))
-            {
-                return BooleanStatus.createTrue();
-            } else
-            {
-                String msg =
-                        "Directory not accessible: " + dirDesc
-                                + ". Check that it exists and that you have read and write "
-                                + "permissions to it.";
-                if (result.getOutput().size() > 0
-                        && "false".equals(result.getOutput().get(0)) == false)
-                {
-                    msg += " [check says: " + StringUtils.join(result.getOutput(), '\n') + "]";
-                }
-                return BooleanStatus.createFalse(msg);
-            }
-        } else
-        {
-            return BooleanStatus.createError("Error when checking if directory " + dirDesc
-                    + " is accessible: " + result.getOutput());
-        }
-    }
-
-    private final static List<String> createSshCommand(final String command,
-            final File sshExecutable, final String host)
-    {
-        final ArrayList<String> wrappedCmd = new ArrayList<String>();
-        final List<String> sshCommand = Arrays.asList(sshExecutable.getPath(), "-T", host);
-        wrappedCmd.addAll(sshCommand);
-        wrappedCmd.add(command);
-        return wrappedCmd;
-    }
-
-    private static ISshCommandBuilder createSshCommandBuilder(final File sshExecutable)
-    {
-        return new ISshCommandBuilder()
-            {
-
-                public List<String> createSshCommand(final String cmd, final String host)
-                {
-                    return FileStoreRemote.createSshCommand(cmd, sshExecutable, host);
-                }
-            };
-    }
-
     public final String getLocationDescription(final StoreItem item)
     {
         return getHost() + ":" + getChildFile(item).getPath();
@@ -552,7 +473,9 @@ public class FileStoreRemote extends AbstractFileStore
     public final StoreItem[] tryListSortByLastModified(final ISimpleLogger loggerOrNull)
     {
         final String simpleCmd = mkListByOldestModifiedCommand(getPathString());
-        final ProcessResult result = tryExecuteCommandRemotely(simpleCmd, LONG_SSH_TIMEOUT_MILLIS);
+        final ProcessResult result =
+                sshCommandExecutor.tryExecuteCommandRemotely(simpleCmd,
+                        LONG_SSH_TIMEOUT_MILLIS);
         if (result.isOK())
         {
             return asStoreItems(result.getOutput());
@@ -580,25 +503,6 @@ public class FileStoreRemote extends AbstractFileStore
     }
 
     // -----------------------
-
-    private ProcessResult tryExecuteCommandRemotely(final String localCmd, final long timeOutMillis)
-    {
-        return tryExecuteCommandRemotely(localCmd, timeOutMillis, true);
-    }
-
-    private ProcessResult tryExecuteCommandRemotely(final String localCmd,
-            final long timeOutMillis, final boolean logResult)
-    {
-        final List<String> cmdLine = sshCommandBuilder.createSshCommand(localCmd, getHost());
-        final ProcessResult result =
-                ProcessExecutionHelper.run(cmdLine, operationLog, machineLog, timeOutMillis,
-                        OutputReadingStrategy.ALWAYS, false);
-        if (logResult)
-        {
-            result.log();
-        }
-        return result;
-    }
 
     private static String getErrorMessageOrNull(final ProcessResult result)
     {

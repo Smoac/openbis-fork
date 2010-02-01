@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.filesystem.intf;
+package ch.systemsx.cisd.common.filesystem;
+
+import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -26,8 +28,10 @@ import ch.systemsx.cisd.common.utilities.ModifiedShortPrefixToStringStyle;
  * 
  * @author Tomasz Pylak
  */
-public class ResultStatus<T>
+public class ResultStatus<T> implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final T result;
 
     // if true the result is unavailable

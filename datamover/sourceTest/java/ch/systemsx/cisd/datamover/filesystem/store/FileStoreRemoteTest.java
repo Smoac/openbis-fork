@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.StoreItem;
+import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandBuilder;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -115,6 +116,8 @@ public final class FileStoreRemoteTest
     {
         return new ISshCommandBuilder()
             {
+                private static final long serialVersionUID = 1L;
+
                 public List<String> createSshCommand(String command, String host)
                 {
                     return Arrays.asList("bash", "-c", command);

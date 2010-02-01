@@ -175,16 +175,18 @@ public class ProcessDatasetsCommand implements IDataSetCommand
         sb.append("Data sets:\n");
         List<DatasetDescription> successfullyProcessed =
                 processingStatus.getDatasetsByStatus(Status.OK);
-        if (successfullyProcessed.isEmpty() == false)
+        if (successfullyProcessed != null && successfullyProcessed.isEmpty() == false)
         {
             sb.append("- successfully processed: ");
             sb.append(getDataSetCodes(successfullyProcessed));
+            sb.append("\n");
         }
         List<Status> errorStatuses = processingStatus.getErrorStatuses();
         for (Status errorStatus : errorStatuses)
         {
-            sb.append("\n- " + errorStatus.tryGetErrorMessage() + ": ");
-            sb.append(getDataSetCodes(successfullyProcessed));
+            sb.append("- " + errorStatus.tryGetErrorMessage() + ": ");
+            sb.append(getDataSetCodes(processingStatus.getDatasetsByStatus(errorStatus)));
+            sb.append("\n");
         }
         return sb.toString();
     }

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.datamover.filesystem.intf;
+package ch.systemsx.cisd.common.filesystem;
+
+import java.io.Serializable;
 
 /**
  * A class that holds the information about the boolean result of an operation. There is a way to
@@ -22,8 +24,10 @@ package ch.systemsx.cisd.datamover.filesystem.intf;
  * 
  * @author Tomasz Pylak
  */
-public class BooleanStatus
+public class BooleanStatus implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final ResultStatus<Boolean> result;
 
     private BooleanStatus(Boolean result, boolean errorOccurred, String messageOrNull)
