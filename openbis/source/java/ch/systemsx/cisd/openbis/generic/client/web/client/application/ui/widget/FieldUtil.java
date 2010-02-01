@@ -30,6 +30,8 @@ import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Image;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+
 /**
  * Utilities for {@link Field} class.
  * 
@@ -103,7 +105,8 @@ public class FieldUtil
 
     /**
      * Adds '?' to the field and allows to display chosen message in the info box.
-     * @param image 
+     * 
+     * @param image
      */
     public static void addInfoIcon(final Field<?> field, final String message, final Image image)
     {
@@ -116,14 +119,16 @@ public class FieldUtil
                     final WidgetComponent info = new WidgetComponent(image);
                     info.setStyleName("hands");
                     info.setStyleAttribute("cursor", "hand");
-                    info.setToolTip(message);
+                    GWTUtils.setToolTip(info, message);
                     info.sinkEvents(Events.OnClick.getEventCode());
-                    info.addListener(Events.OnClick, new Listener<BaseEvent>(){
-                        public void handleEvent(BaseEvent e)
+                    info.addListener(Events.OnClick, new Listener<BaseEvent>()
                         {
-                            MessageBox.info("Info", message, null);
-                        }});
-                    
+                            public void handleEvent(BaseEvent e)
+                            {
+                                MessageBox.info("Info", message, null);
+                            }
+                        });
+
                     Element parent = field.el().getParent().dom;
                     info.render(parent);
                     info.setStyleAttribute("display", "block");

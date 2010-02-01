@@ -9,6 +9,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -68,7 +69,7 @@ public class DetailedSearchToolbar extends ToolBar
     private void updateDescription(String searchDescription)
     {
         description.setLabel(StringUtils.abbreviate(searchDescription, 100));
-        description.setToolTip(searchDescription);
+        GWTUtils.setToolTip(description, searchDescription);
     }
 
     @Override

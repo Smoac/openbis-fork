@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -81,7 +82,7 @@ class ColumnSettingsChooser
     {
         final String disabledTitle = "Select a table row first.";
         button.disable();
-        button.setTitle(disabledTitle);
+        GWTUtils.setToolTip(button, disabledTitle);
 
         grid.getSelectionModel().addListener(Events.SelectionChange,
                 new Listener<SelectionChangedEvent<ModelData>>()
@@ -91,11 +92,11 @@ class ColumnSettingsChooser
                             if (grid.getSelectionModel().getSelectedItems().size() == 1)
                             {
                                 button.enable();
-                                button.setTitle(enabledTitle);
+                                GWTUtils.setToolTip(button, enabledTitle);
                             } else
                             {
                                 button.disable();
-                                button.setTitle(disabledTitle);
+                                GWTUtils.setToolTip(button, disabledTitle);
                             }
                         }
                     });

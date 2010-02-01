@@ -401,7 +401,8 @@ public final class PropertyTypeAssignmentForm extends LayoutContainer implements
             DatabaseModificationAwareField<?> fieldHolder =
                     PropertyFieldFactory.createField(propertyType, false, viewContext
                             .getMessage(Dict.DEFAULT_VALUE), fieldId, null, viewContext);
-            fieldHolder.get().setToolTip(viewContext.getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
+            GWTUtils.setToolTip(fieldHolder.get(), viewContext
+                    .getMessage(Dict.DEFAULT_VALUE_TOOLTIP));
             defaultValueField = fieldHolder;
             defaultValueField.get().show();
             formPanel.add(defaultValueField.get());

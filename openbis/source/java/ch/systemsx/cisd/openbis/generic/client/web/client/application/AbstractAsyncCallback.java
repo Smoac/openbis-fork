@@ -27,6 +27,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.InvocationException;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
@@ -259,7 +260,7 @@ public abstract class AbstractAsyncCallback<T> implements AsyncCallback<T>
     private void showSessionTerminated(String msg)
     {
         Dialog dialog = new Dialog();
-        dialog.setTitle(getMessage(Dict.MESSAGEBOX_WARNING));
+        GWTUtils.setToolTip(dialog, getMessage(Dict.MESSAGEBOX_WARNING));
 
         dialog.addText(msg);
         dialog.setHideOnButtonClick(false);

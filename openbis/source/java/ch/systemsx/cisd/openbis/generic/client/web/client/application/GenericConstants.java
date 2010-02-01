@@ -98,7 +98,7 @@ public final class GenericConstants
     /** The HTTP URL parameter that specifies whether we want generic or specific help. */
     public static final String HELP_REDIRECT_SPECIFIC_KEY = "specific";
 
-    public static final int DESCRIPTION_1000 = 1000;
+    public static final int DESCRIPTION_2000 = 2000;
 
     public static final int MAIN_DS_PATH_LENGTH = 1000;
 

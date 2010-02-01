@@ -64,7 +64,7 @@ public class InvalidationPE extends HibernateAbstractRegistrationHolder implemen
         return id;
     }
 
-    @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public String getReason()
     {
         return reason;

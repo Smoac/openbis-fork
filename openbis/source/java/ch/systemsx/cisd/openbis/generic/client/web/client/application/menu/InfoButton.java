@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.CommonViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /** {@link Button} displaying a {@link MessageBox} with a short help message. */
 public class InfoButton extends Button
@@ -15,7 +16,7 @@ public class InfoButton extends Button
     public InfoButton(final CommonViewContext viewContext)
     {
         setIcon(AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon()));
-        setTitle(viewContext.getMessage(Dict.INFO_BUTTON_TOOLTIP));
+        GWTUtils.setToolTip(this, viewContext.getMessage(Dict.INFO_BUTTON_TOOLTIP));
         addSelectionListener(new SelectionListener<ButtonEvent>()
             {
 

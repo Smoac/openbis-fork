@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 
 /**
@@ -124,10 +125,10 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         button.setEnabled(isEnabled);
         if (isEnabled)
         {
-            button.setTitle(messageProvider.getMessage(Dict.TOOLTIP_CONFIG_ENABLED));
+            GWTUtils.setToolTip(button, messageProvider.getMessage(Dict.TOOLTIP_CONFIG_ENABLED));
         } else
         {
-            button.setTitle(messageProvider.getMessage(Dict.TOOLTIP_CONFIG_DISABLED));
+            GWTUtils.setToolTip(button, messageProvider.getMessage(Dict.TOOLTIP_CONFIG_DISABLED));
         }
     }
 
@@ -140,10 +141,12 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         refreshButton.setEnabled(isEnabled);
         if (isEnabled)
         {
-            refreshButton.setTitle(messageProvider.getMessage(Dict.TOOLTIP_REFRESH_ENABLED));
+            GWTUtils.setToolTip(refreshButton, messageProvider
+                    .getMessage(Dict.TOOLTIP_REFRESH_ENABLED));
         } else
         {
-            refreshButton.setTitle(messageProvider.getMessage(Dict.TOOLTIP_REFRESH_DISABLED));
+            GWTUtils.setToolTip(refreshButton, messageProvider
+                    .getMessage(Dict.TOOLTIP_REFRESH_DISABLED));
         }
     }
 
@@ -151,14 +154,14 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
     {
         exportButton.setEnabled(true);
         String title = messageProvider.getMessage(Dict.TOOLTIP_EXPORT_ENABLED);
-        exportButton.setTitle(title);
+        GWTUtils.setToolTip(exportButton, title);
     }
 
     public final void disableExportButton()
     {
         exportButton.setEnabled(false);
         String title = messageProvider.getMessage(Dict.TOOLTIP_EXPORT_DISABLED);
-        exportButton.setTitle(title);
+        GWTUtils.setToolTip(exportButton, title);
     }
 
     private Button createRefreshButton(final IBrowserGridActionInvoker invoker)

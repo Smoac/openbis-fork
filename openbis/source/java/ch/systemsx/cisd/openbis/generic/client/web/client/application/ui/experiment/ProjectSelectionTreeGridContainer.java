@@ -132,7 +132,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
         treeGrid.setAutoExpandColumn(ModelDataPropertyNames.CODE);
         treeGrid.getTreeView().setForceFit(true);
         treeGrid.getTreeView().setSortingEnabled(false);
-        treeGrid.setTitle(viewContext.getMessage(Dict.PROJECT_SELECTOR_TOOLTIP));
+        GWTUtils.setToolTip(treeGrid, viewContext.getMessage(Dict.PROJECT_SELECTOR_TOOLTIP));
         // switchOffFolderIcons
         treeGrid.getStyle().setNodeCloseIcon(null);
         treeGrid.getStyle().setNodeOpenIcon(null);
@@ -198,7 +198,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
                     final Group group = (Group) model.get(ModelDataPropertyNames.OBJECT);
                     final Widget result = new InlineHTML(group.getCode());
                     result.setTitle(createTooltipText("Group", group.getCode(), group
-                            .getDescription()));
+                            .getDescription()));// FIXME
                     return result;
                 }
 
@@ -219,7 +219,7 @@ public final class ProjectSelectionTreeGridContainer extends LayoutContainer imp
 
                                         });
                     detailsLink.setTitle(viewContext
-                            .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP));
+                            .getMessage(Dict.PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP));// FIXME
                     projectLinks.put(project, detailsLink);
 
                     final FlowPanel panel =

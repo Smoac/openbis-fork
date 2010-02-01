@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Abstrac
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetListDeletionConfirmationDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SectionsPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DataSetUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
@@ -294,7 +295,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
         private Button createBrowseButton()
         {
             Button result = new Button(viewContext.getMessage(Dict.BUTTON_VIEW));
-            result.setTitle(viewContext.getMessage(Dict.TOOLTIP_VIEW_DATASET));
+            GWTUtils.setToolTip(result, viewContext.getMessage(Dict.TOOLTIP_VIEW_DATASET));
             result.setId(createChildId(VIEW_BUTTON_ID_SUFFIX));
             result.disable();
             return result;

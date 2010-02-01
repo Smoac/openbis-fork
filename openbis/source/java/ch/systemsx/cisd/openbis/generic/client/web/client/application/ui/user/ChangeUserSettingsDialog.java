@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.C
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
@@ -95,7 +96,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     {
         CheckBoxField field =
                 new CheckBoxField(viewContext.getMessage(Dict.USE_WILDCARD_SEARCH_MODE_LABEL), true);
-        field.setTitle(viewContext.getMessage(Dict.USE_WILDCARD_SEARCH_MODE_TOOLTIP));
+        GWTUtils.setToolTip(field, viewContext.getMessage(Dict.USE_WILDCARD_SEARCH_MODE_TOOLTIP));
         field.setValue(viewContext.getDisplaySettingsManager().isUseWildcardSearchMode());
         return field;
     }

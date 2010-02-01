@@ -33,7 +33,7 @@ public class DescriptionField extends MultilineVarcharField
     public DescriptionField(IMessageProvider messageProvider, boolean mandatory)
     {
         super(messageProvider.getMessage(Dict.DESCRIPTION), mandatory);
-        setMaxLength(GenericConstants.DESCRIPTION_1000);
+        setMaxLength(GenericConstants.DESCRIPTION_2000);
     }
 
     public DescriptionField(IMessageProvider messageProvider, boolean mandatory, String parentId)

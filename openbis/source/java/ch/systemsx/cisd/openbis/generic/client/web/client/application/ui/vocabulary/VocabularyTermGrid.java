@@ -67,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.InfoBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
@@ -297,7 +298,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
     private void disableButton(Button button, String tooltip)
     {
         button.setEnabled(false);
-        button.setTitle(tooltip);
+        GWTUtils.setToolTip(button, tooltip);
     }
 
     public static String createGridId(Vocabulary vocabulary)
@@ -434,7 +435,7 @@ public class VocabularyTermGrid extends AbstractSimpleBrowserGrid<VocabularyTerm
                                 }
                             }
                         });
-                    
+
                     DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
                             createHelpPageIdentifier());
                 }

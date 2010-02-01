@@ -25,14 +25,23 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.Strin
  */
 public class TooltipRenderer
 {
+
+    private static final String NEW_LINE = "\n";
+
+    private static final String END_B = "</b>";
+
+    private static final String START_B = "<b>";
+
+    private static final String BR = "<br/>";
+
     public static final String renderAsTooltip(String code, String descriptionOrNull)
     {
         assert code != null;
         final StringBuilder sb = new StringBuilder();
-        sb.append("<b>" + code + "</b>");
+        sb.append(START_B + code + END_B);
         if (StringUtils.isEmpty(descriptionOrNull) == false)
         {
-            sb.append("<br><hr>description: <i>" + descriptionOrNull + "</i>");
+            sb.append(BR + descriptionOrNull.replace(NEW_LINE, BR));
         }
         return sb.toString();
     }

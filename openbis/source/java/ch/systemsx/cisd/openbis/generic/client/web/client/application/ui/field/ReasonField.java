@@ -33,7 +33,7 @@ public class ReasonField extends MultilineVarcharField
     public ReasonField(IMessageProvider messageProvider, boolean mandatory)
     {
         super(messageProvider.getMessage(Dict.REASON), mandatory);
-        setMaxLength(GenericConstants.DESCRIPTION_1000);
+        setMaxLength(GenericConstants.DESCRIPTION_2000);
     }
 
     public ReasonField(IMessageProvider messageProvider, boolean mandatory, String parentId)

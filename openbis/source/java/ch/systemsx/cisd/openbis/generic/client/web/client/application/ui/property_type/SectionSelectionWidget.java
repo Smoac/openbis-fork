@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.StringUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
@@ -61,7 +62,7 @@ public final class SectionSelectionWidget extends SimpleComboBox<String>
             final String emptyText, final String chooseText, final List<String> sections)
     {
         setFieldLabel(fieldLabel);
-        setToolTip(toolTip);
+        GWTUtils.setToolTip(this, toolTip);
         if (sections.size() == 0)
         {
             setEmptyText(emptyText);

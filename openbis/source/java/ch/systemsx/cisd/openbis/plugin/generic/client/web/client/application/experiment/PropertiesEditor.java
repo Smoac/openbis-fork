@@ -134,7 +134,7 @@ abstract public class PropertiesEditor<T extends EntityType, S extends EntityTyp
                 PropertyFieldFactory.createField(etpt.getPropertyType(), isMandatory, label,
                         createFormFieldId(getId(), propertyTypeCode), value, viewContext);
         field.get().setData(ETPT, etpt);
-        field.get().setTitle(propertyTypeCode);
+        GWTUtils.setToolTip(field.get(), propertyTypeCode);
         return field;
     }
 

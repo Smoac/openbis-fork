@@ -21,8 +21,10 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.ListBox;
@@ -132,6 +134,17 @@ public final class GWTUtils
         {
             tree.getSelectionModel().select(model, false);
         }
+    }
+
+    /**
+     * Sets the tooltip of the component using default configuration (disappear after mouse moved),
+     * replace new lines with html breaks.
+     */
+    public static void setToolTip(Component component, String text)
+    {
+        String preparedText = text != null ? text.replace("\n", "<br>") : text;
+        ToolTipConfig config = new ToolTipConfig(preparedText);
+        component.setToolTip(config);
     }
 
     /** @return specified model from the list if it's found, null otherwise */

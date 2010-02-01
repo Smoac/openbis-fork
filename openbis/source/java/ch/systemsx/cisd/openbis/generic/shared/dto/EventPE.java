@@ -121,7 +121,7 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
         this.identifier = identifier;
     }
 
-    @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public String getDescription()
     {
         return description;
@@ -132,7 +132,7 @@ public class EventPE extends HibernateAbstractRegistrationHolder implements IIdH
         this.description = description;
     }
 
-    @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
     public String getReason()
     {
         return reason;

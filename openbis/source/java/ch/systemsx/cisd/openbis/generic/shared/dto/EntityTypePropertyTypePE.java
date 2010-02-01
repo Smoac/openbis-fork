@@ -140,7 +140,7 @@ public abstract class EntityTypePropertyTypePE extends HibernateAbstractRegistra
     }
 
     @Column(name = ColumnNames.SECTION_COLUMN)
-    @Length(max = GenericConstants.DESCRIPTION_1000, message = ValidationMessages.SECTION_LENGTH_MESSAGE)
+    @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.SECTION_LENGTH_MESSAGE)
     public String getSection()
     {
         return section;

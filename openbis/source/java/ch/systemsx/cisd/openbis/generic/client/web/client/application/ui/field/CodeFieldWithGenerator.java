@@ -21,6 +21,7 @@ import com.google.gwt.user.client.Element;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
  * The {@link CodeField} extension "auto generate" option.
@@ -44,7 +45,7 @@ public class CodeFieldWithGenerator extends CodeField
         this.autoGenerateCode = autoGenerateCode;
         setTriggerStyle("x-form-trigger-generate");
         setHideTrigger(false);
-        setTitle("Click the button to automatically generate the code");
+        GWTUtils.setToolTip(this, "Click the button to automatically generate the code");
     }
 
     @Override
@@ -63,7 +64,7 @@ public class CodeFieldWithGenerator extends CodeField
         super.setHideTrigger(hideTrigger);
         if (hideTrigger == true)
         {
-            setTitle("");
+            GWTUtils.setToolTip(this, "");
         }
     }
 
