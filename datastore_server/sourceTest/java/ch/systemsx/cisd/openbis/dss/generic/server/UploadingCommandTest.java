@@ -300,8 +300,7 @@ public class UploadingCommandTest extends AssertJUnit
                         {
                             public Object invoke(Invocation invocation) throws Throwable
                             {
-                                listener[0].finished(true, Collections.<String> emptyList(),
-                                        Collections.<Throwable> emptyList());
+                                listener[0].finished(true);
                                 return null;
                             }
                         });
@@ -357,8 +356,7 @@ public class UploadingCommandTest extends AssertJUnit
                         {
                             public Object invoke(Invocation invocation) throws Throwable
                             {
-                                listener[0].finished(true, Collections.<String> emptyList(),
-                                        Collections.<Throwable> emptyList());
+                                listener[0].finished(true);
                                 return null;
                             }
                         });
@@ -388,13 +386,13 @@ public class UploadingCommandTest extends AssertJUnit
                     {
                         one(factory).createCIFEXComponent();
                         will(returnValue(cifex));
-    
+
                         one(cifex).login(uploadContextNoPasswordNotAuthenticated.getUserID(),
                                 uploadContextNoPasswordNotAuthenticated.getPassword());
                         will(throwException(new AuthorizationFailureException("forget it!")));
                     }
                 });
-    
+
             logRecorder.resetLogContent();
             commandAdminSessionNotAuthenticated.execute(STORE);
         } finally
@@ -452,8 +450,7 @@ public class UploadingCommandTest extends AssertJUnit
                         {
                             public Object invoke(Invocation invocation) throws Throwable
                             {
-                                listener[0].finished(false, Collections.<String> emptyList(),
-                                        Collections.<Throwable> emptyList());
+                                listener[0].finished(false);
                                 return null;
                             }
                         });
