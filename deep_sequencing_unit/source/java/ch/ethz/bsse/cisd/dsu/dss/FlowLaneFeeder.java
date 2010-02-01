@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.TimingParameters;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FastRecursiveHardLinkMaker;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
@@ -136,7 +137,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
         }
     }
 
-    public void handle(File originalData, DataSetInformation dataSetInformation)
+    public Status handle(File originalData, DataSetInformation dataSetInformation)
     {
         Map<String, Sample> flowLaneSampleMap = createFlowLaneSampleMap(dataSetInformation);
         String flowcellID = originalData.getName();
@@ -187,7 +188,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
                         + flowLaneDataSet.getName() + "'.");
             }
         }
-
+        return Status.OK;
     }
 
     private List<String> getSRFInfo(File file)
@@ -275,9 +276,7 @@ class FlowLaneFeeder extends AbstractPostRegistrationDataSetHandlerForFileBasedU
             }
         }
         String sampleCode = flowLaneSample.getCode();
-        String metaFileName =
-                escapeSampleCode(sampleCode)
-                        + META_DATA_FILE_TYPE;
+        String metaFileName = escapeSampleCode(sampleCode) + META_DATA_FILE_TYPE;
         FileUtilities.writeToFile(new File(flowLaneDataSet, metaFileName), builder.toString());
         copyToDropBox(dropBox, flowLaneDataSet);
     }

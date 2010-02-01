@@ -35,6 +35,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IOutputStream;
@@ -60,8 +61,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
@@ -69,6 +68,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     private static final class DataSetPropertiesBuilder extends TableBuilder
     {
         private final DataSetPropertiesValidator propertiesValidator;
+
         private final String dataSetType;
 
         DataSetPropertiesBuilder(DataSetPropertiesValidator propertiesValidator, String dataSetType)
@@ -77,19 +77,19 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
             this.propertiesValidator = propertiesValidator;
             this.dataSetType = dataSetType;
         }
-        
+
         void addProperty(TimePointPropertyType key, DataColumnHeader header)
         {
             addProperty(key, key.getElement(header));
         }
-        
+
         void addProperty(TimePointPropertyType key, String value)
         {
             propertiesValidator.assertValidFor(dataSetType, key, value.toUpperCase());
             addRow(key.toString(), value);
         }
     }
-    
+
     static final String DATA_SET_TYPE = "TIME_SERIES";
 
     static final String DATA_FILE_TYPE = ".data.txt";
@@ -98,34 +98,48 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
             Pattern.compile(".*(" + DataColumnHeader.SEPARATOR + ".*)+");
 
     static final String EXPERIMENT_CODE_TEMPLATE_KEY = "experiment-code-template";
+
     static final String DEFAULT_EXPERIMENT_CODE_TEMPLATE = "{0}_{1}_{2}";
-    
+
     static final String SAMPLE_CODE_TEMPLATE_KEY = "sample-code-template";
+
     static final String DEFAULT_SAMPLE_CODE_TEMPLATE = "{0}_{1}_{2}";
-    
+
     static final String SAMPLE_TYPE_CODE_KEY = "sample-type-code";
+
     static final String DEFAULT_SAMPLE_TYPE_CODE = "TIME_POINT";
-    
+
     static final String IGNORE_EMPTY_LINES_KEY = "ignore-empty-lines";
-    
+
     static final String TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY = "time-point-data-set-drop-box-path";
-    
-    static final String TIME_POINT_DATA_SET_FILE_NAME_SEPARATOR_KEY = "time-point-data-set-file-name-separator";
+
+    static final String TIME_POINT_DATA_SET_FILE_NAME_SEPARATOR_KEY =
+            "time-point-data-set-file-name-separator";
+
     static final String DEFAULT_TIME_POINT_DATA_SET_FILE_NAME_SEPARATOR = ".";
-    
+
     static final String DATA_SET_PROPERTIES_FILE_NAME_KEY = "data-set-properties-file-name";
 
     static final String TRANSLATION_KEY = "translation.";
-    
+
     private final MessageFormat experimentCodeFormat;
+
     private final MessageFormat sampleCodeFormat;
+
     private final IEncapsulatedOpenBISService service;
+
     private final String sampleTypeCode;
+
     private final File dropBox;
+
     private final String dataSetPropertiesFileName;
+
     private final DataSetTypeTranslator translator;
+
     private final String timePointDataSetFileSeparator;
+
     private final boolean ignoreEmptyLines;
+
     private final DataSetPropertiesValidator dataSetPropertiesValidator;
 
     TimeSeriesDataSetHandler(Properties properties, IEncapsulatedOpenBISService service)
@@ -162,7 +176,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
                 new DataSetPropertiesValidator(translator.getTranslatedDataSetTypes(), service);
     }
 
-    public void handle(File originalData, DataSetInformation dataSetInformation)
+    public Status handle(File originalData, DataSetInformation dataSetInformation)
     {
         ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
         if (experimentIdentifier == null)
@@ -200,6 +214,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
                 cleaveFileIntoDataSets(tsvFile, dataSetInformation, headers);
             }
         }
+        return Status.OK;
     }
 
     private void cleaveFileIntoDataSets(File tsvFile, DataSetInformation dataSetInformation,
@@ -250,8 +265,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         Set<String> experimentCodes = new LinkedHashSet<String>();
         for (Column dataColumn : dataColumns)
         {
-            DataColumnHeader dataColumnHeader =
-                    new DataColumnHeader(dataColumn.getHeader());
+            DataColumnHeader dataColumnHeader = new DataColumnHeader(dataColumn.getHeader());
             String experimentCode = createExperimentCode(dataColumnHeader);
             experimentCodes.add(experimentCode);
             if (code.equalsIgnoreCase(experimentCode) == false)
@@ -264,12 +278,11 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
             if (experimentCodes.size() == 1 && invalidExperimentCodes.size() == 1)
             {
                 throw new UserFailureException("Data should be uploaded for experiment '"
-                        + invalidExperimentCodes.iterator().next() + "' instead of '" + code
-                        + "'.");
+                        + invalidExperimentCodes.iterator().next() + "' instead of '" + code + "'.");
             } else
             {
-                throw new UserFailureException(
-                        "Data columns found for more than one experiment: " + experimentCodes);
+                throw new UserFailureException("Data columns found for more than one experiment: "
+                        + experimentCodes);
             }
         }
     }
@@ -284,7 +297,8 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         }
         Experiment experiment = getExperiment(dataColumnHeader, dataSetInformation);
         String sampleCode = createSampleCode(dataColumnHeader).toUpperCase();
-        long sampleID = createSampleIfNecessary(sampleCode, dataColumnHeader.getTimePoint(), experiment);
+        long sampleID =
+                createSampleIfNecessary(sampleCode, dataColumnHeader.getTimePoint(), experiment);
         List<ExternalData> dataSets = service.listDataSetsBySampleID(sampleID, true);
         for (ExternalData dataSet : dataSets)
         {
@@ -296,16 +310,17 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
             }
         }
         headers.add(dataColumnHeader);
-        
+
         String dataSetFolderName =
                 sampleCode + timePointDataSetFileSeparator
-                        + dataColumnHeader.getTechnicalReplicateCode() + timePointDataSetFileSeparator
-                        + dataColumnHeader.getCelLoc() + timePointDataSetFileSeparator
-                        + dataColumnHeader.getTimeSeriesDataSetType() + timePointDataSetFileSeparator
-                        + dataColumnHeader.getValueType() + timePointDataSetFileSeparator
-                        + dataColumnHeader.getScale() + timePointDataSetFileSeparator
-                        + dataColumnHeader.getBiID() + timePointDataSetFileSeparator
-                        + dataColumnHeader.getControlledGene();
+                        + dataColumnHeader.getTechnicalReplicateCode()
+                        + timePointDataSetFileSeparator + dataColumnHeader.getCelLoc()
+                        + timePointDataSetFileSeparator
+                        + dataColumnHeader.getTimeSeriesDataSetType()
+                        + timePointDataSetFileSeparator + dataColumnHeader.getValueType()
+                        + timePointDataSetFileSeparator + dataColumnHeader.getScale()
+                        + timePointDataSetFileSeparator + dataColumnHeader.getBiID()
+                        + timePointDataSetFileSeparator + dataColumnHeader.getControlledGene();
         File dataSetFolder = new File(dropBox, dataSetFolderName);
         boolean success = getFileOperations().mkdirs(dataSetFolder);
         if (success == false)
@@ -362,7 +377,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         }
         writeAsTSVFile(dataSetPropertiesFile, builder.getColumns());
     }
-    
+
     private void writeAsTSVFile(File tsvFile, List<Column> columns)
     {
         IOutputStream outputStream = getFileOperations().getIOutputStream(tsvFile);
@@ -378,7 +393,8 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
 
     private long createSampleIfNecessary(String sampleCode, int timePoint, Experiment experiment)
     {
-        ListSampleCriteria criteria = ListSampleCriteria.createForExperiment(new TechId(experiment.getId()));
+        ListSampleCriteria criteria =
+                ListSampleCriteria.createForExperiment(new TechId(experiment.getId()));
         List<Sample> samples = service.listSamples(criteria);
         for (Sample sample : samples)
         {
@@ -400,7 +416,8 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         propertyType.setCode("TIME_POINT");
         property.setPropertyType(propertyType);
         property.setValue(Integer.toString(timePoint));
-        sample.setProperties(new EntityProperty[] {property});
+        sample.setProperties(new EntityProperty[]
+            { property });
         return service.registerSample(sample);
     }
 
