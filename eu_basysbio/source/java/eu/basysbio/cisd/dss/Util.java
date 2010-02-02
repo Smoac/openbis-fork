@@ -16,6 +16,10 @@
 
 package eu.basysbio.cisd.dss;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
+
 /**
  * 
  *
@@ -26,5 +30,13 @@ class Util
     static int parseIntegerWithPlusSign(String number)
     {
         return Integer.parseInt(number.startsWith("+") ? number.substring(1) : number);
+    }
+
+    static String createSampleIdentifier(Experiment experiment, String sampleCode)
+    {
+        String groupIdentifier = experiment.getProject().getGroup().getIdentifier();
+        String sampleIdentifier = groupIdentifier
+                + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + sampleCode;
+        return sampleIdentifier;
     }
 }

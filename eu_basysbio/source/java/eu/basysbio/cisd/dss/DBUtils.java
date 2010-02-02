@@ -38,15 +38,15 @@ public class DBUtils
     
     public static DatabaseConfigurationContext createAndInitDBContext(Properties properties)
     {
-        final Properties dbProps =
-                ExtendedProperties.getSubset(properties, DATABASE_PROPERTIES_PREFIX, true);
-        final DatabaseConfigurationContext dbContext = DBUtils.createDBContext(dbProps);
+        final DatabaseConfigurationContext dbContext = createDBContext(properties);
         DBUtils.init(dbContext);
         return dbContext;
     }
 
-    public static DatabaseConfigurationContext createDBContext(Properties dbProps)
+    public static DatabaseConfigurationContext createDBContext(Properties properties)
     {
+        final Properties dbProps =
+                ExtendedProperties.getSubset(properties, DATABASE_PROPERTIES_PREFIX, true);
         DatabaseConfigurationContext context =
                 BeanUtils.createBean(DatabaseConfigurationContext.class, dbProps);
         if (context.getBasicDatabaseName() == null)
@@ -57,7 +57,8 @@ public class DBUtils
         {
             throw new EnvironmentFailureException("db engine code not specified in " + dbProps);
         }
-        return context;
+        final DatabaseConfigurationContext dbContext = context;
+        return dbContext;
     }
 
     /**

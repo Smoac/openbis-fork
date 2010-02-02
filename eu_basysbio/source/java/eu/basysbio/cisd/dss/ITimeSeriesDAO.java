@@ -17,6 +17,7 @@
 package eu.basysbio.cisd.dss;
 
 import net.lemnik.eodsql.BaseQuery;
+import net.lemnik.eodsql.DataSet;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.Update;
 
@@ -66,5 +67,8 @@ public interface ITimeSeriesDAO extends BaseQuery
     
     @Update("insert into data_column_values (daco_id, row_id, value) values (?{1}, ?{2}, ?{3})")
     public void createDataValue(long columnID, long rowID, Double value);
+
+    @Select("select perm_id from data_sets")
+    public DataSet<String> findDataSets();
     
 }
