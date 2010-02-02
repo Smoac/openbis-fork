@@ -23,17 +23,17 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto;
  */
 public enum PlateMetadataStaticColumns
 {
-    WELL("Code"),
+    WELL("CODE"),
 
-    TYPE("Type"),
+    TYPE("TYPE"),
 
-    CONTENT("Content"),
+    CONTENT("CONTENT"),
 
-    CONTENT_TYPE("Content Type"),
+    CONTENT_TYPE("CONTENT_TYPE"),
 
-    INHIBITED_GENE("Inhibited Gene"),
+    INHIBITED_GENE("INHIBITED_GENE"),
 
-    GENE_DETAILS("Gene Details"),
+    GENE_DETAILS("GENE_DETAILS"),
 
     THUMBNAIL("THUMBNAIL");
 

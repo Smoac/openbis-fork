@@ -30,9 +30,9 @@ COPY controlled_vocabularies (id, code, description, registration_timestamp, per
 --
 
 COPY controlled_vocabulary_terms (id, code, registration_timestamp, covo_id, pers_id_registerer, label, description, ordinal) FROM stdin;
-3	384_WELLS_16X24	2008-06-17 16:38:30.723292+02	1	1	384 Wells, 16x24	\N	1
-4	96_WELLS_8X12	2008-06-17 16:38:31.101031+02	1	1	96 Wells, 8x12	\N	2
-5	1536_WELLS_32X48	2008-06-17 16:38:31.101031+02	1	1	1536 Wells, 32x48	\N	3
+3	384_WELLS_16X24	2008-06-17 16:38:30.723292+02	2	1	384 Wells, 16x24	\N	1
+4	96_WELLS_8X12	2008-06-17 16:38:31.101031+02	2	1	96 Wells, 8x12	\N	2
+5	1536_WELLS_32X48	2008-06-17 16:38:31.101031+02	2	1	1536 Wells, 32x48	\N	3
 6	BD_PATHWAY_855	2009-11-29 23:55:18.978884+01	3	1	\N	\N	1
 7	MD_IMAGEXPRESS_MICROLIVE	2009-11-29 23:55:18.978884+01	3	1	\N	\N	2
 8	MD_IMAGEXPRESS_MICRO_2	2009-11-29 23:55:18.978884+01	3	1	\N	\N	3
@@ -76,7 +76,7 @@ COPY property_types (id, code, description, label, daty_id, registration_timesta
 7	INHIBITOR_OF	Inhibitor Of	Inhibitor Of	8	2009-11-27 16:02:45.060699+01	1	\N	f	f	1	3
 11	OLIGO	Oligo	Oligo	8	2009-11-29 23:56:19.39967+01	1	\N	f	f	1	4
 12	CONTROL	Control	Control	8	2009-11-29 23:56:37.355313+01	1	\N	f	f	1	5
-6	PLATE_GEOMETRY	Plate Geometry	Plate Geometry	7	2008-06-17 16:38:30.723292+02	1	1	t	t	1	\N
+6	PLATE_GEOMETRY	Plate Geometry	Plate Geometry	7	2008-06-17 16:38:30.723292+02	1	2	t	t	1	\N
 15	NUMBER_OF_CHANNEL	 	Channels	3	2009-12-17 10:56:17.239319+01	1	\N	f	f	1	\N
 \.
 
