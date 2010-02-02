@@ -55,7 +55,7 @@ public abstract class AbstractPostRegistrationDataSetHandlerForFileBasedUndo imp
     /**
      * Returns the abstraction of file operations.
      */
-    protected final IFileOperations getFileOperations()
+    protected IFileOperations getFileOperations()
     {
         return fileOperations;
     }
@@ -63,7 +63,7 @@ public abstract class AbstractPostRegistrationDataSetHandlerForFileBasedUndo imp
     /**
      * Adds the specified file. In case of undo it will be deleted.
      */
-    protected final void addFileForUndo(File file)
+    protected void addFileForUndo(File file)
     {
         createdFiles.add(file);
     }
