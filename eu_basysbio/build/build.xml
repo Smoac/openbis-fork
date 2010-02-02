@@ -23,6 +23,15 @@
         // Task for continuous integration server.
         -->
 	<target name="ci" depends="build-common.ci, dist, check-dependencies" />
+	
+	<target name="dss-jar" depends="datastore_server.dss-jar">
+		<jar update="true" destfile="${dss-jar.file}">
+			<fileset dir="source">
+				<include name="**/*.sql" />
+			</fileset>
+		</jar>
+
+  </target>
 
 
 </project>
