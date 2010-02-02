@@ -35,6 +35,7 @@ import ch.systemsx.cisd.yeastx.eicml.EICMLParser.IChromatogramObserver;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
+@Test(groups = "broken")
 public class EICMLChromatogramImageGeneratorTest extends AssertJUnit implements
         IChromatogramObserver
 {
