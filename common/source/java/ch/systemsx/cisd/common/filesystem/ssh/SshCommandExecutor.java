@@ -37,7 +37,7 @@ import ch.systemsx.cisd.common.process.ProcessExecutionHelper.OutputReadingStrat
  * 
  * @author Piotr Buczek
  */
-public class SshCommandExecutor implements Serializable
+public class SshCommandExecutor implements ISshCommandExecutor, Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -62,7 +62,7 @@ public class SshCommandExecutor implements Serializable
         this.sshCommandBuilder = sshCommandBuilder;
     }
 
-    public String getHost()
+    private String getHost()
     {
         assert host != null : "host cannot be null";
         return host;
