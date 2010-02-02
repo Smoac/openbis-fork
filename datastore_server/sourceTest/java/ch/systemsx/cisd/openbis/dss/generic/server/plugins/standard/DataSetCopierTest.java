@@ -33,10 +33,13 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
+import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier.IPathCopierFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetCopier.ISshCommandExecutorFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.ProcessingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -51,9 +54,13 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
     private Mockery context;
 
-    private IPathCopierFactory factory;
+    private IPathCopierFactory pathFactory;
+
+    private ISshCommandExecutorFactory sshFactory;
 
     private IPathCopier copier;
+
+    private ISshCommandExecutor sshCommandExecutor;
 
     private File storeRoot;
 
@@ -75,8 +82,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     public void beforeMethod() throws IOException
     {
         context = new Mockery();
-        factory = context.mock(DataSetCopier.IPathCopierFactory.class);
+        pathFactory = context.mock(DataSetCopier.IPathCopierFactory.class);
+        sshFactory = context.mock(DataSetCopier.ISshCommandExecutorFactory.class);
         copier = context.mock(IPathCopier.class);
+        sshCommandExecutor = context.mock(ISshCommandExecutor.class);
         storeRoot = new File(workingDirectory, "store");
         storeRoot.mkdirs();
         sshExecutableDummy = new File(workingDirectory, "my-ssh");
@@ -111,7 +120,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     {
         try
         {
-            new DataSetCopier(new Properties(), storeRoot, factory);
+            new DataSetCopier(new Properties(), storeRoot, pathFactory, sshFactory);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -128,7 +137,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         rsyncExecutableDummy.delete();
         try
         {
-            new DataSetCopier(properties, storeRoot, factory);
+            new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -145,7 +154,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         sshExecutableDummy.delete();
         try
         {
-            new DataSetCopier(properties, storeRoot, factory);
+            new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -163,7 +172,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         prepareCreateAndCheckCopier("host", null, false);
         try
         {
-            new DataSetCopier(properties, storeRoot, factory);
+            new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -181,7 +190,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         prepareCreateAndCheckCopier("host", "abc", false);
         try
         {
-            new DataSetCopier(properties, storeRoot, factory);
+            new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
@@ -205,7 +214,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     will(returnValue(Status.OK));
                 }
             });
-        DataSetCopier dataSetCopier = new DataSetCopier(properties, storeRoot, factory);
+        DataSetCopier dataSetCopier =
+                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
         dataSetCopier.process(Arrays.asList(ds1, ds2));
 
@@ -222,37 +232,45 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                 {
                     one(copier).copyToRemote(ds1Data, new File("tmp/test"), null, null, null);
                     will(returnValue(Status.createError("error message")));
+
+                    one(copier).copyToRemote(ds2Data, new File("tmp/test"), null, null, null);
+                    will(returnValue(Status.OK));
                 }
             });
-        DataSetCopier dataSetCopier = new DataSetCopier(properties, storeRoot, factory);
+        DataSetCopier dataSetCopier =
+                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        try
-        {
-            dataSetCopier.process(Arrays.asList(ds1, ds2));
-            fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException ex)
-        {
-            assertEquals(
-                    "Could not copy data set ds1 to destination folder 'tmp/test': error message",
-                    ex.getMessage());
-        }
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2));
+
+        // processing first data set fails but second one is processed successfully
+        Status errorStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
+        assertEquals(1, processingStatus.getErrorStatuses().size());
+        assertEquals(errorStatus, processingStatus.getErrorStatuses().get(0));
+        assertEquals(1, processingStatus.getDatasetsByStatus(errorStatus).size());
+        assertEquals(ds1, processingStatus.getDatasetsByStatus(errorStatus).get(0));
+        assertEquals(1, processingStatus.getDatasetsByStatus(Status.OK).size());
+        assertEquals(ds2, processingStatus.getDatasetsByStatus(Status.OK).get(0));
 
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testCopyRemotlyViaSSH()
+    public void testCopyRemotelyViaSsh()
     {
         properties.setProperty(DESTINATION_KEY, "host:tmp/test");
         prepareCreateAndCheckCopier("host", null, true);
         context.checking(new Expectations()
             {
                 {
+                    one(sshCommandExecutor).exists(new File("tmp/test/data.txt"),
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createFalse()));
                     one(copier).copyToRemote(ds1Data, new File("tmp/test"), "host", null, null);
                     will(returnValue(Status.OK));
                 }
             });
-        DataSetCopier dataSetCopier = new DataSetCopier(properties, storeRoot, factory);
+        DataSetCopier dataSetCopier =
+                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
         dataSetCopier.process(Arrays.asList(ds1));
 
@@ -260,50 +278,39 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testCopyRemotelyViaSSH()
+    public void testCopyRemotelyViaSshWithErrors()
     {
         properties.setProperty(DESTINATION_KEY, "host:tmp/test");
         prepareCreateAndCheckCopier("host", null, true);
         context.checking(new Expectations()
             {
                 {
+                    one(sshCommandExecutor).exists(new File("tmp/test/data.txt"),
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createFalse()));
                     one(copier).copyToRemote(ds1Data, new File("tmp/test"), "host", null, null);
                     will(returnValue(Status.createError("error message")));
-                }
-            });
-        DataSetCopier dataSetCopier = new DataSetCopier(properties, storeRoot, factory);
 
-        try
-        {
-            dataSetCopier.process(Arrays.asList(ds1, ds2));
-            fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException ex)
-        {
-            assertEquals(
-                    "Could not copy data set ds1 to destination folder 'tmp/test' on host 'host': "
-                            + "error message", ex.getMessage());
-        }
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testCopyRemotlyViaRsyncServer()
-    {
-        properties.setProperty(DESTINATION_KEY, "host:abc:tmp/test");
-        properties.setProperty(RSYNC_PASSWORD_FILE_KEY, "abc-password");
-        prepareCreateAndCheckCopier("host", "abc", true);
-        context.checking(new Expectations()
-            {
-                {
-                    one(copier).copyToRemote(ds1Data, new File("tmp/test"), "host", "abc",
-                            "abc-password");
+                    one(sshCommandExecutor).exists(new File("tmp/test/images"),
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createFalse()));
+                    one(copier).copyToRemote(ds2Data, new File("tmp/test"), "host", null, null);
                     will(returnValue(Status.OK));
                 }
             });
-        DataSetCopier dataSetCopier = new DataSetCopier(properties, storeRoot, factory);
+        DataSetCopier dataSetCopier =
+                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        dataSetCopier.process(Arrays.asList(ds1));
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2));
+
+        // processing first data set fails but second one is processed successfully
+        Status errorStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
+        assertEquals(1, processingStatus.getErrorStatuses().size());
+        assertEquals(errorStatus, processingStatus.getErrorStatuses().get(0));
+        assertEquals(1, processingStatus.getDatasetsByStatus(errorStatus).size());
+        assertEquals(ds1, processingStatus.getDatasetsByStatus(errorStatus).get(0));
+        assertEquals(1, processingStatus.getDatasetsByStatus(Status.OK).size());
+        assertEquals(ds2, processingStatus.getDatasetsByStatus(Status.OK).get(0));
 
         context.assertIsSatisfied();
     }
@@ -317,22 +324,59 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
+                    one(sshCommandExecutor).exists(new File("tmp/test/data.txt"),
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createFalse()));
+                    one(copier).copyToRemote(ds1Data, new File("tmp/test"), "host", "abc",
+                            "abc-password");
+                    will(returnValue(Status.OK));
+                }
+            });
+        DataSetCopier dataSetCopier =
+                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
+
+        dataSetCopier.process(Arrays.asList(ds1));
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testCopyRemotelyViaRsyncServerWithErrors()
+    {
+        properties.setProperty(DESTINATION_KEY, "host:abc:tmp/test");
+        properties.setProperty(RSYNC_PASSWORD_FILE_KEY, "abc-password");
+        prepareCreateAndCheckCopier("host", "abc", true);
+        context.checking(new Expectations()
+            {
+                {
+                    one(sshCommandExecutor).exists(new File("tmp/test/data.txt"),
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createFalse()));
                     one(copier).copyToRemote(ds1Data, new File("tmp/test"), "host", "abc",
                             "abc-password");
                     will(returnValue(Status.createError("error message")));
+
+                    one(sshCommandExecutor).exists(new File("tmp/test/images"),
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createFalse()));
+                    one(copier).copyToRemote(ds2Data, new File("tmp/test"), "host", "abc",
+                            "abc-password");
+                    will(returnValue(Status.OK));
                 }
             });
-        DataSetCopier dataSetCopier = new DataSetCopier(properties, storeRoot, factory);
+        DataSetCopier dataSetCopier =
+                new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        try
-        {
-            dataSetCopier.process(Arrays.asList(ds1, ds2));
-            fail("EnvironmentFailureException expected");
-        } catch (EnvironmentFailureException ex)
-        {
-            assertEquals("Could not copy data set ds1 to destination folder 'tmp/test' "
-                    + "on host 'host' for rsync module 'abc': error message", ex.getMessage());
-        }
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2));
+
+        // processing first data set fails but second one is processed successfully
+        Status errorStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
+        assertEquals(1, processingStatus.getErrorStatuses().size());
+        assertEquals(errorStatus, processingStatus.getErrorStatuses().get(0));
+        assertEquals(1, processingStatus.getDatasetsByStatus(errorStatus).size());
+        assertEquals(ds1, processingStatus.getDatasetsByStatus(errorStatus).get(0));
+        assertEquals(1, processingStatus.getDatasetsByStatus(Status.OK).size());
+        assertEquals(ds2, processingStatus.getDatasetsByStatus(Status.OK).get(0));
 
         context.assertIsSatisfied();
     }
@@ -343,8 +387,11 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(factory).create(rsyncExecutableDummy, sshExecutableDummy);
+                    one(pathFactory).create(rsyncExecutableDummy, sshExecutableDummy);
                     will(returnValue(copier));
+
+                    one(sshFactory).create(sshExecutableDummy, hostOrNull);
+                    will(returnValue(sshCommandExecutor));
 
                     one(copier).check();
                     if (hostOrNull != null)

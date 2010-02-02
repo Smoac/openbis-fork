@@ -28,6 +28,7 @@ import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IPathCopier;
 import ch.systemsx.cisd.common.filesystem.rsync.RsyncCopier;
+import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
 import ch.systemsx.cisd.common.filesystem.ssh.SshCommandExecutor;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFile;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
@@ -58,13 +59,15 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
     private static final String ALREADY_EXIST_MSG = "already exist";
 
-    private static final String COPYING_FAILED_MSG = "copying failed";
+    @Private
+    static final String COPYING_FAILED_MSG = "copying failed";
 
     private static final String RSYNC_EXEC = "rsync";
 
     private static final String SSH_EXEC = "ssh";
 
-    private static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s
+    @Private
+    static final long SSH_TIMEOUT_MILLIS = 15 * 1000; // 15s
 
     @Private
     static interface IPathCopierFactory
@@ -82,6 +85,23 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
         }
     }
 
+    @Private
+    static interface ISshCommandExecutorFactory
+    {
+        ISshCommandExecutor create(File sshExecutableOrNull, String host);
+    }
+
+    private static final class SshCommandExecutorFactory implements Serializable,
+            ISshCommandExecutorFactory
+    {
+        private static final long serialVersionUID = 1L;
+
+        public ISshCommandExecutor create(File sshExecutableOrNull, String host)
+        {
+            return new SshCommandExecutor(sshExecutableOrNull, host);
+        }
+    }
+
     private static final class Copier implements Serializable, IPostRegistrationDatasetHandler
     {
 
@@ -93,7 +113,7 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
         private final File sshExecutable;
 
-        private final SshCommandExecutor sshCommandExecutor;
+        private final ISshCommandExecutor sshCommandExecutor;
 
         private final Properties properties;
 
@@ -105,19 +125,20 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
         private final String rsyncPasswordFile;
 
-        private final IPathCopierFactory factory;
+        private final IPathCopierFactory pathCopierFactory;
 
-        public Copier(Properties properties, IPathCopierFactory factory)
+        public Copier(Properties properties, IPathCopierFactory pathCopierFactory,
+                ISshCommandExecutorFactory sshCommandExecutorFactory)
         {
             this.properties = properties;
-            this.factory = factory;
+            this.pathCopierFactory = pathCopierFactory;
             rsyncPasswordFile = properties.getProperty(RSYNC_PASSWORD_FILE_KEY);
             rsyncExecutable = getExecutable(RSYNC_EXEC);
             sshExecutable = getExecutable(SSH_EXEC);
             HostAwareFile hostAwareFile =
                     HostAwareFileWithHighwaterMark.fromProperties(properties, DESTINATION_KEY);
             host = hostAwareFile.tryGetHost();
-            sshCommandExecutor = new SshCommandExecutor(sshExecutable, host);
+            sshCommandExecutor = sshCommandExecutorFactory.create(sshExecutable, host);
             rsyncModule = hostAwareFile.tryGetRsyncModule();
             destination = hostAwareFile.getFile();
             getCopier();
@@ -127,7 +148,7 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
         {
             if (copier == null)
             {
-                copier = factory.create(rsyncExecutable, sshExecutable);
+                copier = pathCopierFactory.create(rsyncExecutable, sshExecutable);
                 copier.check();
                 if (host != null)
                 {
@@ -214,13 +235,15 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
 
     public DataSetCopier(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, new RsyncCopierFactory());
+        this(properties, storeRoot, new RsyncCopierFactory(), new SshCommandExecutorFactory());
     }
 
     @Private
-    DataSetCopier(Properties properties, File storeRoot, IPathCopierFactory factory)
+    DataSetCopier(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
+            ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
-        super(properties, storeRoot, new Copier(properties, factory));
+        super(properties, storeRoot, new Copier(properties, pathCopierFactory,
+                sshCommandExecutorFactory));
     }
 
 }
