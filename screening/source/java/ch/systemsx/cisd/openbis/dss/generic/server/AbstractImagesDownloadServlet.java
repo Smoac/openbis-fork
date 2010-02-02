@@ -33,8 +33,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
- * Allows to download screening images in a chosen size for a specified channels or with all
- * channels merged.
+ * ABstract class for servlets which allow to download screening images in a chosen size for a
+ * specified channel.
  * 
  * @author Tomasz Pylak
  */
