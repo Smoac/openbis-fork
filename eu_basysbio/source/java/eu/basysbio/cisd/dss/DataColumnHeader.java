@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 
-final class DataColumnHeader
+public final class DataColumnHeader
 {
     private static final class PropertyManager
     {
@@ -156,62 +156,62 @@ final class DataColumnHeader
         }
     }
     
-    String getExperimentCode()
+    public String getExperimentCode()
     {
         return experimentCode;
     }
     
-    String getCultivationMethod()
+    public String getCultivationMethod()
     {
         return cultivationMethod;
     }
     
-    String getBiologicalReplicateCode()
+    public String getBiologicalReplicateCode()
     {
         return biologicalReplicateCode;
     }
     
-    int getTimePoint()
+    public int getTimePoint()
     {
         return timePoint;
     }
 
-    String getTimePointType()
+    public String getTimePointType()
     {
         return timePointType;
     }
 
-    String getTechnicalReplicateCode()
+    public String getTechnicalReplicateCode()
     {
         return technicalReplicateCode;
     }
 
-    String getCelLoc()
+    public String getCelLoc()
     {
         return celLoc;
     }
 
-    String getTimeSeriesDataSetType()
+    public String getTimeSeriesDataSetType()
     {
         return timeSeriesDataSetType;
     }
 
-    String getValueType()
+    public String getValueType()
     {
         return valueType;
     }
 
-    String getScale()
+    public String getScale()
     {
         return scale;
     }
 
-    String getBiID()
+    public String getBiID()
     {
         return biID;
     }
 
-    String getControlledGene()
+    public String getControlledGene()
     {
         return controlledGene;
     }

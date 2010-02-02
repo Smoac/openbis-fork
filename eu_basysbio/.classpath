@@ -13,5 +13,7 @@
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/objenesis/objenesis-1.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
+	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
+	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictionchecker.jar"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>

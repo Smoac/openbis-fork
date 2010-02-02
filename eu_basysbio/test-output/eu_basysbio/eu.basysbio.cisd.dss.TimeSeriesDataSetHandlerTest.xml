@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="eu.basysbio.cisd.dss.TimeSeriesDataSetHandlerTest" failures="0" tests="8" time="0.494" errors="0">
+  <properties/>
+  <testcase name="testMissingExperiment" time="0.047" classname="eu.basysbio.cisd.dss.TimeSeriesDataSetHandlerTest"/>
+  <testcase name="testMissingDataSetProertiesFileNameProperty" time="0.0040" classname="eu.basysbio.cisd.dss.TimeSeriesDataSetHandlerTest"/>
+  <testcase name="test" time="0.074" classname="eu.basysbio.cisd.dss.TimeSeriesDataSetHandlerTest"/>
+  <testcase name="testWrongExperiment" time="0.025" classname="eu.basysbio.cisd.dss.TimeSeriesDataSetHandlerTest"/>
+  <testcase name="testWrongDataSetType" time="0.0050" classname="eu.basysbio.cisd.dss.TimeSeriesDataSetHandlerTest"/>
+  <testcase name="testMissingDataSetTypesProperty" time="0.0020" classname="eu.basysbio.cisd.dss.TimeSeriesDataSetHandlerTest"/>
+  <testcase name="testMissingDropBoxProperty" time="0.0010" classname="eu.basysbio.cisd.dss.TimeSeriesDataSetHandlerTest"/>
+  <testcase name="testDataSetAlreadyExists" time="0.0070" classname="eu.basysbio.cisd.dss.TimeSeriesDataSetHandlerTest"/>
+</testsuite>

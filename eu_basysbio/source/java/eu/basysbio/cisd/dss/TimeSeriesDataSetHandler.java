@@ -19,6 +19,8 @@ package eu.basysbio.cisd.dss;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,8 +31,13 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.sql.DataSource;
+
+import net.lemnik.eodsql.QueryTool;
+
 import org.apache.commons.io.IOUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.Constants;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -42,6 +49,7 @@ import ch.systemsx.cisd.common.filesystem.IOutputStream;
 import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.AbstractPostRegistrationDataSetHandlerForFileBasedUndo;
+import ch.systemsx.cisd.etlserver.IDataSetUploader;
 import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.etlserver.utils.TabSeparatedValueTable;
 import ch.systemsx.cisd.etlserver.utils.TableBuilder;
@@ -59,11 +67,13 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+
 
 /**
  * @author Franz-Josef Elmer
  */
-class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo
+class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerForFileBasedUndo implements IDataSetUploader
 {
     private static final class DataSetPropertiesBuilder extends TableBuilder
     {
@@ -90,6 +100,31 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         }
     }
 
+    private static final class RowIDManager
+    {
+        private final List<Long> rowIDs = new ArrayList<Long>();
+        private final ITimeSeriesDAO timeSeriesDAO;
+
+        RowIDManager(ITimeSeriesDAO timeSeriesDAO)
+        {
+            this.timeSeriesDAO = timeSeriesDAO;
+        }
+        
+        long getOrCreateRow(int rowIndex)
+        {
+            long rowID;
+            if (rowIndex < rowIDs.size())
+            {
+                rowID = rowIDs.get(rowIndex);
+            } else
+            {
+                rowID = timeSeriesDAO.createRow();
+                rowIDs.add(rowID);
+            }
+            return rowID;
+        }
+    }
+    
     static final String DATA_SET_TYPE = "TIME_SERIES";
 
     static final String DATA_FILE_TYPE = ".data.txt";
@@ -141,10 +176,20 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     private final boolean ignoreEmptyLines;
 
     private final DataSetPropertiesValidator dataSetPropertiesValidator;
+    private final DataSource dataSource;
+
+    private Connection connection;
+
+    private ITimeSeriesDAO dao;
 
     TimeSeriesDataSetHandler(Properties properties, IEncapsulatedOpenBISService service)
     {
+        this(properties, DBUtils.createAndInitDBContext(properties).getDataSource(), service);
+    }
+    TimeSeriesDataSetHandler(Properties properties, DataSource dataSource, IEncapsulatedOpenBISService service)
+    {
         super(FileOperations.getInstance());
+        this.dataSource = dataSource;
         this.service = service;
         sampleTypeCode = properties.getProperty(SAMPLE_TYPE_CODE_KEY, DEFAULT_SAMPLE_TYPE_CODE);
         ignoreEmptyLines = PropertyUtils.getBoolean(properties, IGNORE_EMPTY_LINES_KEY, true);
@@ -175,6 +220,59 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         dataSetPropertiesValidator =
                 new DataSetPropertiesValidator(translator.getTranslatedDataSetTypes(), service);
     }
+    
+    @Private ITimeSeriesDAO createDAO()
+    {
+        try
+        {
+            connection = dataSource.getConnection();
+            connection.setAutoCommit(false);
+            return QueryTool.getQuery(connection, ITimeSeriesDAO.class);
+        } catch (SQLException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+    }
+
+    public void commit()
+    {
+        try
+        {
+            if (connection != null)
+            {
+                connection.commit();
+            }
+        } catch (SQLException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            connection = null;
+        }
+    }
+
+    public void rollback()
+    {
+        try
+        {
+            if (connection != null)
+            {
+                connection.rollback();
+            }
+        } catch (SQLException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        } finally
+        {
+            connection = null;
+        }
+    }
+
+    public void upload(File dataSet, DataSetInformation dataSetInformation)
+            throws EnvironmentFailureException
+    {
+        handle(dataSet, dataSetInformation);
+    }
 
     public Status handle(File originalData, DataSetInformation dataSetInformation)
     {
@@ -190,6 +288,7 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
             throw new UserFailureException("Data has to be uploaded for data set type "
                     + DATA_SET_TYPE + " instead of " + dataSetType + ".");
         }
+        dao = createDAO();
         Set<DataColumnHeader> headers = new HashSet<DataColumnHeader>();
         if (originalData.isFile())
         {
@@ -242,9 +341,12 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
                 }
             }
             assertExperiment(dataSetInformation, dataColumns);
+            ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
+            long dataSetID = getOrCreateDataSet(dataSetInformation, experimentIdentifier);
+            RowIDManager rowIDManager = createRowsAndCommonColumns(dataSetID, commonColumns);
             for (Column dataColumn : dataColumns)
             {
-                createDataSet(commonColumns, dataColumn, dataSetInformation, headers);
+                createDataSet(commonColumns, dataColumn, dataSetInformation, headers, dataSetID, rowIDManager);
             }
         } catch (RuntimeException ex)
         {
@@ -258,6 +360,45 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         }
     }
 
+    private long getOrCreateDataSet(DataSetInformation dataSetInformation,
+            ExperimentIdentifier experimentIdentifier)
+    {
+        Experiment experiment = service.tryToGetExperiment(experimentIdentifier);
+        if (experiment == null)
+        {
+            throw new UserFailureException("Unknown experiment: " + experimentIdentifier);
+        }
+        String experimentPermID = experiment.getPermId();
+        Long experimentID = dao.tryToGetExperimentIDByPermID(experimentPermID);
+        if (experimentID == null)
+        {
+            experimentID = dao.createExperiment(experimentPermID);
+        }
+        String dataSetCode = dataSetInformation.getDataSetCode();
+        Long dataSetID = dao.tryToGetDataSetIDByPermID(dataSetCode);
+        if (dataSetID == null)
+        {
+            dataSetID = dao.createDataSet(dataSetCode, experimentID);
+        }
+        return dataSetID;
+    }
+    
+    private RowIDManager createRowsAndCommonColumns(long dataSetID, List<Column> commonColumns)
+    {
+        RowIDManager rowIDManager = new RowIDManager(dao);
+        for (Column column : commonColumns)
+        {
+            column.getHeader();
+            long columnID = dao.createColumn(column.getHeader(), dataSetID);
+            List<String> values = column.getValues();
+            for (int i = 0; i < values.size(); i++)
+            {
+                dao.createValue(columnID, rowIDManager.getOrCreateRow(i), values.get(i));
+            }
+        }
+        return rowIDManager;
+    }
+    
     private void assertExperiment(DataSetInformation dataSetInformation, List<Column> dataColumns)
     {
         String code = dataSetInformation.getExperimentIdentifier().getExperimentCode();
@@ -288,7 +429,8 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
     }
 
     private void createDataSet(List<Column> commonColumns, Column dataColumn,
-            DataSetInformation dataSetInformation, Set<DataColumnHeader> headers)
+            DataSetInformation dataSetInformation, Set<DataColumnHeader> headers, long dataSetID,
+            RowIDManager rowIDManager)
     {
         DataColumnHeader dataColumnHeader = new DataColumnHeader(dataColumn.getHeader());
         if (headers.contains(dataColumnHeader))
@@ -297,20 +439,13 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         }
         Experiment experiment = getExperiment(dataColumnHeader, dataSetInformation);
         String sampleCode = createSampleCode(dataColumnHeader).toUpperCase();
-        long sampleID =
-                createSampleIfNecessary(sampleCode, dataColumnHeader.getTimePoint(), experiment);
-        List<ExternalData> dataSets = service.listDataSetsBySampleID(sampleID, true);
-        for (ExternalData dataSet : dataSets)
-        {
-            DataColumnHeader header = new DataColumnHeader(dataColumnHeader, dataSet);
-            if (dataColumnHeader.equals(header))
-            {
-                throw new UserFailureException("For data column '" + dataColumnHeader
-                        + "' the data set '" + dataSet.getCode() + "' has already been registered.");
-            }
-        }
+        createSampleIfNecessary(dataColumnHeader, experiment, sampleCode);
         headers.add(dataColumnHeader);
 
+        long sampleID = getOrCreateSample(experiment, sampleCode);
+        long columnID = dao.createDataColumn(dataColumnHeader, dataSetID, sampleID);
+        createDataValues(dataColumn, rowIDManager, columnID);
+        
         String dataSetFolderName =
                 sampleCode + timePointDataSetFileSeparator
                         + dataColumnHeader.getTechnicalReplicateCode()
@@ -352,6 +487,52 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
             throw new EnvironmentFailureException("Marker file '" + markerFile.getAbsolutePath()
                     + "' couldn't be created.");
         }
+    }
+
+    private void createDataValues(Column dataColumn, RowIDManager rowIDManager, long columnID)
+    {
+        List<String> values = dataColumn.getValues();
+        for (int i = 0; i < values.size(); i++)
+        {
+            Double value;
+            try
+            {
+                value = Double.parseDouble(values.get(i));
+            } catch (NumberFormatException ex)
+            {
+                value = null;
+            }
+            dao.createDataValue(columnID, rowIDManager.getOrCreateRow(i), value);
+        }
+    }
+
+    private void createSampleIfNecessary(DataColumnHeader dataColumnHeader, Experiment experiment,
+            String sampleCode)
+    {
+        long sampleID = createSampleIfNecessary(sampleCode, dataColumnHeader.getTimePoint(), experiment);
+        List<ExternalData> dataSets = service.listDataSetsBySampleID(sampleID, true);
+        for (ExternalData dataSet : dataSets)
+        {
+            DataColumnHeader header = new DataColumnHeader(dataColumnHeader, dataSet);
+            if (dataColumnHeader.equals(header))
+            {
+                throw new UserFailureException("For data column '" + dataColumnHeader
+                        + "' the data set '" + dataSet.getCode() + "' has already been registered.");
+            }
+        }
+    }
+
+    private long getOrCreateSample(Experiment experiment, String sampleCode)
+    {
+        String sampleIdentifier = createSampleIdentifier(experiment, sampleCode);
+        Sample sample = service.tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sampleIdentifier));
+        String samplePermID = sample.getPermId();
+        Long sampleId = dao.tryToGetSampleIDByPermID(samplePermID);
+        if (sampleId == null)
+        {
+            sampleId = dao.createSample(samplePermID);
+        }
+        return sampleId;
     }
 
     private void writeDataSetProperties(File dataSetFolder, DataColumnHeader dataColumnHeader,
@@ -408,9 +589,8 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         sampleType.setCode(sampleTypeCode);
         sample.setSampleType(sampleType);
         sample.setExperimentIdentifier(experiment.getIdentifier());
-        String groupIdentifier = experiment.getProject().getGroup().getIdentifier();
-        sample.setIdentifier(groupIdentifier
-                + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + sampleCode);
+        String sampleIdentifier = createSampleIdentifier(experiment, sampleCode);
+        sample.setIdentifier(sampleIdentifier);
         EntityProperty property = new EntityProperty();
         PropertyType propertyType = new PropertyType();
         propertyType.setCode("TIME_POINT");
@@ -419,6 +599,14 @@ class TimeSeriesDataSetHandler extends AbstractPostRegistrationDataSetHandlerFor
         sample.setProperties(new EntityProperty[]
             { property });
         return service.registerSample(sample);
+    }
+
+    private String createSampleIdentifier(Experiment experiment, String sampleCode)
+    {
+        String groupIdentifier = experiment.getProject().getGroup().getIdentifier();
+        String sampleIdentifier = groupIdentifier
+                + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + sampleCode;
+        return sampleIdentifier;
     }
 
     private Experiment getExperiment(DataColumnHeader dataColumnHeader,
