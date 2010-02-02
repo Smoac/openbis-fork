@@ -18,6 +18,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH;
 
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.InvokeActionMenu;
@@ -43,6 +46,7 @@ public class SampleBrowserTest extends AbstractGWTTestCase
 
     private static final String DEFAULT_PLATE_GEOMETRY_VALUE = "384_WELLS_16X24";
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testChangeColumnSettings()
     {
         loginAndGotoListSamplesTab();
