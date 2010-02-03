@@ -330,15 +330,16 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         if (mode == ResultSetFetchMode.COMPUTE_AND_CACHE
                 || mode == ResultSetFetchMode.CLEAR_COMPUTE_AND_CACHE)
         {
-            K dataKey = resultSetKeyProvider.createKey();
-            debug("retrieving the data with a new key " + dataKey);
-            List<T> rows = dataProvider.getOriginalData();
-            return calculateResult(sessionToken, resultConfig, dataKey, rows);
+            return calculateResultSetAndSave(sessionToken, resultConfig, dataProvider);
         } else
         {
             K dataKey = cacheConfig.tryGetResultSetKey();
             GridRowModels<T> data = fetchCachedData(dataKey);
-
+            if (data == null) // Really shoudn't happen, but these cases have been observed. 
+            {
+                return calculateResultSetAndSave(sessionToken, resultConfig, dataProvider);
+            }
+            
             if (mode == ResultSetFetchMode.FETCH_FROM_CACHE)
             {
                 return filterLimitAndSort(resultConfig, data, dataKey);
@@ -351,6 +352,15 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 throw new IllegalStateException("unexpected mode " + mode);
             }
         }
+    }
+
+    private <T> IResultSet<K, T> calculateResultSetAndSave(final String sessionToken,
+            final IResultSetConfig<K, T> resultConfig, final IOriginalDataProvider<T> dataProvider)
+    {
+        K dataKey = resultSetKeyProvider.createKey();
+        debug("retrieving the data with a new key " + dataKey);
+        List<T> rows = dataProvider.getOriginalData();
+        return calculateResult(sessionToken, resultConfig, dataKey, rows);
     }
 
     private <T> IResultSet<K, T> calculateResult(final String sessionToken,
