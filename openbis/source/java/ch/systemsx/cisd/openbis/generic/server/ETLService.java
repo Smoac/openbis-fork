@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyTypeWithVocabulary;
@@ -425,6 +426,19 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         HibernateUtils.initialize(properties);
         return EntityPropertyTranslator.translate(properties.toArray(new SamplePropertyPE[0]),
                 new HashMap<PropertyTypePE, PropertyType>());
+    }
+    
+    public long registerExperiment(String sessionToken, NewExperiment experiment)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert experiment != null : "Unspecified new example.";
+
+        final Session session = getSession(sessionToken);
+        IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+        experimentBO.define(experiment);
+        experimentBO.save();
+        return experimentBO.getExperiment().getId();
     }
 
     public long registerSample(String sessionToken, NewSample newSample)
