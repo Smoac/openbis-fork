@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import ch.systemsx.cisd.common.compression.file.Compressor;
 import ch.systemsx.cisd.common.compression.file.FailureRecord;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * The main class for tiff file compression.
@@ -36,16 +37,51 @@ public class TiffCompressor extends Compressor
             System.err.println("Syntax: TiffCompressor <directory>");
             System.exit(1);
         }
-        final Collection<FailureRecord> failed = start(args[0], new TiffZipCompressionMethod());
-        if (failed.size() > 0)
+
+        String errorMsgOrNull = tryCompress(args[0]);
+        if (errorMsgOrNull != null)
         {
-            System.err.println("The following files could not bee successfully compressed:");
-        }
-        for (FailureRecord r : failed)
-        {
-            System.err.printf("%s (%s)\n", r.getFailedFile().getName(), r.getFailureStatus()
-                    .tryGetErrorMessage());
+            System.err.print(errorMsgOrNull);
         }
     }
 
+    private static String tryCompress(String path)
+    {
+        try
+        {
+            return compress(path);
+        } catch (InterruptedException ex)
+        {
+            return "Compression was interrupted:" + ex.getMessage();
+        } catch (EnvironmentFailureException ex)
+        {
+            return ex.getMessage();
+        }
+    }
+
+    /**
+     * Compresses files in directory with given <var>path</var>.
+     * 
+     * @return error message or null if no error occurred
+     * @throws InterruptedException if compression was interrupted
+     * @throws EnvironmentFailureException if there is a problem with specified path
+     */
+    public static String compress(String path) throws InterruptedException,
+            EnvironmentFailureException
+    {
+        final StringBuilder errorMsgBuilder = new StringBuilder();
+        final Collection<FailureRecord> failed;
+        failed = start(path, new TiffZipCompressionMethod());
+        if (failed.size() > 0)
+        {
+            errorMsgBuilder.append("The following files could not bee successfully compressed:\n");
+            for (FailureRecord r : failed)
+            {
+                errorMsgBuilder.append(String.format("%s (%s)\n", r.getFailedFile().getName(), r
+                        .getFailureStatus().tryGetErrorMessage()));
+            }
+            return errorMsgBuilder.toString();
+        }
+        return null;
+    }
 }

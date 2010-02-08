@@ -26,7 +26,10 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IImmutableCopier;
 import ch.systemsx.cisd.common.filesystem.IPathHandler;
@@ -34,8 +37,10 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ClassUtils;
 import ch.systemsx.cisd.datamover.filesystem.intf.IPathMover;
 import ch.systemsx.cisd.datamover.filesystem.intf.IRecoverableTimerTaskFactory;
+import ch.systemsx.cisd.datamover.transformation.ITransformator;
 import ch.systemsx.cisd.datamover.utils.LocalBufferDirs;
 
 /**
@@ -83,6 +88,8 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
 
     private boolean stopped = false;
 
+    private final ITransformator transformatorOrNull;
+
     LocalProcessor(final Parameters parameters, final LocalBufferDirs bufferDirs,
             final IImmutableCopier copier, final IPathMover mover)
     {
@@ -93,6 +100,7 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
         this.manualInterventionDir = parameters.tryGetManualInterventionDir();
         this.manualInterventionFileFilter = tryCreateManualInterventionFileFilter(parameters);
         this.cleansingFileFilter = tryCreateCleansingFileFilter(parameters);
+        this.transformatorOrNull = tryCreateTransformator(parameters);
         this.copier = copier;
         this.mover = mover;
     }
@@ -112,11 +120,28 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
             final Parameters parameters)
     {
         final Pattern manualInterventionRegex = parameters.tryGetManualInterventionRegex();
-        if (manualInterventionRegex == null)
+        if (manualInterventionRegex != null)
         {
-            return null;
+            return new RegexFileFilter(manualInterventionRegex);
         }
-        return new RegexFileFilter(manualInterventionRegex);
+        return null;
+    }
+
+    private final static ITransformator tryCreateTransformator(final Parameters parameters)
+    {
+        final String className = parameters.tryGetTransformatorClassName();
+        if (className != null)
+        {
+            try
+            {
+                return ClassUtils.create(ITransformator.class, className);
+            } catch (Exception ex)
+            {
+                throw new ConfigurationFailureException("Cannot find the transformator class '"
+                        + className + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
+            }
+        }
+        return null;
     }
 
     private final void recover()
@@ -261,6 +286,25 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
                 // Stop processing
                 return;
             }
+
+            // transformation step
+            if (transformatorOrNull != null)
+            {
+                operationLog.info(String
+                        .format("START_TRANSFORMATION '%s'", path.getAbsolutePath()));
+                Status transformationStatus = transformatorOrNull.transform(path);
+                if (transformationStatus.isError())
+                {
+                    notificationLog.error(String.format("FAILED_TRANSFORMATION '%s': ", path
+                            .getAbsolutePath(), transformationStatus.tryGetErrorMessage()));
+                    return;
+                } else
+                {
+                    operationLog.info(String.format("FINISHED_TRANSFORMATION '%s'", path
+                            .getAbsolutePath()));
+                }
+            }
+
             File extraTmpCopy = null;
             if (extraCopyDirOrNull != null)
             {
@@ -280,8 +324,9 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
                 }
                 if (operationLog.isInfoEnabled())
                 {
-                    operationLog.info(String.format("Creating extra copy of directory '%s' to '%s'.",
-                            path.getAbsolutePath(), tempDir.getAbsoluteFile()));
+                    operationLog.info(String.format(
+                            "Creating extra copy of directory '%s' to '%s'.", path
+                                    .getAbsolutePath(), tempDir.getAbsoluteFile()));
                 }
                 final boolean ok = copier.copyImmutably(path, tempDir, null);
                 if (ok == false)
@@ -291,7 +336,7 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
                     return;
                 }
             }
-    
+
             final File movedFile = mover.tryMove(path, outputDir);
             if (movedFile == null)
             {
@@ -299,7 +344,7 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
                         "Moving '%s' to '%s' for final moving process failed.", path, outputDir));
                 return;
             }
-    
+
             if (extraTmpCopy != null)
             {
                 assert extraCopyDirOrNull != null;
@@ -316,7 +361,7 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
             stopped = true;
         }
     }
-    
+
     public boolean isStopped()
     {
         return stopped;

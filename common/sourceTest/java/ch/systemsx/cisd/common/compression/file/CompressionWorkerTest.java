@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -82,7 +83,7 @@ public final class CompressionWorkerTest
         previousLevel = operationLogger.getLevel();
         assertNull(previousLevel);
         operationLogger.setLevel(Level.DEBUG);
-        worker = new CompressionWorker(queue, failed, compressionMethod);
+        worker = new CompressionWorker(queue, failed, compressionMethod, new AtomicInteger(1));
     }
 
     @AfterMethod

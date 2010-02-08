@@ -285,6 +285,15 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     HostAwareFileWithHighwaterMark outgoingTarget = null;
 
     /**
+     * Name of the class with implementation of file transformation that will be performed in the
+     * buffer.
+     */
+    @Option(longName = PropertyNames.TRANSFORMATOR_CLASS, usage = "The transformation class name "
+            + "(together with the list of packages this class belongs to)")
+    @Private
+    private String transformatorClassNameOrNull = null;
+
+    /**
      * If set to <code>true</code>, the initial test for accessibility will be skipped on the
      * incoming store.
      */
@@ -506,6 +515,8 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
         prefixForIncoming =
                 PropertyUtils.getProperty(serviceProperties, PropertyNames.PREFIX_FOR_INCOMING,
                         prefixForIncoming);
+        transformatorClassNameOrNull =
+                serviceProperties.getProperty(PropertyNames.TRANSFORMATOR_CLASS);
         if (serviceProperties.getProperty(PropertyNames.INCOMING_TARGET) != null)
         {
             incomingTarget =
@@ -710,6 +721,15 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     }
 
     /**
+     * @return Name of the class with implementation of file transformation that will be performed
+     *         in the buffer.
+     */
+    public final String tryGetTransformatorClassName()
+    {
+        return transformatorClassNameOrNull;
+    }
+
+    /**
      * @return The directory for local files and directories manipulations.
      */
     public final HostAwareFileWithHighwaterMark getBufferDirectoryPath()
@@ -819,6 +839,10 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
             {
                 operationLog.info(String.format("Extra copy directory: '%s'.", extraCopyDirectory
                         .getAbsolutePath()));
+            }
+            if (null != transformatorClassNameOrNull)
+            {
+                operationLog.info(String.format("Transformator: %s", transformatorClassNameOrNull));
             }
             operationLog.info(String.format("Check intervall (external): %s s.",
                     DurationFormatUtils.formatDuration(getCheckIntervalMillis(), "s")));

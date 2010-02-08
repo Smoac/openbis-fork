@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.compression.file;
 import java.io.File;
 import java.util.Collection;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
@@ -62,62 +63,82 @@ class CompressionWorker implements Runnable
 
     private final ICompressionMethod compressor;
 
+    private final AtomicInteger activeWorkers;
+
     CompressionWorker(final Queue<File> incommingQueue, final Collection<FailureRecord> failures,
-            final ICompressionMethod compressor)
+            final ICompressionMethod compressor, final AtomicInteger activeWorkers)
     {
         assert incommingQueue != null;
         assert failures != null;
         assert compressor != null;
+        assert activeWorkers != null;
+        assert activeWorkers.get() > 0;
 
         this.workerQueue = incommingQueue;
         this.failures = failures;
         this.compressor = compressor;
+        this.activeWorkers = activeWorkers;
     }
 
     public void run()
     {
-        do
+        try
         {
-            if (Thread.interrupted())
-            {
-                if (operationLog.isInfoEnabled())
-                {
-                    operationLog.info(INTERRPTED_MSG);
-                }
-                return;
-            }
-            final File fileToCompressOrNull = workerQueue.poll();
-            if (fileToCompressOrNull == null)
-            {
-                operationLog.info(EXITING_MSG);
-                return;
-            }
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug(String.format(COMPRESSING_MSG_TEMPLATE, fileToCompressOrNull));
-            }
-            Status status = null;
-            int count = 0;
             do
             {
-                try
+                if (Thread.interrupted())
                 {
-                    status = compressor.compress(fileToCompressOrNull);
-                } catch (final Throwable th)
-                {
-                    operationLog.error(String.format(EXCEPTION_COMPRESSING_MSG_TEMPLATE,
-                            fileToCompressOrNull), th);
-                    failures.add(new FailureRecord(fileToCompressOrNull, th));
-                    status = null;
-                    break;
+                    if (operationLog.isInfoEnabled())
+                    {
+                        operationLog.info(INTERRPTED_MSG);
+                    }
+                    return;
                 }
-            } while (StatusFlag.RETRIABLE_ERROR.equals(status.getFlag())
-                    && ++count < MAX_RETRY_OF_FAILED_COMPRESSIONS);
-            if (status != null && Status.OK.equals(status) == false)
+                final File fileToCompressOrNull = workerQueue.poll();
+                if (fileToCompressOrNull == null)
+                {
+                    operationLog.info(EXITING_MSG);
+                    return;
+                }
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug(String
+                            .format(COMPRESSING_MSG_TEMPLATE, fileToCompressOrNull));
+                }
+                Status status = null;
+                int count = 0;
+                do
+                {
+                    try
+                    {
+                        status = compressor.compress(fileToCompressOrNull);
+                    } catch (final Throwable th)
+                    {
+                        operationLog.error(String.format(EXCEPTION_COMPRESSING_MSG_TEMPLATE,
+                                fileToCompressOrNull), th);
+                        failures.add(new FailureRecord(fileToCompressOrNull, th));
+                        status = null;
+                        break;
+                    }
+                } while (StatusFlag.RETRIABLE_ERROR.equals(status.getFlag())
+                        && ++count < MAX_RETRY_OF_FAILED_COMPRESSIONS);
+                if (status != null && Status.OK.equals(status) == false)
+                {
+                    failures.add(new FailureRecord(fileToCompressOrNull, status));
+                }
+            } while (true);
+        } finally
+        {
+            // if there are no remaining threads working notify main compressor thread that 
+            // is waiting for all failures (see Compressor)
+            if (0 == activeWorkers.decrementAndGet())
             {
-                failures.add(new FailureRecord(fileToCompressOrNull, status));
+                synchronized (failures)
+                {
+                    failures.notify();
+                }
             }
-        } while (true);
+        }
     }
 
 }

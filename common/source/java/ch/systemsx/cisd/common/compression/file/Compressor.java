@@ -24,9 +24,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -55,20 +57,16 @@ public class Compressor
 
     private static final int NUMBER_OF_WORKERS = Runtime.getRuntime().availableProcessors();
 
-    private static Queue<File> fillWorkerQueueOrExit(File directory, final FileFilter filter)
+    private static Queue<File> tryFillWorkerQueue(File directory, final FileFilter filter)
+            throws EnvironmentFailureException
     {
         final File[] filesToCompressOrNull =
                 FileUtilities.tryListFiles(directory, filter, new Log4jSimpleLogger(machineLog));
         if (filesToCompressOrNull == null)
         {
-            System.err.printf("Path '%s' is not a directory.\n", directory.getPath());
-            System.exit(1);
-            return null; // never reached, avoid Eclipse warnings
-        }
-        if (filesToCompressOrNull.length == 0)
-        {
-            System.out.println("No files to compress.");
-            System.exit(0);
+            String errorMsg = String.format("Path '%s' is not a directory.\n", directory.getPath());
+            machineLog.error(errorMsg);
+            throw new EnvironmentFailureException(errorMsg);
         }
         if (operationLog.isInfoEnabled())
         {
@@ -82,10 +80,11 @@ public class Compressor
     private static void startUpWorkerThreads(Queue<File> workerQueue,
             Collection<FailureRecord> failed, ICompressionMethod compressor)
     {
+        AtomicInteger activeWorkers = new AtomicInteger(NUMBER_OF_WORKERS);
         for (int i = 0; i < NUMBER_OF_WORKERS; ++i)
         {
-            new Thread(new CompressionWorker(workerQueue, failed, compressor), "Compressor " + i)
-                    .start();
+            new Thread(new CompressionWorker(workerQueue, failed, compressor, activeWorkers),
+                    "Compressor " + i).start();
         }
         if (operationLog.isInfoEnabled())
         {
@@ -94,17 +93,27 @@ public class Compressor
     }
 
     public static Collection<FailureRecord> start(String directoryName,
-            ICompressionMethod compressionMethod)
+            ICompressionMethod compressionMethod) throws InterruptedException,
+            EnvironmentFailureException
     {
         if (compressionMethod instanceof ISelfTestable)
         {
             ((ISelfTestable) compressionMethod).check();
         }
         final Queue<File> workerQueue =
-                fillWorkerQueueOrExit(new File(directoryName), compressionMethod);
+                tryFillWorkerQueue(new File(directoryName), compressionMethod);
         final Collection<FailureRecord> failed =
                 Collections.synchronizedCollection(new ArrayList<FailureRecord>());
+        if (workerQueue.size() == 0)
+        {
+            System.out.println("No files to compress.");
+            return failed;
+        }
         startUpWorkerThreads(workerQueue, failed, compressionMethod);
+        synchronized (failed)
+        {
+            failed.wait();
+        }
         return failed;
     }
 }
