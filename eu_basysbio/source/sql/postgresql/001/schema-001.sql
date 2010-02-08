@@ -5,8 +5,8 @@
 /* Project name:                                                          */
 /* Author:                                                                */
 /* Script type:           Database creation script                        */
-/* Created on:            2010-02-02 08:38                                */
-/* Model version:         Version 2010-02-02                              */
+/* Created on:            2010-02-08 11:50                                */
+/* Model version:         Version 2010-02-08                              */
 /* ---------------------------------------------------------------------- */
 
 
@@ -16,7 +16,7 @@
 
 CREATE DOMAIN REAL AS DOUBLE PRECISION;
 
-CREATE DOMAIN IDENTIFIER AS CHARACTER VARYING(40);
+CREATE DOMAIN IDENTIFIER AS CHARACTER VARYING(1000);
 
 CREATE DOMAIN TECH_ID AS BIGINT;
 
