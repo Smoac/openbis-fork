@@ -116,6 +116,7 @@
         </property>
         <property name="target">
             <bean class="ch.systemsx.cisd.openbis.generic.server.ETLService">
+                <constructor-arg ref="authentication-service" />
                 <constructor-arg ref="session-manager" />
                 <constructor-arg ref="dao-factory" />
                 <constructor-arg ref="common-business-object-factory" />

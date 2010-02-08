@@ -82,11 +82,11 @@ public class ETLServiceLogger extends AbstractServerLogger implements IETLServic
                         .getProcessingServiceDescriptions());
     }
 
-    public long registerSample(String sessionToken, NewSample newSample)
+    public long registerSample(String sessionToken, NewSample newSample, String userIDOrNull)
             throws UserFailureException
     {
-        logTracking(sessionToken, "registerSample", "SAMPLE_TYPE(%s) SAMPLE(%S)", newSample
-                .getSampleType(), newSample.getIdentifier());
+        logTracking(sessionToken, "registerSample", "SAMPLE_TYPE(%s) SAMPLE(%S) USER(%s)", newSample
+                .getSampleType(), newSample.getIdentifier(), userIDOrNull);
         return 0;
     }
 

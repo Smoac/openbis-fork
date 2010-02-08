@@ -142,20 +142,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         return server;
     }
 
-    private final static PersonPE createSystemUser()
-    {
-        final PersonPE systemPerson = new PersonPE();
-        systemPerson.setUserId(PersonPE.SYSTEM_USER_ID);
-        systemPerson.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
-        systemPerson.setDisplaySettings(createDefaultSettings());
-        return systemPerson;
-    }
-
-    private final static DisplaySettings createDefaultSettings()
-    {
-        return new DisplaySettings();
-    }
-
     //
     // AbstractServerTestCase
     //
@@ -415,37 +401,14 @@ public final class CommonServerTest extends AbstractServerTestCase
     public void testRegisterPerson()
     {
         prepareGetSession();
-        context.checking(new Expectations()
-            {
-                {
-                    one(personDAO).listByCodes(Arrays.asList(CommonTestUtils.USER_ID));
-                    will(returnValue(new ArrayList<PersonPE>()));
-
-                    final String applicationToken = "application-token";
-                    one(authenticationService).authenticateApplication();
-                    will(returnValue(applicationToken));
-
-                    final PersonPE systemPerson = createSystemUser();
-                    one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
-                    will(returnValue(systemPerson));
-
-                    one(authenticationService).getPrincipal(applicationToken,
-                            CommonTestUtils.USER_ID);
-                    will(returnValue(PRINCIPAL));
-
-                    final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
-                    person.setDisplaySettings(systemPerson.getDisplaySettings());
-
-                    one(personDAO).createPerson(with(new PersonWithDisplaySettingsMatcher(person)));
-                }
-            });
+        prepareRegisterPerson();
 
         createServer().registerPerson(SESSION_TOKEN, CommonTestUtils.USER_ID);
 
         context.assertIsSatisfied();
     }
 
-    private final static class PersonWithDisplaySettingsMatcher extends IsEqual<PersonPE>
+    public final static class PersonWithDisplaySettingsMatcher extends IsEqual<PersonPE>
     {
 
         private final PersonPE item;

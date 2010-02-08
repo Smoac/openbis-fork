@@ -34,6 +34,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
+import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IETLLIMSService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -52,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.InvalidationPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -455,8 +457,67 @@ public class ETLServiceTest extends AbstractServerTestCase
                 }
             });
 
-        assertEquals(id, createService().registerSample(SESSION_TOKEN, sample));
+        assertEquals(id, createService().registerSample(SESSION_TOKEN, sample, null));
 
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRegisterSampleForAnExistingPerson()
+    {
+        prepareGetSession();
+        final long id = 123456789L;
+        final NewSample sample = new NewSample();
+        context.checking(new Expectations()
+            {
+                {
+                    one(boFactory).createSampleBO(SESSION);
+                    will(returnValue(sampleBO));
+
+                    one(sampleBO).define(sample);
+                    one(sampleBO).save();
+                    exactly(2).of(sampleBO).getSample();
+                    SamplePE samplePE = new SamplePE();
+                    samplePE.setId(id);
+                    will(returnValue(samplePE));
+
+                    one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
+                    will(returnValue(new PersonPE()));
+                }
+            });
+
+        assertEquals(id, createService().registerSample(SESSION_TOKEN, sample, CommonTestUtils.USER_ID));
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRegisterSampleForANonExistingPerson()
+    {
+        prepareGetSession();
+        final long id = 123456789L;
+        final NewSample sample = new NewSample();
+        prepareRegisterPerson();
+        context.checking(new Expectations()
+        {
+            {
+                one(boFactory).createSampleBO(SESSION);
+                will(returnValue(sampleBO));
+                
+                one(sampleBO).define(sample);
+                one(sampleBO).save();
+                exactly(2).of(sampleBO).getSample();
+                SamplePE samplePE = new SamplePE();
+                samplePE.setId(id);
+                will(returnValue(samplePE));
+                
+                one(personDAO).tryFindPersonByUserId(CommonTestUtils.USER_ID);
+                will(returnValue(null));
+            }
+        });
+        
+        assertEquals(id, createService().registerSample(SESSION_TOKEN, sample, CommonTestUtils.USER_ID));
+        
         context.assertIsSatisfied();
     }
 
@@ -607,7 +668,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
     private IETLLIMSService createService()
     {
-        return new ETLService(sessionManager, daoFactory, boFactory, dssfactory);
+        return new ETLService(authenticationService, sessionManager, daoFactory, boFactory,
+                dssfactory);
     }
 
     private DataStoreServerInfo createDSSInfo()

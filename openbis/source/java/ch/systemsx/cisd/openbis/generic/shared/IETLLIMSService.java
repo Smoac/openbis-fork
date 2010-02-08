@@ -174,8 +174,8 @@ public interface IETLLIMSService extends IServer, ISessionProvider
     @Transactional
     @RolesAllowed(RoleSet.ETL_SERVER)
     public long registerSample(final String sessionToken,
-            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample)
-            throws UserFailureException;
+            @AuthorizationGuard(guardClass = NewSamplePredicate.class) final NewSample newSample,
+            String userIDOrNull) throws UserFailureException;
 
     /**
      * Registers the specified data connected to a sample.

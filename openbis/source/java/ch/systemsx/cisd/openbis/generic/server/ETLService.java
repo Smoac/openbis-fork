@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.collections.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -70,6 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ListSamplesByPropertyCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -99,10 +101,11 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
 
     private final IDataStoreServiceFactory dssFactory;
 
-    public ETLService(ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
+    public ETLService(IAuthenticationService authenticationService,
+            ISessionManager<Session> sessionManager, IDAOFactory daoFactory,
             ICommonBusinessObjectFactory boFactory, IDataStoreServiceFactory dssFactory)
     {
-        super(sessionManager, daoFactory, boFactory);
+        super(authenticationService, sessionManager, daoFactory, boFactory);
         this.daoFactory = daoFactory;
         this.dssFactory = dssFactory;
     }
@@ -441,7 +444,7 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         return experimentBO.getExperiment().getId();
     }
 
-    public long registerSample(String sessionToken, NewSample newSample)
+    public long registerSample(String sessionToken, NewSample newSample, String userIDOrNull)
             throws UserFailureException
     {
         assert sessionToken != null : "Unspecified session token.";
@@ -450,8 +453,23 @@ public class ETLService extends AbstractCommonServer<IETLService> implements IET
         final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.define(newSample);
+        if (userIDOrNull != null)
+        {
+            sampleBO.getSample().setRegistrator(getOrCreatePerson(sessionToken, userIDOrNull));
+        }
         sampleBO.save();
         return sampleBO.getSample().getId();
+    }
+    
+    private PersonPE getOrCreatePerson(String sessionToken, String userID)
+    {
+        PersonPE person = getDAOFactory().getPersonDAO().tryFindPersonByUserId(userID);
+        if (person != null)
+        {
+            return person;
+        }
+        List<PersonPE> persons = registerPersons(sessionToken, Collections.singletonList(userID));
+        return persons.get(0);
     }
 
     public void registerDataSet(String sessionToken, SampleIdentifier sampleIdentifier,

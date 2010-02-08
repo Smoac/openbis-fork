@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -28,6 +31,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.server.CommonServerTest.PersonWithDisplaySettingsMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
@@ -61,11 +65,13 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -264,6 +270,49 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                 }
             });
     }
+    
+    protected void prepareRegisterPerson()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(personDAO).listByCodes(Arrays.asList(CommonTestUtils.USER_ID));
+                    will(returnValue(new ArrayList<PersonPE>()));
+    
+                    final String applicationToken = "application-token";
+                    one(authenticationService).authenticateApplication();
+                    will(returnValue(applicationToken));
+    
+                    final PersonPE systemPerson = createSystemUser();
+                    one(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);
+                    will(returnValue(systemPerson));
+    
+                    one(authenticationService).getPrincipal(applicationToken,
+                            CommonTestUtils.USER_ID);
+                    will(returnValue(PRINCIPAL));
+    
+                    final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
+                    person.setDisplaySettings(systemPerson.getDisplaySettings());
+    
+                    one(personDAO).createPerson(with(new PersonWithDisplaySettingsMatcher(person)));
+                }
+            });
+    }
+
+    protected final static PersonPE createSystemUser()
+    {
+        final PersonPE systemPerson = new PersonPE();
+        systemPerson.setUserId(PersonPE.SYSTEM_USER_ID);
+        systemPerson.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
+        systemPerson.setDisplaySettings(createDefaultSettings());
+        return systemPerson;
+    }
+
+    private final static DisplaySettings createDefaultSettings()
+    {
+        return new DisplaySettings();
+    }
+
 
     static final protected ExperimentPE createExperiment(final String experimentTypeCode,
             final String experimentCode, final String groupCode)
