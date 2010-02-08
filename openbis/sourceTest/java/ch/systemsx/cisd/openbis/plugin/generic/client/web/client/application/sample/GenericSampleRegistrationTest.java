@@ -164,7 +164,7 @@ public class GenericSampleRegistrationTest extends AbstractGWTTestCase
         componentsTable.expectedRow(new Row().withCell(sampleCodeFieldIdent,
                 containerCode + ":" + sampleCode).withCell(sampleSubcodeFieldIdent, sampleCode));
         remoteConsole.prepare(checkSample);
-        launchTest();
+        launchTest(160 * SECOND);
     }
 
     public final void testRegisterSharedSample()
