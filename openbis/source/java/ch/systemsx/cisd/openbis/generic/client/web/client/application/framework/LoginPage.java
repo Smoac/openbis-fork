@@ -30,7 +30,9 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPanelAutofill;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
  * The login page.
@@ -47,11 +49,19 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         setWidth("100%");
         this.setHeight("100%");
         setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
-        final LoginWidget loginWidget = new LoginWidget(viewContext);
         // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this
         // panel.
         DockPanel loginPanel = new DockPanel();
-        loginPanel.add(loginWidget, DockPanel.CENTER);
+        // WORKAROUND The mechanism behind the autofill support does not work in testing
+        if (!GWTUtils.isTesting())
+        {
+            final LoginPanelAutofill loginWidget = LoginPanelAutofill.get(viewContext);
+            loginPanel.add(loginWidget, DockPanel.CENTER);
+        } else
+        {
+            final LoginWidget loginWidget = new LoginWidget(viewContext);
+            loginPanel.add(loginWidget, DockPanel.CENTER);
+        }
         Anchor logo = createLogo(viewContext);
         final Widget footerPanel = createFooter(viewContext);
         final HTML welcomePanel =

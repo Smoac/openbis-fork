@@ -45,7 +45,7 @@ public class LoginView extends View
     private void initUI()
     {
         RootPanel.get().clear();
-        RootPanel.get().add(loginPage);
+            RootPanel.get().add(loginPage);
     }
 
     //

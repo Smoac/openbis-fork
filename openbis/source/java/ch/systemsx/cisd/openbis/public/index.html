@@ -6,7 +6,8 @@
 <!--
 // This script loads your compiled module. If you add any GWT meta tags, they must be added before this line.
 -->
-<script language="javascript" src="ch.systemsx.cisd.openbis.OpenBIS.nocache.js"></script>
+<script language="javascript"
+	src="ch.systemsx.cisd.openbis.OpenBIS.nocache.js"></script>
 <script language="JavaScript">
 	// confirmation on exit depends on whether user is logged in
 	var allowConfirmOnExit = false; 
@@ -19,9 +20,6 @@
   }  
 </script>
 
-<!-- Required by IE (GWT 1.7) -->
-<iframe id="__gwt_historyFrame" style="width:0;height:0;border:0"></iframe>
-
 <link rel="shortcut icon" href="images/favicon.ico" />
 <link rel="icon" type="image/png" href="images/favicon.png" />
 <link rel="stylesheet" type="text/css" href="resources/css/gxt-all.css" />
@@ -30,5 +28,36 @@
 // The body can have arbitrary html, or you can leave the body empty if you want to create a completely dynamic ui.
 -->
 <body>
+<!-- Required by IE (GWT 1.7) -->
+<iframe id="__gwt_historyFrame" style="width: 0; height: 0; border: 0"></iframe>
+<div id="openbis_login_div" style="visibility: hidden">
+<form id="openbis_login_form" method="post" action="javascript:;">
+<table>
+	<tbody>
+		<tr>
+			<td><span>User:</span></td>
+			<td><input type="text" id="openbis_login_username"
+				name="openbis-username" style="width: 150px;"></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td><span>Password:</span></td>
+			<td><input type="password" id="openbis_login_password"
+				name="openbis-password" style="width: 150px;"></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td rowspan="3">&nbsp;</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td align="right"><input type="submit" id="openbis_login_submit"
+				value="Login"></td>
+		</tr>
+	</tbody>
+</table>
+</form>
+</div>
 </body>
 </html>
