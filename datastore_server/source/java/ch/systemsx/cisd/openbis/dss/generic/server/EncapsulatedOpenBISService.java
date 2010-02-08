@@ -215,11 +215,6 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         return service.tryGetSampleWithExperiment(sessionToken, sampleIdentifier);
     }
 
-    private long primRegisterSample(NewSample newSample)
-    {
-        return service.registerSample(sessionToken, newSample);
-    }
-
     private final void primRegisterDataSet(final DataSetInformation dataSetInformation,
             final NewExternalData data)
     {
@@ -358,18 +353,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
     }
 
-    synchronized public long registerSample(NewSample newSample) throws UserFailureException
+    synchronized public long registerSample(NewSample newSample, String userIDOrNull)
+            throws UserFailureException
     {
         assert newSample != null : "Unspecified sample.";
 
         checkSessionToken();
         try
         {
-            return primRegisterSample(newSample);
+            return service.registerSample(sessionToken, newSample, userIDOrNull);
         } catch (final InvalidSessionException ex)
         {
             authenticate();
-            return primRegisterSample(newSample);
+            return service.registerSample(sessionToken, newSample, userIDOrNull);
         }
     }
 
