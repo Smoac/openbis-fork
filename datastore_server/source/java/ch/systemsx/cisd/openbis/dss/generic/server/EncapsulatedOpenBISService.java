@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -339,6 +340,21 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         {
             authenticate();
             return service.listDataSetsBySampleID(sessionToken, id, showOnlyDirectlyConnected);
+        }
+    }
+
+    public long registerExperiment(NewExperiment experiment) throws UserFailureException
+    {
+        assert experiment != null : "Unspecified experiment.";
+        
+        checkSessionToken();
+        try
+        {
+            return service.registerExperiment(sessionToken, experiment);
+        } catch (InvalidSessionException ex)
+        {
+            authenticate();
+            return service.registerExperiment(sessionToken, experiment);
         }
     }
 
