@@ -57,7 +57,8 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
     @Private
     static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
 
-    private static final String ALREADY_EXIST_MSG = "already exist";
+    @Private
+    static final String ALREADY_EXIST_MSG = "already exist";
 
     @Private
     static final String COPYING_FAILED_MSG = "copying failed";

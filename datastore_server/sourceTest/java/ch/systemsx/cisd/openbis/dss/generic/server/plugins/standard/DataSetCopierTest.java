@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataS
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import org.jmock.Expectations;
@@ -52,6 +53,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
     private static final String DS2_LOCATION = "ds2";
 
+    private static final String DS3_LOCATION = "ds3";
+
+    private static final String DS4_LOCATION = "ds4";
+
     private Mockery context;
 
     private IPathCopierFactory pathFactory;
@@ -77,6 +82,14 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     private DatasetDescription ds2;
 
     private File ds2Data;
+
+    private DatasetDescription ds3;
+
+    private File ds3Data;
+
+    private DatasetDescription ds4;
+
+    private File ds4Data;
 
     @BeforeMethod
     public void beforeMethod() throws IOException
@@ -105,6 +118,16 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         ds2Folder.mkdirs();
         ds2Data = new File(ds2Folder, "images");
         ds2Data.mkdirs();
+        ds3 = new DatasetDescription("ds3", DS3_LOCATION, "s", "g", "p", "e", null, null);
+        File ds3Folder = new File(storeRoot, DS3_LOCATION + "/original");
+        ds3Folder.mkdirs();
+        ds3Data = new File(ds3Folder, "existing");
+        ds3Data.createNewFile();
+        ds4 = new DatasetDescription("ds4", DS4_LOCATION, "s", "g", "p", "e", null, null);
+        File ds4Folder = new File(storeRoot, DS4_LOCATION + "/original");
+        ds4Folder.mkdirs();
+        ds4Data = new File(ds4Folder, "existing");
+        ds4Data.mkdirs();
     }
 
     @AfterMethod
@@ -217,7 +240,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         DataSetCopier dataSetCopier =
                 new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        dataSetCopier.process(Arrays.asList(ds1, ds2));
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2));
+        assertNoErrors(processingStatus);
+        assertSuccessful(processingStatus, ds1, ds2);
 
         context.assertIsSatisfied();
     }
@@ -226,6 +251,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
     public void testCopyLocallyFails()
     {
         properties.setProperty(DESTINATION_KEY, "tmp/test");
+
+        File existingDestinationDir = new File("tmp/test/existing");
+        existingDestinationDir.mkdirs();
+
         prepareCreateAndCheckCopier(null, null, true);
         context.checking(new Expectations()
             {
@@ -240,16 +269,18 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         DataSetCopier dataSetCopier =
                 new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2));
+        ProcessingStatus processingStatus =
+                dataSetCopier.process(Arrays.asList(ds1, ds2, ds3, ds4));
 
-        // processing first data set fails but second one is processed successfully
+        // processing 1st data set fails but 2nd one is processed successfully
         Status errorStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
-        assertEquals(1, processingStatus.getErrorStatuses().size());
-        assertEquals(errorStatus, processingStatus.getErrorStatuses().get(0));
-        assertEquals(1, processingStatus.getDatasetsByStatus(errorStatus).size());
-        assertEquals(ds1, processingStatus.getDatasetsByStatus(errorStatus).get(0));
-        assertEquals(1, processingStatus.getDatasetsByStatus(Status.OK).size());
-        assertEquals(ds2, processingStatus.getDatasetsByStatus(Status.OK).get(0));
+        assertError(processingStatus, errorStatus, ds1);
+        assertSuccessful(processingStatus, ds2);
+        // 3rd and 4rd are not copied because destination directories already exist
+        Status alreadyExistStatus = Status.createError(DataSetCopier.ALREADY_EXIST_MSG);
+        assertError(processingStatus, alreadyExistStatus, ds3, ds4);
+
+        existingDestinationDir.delete();
 
         context.assertIsSatisfied();
     }
@@ -272,7 +303,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         DataSetCopier dataSetCopier =
                 new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        dataSetCopier.process(Arrays.asList(ds1));
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1));
+        assertNoErrors(processingStatus);
+        assertSuccessful(processingStatus, ds1);
 
         context.assertIsSatisfied();
     }
@@ -296,21 +329,29 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     will(returnValue(BooleanStatus.createFalse()));
                     one(copier).copyToRemote(ds2Data, new File("tmp/test"), "host", null, null);
                     will(returnValue(Status.OK));
+
+                    one(sshCommandExecutor).exists(new File("tmp/test/existing"),
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createTrue()));
+
+                    one(sshCommandExecutor).exists(new File("tmp/test/existing"),
+                            DataSetCopier.SSH_TIMEOUT_MILLIS);
+                    will(returnValue(BooleanStatus.createTrue()));
                 }
             });
         DataSetCopier dataSetCopier =
                 new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1, ds2));
+        ProcessingStatus processingStatus =
+                dataSetCopier.process(Arrays.asList(ds1, ds2, ds3, ds4));
 
-        // processing first data set fails but second one is processed successfully
-        Status errorStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
-        assertEquals(1, processingStatus.getErrorStatuses().size());
-        assertEquals(errorStatus, processingStatus.getErrorStatuses().get(0));
-        assertEquals(1, processingStatus.getDatasetsByStatus(errorStatus).size());
-        assertEquals(ds1, processingStatus.getDatasetsByStatus(errorStatus).get(0));
-        assertEquals(1, processingStatus.getDatasetsByStatus(Status.OK).size());
-        assertEquals(ds2, processingStatus.getDatasetsByStatus(Status.OK).get(0));
+        // processing 1st data set fails but 2nd one is processed successfully
+        Status copyingFailedStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
+        assertError(processingStatus, copyingFailedStatus, ds1);
+        assertSuccessful(processingStatus, ds2);
+        // 3rd and 4th are not copied because destination directories already exist
+        Status alreadyExistStatus = Status.createError(DataSetCopier.ALREADY_EXIST_MSG);
+        assertError(processingStatus, alreadyExistStatus, ds3, ds4);
 
         context.assertIsSatisfied();
     }
@@ -335,7 +376,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         DataSetCopier dataSetCopier =
                 new DataSetCopier(properties, storeRoot, pathFactory, sshFactory);
 
-        dataSetCopier.process(Arrays.asList(ds1));
+        ProcessingStatus processingStatus = dataSetCopier.process(Arrays.asList(ds1));
+        assertNoErrors(processingStatus);
+        assertSuccessful(processingStatus, ds1);
 
         context.assertIsSatisfied();
     }
@@ -371,12 +414,8 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         // processing first data set fails but second one is processed successfully
         Status errorStatus = Status.createError(DataSetCopier.COPYING_FAILED_MSG);
-        assertEquals(1, processingStatus.getErrorStatuses().size());
-        assertEquals(errorStatus, processingStatus.getErrorStatuses().get(0));
-        assertEquals(1, processingStatus.getDatasetsByStatus(errorStatus).size());
-        assertEquals(ds1, processingStatus.getDatasetsByStatus(errorStatus).get(0));
-        assertEquals(1, processingStatus.getDatasetsByStatus(Status.OK).size());
-        assertEquals(ds2, processingStatus.getDatasetsByStatus(Status.OK).get(0));
+        assertError(processingStatus, errorStatus, ds1);
+        assertSuccessful(processingStatus, ds2);
 
         context.assertIsSatisfied();
     }
@@ -408,5 +447,33 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                     }
                 }
             });
+    }
+
+    // asserts for checking status
+
+    private void assertSuccessful(ProcessingStatus processingStatus, DatasetDescription... datasets)
+    {
+        checkStatus(processingStatus, Status.OK, datasets);
+    }
+
+    private void assertNoErrors(ProcessingStatus processingStatus)
+    {
+        assertEquals(0, processingStatus.getErrorStatuses().size());
+    }
+
+    private void assertError(ProcessingStatus processingStatus, Status errorStatus,
+            DatasetDescription... datasets)
+    {
+        processingStatus.getErrorStatuses().contains(errorStatus);
+        checkStatus(processingStatus, errorStatus, datasets);
+    }
+
+    private void checkStatus(ProcessingStatus processingStatus, Status status,
+            DatasetDescription... expectedDatasets)
+    {
+        final List<DatasetDescription> actualDatasets =
+                processingStatus.getDatasetsByStatus(status);
+        assertEquals(expectedDatasets.length, actualDatasets.size());
+        assertTrue(actualDatasets.containsAll(Arrays.asList(expectedDatasets)));
     }
 }
