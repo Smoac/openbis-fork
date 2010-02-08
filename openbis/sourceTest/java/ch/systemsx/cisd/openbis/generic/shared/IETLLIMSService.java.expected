@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.DataSetCo
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSamplesByPropertyPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewExperimentPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.NewSamplePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleOwnerIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -155,6 +157,15 @@ public interface IETLLIMSService extends IServer, ISessionProvider
             @AuthorizationGuard(guardClass = SampleOwnerIdentifierPredicate.class) final SampleIdentifier sampleIdentifier)
             throws UserFailureException;
 
+    /**
+     * Registers experiment.
+     */
+    @Transactional
+    @RolesAllowed(RoleSet.ETL_SERVER)
+    public long registerExperiment(String sessionToken,
+            @AuthorizationGuard(guardClass = NewExperimentPredicate.class) NewExperiment experiment)
+            throws UserFailureException;
+    
     /**
      * Registers a new sample.
      * 
