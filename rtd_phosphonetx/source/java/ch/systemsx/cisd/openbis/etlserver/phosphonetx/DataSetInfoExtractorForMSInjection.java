@@ -17,28 +17,26 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
-import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * Data set info extractor for MS injection data sets. Information is extracted from a properties
@@ -53,35 +51,30 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
     static final String DEFAULT_MS_INJECTION_PROPERTIES_FILE = "ms-injection.properties";
 
     static final String PROJECT_CODE_KEY = "PROJECT_CODE";
-    static final String MZXML_FILENAME_KEY = "MZXML_FILENAME";
+    static final String EXPERIMENT_CODE_KEY = "EXPERIMENT_CODE";
+    static final String SAMPLE_CODE_KEY = "SAMPLE_CODE";
     
     static final String GROUP_CODE = "MS_DATA";
+    static final String EXPERIMENT_TYPE_CODE = "MS_INJECT";
 
     static final String SAMPLE_TYPE_CODE = "MS_INJECTION";
 
-
-    private static final SimpleDateFormat EXPERIMENT_CODE_TEMPLATE =
-            new SimpleDateFormat("yyyy-MM");
 
     private final String msInjectionPropertiesFileName;
 
     private final IEncapsulatedOpenBISService service;
 
-    private final ITimeProvider timeProvider;
-
     public DataSetInfoExtractorForMSInjection(Properties properties)
     {
         this(properties.getProperty(MS_INJECTION_PROPERTIES_FILE_KEY,
-                DEFAULT_MS_INJECTION_PROPERTIES_FILE), ServiceProvider.getOpenBISService(),
-                SystemTimeProvider.SYSTEM_TIME_PROVIDER);
+                DEFAULT_MS_INJECTION_PROPERTIES_FILE), ServiceProvider.getOpenBISService());
     }
 
     DataSetInfoExtractorForMSInjection(String msInjectionPropertiesFileName,
-            IEncapsulatedOpenBISService service, ITimeProvider timeProvider)
+            IEncapsulatedOpenBISService service)
     {
         this.msInjectionPropertiesFileName = msInjectionPropertiesFileName;
         this.service = service;
-        this.timeProvider = timeProvider;
 
     }
 
@@ -93,12 +86,12 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
                 loadMSInjectionProperties(incomingDataSetPath);
         DataSetInformation info = new DataSetInformation();
         info.setGroupCode(GROUP_CODE);
-        info.setSampleCode(PropertyUtils.getMandatoryProperty(properties, MZXML_FILENAME_KEY));
+        info.setSampleCode(PropertyUtils.getMandatoryProperty(properties, SAMPLE_CODE_KEY));
         NewSample sample = new NewSample();
         SampleType sampleType = new SampleType();
         sampleType.setCode(SAMPLE_TYPE_CODE);
         sample.setSampleType(sampleType);
-        sample.setExperimentIdentifier(createExperimentIdentifer(properties));
+        sample.setExperimentIdentifier(getOrCreateExperiment(properties));
         sample.setIdentifier(info.getSampleIdentifier().toString());
         List<EntityProperty> sampleProperties = createSampleProperties(properties);
         sample.setProperties(sampleProperties.toArray(new EntityProperty[sampleProperties.size()]));
@@ -106,15 +99,19 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
         return info;
     }
 
-    private String createExperimentIdentifer(Properties msInjectionProperties)
+    private String getOrCreateExperiment(Properties msInjectionProperties)
     {
         String projectCode =
                 PropertyUtils.getMandatoryProperty(msInjectionProperties, PROJECT_CODE_KEY);
         String experimentCode =
-                EXPERIMENT_CODE_TEMPLATE.format(new Date(timeProvider.getTimeInMilliseconds()));
-        return DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + GROUP_CODE
-                + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + projectCode
-                + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + experimentCode;
+                PropertyUtils.getMandatoryProperty(msInjectionProperties, EXPERIMENT_CODE_KEY);
+        ExperimentIdentifier identifier = new ExperimentIdentifier(null, GROUP_CODE, projectCode, experimentCode);
+        Experiment experiment = service.tryToGetExperiment(identifier);
+        if (experiment == null)
+        {
+            service.registerExperiment(new NewExperiment(identifier.toString(), EXPERIMENT_TYPE_CODE));
+        }
+        return identifier.toString();
     }
 
     private List<EntityProperty> createSampleProperties(Properties msInjectionProperties)

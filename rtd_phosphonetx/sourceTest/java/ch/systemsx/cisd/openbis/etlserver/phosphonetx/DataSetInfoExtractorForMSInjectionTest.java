@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.openbis.etlserver.phosphonetx;
 
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.DEFAULT_MS_INJECTION_PROPERTIES_FILE;
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.EXPERIMENT_CODE_KEY;
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.EXPERIMENT_TYPE_CODE;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.GROUP_CODE;
-import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.MZXML_FILENAME_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.PROJECT_CODE_KEY;
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.SAMPLE_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.SAMPLE_TYPE_CODE;
 
 import java.io.File;
@@ -43,16 +45,18 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 
 /**
  * 
@@ -62,18 +66,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceId
 public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTestCase
 {
     private static final String PROJECT_CODE = "MS2";
-    private static final String MZXML_FILENAME = "U09-1242";
+    private static final String EXPERIMENT_CODE = "2010-02";
+    private static final String SAMPLE_CODE = "U09-1242";
     private static final String SAMPLE_IDENTIFIER =
             DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + GROUP_CODE
-                    + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + MZXML_FILENAME;
+                    + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + SAMPLE_CODE;
     private static final String EXPERIMENT_IDENTIFIER =
             DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + GROUP_CODE
                     + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + PROJECT_CODE
-                    + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + "1973-04";
+                    + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + EXPERIMENT_CODE;
     
     private Mockery context;
     private IEncapsulatedOpenBISService service;
-    private ITimeProvider timeProvider;
     private IDataSetInfoExtractor extractor;
     private File dataSet;
     
@@ -82,10 +86,9 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
     {
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
-        timeProvider = context.mock(ITimeProvider.class);
         extractor =
                 new DataSetInfoExtractorForMSInjection(DEFAULT_MS_INJECTION_PROPERTIES_FILE,
-                        service, timeProvider);
+                        service);
         dataSet = new File(workingDirectory, "data-set");
         dataSet.mkdirs();
     }
@@ -132,7 +135,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
     }
     
     @Test
-    public void testMissingMZXML()
+    public void testMissingSampleCode()
     {
         Properties properties = new Properties();
         save(properties, DEFAULT_MS_INJECTION_PROPERTIES_FILE);
@@ -143,7 +146,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals("Given key '" + MZXML_FILENAME_KEY + "' not found in properties '[]'", ex
+            assertEquals("Given key '" + SAMPLE_CODE_KEY + "' not found in properties '[]'", ex
                     .getMessage());
         }
         
@@ -154,8 +157,8 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
     public void testMissingProjectCode()
     {
         Properties properties = new Properties();
-
-        properties.setProperty(MZXML_FILENAME_KEY, MZXML_FILENAME);
+        
+        properties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
         save(properties, DEFAULT_MS_INJECTION_PROPERTIES_FILE);
         
         try
@@ -165,9 +168,30 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         } catch (ConfigurationFailureException ex)
         {
             assertEquals("Given key '" + PROJECT_CODE_KEY + "' not found in properties '["
-                    + MZXML_FILENAME_KEY + "]'", ex.getMessage());
+                    + SAMPLE_CODE_KEY + "]'", ex.getMessage());
         }
-
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testMissingExperimentCode()
+    {
+        Properties properties = new Properties();
+        properties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
+        properties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
+        save(properties, DEFAULT_MS_INJECTION_PROPERTIES_FILE);
+        
+        try
+        {
+            extractor.getDataSetInformation(dataSet, service);
+            fail("ConfigurationFailureException expected");
+        } catch (ConfigurationFailureException ex)
+        {
+            assertEquals("Given key '" + EXPERIMENT_CODE_KEY + "' not found in properties '["
+                    + PROJECT_CODE_KEY + ", " + SAMPLE_CODE_KEY + "]'", ex.getMessage());
+        }
+        
         context.assertIsSatisfied();
     }
     
@@ -176,12 +200,13 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
     {
         Properties properties = new Properties();
         properties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
-        properties.setProperty(MZXML_FILENAME_KEY, MZXML_FILENAME);
+        properties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
+        properties.setProperty(EXPERIMENT_CODE_KEY, EXPERIMENT_CODE);
         properties.setProperty("TEMPERATURE", "47.11");
         save(properties, DEFAULT_MS_INJECTION_PROPERTIES_FILE);
-        SampleTypePropertyType pt1 = createPropertyType(MZXML_FILENAME_KEY, true);
+        SampleTypePropertyType pt1 = createPropertyType(SAMPLE_CODE_KEY, true);
         SampleTypePropertyType pt2 = createPropertyType("VOLUME", false);
-        prepareTimeProviderAndGetSampleType(pt1, pt2);
+        prepareGetExperimentAndGetSampleType(false, pt1, pt2);
         context.checking(new Expectations()
             {
                 {
@@ -203,7 +228,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                                         map.put(property.getPropertyType().getCode(), property);
                                     }
 
-                                    assertEquals(MZXML_FILENAME, map.get(MZXML_FILENAME_KEY).getValue());
+                                    assertEquals(SAMPLE_CODE, map.get(SAMPLE_CODE_KEY).getValue());
                                     assertEquals(1, map.size());
                                     return true;
                                 }
@@ -221,7 +246,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         DataSetInformation info = extractor.getDataSetInformation(dataSet, service);
         
         assertEquals(GROUP_CODE, info.getGroupCode());
-        assertEquals(MZXML_FILENAME, info.getSampleCode());
+        assertEquals(SAMPLE_CODE, info.getSampleCode());
         assertEquals(null, info.getExperimentIdentifier());
         
         context.assertIsSatisfied();
@@ -232,12 +257,13 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
     {
         Properties properties = new Properties();
         properties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
-        properties.setProperty(MZXML_FILENAME_KEY, MZXML_FILENAME);
+        properties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
+        properties.setProperty(EXPERIMENT_CODE_KEY, EXPERIMENT_CODE);
         save(properties, DEFAULT_MS_INJECTION_PROPERTIES_FILE);
-        SampleTypePropertyType pt1 = createPropertyType(MZXML_FILENAME_KEY, true);
+        SampleTypePropertyType pt1 = createPropertyType(SAMPLE_CODE_KEY, true);
         SampleTypePropertyType pt2 = createPropertyType("VOLUME", true);
         SampleTypePropertyType pt3 = createPropertyType("TEMPERATURE", true);
-        prepareTimeProviderAndGetSampleType(pt1, pt2, pt3);
+        prepareGetExperimentAndGetSampleType(true, pt1, pt2, pt3);
         
         try
         {
@@ -252,14 +278,24 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         context.assertIsSatisfied();
     }
 
-    private void prepareTimeProviderAndGetSampleType(
-            final SampleTypePropertyType... sampleTypePropertyTypes)
+    private void prepareGetExperimentAndGetSampleType(
+            final boolean experimentExists, final SampleTypePropertyType... sampleTypePropertyTypes)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(4711L * 4711 * 4711));
+                    ExperimentIdentifier identifier = new ExperimentIdentifier(null, GROUP_CODE, PROJECT_CODE,
+                            EXPERIMENT_CODE);
+                    one(service).tryToGetExperiment(identifier
+                            );
+                    will(returnValue(experimentExists ? new Experiment() : null));
+                    
+                    if (experimentExists == false)
+                    {
+                        one(service).registerExperiment(
+                                new NewExperiment(identifier.toString(), EXPERIMENT_TYPE_CODE));
+                    }
+                    
                     one(service).getSampleType(DataSetInfoExtractorForMSInjection.SAMPLE_TYPE_CODE);
                     SampleType sampleType = new SampleType();
                     sampleType.setSampleTypePropertyTypes(Arrays.asList(sampleTypePropertyTypes));
