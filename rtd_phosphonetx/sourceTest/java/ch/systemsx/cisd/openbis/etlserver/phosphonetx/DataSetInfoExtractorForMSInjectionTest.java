@@ -23,6 +23,7 @@ import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtracto
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.PROJECT_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.SAMPLE_CODE_KEY;
 import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.SAMPLE_TYPE_CODE;
+import static ch.systemsx.cisd.openbis.etlserver.phosphonetx.DataSetInfoExtractorForMSInjection.USER_KEY;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -202,6 +203,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
         properties.setProperty(PROJECT_CODE_KEY, PROJECT_CODE);
         properties.setProperty(SAMPLE_CODE_KEY, SAMPLE_CODE);
         properties.setProperty(EXPERIMENT_CODE_KEY, EXPERIMENT_CODE);
+        properties.setProperty(USER_KEY, "user1");
         properties.setProperty("TEMPERATURE", "47.11");
         save(properties, DEFAULT_MS_INJECTION_PROPERTIES_FILE);
         SampleTypePropertyType pt1 = createPropertyType(SAMPLE_CODE_KEY, true);
@@ -239,7 +241,7 @@ public class DataSetInfoExtractorForMSInjectionTest extends AbstractFileSystemTe
                             {
                                 description.appendText(SAMPLE_IDENTIFIER);
                             }
-                        }));
+                        }), with("user1"));
                 }
             });
         

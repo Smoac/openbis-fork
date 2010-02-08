@@ -53,6 +53,7 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
     static final String PROJECT_CODE_KEY = "PROJECT_CODE";
     static final String EXPERIMENT_CODE_KEY = "EXPERIMENT_CODE";
     static final String SAMPLE_CODE_KEY = "SAMPLE_CODE";
+    static final String USER_KEY = "USER";
     
     static final String GROUP_CODE = "MS_DATA";
     static final String EXPERIMENT_TYPE_CODE = "MS_INJECT";
@@ -95,7 +96,7 @@ public class DataSetInfoExtractorForMSInjection implements IDataSetInfoExtractor
         sample.setIdentifier(info.getSampleIdentifier().toString());
         List<EntityProperty> sampleProperties = createSampleProperties(properties);
         sample.setProperties(sampleProperties.toArray(new EntityProperty[sampleProperties.size()]));
-        service.registerSample(sample);
+        service.registerSample(sample, properties.getProperty(USER_KEY));
         return info;
     }
 
