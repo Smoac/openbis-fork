@@ -295,7 +295,7 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
                 Status transformationStatus = transformatorOrNull.transform(path);
                 if (transformationStatus.isError())
                 {
-                    notificationLog.error(String.format("FAILED_TRANSFORMATION '%s': ", path
+                    notificationLog.error(String.format("FAILED_TRANSFORMATION '%s': %s", path
                             .getAbsolutePath(), transformationStatus.tryGetErrorMessage()));
                     return;
                 } else

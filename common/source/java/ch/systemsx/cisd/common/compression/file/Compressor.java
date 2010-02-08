@@ -64,7 +64,7 @@ public class Compressor
                 FileUtilities.tryListFiles(directory, filter, new Log4jSimpleLogger(machineLog));
         if (filesToCompressOrNull == null)
         {
-            String errorMsg = String.format("Path '%s' is not a directory.\n", directory.getPath());
+            String errorMsg = String.format("Path '%s' is not a directory.", directory.getPath());
             machineLog.error(errorMsg);
             throw new EnvironmentFailureException(errorMsg);
         }
