@@ -312,7 +312,7 @@ class TimeSeriesDataSetUploader
         property.setValue(Integer.toString(timePoint));
         sample.setProperties(new EntityProperty[]
             { property });
-        return service.registerSample(sample);
+        return service.registerSample(sample, null);
     }
 
     private Experiment getExperiment(DataColumnHeader dataColumnHeader,

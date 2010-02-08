@@ -381,7 +381,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                             {
                                 description.appendValue(sample);
                             }
-                        }));
+                        }), with((String) null));
                     will(returnValue(sample7200.getId()));
 
                     one(service).listDataSetsBySampleID(sample7200.getId(), true);
