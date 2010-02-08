@@ -1457,11 +1457,27 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     private static <T> LayoutContainer createBottomToolbars(Component filterToolbar,
             Component pagingToolbar)
     {
-        LayoutContainer bottomToolbars = new LayoutContainer();
+        LayoutContainer bottomToolbars = new LayoutContainer()
+            {
+                @Override
+                protected void onWindowResize(int aWidth, int aHeight)
+                {
+                    super.onWindowResize(aWidth, aHeight);
+                    layout(true);
+                }
+            };
+        bottomToolbars.setMonitorWindowResize(true);
         bottomToolbars.setLayout(new RowLayout(com.extjs.gxt.ui.client.Style.Orientation.VERTICAL));
-        bottomToolbars.add(filterToolbar);
-        bottomToolbars.add(pagingToolbar);
+        bottomToolbars.add(filterToolbar, new RowData(1, -1));
+        bottomToolbars.add(pagingToolbar, new RowData(1, -1));
         return bottomToolbars;
+    }
+    
+    @Override
+    protected void onAttach()
+    {
+        super.onAttach();
+        bottomToolbars.layout(true);
     }
 
     private static <T extends ModelData> Grid<T> createGrid(

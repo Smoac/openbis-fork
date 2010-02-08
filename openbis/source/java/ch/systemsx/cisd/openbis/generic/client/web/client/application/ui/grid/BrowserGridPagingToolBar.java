@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -59,9 +60,18 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
             IMessageProvider messageProvider, int pageSize, String gridId)
     {
         super(pageSize);
-        nextTableButtonIndex = indexOf(refresh);
+        // Remove the refresh button (since we add our own)
         remove(refresh);
-
+        // Remove the space before the refresh button and replace it with display text
+        Component fillItem = getItem(indexOf(displayText) - 1);
+        remove(fillItem);
+        
+        // Add a separator and some fill space
+        nextTableButtonIndex = indexOf(displayText) + 1;
+        SeparatorToolItem separator = new SeparatorToolItem();
+        insertTableButton(separator);    
+        insertTableButton(new FillToolItem());
+       
         this.messageProvider = messageProvider;
 
         insertTableButton(createTableOperationsLabel());
@@ -97,7 +107,7 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
 
     public final void addEntityOperationsLabel()
     {
-        add(new FillToolItem());
+        add(new SeparatorToolItem());
         add(new LabelToolItem(messageProvider.getMessage(Dict.ENTITY_OPERATIONS)));
     }
 
