@@ -55,7 +55,7 @@ public class Compressor
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, Compressor.class);
 
-    private static final int NUMBER_OF_WORKERS = Runtime.getRuntime().availableProcessors();
+    private static final int NUMBER_OF_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
     private static Queue<File> tryFillWorkerQueue(File directory, final FileFilter filter)
             throws EnvironmentFailureException
@@ -77,24 +77,31 @@ public class Compressor
                 .asList(filesToCompressOrNull));
     }
 
-    private static void startUpWorkerThreads(Queue<File> workerQueue,
+    private static int getInitialNumberOfWorkers(int threadsPerProcessor)
+    {
+        assert threadsPerProcessor > 0;
+        return NUMBER_OF_PROCESSORS * threadsPerProcessor;
+    }
+
+    private static void startUpWorkerThreads(int threadsPerProcessor, Queue<File> workerQueue,
             Collection<FailureRecord> failed, ICompressionMethod compressor)
     {
-        AtomicInteger activeWorkers = new AtomicInteger(NUMBER_OF_WORKERS);
-        for (int i = 0; i < NUMBER_OF_WORKERS; ++i)
+        int workers = getInitialNumberOfWorkers(threadsPerProcessor);
+        AtomicInteger activeWorkers = new AtomicInteger(workers);
+        for (int i = 0; i < workers; ++i)
         {
             new Thread(new CompressionWorker(workerQueue, failed, compressor, activeWorkers),
                     "Compressor " + i).start();
         }
         if (operationLog.isInfoEnabled())
         {
-            operationLog.info(String.format("Started up %d worker threads.", NUMBER_OF_WORKERS));
+            operationLog.info(String.format("Started up %d worker threads.", workers));
         }
     }
 
     public static Collection<FailureRecord> start(String directoryName,
-            ICompressionMethod compressionMethod) throws InterruptedException,
-            EnvironmentFailureException
+            ICompressionMethod compressionMethod, int threadsPerProcessor)
+            throws InterruptedException, EnvironmentFailureException
     {
         if (compressionMethod instanceof ISelfTestable)
         {
@@ -109,7 +116,7 @@ public class Compressor
             System.out.println("No files to compress.");
             return failed;
         }
-        startUpWorkerThreads(workerQueue, failed, compressionMethod);
+        startUpWorkerThreads(threadsPerProcessor, workerQueue, failed, compressionMethod);
         synchronized (failed)
         {
             failed.wait();

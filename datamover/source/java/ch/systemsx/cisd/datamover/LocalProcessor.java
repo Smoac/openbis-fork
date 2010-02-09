@@ -18,6 +18,7 @@ package ch.systemsx.cisd.datamover;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.Properties;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
@@ -130,11 +131,15 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
     private final static ITransformator tryCreateTransformator(final Parameters parameters)
     {
         final String className = parameters.tryGetTransformatorClassName();
+        final Properties transformatorProperties = parameters.tryGetTransformatorProperties();
         if (className != null)
         {
             try
             {
-                return ClassUtils.create(ITransformator.class, className);
+                return ClassUtils.create(ITransformator.class, className, transformatorProperties);
+            } catch (ConfigurationFailureException ex)
+            {
+                throw ex; // rethrow the exception without changing the message
             } catch (Exception ex)
             {
                 throw new ConfigurationFailureException("Cannot find the transformator class '"

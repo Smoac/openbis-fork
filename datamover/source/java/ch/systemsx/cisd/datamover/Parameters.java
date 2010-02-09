@@ -42,6 +42,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.highwatermark.HostAwareFileWithHighwaterMark;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.datamover.filesystem.FileStoreFactory;
 import ch.systemsx.cisd.datamover.filesystem.intf.IFileStore;
@@ -290,8 +291,12 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
      */
     @Option(longName = PropertyNames.TRANSFORMATOR_CLASS, usage = "The transformation class name "
             + "(together with the list of packages this class belongs to)")
-    @Private
     private String transformatorClassNameOrNull = null;
+
+    /**
+     * Properties of transformator (null if no transformation should be performed).
+     */
+    private Properties transformatorPropertiesOrNull = null;
 
     /**
      * If set to <code>true</code>, the initial test for accessibility will be skipped on the
@@ -517,6 +522,10 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                         prefixForIncoming);
         transformatorClassNameOrNull =
                 serviceProperties.getProperty(PropertyNames.TRANSFORMATOR_CLASS);
+        if (transformatorClassNameOrNull != null)
+        {
+            transformatorPropertiesOrNull = tryExtractTransformatorProperties(serviceProperties);
+        }
         if (serviceProperties.getProperty(PropertyNames.INCOMING_TARGET) != null)
         {
             incomingTarget =
@@ -555,6 +564,12 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
                     Pattern.compile(serviceProperties
                             .getProperty(PropertyNames.MANUAL_INTERVENTION_REGEX));
         }
+    }
+
+    private Properties tryExtractTransformatorProperties(Properties serviceProperties)
+    {
+        return ExtendedProperties.getSubset(serviceProperties,
+                PropertyNames.TRANSFORMATOR_PROPERTIES_PREFIX, true);
     }
 
     private final File tryCreateFile(final Properties serviceProperties, final String propertyKey,
@@ -727,6 +742,14 @@ public final class Parameters implements ITimingParameters, IFileSysParameters
     public final String tryGetTransformatorClassName()
     {
         return transformatorClassNameOrNull;
+    }
+
+    /**
+     * @return Properties of transformator (null if no transformation should be performed).
+     */
+    public final Properties tryGetTransformatorProperties()
+    {
+        return transformatorPropertiesOrNull;
     }
 
     /**

@@ -80,8 +80,11 @@ public final class PropertyNames
     /** The remote directory (or host and directory) to move the data to. */
     static final String OUTGOING_TARGET = "outgoing-target";
 
+    /** Prefix of keys of transformator properties */
+    static final String TRANSFORMATOR_PROPERTIES_PREFIX = "transformator.";
+
     /** The transformator class to be used for file transformation. */
-    static final String TRANSFORMATOR_CLASS = "transformator-class";
+    static final String TRANSFORMATOR_CLASS = TRANSFORMATOR_PROPERTIES_PREFIX + "class";
 
     static final String PREFIX_FOR_INCOMING = "prefix-for-incoming";
 

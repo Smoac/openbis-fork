@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import ch.systemsx.cisd.common.compression.file.Compressor;
 import ch.systemsx.cisd.common.compression.file.FailureRecord;
+import ch.systemsx.cisd.common.compression.file.ICompressionMethod;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
@@ -29,7 +30,6 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
  */
 public class TiffCompressor extends Compressor
 {
-
     public static void main(String[] args)
     {
         if (args.length != 1)
@@ -49,7 +49,7 @@ public class TiffCompressor extends Compressor
     {
         try
         {
-            return compress(path);
+            return compress(path, 1, TiffConvertCompressionMethod.create(null));
         } catch (InterruptedException ex)
         {
             return "Compression was interrupted:" + ex.getMessage();
@@ -60,18 +60,25 @@ public class TiffCompressor extends Compressor
     }
 
     /**
-     * Compresses files in directory with given <var>path</var>.
+     * Compresses files in directory with given <var>path</var> with given tiff
+     * <var>compressionMethod</var>.
      * 
+     * @param threadsPerProcessor number of threads performing compression per processor (>0)
      * @return error message or null if no error occurred
      * @throws InterruptedException if compression was interrupted
      * @throws EnvironmentFailureException if there is a problem with specified path
      */
-    public static String compress(String path) throws InterruptedException,
+    public static String compress(String path, int threadsPerProcessor,
+            ICompressionMethod compressionMethod) throws InterruptedException,
             EnvironmentFailureException
     {
+        assert path != null;
+        assert compressionMethod != null;
+        assert threadsPerProcessor > 0;
+
         final StringBuilder errorMsgBuilder = new StringBuilder();
         final Collection<FailureRecord> failed;
-        failed = start(path, new TiffZipCompressionMethod());
+        failed = start(path, compressionMethod, threadsPerProcessor);
         if (failed.size() > 0)
         {
             errorMsgBuilder.append("The following files could not bee successfully compressed:\n");

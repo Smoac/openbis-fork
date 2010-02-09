@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.datamover.transformation;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -33,6 +34,11 @@ public class DummyTransformator implements ITransformator
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DummyTransformator.class);
+
+    public DummyTransformator(Properties properties)
+    {
+        operationLog.info("Dummy transformator created with properties: " + properties);
+    }
 
     public Status transform(File path)
     {

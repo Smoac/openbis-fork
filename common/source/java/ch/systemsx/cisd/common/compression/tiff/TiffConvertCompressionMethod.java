@@ -22,7 +22,6 @@ import java.util.List;
 
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.Constants;
-import ch.systemsx.cisd.common.compression.file.InPlaceCompressionMethod;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogInitializer;
@@ -31,14 +30,18 @@ import ch.systemsx.cisd.common.process.ProcessResult;
 
 /**
  * A compression method for TIFF files using the ImageMagick <code>convert</code> utility with
- * compression <code>Zip</code>.
+ * specified compression type parameter (by default: <code>LZW</code>).
  * 
  * @author Bernd Rinn
  */
-public class TiffZipCompressionMethod extends InPlaceCompressionMethod
+public class TiffConvertCompressionMethod extends AbstractTiffCompressionMethod
 {
 
-    final static File convertExecutable = OSUtilities.findExecutable("convert");
+    private final static String executableName = "convert";
+
+    private final static File executable = OSUtilities.findExecutable(executableName);
+
+    private final static String DEFAULT_COMPRESSION_TYPE = "LZW";
 
     private static String getImageMagickVersion(String convertExecutableToCheck)
     {
@@ -66,38 +69,53 @@ public class TiffZipCompressionMethod extends InPlaceCompressionMethod
         }
     }
 
+    /**
+     * @returns compression method using specified compression type
+     * @param compressionTypeOrNull compression type to use (if <code>null</code> default
+     *            compression type will be used)
+     */
+    public static TiffConvertCompressionMethod create(String compressionTypeOrNull)
+    {
+        return compressionTypeOrNull == null ? new TiffConvertCompressionMethod()
+                : new TiffConvertCompressionMethod(compressionTypeOrNull);
+    }
+
+    /** Constructs compression method using default compression type. */
+    private TiffConvertCompressionMethod()
+    {
+        this(DEFAULT_COMPRESSION_TYPE);
+    }
+
+    /** Constructs compression method using specified <var>compressonType</var>. */
+    private TiffConvertCompressionMethod(String compressionType)
+    {
+        super(compressionType);
+    }
+
     @Override
     protected List<String> createCommandLine(File fileToCompress, File inProgressFile)
     {
-        assert convertExecutable != null;
+        assert executable != null;
         assert fileToCompress != null;
         assert fileToCompress.isFile();
         assert inProgressFile != null;
         assert inProgressFile.exists() == false;
 
         final List<String> parameters =
-                Arrays.asList(convertExecutable.getAbsolutePath(),
-                        fileToCompress.getAbsolutePath(), "-compress", "Zip", inProgressFile
-                                .getAbsolutePath());
+                Arrays.asList(executable.getAbsolutePath(), fileToCompress.getAbsolutePath(),
+                        "-compress", getCompressionType(), inProgressFile.getAbsolutePath());
         return parameters;
-    }
-
-    @Override
-    protected List<String> getAcceptedExtensions()
-    {
-        return Arrays.asList(".tif", ".tiff");
     }
 
     @Override
     public void check() throws EnvironmentFailureException, ConfigurationFailureException
     {
-        if (convertExecutable == null)
+        super.check();
+        if (true) // FIXME this check doesn't work properly
         {
-            throw new ConfigurationFailureException(
-                    "Cannot find executable of the convert utility.");
+            return;
         }
-        final String imageMagickVersionOrNull =
-                getImageMagickVersion(convertExecutable.getAbsolutePath());
+        final String imageMagickVersionOrNull = getImageMagickVersion(executable.getAbsolutePath());
         if (imageMagickVersionOrNull == null)
         {
             throw new ConfigurationFailureException("Invalid convert utility");
@@ -118,20 +136,27 @@ public class TiffZipCompressionMethod extends InPlaceCompressionMethod
         if (machineLog.isInfoEnabled())
         {
             machineLog.info(String.format("Using convert executable '%s', ImageMagick version %s",
-                    convertExecutable, imageMagickVersionOrNull));
+                    executable, imageMagickVersionOrNull));
         }
-    }
-
-    public boolean isRemote()
-    {
-        return false;
     }
 
     public static void main(String[] args)
     {
         LogInitializer.init();
-        final TiffZipCompressionMethod compressor = new TiffZipCompressionMethod();
+        final TiffConvertCompressionMethod compressor = new TiffConvertCompressionMethod();
         compressor.check();
+    }
+
+    @Override
+    protected File getExecutable()
+    {
+        return executable;
+    }
+
+    @Override
+    protected String getExecutableName()
+    {
+        return executableName;
     }
 
 }
