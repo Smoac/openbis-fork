@@ -22,6 +22,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -72,12 +73,16 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
             int width = imageCell.getMaxThumbnailWidth();
             int height = imageCell.getMaxThumbnailHeight();
             String imagePath = imageCell.getPath();
-            return SimpleImageHtmlRenderer.createEmbededDatastoreImageHtml(imagePath, width, height,
-                    downloadURL, sessionID);
+            return SimpleImageHtmlRenderer.createEmbededDatastoreImageHtml(imagePath, width,
+                    height, downloadURL, sessionID);
         }
         if (cell instanceof DateTableCell)
         {
             return SimpleDateRenderer.renderDate(((DateTableCell) cell).getDateTime());
+        }
+        if (cell instanceof GeneratedImageTableCell)
+        {
+            return ((GeneratedImageTableCell) cell).getHTMLString(downloadURL, sessionID);
         }
         return cell.toString();
     }

@@ -33,8 +33,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractData
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.dss.yeastx.server.EICMLChromatogramGeneratorServlet;
+import ch.systemsx.cisd.openbis.generic.shared.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GeneratedImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.yeastx.db.DBUtils;
@@ -49,7 +50,9 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
 {
     private static final String CHROMATOGRAM_SERVLET = "chromatogram";
 
-    private static final int THUMBNAIL_SIZE = 60;
+    private static final int THUMBNAIL_SIZE = 150;
+
+    private static final int IMAGE_SIZE = 600;
 
     private static final long serialVersionUID = 1L;
 
@@ -156,31 +159,17 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
 
         row.add(asText(chromatogram.getLabel()));
 
-        StringBuffer imageURL = new StringBuffer();
+        GeneratedImageTableCell imageCell =
+                new GeneratedImageTableCell(
+                        GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
+                                + CHROMATOGRAM_SERVLET, IMAGE_SIZE, IMAGE_SIZE, THUMBNAIL_SIZE,
+                        THUMBNAIL_SIZE);
 
-        imageURL.append(CHROMATOGRAM_SERVLET);
+        imageCell.addParameter(EICMLChromatogramGeneratorServlet.DATASET_CODE_PARAM, datasetCode);
+        imageCell.addParameter(EICMLChromatogramGeneratorServlet.CHROMATOGRAM_CODE_PARAM,
+                chromatogram.getId());
 
-        imageURL.append("?");
-        imageURL.append(EICMLChromatogramGeneratorServlet.DATASET_CODE_PARAM);
-        imageURL.append("=");
-        imageURL.append(datasetCode);
-
-        imageURL.append("&");
-        imageURL.append(EICMLChromatogramGeneratorServlet.CHROMATOGRAM_CODE_PARAM);
-        imageURL.append("=");
-        imageURL.append(chromatogram.getId());
-
-        imageURL.append("&");
-        imageURL.append(EICMLChromatogramGeneratorServlet.IMAGE_WIDTH_PARAM);
-        imageURL.append("=");
-        imageURL.append(THUMBNAIL_SIZE);
-
-        imageURL.append("&");
-        imageURL.append(EICMLChromatogramGeneratorServlet.IMAGE_HEIGHT_PARAM);
-        imageURL.append("=");
-        imageURL.append(THUMBNAIL_SIZE);
-
-        row.add(new ImageTableCell(imageURL.toString(), THUMBNAIL_SIZE, THUMBNAIL_SIZE));
+        row.add(imageCell);
         return row;
     }
 
