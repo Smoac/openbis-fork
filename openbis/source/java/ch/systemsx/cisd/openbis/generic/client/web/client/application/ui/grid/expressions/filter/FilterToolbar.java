@@ -14,6 +14,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ButtonGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.TriggerField;
@@ -69,6 +70,13 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
 
     private boolean disableApply = false;
 
+    // 6 filter fields fit into browser with 1024px width
+    private final static int MAX_FILTER_FIELDS_COLUMNS = 6;
+
+    private final static int MAX_FILTER_FIELDS_ROWS = 4;
+
+    private final static int MAX_FILTER_FIELDS = MAX_FILTER_FIELDS_COLUMNS * MAX_FILTER_FIELDS_ROWS;
+
     public FilterToolbar(IViewContext<ICommonClientServiceAsync> viewContext, String gridId,
             IDisplayTypeIDProvider displayTypeIDProvider, IDelegatedAction applyFiltersAction)
     {
@@ -78,7 +86,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         add(new LabelToolItem(messageProvider.getMessage(Dict.FILTER) + ": "));
         filterSelectionWidget =
                 new FilterSelectionWidget(viewContext, gridId, displayTypeIDProvider);
-        filterContainer = new ButtonGroup(6); // 6 filter fields fit into browser with 1024px width
+        filterContainer = new ButtonGroup(MAX_FILTER_FIELDS_COLUMNS);
         add(filterSelectionWidget);
         add(filterContainer);
         applyTool = new TextToolItem(messageProvider.getMessage(Dict.APPLY_FILTER));
@@ -437,13 +445,27 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
         if (hasFilteredColumnsChanged(filteredColumns, this.columnFilters))
         {
             List<IColumnFilterWidget<T>> newColumnFilters =
-                    createColumnFilterWidgets(filteredColumns, this.columnFilters,
-                            applyFiltersAction);
+                    createColumnFilterWidgets(pruneIfNecessary(filteredColumns),
+                            this.columnFilters, applyFiltersAction);
             updateColumnFilters(newColumnFilters);
             return true;
         } else
         {
             return false;
+        }
+    }
+
+    // WORKAROUND to broken layout if more than 4 rows with filter fields are shown
+    private List<IColumnDefinition<T>> pruneIfNecessary(List<IColumnDefinition<T>> filteredColumns)
+    {
+        if (filteredColumns.size() > MAX_FILTER_FIELDS)
+        {
+            MessageBox.alert("Warning", "Only up to " + MAX_FILTER_FIELDS
+                    + " column filters can be used at the same time for one table.", null);
+            return filteredColumns.subList(0, MAX_FILTER_FIELDS);
+        } else
+        {
+            return filteredColumns;
         }
     }
 
