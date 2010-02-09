@@ -296,4 +296,15 @@ public final class GWTUtils
        ].join(""); 
      }-*/;
 
+    /**
+     * Whether this application is deployed.
+     * <p>
+     * Deployed means that module name (<code>ch.systemsx.cisd.cifex.Cifex</code>) not present in
+     * module base URL (<code>http://localhost:8080/cifex/</code>).
+     * </p>
+     */
+    public final static boolean isDeployed()
+    {
+        return GWT.getModuleBaseURL().indexOf(GWT.getModuleName()) < 0;
+    }
 }
