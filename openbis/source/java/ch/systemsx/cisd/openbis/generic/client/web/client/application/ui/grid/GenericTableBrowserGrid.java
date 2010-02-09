@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAs
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResultSet;
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
@@ -84,7 +86,21 @@ public abstract class GenericTableBrowserGrid
     @Override
     protected ColumnDefsAndConfigs<GenericTableRow> createColumnsDefinition()
     {
-        return ColumnDefsAndConfigs.create(createColDefinitions());
+        ColumnDefsAndConfigs<GenericTableRow> definitions = ColumnDefsAndConfigs.create(createColDefinitions());
+        if (headers != null)
+        {
+            RealNumberRenderer renderer =
+                new RealNumberRenderer(viewContext.getDisplaySettingsManager()
+                        .getRealNumberFormatingParameters());
+            for (GenericTableColumnHeader header : headers)
+            {
+                if (header.getType() == DataTypeCode.REAL)
+                {
+                    definitions.setGridCellRendererFor(header.getCode(), renderer);
+                }
+            }
+        }
+        return definitions;
     }
 
     @Override
