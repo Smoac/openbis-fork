@@ -35,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SampleParentWithDerivedDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
@@ -89,18 +90,25 @@ public final class DemoServer extends AbstractServer<IDemoServer> implements IDe
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadBySampleIdentifier(identifier);
         final SamplePE sample = sampleBO.getSample();
-        return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
-                .getSampleInfo(session, sample), session.getBaseIndexURL());
+        return getSampleInfo(session, sample);
     }
 
-    public final SampleParentWithDerived getSampleInfo(final String sessionToken, final TechId sampleId)
+    public final SampleParentWithDerived getSampleInfo(final String sessionToken,
+            final TechId sampleId)
     {
         final Session session = getSession(sessionToken);
         final ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadDataByTechId(sampleId);
         final SamplePE sample = sampleBO.getSample();
-        return SampleTranslator.translate(getSampleTypeSlaveServerPlugin(sample.getSampleType())
-                .getSampleInfo(session, sample), session.getBaseIndexURL());
+        return getSampleInfo(session, sample);
+    }
+
+    private SampleParentWithDerived getSampleInfo(final Session session, final SamplePE sample)
+    {
+        ISampleTypeSlaveServerPlugin plugin =
+                getSampleTypeSlaveServerPlugin(sample.getSampleType());
+        SampleParentWithDerivedDTO sampleInfo = plugin.getSampleInfo(session, sample);
+        return SampleTranslator.translate(sampleInfo, session.getBaseIndexURL());
     }
 
     public final void registerSample(final String sessionToken, final NewSample newSample,
