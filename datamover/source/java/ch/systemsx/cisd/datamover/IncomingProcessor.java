@@ -165,7 +165,9 @@ public class IncomingProcessor implements IRecoverableTimerTaskFactory
         final File copyInProgressDir = bufferDirs.getCopyInProgressDir();
         final HighwaterMarkWatcher highwaterMarkWatcher =
                 new HighwaterMarkWatcher(bufferDirs.getBufferDirHighwaterMark());
-        final IStoreHandler pathHandler = createIncomingMovingPathHandler();
+        final IStoreHandler pathHandler =
+                DataMover.wrapHandleWithLogging(createIncomingMovingPathHandler(),
+                        "STARTED_TRANSFER", null);
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 new HighwaterMarkDirectoryScanningHandler(new FaultyPathDirectoryScanningHandler(
                         copyInProgressDir, pathHandler), highwaterMarkWatcher, copyInProgressDir);

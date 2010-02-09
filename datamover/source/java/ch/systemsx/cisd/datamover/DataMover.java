@@ -263,7 +263,8 @@ public final class DataMover
         final IFileStore readyToMoveStore =
                 FileStoreFactory.createLocal(sourceDirectory, "ready-to-move", factory, false);
         final IStoreHandler remoteStoreMover =
-                createOutgoingPathMover(readyToMoveStore, outgoingStore);
+                wrapHandleWithLogging(createOutgoingPathMover(readyToMoveStore, outgoingStore),
+                        null, "FINISHED_TRANSFER");
         final HighwaterMarkDirectoryScanningHandler directoryScanningHandler =
                 new HighwaterMarkDirectoryScanningHandler(new FaultyPathDirectoryScanningHandler(
                         sourceDirectory, remoteStoreMover), outgoingStore.getHighwaterMarkWatcher());
@@ -321,8 +322,42 @@ public final class DataMover
     }
 
     //
-    // Helper classes
+    // Helper methods and classes
     //
+
+    /**
+     * Wraps {@link IStoreHandler} into another one with additional option of logging before and
+     * after handling an item is performed by the <var>originalHandler</var>.
+     * 
+     * @param prefixBeforeOrNull if not <code>null</code> a message with this prefix and handled
+     *            item name will be logged before item handling
+     * @param prefixAfterOrNull if not <code>null</code> a message with this prefix and handled item
+     *            name will be logged after item handling
+     */
+    public final static IStoreHandler wrapHandleWithLogging(final IStoreHandler originalHandler,
+            final String prefixBeforeOrNull, final String prefixAfterOrNull)
+    {
+        return new IStoreHandler()
+            {
+                public void handle(StoreItem item)
+                {
+                    if (prefixBeforeOrNull != null)
+                    {
+                        operationLog.info(prefixBeforeOrNull + ": " + item);
+                    }
+                    originalHandler.handle(item);
+                    if (prefixAfterOrNull != null)
+                    {
+                        operationLog.info(prefixAfterOrNull + ": " + item);
+                    }
+                }
+
+                public boolean isStopped()
+                {
+                    return originalHandler.isStopped();
+                }
+            };
+    }
 
     private final static class RunOnceMoreAfterTerminateDataMoverProcess extends DataMoverProcess
     {
