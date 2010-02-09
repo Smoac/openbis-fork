@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.GeneMaterialViewer;
+import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateDatasetViewer;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.PlateSampleViewer;
 
 /**
@@ -89,6 +91,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         } else if (entityKind == EntityKind.MATERIAL)
         {
             types.add(ScreeningConstants.GENE_PLUGIN_TYPE_CODE);
+        } else if (entityKind == EntityKind.DATA_SET)
+        {
+            types.add(ScreeningConstants.IMAGE_DATASET_PLUGIN_TYPE_CODE);
         }
         return types;
     }
@@ -105,6 +110,10 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
         if (EntityKind.SAMPLE.equals(entityKind))
         {
             return (IClientPlugin<T, I>) new SampleClientPlugin(viewContext);
+        }
+        if (EntityKind.DATA_SET.equals(entityKind))
+        {
+            return (IClientPlugin<T, I>) new DatasetClientPlugin(viewContext);
         }
         throw new UnsupportedOperationException("IClientPlugin for entity kind '" + entityKind
                 + "' not implemented yet.");
@@ -179,6 +188,43 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<Scree
             final DatabaseModificationAwareComponent viewer, IViewContext<?> viewContext)
     {
         return createViewerTab(viewer, materialId, Dict.MATERIAL, viewContext);
+    }
+
+    private final class DatasetClientPlugin extends DelegatedClientPlugin<DataSetType>
+    {
+        private ScreeningViewContext screeningViewContext;
+
+        private DatasetClientPlugin(ScreeningViewContext viewContext)
+        {
+            super(viewContext, EntityKind.DATA_SET);
+            this.screeningViewContext = viewContext;
+        }
+
+        @Override
+        public final ITabItemFactory createEntityViewer(final IIdentifiable identifiable)
+        {
+            return new ITabItemFactory()
+                {
+                    public ITabItem create()
+                    {
+                        final DatabaseModificationAwareComponent viewer =
+                                PlateDatasetViewer.create(screeningViewContext, identifiable);
+                        return createViewerTab(viewer, identifiable, Dict.DATA_SET,
+                                screeningViewContext);
+                    }
+
+                    public String getId()
+                    {
+                        final TechId sampleId = TechId.create(identifiable);
+                        return PlateDatasetViewer.createId(sampleId);
+                    }
+
+                    public HelpPageIdentifier getHelpPageIdentifier()
+                    {
+                        return HelpPageIdentifier.createSpecific("Plate Dataset Viewer");
+                    }
+                };
+        }
     }
 
     private final class SampleClientPlugin extends DelegatedClientPlugin<SampleType>

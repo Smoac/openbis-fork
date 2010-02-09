@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IEntityTypePropertyTypeBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentTable;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGridCustomFilterOrColumnBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IGroupBO;
@@ -760,6 +761,19 @@ public final class CommonServer extends AbstractCommonServer<ICommonServer> impl
         }
     }
 
+    public ExternalData getDataSetInfo(final String sessionToken, final TechId datasetId)
+    {
+        final Session session = getSession(sessionToken);
+        final IExternalDataBO datasetBO = businessObjectFactory.createExternalDataBO(session);
+        datasetBO.loadDataByTechId(datasetId);
+        datasetBO.enrichWithParentsAndExperiment();
+        datasetBO.enrichWithChildren();
+        datasetBO.enrichWithProperties();
+        final ExternalDataPE dataset = datasetBO.getExternalData();
+        return ExternalDataTranslator.translate(dataset, getDataStoreBaseURL(), session
+                .getBaseIndexURL(), false);
+    }
+    
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities relatedEntities)
     {

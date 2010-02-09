@@ -49,6 +49,8 @@ public class ScreeningConstants
     // code of the gene material type
     public static final String GENE_PLUGIN_TYPE_CODE = "GENE";
 
+    public static final String IMAGE_DATASET_PLUGIN_TYPE_CODE = "HCS_IMAGE";
+
     /** path to the datastore screening servlet able to display images in different channels */
     public static final String DATASTORE_SCREENING_SERVLET_URL = "datastore_server_screening";
 }

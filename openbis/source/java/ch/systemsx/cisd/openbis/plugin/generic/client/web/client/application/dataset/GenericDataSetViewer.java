@@ -94,7 +94,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
                     viewContext.getService().getDataSetInfo(datasetTechId, asyncCallback);
                 }
             };
-        viewer.reloadData();
+        viewer.reloadAllData();
         return new DatabaseModificationAwareComponent(viewer, viewer);
     }
 
@@ -157,7 +157,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
     /**
      * Load the dataset information.
      */
-    protected void reloadData()
+    protected void reloadAllData()
     {
         loadDatasetInfo(datasetId, new DataSetInfoCallback(viewContext, this));
     }
@@ -276,7 +276,7 @@ abstract public class GenericDataSetViewer extends AbstractViewer<ExternalData> 
 
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
-        reloadData(); // reloads everything
+        reloadAllData(); // reloads everything
     }
 
     /**

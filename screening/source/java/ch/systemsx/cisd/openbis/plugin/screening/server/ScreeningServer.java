@@ -30,7 +30,9 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -58,6 +60,9 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
+
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
+    protected ICommonServer commonServer;
 
     public ScreeningServer()
     {
@@ -123,5 +128,10 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         Session session = getSession(sessionToken);
         return GenePlateLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
                 geneMaterialId, experimentIdentifier);
+    }
+
+    public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
+    {
+        return commonServer.getDataSetInfo(sessionToken, datasetId);
     }
 }

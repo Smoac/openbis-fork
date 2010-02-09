@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -77,6 +78,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public Material getMaterialInfo(String sessionToken, TechId materialId)
     {
         logTracking(sessionToken, "getMaterialInfo", "materialId(%s)", materialId.getId());
+        return null;
+    }
+
+    public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
+    {
+        logTracking(sessionToken, "getDataSetInfo", "datasetId(%s)", datasetId.getId());
         return null;
     }
 }

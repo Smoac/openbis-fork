@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResult
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -49,6 +50,9 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
 
     /** @see IScreeningClientService#getPlateContent(TechId) */
     public void getPlateContent(TechId sampleId, final AsyncCallback<PlateContent> callback);
+
+    /** @see IScreeningClientService#getDataSetInfo(TechId) */
+    public void getDataSetInfo(TechId datasetTechId, AsyncCallback<ExternalData> callback);
 
     /**
      * @see IScreeningClientService#getPlateLocations(TechId,

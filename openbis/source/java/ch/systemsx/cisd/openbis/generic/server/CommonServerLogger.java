@@ -412,6 +412,12 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
+    {
+        logAccess(sessionToken, "getDataSetInfo", "datasetId(%s)", datasetId.getId());
+        return null;
+    }
+
     public List<ExternalData> listRelatedDataSets(String sessionToken,
             DataSetRelatedEntities entities)
     {
@@ -814,5 +820,4 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "delete_materials", "IDS(%s) REASON(%s)", materialIds, reason);
     }
-
 }

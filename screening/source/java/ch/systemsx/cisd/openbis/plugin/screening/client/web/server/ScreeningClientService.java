@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -114,6 +115,17 @@ public final class ScreeningClientService extends AbstractClientService implemen
         }
     }
 
+    public ExternalData getDataSetInfo(TechId datasetTechId)
+    {
+        try
+        {
+            return server.getDataSetInfo(getSessionToken(), datasetTechId);
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
+    }
+
     public PlateContent getPlateContent(TechId plateId) throws UserFailureException
     {
         try
@@ -160,5 +172,4 @@ public final class ScreeningClientService extends AbstractClientService implemen
     {
         return prepareExportEntities(criteria);
     }
-
 }

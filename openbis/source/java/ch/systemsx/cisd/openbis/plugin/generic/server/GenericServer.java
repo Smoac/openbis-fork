@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetUpdateResult;
@@ -79,7 +80,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.ExternalDataTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MaterialTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
@@ -96,6 +96,9 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 {
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
+
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
+    protected ICommonServer commonServer;
 
     public GenericServer()
     {
@@ -220,15 +223,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
 
     public ExternalData getDataSetInfo(final String sessionToken, final TechId datasetId)
     {
-        final Session session = getSession(sessionToken);
-        final IExternalDataBO datasetBO = businessObjectFactory.createExternalDataBO(session);
-        datasetBO.loadDataByTechId(datasetId);
-        datasetBO.enrichWithParentsAndExperiment();
-        datasetBO.enrichWithChildren();
-        datasetBO.enrichWithProperties();
-        final ExternalDataPE dataset = datasetBO.getExternalData();
-        return ExternalDataTranslator.translate(dataset, getDataStoreBaseURL(), session
-                .getBaseIndexURL(), false);
+        return commonServer.getDataSetInfo(sessionToken, datasetId);
     }
 
     public AttachmentWithContent getExperimentFileAttachment(final String sessionToken,

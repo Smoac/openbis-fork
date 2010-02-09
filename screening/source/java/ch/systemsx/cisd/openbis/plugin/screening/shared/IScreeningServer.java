@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -76,5 +77,12 @@ public interface IScreeningServer extends IServer
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
     public Material getMaterialInfo(String sessionToken, TechId materialId);
+
+    /**
+     * For given {@link TechId} returns the corresponding {@link ExternalData}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public ExternalData getDataSetInfo(String sessionToken, TechId datasetId);
 
 }

@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -55,6 +56,11 @@ public interface IScreeningClientService extends IClientService
      * For given {@link TechId} returns corresponding {@link Material}.
      */
     public Material getMaterialInfo(final TechId materialId) throws UserFailureException;
+
+    /**
+     * For given {@link TechId} returns corresponding {@link ExternalData}.
+     */
+    public ExternalData getDataSetInfo(TechId datasetTechId);
 
     /**
      * Fetches information about wells on a plate and their content.
