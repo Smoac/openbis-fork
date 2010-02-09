@@ -8,6 +8,7 @@ import com.google.gwt.i18n.client.NumberFormat;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 
 /**
  * Renderer of {@link Double} value.
@@ -16,6 +17,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
  */
 public final class RealNumberRenderer implements GridCellRenderer<BaseEntityModel<?>>
 {
+    private static final String ZEROS = "00000000000000000000";
+    private static final int MAX_PRECISION = ZEROS.length();
+
     private static final int MAX_DIGITAL_FORMAT_LENGTH = 10;
 
     private static final double MIN_DIGITAL_FORMAT_VALUE = 0.00005;
@@ -24,7 +28,7 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
 
     private static final String DIGITAL_FORMAT = "0.0000";
 
-    public static String render(String value)
+    private static String render(String value)
     {
         double doubleValue = Double.parseDouble(value);
         String formattedValue = NumberFormat.getFormat(DIGITAL_FORMAT).format(doubleValue);
@@ -52,6 +56,24 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
             return "";
         }
         return render(value);
+    }
+
+    public static String render(String value,
+            RealNumberFormatingParameters realNumberFormatingParameters)
+    {
+        if (realNumberFormatingParameters.isFormatingEnabled() == false)
+        {
+            return value;
+        }
+        int precision = Math.max(0, Math.min(MAX_PRECISION, realNumberFormatingParameters.getPrecision()));
+        String format = "0." + ZEROS.substring(0, precision);
+        if (realNumberFormatingParameters.isScientific())
+        {
+            format += "E000";
+        }
+        double doubleValue = Double.parseDouble(value);
+        String formattedValue = NumberFormat.getFormat(format).format(doubleValue);
+        return MultilineHTML.wrapUpInDivWithTooltip(formattedValue, value);
     }
 
 }

@@ -24,15 +24,19 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.GroupSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IntegerField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
@@ -41,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Group;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 
 /**
  * {@link Window} containing form for changing logged user settings.
@@ -60,6 +65,12 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
     private final CheckBoxField useWildcardSearchModeCheckbox;
 
+    private final FieldSet formatingFields;
+    
+    private final CheckBoxField scientificFormatingField;
+    
+    private final IntegerField precisionField;
+    
     private final IDelegatedAction resetCallback;
 
     public ChangeUserSettingsDialog(final IViewContext<?> viewContext,
@@ -74,6 +85,12 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
         addField(homeGroupField = createHomeGroupField());
         addField(useWildcardSearchModeCheckbox = createUseWildcardSearchModeField());
+        formatingFields = createRealFormatingFieldSet();
+        precisionField = createPrecisionField();
+        formatingFields.add(precisionField);
+        scientificFormatingField = createScientificCheckBox();
+        formatingFields.add(scientificFormatingField);
+        addField(formatingFields);
         fbar.insert(createResetButton(), 1); // inserting Reset button in between Save and Cancel
 
         DialogWithOnlineHelpUtils.addHelpButton(viewContext.getCommonViewContext(), this,
@@ -100,7 +117,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         field.setValue(viewContext.getDisplaySettingsManager().isUseWildcardSearchMode());
         return field;
     }
-
+    
     @Override
     protected void save(AsyncCallback<Void> saveCallback)
     {
@@ -110,10 +127,50 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         viewContext.getModel().getSessionContext().getUser().setHomeGroupCode(groupCodeOrNull);
         viewContext.getService().changeUserHomeGroup(groupIdOrNull, saveCallback);
 
+        RealNumberFormatingParameters formatingParameters = getRealNumberFormatingParameters();
+        formatingParameters.setFormatingEnabled(formatingFields.isExpanded());
+        formatingParameters.setPrecision(precisionField.getValue().intValue());
+        formatingParameters.setScientific(scientificFormatingField.getValue());
+        DisplaySettingsManager displaySettingsManager = viewContext.getDisplaySettingsManager();
         boolean useWildcardSearchMode = extractUseWildcardSearchMode();
-        viewContext.getDisplaySettingsManager().storeSearchMode(useWildcardSearchMode);
+        displaySettingsManager.updateUseWildcardSearchMode(useWildcardSearchMode);
+        displaySettingsManager.storeSettings();
     }
 
+    private FieldSet createRealFormatingFieldSet()
+    {
+        FieldSet fields = new FieldSet();
+        fields.setHeading(viewContext.getMessage(Dict.REAL_NUMBER_FORMATING_FIELDS));
+        fields.setCheckboxToggle(true);
+        fields.setExpanded(getRealNumberFormatingParameters().isFormatingEnabled());
+        FormLayout layout = new FormLayout();  
+        layout.setLabelWidth(141);  
+        fields.setLayout(layout);
+        return fields;
+    }
+    
+    private IntegerField createPrecisionField()
+    {
+        IntegerField field =
+                new IntegerField(viewContext.getMessage(Dict.REAL_NUMBER_FORMATING_PRECISION),
+                        false);
+        field.setValue(getRealNumberFormatingParameters().getPrecision());
+        return field;
+    }
+    
+    private CheckBoxField createScientificCheckBox()
+    {
+        CheckBoxField field =
+                new CheckBoxField(viewContext.getMessage(Dict.SCIENTIFIC_FORMATING), false);
+        field.setValue(getRealNumberFormatingParameters().isScientific());
+        return field;
+    }
+    
+    private RealNumberFormatingParameters getRealNumberFormatingParameters()
+    {
+        return viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters();
+    }
+    
     private boolean extractUseWildcardSearchMode()
     {
         return useWildcardSearchModeCheckbox.getValue();

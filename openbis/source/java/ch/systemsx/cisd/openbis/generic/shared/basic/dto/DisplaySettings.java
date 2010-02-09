@@ -47,6 +47,9 @@ public class DisplaySettings implements Serializable, IsSerializable
 
     // for new users with clean display settings basic search mode will be used by default
     private boolean useWildcardSearchMode = false; 
+    
+    private RealNumberFormatingParameters realNumberFormatingParameters =
+            new RealNumberFormatingParameters();
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
     @Deprecated
@@ -73,6 +76,17 @@ public class DisplaySettings implements Serializable, IsSerializable
         return useWildcardSearchMode;
     }
 
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public RealNumberFormatingParameters getRealNumberFormatingParameters()
+    {
+        if (realNumberFormatingParameters == null)
+        {
+            realNumberFormatingParameters = new RealNumberFormatingParameters();
+        }
+        return realNumberFormatingParameters;
+    }
+    
     // for serialization
 
     @SuppressWarnings("unused")
@@ -94,4 +108,11 @@ public class DisplaySettings implements Serializable, IsSerializable
         this.useWildcardSearchMode = useWildcardSearchMode;
     }
 
+    @SuppressWarnings("unused")
+    private void setRealNumberFormatingParameters(
+            RealNumberFormatingParameters realNumberFormatingParameters)
+    {
+        this.realNumberFormatingParameters = realNumberFormatingParameters;
+    }
 }
+

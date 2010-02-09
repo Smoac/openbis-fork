@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
@@ -53,10 +54,11 @@ public final class SampleModelFactory
     }
 
     public static BaseEntityModel<Sample> createModel(GridRowModel<Sample> sampleModel,
-            SampleType sampleType)
+            SampleType sampleType, RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<? extends IColumnDefinitionUI<Sample>> allColumnsDefinition =
-                new SampleModelFactory().createColumnsSchemaForRendering(sampleModel, sampleType);
+                new SampleModelFactory().createColumnsSchemaForRendering(sampleModel, sampleType,
+                        realNumberFormatingParameters);
         BaseEntityModel<Sample> model =
                 new BaseEntityModel<Sample>(sampleModel, allColumnsDefinition);
         return model;
@@ -71,10 +73,12 @@ public final class SampleModelFactory
     }
 
     private List<IColumnDefinitionUI<Sample>> createColumnsSchemaForRendering(
-            GridRowModel<Sample> sampleModel, SampleType sampleType)
+            GridRowModel<Sample> sampleModel, SampleType sampleType,
+            RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<IColumnDefinitionUI<Sample>> columns =
-                entityGridModelFactory.createColumnsSchemaForRendering(sampleModel);
+                entityGridModelFactory.createColumnsSchemaForRendering(sampleModel,
+                        realNumberFormatingParameters);
         List<AbstractParentSampleColDef> parentColumns =
                 createParentColumnsSchema(null, sampleType);
         columns.addAll(parentColumns);

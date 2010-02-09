@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 
 /**
  * Factory for creating model or column definitions for grids which displays entities with
@@ -56,11 +57,12 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
         this.staticColumnDefinitions = staticColumnDefinitions;
     }
 
-    public BaseEntityModel<T> createModel(GridRowModel<T> entity)
+    public BaseEntityModel<T> createModel(GridRowModel<T> entity,
+            RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<IColumnDefinitionUI<T>> allColumnsDefinition =
                 new EntityGridModelFactory<T>(staticColumnDefinitions)
-                        .createColumnsSchemaForRendering(entity);
+                        .createColumnsSchemaForRendering(entity, realNumberFormatingParameters);
         return new BaseEntityModel<T>(entity, allColumnsDefinition);
     }
 
@@ -68,14 +70,16 @@ public class EntityGridModelFactory<T extends IEntityPropertiesHolder>
      * here we create the columns definition having just one table row. We need them only to render
      * column values (headers have been already created), so no message provider is needed.
      */
-    public List<IColumnDefinitionUI<T>> createColumnsSchemaForRendering(GridRowModel<T> rowModel)
+    public List<IColumnDefinitionUI<T>> createColumnsSchemaForRendering(GridRowModel<T> rowModel,
+            RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<IColumnDefinitionUI<T>> list = createStaticColumnDefinitions(null);
         for (IEntityProperty prop : rowModel.getOriginalObject().getProperties())
         {
             PropertyType propertyType = prop.getPropertyType();
             EntityPropertyColDef<T> colDef = new EntityPropertyColDef<T>(propertyType, true, null);
-            list.add(AbstractPropertyColRenderer.getPropertyColRenderer(colDef));
+            list.add(AbstractPropertyColRenderer.getPropertyColRenderer(colDef,
+                    realNumberFormatingParameters));
         }
         return list;
     }

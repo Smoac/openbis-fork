@@ -21,6 +21,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 
 /**
  * An abstract decorator for {@link EntityPropertyColDef} to be used in grids for rendering values
@@ -39,12 +40,13 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
      * @return property renderer for given column of given entity
      */
     public static <S extends IEntityPropertiesHolder> AbstractPropertyColRenderer<S> getPropertyColRenderer(
-            EntityPropertyColDef<S> colDef)
+            EntityPropertyColDef<S> colDef,
+            RealNumberFormatingParameters realNumberFormatingParameters)
     {
         switch (colDef.getDataTypeCode())
         {
             case REAL:
-                return new RealPropertyColRenderer<S>(colDef);
+                return new RealPropertyColRenderer<S>(colDef, realNumberFormatingParameters);
             case HYPERLINK:
                 return new HyperlinkPropertyColRenderer<S>(colDef);
             case MULTILINE_VARCHAR:

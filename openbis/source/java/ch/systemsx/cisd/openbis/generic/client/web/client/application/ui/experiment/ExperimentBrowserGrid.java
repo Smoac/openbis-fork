@@ -195,7 +195,8 @@ public class ExperimentBrowserGrid extends
     @Override
     protected BaseEntityModel<Experiment> createModel(GridRowModel<Experiment> entity)
     {
-        return getColumnsFactory().createModel(entity);
+        return getColumnsFactory().createModel(entity,
+                viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters());
     }
 
     @Override

@@ -36,6 +36,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ColumnSetting;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 
 /**
  * Manager of {@link DisplaySettings}. The manager itself is stateless. It only changes the wrapped
@@ -359,9 +360,8 @@ public class DisplaySettingsManager
         updater.executeDelayed(delayMs);
     }
 
-    public void storeSearchMode(boolean useWildcardSearchMode)
+    public void storeSettings()
     {
-        updateUseWildcardSearchMode(useWildcardSearchMode);
         updater.executeDelayed(1); // 0 not allowed
     }
 
@@ -461,9 +461,15 @@ public class DisplaySettingsManager
      * update section settings for given display id (modification date is updated automatically)
      */
     @SuppressWarnings("deprecation")
-    private final void updateUseWildcardSearchMode(Boolean newValue)
+    public final void updateUseWildcardSearchMode(Boolean newValue)
     {
         displaySettings.setUseWildcardSearchMode(newValue);
+    }
+    
+    @SuppressWarnings("deprecation")
+    public final RealNumberFormatingParameters getRealNumberFormatingParameters()
+    {
+        return displaySettings.getRealNumberFormatingParameters();
     }
 
 }

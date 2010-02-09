@@ -439,7 +439,8 @@ public class SampleBrowserGrid extends
     @Override
     protected BaseEntityModel<Sample> createModel(GridRowModel<Sample> entity)
     {
-        return SampleModelFactory.createModel(entity, criteria.tryGetSampleType());
+        return SampleModelFactory.createModel(entity, criteria.tryGetSampleType(), viewContext
+                .getDisplaySettingsManager().getRealNumberFormatingParameters());
     }
 
     @Override

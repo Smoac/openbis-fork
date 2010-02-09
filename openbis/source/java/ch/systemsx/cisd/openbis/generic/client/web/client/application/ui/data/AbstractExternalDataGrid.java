@@ -288,7 +288,8 @@ public abstract class AbstractExternalDataGrid
     @Override
     protected BaseEntityModel<ExternalData> createModel(GridRowModel<ExternalData> entity)
     {
-        return getColumnsFactory().createModel(entity);
+        return getColumnsFactory().createModel(entity,
+                viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters());
     }
 
     protected ColumnDefsAndConfigs<ExternalData> createColumnsSchema()

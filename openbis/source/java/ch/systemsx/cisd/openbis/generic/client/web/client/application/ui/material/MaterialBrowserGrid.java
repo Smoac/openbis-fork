@@ -212,7 +212,8 @@ public class MaterialBrowserGrid extends
     @Override
     protected BaseEntityModel<Material> createModel(GridRowModel<Material> entity)
     {
-        return getColumnsFactory().createModel(entity);
+        return getColumnsFactory().createModel(entity,
+                viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters());
     }
 
     @Override
