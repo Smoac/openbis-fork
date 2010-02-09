@@ -42,7 +42,7 @@ public enum ProteinSummaryColDefKind implements IColumnDefinitionKind<ProteinSum
             {
                 return entity.getOriginalObject().getFDR();
             }
-        }), PROTEIN_COUNT(new AbstractColumnDefinitionKind<ProteinSummary>(Dict.PROTEIN_COUNT)
+        }), PROTEIN_COUNT(new AbstractColumnDefinitionKind<ProteinSummary>(Dict.PROTEIN_COUNT, 100, false, true)
         {
             @Override
             public String tryGetValue(ProteinSummary entity)
@@ -55,7 +55,7 @@ public enum ProteinSummaryColDefKind implements IColumnDefinitionKind<ProteinSum
             {
                 return entity.getOriginalObject().getProteinCount();
             }
-        }), PEPTIDE_COUNT(new AbstractColumnDefinitionKind<ProteinSummary>(Dict.PEPTIDE_COUNT)
+        }), PEPTIDE_COUNT(new AbstractColumnDefinitionKind<ProteinSummary>(Dict.PEPTIDE_COUNT, 100, false, true)
         {
             @Override
             public String tryGetValue(ProteinSummary entity)

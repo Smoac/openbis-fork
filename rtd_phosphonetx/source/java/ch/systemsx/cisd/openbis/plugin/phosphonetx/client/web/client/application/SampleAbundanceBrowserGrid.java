@@ -273,7 +273,8 @@ public class SampleAbundanceBrowserGrid
     protected BaseEntityModel<SampleWithPropertiesAndAbundance> createModel(
             GridRowModel<SampleWithPropertiesAndAbundance> entity)
     {
-        return SampleAbundanceModelFactory.createModel(entity);
+        return SampleAbundanceModelFactory.createModel(entity, viewContext
+                .getDisplaySettingsManager().getRealNumberFormatingParameters());
     }
 
     @Override
@@ -316,7 +317,8 @@ public class SampleAbundanceBrowserGrid
         schema.setGridCellRendererFor(SampleAbundanceColDefKind.CODE.id(), LinkRenderer
                 .createLinkRenderer());
         schema.setGridCellRendererFor(SampleAbundanceColDefKind.ABUNDANCE.id(),
-                new RealNumberRenderer());
+                new RealNumberRenderer(viewContext.getDisplaySettingsManager()
+                        .getRealNumberFormatingParameters()));
         return schema;
     }
 

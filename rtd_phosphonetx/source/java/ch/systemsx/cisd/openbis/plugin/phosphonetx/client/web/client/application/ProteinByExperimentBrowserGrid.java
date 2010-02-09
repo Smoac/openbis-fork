@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.AbstractSimpleBrowserGrid;
@@ -172,14 +173,6 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
     }
 
     @Override
-    protected void refresh()
-    {
-        System.out.println("ProteinByExperimentBrowserGrid.refresh() "+this);
-        // TODO Auto-generated method stub
-        super.refresh();
-    }
-
-    @Override
     protected IColumnDefinitionKind<ProteinInfo>[] getStaticColumnsDefinition()
     {
         return ProteinColDefKind.values();
@@ -191,6 +184,7 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
         ColumnDefsAndConfigs<ProteinInfo> definitions = super.createColumnsDefinition();
         List<IColumnDefinitionUI<ProteinInfo>> columns =
                 new ArrayList<IColumnDefinitionUI<ProteinInfo>>();
+        List<String> abundanceColumnIDs = new ArrayList<String>();
         for (AbundanceColumnDefinition definition : abundanceColumnDefinitions)
         {
             String header = definition.getSampleCode();
@@ -211,12 +205,22 @@ class ProteinByExperimentBrowserGrid extends AbstractSimpleBrowserGrid<ProteinIn
             {
                 properties.put(ABUNDANCE_PROPERTY_KEY, header);
             }
-            columns.add(new InternalAbundanceColumnDefinition(header, properties, 100, false,
-                    sampleID));
+            IColumnDefinitionUI<ProteinInfo> columnDefinition =
+                    new InternalAbundanceColumnDefinition(header, properties, 100, false, sampleID);
+            abundanceColumnIDs.add(columnDefinition.getIdentifier());
+            columns.add(columnDefinition);
         }
         definitions.addColumns(columns);
         definitions.setGridCellRendererFor(ProteinColDefKind.ACCESSION_NUMBER.id(), LinkRenderer
                 .createLinkRenderer());
+        RealNumberRenderer renderer =
+                new RealNumberRenderer(viewContext.getDisplaySettingsManager()
+                        .getRealNumberFormatingParameters());
+        for (String abundanceColumneID : abundanceColumnIDs)
+        {
+            definitions.setGridCellRendererFor(abundanceColumneID, renderer);
+        }
+        definitions.setGridCellRendererFor(ProteinColDefKind.COVERAGE.id(), renderer);
         return definitions;
     }
 

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.Co
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.columns.SampleAbundanceColDefKind;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.shared.basic.dto.SampleWithPropertiesAndAbundance;
 
@@ -46,10 +47,12 @@ public final class SampleAbundanceModelFactory
     }
 
     public static BaseEntityModel<SampleWithPropertiesAndAbundance> createModel(
-            GridRowModel<SampleWithPropertiesAndAbundance> entity)
+            GridRowModel<SampleWithPropertiesAndAbundance> entity,
+            RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<IColumnDefinitionUI<SampleWithPropertiesAndAbundance>> allColumnsDefinition =
-                new SampleAbundanceModelFactory().createColumnsSchemaForRendering(entity);
+                new SampleAbundanceModelFactory().createColumnsSchemaForRendering(entity,
+                        realNumberFormatingParameters);
         BaseEntityModel<SampleWithPropertiesAndAbundance> model =
                 new BaseEntityModel<SampleWithPropertiesAndAbundance>(entity, allColumnsDefinition);
         return model;
@@ -65,10 +68,12 @@ public final class SampleAbundanceModelFactory
     }
 
     private List<IColumnDefinitionUI<SampleWithPropertiesAndAbundance>> createColumnsSchemaForRendering(
-            GridRowModel<SampleWithPropertiesAndAbundance> sample)
+            GridRowModel<SampleWithPropertiesAndAbundance> sample,
+            RealNumberFormatingParameters realNumberFormatingParameters)
     {
         List<IColumnDefinitionUI<SampleWithPropertiesAndAbundance>> columns =
-                entityGridModelFactory.createColumnsSchemaForRendering(sample);
+                entityGridModelFactory.createColumnsSchemaForRendering(sample,
+                        realNumberFormatingParameters);
         return columns;
     }
 

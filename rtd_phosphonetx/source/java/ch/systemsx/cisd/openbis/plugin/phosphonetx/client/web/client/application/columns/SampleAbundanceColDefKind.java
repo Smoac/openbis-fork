@@ -55,7 +55,8 @@ public enum SampleAbundanceColDefKind implements
 
     ABUNDANCE(
             new AbstractColumnDefinitionKind<SampleWithPropertiesAndAbundance>(
-                    ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.Dict.ABUNDANCE)
+                    ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application.Dict.ABUNDANCE,
+                    100, false, true)
                 {
                     @Override
                     public String tryGetValue(SampleWithPropertiesAndAbundance entity)

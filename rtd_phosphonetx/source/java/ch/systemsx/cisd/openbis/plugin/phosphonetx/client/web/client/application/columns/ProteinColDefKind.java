@@ -45,7 +45,7 @@ public enum ProteinColDefKind implements IColumnDefinitionKind<ProteinInfo>
             }
         }),
 
-    COVERAGE(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.COVERAGE)
+    COVERAGE(new AbstractColumnDefinitionKind<ProteinInfo>(Dict.COVERAGE, 100, false, true)
         {
             @Override
             public String tryGetValue(ProteinInfo entity)

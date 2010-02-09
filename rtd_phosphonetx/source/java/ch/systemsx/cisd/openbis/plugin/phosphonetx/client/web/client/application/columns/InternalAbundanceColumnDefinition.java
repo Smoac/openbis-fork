@@ -39,7 +39,7 @@ public final class InternalAbundanceColumnDefinition extends AbstractColumnDefin
     public InternalAbundanceColumnDefinition(String headerTextOrNull,
             Map<String, String> propertiesOrNull, int width, boolean isHidden, long sampleID)
     {
-        super(headerTextOrNull, width, isHidden);
+        super(headerTextOrNull, width, isHidden, true);
         this.properties = propertiesOrNull;
         this.sampleID = sampleID;
     }
@@ -61,12 +61,6 @@ public final class InternalAbundanceColumnDefinition extends AbstractColumnDefin
     {
         Double abundance = tryToGetAbundance(rowModel.getOriginalObject());
         return abundance == null ? ZERO : abundance;
-    }
-
-    @Override
-    public boolean isNumeric()
-    {
-        return true;
     }
 
     @Override
