@@ -31,20 +31,23 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
 
     private boolean isHidden;
 
+    private boolean numeric;
+
     // GWT only
     protected AbstractColumnDefinition()
     {
-        this(null, 0, false);
+        this(null, 0, false, false);
     }
 
     /**
      * if headerTextOrNull is null, it means that we never want to call {@link #getHeader()} method
      */
-    protected AbstractColumnDefinition(String headerTextOrNull, int width, boolean isHidden)
+    protected AbstractColumnDefinition(String headerTextOrNull, int width, boolean isHidden, boolean numeric)
     {
         this.headerText = headerTextOrNull;
         this.width = width;
         this.isHidden = isHidden;
+        this.numeric = numeric;
     }
 
     public int getWidth()
@@ -76,7 +79,7 @@ public abstract class AbstractColumnDefinition<T> implements IColumnDefinitionUI
 
     public boolean isNumeric()
     {
-        return false;
+        return numeric;
     }
 
     public boolean isLink()

@@ -56,7 +56,7 @@ public class RowCalculatorTest extends AssertJUnit
     public void setUp()
     {
         availableColumns = new LinkedHashSet<IColumnDefinition<Data>>();
-        availableColumns.add(new AbstractColumnDefinition<Data>("header", 100, true)
+        availableColumns.add(new AbstractColumnDefinition<Data>("header", 100, true, false)
             {
 
                 public String getIdentifier()

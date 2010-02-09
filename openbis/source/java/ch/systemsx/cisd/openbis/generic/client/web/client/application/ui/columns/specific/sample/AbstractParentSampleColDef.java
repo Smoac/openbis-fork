@@ -33,7 +33,7 @@ public abstract class AbstractParentSampleColDef extends AbstractColumnDefinitio
 
     AbstractParentSampleColDef(int level, String headerText)
     {
-        super(headerText, AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH, false);
+        super(headerText, AbstractColumnDefinitionKind.DEFAULT_COLUMN_WIDTH, false, false);
         this.level = level;
     }
 

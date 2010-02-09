@@ -63,7 +63,7 @@ public class FilterUtilsTest extends AssertJUnit
         filterInfo.setParameters(new LinkedHashSet<ParameterWithValue>(Arrays.asList(parameter)));
         Set<IColumnDefinition<Data>> availableColumns =
                 new LinkedHashSet<IColumnDefinition<Data>>();
-        availableColumns.add(new AbstractColumnDefinition<Data>("header", 100, true)
+        availableColumns.add(new AbstractColumnDefinition<Data>("header", 100, true, false)
             {
 
                 public String getIdentifier()

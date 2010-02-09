@@ -50,22 +50,31 @@ public abstract class AbstractColumnDefinitionKind<T>
 
     private boolean isHidden;
 
+    private boolean numeric;
+
     public AbstractColumnDefinitionKind(final String headerMsgKey, final int width,
             final boolean isHidden)
+    {
+        this(headerMsgKey, width, isHidden, false);
+    }
+    
+    public AbstractColumnDefinitionKind(final String headerMsgKey, final int width,
+            final boolean isHidden, boolean numeric)
     {
         this.headerMsgKey = headerMsgKey;
         this.width = width;
         this.isHidden = isHidden;
+        this.numeric = numeric;
     }
 
     public AbstractColumnDefinitionKind(final String headerMsgKey, final boolean isHidden)
     {
-        this(headerMsgKey, DEFAULT_COLUMN_WIDTH, isHidden);
+        this(headerMsgKey, DEFAULT_COLUMN_WIDTH, isHidden, false);
     }
 
     public AbstractColumnDefinitionKind(final String headerMsgKey, final int width)
     {
-        this(headerMsgKey, width, false);
+        this(headerMsgKey, width, false, false);
     }
 
     public AbstractColumnDefinitionKind(final String headerMsgKey)
@@ -89,6 +98,11 @@ public abstract class AbstractColumnDefinitionKind<T>
     public String getHeaderMsgKey()
     {
         return headerMsgKey;
+    }
+    
+    public boolean isNumeric()
+    {
+        return numeric;
     }
 
     public Comparable<?> getComparableValue(GridRowModel<T> entity)

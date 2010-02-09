@@ -47,4 +47,10 @@ public class RealPropertyColRenderer<T extends IEntityPropertiesHolder> extends
         return RealNumberRenderer.render(value, realNumberFormatingParameters);
     }
 
+    @Override
+    public boolean isNumeric()
+    {
+        return true;
+    }
+    
 }

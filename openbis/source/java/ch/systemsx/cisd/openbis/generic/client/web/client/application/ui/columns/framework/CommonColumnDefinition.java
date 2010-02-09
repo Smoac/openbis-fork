@@ -41,7 +41,7 @@ public class CommonColumnDefinition<T> extends AbstractColumnDefinition<T>
             final String headerText)
     {
         super(headerText, columnDefinitionKind.getDescriptor().getWidth(), columnDefinitionKind
-                .getDescriptor().isHidden());
+                .getDescriptor().isHidden(), columnDefinitionKind.getDescriptor().isNumeric());
         this.columnDefinitionKind = columnDefinitionKind;
     }
 

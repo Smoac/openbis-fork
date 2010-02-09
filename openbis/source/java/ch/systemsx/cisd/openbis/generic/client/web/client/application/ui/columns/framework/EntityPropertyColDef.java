@@ -91,7 +91,7 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
             boolean isInternalNamespace, String propertyTypeLabel, String identifierPrefix,
             PropertyType propertyType)
     {
-        super(propertyTypeLabel, width, isDisplayedByDefault);
+        super(propertyTypeLabel, width, isDisplayedByDefault, false);
         this.isInternalNamespace = isInternalNamespace;
         this.simpleCode = propertyTypeCode;
         this.identifierPrefix = identifierPrefix;
