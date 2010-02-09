@@ -23,7 +23,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * Describes the whole plate - images and metadata of each non-empty well.
+ * Describes the whole plate - metadata of each non-empty well, references to datasets with images
+ * and analysis results.
  * 
  * @author Tomasz Pylak
  */
@@ -31,7 +32,7 @@ public class PlateContent implements IsSerializable
 {
     private Sample plate;
 
-    private List<WellMetadata> wells;
+    private List<WellMetadata> wellsMetadata;
 
     // not null if exactly one image dataset exists
     private DatasetImagesReference imagesOrNull;
@@ -49,16 +50,16 @@ public class PlateContent implements IsSerializable
     {
     }
 
-    public PlateContent(Sample plate, List<WellMetadata> wells, DatasetImagesReference imagesOrNull,
-            int imageDatasetsNumber, DatasetReference imageAnalysisDatasetOrNull,
-            int imageAnalysisDatasetsNumber)
+    public PlateContent(Sample plate, List<WellMetadata> wells,
+            DatasetImagesReference imagesOrNull, int imageDatasetsNumber,
+            DatasetReference imageAnalysisDatasetOrNull, int imageAnalysisDatasetsNumber)
     {
         assert (imagesOrNull != null && imageDatasetsNumber == 1)
                 || (imagesOrNull == null && imageDatasetsNumber != 1);
         assert (imageAnalysisDatasetOrNull != null && imageAnalysisDatasetsNumber == 1)
                 || (imageAnalysisDatasetOrNull == null && imageAnalysisDatasetsNumber != 1);
         this.plate = plate;
-        this.wells = wells;
+        this.wellsMetadata = wells;
         this.imagesOrNull = imagesOrNull;
         this.imageDatasetsNumber = imageDatasetsNumber;
         this.imageAnalysisDatasetOrNull = imageAnalysisDatasetOrNull;
@@ -67,7 +68,7 @@ public class PlateContent implements IsSerializable
 
     public List<WellMetadata> getWells()
     {
-        return wells;
+        return wellsMetadata;
     }
 
     /** can be null */
