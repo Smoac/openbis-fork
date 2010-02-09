@@ -32,17 +32,6 @@ public final class SampleHierarchyFiller
     }
 
     /**
-     * Enriches given samples with full hierarchy.
-     */
-    public static final void enrichWithFullHierarchy(final Iterable<SamplePE> samples)
-    {
-        for (final SamplePE sample : samples)
-        {
-            enrichWithParentAndContainerHierarchy(sample);
-        }
-    }
-
-    /**
      * Enriches given sample with <i>caontainer</i> and <i>generatedFrom</i> hierarchy.
      */
     public final static void enrichWithParentAndContainerHierarchy(final SamplePE sample)
