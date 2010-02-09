@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
@@ -38,33 +39,75 @@ public class SimpleTableModelBuilder
 {
     private List<TableModelRow> rows;
 
-    private List<TableModelColumnHeader> header;
+    private List<TableModelColumnHeader> headers;
 
     public SimpleTableModelBuilder()
     {
         this.rows = new ArrayList<TableModelRow>();
-        this.header = new ArrayList<TableModelColumnHeader>();
-    }
-
-    public void addHeader(String title, boolean numeric)
-    {
-        header.add(new TableModelColumnHeader(title, header.size(), numeric));
+        this.headers = new ArrayList<TableModelColumnHeader>();
     }
 
     public void addHeader(String title)
     {
-        addHeader(title, false);
+        headers.add(new TableModelColumnHeader(title, headers.size()));
     }
 
     public void addRow(List<ISerializableComparable> values)
     {
-        assert values.size() == header.size() : "header has different number of columns than a row";
+        assert values.size() == headers.size() : "header has different number of columns than a row";
+        for (int i = 0; i < values.size(); i++)
+        {
+            ISerializableComparable value = values.get(i);
+            TableModelColumnHeader header = headers.get(i);
+            DataTypeCode headerDataType = header.getDataType();
+            DataTypeCode dataType = getDataTypeCodeFor(value);
+            if (headerDataType == null)
+            {
+                header.setDataType(dataType);
+            } else if (headerDataType == DataTypeCode.REAL)
+            {
+                if (dataType != DataTypeCode.REAL && dataType != DataTypeCode.INTEGER)
+                {
+                    header.setDataType(DataTypeCode.VARCHAR);
+                }
+            } else if (headerDataType == DataTypeCode.INTEGER)
+            {
+                if (dataType == DataTypeCode.REAL)
+                {
+                    header.setDataType(DataTypeCode.REAL);
+                } else if (dataType != DataTypeCode.INTEGER)
+                {
+                    header.setDataType(DataTypeCode.VARCHAR);
+                }
+            } else if (headerDataType == DataTypeCode.TIMESTAMP
+                    && dataType != DataTypeCode.TIMESTAMP)
+            {
+                header.setDataType(DataTypeCode.VARCHAR);
+            }
+        }
         rows.add(new TableModelRow(values));
+    }
+    
+    private DataTypeCode getDataTypeCodeFor(ISerializableComparable value)
+    {
+        if (value instanceof IntegerTableCell)
+        {
+            return DataTypeCode.INTEGER;
+        } 
+        if (value instanceof DoubleTableCell)
+        {
+            return DataTypeCode.REAL;
+        } 
+        if (value instanceof DateTableCell)
+        {
+            return DataTypeCode.TIMESTAMP;
+        }
+        return DataTypeCode.VARCHAR;
     }
 
     public TableModel getTableModel()
     {
-        return new TableModel(header, rows);
+        return new TableModel(headers, rows);
     }
 
     public static ISerializableComparable asText(String textOrNull)

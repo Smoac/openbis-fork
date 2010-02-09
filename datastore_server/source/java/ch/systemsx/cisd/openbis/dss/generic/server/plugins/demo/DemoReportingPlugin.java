@@ -58,7 +58,7 @@ public class DemoReportingPlugin extends AbstractDatastorePlugin implements IRep
         builder.addHeader("Thumbnail");
         builder.addHeader("Name");
         builder.addHeader("Last Modified");
-        builder.addHeader("Size", true);
+        builder.addHeader("Size");
         for (DatasetDescription dataset : datasets)
         {
             File file = getDataSubDir(dataset);
