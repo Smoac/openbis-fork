@@ -55,6 +55,47 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
 
     private final IEICMSRunDAO query;
 
+    /**
+     * An internal helper class for storing the information for the query paramters to the image
+     * servlet.
+     * 
+     * @author Chandrasekhar Ramakrishnan
+     */
+    private static class DatasetRun
+    {
+        private final String datasetCode;
+
+        private final EICMSRunDTO run;
+
+        DataIterator<ChromatogramDTO> chromatograms;
+
+        public DatasetRun(String datasetCode, EICMSRunDTO run)
+        {
+            this.datasetCode = datasetCode;
+            this.run = run;
+        }
+
+        String getDatasetCode()
+        {
+            return datasetCode;
+        }
+
+        EICMSRunDTO getRun()
+        {
+            return run;
+        }
+
+        DataIterator<ChromatogramDTO> getChromatograms()
+        {
+            return chromatograms;
+        }
+
+        void setChromatograms(DataIterator<ChromatogramDTO> chromatograms)
+        {
+            this.chromatograms = chromatograms;
+        }
+    }
+
     public EICMLChromatogramImagesReporter(Properties properties, File storeRoot)
     {
         super(properties, storeRoot);
@@ -72,40 +113,44 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder();
         addReportHeaders(builder);
-        List<EICMSRunDTO> runs = fetchRuns(datasets);
-        for (EICMSRunDTO run : runs)
+        List<DatasetRun> runs = fetchRuns(datasets);
+        for (DatasetRun datasetRun : runs)
         {
-            DataIterator<ChromatogramDTO> chromatograms = query.getChromatogramsForRun(run);
-            addRun(builder, run, chromatograms);
+            DataIterator<ChromatogramDTO> chromatograms =
+                    query.getChromatogramsForRun(datasetRun.getRun());
+            datasetRun.setChromatograms(chromatograms);
+            addRun(builder, datasetRun);
         }
         return builder.getTableModel();
     }
 
-    private List<EICMSRunDTO> fetchRuns(List<DatasetDescription> datasets)
+    private List<DatasetRun> fetchRuns(List<DatasetDescription> datasets)
     {
-        List<EICMSRunDTO> runs = new ArrayList<EICMSRunDTO>();
+        List<DatasetRun> runs = new ArrayList<DatasetRun>();
         for (DatasetDescription dataset : datasets)
         {
             EICMSRunDTO run = query.getMSRunByDatasetPermId(dataset.getDatasetCode());
             if (run != null)
             {
-                runs.add(run);
+                runs.add(new DatasetRun(dataset.getDatasetCode(), run));
             }
         }
         return runs;
     }
 
-    private static void addRun(SimpleTableModelBuilder builder, EICMSRunDTO run,
-            DataIterator<ChromatogramDTO> chromatograms)
+    private static void addRun(SimpleTableModelBuilder builder, DatasetRun datasetRun)
     {
+        String datasetCode = datasetRun.getDatasetCode();
+        EICMSRunDTO run = datasetRun.getRun();
+        DataIterator<ChromatogramDTO> chromatograms = datasetRun.getChromatograms();
         for (ChromatogramDTO chromatogram : chromatograms)
         {
-            builder.addRow(createRow(builder, run, chromatogram));
+            builder.addRow(createRow(builder, datasetCode, run, chromatogram));
         }
     }
 
     private static List<ISerializableComparable> createRow(SimpleTableModelBuilder builder,
-            EICMSRunDTO run, ChromatogramDTO chromatogram)
+            String datasetCode, EICMSRunDTO run, ChromatogramDTO chromatogram)
     {
         List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
 
@@ -114,11 +159,11 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
         StringBuffer imageURL = new StringBuffer();
 
         imageURL.append(CHROMATOGRAM_SERVLET);
-        
+
         imageURL.append("?");
         imageURL.append(EICMLChromatogramGeneratorServlet.DATASET_CODE_PARAM);
         imageURL.append("=");
-        imageURL.append(run.getId());
+        imageURL.append(datasetCode);
 
         imageURL.append("&");
         imageURL.append(EICMLChromatogramGeneratorServlet.CHROMATOGRAM_CODE_PARAM);

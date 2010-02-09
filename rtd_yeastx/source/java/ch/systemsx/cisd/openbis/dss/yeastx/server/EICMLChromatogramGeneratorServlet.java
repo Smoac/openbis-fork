@@ -17,16 +17,27 @@
 package ch.systemsx.cisd.openbis.dss.yeastx.server;
 
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Properties;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
+
+import net.lemnik.eodsql.DataIterator;
+import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDatasetDownloadServlet;
+import ch.systemsx.cisd.yeastx.db.DBUtils;
 import ch.systemsx.cisd.yeastx.eicml.ChromatogramDTO;
 import ch.systemsx.cisd.yeastx.eicml.EICMLChromatogramImageGenerator;
+import ch.systemsx.cisd.yeastx.eicml.EICMSRunDTO;
+import ch.systemsx.cisd.yeastx.eicml.IEICMSRunDAO;
 
 /**
  * @author Chandrasekhar Ramakrishnan
@@ -48,9 +59,16 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
 
     public final static String IMAGE_HEIGHT_PARAM = "h";
 
+    // Default values for optional parameters
+    public final static int DEFAULT_WIDTH = 300;
+
+    public final static int DEFAULT_HEIGHT = 200;
+
     /**
      * A utility class for dealing with the parameters required to generate an image from a
-     * chromatogram.
+     * chromatogram. This class makes sure all the required parameters are in the request (it throws
+     * exceptions otherwise), and it defaults values for all optional parameters if they are not in
+     * the request.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -60,6 +78,8 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
 
         private final String datasetCode;
 
+        private final long chromatogramId;
+
         private final int width;
 
         private final int height;
@@ -68,16 +88,34 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
         {
             sessionId = getParam(request, SESSION_ID_PARAM);
             datasetCode = getParam(request, DATASET_CODE_PARAM);
-            width = getIntParam(request, IMAGE_WIDTH_PARAM);
-            height = getIntParam(request, IMAGE_HEIGHT_PARAM);
+            chromatogramId = getLongParam(request, CHROMATOGRAM_CODE_PARAM);
+            width = getIntParam(request, IMAGE_WIDTH_PARAM, DEFAULT_WIDTH);
+            height = getIntParam(request, IMAGE_HEIGHT_PARAM, DEFAULT_HEIGHT);
         }
 
-        private static int getIntParam(HttpServletRequest request, String paramName)
+        private static int getIntParam(HttpServletRequest request, String paramName,
+                int defaultValue)
+        {
+            String value = request.getParameter(paramName);
+            if (value == null)
+                return defaultValue;
+
+            try
+            {
+                return Integer.valueOf(value);
+            } catch (NumberFormatException e)
+            {
+                throw new UserFailureException("parameter " + paramName
+                        + " should be an integer, but is: " + value);
+            }
+        }
+
+        private static long getLongParam(HttpServletRequest request, String paramName)
         {
             String value = getParam(request, paramName);
             try
             {
-                return Integer.valueOf(value);
+                return Long.valueOf(value);
             } catch (NumberFormatException e)
             {
                 throw new UserFailureException("parameter " + paramName
@@ -106,6 +144,11 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
             return datasetCode;
         }
 
+        long getChromatogramId()
+        {
+            return chromatogramId;
+        }
+
         public int getWidth()
         {
             return width;
@@ -117,12 +160,37 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
         }
     }
 
-    // private static IEICMSRunDAO createQuery(Properties properties)
-    // {
-    // final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(properties);
-    // DataSource dataSource = dbContext.getDataSource();
-    // return QueryTool.getQuery(dataSource, IEICMSRunDAO.class);
-    // }
+    // The properties needed for connecting to the database
+    private Properties dbProperties;
+
+    // A query that is safe for multi-threaded use.
+    private IEICMSRunDAO query;
+
+    @Override
+    protected synchronized void doSpecificInitialization(Enumeration<String> parameterNames,
+            ServletConfig servletConfig)
+    {
+        // Only initialize the db properties once
+        if (dbProperties != null)
+            return;
+
+        dbProperties = new Properties();
+        String name;
+        while (parameterNames.hasMoreElements())
+        {
+            name = parameterNames.nextElement();
+            dbProperties.setProperty(name, servletConfig.getInitParameter(name));
+        }
+
+        query = createQuery(dbProperties);
+    }
+
+    private static IEICMSRunDAO createQuery(Properties properties)
+    {
+        final DatabaseConfigurationContext dbContext = DBUtils.createAndInitDBContext(properties);
+        DataSource dataSource = dbContext.getDataSource();
+        return QueryTool.getQuery(dataSource, IEICMSRunDAO.class);
+    }
 
     @Override
     protected final void doGet(final HttpServletRequest request, final HttpServletResponse response)
@@ -149,8 +217,8 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
             // non-accessible chromatogram...
             ensureDatasetAccessible(datasetCode, session, sessionId);
 
-            // TODO Get the chromatogram data
-            ChromatogramDTO chromatogram = getChromatogramForId(null);
+            // Get the chromatogram data
+            ChromatogramDTO chromatogram = getChromatogramForParameters(params);
 
             // Generate a chromatogram image into the stream
             EICMLChromatogramImageGenerator generator =
@@ -160,13 +228,24 @@ public class EICMLChromatogramGeneratorServlet extends AbstractDatasetDownloadSe
 
         } catch (Exception e)
         {
-            printErrorResponse(response, "Error: " + e.getMessage());
+            printErrorResponse(response, "Invalid Request");
             e.printStackTrace();
         }
     }
 
-    ChromatogramDTO getChromatogramForId(String id)
+    ChromatogramDTO getChromatogramForParameters(RequestParams params)
     {
+        String datasetCode = params.getDatasetCode();
+        long chromatogramId = params.getChromatogramId();
+        EICMSRunDTO run = query.getMSRunByDatasetPermId(datasetCode);
+        DataIterator<ChromatogramDTO> chromatograms = query.getChromatogramsForRun(run);
+        for (ChromatogramDTO chromatogram : chromatograms)
+        {
+            if (chromatogramId == chromatogram.getId())
+            {
+                return chromatogram;
+            }
+        }
         return null;
     }
 }
