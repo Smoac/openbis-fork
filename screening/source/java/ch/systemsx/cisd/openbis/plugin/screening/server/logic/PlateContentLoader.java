@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObject
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
@@ -77,7 +77,7 @@ public class PlateContentLoader
         List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
         List<WellMetadata> wells = loadWells(plateId);
 
-        TileImages images = null;
+        DatasetImagesReference images = null;
         int imageDatasetsNumber = countDatasets(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
         if (imageDatasetsNumber == 1)
         {
@@ -132,7 +132,7 @@ public class PlateContentLoader
         return createWells(wells);
     }
 
-    private TileImages tryLoadImages(List<ExternalDataPE> datasets,
+    private DatasetImagesReference tryLoadImages(List<ExternalDataPE> datasets,
             IExternalDataTable externalDataTable)
     {
         ExternalDataPE dataset = tryFindDataset(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
@@ -153,10 +153,10 @@ public class PlateContentLoader
         return externalData;
     }
 
-    private TileImages loadImages(IExternalDataTable externalDataTable, ExternalDataPE dataset)
+    private DatasetImagesReference loadImages(IExternalDataTable externalDataTable, ExternalDataPE dataset)
     {
         PlateImageParameters imageParameters = loadImageParams(dataset, externalDataTable);
-        return TileImages.create(ScreeningUtils.createDatasetReference(dataset), imageParameters);
+        return DatasetImagesReference.create(ScreeningUtils.createDatasetReference(dataset), imageParameters);
     }
 
     private PlateImageParameters loadImageParams(ExternalDataPE dataset,

@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObject
 import ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.IScreeningQuery;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
@@ -110,8 +110,8 @@ public class GenePlateLocationsLoader
                     {
                         DatasetReference datasetReference =
                                 ScreeningUtils.createDatasetReference(dataset);
-                        TileImages wellImages =
-                                TileImages.create(datasetReference, imageParameters);
+                        DatasetImagesReference wellImages =
+                                DatasetImagesReference.create(datasetReference, imageParameters);
                         WellContent wellWithImages = wellContent.cloneWithImages(wellImages);
                         wellsWithImages.add(wellWithImages);
                         imagesExist = true;

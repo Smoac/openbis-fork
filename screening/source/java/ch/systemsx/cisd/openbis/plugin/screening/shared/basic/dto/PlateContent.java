@@ -34,7 +34,7 @@ public class PlateContent implements IsSerializable
     private List<WellMetadata> wells;
 
     // not null if exactly one image dataset exists
-    private TileImages imagesOrNull;
+    private DatasetImagesReference imagesOrNull;
 
     // not null if exactly one image analysis dataset exists
     private DatasetReference imageAnalysisDatasetOrNull;
@@ -49,7 +49,7 @@ public class PlateContent implements IsSerializable
     {
     }
 
-    public PlateContent(Sample plate, List<WellMetadata> wells, TileImages imagesOrNull,
+    public PlateContent(Sample plate, List<WellMetadata> wells, DatasetImagesReference imagesOrNull,
             int imageDatasetsNumber, DatasetReference imageAnalysisDatasetOrNull,
             int imageAnalysisDatasetsNumber)
     {
@@ -71,7 +71,7 @@ public class PlateContent implements IsSerializable
     }
 
     /** can be null */
-    public TileImages tryGetImages()
+    public DatasetImagesReference tryGetImages()
     {
         return imagesOrNull;
     }

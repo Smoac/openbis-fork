@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
@@ -49,7 +49,7 @@ public class WellImages
         this.location = location;
     }
 
-    public WellImages(TileImages images, WellLocation location)
+    public WellImages(DatasetImagesReference images, WellLocation location)
     {
         this(images.getImageParameters(), images.getDownloadUrl(), location);
     }

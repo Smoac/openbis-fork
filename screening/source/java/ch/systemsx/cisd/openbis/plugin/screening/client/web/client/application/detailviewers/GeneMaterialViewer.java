@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningCli
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.IChanneledViewerFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.utils.GuiUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
@@ -190,7 +190,7 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
         int max = 0;
         for (WellContent well : wells)
         {
-            TileImages images = well.tryGetImages();
+            DatasetImagesReference images = well.tryGetImages();
             if (images != null)
             {
                 max = Math.max(max, images.getImageParameters().getChannelsNum());
@@ -227,7 +227,7 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
         Widget contentLink = createEntityLink(wellContent.getMaterialContent());
         container.add(withLabel(contentLink, "Content: ", margin));
 
-        TileImages images = wellContent.tryGetImages();
+        DatasetImagesReference images = wellContent.tryGetImages();
         if (images != null)
         {
             Widget datasetLink = createEntityLink(images.getDatasetReference(), "browse");
@@ -238,7 +238,7 @@ public class GeneMaterialViewer extends AbstractViewer<Material>
         return container;
     }
 
-    private Widget createImageViewer(TileImages images, WellLocation locationOrNull, int channel)
+    private Widget createImageViewer(DatasetImagesReference images, WellLocation locationOrNull, int channel)
     {
         if (locationOrNull == null)
         {

@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.TileImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
@@ -49,7 +49,7 @@ class WellData
 
     private static WellImages tryCreateWellImages(PlateContent plateContent, WellLocation location)
     {
-        TileImages images = plateContent.tryGetImages();
+        DatasetImagesReference images = plateContent.tryGetImages();
         if (images != null)
         {
             return new WellImages(images.getImageParameters(), images.getDownloadUrl(), location);

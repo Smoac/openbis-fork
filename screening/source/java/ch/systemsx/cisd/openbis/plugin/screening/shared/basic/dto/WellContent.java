@@ -37,7 +37,7 @@ public class WellContent implements IsSerializable
     private EntityReference materialContent;
 
     // contains only images for this well, null if no images have been acquired
-    private TileImages imagesOrNull;
+    private DatasetImagesReference imagesOrNull;
 
     // GWT only
     @SuppressWarnings("unused")
@@ -74,12 +74,12 @@ public class WellContent implements IsSerializable
         return materialContent;
     }
 
-    public TileImages tryGetImages()
+    public DatasetImagesReference tryGetImages()
     {
         return imagesOrNull;
     }
 
-    public WellContent cloneWithImages(TileImages images)
+    public WellContent cloneWithImages(DatasetImagesReference images)
     {
         WellContent clone = new WellContent(locationOrNull, well, plate, materialContent);
         clone.imagesOrNull = images;

@@ -25,11 +25,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
  * 
  * @author Tomasz Pylak
  */
-public class TileImages implements IsSerializable
+public class DatasetImagesReference implements IsSerializable
 {
-    public static final TileImages create(DatasetReference dataset, PlateImageParameters imageParams)
+    public static final DatasetImagesReference create(DatasetReference dataset,
+            PlateImageParameters imageParams)
     {
-        return new TileImages(dataset, imageParams);
+        return new DatasetImagesReference(dataset, imageParams);
     }
 
     private DatasetReference dataset;
@@ -38,11 +39,11 @@ public class TileImages implements IsSerializable
 
     // GWT only
     @SuppressWarnings("unused")
-    private TileImages()
+    private DatasetImagesReference()
     {
     }
 
-    public TileImages(DatasetReference dataset, PlateImageParameters imageParameters)
+    public DatasetImagesReference(DatasetReference dataset, PlateImageParameters imageParameters)
     {
         this.dataset = dataset;
         this.imageParameters = imageParameters;
