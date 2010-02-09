@@ -509,6 +509,14 @@ public interface ICommonServer extends IServer
     public List<ExternalData> searchForDataSets(String sessionToken, DetailedSearchCriteria criteria);
 
     /**
+     * For given {@link TechId} returns the corresponding {@link ExternalData}.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public ExternalData getDataSetInfo(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetTechIdPredicate.class) TechId datasetId);
+
+    /**
      * Performs an <i>Hibernate Search</i> based on given parameters.
      */
     @Transactional(readOnly = true)
