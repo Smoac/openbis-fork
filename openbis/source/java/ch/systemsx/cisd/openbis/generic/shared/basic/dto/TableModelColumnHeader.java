@@ -34,18 +34,22 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     // allows to fetch the value for this column from the row content
     private int index;
 
-    private boolean numeric;
+    private DataTypeCode dataType;
     
     public TableModelColumnHeader(String title, int index)
     {
-        this(title, index, false);
-    }
-    
-    public TableModelColumnHeader(String title, int index, boolean numeric)
-    {
         this.title = title;
         this.index = index;
-        this.numeric = numeric;
+    }
+    
+    public void setDataType(DataTypeCode dataType)
+    {
+        this.dataType = dataType;
+    }
+    
+    public DataTypeCode getDataType()
+    {
+        return dataType;
     }
 
     public String getTitle()
@@ -60,7 +64,7 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
 
     public boolean isNumeric()
     {
-        return numeric;
+        return dataType == DataTypeCode.REAL || dataType == DataTypeCode.INTEGER;
     }
     
     // GWT only
@@ -81,12 +85,5 @@ public class TableModelColumnHeader implements IsSerializable, Serializable
     private void setIndex(int index)
     {
         this.index = index;
-    }
-    
-    // GWT only
-    @SuppressWarnings("unused")
-    private void setNumeric(boolean numeric)
-    {
-        this.numeric = numeric;
     }
 }

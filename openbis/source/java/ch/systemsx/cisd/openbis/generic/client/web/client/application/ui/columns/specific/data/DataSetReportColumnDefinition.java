@@ -20,6 +20,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.renderers.SimpleDateRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DateTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ImageTableCell;
@@ -84,6 +85,11 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
     public boolean isNumeric()
     {
         return columnHeader.isNumeric();
+    }
+    
+    public DataTypeCode getDataType()
+    {
+        return columnHeader.getDataType();
     }
 
     private ISerializableComparable getCellValue(GridRowModel<TableModelRow> rowModel)

@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericCon
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.BaseEntityModel;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.specific.data.DataSetReportColumnDefinition;
@@ -40,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
@@ -207,14 +209,26 @@ public class DataSetReporterGrid extends
     @Override
     protected ColumnDefsAndConfigs<TableModelRow> createColumnsDefinition()
     {
-        return ColumnDefsAndConfigs.create(createColDefinitions());
+        List<DatasetReportColumnUI> colDefinitions = createColDefinitions();
+        ColumnDefsAndConfigs<TableModelRow> definitions =
+                ColumnDefsAndConfigs.create(colDefinitions);
+        RealNumberRenderer renderer =
+                new RealNumberRenderer(viewContext.getDisplaySettingsManager()
+                        .getRealNumberFormatingParameters());
+        for (DatasetReportColumnUI colDefinition : colDefinitions)
+        {
+            if (colDefinition.getDataType() == DataTypeCode.REAL)
+            {
+                definitions.setGridCellRendererFor(colDefinition.getIdentifier(), renderer);
+            }
+        }
+        return definitions;
     }
 
-    private List<IColumnDefinitionUI<TableModelRow>> createColDefinitions()
+    private List<DatasetReportColumnUI> createColDefinitions()
     {
         String sessionID = viewContext.getModel().getSessionContext().getSessionID();
-        List<IColumnDefinitionUI<TableModelRow>> columns =
-                new ArrayList<IColumnDefinitionUI<TableModelRow>>();
+        List<DatasetReportColumnUI> columns = new ArrayList<DatasetReportColumnUI>();
         int i = 0;
         for (TableModelColumnHeader columnHeader : tableHeader)
         {
