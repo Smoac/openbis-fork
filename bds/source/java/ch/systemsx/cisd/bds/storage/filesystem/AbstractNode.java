@@ -25,6 +25,7 @@ import ch.systemsx.cisd.bds.storage.IDirectory;
 import ch.systemsx.cisd.bds.storage.IFileBasedNode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
+import ch.systemsx.cisd.common.filesystem.IFileOperations;
 
 /**
  * An abstract implementation of <code>INode</code>.
@@ -37,8 +38,9 @@ abstract class AbstractNode implements IFileBasedNode
             final String nameOrNull) throws EnvironmentFailureException
     {
         assert source != null;
+        IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
         assert directory != null
-                && FileOperations.getMonitoredInstanceForCurrentThread().isDirectory(directory);
+                && fileOperations.isDirectory(directory);
         final String newName;
         if (nameOrNull == null)
         {
@@ -48,10 +50,10 @@ abstract class AbstractNode implements IFileBasedNode
             newName = nameOrNull;
         }
         final File destination = new File(directory, newName);
-        if (FileOperations.getMonitoredInstanceForCurrentThread().exists(destination) == false)
+        if (fileOperations.exists(destination) == false)
         {
             final boolean successful =
-                    FileOperations.getMonitoredInstanceForCurrentThread().rename(source,
+                    fileOperations.rename(source,
                             destination);
             if (successful == false)
             {
