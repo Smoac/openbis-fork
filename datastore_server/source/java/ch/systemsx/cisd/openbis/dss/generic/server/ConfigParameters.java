@@ -91,10 +91,13 @@ final class ConfigParameters
 
         private final String servletPath;
 
-        public PluginServlet(String servletClass, String servletPath)
+        private final Properties servletProperties;
+
+        public PluginServlet(String servletClass, String servletPath, Properties servletProperties)
         {
             this.servletClass = servletClass;
             this.servletPath = servletPath;
+            this.servletProperties = servletProperties;
         }
 
         public String getServletClass()
@@ -106,6 +109,12 @@ final class ConfigParameters
         public String getServletPath()
         {
             return servletPath;
+        }
+
+        /** Any additional properties specified in the properties file */
+        public Properties getServletProperties()
+        {
+            return servletProperties;
         }
 
         @Override
@@ -155,7 +164,7 @@ final class ConfigParameters
                     PropertyUtils.getMandatoryProperty(servletProps, PLUGIN_SERVICE_CLASS_KEY);
             String servletPath =
                     PropertyUtils.getMandatoryProperty(servletProps, PLUGIN_SERVICE_PATH_KEY);
-            servlets.add(new PluginServlet(servletClass, servletPath));
+            servlets.add(new PluginServlet(servletClass, servletPath, servletProps));
         }
         return servlets;
     }

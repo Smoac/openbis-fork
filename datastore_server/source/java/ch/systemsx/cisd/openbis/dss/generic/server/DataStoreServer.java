@@ -175,19 +175,22 @@ public class DataStoreServer
 
     private static void registerPluginServlets(Context context, List<PluginServlet> pluginServlets)
     {
-        for (PluginServlet servlet : pluginServlets)
+        for (PluginServlet pluginServlet : pluginServlets)
         {
             Class<?> classInstance;
             try
             {
-                classInstance = Class.forName(servlet.getServletClass());
+                classInstance = Class.forName(pluginServlet.getServletClass());
             } catch (ClassNotFoundException ex)
             {
                 throw EnvironmentFailureException.fromTemplate(
-                        "Error while loading servlet plugin class '%s': %s", servlet.getClass(), ex
-                                .getMessage());
+                        "Error while loading servlet plugin class '%s': %s", pluginServlet
+                                .getClass(), ex.getMessage());
             }
-            context.addServlet(classInstance, servlet.getServletPath());
+            ServletHolder holder =
+                    context.addServlet(classInstance, pluginServlet.getServletPath());
+            // Add any additional parameters to the init parameters
+            holder.setInitParameters(pluginServlet.getServletProperties());
         }
     }
 

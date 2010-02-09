@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,6 +102,7 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         this.applicationContext = applicationContext;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public final void init(final ServletConfig servletConfig) throws ServletException
     {
@@ -111,12 +113,28 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
             applicationContext =
                     (ApplicationContext) context
                             .getAttribute(DataStoreServer.APPLICATION_CONTEXT_KEY);
+
+            // Look for the additional configuration parameters and initialize the servlet using
+            // them
+            Enumeration<String> e = servletConfig.getInitParameterNames();
+            if (e.hasMoreElements())
+                doSpecificInitialization(e, servletConfig);
         } catch (Exception ex)
         {
             notificationLog.fatal("Failure during '" + servletConfig.getServletName()
                     + "' servlet initialization.", ex);
             throw new ServletException(ex);
         }
+    }
+
+    /**
+     * Do any additional initialization using information from the properties passed in. Subclasses
+     * may override.
+     */
+    protected synchronized void doSpecificInitialization(Enumeration<String> parameterNames,
+            ServletConfig servletConfig)
+    {
+        return;
     }
 
     protected final HttpSession tryGetOrCreateSession(final HttpServletRequest request,
