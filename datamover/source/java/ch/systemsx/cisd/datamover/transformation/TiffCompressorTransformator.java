@@ -55,7 +55,7 @@ public class TiffCompressorTransformator implements ITransformator
 
     private static final CompressionCommand DEFAULT_COMPRESSION_COMMAND = CompressionCommand.TIFFCP;
 
-    private static final int DEFAULT_THREADS_PER_PROCESSOR = 4;
+    private static final int DEFAULT_THREADS_PER_PROCESSOR = 1;
 
     /**
      * Enumeration of supported methods of compression with names matching transformator property
