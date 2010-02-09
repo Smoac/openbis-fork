@@ -66,6 +66,7 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
     // For testing purpose.
     private ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin;
 
+    // For testing purpose.
     private IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin;
 
     @Resource(name = ComponentNames.SESSION_MANAGER)
@@ -74,7 +75,8 @@ public abstract class AbstractServer<T extends IServer> extends AbstractServiceW
     @Resource(name = ComponentNames.DAO_FACTORY)
     private IDAOFactory daoFactory;
 
-    @Resource(name = ComponentNames.COMMON_SERVICE)
+    // NOTE: we use the fact that the COMMON_SERVICE configured in XML implements provider interface
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVICE)
     protected IDataStoreBaseURLProvider dataStoreBaseURLProvider;
 
     protected AbstractServer()
