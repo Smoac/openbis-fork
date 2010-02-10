@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.dto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+
 /**
  * Basic metadata about a grid custom column: code (column identifier), label and description.
  * 
@@ -31,11 +33,14 @@ public class GridCustomColumnInfo implements IsSerializable
 
     private String description;
 
-    public GridCustomColumnInfo(String code, String label, String description)
+    private DataTypeCode dataType;
+
+    public GridCustomColumnInfo(String code, String label, String description, DataTypeCode dataType)
     {
         this.code = code;
         this.label = label;
         this.description = description;
+        this.dataType = dataType;
     }
 
     public String getCode()
@@ -57,6 +62,11 @@ public class GridCustomColumnInfo implements IsSerializable
     public String getDescription()
     {
         return description;
+    }
+    
+    public DataTypeCode getDataType()
+    {
+        return dataType;
     }
 
     @Override

@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
+
 /**
  * Stores one primitive value: Double, Long or String.
  * <p>
@@ -49,7 +51,20 @@ public class PrimitiveValue implements IsSerializable
     {
         stringValueOrNull = value;
     }
-
+    
+    public DataTypeCode getDataType()
+    {
+        if (doubleValueOrNull != null)
+        {
+            return DataTypeCode.REAL;
+        }
+        if (longValueOrNull != null)
+        {
+            return DataTypeCode.INTEGER;
+        }
+        return DataTypeCode.VARCHAR;
+    }
+    
     public Comparable<?> getComparableValue()
     {
         if (doubleValueOrNull != null)

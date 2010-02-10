@@ -96,7 +96,7 @@ public abstract class AbstractColumnSettingsDataModelProvider
 
     private GridCustomColumnInfo createCustomColumnInfo(GridCustomColumn column)
     {
-        return new GridCustomColumnInfo(getId(column), column.getName(), column.getDescription());
+        return new GridCustomColumnInfo(getId(column), column.getName(), column.getDescription(), column.getDataType());
     }
 
     private void addColumns(List<GridCustomColumn> columns)

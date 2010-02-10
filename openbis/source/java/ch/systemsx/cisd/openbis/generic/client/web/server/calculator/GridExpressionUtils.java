@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PrimitiveValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomColumn;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
+import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 
 /**
  * Utility class containing functions helpful with dealing with grid custom filters or columns.
@@ -127,6 +128,8 @@ public class GridExpressionUtils
                 String columnId = customColumn.getCode();
                 RowCalculator<T> calculator = calculators.get(columnId);
                 PrimitiveValue value = evalCustomColumn(rowData, customColumn, calculator);
+                customColumn.setDataType(DataTypeUtils.getCompatibleDataType(customColumn
+                        .getDataType(), value.getDataType()));
                 customColumnValues.put(columnId, value);
             }
             result.add(new GridRowModel<T>(rowData, customColumnValues));
@@ -157,7 +160,7 @@ public class GridExpressionUtils
         {
             GridCustomColumnInfo columnInfo =
                     new GridCustomColumnInfo(column.getCode(), column.getName(), column
-                            .getDescription());
+                            .getDescription(), column.getDataType());
             result.add(columnInfo);
         }
         return result;

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+
 /**
  * Stores information describing the grid custom column.
  * 
@@ -27,6 +28,7 @@ public class GridCustomColumn extends AbstractGridExpression
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String code;
+    private DataTypeCode dataType;
 
     public String getCode()
     {
@@ -37,4 +39,15 @@ public class GridCustomColumn extends AbstractGridExpression
     {
         this.code = code;
     }
+
+    public void setDataType(DataTypeCode dataType)
+    {
+        this.dataType = dataType;
+    }
+
+    public DataTypeCode getDataType()
+    {
+        return dataType;
+    }
+
 }

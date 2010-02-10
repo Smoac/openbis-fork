@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.client.web.server.util;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -122,6 +122,43 @@ public class DataTypeUtils
     public static ISerializableComparable convertTo(DataTypeCode dataTypeCode, String value)
     {
         return Converter.resolve(dataTypeCode).convert(value);
+    }
+    
+    /**
+     * Returns a data type which is compatible with the previous data type and the new data type.
+     */
+    public static DataTypeCode getCompatibleDataType(DataTypeCode previousDataTypeOrNull, DataTypeCode dataType)
+    {
+        if (previousDataTypeOrNull == null)
+        {
+            return dataType;
+        } 
+        if (previousDataTypeOrNull == DataTypeCode.REAL)
+        {
+            if (dataType == DataTypeCode.REAL || dataType == DataTypeCode.INTEGER)
+            {
+                return DataTypeCode.REAL;
+            }
+            return DataTypeCode.VARCHAR;
+        }
+        if (previousDataTypeOrNull == DataTypeCode.INTEGER)
+        {
+            if (dataType == DataTypeCode.REAL)
+            {
+                return DataTypeCode.REAL;
+            }
+            if (dataType == DataTypeCode.INTEGER)
+            {
+                return DataTypeCode.INTEGER;
+            }
+            return DataTypeCode.VARCHAR;
+        } 
+        if (previousDataTypeOrNull == DataTypeCode.TIMESTAMP
+                && dataType == DataTypeCode.TIMESTAMP)
+        {
+            return DataTypeCode.TIMESTAMP;
+        }
+        return DataTypeCode.VARCHAR;
     }
     
     private DataTypeUtils()

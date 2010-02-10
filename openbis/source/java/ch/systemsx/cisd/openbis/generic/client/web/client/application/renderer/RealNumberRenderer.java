@@ -33,9 +33,15 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
         {
             format += "E000";
         }
-        double doubleValue = Double.parseDouble(value);
-        String formattedValue = NumberFormat.getFormat(format).format(doubleValue);
-        return MultilineHTML.wrapUpInDivWithTooltip(formattedValue, value);
+        try
+        {
+            double doubleValue = Double.parseDouble(value);
+            String formattedValue = NumberFormat.getFormat(format).format(doubleValue);
+            return MultilineHTML.wrapUpInDivWithTooltip(formattedValue, value);
+        } catch (NumberFormatException ex)
+        {
+            return value;
+        }
     }
 
     private final RealNumberFormatingParameters realNumberFormatingParameters;

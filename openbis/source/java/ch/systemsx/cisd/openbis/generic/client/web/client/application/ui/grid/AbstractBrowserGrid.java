@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.ICl
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.InternalLinkCellRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.MultilineStringCellRenderer;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.RealNumberRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.IColumnDefinitionUI;
@@ -100,6 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -980,10 +982,24 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
     {
         ColumnDefsAndConfigs<T> defsAndConfigs = createColumnsDefinition();
         // add custom columns
+        List<GridCustomColumnInfo> customColumnsMetadata =
+                customColumnsMetadataProvider.tryGetCustomColumnsMetadata();
         List<IColumnDefinitionUI<T>> customColumnsDefs =
-                createCustomColumnDefinitions(customColumnsMetadataProvider
-                        .tryGetCustomColumnsMetadata());
+                createCustomColumnDefinitions(customColumnsMetadata);
         defsAndConfigs.addColumns(customColumnsDefs);
+        if (customColumnsMetadata != null)
+        {
+            RealNumberRenderer renderer =
+                new RealNumberRenderer(viewContext.getDisplaySettingsManager()
+                        .getRealNumberFormatingParameters());
+            for (GridCustomColumnInfo gridCustomColumnInfo : customColumnsMetadata)
+            {
+                if (gridCustomColumnInfo.getDataType() == DataTypeCode.REAL)
+                {
+                    defsAndConfigs.setGridCellRendererFor(gridCustomColumnInfo.getCode(), renderer);
+                }
+            }
+        }
 
         this.columnDefinitions = defsAndConfigs.getColumnDefs();
         ColumnModel columnModel = createColumnModel(defsAndConfigs.getColumnConfigs());
