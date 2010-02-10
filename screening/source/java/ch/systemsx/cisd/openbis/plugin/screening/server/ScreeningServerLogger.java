@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -62,28 +63,33 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
 
     public PlateContent getPlateContent(String sessionToken, TechId plateId)
     {
-        logTracking(sessionToken, "getPlateContent", "PLATE(%s)", plateId.getId());
+        logAccess(sessionToken, "getPlateContent", "PLATE(%s)", plateId.getId());
+        return null;
+    }
+
+    public PlateImages getPlateContentForDataset(String sessionToken, TechId datasetId)
+    {
+        logAccess(sessionToken, "getPlateContentForDataset", "DATASET(%s)", datasetId.getId());
         return null;
     }
 
     public List<WellContent> getPlateLocations(String sessionToken, TechId geneMaterialId,
             ExperimentIdentifier experimentIdentifier)
     {
-        logTracking(sessionToken, "getPlateLocations",
-                "geneMaterialId(%s) experimentIdentifier(%s)", geneMaterialId.getId(),
-                experimentIdentifier);
+        logAccess(sessionToken, "getPlateLocations", "geneMaterialId(%s) experimentIdentifier(%s)",
+                geneMaterialId.getId(), experimentIdentifier);
         return null;
     }
 
     public Material getMaterialInfo(String sessionToken, TechId materialId)
     {
-        logTracking(sessionToken, "getMaterialInfo", "materialId(%s)", materialId.getId());
+        logAccess(sessionToken, "getMaterialInfo", "materialId(%s)", materialId.getId());
         return null;
     }
 
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
     {
-        logTracking(sessionToken, "getDataSetInfo", "datasetId(%s)", datasetId.getId());
+        logAccess(sessionToken, "getDataSetInfo", "datasetId(%s)", datasetId.getId());
         return null;
     }
 }

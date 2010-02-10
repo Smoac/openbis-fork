@@ -17,8 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
@@ -35,21 +35,21 @@ class WellData
 
     private ExperimentIdentifier experimentIdentifier;
 
-    public static WellData create(PlateContent plateContent, WellLocation location)
+    public static WellData create(PlateImages plateImages, WellLocation location)
     {
-        ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(plateContent);
-        WellImages wellImages = tryCreateWellImages(plateContent, location);
+        ExperimentIdentifier experimentIdentifier = getExperimentIdentifier(plateImages);
+        WellImages wellImages = tryCreateWellImages(plateImages, location);
         return new WellData(wellImages, experimentIdentifier);
     }
 
-    private static ExperimentIdentifier getExperimentIdentifier(PlateContent plateContent)
+    private static ExperimentIdentifier getExperimentIdentifier(PlateImages plateImages)
     {
-        return ExperimentIdentifier.createIdentifier(plateContent.getPlate().getExperiment());
+        return ExperimentIdentifier.createIdentifier(plateImages.getPlate().getExperiment());
     }
 
-    private static WellImages tryCreateWellImages(PlateContent plateContent, WellLocation location)
+    private static WellImages tryCreateWellImages(PlateImages plateImages, WellLocation location)
     {
-        DatasetImagesReference images = plateContent.tryGetImages();
+        DatasetImagesReference images = plateImages.tryGetImages();
         if (images != null)
         {
             return new WellImages(images.getImageParameters(), images.getDownloadUrl(), location);

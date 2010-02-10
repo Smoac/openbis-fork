@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -50,6 +51,10 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
 
     /** @see IScreeningClientService#getPlateContent(TechId) */
     public void getPlateContent(TechId sampleId, final AsyncCallback<PlateContent> callback);
+
+    /** @see IScreeningClientService#getPlateContentForDataset(TechId) */
+    public void getPlateContentForDataset(TechId datasetId,
+            AsyncCallback<PlateImages> createDisplayPlateCallback);
 
     /** @see IScreeningClientService#getDataSetInfo(TechId) */
     public void getDataSetInfo(TechId datasetTechId, AsyncCallback<ExternalData> callback);

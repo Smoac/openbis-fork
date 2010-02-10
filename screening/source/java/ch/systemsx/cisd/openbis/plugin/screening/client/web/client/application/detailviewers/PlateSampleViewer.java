@@ -64,7 +64,7 @@ public final class PlateSampleViewer extends GenericSampleViewer
     protected List<SingleSectionPanel> createAdditionalSectionPanels()
     {
         List<SingleSectionPanel> sections = new ArrayList<SingleSectionPanel>();
-        sections.add(new PlateLayoutSection(screeningViewContext, sampleId));
+        sections.add(new PlateLayoutSampleSection(screeningViewContext, sampleId));
         return sections;
     }
 

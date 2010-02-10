@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -35,204 +33,50 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.SingleSectionPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageAction;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier.HelpPageDomain;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.data.DataSetReportGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.ScreeningViewContext;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.detailviewers.ChannelChooser.DefaultChannelState;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
 /**
- * A section of plate detail view which shows where the oligo and gene samples are located on the
- * plate and allow to check the content of the well quickly.
+ * Utilities to create plate visualization.
  * 
  * @author Tomasz Pylak
  */
-public class PlateLayoutSection extends SingleSectionPanel
+public class PlateLayouter
 {
     private static final String CONTROL_MATERIAL_TYPE = "CONTROL";
 
-    public static final String ID_SUFFIX = "PlateLayoutSection";
-
-    private final TechId sampleId;
-
-    public PlateLayoutSection(ScreeningViewContext viewContext, TechId sampleId)
+    /** @return widget with plate visualization - all the wells and possibility to browse images. */
+    public static Widget createVisualization(PlateImages plateImages,
+            ScreeningViewContext viewContext)
     {
-        super("Plate Layout");
-        this.sampleId = sampleId;
-        add(new Text(viewContext.getMessage(Dict.LOAD_IN_PROGRESS)));
-        viewContext.getService().getPlateContent(sampleId, createDisplayPlateCallback(viewContext));
-        setDisplayID(DisplayTypeIDGenerator.SAMPLE_SECTION, ID_SUFFIX);
-    }
-
-    private AsyncCallback<PlateContent> createDisplayPlateCallback(
-            final ScreeningViewContext context)
-    {
-        return new AbstractAsyncCallback<PlateContent>(context)
-            {
-                @Override
-                protected void process(PlateContent plateContent)
-                {
-                    removeAll();
-                    setLayout(new RowLayout());
-                    setScrollMode(Scroll.AUTO);
-
-                    renderPlate(plateContent, context);
-                    addImageAnalysisButton(plateContent, viewContext);
-
-                    addMetadataTable(plateContent, context);
-
-                    layout();
-                }
-            };
-    }
-
-    private void addImageAnalysisButton(final PlateContent plateContent,
-            final IViewContext<?> viewContext)
-    {
-        Component analysisPanel;
-        int datasetsNumber = plateContent.getImageAnalysisDatasetsNumber();
-        final DatasetReference dataset = plateContent.tryGetImageAnalysisDataset();
-        if (dataset != null)
-        {
-            assert datasetsNumber == 1 : "only one image analysis dataset expected, but found: "
-                    + datasetsNumber;
-            Button generateButton =
-                    new Button("Show Image Analysis Results", new SelectionListener<ButtonEvent>()
-                        {
-                            @Override
-                            public void componentSelected(ButtonEvent ce)
-                            {
-                                generateImageAnalysisReport(viewContext, dataset, plateContent);
-                            }
-                        });
-            analysisPanel = generateButton;
-        } else
-        {
-            if (datasetsNumber == 0)
-            {
-                analysisPanel = new Text("No image analysis data is available.");
-            } else
-            {
-                analysisPanel =
-                        new Text("There are " + datasetsNumber + " analysis datasets, "
-                                + "select the one of your interest from the 'Data Sets' section "
-                                + "and go to its detail view to see the image analysis results.");
-            }
-        }
-        add(analysisPanel, createMarginLayoutData());
-    }
-
-    private void generateImageAnalysisReport(IViewContext<?> viewContext, DatasetReference dataset,
-            PlateContent plateContent)
-    {
-        DatastoreServiceDescription service = createImageAnalysisReporter(dataset, plateContent);
-        DisplayedOrSelectedDatasetCriteria criteria =
-                DisplayedOrSelectedDatasetCriteria.createSelectedItems(Arrays.asList(dataset
-                        .getCode()));
-        DataSetReportGenerator.generate(viewContext.getCommonViewContext(), service, criteria);
-    }
-
-    private DatastoreServiceDescription createImageAnalysisReporter(DatasetReference dataset,
-            PlateContent plateContent)
-    {
-        String reportLabel = "Image Analysis of " + plateContent.getPlate().getCode();
-        return new DatastoreServiceDescription(ScreeningConstants.PLATE_IMAGE_ANALYSIS_REPORT_KEY,
-                reportLabel, new String[] {}, dataset.getDatastoreCode());
-    }
-
-    private void renderPlate(PlateContent plateContent, ScreeningViewContext viewContext)
-    {
-        LayoutContainer container = new LayoutContainer();
-        Widget datasetNumberLegend = tryRenderImageDatasetsNumberLegend(plateContent, viewContext);
-        if (datasetNumberLegend != null)
-        {
-            container.add(datasetNumberLegend);
-        }
-        container.add(renderWellsMatrix(plateContent, viewContext));
+        final LayoutContainer container = new LayoutContainer();
+        container.setLayout(new RowLayout());
+        LayoutContainer wellsMatrix = renderWellsMatrix(plateImages, viewContext);
+        container.add(wellsMatrix);
         container.add(renderWellsLegend());
-
-        add(container, createMarginLayoutData());
+        return container;
     }
 
-    private Widget tryRenderImageDatasetsNumberLegend(PlateContent plateContent,
-            IViewContext<?> viewContext)
-    {
-        int datasetsNumber = plateContent.getImageDatasetsNumber();
-        if (datasetsNumber == 0)
-        {
-            return new Text("No images data is available.");
-        } else if (datasetsNumber == 1)
-        {
-            return null;
-        } else
-        {
-            return new Text("There are " + datasetsNumber + " datasets with images, "
-                    + "select the one of your interest from the 'Data Sets' section "
-                    + "and go to its detail view to browse acquired images.");
-        }
-    }
-
-    private RowData createMarginLayoutData()
-    {
-        RowData layoutData = new RowData();
-        layoutData.setMargins(new Margins(10));
-        return layoutData;
-    }
-
-    private LayoutContainer renderWellsLegend()
-    {
-        LayoutContainer legend = new LayoutContainer();
-        legend.setLayout(new TableLayout(2));
-
-        TableData mergedColumns = new TableData();
-        mergedColumns.setColspan(2);
-
-        Component verticalSeparator = createBox();
-        verticalSeparator.setHeight("10");
-        legend.add(verticalSeparator, mergedColumns);
-
-        legend.add(new Text("Put a mouse on a well or click on it to get the details."),
-                mergedColumns);
-        legend.add(new Text("Legend:"), mergedColumns);
-
-        legend.add(createNonEmptyWell(false));
-        legend.add(new Text("Non-empty well"));
-
-        legend.add(createNonEmptyWell(true));
-        legend.add(new Text("Control well"));
-
-        legend.add(createEmptyWellWidget());
-        legend.add(new Text("Empty well"));
-
-        return legend;
-    }
-
-    private LayoutContainer renderWellsMatrix(PlateContent plateContent,
+    private static LayoutContainer renderWellsMatrix(PlateImages plateContent,
             ScreeningViewContext viewContext)
     {
         WellData[][] wellMatrix = createMatrix(plateContent);
@@ -250,7 +94,7 @@ public class PlateLayoutSection extends SingleSectionPanel
     }
 
     private static List<Widget> createWellWidgets(WellData[][] wellMatrix,
-            PlateContent plateContent, ScreeningViewContext viewContext)
+            PlateImages plateContent, ScreeningViewContext viewContext)
     {
         List<Widget> wellWidgets = new ArrayList<Widget>();
         int rowsNum = wellMatrix.length;
@@ -324,7 +168,33 @@ public class PlateLayoutSection extends SingleSectionPanel
         }
     }
 
-    // ------ end todo
+    private static LayoutContainer renderWellsLegend()
+    {
+        LayoutContainer legend = new LayoutContainer();
+        legend.setLayout(new TableLayout(2));
+
+        TableData mergedColumns = new TableData();
+        mergedColumns.setColspan(2);
+
+        Component verticalSeparator = createBox();
+        verticalSeparator.setHeight("10");
+        legend.add(verticalSeparator, mergedColumns);
+
+        legend.add(new Text("Put a mouse on a well or click on it to get the details."),
+                mergedColumns);
+        legend.add(new Text("Legend:"), mergedColumns);
+
+        legend.add(createNonEmptyWell(false));
+        legend.add(new Text("Non-empty well"));
+
+        legend.add(createNonEmptyWell(true));
+        legend.add(new Text("Control well"));
+
+        legend.add(createEmptyWellWidget());
+        legend.add(new Text("Empty well"));
+
+        return legend;
+    }
 
     private static Component createEmptyWellWidget()
     {
@@ -334,7 +204,7 @@ public class PlateLayoutSection extends SingleSectionPanel
     }
 
     private static Component createWellWidget(final WellData wellData,
-            final PlateContent plateContent, final DefaultChannelState channelState,
+            final PlateImages plateContent, final DefaultChannelState channelState,
             final ScreeningViewContext viewContext)
     {
         Component widget = createContentWell(wellData);
@@ -416,7 +286,7 @@ public class PlateLayoutSection extends SingleSectionPanel
 
     // Elements will not contain null even if well is empty.
     // Numbering starts with 1 so row and column with index 0 are left empty.
-    private static WellData[][] createMatrix(PlateContent plateContent)
+    private static WellData[][] createMatrix(PlateImages plateContent)
     {
         WellData[][] matrix = createWellData(plateContent);
         List<WellMetadata> wells = plateContent.getWells();
@@ -432,7 +302,7 @@ public class PlateLayoutSection extends SingleSectionPanel
         return matrix;
     }
 
-    private static WellData[][] createWellData(PlateContent plateContent)
+    private static WellData[][] createWellData(PlateImages plateContent)
     {
         WellData[][] data =
                 new WellData[plateContent.getRowsNum() + 1][plateContent.getColsNum() + 1];
@@ -446,41 +316,53 @@ public class PlateLayoutSection extends SingleSectionPanel
         return data;
     }
 
-    private void addMetadataTable(final PlateContent plateContent,
+    // ---------
+
+    /** @return a button which shows a grid with the plate metadata */
+    public static Button createPlateMetadataButton(final Sample plate,
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        final Button generateButton =
-                new Button("Show Plate Report", new SelectionListener<ButtonEvent>()
-                    {
+        return new Button("Show Plate Report", new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    DispatcherHelper.dispatchNaviEvent(createPlateMetadataTabFactory());
+                }
 
-                        @Override
-                        public void componentSelected(ButtonEvent ce)
+                private ITabItemFactory createPlateMetadataTabFactory()
+                {
+                    return new ITabItemFactory()
                         {
-                            final ITabItemFactory tabFactory = new ITabItemFactory()
-                                {
-                                    public ITabItem create()
-                                    {
-                                        return DefaultTabItem.create("Plate Report: "
-                                                + plateContent.getPlate().getCode(),
-                                                PlateMetadataBrowser.create(viewContext, sampleId),
-                                                viewContext);
-                                    }
+                            public ITabItem create()
+                            {
+                                return DefaultTabItem.create("Plate Report: " + plate.getCode(),
+                                        PlateMetadataBrowser.create(viewContext, new TechId(plate
+                                                .getId())), viewContext);
+                            }
 
-                                    public String getId()
-                                    {
-                                        return GenericConstants.ID_PREFIX + "plate-metadata-"
-                                                + plateContent.getPlate().getId();
-                                    }
+                            public String getId()
+                            {
+                                return GenericConstants.ID_PREFIX + "plate-metadata-"
+                                        + plate.getId();
+                            }
 
-                                    public HelpPageIdentifier getHelpPageIdentifier()
-                                    {
-                                        return new HelpPageIdentifier(HelpPageDomain.SAMPLE,
-                                                HelpPageAction.VIEW);
-                                    }
-                                };
-                            DispatcherHelper.dispatchNaviEvent(tabFactory);
-                        }
-                    });
-        add(generateButton, createMarginLayoutData());
+                            public HelpPageIdentifier getHelpPageIdentifier()
+                            {
+                                return new HelpPageIdentifier(HelpPageDomain.SAMPLE,
+                                        HelpPageAction.VIEW);
+                            }
+                        };
+                }
+            });
     }
+
+    /** @return layout data with big margin */
+    public static RowData createRowLayoutMarginData()
+    {
+        RowData layoutData = new RowData();
+        layoutData.setMargins(new Margins(10));
+        return layoutData;
+    }
+
 }

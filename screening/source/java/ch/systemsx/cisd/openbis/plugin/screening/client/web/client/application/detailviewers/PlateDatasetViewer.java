@@ -63,8 +63,7 @@ public final class PlateDatasetViewer extends GenericDataSetViewer
     protected List<SingleSectionPanel> createAdditionalSectionPanels()
     {
         List<SingleSectionPanel> sections = new ArrayList<SingleSectionPanel>();
-        // TODO 2010-02-09, Tomasz Pylak: implement me
-        // sections.add(PlateLayoutSection.createForDataset(screeningViewContext, datasetId));
+        sections.add(new PlateLayoutDatasetSection(screeningViewContext, datasetId));
         return sections;
     }
 }

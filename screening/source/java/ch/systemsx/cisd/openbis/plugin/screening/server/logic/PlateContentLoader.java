@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
@@ -41,6 +43,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReferen
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
@@ -51,10 +54,25 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
  */
 public class PlateContentLoader
 {
+    /**
+     * loads data about the plate for a specified sample id. Attaches information about images and
+     * image analysis only if one dataset with such a data exist.
+     */
     public static PlateContent load(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
     {
         return new PlateContentLoader(session, businessObjectFactory).getPlateContent(plateId);
+    }
+
+    /**
+     * loads data about the plate for a specified dataset, which is supposed to contain images in
+     * BDS-HCS format.
+     */
+    public static PlateImages loadForDataset(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, TechId datasetId)
+    {
+        return new PlateContentLoader(session, businessObjectFactory)
+                .getPlateContentForDataset(datasetId);
     }
 
     private final Session session;
@@ -66,6 +84,29 @@ public class PlateContentLoader
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
+    }
+
+    private PlateImages getPlateContentForDataset(TechId datasetId)
+    {
+        ExternalDataPE externalData = loadDataset(datasetId);
+        SamplePE plate = externalData.tryGetSample();
+        if (plate == null)
+        {
+            throw UserFailureException.fromTemplate("Dataset '%s' has no sample connected.",
+                    externalData.getCode());
+        }
+        List<WellMetadata> wells = loadWells(new TechId(plate.getId()));
+        DatasetImagesReference datasetImagesReference =
+                loadImages(businessObjectFactory.createExternalDataTable(session), externalData);
+        return new PlateImages(translate(plate), wells, datasetImagesReference);
+    }
+
+    private ExternalDataPE loadDataset(TechId datasetId)
+    {
+        IExternalDataBO externalDataBO = businessObjectFactory.createExternalDataBO(session);
+        externalDataBO.loadDataByTechId(datasetId);
+        ExternalDataPE externalData = externalDataBO.getExternalData();
+        return externalData;
     }
 
     private PlateContent getPlateContent(TechId plateId)
@@ -101,6 +142,11 @@ public class PlateContentLoader
         ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
         sampleBO.loadDataByTechId(plateId);
         SamplePE sample = sampleBO.getSample();
+        return translate(sample);
+    }
+
+    private Sample translate(SamplePE sample)
+    {
         return SampleTranslator.translate(sample, session.getBaseIndexURL());
     }
 
@@ -153,10 +199,12 @@ public class PlateContentLoader
         return externalData;
     }
 
-    private DatasetImagesReference loadImages(IExternalDataTable externalDataTable, ExternalDataPE dataset)
+    private DatasetImagesReference loadImages(IExternalDataTable externalDataTable,
+            ExternalDataPE dataset)
     {
         PlateImageParameters imageParameters = loadImageParams(dataset, externalDataTable);
-        return DatasetImagesReference.create(ScreeningUtils.createDatasetReference(dataset), imageParameters);
+        return DatasetImagesReference.create(ScreeningUtils.createDatasetReference(dataset),
+                imageParameters);
     }
 
     private PlateImageParameters loadImageParams(ExternalDataPE dataset,

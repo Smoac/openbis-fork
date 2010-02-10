@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -66,6 +67,12 @@ public interface IScreeningClientService extends IClientService
      * Fetches information about wells on a plate and their content.
      */
     public PlateContent getPlateContent(TechId sampleId) throws UserFailureException;
+
+    /**
+     * Fetches information about a plate: metadata and images for wells. The specified dataset is
+     * supposed to be in BDS-HCS format.
+     */
+    public PlateImages getPlateContentForDataset(TechId datasetId);
 
     /**
      * @return well locations which belong to a parent plate connected to a specified experiment.

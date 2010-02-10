@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -120,6 +121,12 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     {
         Session session = getSession(sessionToken);
         return PlateContentLoader.load(session, businessObjectFactory, plateId);
+    }
+
+    public PlateImages getPlateContentForDataset(String sessionToken, TechId datasetId)
+    {
+        Session session = getSession(sessionToken);
+        return PlateContentLoader.loadForDataset(session, businessObjectFactory, datasetId);
     }
 
     public List<WellContent> getPlateLocations(String sessionToken, TechId geneMaterialId,

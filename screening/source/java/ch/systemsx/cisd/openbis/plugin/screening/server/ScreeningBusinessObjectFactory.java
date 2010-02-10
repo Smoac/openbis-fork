@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -66,6 +67,11 @@ public final class ScreeningBusinessObjectFactory extends AbstractPluginBusiness
     public IMaterialBO createMaterialBO(Session session)
     {
         return getCommonBusinessObjectFactory().createMaterialBO(session);
+    }
+
+    public IExternalDataBO createExternalDataBO(Session session)
+    {
+        return getCommonBusinessObjectFactory().createExternalDataBO(session);
     }
 
 }

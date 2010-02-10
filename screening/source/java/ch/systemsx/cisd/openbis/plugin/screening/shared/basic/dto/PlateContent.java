@@ -30,12 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class PlateContent implements IsSerializable
 {
-    private Sample plate;
-
-    private List<WellMetadata> wellsMetadata;
-
-    // not null if exactly one image dataset exists
-    private DatasetImagesReference imagesOrNull;
+    private PlateImages plateImages;
 
     // not null if exactly one image analysis dataset exists
     private DatasetReference imageAnalysisDatasetOrNull;
@@ -58,57 +53,15 @@ public class PlateContent implements IsSerializable
                 || (imagesOrNull == null && imageDatasetsNumber != 1);
         assert (imageAnalysisDatasetOrNull != null && imageAnalysisDatasetsNumber == 1)
                 || (imageAnalysisDatasetOrNull == null && imageAnalysisDatasetsNumber != 1);
-        this.plate = plate;
-        this.wellsMetadata = wells;
-        this.imagesOrNull = imagesOrNull;
+        this.plateImages = new PlateImages(plate, wells, imagesOrNull);
         this.imageDatasetsNumber = imageDatasetsNumber;
         this.imageAnalysisDatasetOrNull = imageAnalysisDatasetOrNull;
         this.imageAnalysisDatasetsNumber = imageAnalysisDatasetsNumber;
     }
 
-    public List<WellMetadata> getWells()
-    {
-        return wellsMetadata;
-    }
-
-    /** can be null */
-    public DatasetImagesReference tryGetImages()
-    {
-        return imagesOrNull;
-    }
-
     public DatasetReference tryGetImageAnalysisDataset()
     {
         return imageAnalysisDatasetOrNull;
-    }
-
-    public Sample getPlate()
-    {
-        return plate;
-    }
-
-    public int getRowsNum()
-    {
-        if (imagesOrNull != null)
-        {
-            return imagesOrNull.getImageParameters().getRowsNum();
-        } else
-        {
-            // TODO 2009-12-09, Tomasz Pylak: calculate rows number on the basis of metadata
-            return 16;
-        }
-    }
-
-    public int getColsNum()
-    {
-        if (imagesOrNull != null)
-        {
-            return imagesOrNull.getImageParameters().getColsNum();
-        } else
-        {
-            // TODO 2009-12-09, Tomasz Pylak: calculate rows number on the basis of metadata
-            return 24;
-        }
     }
 
     public int getImageDatasetsNumber()
@@ -119,5 +72,15 @@ public class PlateContent implements IsSerializable
     public int getImageAnalysisDatasetsNumber()
     {
         return imageAnalysisDatasetsNumber;
+    }
+
+    public PlateImages getPlateImages()
+    {
+        return plateImages;
+    }
+
+    public Sample getPlate()
+    {
+        return plateImages.getPlate();
     }
 }

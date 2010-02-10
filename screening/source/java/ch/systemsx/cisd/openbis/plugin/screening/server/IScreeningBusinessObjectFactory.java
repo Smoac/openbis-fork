@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExternalDataTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IMaterialBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
@@ -42,4 +43,6 @@ public interface IScreeningBusinessObjectFactory
     public ISampleLister createSampleLister(Session session);
 
     public IMaterialLister createMaterialLister(Session session);
+
+    public IExternalDataBO createExternalDataBO(Session session);
 }
