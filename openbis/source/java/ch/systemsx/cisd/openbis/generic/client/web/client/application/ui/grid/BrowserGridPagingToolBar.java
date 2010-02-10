@@ -65,13 +65,12 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         // Remove the space before the refresh button and replace it with display text
         Component fillItem = getItem(indexOf(displayText) - 1);
         remove(fillItem);
-        
+
         // Add a separator and some fill space
         nextTableButtonIndex = indexOf(displayText) + 1;
         SeparatorToolItem separator = new SeparatorToolItem();
-        insertTableButton(separator);    
-        insertTableButton(new FillToolItem());
-       
+        insertTableButton(separator);
+
         this.messageProvider = messageProvider;
 
         insertTableButton(createTableOperationsLabel());
@@ -88,6 +87,8 @@ public final class BrowserGridPagingToolBar extends PagingToolBar
         this.exportButton = createExportButton(messageProvider, invoker);
         disableExportButton();
         insertTableButton(exportButton);
+
+        insertTableButton(new FillToolItem());
     }
 
     /** Total number of items on all pages */
