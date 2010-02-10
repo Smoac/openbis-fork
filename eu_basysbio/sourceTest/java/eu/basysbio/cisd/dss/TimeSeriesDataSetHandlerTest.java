@@ -218,7 +218,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         
         try
         {
-            handler.handle(file, createDataSetInformation(TimeSeriesDataSetUploader.DATA_SET_TYPE));
+            handler.handle(file, createDataSetInformation(TimeSeriesDataSetUploader.TIME_SERIES));
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
@@ -240,7 +240,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         TimeSeriesDataSetHandler handler = createHandler(properties);
         File file = createDataExample();
         DataSetInformation dataSetInformation =
-                createDataSetInformation(TimeSeriesDataSetUploader.DATA_SET_TYPE);
+                createDataSetInformation(TimeSeriesDataSetUploader.TIME_SERIES);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "exp1"));
 
         try
@@ -286,7 +286,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 
             });
 
-        DataSetInformation dataSetInformation = createDataSetInformation(TimeSeriesDataSetUploader.DATA_SET_TYPE);
+        DataSetInformation dataSetInformation = createDataSetInformation(TimeSeriesDataSetUploader.TIME_SERIES);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
         try
         {
@@ -390,7 +390,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
             });
 
         DataSetInformation dataSetInformation =
-                createDataSetInformation(TimeSeriesDataSetUploader.DATA_SET_TYPE);
+                createDataSetInformation(TimeSeriesDataSetUploader.TIME_SERIES);
         dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
                 "GM_BR_B1"));
         handler.handle(file, dataSetInformation);

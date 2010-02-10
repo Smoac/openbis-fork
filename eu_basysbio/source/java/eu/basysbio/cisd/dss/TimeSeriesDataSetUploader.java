@@ -22,6 +22,7 @@ import java.io.FilenameFilter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import javax.sql.DataSource;
 import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -54,22 +56,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class TimeSeriesDataSetUploader
 {
-    static final String DATA_SET_TYPE = "TIME_SERIES";
+    private static final String LCA_MTP_TIME_SERIES = "LCA_MTP_TIME_SERIES";
+
+    static final String TIME_SERIES = "TIME_SERIES";
+
+    static final List<String> DATA_SET_TYPES = Arrays.asList(TIME_SERIES, LCA_MTP_TIME_SERIES);
+
     private static final Pattern DATA_COLUMN_HEADER_PATTERN =
-        Pattern.compile(".*(" + DataColumnHeader.SEPARATOR + ".*)+");
+            Pattern.compile(".*(" + DataColumnHeader.SEPARATOR + ".*)+");
 
     private final ITimeSeriesDAO dao;
 
     private final IEncapsulatedOpenBISService service;
-    
+
     private final TimeSeriesDataSetUploaderParameters parameters;
-    
+
     private Connection connection;
 
     TimeSeriesDataSetUploader(DataSource dataSource, IEncapsulatedOpenBISService service,
@@ -129,7 +134,7 @@ class TimeSeriesDataSetUploader
             connection = null;
         }
     }
-    
+
     void upload(File originalData, DataSetInformation dataSetInformation, IDropBoxFeeder feeder)
     {
         ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
@@ -139,10 +144,13 @@ class TimeSeriesDataSetUploader
                     "Data set should be registered for an experiment and not for a sample.");
         }
         DataSetType dataSetType = dataSetInformation.getDataSetType();
-        if (dataSetType == null || dataSetType.getCode().equals(DATA_SET_TYPE) == false)
+        if (dataSetType == null || DATA_SET_TYPES.contains(dataSetType.getCode()) == false)
         {
-            throw new UserFailureException("Data has to be uploaded for data set type "
-                    + DATA_SET_TYPE + " instead of " + dataSetType + ".");
+            String message =
+                    "Data has to be uploaded for data set type ["
+                            + StringUtils.join(DATA_SET_TYPES, ",") + "] instead of " + dataSetType
+                            + ".";
+            throw new UserFailureException(message);
         }
         Set<DataColumnHeader> headers = new HashSet<DataColumnHeader>();
         if (originalData.isFile())
@@ -168,7 +176,7 @@ class TimeSeriesDataSetUploader
                 cleaveFileIntoDataSets(tsvFile, dataSetInformation, headers, feeder);
             }
         }
-        
+
     }
 
     private void cleaveFileIntoDataSets(File tsvFile, DataSetInformation dataSetInformation,
@@ -196,13 +204,22 @@ class TimeSeriesDataSetUploader
                 }
             }
             assertExperiment(dataSetInformation, dataColumns);
-            ExperimentIdentifier experimentIdentifier = dataSetInformation.getExperimentIdentifier();
-            long dataSetID = getOrCreateDataSet(dataSetInformation, experimentIdentifier);
-            RowIDManager rowIDManager = createRowsAndCommonColumns(dataSetID, commonColumns);
-            for (Column dataColumn : dataColumns)
+            ExperimentIdentifier experimentIdentifier =
+                    dataSetInformation.getExperimentIdentifier();
+            if (dataSetInformation.getDataSetType().getCode().equals(TIME_SERIES))
             {
-                createDataSet(commonColumns, dataColumn, dataSetInformation, headers, dataSetID,
-                        rowIDManager, feeder);
+                long dataSetID = getOrCreateDataSet(dataSetInformation, experimentIdentifier);
+                RowIDManager rowIDManager = createRowsAndCommonColumns(dataSetID, commonColumns);
+                for (Column dataColumn : dataColumns)
+                {
+                    createDataSet(commonColumns, dataColumn, dataSetInformation, headers,
+                            dataSetID, rowIDManager, feeder);
+                }
+            } else if (dataSetInformation.getDataSetType().getCode().equals(LCA_MTP_TIME_SERIES))
+            {
+                TimeSeriesHeaderUtils.assertMetadataConsistent(dataSetInformation, dataColumns);
+                // TODO 2010-02-09, IA: Add splitting dataset and registering datasets for samples
+                // with HCS hierarchy
             }
         } catch (RuntimeException ex)
         {
@@ -261,15 +278,16 @@ class TimeSeriesDataSetUploader
 
         createSampleAndDataColumn(dataColumn, dataSetID, rowIDManager, dataColumnHeader,
                 experiment, sampleCode);
-        
-        feeder.feed(dataSetInformation.tryGetUploadingUserEmail(), sampleCode,
-                commonColumns, dataColumn);
+
+        feeder.feed(dataSetInformation.tryGetUploadingUserEmail(), sampleCode, commonColumns,
+                dataColumn);
     }
-    
+
     private void createSampleIfNecessary(DataColumnHeader dataColumnHeader, Experiment experiment,
             String sampleCode)
     {
-        long sampleID = createSampleIfNecessary(sampleCode, dataColumnHeader.getTimePoint(), experiment);
+        long sampleID =
+                createSampleIfNecessary(sampleCode, dataColumnHeader.getTimePoint(), experiment);
         if (parameters.isCheckExistingDataSets())
         {
             List<ExternalData> dataSets = service.listDataSetsBySampleID(sampleID, true);
@@ -279,12 +297,12 @@ class TimeSeriesDataSetUploader
                 if (dataColumnHeader.equals(header))
                 {
                     throw new UserFailureException("For data column '" + dataColumnHeader
-                            + "' the data set '" + dataSet.getCode() + "' has already been registered.");
+                            + "' the data set '" + dataSet.getCode()
+                            + "' has already been registered.");
                 }
             }
         }
     }
-
 
     private long createSampleIfNecessary(String sampleCode, int timePoint, Experiment experiment)
     {
@@ -344,16 +362,19 @@ class TimeSeriesDataSetUploader
 
     private String createExperimentCode(DataColumnHeader dataColumnHeader)
     {
-        return parameters.getExperimentCodeFormat().format(new Object[]
-            { dataColumnHeader.getExperimentCode(), dataColumnHeader.getCultivationMethod(),
-                    dataColumnHeader.getBiologicalReplicateCode() });
+        return parameters.getExperimentCodeFormat().format(
+                new Object[]
+                    { dataColumnHeader.getExperimentCode(),
+                            dataColumnHeader.getCultivationMethod(),
+                            dataColumnHeader.getBiologicalReplicateCode() });
     }
 
     private String createSampleCode(DataColumnHeader dataColumnHeader)
     {
-        return parameters.getSampleCodeFormat().format(new Object[]
-            { createExperimentCode(dataColumnHeader), dataColumnHeader.getTimePointType(),
-                    Integer.toString(dataColumnHeader.getTimePoint()) });
+        return parameters.getSampleCodeFormat().format(
+                new Object[]
+                    { createExperimentCode(dataColumnHeader), dataColumnHeader.getTimePointType(),
+                            Integer.toString(dataColumnHeader.getTimePoint()) });
     }
 
     private long getOrCreateDataSet(DataSetInformation dataSetInformation,
@@ -378,7 +399,7 @@ class TimeSeriesDataSetUploader
         }
         return dataSetID;
     }
-    
+
     private RowIDManager createRowsAndCommonColumns(long dataSetID, List<Column> commonColumns)
     {
         RowIDManager rowIDManager = new RowIDManager(dao);
@@ -394,7 +415,7 @@ class TimeSeriesDataSetUploader
         }
         return rowIDManager;
     }
-    
+
     private void createSampleAndDataColumn(Column dataColumn, long dataSetID,
             RowIDManager rowIDManager, DataColumnHeader dataColumnHeader, Experiment experiment,
             String sampleCode)
@@ -407,7 +428,8 @@ class TimeSeriesDataSetUploader
     private long getOrCreateSample(Experiment experiment, String sampleCode)
     {
         String sampleIdentifier = Util.createSampleIdentifier(experiment, sampleCode);
-        Sample sample = service.tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sampleIdentifier));
+        Sample sample =
+                service.tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sampleIdentifier));
         String samplePermID = sample.getPermId();
         Long sampleId = dao.tryToGetSampleIDByPermID(samplePermID);
         if (sampleId == null)
