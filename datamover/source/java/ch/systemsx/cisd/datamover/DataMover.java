@@ -343,12 +343,12 @@ public final class DataMover
                 {
                     if (prefixBeforeOrNull != null)
                     {
-                        operationLog.info(prefixBeforeOrNull + ": " + item);
+                        operationLog.info(prefixBeforeOrNull + " " + item);
                     }
                     originalHandler.handle(item);
                     if (prefixAfterOrNull != null)
                     {
-                        operationLog.info(prefixAfterOrNull + ": " + item);
+                        operationLog.info(prefixAfterOrNull + " " + item);
                     }
                 }
 
