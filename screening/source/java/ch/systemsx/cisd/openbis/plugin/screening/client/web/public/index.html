@@ -31,5 +31,34 @@
 // The body can have arbitrary html, or you can leave the body empty if you want to create a completely dynamic ui.
 -->
 <body>
+<div id="openbis_login_div" style="visibility: hidden">
+<form id="openbis_login_form" method="post" action="javascript:;">
+<table>
+	<tbody>
+		<tr>
+			<td><span>User:</span></td>
+			<td><input type="text" id="openbis_login_username"
+				name="openbis-username" style="width: 150px;"></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td><span>Password:</span></td>
+			<td><input type="password" id="openbis_login_password"
+				name="openbis-password" style="width: 150px;"></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td rowspan="3">&nbsp;</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td align="right"><input type="submit" id="openbis_login_submit"
+				value="Login"></td>
+		</tr>
+	</tbody>
+</table>
+</form>
+</div>
 </body>
 </html>
