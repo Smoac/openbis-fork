@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 
 /**
  * Helps in building a {@link TableModel}
@@ -61,29 +62,7 @@ public class SimpleTableModelBuilder
             TableModelColumnHeader header = headers.get(i);
             DataTypeCode headerDataType = header.getDataType();
             DataTypeCode dataType = getDataTypeCodeFor(value);
-            if (headerDataType == null)
-            {
-                header.setDataType(dataType);
-            } else if (headerDataType == DataTypeCode.REAL)
-            {
-                if (dataType != DataTypeCode.REAL && dataType != DataTypeCode.INTEGER)
-                {
-                    header.setDataType(DataTypeCode.VARCHAR);
-                }
-            } else if (headerDataType == DataTypeCode.INTEGER)
-            {
-                if (dataType == DataTypeCode.REAL)
-                {
-                    header.setDataType(DataTypeCode.REAL);
-                } else if (dataType != DataTypeCode.INTEGER)
-                {
-                    header.setDataType(DataTypeCode.VARCHAR);
-                }
-            } else if (headerDataType == DataTypeCode.TIMESTAMP
-                    && dataType != DataTypeCode.TIMESTAMP)
-            {
-                header.setDataType(DataTypeCode.VARCHAR);
-            }
+            header.setDataType(DataTypeUtils.getCompatibleDataType(headerDataType, dataType));
         }
         rows.add(new TableModelRow(values));
     }
