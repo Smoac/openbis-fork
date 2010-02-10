@@ -295,8 +295,8 @@ public final class LocalProcessor implements IPathHandler, IRecoverableTimerTask
             // transformation step
             if (transformatorOrNull != null)
             {
-                operationLog.info(String
-                        .format("START_TRANSFORMATION '%s'", path.getAbsolutePath()));
+                operationLog.info(String.format("STARTED_TRANSFORMATION '%s'", path
+                        .getAbsolutePath()));
                 Status transformationStatus = transformatorOrNull.transform(path);
                 if (transformationStatus.isError())
                 {
