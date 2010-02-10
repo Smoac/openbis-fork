@@ -4,12 +4,17 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.KeyboardEvents;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.FitData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.event.dom.client.KeyCodes;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -52,6 +57,7 @@ public class DetailedSearchWindow extends Dialog
         setResizable(false);
         add(criteriaWidget = new DetailedSearchCriteriaWidget(viewContext, entityKind),
                 new FitData(MARGIN));
+        addEnterListener();
         final ButtonBar bar = getButtonBar();
         bar.removeAll();
         bar.add(new Button(viewContext.getMessage(Dict.BUTTON_CANCEL),
@@ -79,15 +85,7 @@ public class DetailedSearchWindow extends Dialog
                                 @Override
                                 public void componentSelected(ButtonEvent ce)
                                 {
-                                    List<PropertyType> availablePropertyTypes =
-                                            criteriaWidget.getAvailablePropertyTypes();
-                                    DetailedSearchCriteria criteria =
-                                            criteriaWidget.tryGetCriteria();
-                                    String criteriaDescription =
-                                            criteriaWidget.getCriteriaDescription();
-                                    updateListener.updateSearchResults(criteria,
-                                            criteriaDescription, availablePropertyTypes);
-                                    hide();
+                                    onSearch();
                                 }
                             });
 
@@ -96,6 +94,34 @@ public class DetailedSearchWindow extends Dialog
 
         DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
                 createHelpPageIdentifier(entityKind));
+    }
+
+    private void addEnterListener()
+    {
+        criteriaWidget.addListener(KeyboardEvents.Enter, new Listener<ComponentEvent>()
+            {
+                public void handleEvent(ComponentEvent ce)
+                {
+                    EventType type = ce.getType();
+                    switch (type.getEventCode())
+                    {
+                        case KeyCodes.KEY_ENTER:
+                            onSearch();
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+
+            });
+    }
+
+    @Override
+    protected void afterShow()
+    {
+        super.afterShow();
+        criteriaWidget.focus();
     }
 
     public DetailedSearchCriteria tryGetCriteria()
@@ -138,5 +164,14 @@ public class DetailedSearchWindow extends Dialog
     {
         // Set the widget
         criteriaWidget.setInitialSearchCriterion(initialField, searchString);
+    }
+
+    private void onSearch()
+    {
+        hide();
+        List<PropertyType> availablePropertyTypes = criteriaWidget.getAvailablePropertyTypes();
+        DetailedSearchCriteria criteria = criteriaWidget.tryGetCriteria();
+        String criteriaDescription = criteriaWidget.getCriteriaDescription();
+        updateListener.updateSearchResults(criteria, criteriaDescription, availablePropertyTypes);
     }
 }

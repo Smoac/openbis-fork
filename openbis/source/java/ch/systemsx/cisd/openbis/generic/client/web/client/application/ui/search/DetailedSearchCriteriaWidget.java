@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.search
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.KeyboardEvents;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -38,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  */
 public class DetailedSearchCriteriaWidget extends VerticalPanel
 {
-
     public static final String FIRST_ID_SUFFIX = "_first";
 
     private final List<DetailedSearchCriterionWidget> criteriaWidgets;
@@ -78,6 +78,7 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
         add(criterion);
         enableRemovalIfOneExists(false);
         layout();
+        criterion.focus();
     }
 
     /**
@@ -92,10 +93,28 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
             criteriaWidgets.remove(w);
             remove(w);
             enableRemovalIfOneExists(false);
+
+            focusLastWidget();
         } else
         {
             w.reset();
         }
+    }
+
+    /**
+     * Set focus on the last widget
+     */
+    private void focusLastWidget()
+    {
+        DetailedSearchCriterionWidget lastWidget = criteriaWidgets.get(criteriaWidgets.size() - 1);
+        lastWidget.focus();
+    }
+
+    @Override
+    public void focus()
+    {
+        super.focus();
+        focusLastWidget();
     }
 
     public List<PropertyType> getAvailablePropertyTypes()
@@ -182,6 +201,11 @@ public class DetailedSearchCriteriaWidget extends VerticalPanel
     {
         DetailedSearchCriterionWidget widget = criteriaWidgets.get(0);
         widget.setSearchCriterion(initialField, initialSearchString);
+    }
+
+    void onEnterKey()
+    {
+        fireEvent(KeyboardEvents.Enter);
     }
 
 }

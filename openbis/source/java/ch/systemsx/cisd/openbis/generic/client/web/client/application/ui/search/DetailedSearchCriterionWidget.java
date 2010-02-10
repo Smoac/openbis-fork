@@ -21,11 +21,14 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
+import com.google.gwt.event.dom.client.KeyCodes;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -84,6 +87,7 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
         this.nameField = nameField;
         this.valueField = new TextField<String>();
         valueField.setId(VALUE_FIELD_ID_PREFIX + idSuffix);
+        addEnterListener();
 
         final TableData tableData =
                 new TableData(HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM);
@@ -94,6 +98,24 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
         valueField.setWidth(150);
         add(createAddButton(idSuffix), tableData);
         add(removeButton = createRemoveButton(idSuffix), tableData);
+    }
+
+    /**
+     * Adds a keyboard listener to the input field. Only call this during initialization.
+     */
+    private void addEnterListener()
+    {
+        valueField.addKeyListener(new KeyListener()
+            {
+                @Override
+                public final void componentKeyUp(final ComponentEvent event)
+                {
+                    if (event.getKeyCode() == KeyCodes.KEY_ENTER)
+                    {
+                        parent.onEnterKey();
+                    }
+                }
+            });
     }
 
     /**
@@ -163,6 +185,13 @@ public class DetailedSearchCriterionWidget extends HorizontalPanel
     {
         valueField.reset();
         nameField.reset();
+    }
+
+    @Override
+    public void focus()
+    {
+        super.focus();
+        valueField.focus();
     }
 
     /**
