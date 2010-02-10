@@ -72,34 +72,50 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses=TimeSeriesDataSetHandler.class)
+@Friend(toClasses = TimeSeriesDataSetHandler.class)
 public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
 {
 
     private static final String DATA_SET_PROPERTIES_FILE = "data-set-properties.txt";
-    private static final String SAMPLE_EX_200 = "GM_BR_B1_EX_200";
-    private static final String DATA_SET_EX_200 = SAMPLE_EX_200 + ".T1.CE.MetaboliteLCMS.Value[mM].Log10.NB.NC";
-    private static final String SAMPLE_EX_7200 = "GM_BR_B1_EX_7200";
-    private static final String DATA_SET_EX_7200 = SAMPLE_EX_7200 + ".T2.CE.b.Value[mM].LIN.NB.NC";
-    private static final String DATA_SET_CODE = "DS1";
-    private static final long DATA_SET_SPECIAL_ID = 4711;
-    private static final String GROUP_CODE = "/G1";
-    private static final long EXP_ID = 42L;
-    private static final String EXP_PERM_ID = "perm-" + EXP_ID;
-    private static final long EXP_SPECIAL_ID = 2 * EXP_ID;
-    private static final String PROJECT_CODE = "P1";
-    private static final long ROW1_ID = 1;
-    private static final long ROW2_ID = 2;
-    private Mockery context;
-    private IEncapsulatedOpenBISService service;
-    private File dropBox;
-    private DataSource dataSource;
-    private ITimeSeriesDAO dao;
 
+    private static final String SAMPLE_EX_200 = "GM_BR_B1_EX_200";
+
+    private static final String DATA_SET_EX_200 =
+            SAMPLE_EX_200 + ".T1.CE.MetaboliteLCMS.Value[mM].Log10.NB.NC";
+
+    private static final String SAMPLE_EX_7200 = "GM_BR_B1_EX_7200";
+
+    private static final String DATA_SET_EX_7200 = SAMPLE_EX_7200 + ".T2.CE.b.Value[mM].LIN.NB.NC";
+
+    private static final String DATA_SET_CODE = "DS1";
+
+    private static final long DATA_SET_SPECIAL_ID = 4711;
+
+    private static final String GROUP_CODE = "/G1";
+
+    private static final long EXP_ID = 42L;
+
+    private static final String EXP_PERM_ID = "perm-" + EXP_ID;
+
+    private static final long EXP_SPECIAL_ID = 2 * EXP_ID;
+
+    private static final String PROJECT_CODE = "P1";
+
+    private static final long ROW1_ID = 1;
+
+    private static final long ROW2_ID = 2;
+
+    private Mockery context;
+
+    private IEncapsulatedOpenBISService service;
+
+    private File dropBox;
+
+    private DataSource dataSource;
+
+    private ITimeSeriesDAO dao;
 
     @BeforeMethod
     public void beforeMethod() throws Exception
@@ -113,7 +129,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         dropBox = new File(workingDirectory, "drop-box");
         dropBox.mkdirs();
     }
-    
+
     @AfterMethod
     public void tearDown()
     {
@@ -131,58 +147,68 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals("Given key '" + TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY
+            assertEquals("Given key '"
+                    + TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY
                     + "' not found in properties '[]'", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingDataSetProertiesFileNameProperty()
     {
         try
         {
             Properties properties = new Properties();
-            properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox.getAbsolutePath());
+            properties.setProperty(
+                    TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox
+                            .getAbsolutePath());
             createHandler(properties);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
-            assertEquals(
-                    "Given key '" + TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY
-                            + "' not found in properties '["
-                            + TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY + "]'", ex.getMessage());
+            assertEquals("Given key '"
+                    + TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY
+                    + "' not found in properties '["
+                    + TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY + "]'", ex
+                    .getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMissingDataSetTypesProperty()
     {
         try
         {
             Properties properties = new Properties();
-            properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox.getAbsolutePath());
-            properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY, "p.txt");
+            properties.setProperty(
+                    TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox
+                            .getAbsolutePath());
+            properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
+                    "p.txt");
             createHandler(properties);
             fail("ConfigurationFailureException expected");
         } catch (ConfigurationFailureException ex)
         {
             AssertionUtil.assertContains("Given key '" + DATA_SET_TYPES_KEY + "'", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWrongDataSetType() throws IOException
     {
         Properties properties = new Properties();
-        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox.getAbsolutePath());
-        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
+        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
+                dropBox.getAbsolutePath());
+        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
+                DATA_SET_PROPERTIES_FILE);
+        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY,
+                "a, b");
         properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + "a", "Alpha");
         prepareDataSetPropertiesValidator("Alpha", "B");
         TimeSeriesDataSetHandler handler = createHandler(properties);
@@ -196,10 +222,11 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Data has to be uploaded for data set type TIME_SERIES instead of "
-                    + "BLABLA.", ex.getMessage());
+            assertEquals(
+                    "Data has to be uploaded for data set type [TIME_SERIES,LCA_MTP_TIME_SERIES] instead of "
+                            + "BLABLA.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
 
@@ -207,35 +234,43 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     public void testMissingExperiment() throws IOException
     {
         Properties properties = new Properties();
-        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox.getAbsolutePath());
-        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
+        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
+                dropBox.getAbsolutePath());
+        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
+                DATA_SET_PROPERTIES_FILE);
+        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY,
+                "a, b");
         properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + "a", "Alpha");
         prepareDataSetPropertiesValidator("Alpha", "B");
         TimeSeriesDataSetHandler handler = createHandler(properties);
 
         File file = createDataExample();
-        
+
         try
         {
             handler.handle(file, createDataSetInformation(TimeSeriesDataSetUploader.TIME_SERIES));
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("Data set should be registered for an experiment and not for a sample.", ex.getMessage());
+            assertEquals("Data set should be registered for an experiment and not for a sample.",
+                    ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testWrongExperiment() throws IOException
     {
         Properties properties = new Properties();
-        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox.getAbsolutePath());
-        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS");
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
+        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
+                dropBox.getAbsolutePath());
+        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
+                DATA_SET_PROPERTIES_FILE);
+        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY,
+                "MetaboliteLCMS");
+        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + "MetaboliteLCMS",
+                "METABOLITE_LCMS");
         prepareDataSetPropertiesValidator("METABOLITE_LCMS");
         TimeSeriesDataSetHandler handler = createHandler(properties);
         File file = createDataExample();
@@ -260,9 +295,12 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     public void testDataSetAlreadyExists()
     {
         Properties properties = new Properties();
-        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox.getAbsolutePath());
-        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "b");
+        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
+                dropBox.getAbsolutePath());
+        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
+                DATA_SET_PROPERTIES_FILE);
+        properties
+                .setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "b");
         prepareDataSetPropertiesValidator("B");
         TimeSeriesDataSetHandler handler = createHandler(properties);
         File file = createDataExample();
@@ -273,21 +311,25 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    exactly(2).of(service).tryToGetExperiment(new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
+                    exactly(2).of(service).tryToGetExperiment(
+                            new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
                     will(returnValue(createExperiment("GM_BR_B1")));
-                    
+
                     one(service).listSamples(with(any(ListSampleCriteria.class)));
                     Sample sample200 = createSample(SAMPLE_EX_200);
                     will(returnValue(Arrays.<Sample> asList(sample200)));
-                    
+
                     one(service).listDataSetsBySampleID(sample200.getId(), true);
-                    will(returnValue(Arrays.asList(createData("ds0", "T0"), createData("ds1", "T1"))));
+                    will(returnValue(Arrays
+                            .asList(createData("ds0", "T0"), createData("ds1", "T1"))));
                 }
-                
+
             });
 
-        DataSetInformation dataSetInformation = createDataSetInformation(TimeSeriesDataSetUploader.TIME_SERIES);
-        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE, "GM_BR_B1"));
+        DataSetInformation dataSetInformation =
+                createDataSetInformation(TimeSeriesDataSetUploader.TIME_SERIES);
+        dataSetInformation.setExperimentIdentifier(new ExperimentIdentifier(PROJECT_CODE,
+                "GM_BR_B1"));
         try
         {
             handler.handle(file, dataSetInformation);
@@ -298,19 +340,22 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                     "For data column 'GM::BR::B1::200::EX::T1::CE::MetaboliteLCMS::Value[mM]::Log10::NB::NC' "
                             + "the data set 'ds1' has already been registered.", ex.getMessage());
         }
-        
+
         context.assertIsSatisfied();
     }
-    
-    
+
     @Test
     public void test()
     {
         Properties properties = new Properties();
-        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY, dropBox.getAbsolutePath());
-        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY, DATA_SET_PROPERTIES_FILE);
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS, b");
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
+        properties.setProperty(TimePointDataDropBoxFeeder.TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY,
+                dropBox.getAbsolutePath());
+        properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
+                DATA_SET_PROPERTIES_FILE);
+        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY,
+                "MetaboliteLCMS, b");
+        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + "MetaboliteLCMS",
+                "METABOLITE_LCMS");
         prepareDataSetPropertiesValidator("METABOLITE_LCMS", "B");
         TimeSeriesDataSetHandler handler = createHandler(properties);
         File file = createDataExample();
@@ -397,9 +442,12 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
 
         File dataSet = new File(dropBox, DATA_SET_EX_200);
         assertEquals(true, dataSet.isDirectory());
-        File dataFile = new File(dataSet, "METABOLITE_LCMS" + TimePointDataDropBoxFeeder.DATA_FILE_TYPE);
+        File dataFile =
+                new File(dataSet, "METABOLITE_LCMS" + TimePointDataDropBoxFeeder.DATA_FILE_TYPE);
         List<String> data = FileUtilities.loadToStringList(dataFile);
-        assertEquals("ID\tHumanReadable\tGM::BR::B1::200::EX::T1::CE::MetaboliteLCMS::Value[mM]::Log10::NB::NC", data.get(0));
+        assertEquals(
+                "ID\tHumanReadable\tGM::BR::B1::200::EX::T1::CE::MetaboliteLCMS::Value[mM]::Log10::NB::NC",
+                data.get(0));
         assertEquals("CHEBI:15721\tsedoheptulose 7-phosphate\t0.34", data.get(1));
         assertEquals("CHEBI:18211\tcitrulline\t0.87", data.get(2));
         assertEquals(3, data.size());
@@ -408,32 +456,32 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         Collections.sort(dataSetProperties);
         assertEquals(
                 "[BI_ID\tNB, CEL_LOC\tCE, CG\tNC, SCALE\tLOG10, TECHNICAL_REPLICATE_CODE\tT1, "
-                + "TIME_SERIES_DATA_SET_TYPE\tMetaboliteLCMS, VALUE_TYPE\tValue[mM], "
-                + "property\tvalue]", dataSetProperties.toString());
+                        + "TIME_SERIES_DATA_SET_TYPE\tMetaboliteLCMS, VALUE_TYPE\tValue[mM], "
+                        + "property\tvalue]", dataSetProperties.toString());
         File markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + DATA_SET_EX_200);
         assertEquals(true, markerFile.exists());
-        
+
         dataSet = new File(dropBox, DATA_SET_EX_7200);
         assertEquals(true, dataSet.isDirectory());
         dataFile = new File(dataSet, "B" + TimePointDataDropBoxFeeder.DATA_FILE_TYPE);
         data = FileUtilities.loadToStringList(dataFile);
-        assertEquals("ID\tHumanReadable\tGM::BR::B1::+7200::EX::T2::CE::b::Value[mM]::LIN::NB::NC", data.get(0));
+        assertEquals("ID\tHumanReadable\tGM::BR::B1::+7200::EX::T2::CE::b::Value[mM]::LIN::NB::NC",
+                data.get(0));
         assertEquals("CHEBI:15721\tsedoheptulose 7-phosphate\t0.799920281", data.get(1));
         assertEquals("CHEBI:18211\tcitrulline\t1.203723714", data.get(2));
         assertEquals(3, data.size());
         dataSetPropertiesFile = new File(dataSet, DATA_SET_PROPERTIES_FILE);
         dataSetProperties = FileUtilities.loadToStringList(dataSetPropertiesFile);
         Collections.sort(dataSetProperties);
-        assertEquals(
-                "[BI_ID\tNB, CEL_LOC\tCE, CG\tNC, SCALE\tLIN, TECHNICAL_REPLICATE_CODE\tT2, "
-                + "TIME_SERIES_DATA_SET_TYPE\tb, VALUE_TYPE\tValue[mM], "
-                + "property\tvalue]", dataSetProperties.toString());
+        assertEquals("[BI_ID\tNB, CEL_LOC\tCE, CG\tNC, SCALE\tLIN, TECHNICAL_REPLICATE_CODE\tT2, "
+                + "TIME_SERIES_DATA_SET_TYPE\tb, VALUE_TYPE\tValue[mM], " + "property\tvalue]",
+                dataSetProperties.toString());
         markerFile = new File(dropBox, Constants.IS_FINISHED_PREFIX + DATA_SET_EX_7200);
         assertEquals(true, markerFile.exists());
-        
+
         context.assertIsSatisfied();
     }
-    
+
     private void prepareCreateRows()
     {
         context.checking(new Expectations()
@@ -446,7 +494,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 }
             });
     }
-    
+
     private void prepareGetOrCreateDataSet(final boolean get)
     {
         context.checking(new Expectations()
@@ -459,7 +507,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                     } else
                     {
                         will(returnValue(null));
-                        
+
                         one(dao).createExperiment(EXP_PERM_ID);
                         will(returnValue(EXP_SPECIAL_ID));
                     }
@@ -471,39 +519,39 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                     } else
                     {
                         will(returnValue(null));
-                        
+
                         one(dao).createDataSet(DATA_SET_CODE, EXP_SPECIAL_ID);
                         will(returnValue(DATA_SET_SPECIAL_ID));
                     }
                 }
             });
     }
-    
+
     private long prepareGetOrCreateSample(final Sample sample, final boolean get)
     {
         final long id = sample.getPermId().length();
         context.checking(new Expectations()
-        {
             {
-                one(service).tryGetSampleWithExperiment(
-                        SampleIdentifierFactory.parse(sample.getIdentifier()));
-                will(returnValue(sample));
-                
-                one(dao).tryToGetSampleIDByPermID(sample.getPermId());
-                if (get)
                 {
-                    will(returnValue(id));
-                } else
-                {
-                    will(returnValue(null));
-                    one(dao).createSample(sample.getPermId());
-                    will(returnValue(id));
+                    one(service).tryGetSampleWithExperiment(
+                            SampleIdentifierFactory.parse(sample.getIdentifier()));
+                    will(returnValue(sample));
+
+                    one(dao).tryToGetSampleIDByPermID(sample.getPermId());
+                    if (get)
+                    {
+                        will(returnValue(id));
+                    } else
+                    {
+                        will(returnValue(null));
+                        one(dao).createSample(sample.getPermId());
+                        will(returnValue(id));
+                    }
                 }
-            }
-        });
+            });
         return id;
     }
-    
+
     private void prepareCreateColumn(final String columnHeader, final String dataOfRow1,
             final String dataOfRow2)
     {
@@ -519,23 +567,24 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 }
             });
     }
-    
-    private void prepareCreateDataColumn(final String columnHeader, final long sampleID, final Double dataOfRow1,
-            final Double dataOfRow2)
+
+    private void prepareCreateDataColumn(final String columnHeader, final long sampleID,
+            final Double dataOfRow1, final Double dataOfRow2)
     {
         context.checking(new Expectations()
-        {
             {
-                one(dao).createDataColumn(new DataColumnHeader(columnHeader), DATA_SET_SPECIAL_ID, sampleID);
-                long id = columnHeader.hashCode();
-                will(returnValue(id));
-                
-                one(dao).createDataValue(id, ROW1_ID, dataOfRow1);
-                one(dao).createDataValue(id, ROW2_ID, dataOfRow2);
-            }
-        });
+                {
+                    one(dao).createDataColumn(new DataColumnHeader(columnHeader),
+                            DATA_SET_SPECIAL_ID, sampleID);
+                    long id = columnHeader.hashCode();
+                    will(returnValue(id));
+
+                    one(dao).createDataValue(id, ROW1_ID, dataOfRow1);
+                    one(dao).createDataValue(id, ROW2_ID, dataOfRow2);
+                }
+            });
     }
-    
+
     private void prepareDataSetPropertiesValidator(final String... dataSetTypes)
     {
         context.checking(new Expectations()
@@ -546,14 +595,16 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                         one(service).getDataSetType(dataSetTypeCode);
                         DataSetTypeWithVocabularyTerms type = new DataSetTypeWithVocabularyTerms();
                         type.setCode(dataSetTypeCode);
-                        for (TimePointPropertyType timePointPropertyType : TimePointPropertyType.values())
+                        for (TimePointPropertyType timePointPropertyType : TimePointPropertyType
+                                .values())
                         {
-                            PropertyTypeWithVocabulary propertyType = new PropertyTypeWithVocabulary();
+                            PropertyTypeWithVocabulary propertyType =
+                                    new PropertyTypeWithVocabulary();
                             propertyType.setCode(timePointPropertyType.toString());
                             if (timePointPropertyType.isVocabulary())
                             {
                                 propertyType.setTerms(createTerms("CE", "LIN", "LOG10"));
-                                
+
                             }
                             type.addPropertyType(propertyType);
 
@@ -561,8 +612,8 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                         will(returnValue(type));
                     }
                 }
-                
-                private Set<VocabularyTerm> createTerms(String...terms)
+
+                private Set<VocabularyTerm> createTerms(String... terms)
                 {
                     LinkedHashSet<VocabularyTerm> set = new LinkedHashSet<VocabularyTerm>();
                     for (String term : terms)
@@ -571,7 +622,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                     }
                     return set;
                 }
-                
+
                 private VocabularyTerm createTerm(String code)
                 {
                     VocabularyTerm vocabularyTerm = new VocabularyTerm();
@@ -580,7 +631,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 }
             });
     }
-    
+
     private TimeSeriesDataSetHandler createHandler(final Properties properties)
     {
         return new TimeSeriesDataSetHandler(properties, dataSource, service)
@@ -593,7 +644,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 }
             };
     }
-    
+
     private File createDataExample()
     {
         TableBuilder builder =
@@ -606,7 +657,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         write(builder, file);
         return file;
     }
-    
+
     private void write(TableBuilder builder, File file)
     {
         PrintWriter writer = null;
@@ -665,18 +716,18 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
         sample.setIdentifier(GROUP_CODE + "/" + sampleCode);
         return sample;
     }
-    
+
     private Sample createSample(String sampleCode)
     {
         Sample sample = new Sample();
         sample.setCode(sampleCode);
         sample.setPermId("perm-" + sampleCode);
         sample.setId(new Long(sampleCode.length()));
-        sample.setIdentifier(GROUP_CODE
-                + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR + sampleCode);
+        sample.setIdentifier(GROUP_CODE + DatabaseInstanceIdentifier.Constants.IDENTIFIER_SEPARATOR
+                + sampleCode);
         return sample;
     }
-    
+
     private DataSetInformation createDataSetInformation(String dataSetTypeCode)
     {
         DataSetInformation dataSetInformation = new DataSetInformation();
@@ -691,22 +742,26 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
     {
         ExternalData externalData = new ExternalData();
         externalData.setCode(code);
-        EntityProperty tr = createProperty(TimePointPropertyType.TECHNICAL_REPLICATE_CODE, technicalReplicateCode);
+        EntityProperty tr =
+                createProperty(TimePointPropertyType.TECHNICAL_REPLICATE_CODE,
+                        technicalReplicateCode);
         EntityProperty biID = createProperty(TimePointPropertyType.BI_ID, "NB");
         EntityProperty cg = createProperty(TimePointPropertyType.CG, "NC");
         EntityProperty vt = createProperty(TimePointPropertyType.VALUE_TYPE, "Value[mM]");
         EntityProperty scale = createProperty(TimePointPropertyType.SCALE, "LOG10");
         EntityProperty celLoc = createProperty(TimePointPropertyType.CEL_LOC, "CE");
-        EntityProperty t = createProperty(TimePointPropertyType.TIME_SERIES_DATA_SET_TYPE, "MetaboliteLCMS");
-        externalData.setDataSetProperties(Arrays.<IEntityProperty>asList(tr, biID, cg, vt, scale, celLoc, t));
+        EntityProperty t =
+                createProperty(TimePointPropertyType.TIME_SERIES_DATA_SET_TYPE, "MetaboliteLCMS");
+        externalData.setDataSetProperties(Arrays.<IEntityProperty> asList(tr, biID, cg, vt, scale,
+                celLoc, t));
         return externalData;
     }
-    
+
     private EntityProperty createProperty(TimePointPropertyType type, String value)
     {
         return createProperty(type.toString(), value);
     }
-    
+
     private EntityProperty createProperty(String code, String value)
     {
         EntityProperty entityProperty = new EntityProperty();
