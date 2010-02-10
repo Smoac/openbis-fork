@@ -53,7 +53,7 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         // panel.
         DockPanel loginPanel = new DockPanel();
         // WORKAROUND The mechanism behind the autofill support does not work in testing
-        if (GWTUtils.isDeployed())
+        if (!GWTUtils.isTesting())
         {
             final LoginPanelAutofill loginWidget = LoginPanelAutofill.get(viewContext);
             loginPanel.add(loginWidget, DockPanel.CENTER);
