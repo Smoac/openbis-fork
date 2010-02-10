@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.yeastx.eicml;
 
-import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder.asText;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +48,13 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
 {
     private static final String CHROMATOGRAM_SERVLET = "chromatogram";
 
-    private static final int THUMBNAIL_SIZE = 150;
+    private static final int THUMBNAIL_WIDTH = 150;
+    
+    private static final int THUMBNAIL_HEIGHT = 150;
 
-    private static final int IMAGE_SIZE = 600;
+    private static final int IMAGE_WIDTH = 1066;
+
+    private static final int IMAGE_HEIGHT = 600;
 
     private static final long serialVersionUID = 1L;
 
@@ -157,13 +159,11 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
     {
         List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
 
-        row.add(asText(chromatogram.getLabel()));
-
         GeneratedImageTableCell imageCell =
                 new GeneratedImageTableCell(
                         GenericSharedConstants.DATA_STORE_SERVER_WEB_APPLICATION_NAME + "/"
-                                + CHROMATOGRAM_SERVLET, IMAGE_SIZE, IMAGE_SIZE, THUMBNAIL_SIZE,
-                        THUMBNAIL_SIZE);
+                                + CHROMATOGRAM_SERVLET, IMAGE_WIDTH, IMAGE_HEIGHT, THUMBNAIL_WIDTH,
+                        THUMBNAIL_HEIGHT);
 
         imageCell.addParameter(EICMLChromatogramGeneratorServlet.DATASET_CODE_PARAM, datasetCode);
         imageCell.addParameter(EICMLChromatogramGeneratorServlet.CHROMATOGRAM_CODE_PARAM,
@@ -175,7 +175,6 @@ public class EICMLChromatogramImagesReporter extends AbstractDatastorePlugin imp
 
     private static void addReportHeaders(SimpleTableModelBuilder builder)
     {
-        builder.addHeader("Label");
         builder.addHeader("Chromatogram");
     }
 }
