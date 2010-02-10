@@ -16,7 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.user;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -82,6 +84,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         this.resetCallback = resetCallback;
         form.setLabelWidth(150);
         form.setFieldWidth(400);
+//        setHeight(250);
 
         addField(homeGroupField = createHomeGroupField());
         addField(useWildcardSearchModeCheckbox = createUseWildcardSearchModeField());
@@ -143,9 +146,20 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         fields.setHeading(viewContext.getMessage(Dict.REAL_NUMBER_FORMATING_FIELDS));
         fields.setCheckboxToggle(true);
         fields.setExpanded(getRealNumberFormatingParameters().isFormatingEnabled());
-        FormLayout layout = new FormLayout();  
-        layout.setLabelWidth(141);  
+        FormLayout layout = new FormLayout();
+        layout.setLabelWidth(139);
         fields.setLayout(layout);
+        Listener<BaseEvent> listener = new Listener<BaseEvent>()
+            {
+
+                public void handleEvent(BaseEvent be)
+                {
+                    layout(true);
+                }
+
+            };
+        fields.addListener(Events.Expand, listener);
+        fields.addListener(Events.Collapse, listener);
         return fields;
     }
     
