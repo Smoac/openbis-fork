@@ -17,6 +17,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingPara
  */
 public final class RealNumberRenderer implements GridCellRenderer<BaseEntityModel<?>>
 {
+    private static final String EXPONENT_FORMAT = "E000";
     private static final String ZEROS = "00000000000000000000";
     private static final int MAX_PRECISION = ZEROS.length();
     
@@ -29,14 +30,19 @@ public final class RealNumberRenderer implements GridCellRenderer<BaseEntityMode
         }
         int precision = Math.max(0, Math.min(MAX_PRECISION, realNumberFormatingParameters.getPrecision()));
         String format = "0." + ZEROS.substring(0, precision);
-        if (realNumberFormatingParameters.isScientific())
+        boolean scientific = realNumberFormatingParameters.isScientific();
+        if (scientific)
         {
-            format += "E000";
+            format += EXPONENT_FORMAT;
         }
         try
         {
             double doubleValue = Double.parseDouble(value);
             String formattedValue = NumberFormat.getFormat(format).format(doubleValue);
+            if (scientific == false && doubleValue != 0 && Double.parseDouble(formattedValue) == 0)
+            {
+                formattedValue = NumberFormat.getFormat(format + EXPONENT_FORMAT).format(doubleValue);
+            }
             return MultilineHTML.wrapUpInDivWithTooltip(formattedValue, value);
         } catch (NumberFormatException ex)
         {
