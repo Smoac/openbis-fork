@@ -1,7 +1,7 @@
 #!/bin/sh
 # Central post install script for all openBIS servers
 
-export BIN=~openbis/bin
+export BIN=~/bin
 export SERVER=`uname -n`
 
 export SPRINT=cisd-bamus
@@ -13,22 +13,23 @@ export AGRONOMICS=bs-dsvr11.ethz.ch
 export DSU=openbis-dsu
 export SCU=openbis-scu
 export BASYSBIO=bs-dsvr10.ethz.ch
+export BASYSBIO_TEST=openbis-test
 
 function create_individual_greeting_message {
 # Creates an individual greeting message
-	if [ -f ~openbis/config/openbis_instance.txt ]; then
-	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/common-dictionary.js
-	   export SERVER_INSTANCE_NAME=`cat ~openbis/config/openbis_instance.txt`
+	if [ -f ~/config/openbis_instance.txt ]; then
+	   export OPENBIS_DICT=~/sprint/openBIS-server/apache-tomcat/webapps/openbis/common-dictionary.js
+	   export SERVER_INSTANCE_NAME=`cat ~/config/openbis_instance.txt`
 	   perl -pe 's/openbis_instance: "",/openbis_instance: "$ENV{SERVER_INSTANCE_NAME}",/' -i $OPENBIS_DICT
 	fi
 }
 
 function restore_loginHeader {
-  if [ -f ~openbis/config/loginHeader.html ]; then
+  if [ -f ~/config/loginHeader.html ]; then
     echo restoring loginHeader.html
-    cp -r ~openbis/config/images ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
-    cp ~openbis/config/loginHeader.html ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
-    cp ~openbis/config/help.html ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp -r ~/config/images ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp ~/config/loginHeader.html ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp ~/config/help.html ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
   fi
 }
 
@@ -67,8 +68,7 @@ case "$SERVER" in
 	echo AGRONOMICS:$AGRONOMICS;
 	restore_loginHeader
 	create_individual_greeting_message
-	unzip -q ~openbis/config/
-	mv ~openbis/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
+	mv ~openbis/config/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
 	$BIN/sprint_post_install_agronomics.sh
 	;;
 	$DSU)
@@ -85,7 +85,14 @@ case "$SERVER" in
 	echo BASYSBIO:$BASYSBIO;
 	restore_loginHeader
 	create_individual_greeting_message
-	mv ~openbis/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
+	mv ~openbis/config/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
+	$BIN/sprint_post_install_basysbio.sh
+	;;
+	$BASYSBIO_TEST)
+	echo BASYSBIO_TEST:$BASYSBIO_TEST;
+	restore_loginHeader
+	create_individual_greeting_message
+	mv ~openbis/config/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
 	$BIN/sprint_post_install_basysbio.sh
 	;;
 	*)
