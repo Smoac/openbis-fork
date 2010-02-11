@@ -1,7 +1,7 @@
 #!/bin/sh
 # Central post install script for all openBIS servers
 
-export BIN=~/bin
+export BIN=~openbis/bin
 export SERVER=`uname -n`
 
 export SPRINT=cisd-bamus
@@ -16,19 +16,19 @@ export BASYSBIO=bs-dsvr10.ethz.ch
 
 function create_individual_greeting_message {
 # Creates an individual greeting message
-	if [ -f ~/config/openbis_instance.txt ]; then
-	   export OPENBIS_DICT=~/sprint/openBIS-server/apache-tomcat/webapps/openbis/common-dictionary.js
-	   export SERVER_INSTANCE_NAME=`cat ~/config/openbis_instance.txt`
+	if [ -f ~openbis/config/openbis_instance.txt ]; then
+	   export OPENBIS_DICT=~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/common-dictionary.js
+	   export SERVER_INSTANCE_NAME=`cat ~openbis/config/openbis_instance.txt`
 	   perl -pe 's/openbis_instance: "",/openbis_instance: "$ENV{SERVER_INSTANCE_NAME}",/' -i $OPENBIS_DICT
 	fi
 }
 
 function restore_loginHeader {
-  if [ -f ~/config/loginHeader.html ]; then
+  if [ -f ~openbis/config/loginHeader.html ]; then
     echo restoring loginHeader.html
-    cp -r ~/config/images ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
-    cp ~/config/loginHeader.html ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
-    cp ~/config/help.html ~/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp -r ~openbis/config/images ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp ~openbis/config/loginHeader.html ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
+    cp ~openbis/config/help.html ~openbis/sprint/openBIS-server/apache-tomcat/webapps/openbis/
   fi
 }
 
@@ -67,6 +67,7 @@ case "$SERVER" in
 	echo AGRONOMICS:$AGRONOMICS;
 	restore_loginHeader
 	create_individual_greeting_message
+	unzip -q ~openbis/config/
 	mv ~openbis/datastore_server-plugins.jar ~openbis/sprint/datastore_server/lib
 	$BIN/sprint_post_install_agronomics.sh
 	;;
