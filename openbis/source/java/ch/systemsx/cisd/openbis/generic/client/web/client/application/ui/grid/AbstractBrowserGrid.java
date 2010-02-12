@@ -990,8 +990,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         if (customColumnsMetadata != null)
         {
             RealNumberRenderer renderer =
-                new RealNumberRenderer(viewContext.getDisplaySettingsManager()
-                        .getRealNumberFormatingParameters());
+                    new RealNumberRenderer(viewContext.getDisplaySettingsManager()
+                            .getRealNumberFormatingParameters());
             for (GridCustomColumnInfo gridCustomColumnInfo : customColumnsMetadata)
             {
                 if (gridCustomColumnInfo.getDataType() == DataTypeCode.REAL)
@@ -1479,7 +1479,10 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
                 protected void onWindowResize(int aWidth, int aHeight)
                 {
                     super.onWindowResize(aWidth, aHeight);
-                    layout(true);
+                    if (isVisible())
+                    {
+                        layout(true);
+                    }
                 }
             };
         bottomToolbars.setMonitorWindowResize(true);
@@ -1488,7 +1491,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         bottomToolbars.add(pagingToolbar, new RowData(1, -1));
         return bottomToolbars;
     }
-    
+
     @Override
     protected void onAttach()
     {
