@@ -176,9 +176,8 @@ class ColumnSettingsChooser
             add(new SeparatorToolItem());
             add(new WidgetComponent(createLink(Selectable.VISIBLE, false)));
             add(new SeparatorToolItem());
-            // WORKAROUND to fix problems with layout when many filters are shown
-            // add(new WidgetComponent(createLink(Selectable.FILTER, true)));
-            // add(new SeparatorToolItem());
+            add(new WidgetComponent(createLink(Selectable.FILTER, true)));
+            add(new SeparatorToolItem());
             add(new WidgetComponent(createLink(Selectable.FILTER, false)));
             add(new FillToolItem());
             Button up = new Button("Move Up");

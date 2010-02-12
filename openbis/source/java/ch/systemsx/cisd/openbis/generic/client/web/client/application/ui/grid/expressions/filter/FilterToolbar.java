@@ -245,6 +245,7 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
     // copes well with cases when one filter widget changes into another.
     private void updateFilterContainer(List<Widget> filterWidgets)
     {
+        filterContainer.hide();
         boolean changed = false;
         filterContainer.disableEvents(true);
         for (int i = 0; i < filterWidgets.size(); i++)
@@ -271,6 +272,10 @@ public class FilterToolbar<T> extends ToolBar implements IDatabaseModificationOb
             changed = true;
         }
         filterContainer.enableEvents(true);
+        if (filterContainer.getItemCount() > 0)
+        {
+            filterContainer.show();
+        }
         if (changed)
         {
             // contentPanel of AbstractBrowserGrid is listening on this layout and synchronizes size
