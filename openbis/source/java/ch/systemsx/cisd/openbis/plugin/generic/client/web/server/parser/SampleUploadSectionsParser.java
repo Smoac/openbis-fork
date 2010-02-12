@@ -102,8 +102,11 @@ public class SampleUploadSectionsParser
             switch (operationKind)
             {
                 case REGISTRATION:
-                    generateIdentifiers(defaultGroupIdentifier, sampleCodeGeneratorOrNull,
-                            isAutoGenerateCodes, newSamples);
+                    if (isAutoGenerateCodes)
+                    {
+                        generateIdentifiers(defaultGroupIdentifier, sampleCodeGeneratorOrNull,
+                                isAutoGenerateCodes, newSamples);
+                    }
                     break;
                 case UPDATE:
                     fillIdentifiers(defaultGroupIdentifier, newSamples);
