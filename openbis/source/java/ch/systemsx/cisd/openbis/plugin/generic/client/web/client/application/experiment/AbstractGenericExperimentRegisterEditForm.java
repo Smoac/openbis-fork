@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsH
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.AttachmentsFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeSelectionWidget;
@@ -86,7 +87,7 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
 
     private Radio importSamplesRadio;
 
-    protected CheckBox autoGenerateCodes;
+    protected CheckBoxField autoGenerateCodes;
 
     protected String simpleId;
 
@@ -302,11 +303,9 @@ abstract public class AbstractGenericExperimentRegisterEditForm extends
         return importRadio;
     }
 
-    protected static CheckBox createAutoGenerateCheckbox()
+    protected static CheckBoxField createAutoGenerateCheckbox()
     {
-        CheckBox result = new CheckBox();
-        result.setFieldLabel("Create codes automatically");
-        return result;
+        return new CheckBoxField("Generate codes automatically", false);
     }
 
     protected static Radio cerateExistingSamplesRadio()
