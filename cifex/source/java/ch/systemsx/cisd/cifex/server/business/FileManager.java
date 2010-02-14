@@ -261,9 +261,22 @@ final class FileManager extends AbstractManager implements IFileManager
             realFile = new java.io.File(businessContext.getFileStore(), fileDTOOrNull.getPath());
             if (realFile.exists() == false)
             {
-                return new FileInformation(fileId, String.format(
-                        "Unexpected: File '%s' [id=%d] is missing in CIFEX file store.", realFile
-                                .getPath(), fileId));
+                if (businessContext.getFileStore().canRead() == false)
+                {
+                    notificationLog.error("CIFEX file store is not readable any more ("
+                            + businessContext.getFileStore().getAbsolutePath() + ")");
+                    return new FileInformation(
+                            fileId,
+                            String
+                                    .format(
+                                            "Unexpected: File '%s' [id=%d] can not be read (CIFEX file store unreadable).",
+                                            realFile.getPath(), fileId));
+                } else
+                {
+                    return new FileInformation(fileId, String.format(
+                            "Unexpected: File '%s' [id=%d] is missing in CIFEX file store.",
+                            realFile.getPath(), fileId));
+                }
             }
         }
         return new FileInformation(fileId, fileDTOOrNull, realFile);
@@ -641,8 +654,17 @@ final class FileManager extends AbstractManager implements IFileManager
             final boolean successful = folder.mkdirs();
             if (successful == false)
             {
-                throw new EnvironmentFailureException("Folder '" + folder.getAbsolutePath()
-                        + "' can not be created for some unknown reason.");
+                if (businessContext.getFileStore().canWrite() == false)
+                {
+                    notificationLog.error("CIFEX file store is not writable any more ("
+                            + businessContext.getFileStore().getAbsolutePath() + ")");
+                    throw new EnvironmentFailureException("Folder '" + folder.getAbsolutePath()
+                            + "' can not be created as CIFEX file store is not writable.");
+                } else
+                {
+                    throw new EnvironmentFailureException("Folder '" + folder.getAbsolutePath()
+                            + "' can not be created for some unknown reason.");
+                }
             }
         }
         return folder;
@@ -797,7 +819,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 } catch (final DataIntegrityViolationException ex)
                 {
                     alreadyExistingSharingLinks.add(user.getUserCode());
-                    notificationLog.error(String.format(
+                    operationLog.error(String.format(
                             "Sharing file %s with user %s for the second time.", file.getPath(),
                             user.getUserCode()), ex);
                 }
