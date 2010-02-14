@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -806,7 +807,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
 
     public void keepSessionAlive(String sessionToken)
     {
-        logTracking(sessionToken, "keepSessionAlive", "TOKEN(%s)", sessionToken);
+        logAccess(Level.DEBUG, sessionToken, "keepSessionAlive", "TOKEN(%s)", sessionToken);
     }
 
     public void updateVocabularyTerms(String sessionToken, TechId vocabularyId,

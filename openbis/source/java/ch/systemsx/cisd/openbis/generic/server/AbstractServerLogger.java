@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.List;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -75,18 +76,29 @@ public abstract class AbstractServerLogger implements IServer
     protected final void logAccess(final String sessionToken, final String commandName,
             final String parameterDisplayFormat, final Object... parameters)
     {
-        logMessage(accessLog, sessionToken, commandName, parameterDisplayFormat, parameters);
+        logMessage(accessLog, Level.INFO, sessionToken, commandName, parameterDisplayFormat, parameters);
+    }
+
+    protected final void logAccess(final Level level, final String sessionToken, final String commandName,
+            final String parameterDisplayFormat, final Object... parameters)
+    {
+        logMessage(accessLog, level, sessionToken, commandName, parameterDisplayFormat, parameters);
     }
 
     protected final void logTracking(final String sessionToken, final String commandName,
             final String parameterDisplayFormat, final Object... parameters)
     {
-        logMessage(trackingLog, sessionToken, commandName, parameterDisplayFormat, parameters);
+        logMessage(trackingLog, Level.INFO, sessionToken, commandName, parameterDisplayFormat, parameters);
     }
 
-    private final void logMessage(final Logger logger, final String sessionToken,
-            final String commandName, final String parameterDisplayFormat, final Object[] parameters)
+    private final void logMessage(final Logger logger, final Level level,
+            final String sessionToken, final String commandName,
+            final String parameterDisplayFormat, final Object[] parameters)
     {
+        if (logger.isEnabledFor(level) == false)
+        {
+            return;
+        }
         Session sessionOrNull = null;
         try
         {
@@ -112,7 +124,7 @@ public abstract class AbstractServerLogger implements IServer
         final String elapsedTimeMessage = getElapsedTimeMessage();
         // We put on purpose 2 spaces between the command and the message derived from the
         // parameters.
-        logger.info(prefix
+        logger.log(level, prefix
                 + String.format(": (%s) %s  %s%s", elapsedTimeMessage, commandName, message,
                         invocationStatusMessage));
     }
