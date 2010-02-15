@@ -38,6 +38,12 @@
     <public path="plugin/generic/client/web/public"/>
     <source path="plugin/generic/client/web/client"/>
     <source path="plugin/generic/shared/basic"/>
+
+    <!-- Query plugin -->
+    <script src="query-dictionary.js"/>
+    <public path="plugin/query/client/web/public"/>
+    <source path="plugin/query/client/web/client"/>
+    <source path="plugin/query/shared/basic"/>
     <!-- Automatically generated part - END -->
 
   <!-- Do not define servlets here, use web.xml -->

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,42 +14,35 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.module;
+package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application;
 
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
-import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 
 /**
- * Simple demo module.
  * 
- * @author Izabela Adamczyk
+ *
+ * @author Franz-Josef Elmer
  */
-public class DemoModule implements IModule
+public class QueryModule implements IModule
 {
+    private final IViewContext<IQueryClientServiceAsync> viewContext;
 
-    private final IViewContext<IDemoClientServiceAsync> viewContext;
-
-    public DemoModule(final IViewContext<IDemoClientServiceAsync> viewContext)
+    QueryModule(IViewContext<IQueryClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
     }
-
-    private IViewContext<IDemoClientServiceAsync> getViewContext()
-    {
-        return viewContext;
-    }
-
+    
     public Widget getMenu()
     {
-        return new TopMenuItemDemoModuleMenu(getViewContext());
-        // Uncomment to see customized top menu .
-        // return new CustomizedWidgetDemoModuleMenu(getViewContext());
+        return new Button("hello");
     }
 
     public List<Component> getMenuItems()
@@ -69,4 +62,5 @@ public class DemoModule implements IModule
         // TODO Auto-generated method stub
         return null;
     }
+
 }

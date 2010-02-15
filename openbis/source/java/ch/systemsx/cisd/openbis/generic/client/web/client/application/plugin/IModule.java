@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
+import java.util.List;
+
+import com.extjs.gxt.ui.client.widget.Component;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
@@ -38,4 +42,13 @@ public interface IModule
      * </p>
      */
     Widget getMenu();
+    
+    String getModuleName();
+    
+    String getModuleDescription();
+    
+    /**
+     * Returns a list with at least one menu item. 
+     */
+    List<Component> getMenuItems();
 }
