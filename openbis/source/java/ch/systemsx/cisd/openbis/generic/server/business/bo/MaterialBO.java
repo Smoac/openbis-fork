@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -87,24 +86,6 @@ public final class MaterialBO extends AbstractBusinessObject implements IMateria
                     materialId));
         }
         return result;
-    }
-
-    public final void loadByMaterialIdentifier(final MaterialIdentifier identifier)
-    {
-        material = getMaterialByIdentifier(identifier);
-        dataChanged = false;
-    }
-
-    private MaterialPE getMaterialByIdentifier(final MaterialIdentifier identifier)
-    {
-        assert identifier != null : "Material identifier unspecified.";
-        final MaterialPE mat = getMaterialDAO().tryFindMaterial(identifier);
-        if (mat == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "No material could be found for identifier '%s'.", identifier);
-        }
-        return mat;
     }
 
     public final void enrichWithProperties()

@@ -22,7 +22,6 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 
 /**
@@ -32,10 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
  */
 public interface IMaterialBO extends IEntityBusinessObject
 {
-
-    /** Loads a material given by its identifier. */
-    void loadByMaterialIdentifier(final MaterialIdentifier identifier);
-
     /** Returns the material which has been loaded. */
     MaterialPE getMaterial();
 
