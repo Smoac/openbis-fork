@@ -60,6 +60,8 @@ public final class MailClient extends Authenticator implements IMailClient
     /** This system property is not supported by the <i>JavaMail API</i> */
     public final static String MAIL_SMTP_PASSWORD = "mail.smtp.password";
 
+    private static final String UNICODE_CHARSET = "utf-8";
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, MailClient.class);
 
@@ -183,8 +185,15 @@ public final class MailClient extends Authenticator implements IMailClient
                 msg.setReplyTo(replyToAddress);
             }
             msg.addRecipients(Message.RecipientType.TO, internetAddresses);
-            msg.setSubject(subject);
-            msg.setText(content);
+            if (true)
+            {
+                msg.setSubject(subject);
+                msg.setText(content);
+            } else
+            {
+                msg.setSubject(subject, UNICODE_CHARSET);
+                msg.setText(content, UNICODE_CHARSET);
+            }
             send(msg);
         } catch (MessagingException ex)
         {
