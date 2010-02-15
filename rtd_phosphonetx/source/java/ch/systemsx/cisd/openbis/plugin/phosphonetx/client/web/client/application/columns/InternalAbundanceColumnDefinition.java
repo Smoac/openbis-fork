@@ -57,7 +57,7 @@ public final class InternalAbundanceColumnDefinition extends AbstractColumnDefin
     }
 
     @Override
-    public Comparable<?> getComparableValue(GridRowModel<ProteinInfo> rowModel)
+    public Comparable<?> tryGetComparableValue(GridRowModel<ProteinInfo> rowModel)
     {
         Double abundance = tryToGetAbundance(rowModel.getOriginalObject());
         return abundance == null ? ZERO : abundance;
