@@ -217,7 +217,7 @@ class TimeSeriesDataSetUploader
                 }
             } else if (dataSetInformation.getDataSetType().getCode().equals(LCA_MTP_TIME_SERIES))
             {
-                TimeSeriesHeaderUtils.assertMetadataConsistent(dataSetInformation, dataColumns);
+                TimeSeriesHeaderUtils.assertMetadataConsistent(dataColumns);
                 // TODO 2010-02-09, IA: Add splitting dataset and registering datasets for samples
                 // with HCS hierarchy
             }

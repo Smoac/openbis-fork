@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.utils.Column;
-import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 
 /**
  * Tools for working with time series headers.
@@ -38,8 +37,7 @@ public class TimeSeriesHeaderUtils
     /**
      * All data columns should have the same metadata (except TimePoint).
      */
-    public static void assertMetadataConsistent(DataSetInformation dataSetInformation,
-            List<Column> dataColumns)
+    public static void assertMetadataConsistent(List<Column> dataColumns)
     {
         Map<String, Set<String>> map = new HashMap<String, Set<String>>();
         for (Column dataColumn : dataColumns)
