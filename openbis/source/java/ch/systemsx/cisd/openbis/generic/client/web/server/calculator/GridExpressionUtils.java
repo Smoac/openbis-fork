@@ -129,7 +129,7 @@ public class GridExpressionUtils
                 RowCalculator<T> calculator = calculators.get(columnId);
                 PrimitiveValue value = evalCustomColumn(rowData, customColumn, calculator);
                 // don't modify type if it is a null string
-                if (value.toString() == null)
+                if (value.toString() != null)
                 {
                     customColumn.setDataType(DataTypeUtils.getCompatibleDataType(customColumn
                             .getDataType(), value.getDataType()));
