@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.util.Date;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
 
 /**
@@ -27,8 +27,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifiable;
  * 
  * @author Izabela Adamczyk
  */
-public class Material extends CodeWithRegistration<Material> implements IEntityInformationHolder,
-        IEntityPropertiesHolder, IIdentifiable
+public class Material extends CodeWithRegistration<Material> implements
+        IEntityInformationHolderWithIdentifier, IEntityPropertiesHolder, IIdentifiable
 {
 
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;

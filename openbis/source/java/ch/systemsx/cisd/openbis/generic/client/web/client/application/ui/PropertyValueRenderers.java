@@ -16,6 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.InlineHTML;
+import com.google.gwt.user.client.ui.Widget;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.renderer.VocabularyPropertyColRenderer;
@@ -30,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.MultilineHTML;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IInvalidationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
@@ -47,11 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
-
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.InlineHTML;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Some {@link IPropertyValueRenderer} implementations.
@@ -91,17 +92,6 @@ public final class PropertyValueRenderers
             final IViewContext<?> viewContext)
     {
         return new EntityInformationHolderPropertyValueRenderer<ExternalData>(viewContext);
-    }
-
-    /**
-     * Creates a {@link IPropertyValueRenderer} implementation for rendering any
-     * {@link IEntityInformationHolder}.
-     */
-    public final static IPropertyValueRenderer<IEntityInformationHolder> createEntityInformationPropertyValueRenderer(
-            final IViewContext<?> viewContext)
-    {
-        return new EntityInformationHolderPropertyValueRenderer<IEntityInformationHolder>(
-                viewContext);
     }
 
     /**
@@ -377,12 +367,25 @@ public final class PropertyValueRenderers
         }
     }
 
+    static class InvalidationFactory
+    {
+        static boolean isInvalid(IInvalidationProvider invalidable)
+        {
+            return invalidable.getInvalidation() != null;
+        }
+
+        static boolean isInvalid(Object object)
+        {
+            return false;
+        }
+    }
+
     /**
      * Renderer for {@link IEntityInformationHolder}.
      * 
      * @author Piotr Buczek
      */
-    public static class EntityInformationHolderPropertyValueRenderer<T extends IEntityInformationHolder>
+    public static class EntityInformationHolderPropertyValueRenderer<T extends IEntityInformationHolderWithIdentifier>
             extends AbstractPropertyValueRenderer<T>
     {
 
@@ -400,17 +403,23 @@ public final class PropertyValueRenderers
 
         public FlowPanel getAsWidget(final T entity)
         {
-            final String code = entity.getCode();
+            final String displayText = getDisplayText(entity);
+
             final boolean invalidate = getInvalidate(entity);
             final ClickHandler listener =
                     new OpenEntityDetailsTabClickListener(entity, viewContext);
-            final Widget link = LinkRenderer.getLinkWidget(code, listener, invalidate);
+            final Widget link = LinkRenderer.getLinkWidget(displayText, listener, invalidate);
 
             // putting link into a panel makes it a block/row
             // which is important if they are rendered as an array
             final FlowPanel panel = new FlowPanel();
             panel.add(link);
             return panel;
+        }
+
+        protected String getDisplayText(final T entity)
+        {
+            return entity.getIdentifier();
         }
 
         private boolean getInvalidate(final T entity)
