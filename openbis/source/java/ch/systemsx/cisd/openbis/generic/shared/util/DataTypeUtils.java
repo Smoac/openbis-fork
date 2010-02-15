@@ -31,17 +31,18 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 
 /**
  * Utility functions around data types.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class DataTypeUtils
 {
     private static final Map<DataTypeCode, Converter> map = new HashMap<DataTypeCode, Converter>();
-    
+
     private enum Converter implements IsSerializable
     {
-        
-        INTEGER(DataTypeCode.INTEGER){
+
+        INTEGER(DataTypeCode.INTEGER)
+        {
             @Override
             public ISerializableComparable doConvertion(String value)
             {
@@ -56,7 +57,8 @@ public class DataTypeUtils
                 return new IntegerTableCell(number);
             }
         },
-        DOUBLE(DataTypeCode.REAL){
+        DOUBLE(DataTypeCode.REAL)
+        {
             @Override
             public ISerializableComparable doConvertion(String value)
             {
@@ -71,7 +73,8 @@ public class DataTypeUtils
                 return new DoubleTableCell(number);
             }
         },
-        DATE(DataTypeCode.TIMESTAMP){
+        DATE(DataTypeCode.TIMESTAMP)
+        {
             @Override
             public ISerializableComparable doConvertion(String value)
             {
@@ -88,9 +91,9 @@ public class DataTypeUtils
             }
         },
         ;
-        
+
         private static final StringTableCell EMPTY_CELL = new StringTableCell("");
-        
+
         private Converter(DataTypeCode... codes)
         {
             for (DataTypeCode dataTypeCode : codes)
@@ -98,41 +101,46 @@ public class DataTypeUtils
                 map.put(dataTypeCode, this);
             }
         }
-        
+
         public static Converter resolve(DataTypeCode dataTypeCode)
         {
             return map.get(dataTypeCode);
         }
-        
+
         public ISerializableComparable convert(String value)
         {
             if (StringUtils.isBlank(value))
             {
-                return EMPTY_CELL ;
+                return EMPTY_CELL;
             }
             return doConvertion(value);
         }
+
         public abstract ISerializableComparable doConvertion(String value);
     }
-    
+
     /**
-     * Converts the specified string value into a data value in accordance with specified
-     * data type.
+     * Converts the specified string value into a data value in accordance with specified data type.
      */
     public static ISerializableComparable convertTo(DataTypeCode dataTypeCode, String value)
     {
         return Converter.resolve(dataTypeCode).convert(value);
     }
-    
+
     /**
      * Returns a data type which is compatible with the previous data type and the new data type.
      */
-    public static DataTypeCode getCompatibleDataType(DataTypeCode previousDataTypeOrNull, DataTypeCode dataType)
+    public static DataTypeCode getCompatibleDataType(DataTypeCode previousDataTypeOrNull,
+            DataTypeCode dataType)
     {
         if (previousDataTypeOrNull == null)
         {
             return dataType;
-        } 
+        }
+        if (dataType == null)
+        {
+            return previousDataTypeOrNull;
+        }
         if (previousDataTypeOrNull == DataTypeCode.REAL)
         {
             if (dataType == DataTypeCode.REAL || dataType == DataTypeCode.INTEGER)
@@ -152,15 +160,14 @@ public class DataTypeUtils
                 return DataTypeCode.INTEGER;
             }
             return DataTypeCode.VARCHAR;
-        } 
-        if (previousDataTypeOrNull == DataTypeCode.TIMESTAMP
-                && dataType == DataTypeCode.TIMESTAMP)
+        }
+        if (previousDataTypeOrNull == DataTypeCode.TIMESTAMP && dataType == DataTypeCode.TIMESTAMP)
         {
             return DataTypeCode.TIMESTAMP;
         }
         return DataTypeCode.VARCHAR;
     }
-    
+
     private DataTypeUtils()
     {
     }

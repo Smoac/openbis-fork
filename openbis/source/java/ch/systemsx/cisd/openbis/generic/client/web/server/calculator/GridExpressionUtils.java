@@ -128,12 +128,8 @@ public class GridExpressionUtils
                 String columnId = customColumn.getCode();
                 RowCalculator<T> calculator = calculators.get(columnId);
                 PrimitiveValue value = evalCustomColumn(rowData, customColumn, calculator);
-                // don't modify type if it is a null string
-                if (value.toString() != null)
-                {
-                    customColumn.setDataType(DataTypeUtils.getCompatibleDataType(customColumn
-                            .getDataType(), value.getDataType()));
-                }
+                customColumn.setDataType(DataTypeUtils.getCompatibleDataType(customColumn
+                        .getDataType(), value.getDataType()));
                 customColumnValues.put(columnId, value);
             }
             result.add(new GridRowModel<T>(rowData, customColumnValues));
