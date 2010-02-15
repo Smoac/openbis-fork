@@ -24,6 +24,7 @@ import org.python.core.PyException;
 import org.python.core.PyFloat;
 import org.python.core.PyInteger;
 import org.python.core.PyLong;
+import org.python.core.PyNone;
 import org.python.core.PyObject;
 import org.python.core.PyString;
 import org.python.core.PyStringMap;
@@ -175,7 +176,8 @@ public final class Evaluator
      * not know what will be the result type.
      * 
      * @return evaluation result which can be of Long, Double or String type. All other types are
-     *         converted to String representation.
+     *         converted to String representation except {@link PyNone} that represents null value
+     *         and will be converted to <code>null</code>.
      */
     public Object eval()
     {
@@ -190,6 +192,9 @@ public final class Evaluator
         } else if (obj instanceof PyFloat)
         {
             return new Double(((PyFloat) obj).getValue());
+        } else if (obj instanceof PyNone)
+        {
+            return null;
         } else
         {
             return obj.toString();
