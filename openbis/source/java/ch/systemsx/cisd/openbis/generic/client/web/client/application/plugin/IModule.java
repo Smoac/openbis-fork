@@ -25,12 +25,21 @@ import com.google.gwt.user.client.ui.Widget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 
 /**
- * Plugin that does not depend on entity kind and type.
+ * Plugin that does not depend on entity kind and type. All methods except
+ * {@link #initialize(AsyncCallback)} is invoked after invocation of the call back of the
+ * initialization method.
  * 
  * @author Izabela Adamczyk
  */
 public interface IModule
 {
+    /**
+     * Initializes the module and invoke method {@link AsyncCallback#onSuccess(Object)} on the
+     * specified call back after successful initialization. Otherwise
+     * {@link AsyncCallback#onFailure(Throwable)} is invoked.
+     */
+    void initialize(AsyncCallback<Void> callback);
+    
     /**
      * Returns a widget that will be used as a top menu element.
      * <p>
@@ -46,9 +55,9 @@ public interface IModule
     String getModuleName();
     
     String getModuleDescription();
-    
+
     /**
-     * Returns a list with at least one menu item. 
+     * Returns a list with menu items. The list empty if this module isn't applicable. 
      */
     List<Component> getMenuItems();
 }
