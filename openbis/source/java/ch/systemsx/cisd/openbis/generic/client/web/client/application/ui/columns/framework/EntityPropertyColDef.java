@@ -35,10 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
         AbstractColumnDefinition<T> implements IsSerializable
 {
-    private static final Double DOUBLE_MIN_VALUE = new Double(-Double.MAX_VALUE);
-
-    private static final Integer INTEGER_MIN_VALUE = new Integer(Integer.MIN_VALUE);
-
     private static final int PROPERTY_COLUMN_WIDTH = 120;
 
     private static final String PROPERTY_PREFIX = "property-";
@@ -112,18 +108,18 @@ public class EntityPropertyColDef<T extends IEntityPropertiesHolder> extends
     }
 
     @Override
-    public Comparable<?> getComparableValue(GridRowModel<T> rowModel)
+    public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
     {
         String valueAsString = tryGetValue(rowModel.getOriginalObject());
         DataTypeCode dataType = getDataTypeCode();
         switch (dataType)
         {
             case INTEGER:
-                return valueAsString == null ? INTEGER_MIN_VALUE : new Integer(valueAsString);
+                return valueAsString == null ? null : new Integer(valueAsString);
             case REAL:
-                return valueAsString == null ? DOUBLE_MIN_VALUE : new Double(valueAsString);
+                return valueAsString == null ? null : new Double(valueAsString);
             default:
-                return super.getComparableValue(rowModel);
+                return super.tryGetComparableValue(rowModel);
         }
     }
 

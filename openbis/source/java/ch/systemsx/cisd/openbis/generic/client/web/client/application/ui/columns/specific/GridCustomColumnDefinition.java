@@ -58,7 +58,7 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
         return false;
     }
 
-    public Comparable<?> getComparableValue(GridRowModel<T> rowModel)
+    public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
     {
         return getPrimitiveValue(rowModel).getComparableValue();
     }
@@ -72,7 +72,8 @@ public class GridCustomColumnDefinition<T> implements IColumnDefinitionUI<T>
 
     public String getValue(GridRowModel<T> rowModel)
     {
-        return getPrimitiveValue(rowModel).toString();
+        String value = getPrimitiveValue(rowModel).toString();
+        return value != null ? value : "";
     }
 
     public String getHeader()

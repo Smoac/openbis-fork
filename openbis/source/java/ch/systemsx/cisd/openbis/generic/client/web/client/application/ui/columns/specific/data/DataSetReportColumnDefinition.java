@@ -49,7 +49,7 @@ public class DataSetReportColumnDefinition implements IColumnDefinition<TableMod
         this.sessionID = sessionID;
     }
 
-    public Comparable<?> getComparableValue(GridRowModel<TableModelRow> rowModel)
+    public Comparable<?> tryGetComparableValue(GridRowModel<TableModelRow> rowModel)
     {
         return getCellValue(rowModel);
     }

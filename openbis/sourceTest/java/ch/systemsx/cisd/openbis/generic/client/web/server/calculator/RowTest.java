@@ -121,10 +121,10 @@ public class RowTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(def1).getComparableValue(data1);
+                    one(def1).tryGetComparableValue(data1);
                     will(returnValue(getVal(data1)));
 
-                    one(def2).getComparableValue(data2);
+                    one(def2).tryGetComparableValue(data2);
                     will(returnValue(getVal(data2)));
                 }
             });
@@ -206,7 +206,7 @@ public class RowTest extends AssertJUnit
                     one(def2).tryToGetProperty(PROPERTY_KEY);
                     will(returnValue(PROPERTY_VALUE));
 
-                    one(def2).getComparableValue(data);
+                    one(def2).tryGetComparableValue(data);
                     will(returnValue(getVal(data)));
                 }
             });
@@ -289,10 +289,10 @@ public class RowTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(def1).getComparableValue(data);
+                    one(def1).tryGetComparableValue(data);
                     will(returnValue(getVal(data)));
 
-                    one(def2).getComparableValue(data);
+                    one(def2).tryGetComparableValue(data);
                     will(returnValue(2 * getVal(data)));
                 }
             });
@@ -319,10 +319,10 @@ public class RowTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(def1).getComparableValue(data);
+                    one(def1).tryGetComparableValue(data);
                     will(returnValue(getVal(data)));
 
-                    one(def2).getComparableValue(data);
+                    one(def2).tryGetComparableValue(data);
                     will(returnValue(2 * getVal(data)));
                 }
             });

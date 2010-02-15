@@ -72,7 +72,7 @@ final class Row<T>
             throw new IllegalArgumentException("Undefined column: " + columnID);
         }
 
-        return columnDefinition.getComparableValue(row);
+        return columnDefinition.tryGetComparableValue(row);
     }
 
     /**

@@ -44,9 +44,9 @@ class RowCalculator<T>
 
     public RowCalculator(Set<IColumnDefinition<T>> availableColumns, String expression)
     {
-        this(availableColumns, expression, Collections.<ParameterWithValue>emptySet());
+        this(availableColumns, expression, Collections.<ParameterWithValue> emptySet());
     }
-    
+
     public RowCalculator(Set<IColumnDefinition<T>> availableColumns, String expression,
             Set<ParameterWithValue> parameters)
     {
@@ -73,7 +73,7 @@ class RowCalculator<T>
             return new PrimitiveValue((Double) value);
         } else
         {
-            return new PrimitiveValue(value.toString());
+            return new PrimitiveValue(value == null ? (String) null : value.toString());
         }
     }
 

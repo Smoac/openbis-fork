@@ -44,7 +44,7 @@ public class GenericTableRowColumnDefinition implements IColumnDefinition<Generi
         this(null, null);
     }
 
-    public Comparable<?> getComparableValue(GridRowModel<GenericTableRow> rowModel)
+    public Comparable<?> tryGetComparableValue(GridRowModel<GenericTableRow> rowModel)
     {
         return getCellValue(rowModel);
     }

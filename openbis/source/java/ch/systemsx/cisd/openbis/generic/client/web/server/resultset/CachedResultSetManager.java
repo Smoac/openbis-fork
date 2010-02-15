@@ -257,9 +257,19 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 @SuppressWarnings("unchecked")
                 public int compare(GridRowModel<T> o1, GridRowModel<T> o2)
                 {
-                    Comparable v1 = sortField.getComparableValue(o1);
-                    Comparable v2 = sortField.getComparableValue(o2);
-                    return v1.compareTo(v2);
+                    Comparable v1 = sortField.tryGetComparableValue(o1);
+                    Comparable v2 = sortField.tryGetComparableValue(o2);
+                    // treat null as minimal value
+                    if (v1 == null) 
+                    {
+                        return -1;
+                    } else if (v2 == null)
+                    {
+                        return 1;
+                    } else
+                    {
+                        return v1.compareTo(v2);
+                    }
                 }
             };
         return applySortDir(sortDir, comparator);
@@ -335,11 +345,11 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
         {
             K dataKey = cacheConfig.tryGetResultSetKey();
             GridRowModels<T> data = fetchCachedData(dataKey);
-            if (data == null) // Really shoudn't happen, but these cases have been observed. 
+            if (data == null) // Really shoudn't happen, but these cases have been observed.
             {
                 return calculateResultSetAndSave(sessionToken, resultConfig, dataProvider);
             }
-            
+
             if (mode == ResultSetFetchMode.FETCH_FROM_CACHE)
             {
                 return filterLimitAndSort(resultConfig, data, dataKey);

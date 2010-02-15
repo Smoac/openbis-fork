@@ -95,7 +95,7 @@ public class TSVRendererTest
                     return rowModel.getOriginalObject()[colIx];
                 }
 
-                public Comparable<?> getComparableValue(GridRowModel<String[]> rowModel)
+                public Comparable<?> tryGetComparableValue(GridRowModel<String[]> rowModel)
                 {
                     return getValue(rowModel);
                 }

@@ -333,7 +333,7 @@ public final class CachedResultSetManagerTest
                     return identifier;
                 }
 
-                public Comparable<?> getComparableValue(GridRowModel<String> rowModel)
+                public Comparable<?> tryGetComparableValue(GridRowModel<String> rowModel)
                 {
                     return getValue(rowModel);
                 }

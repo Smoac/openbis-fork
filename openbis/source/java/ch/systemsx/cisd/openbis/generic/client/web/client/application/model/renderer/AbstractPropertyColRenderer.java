@@ -73,9 +73,9 @@ public abstract class AbstractPropertyColRenderer<T extends IEntityPropertiesHol
         return renderValue(entity);
     }
 
-    public Comparable<?> getComparableValue(GridRowModel<T> rowModel)
+    public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
     {
-        return colDef.getComparableValue(rowModel);
+        return colDef.tryGetComparableValue(rowModel);
     }
 
     public boolean isLink()

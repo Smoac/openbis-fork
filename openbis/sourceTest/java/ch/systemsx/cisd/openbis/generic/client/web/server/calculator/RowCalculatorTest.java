@@ -71,7 +71,7 @@ public class RowCalculatorTest extends AssertJUnit
                 }
 
                 @Override
-                public Comparable<?> getComparableValue(GridRowModel<Data> rowModel)
+                public Comparable<?> tryGetComparableValue(GridRowModel<Data> rowModel)
                 {
                     return rowModel.getOriginalObject().getValue();
                 }

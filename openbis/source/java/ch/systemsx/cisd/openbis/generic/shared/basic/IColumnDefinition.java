@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.basic;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-
 /**
  * Describes table column's metadata. Has the ability to render cell values for the column given the
  * row model.
@@ -30,7 +29,8 @@ public interface IColumnDefinition<T> extends IsSerializable
     /** extracts value for the cell of the represented column */
     String getValue(GridRowModel<T> rowModel);
 
-    Comparable<?> getComparableValue(GridRowModel<T> rowModel);
+    /** tries to extract comparable value for the cell of the represented column */
+    Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel);
 
     /** column's header */
     String getHeader();

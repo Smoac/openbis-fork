@@ -60,7 +60,7 @@ public class CommonColumnDefinition<T> extends AbstractColumnDefinition<T>
     }
 
     @Override
-    public Comparable<?> getComparableValue(GridRowModel<T> rowModel)
+    public Comparable<?> tryGetComparableValue(GridRowModel<T> rowModel)
     {
         return columnDefinitionKind.getDescriptor().getComparableValue(rowModel);
     }
