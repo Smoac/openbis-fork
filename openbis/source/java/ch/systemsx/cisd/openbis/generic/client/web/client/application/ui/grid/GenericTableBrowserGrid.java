@@ -43,14 +43,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericTableRow;
 
 /**
  * Implementation of a table browser grid for {@link GenericTableRow} data.
- *
+ * 
  * @author Franz-Josef Elmer
  */
-public abstract class GenericTableBrowserGrid 
-                      extends AbstractBrowserGrid<GenericTableRow, BaseEntityModel<GenericTableRow>>
+public abstract class GenericTableBrowserGrid extends
+        AbstractBrowserGrid<GenericTableRow, BaseEntityModel<GenericTableRow>>
 {
+    private static final int TIMSTAMP_COLUMN_WIDTH = 190;
+
     private static final String BROWSER_ID_PATTERN = "[a-z0-9_]*";
-    
+
     private List<GenericTableColumnHeader> headers;
 
     /**
@@ -82,21 +84,22 @@ public abstract class GenericTableBrowserGrid
     protected abstract void listTableRows(
             IResultSetConfig<String, GenericTableRow> resultSetConfig,
             AsyncCallback<GenericTableResultSet> callback);
-    
+
     @Override
     protected ColumnDefsAndConfigs<GenericTableRow> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<GenericTableRow> definitions = ColumnDefsAndConfigs.create(createColDefinitions());
+        ColumnDefsAndConfigs<GenericTableRow> definitions =
+                ColumnDefsAndConfigs.create(createColDefinitions());
         if (headers != null)
         {
-            RealNumberRenderer renderer =
-                new RealNumberRenderer(viewContext.getDisplaySettingsManager()
-                        .getRealNumberFormatingParameters());
+            RealNumberRenderer realNumberRenderer =
+                    new RealNumberRenderer(viewContext.getDisplaySettingsManager()
+                            .getRealNumberFormatingParameters());
             for (GenericTableColumnHeader header : headers)
             {
                 if (header.getType() == DataTypeCode.REAL)
                 {
-                    definitions.setGridCellRendererFor(header.getCode(), renderer);
+                    definitions.setGridCellRendererFor(header.getCode(), realNumberRenderer);
                 }
             }
         }
@@ -108,10 +111,11 @@ public abstract class GenericTableBrowserGrid
     {
         return new BaseEntityModel<GenericTableRow>(entity, createColDefinitions());
     }
-    
+
     private List<IColumnDefinitionUI<GenericTableRow>> createColDefinitions()
     {
-        List<IColumnDefinitionUI<GenericTableRow>> list = new ArrayList<IColumnDefinitionUI<GenericTableRow>>();
+        List<IColumnDefinitionUI<GenericTableRow>> list =
+                new ArrayList<IColumnDefinitionUI<GenericTableRow>>();
         if (headers != null)
         {
             for (final GenericTableColumnHeader header : headers)
@@ -121,7 +125,17 @@ public abstract class GenericTableBrowserGrid
                 {
                     title = viewContext.getMessage(getId() + "_" + header.getCode());
                 }
-                list.add(new GenericTableRowColumnDefinitionUI(header, title));
+                GenericTableRowColumnDefinitionUI columnDef;
+                if (header.getType() == DataTypeCode.TIMESTAMP)
+                {
+                    columnDef =
+                            new GenericTableRowColumnDefinitionUI(header, title,
+                                    TIMSTAMP_COLUMN_WIDTH);
+                } else
+                {
+                    columnDef = new GenericTableRowColumnDefinitionUI(header, title);
+                }
+                list.add(columnDef);
             }
         }
         return list;
@@ -156,11 +170,12 @@ public abstract class GenericTableBrowserGrid
     {
         return true;
     }
-    
+
     protected void refreshColumnsSettingsIfNecessary()
     {
+        recreateColumnModelAndRefreshColumnsWithFilters();
     }
-    
+
     @Override
     protected void refresh()
     {
@@ -171,17 +186,16 @@ public abstract class GenericTableBrowserGrid
     {
         refreshGridSilently();
     }
-    
+
     @Override
     protected void showEntityViewer(GenericTableRow entity, boolean editMode)
     {
     }
-    
+
     @Override
     protected List<IColumnDefinition<GenericTableRow>> getInitialFilters()
     {
         return Collections.emptyList();
     }
-    
-}
 
+}
