@@ -16,6 +16,10 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import java.util.List;
+
+import com.extjs.gxt.ui.client.widget.Component;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -39,6 +43,30 @@ public class PhosphoNetXModule implements IModule
     public Widget getMenu()
     {
         return new QueryMenu(viewContext);
+    }
+
+    public List<Component> getMenuItems()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String getModuleDescription()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String getModuleName()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void initialize(AsyncCallback<Void> callback)
+    {
+        // TODO Auto-generated method stub
+        
     }
 
 }
