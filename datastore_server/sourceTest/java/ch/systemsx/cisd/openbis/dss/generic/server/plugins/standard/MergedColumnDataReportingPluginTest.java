@@ -16,17 +16,21 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DoubleTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IntegerTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -35,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * 
  * @author Bernd Rinn
  */
-public class MergedColumnDataReportingPluginTest
+public class MergedColumnDataReportingPluginTest extends AssertJUnit
 {
 
     private final static File dir =
@@ -75,13 +79,20 @@ public class MergedColumnDataReportingPluginTest
         assertEquals("val3", model.getHeader().get(3).getTitle());
         assertEquals(4, model.getRows().size());
         assertEquals("one\t1\t\t0", StringUtils.join(model.getRows().get(0).getValues(), '\t'));
-        assertEquals("two\t2.2\t17\t1.9e+5", StringUtils.join(model.getRows().get(1).getValues(),
-                '\t'));
-        assertEquals("three\tCC\t42\t-8.2", StringUtils.join(model.getRows().get(2).getValues(),
-                '\t'));
+        assertRow("two\t2.2\t17\t190000.0", model, 1);
+        assertRow("three\tCC\t42\t-8.2", model, 2);
         assertEquals("four\t\t105\t", StringUtils.join(model.getRows().get(3).getValues(), '\t'));
     }
 
+    private void assertRow(String expectedRow, final TableModel model, int index)
+    {
+        List<ISerializableComparable> values = model.getRows().get(index).getValues();
+        assertEquals(expectedRow, StringUtils.join(values, '\t'));
+        assertTrue(values.get(0).getClass().getName(), values.get(0) instanceof StringTableCell);
+        assertTrue(values.get(2).getClass().getName(), values.get(2) instanceof IntegerTableCell);
+        assertTrue(values.get(3).getClass().getName(), values.get(3) instanceof DoubleTableCell);
+    }
+    
     private DatasetDescription createDatasetDescription(String location)
     {
         return new DatasetDescription("", location, "", "", "", "", null, null);

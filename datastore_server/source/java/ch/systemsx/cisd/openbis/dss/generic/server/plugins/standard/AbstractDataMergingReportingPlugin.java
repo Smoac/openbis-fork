@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableMode
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
 
 /**
  * Common super class of all tsv-based data merging reporting plugins.
@@ -113,7 +114,7 @@ public abstract class AbstractDataMergingReportingPlugin extends AbstractDatasto
         }
         for (String token : dataTokens)
         {
-            row.add(new StringTableCell(token));
+            row.add(TableCellUtil.createTableCell(token));
         }
         builder.addRow(row);
     }

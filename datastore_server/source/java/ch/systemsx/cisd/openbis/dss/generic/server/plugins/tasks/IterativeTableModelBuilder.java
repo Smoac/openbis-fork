@@ -30,10 +30,10 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
+import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
 
 /**
  * A table model builder that can take new columns and rows iteratively.
@@ -140,7 +140,7 @@ public class IterativeTableModelBuilder
             for (TableModelColumnHeader header : headers)
             {
                 final String valueOrNull = columnMap.get(header.getTitle()).get(rowId);
-                rowValues.add(new StringTableCell((valueOrNull == null) ? "" : valueOrNull));
+                rowValues.add(TableCellUtil.createTableCell((valueOrNull == null) ? "" : valueOrNull));
             }
             rows.add(new TableModelRow(rowValues));
         }

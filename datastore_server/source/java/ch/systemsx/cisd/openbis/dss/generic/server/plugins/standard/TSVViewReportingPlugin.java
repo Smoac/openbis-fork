@@ -27,9 +27,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.DatasetFileLine
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.SimpleTableModelBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.util.TableCellUtil;
 
 /**
  * Shows the data as a table if one 'main data set' file exists and is a 'tsv' file.
@@ -67,7 +67,7 @@ public class TSVViewReportingPlugin extends AbstractDataMergingReportingPlugin i
                 List<ISerializableComparable> row = new ArrayList<ISerializableComparable>();
                 for (String token : line)
                 {
-                    row.add(new StringTableCell(token));
+                    row.add(TableCellUtil.createTableCell(token));
                 }
                 tableBuilder.addRow(row);
             }
