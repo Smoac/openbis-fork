@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.highwatermark;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -113,7 +114,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
         assert properties != null : "Unspecified properties";
         assert StringUtils.isNotBlank(hostFilePropertyKey) : "Host-file property key is blank";
         final String hostFile = PropertyUtils.getMandatoryProperty(properties, hostFilePropertyKey);
-        final String filePath;
+        File file;
         String hostNameOrNull = null;
         final int index = hostFile.indexOf(HOST_FILE_SEP);
         final String rsyncModuleOrNull;
@@ -124,22 +125,34 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
             if (index2 > -1)
             {
                 rsyncModuleOrNull = hostFile.substring(index + 1, index2);
-                filePath = hostFile.substring(index2 + 1);
+                file = new File(hostFile.substring(index2 + 1));
             } else
             {
                 rsyncModuleOrNull = null;
-                filePath = hostFile.substring(index + 1);
+                file = getCanonicalFile(hostFile.substring(index + 1));
             }
         } else
         {
             rsyncModuleOrNull = null;
-            filePath = hostFile;
+            file = getCanonicalFile(hostFile);
         }
         final long highwaterMarkInKb =
                 PropertyUtils.getLong(properties, hostFilePropertyKey.concat(SEP).concat(
                         HIGHWATER_MARK_PROPERTY_KEY), -1L);
-        return new HostAwareFileWithHighwaterMark(hostNameOrNull, new File(filePath),
+        return new HostAwareFileWithHighwaterMark(hostNameOrNull, file,
                 rsyncModuleOrNull, highwaterMarkInKb);
+    }
+
+    private static File getCanonicalFile(final String hostFile)
+    {
+        File file = new File(hostFile);
+        try
+        {
+            return file.getCanonicalFile();
+        } catch (IOException ex)
+        {
+            throw new ConfigurationFailureException("Unknown file " + file.getAbsolutePath());
+        }
     }
 
     /**
