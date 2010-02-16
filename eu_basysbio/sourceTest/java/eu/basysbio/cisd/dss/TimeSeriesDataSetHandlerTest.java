@@ -207,9 +207,8 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 dropBox.getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
                 DATA_SET_PROPERTIES_FILE);
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY,
-                "a, b");
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + "a", "Alpha");
+        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
+        properties.setProperty(Util.TRANSLATION_KEY + "a", "Alpha");
         prepareDataSetPropertiesValidator("Alpha", "B");
         TimeSeriesDataSetHandler handler = createHandler(properties);
         File file = createDataExample();
@@ -238,9 +237,8 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 dropBox.getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
                 DATA_SET_PROPERTIES_FILE);
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY,
-                "a, b");
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + "a", "Alpha");
+        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "a, b");
+        properties.setProperty(Util.TRANSLATION_KEY + "a", "Alpha");
         prepareDataSetPropertiesValidator("Alpha", "B");
         TimeSeriesDataSetHandler handler = createHandler(properties);
 
@@ -267,10 +265,8 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 dropBox.getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
                 DATA_SET_PROPERTIES_FILE);
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY,
-                "MetaboliteLCMS");
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + "MetaboliteLCMS",
-                "METABOLITE_LCMS");
+        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS");
+        properties.setProperty(Util.TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
         prepareDataSetPropertiesValidator("METABOLITE_LCMS");
         TimeSeriesDataSetHandler handler = createHandler(properties);
         File file = createDataExample();
@@ -299,8 +295,7 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 dropBox.getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
                 DATA_SET_PROPERTIES_FILE);
-        properties
-                .setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "b");
+        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "b");
         prepareDataSetPropertiesValidator("B");
         TimeSeriesDataSetHandler handler = createHandler(properties);
         File file = createDataExample();
@@ -352,10 +347,8 @@ public class TimeSeriesDataSetHandlerTest extends AbstractFileSystemTestCase
                 dropBox.getAbsolutePath());
         properties.setProperty(TimePointDataDropBoxFeeder.DATA_SET_PROPERTIES_FILE_NAME_KEY,
                 DATA_SET_PROPERTIES_FILE);
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + DATA_SET_TYPES_KEY,
-                "MetaboliteLCMS, b");
-        properties.setProperty(TimePointDataDropBoxFeeder.TRANSLATION_KEY + "MetaboliteLCMS",
-                "METABOLITE_LCMS");
+        properties.setProperty(Util.TRANSLATION_KEY + DATA_SET_TYPES_KEY, "MetaboliteLCMS, b");
+        properties.setProperty(Util.TRANSLATION_KEY + "MetaboliteLCMS", "METABOLITE_LCMS");
         prepareDataSetPropertiesValidator("METABOLITE_LCMS", "B");
         TimeSeriesDataSetHandler handler = createHandler(properties);
         File file = createDataExample();

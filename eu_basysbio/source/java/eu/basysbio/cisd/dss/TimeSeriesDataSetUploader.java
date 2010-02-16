@@ -23,11 +23,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -65,9 +65,6 @@ class TimeSeriesDataSetUploader
     static final String TIME_SERIES = "TIME_SERIES";
 
     static final List<String> DATA_SET_TYPES = Arrays.asList(TIME_SERIES, LCA_MTP_TIME_SERIES);
-
-    private static final Pattern DATA_COLUMN_HEADER_PATTERN =
-            Pattern.compile(".*(" + DataColumnHeader.SEPARATOR + ".*)+");
 
     private final ITimeSeriesDAO dao;
 
@@ -195,7 +192,7 @@ class TimeSeriesDataSetUploader
             for (Column column : columns)
             {
                 String header = column.getHeader();
-                if (DATA_COLUMN_HEADER_PATTERN.matcher(header).matches())
+                if (TimeSeriesHeaderUtils.isDataColumnHeader(header))
                 {
                     dataColumns.add(column);
                 } else
@@ -217,9 +214,11 @@ class TimeSeriesDataSetUploader
                 }
             } else if (dataSetInformation.getDataSetType().getCode().equals(LCA_MTP_TIME_SERIES))
             {
-                TimeSeriesHeaderUtils.assertMetadataConsistent(dataColumns);
-                // TODO 2010-02-09, IA: Add splitting dataset and registering datasets for samples
-                // with HCS hierarchy
+                List<DataHeaderProperty> consistent = new ArrayList<DataHeaderProperty>();
+                Collections.addAll(consistent, DataHeaderProperty.values());
+                consistent.remove(DataHeaderProperty.TimePoint);
+                TimeSeriesHeaderUtils.assertMetadataConsistent(TimeSeriesHeaderUtils
+                        .extractDataColumnHeaders(dataColumns), consistent);
             }
         } catch (RuntimeException ex)
         {

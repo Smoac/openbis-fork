@@ -16,11 +16,14 @@
 
 package eu.basysbio.cisd.dss;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -34,30 +37,30 @@ import ch.systemsx.cisd.etlserver.utils.Column;
  */
 public class TimeSeriesHeaderUtils
 {
+    private static final Pattern DATA_COLUMN_HEADER_PATTERN =
+            Pattern.compile(".*(" + DataColumnHeader.SEPARATOR + ".*)+");
+
     /**
-     * All data columns should have the same metadata (except TimePoint).
+     * Checks weather given header matches data column pattern.
      */
-    public static void assertMetadataConsistent(List<Column> dataColumns)
+    static public boolean isDataColumnHeader(String header)
     {
-        Map<String, Set<String>> map = new HashMap<String, Set<String>>();
-        for (Column dataColumn : dataColumns)
-        {
-            DataColumnHeader dataColumnHeader = new DataColumnHeader(dataColumn.getHeader());
-            updateMap(map, "ExperimentCode", dataColumnHeader.getExperimentCode());
-            updateMap(map, "CultivationMethod", dataColumnHeader.getCultivationMethod());
-            updateMap(map, "BiologicalReplicatateCode", dataColumnHeader
-                    .getBiologicalReplicateCode());
-            updateMap(map, "TimePointType", dataColumnHeader.getTimePointType());
-            updateMap(map, "TechnicalReplicateCode", dataColumnHeader.getTechnicalReplicateCode());
-            updateMap(map, "CelLoc", dataColumnHeader.getCelLoc());
-            updateMap(map, "ValueType", dataColumnHeader.getValueType());
-            updateMap(map, "Scale", dataColumnHeader.getScale());
-            updateMap(map, "BiID", dataColumnHeader.getBiID());
-            updateMap(map, "CG", dataColumnHeader.getControlledGene());
-            updateMap(map, "DataSetType", dataColumnHeader.getTimeSeriesDataSetType());
-        }
+        return DATA_COLUMN_HEADER_PATTERN.matcher(header).matches();
+    }
+
+    /**
+     * Chosen data columns should have the same metadata.
+     * 
+     * @throws UserFailureException when chosen {@link DataHeaderProperty}s are not the same in the
+     *             headers
+     */
+    public static void assertMetadataConsistent(Collection<DataColumnHeader> headers,
+            Collection<DataHeaderProperty> consistentProperties)
+    {
+        Map<DataHeaderProperty, Set<String>> map =
+                extractHeaderPropertyValues(headers, consistentProperties);
         StringBuilder sb = new StringBuilder();
-        for (String key : map.keySet())
+        for (DataHeaderProperty key : map.keySet())
         {
             if (map.get(key).size() > 1)
             {
@@ -77,12 +80,54 @@ public class TimeSeriesHeaderUtils
         }
     }
 
-    private static void updateMap(Map<String, Set<String>> map, String key, String value)
+    /**
+     * Extracts data column headers, skips other columns.
+     */
+    static public Collection<DataColumnHeader> extractDataColumnHeaders(Collection<Column> columns)
     {
-        if (map.containsKey(key) == false)
+        ArrayList<DataColumnHeader> result = new ArrayList<DataColumnHeader>();
+        for (Column c : columns)
         {
-            map.put(key, new HashSet<String>());
+            String header = c.getHeader();
+            if (isDataColumnHeader(header))
+            {
+                result.add(new DataColumnHeader(header));
+            }
         }
-        map.get(key).add(value);
+        return result;
     }
+
+    /**
+     * Returns a map of {@link DataHeaderProperty}s and sets of values defined in given headers.
+     */
+    public static Map<DataHeaderProperty, Set<String>> extractHeaderPropertyValues(
+            Collection<DataColumnHeader> headers)
+    {
+        return extractHeaderPropertyValues(headers, Arrays.asList(DataHeaderProperty.values()));
+    }
+
+    private static Map<DataHeaderProperty, Set<String>> extractHeaderPropertyValues(
+            Collection<DataColumnHeader> headers, Collection<DataHeaderProperty> properties)
+    {
+        Map<DataHeaderProperty, Set<String>> map = new HashMap<DataHeaderProperty, Set<String>>();
+        for (DataColumnHeader dataColumnHeader : headers)
+        {
+            for (DataHeaderProperty p : properties)
+            {
+                updateMap(map, p, p.getValue(dataColumnHeader));
+            }
+        }
+        return map;
+    }
+
+    private static void updateMap(Map<DataHeaderProperty, Set<String>> map,
+            DataHeaderProperty property, String value)
+    {
+        if (map.containsKey(property) == false)
+        {
+            map.put(property, new HashSet<String>());
+        }
+        map.get(property).add(value);
+    }
+
 }

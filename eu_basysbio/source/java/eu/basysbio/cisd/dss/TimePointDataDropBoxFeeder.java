@@ -28,15 +28,12 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.IOutputStream;
-import ch.systemsx.cisd.common.utilities.ExtendedProperties;
 import ch.systemsx.cisd.common.utilities.PropertyUtils;
 import ch.systemsx.cisd.etlserver.utils.Column;
 import ch.systemsx.cisd.etlserver.utils.TableBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class TimePointDataDropBoxFeeder implements IDropBoxFeeder
@@ -68,8 +65,6 @@ class TimePointDataDropBoxFeeder implements IDropBoxFeeder
 
     static final String DATA_FILE_TYPE = ".data.txt";
 
-    static final String TRANSLATION_KEY = "translation.";
-
     static final String DATA_SET_PROPERTIES_FILE_NAME_KEY = "data-set-properties-file-name";
 
     static final String DEFAULT_TIME_POINT_DATA_SET_FILE_NAME_SEPARATOR = ".";
@@ -80,11 +75,16 @@ class TimePointDataDropBoxFeeder implements IDropBoxFeeder
     static final String TIME_POINT_DATA_SET_DROP_BOX_PATH_KEY = "time-point-data-set-drop-box-path";
 
     private final String timePointDataSetFileSeparator;
+
     private final File dropBox;
+
     private final DataSetPropertiesValidator dataSetPropertiesValidator;
+
     private final String dataSetPropertiesFileName;
-    private final DataSetTypeTranslator translator;
+
     private final IFileManager fileManager;
+
+    private final DataSetTypeTranslator translator;
 
     TimePointDataDropBoxFeeder(Properties properties, IFileManager fileManager,
             IEncapsulatedOpenBISService service)
@@ -105,33 +105,32 @@ class TimePointDataDropBoxFeeder implements IDropBoxFeeder
                         DEFAULT_TIME_POINT_DATA_SET_FILE_NAME_SEPARATOR);
         dataSetPropertiesFileName =
                 PropertyUtils.getMandatoryProperty(properties, DATA_SET_PROPERTIES_FILE_NAME_KEY);
-        translator =
-                new DataSetTypeTranslator(ExtendedProperties.getSubset(properties, TRANSLATION_KEY,
-                        true));
+        translator = new DataSetTypeTranslator(Util.getTranslationProperties(properties));
         dataSetPropertiesValidator =
                 new DataSetPropertiesValidator(translator.getTranslatedDataSetTypes(), service);
     }
-    
+
     public void feed(String userEmail, String sampleCode, List<Column> commonColumns,
             Column dataColumn)
     {
         DataColumnHeader dataColumnHeader = new DataColumnHeader(dataColumn.getHeader());
         String dataSetFolderName =
-            sampleCode + timePointDataSetFileSeparator
-            + dataColumnHeader.getTechnicalReplicateCode()
-            + timePointDataSetFileSeparator + dataColumnHeader.getCelLoc()
-            + timePointDataSetFileSeparator
-            + dataColumnHeader.getTimeSeriesDataSetType()
-            + timePointDataSetFileSeparator + dataColumnHeader.getValueType()
-            + timePointDataSetFileSeparator + dataColumnHeader.getScale()
-            + timePointDataSetFileSeparator + dataColumnHeader.getBiID()
-            + timePointDataSetFileSeparator + dataColumnHeader.getControlledGene();
+                sampleCode + timePointDataSetFileSeparator
+                        + dataColumnHeader.getTechnicalReplicateCode()
+                        + timePointDataSetFileSeparator + dataColumnHeader.getCelLoc()
+                        + timePointDataSetFileSeparator
+                        + dataColumnHeader.getTimeSeriesDataSetType()
+                        + timePointDataSetFileSeparator + dataColumnHeader.getValueType()
+                        + timePointDataSetFileSeparator + dataColumnHeader.getScale()
+                        + timePointDataSetFileSeparator + dataColumnHeader.getBiID()
+                        + timePointDataSetFileSeparator + dataColumnHeader.getControlledGene();
         File dataSetFolder = new File(dropBox, dataSetFolderName);
         boolean success = fileManager.getFileOperations().mkdirs(dataSetFolder);
         if (success == false)
         {
             HashSet<String> filesInDropBox =
-                new HashSet<String>(Arrays.asList(fileManager.getFileOperations().list(dropBox)));
+                    new HashSet<String>(Arrays
+                            .asList(fileManager.getFileOperations().list(dropBox)));
             if (filesInDropBox.contains(dataSetFolder.getName()))
             {
                 throw new UserFailureException("There exists already a folder '"
@@ -157,6 +156,7 @@ class TimePointDataDropBoxFeeder implements IDropBoxFeeder
                     + "' couldn't be created.");
         }
     }
+
     private void writeDataSetProperties(File dataSetFolder, DataColumnHeader dataColumnHeader,
             String dataSetType, String userEmailOrNull)
     {
