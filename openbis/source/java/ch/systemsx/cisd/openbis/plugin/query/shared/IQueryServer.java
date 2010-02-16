@@ -24,14 +24,15 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IQueryServer extends IServer
 {
+
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
     public String tryToGetQueryDatabaseLabel();
-    
+
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.POWER_USER)
     public TableModel queryDatabase(String sessionToken, String sqlQuery);
