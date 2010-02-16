@@ -16,25 +16,61 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.server;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
+import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.server.translator.UserFailureExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientService;
+import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
+import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
 
 /**
- * 
- *
- * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
-@Component(value = "query-service")
+@Component(value = ResourceNames.QUERY_PLUGIN_SERVICE)
 public class QueryClientService extends AbstractClientService implements IQueryClientService
 {
+
+    @Resource(name = ResourceNames.QUERY_PLUGIN_SERVER)
+    private IQueryServer queryServer;
+
+    public QueryClientService()
+    {
+    }
+
+    @Private
+    QueryClientService(final IQueryServer queryServer,
+            final IRequestContextProvider requestContextProvider)
+    {
+        super(requestContextProvider);
+        this.queryServer = queryServer;
+    }
 
     @Override
     protected IServer getServer()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return queryServer;
+    }
+
+    //
+    // IQueryClientService
+    //
+
+    public String tryToGetQueryDatabaseLabel()
+    {
+        try
+        {
+            final String sessionToken = getSessionToken();
+            return queryServer.tryToGetQueryDatabaseLabel(sessionToken);
+        } catch (final UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 }

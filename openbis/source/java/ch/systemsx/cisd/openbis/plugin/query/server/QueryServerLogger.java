@@ -23,8 +23,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 class QueryServerLogger extends AbstractServerLogger implements IQueryServer
@@ -35,8 +33,9 @@ class QueryServerLogger extends AbstractServerLogger implements IQueryServer
         super(sessionManager, invocationSuccessful, elapsedTime);
     }
 
-    public String tryToGetQueryDatabaseLabel()
+    public String tryToGetQueryDatabaseLabel(String sessionToken)
     {
+        logAccess(sessionToken, "try_to_get_query_database_label");
         return null;
     }
 

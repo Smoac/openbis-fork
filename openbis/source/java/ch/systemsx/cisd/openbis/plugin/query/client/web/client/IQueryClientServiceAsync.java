@@ -16,14 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 
 /**
- * 
- *
- * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
 public interface IQueryClientServiceAsync extends IClientServiceAsync
 {
 
+    /** @see IQueryClientService#tryToGetQueryDatabaseLabel() */
+    public void tryToGetQueryDatabaseLabel(AsyncCallback<String> callback);
 }

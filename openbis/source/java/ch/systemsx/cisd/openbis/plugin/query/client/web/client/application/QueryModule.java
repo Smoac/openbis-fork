@@ -22,27 +22,30 @@ import java.util.List;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
+import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.module.QueryModuleDatabaseMenuItem;
 
 /**
- * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
 public class QueryModule implements IModule
 {
+    public static final String ID = GenericConstants.ID_PREFIX;
+
     private final IViewContext<IQueryClientServiceAsync> viewContext;
+
+    // If after initialization is finished this is still null it means that DB was not configured
+    // and this module shouldn't provide any functionality.
+    private String databaseLabelOrNull;
 
     QueryModule(IViewContext<IQueryClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
-    }
-
-    public List<? extends MenuItem> getMenuItems()
-    {
-        // return Collections.emptyList();
-		// FIXME
-        return Collections.singletonList(new MenuItem("hello"));
     }
 
     public String getName()
@@ -52,8 +55,46 @@ public class QueryModule implements IModule
 
     public void initialize(AsyncCallback<Void> callback)
     {
-        // FIXME
-        callback.onSuccess(null);
+        viewContext.getService().tryToGetQueryDatabaseLabel(
+                new DatabaseLabelCallback(viewContext, callback));
+    }
+
+    public List<? extends MenuItem> getMenuItems()
+    {
+        if (databaseLabelOrNull == null)
+        {
+            return Collections.emptyList();
+        } else
+        {
+            return Collections.singletonList(new QueryModuleDatabaseMenuItem(viewContext,
+                    databaseLabelOrNull));
+        }
+    }
+
+    private final class DatabaseLabelCallback extends AbstractAsyncCallback<String>
+    {
+        private final AsyncCallback<Void> delegate;
+
+        public DatabaseLabelCallback(final IViewContext<?> viewContext,
+                final AsyncCallback<Void> delegate)
+        {
+            super(viewContext);
+            this.delegate = delegate;
+        }
+
+        @Override
+        protected void process(String result)
+        {
+            databaseLabelOrNull = result;
+            delegate.onSuccess(null);
+        }
+
+        @Override
+        public void finishOnFailure(Throwable caught)
+        {
+            delegate.onFailure(caught);
+        }
+
     }
 
 }

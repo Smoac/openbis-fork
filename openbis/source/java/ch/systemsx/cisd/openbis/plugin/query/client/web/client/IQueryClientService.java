@@ -19,11 +19,12 @@ package ch.systemsx.cisd.openbis.plugin.query.client.web.client;
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 
 /**
- * 
- *
- * @author Franz-Josef Elmer
+ * @author Piotr Buczek
  */
 public interface IQueryClientService extends IClientService
 {
+
+    /** Returns label of the database used for queries or null if it is not configured. */
+    public String tryToGetQueryDatabaseLabel();
 
 }

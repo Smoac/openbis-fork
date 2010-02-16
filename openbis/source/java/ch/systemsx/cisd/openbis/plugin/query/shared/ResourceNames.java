@@ -17,8 +17,13 @@
 package ch.systemsx.cisd.openbis.plugin.query.shared;
 
 /**
+ * Resource name used in <i>query</i> plug-in.
+ * <p>
+ * Be aware about the uniqueness of the bean names loaded by <i>Spring</i>. Names defined here
+ * should not conflict with already existing bean names. Look for other <code>ResourceNames</code>
+ * classes.
+ * </p>
  * 
- *
  * @author Franz-Josef Elmer
  */
 public class ResourceNames

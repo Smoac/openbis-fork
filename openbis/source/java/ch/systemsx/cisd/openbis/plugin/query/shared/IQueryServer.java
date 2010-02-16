@@ -31,7 +31,7 @@ public interface IQueryServer extends IServer
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
-    public String tryToGetQueryDatabaseLabel();
+    public String tryToGetQueryDatabaseLabel(String sessionToken);
 
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.POWER_USER)
