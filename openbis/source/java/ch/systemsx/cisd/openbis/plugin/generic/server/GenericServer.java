@@ -94,6 +94,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 public final class GenericServer extends AbstractServer<IGenericServer> implements
         ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer
 {
+    private static final int MATERIAL_REGISTRATION_BATCH_SIZE = 1000;
+
     @Resource(name = ResourceNames.GENERIC_BUSINESS_OBJECT_FACTORY)
     private IGenericBusinessObjectFactory businessObjectFactory;
 
@@ -414,12 +416,43 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         assert materialTypeCode != null : "Unspecified material type.";
         assert newMaterials != null : "Unspecified new materials.";
 
-        final Session session = getSession(sessionToken);
         // Does nothing if material list is empty.
         if (newMaterials.size() == 0)
         {
             return;
         }
+        prevalidate(materialTypeCode, newMaterials);
+        MaterialTypePE materialTypePE = findMaterialType(materialTypeCode);
+        final Session session = getSession(sessionToken);
+
+        // hibernate slows down significantly after registration of many objects, so we have to do
+        // it in batch
+        List<NewMaterial> batch = new ArrayList<NewMaterial>();
+        for (NewMaterial newMaterial : newMaterials)
+        {
+            batch.add(newMaterial);
+            if (batch.size() >= MATERIAL_REGISTRATION_BATCH_SIZE)
+            {
+                doRegisterMaterials(materialTypePE, session, batch);
+                batch.clear();
+            }
+        }
+        if (batch.size() > 0)
+        {
+            doRegisterMaterials(materialTypePE, session, batch);
+        }
+    }
+
+    private void doRegisterMaterials(MaterialTypePE materialTypePE, final Session session,
+            List<NewMaterial> batch)
+    {
+        final IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
+        materialTable.add(batch, materialTypePE);
+        materialTable.save();
+    }
+
+    private void prevalidate(String materialTypeCode, List<NewMaterial> newMaterials)
+    {
         // Check uniqueness of given list based on material code.
         final HashSet<NewMaterial> materialSet = new HashSet<NewMaterial>(newMaterials);
         if (materialSet.size() != newMaterials.size())
@@ -428,6 +461,10 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throw UserFailureException.fromTemplate("Following materials '%s' are duplicated.",
                     CollectionUtils.abbreviate(newMaterials, 20));
         }
+    }
+
+    private MaterialTypePE findMaterialType(String materialTypeCode)
+    {
         final MaterialTypePE materialTypePE =
                 (MaterialTypePE) getDAOFactory().getEntityTypeDAO(EntityKind.MATERIAL)
                         .tryToFindEntityTypeByCode(materialTypeCode);
@@ -436,9 +473,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             throw UserFailureException.fromTemplate("Material type with code '%s' does not exist.",
                     materialTypeCode);
         }
-        final IMaterialTable materialTable = businessObjectFactory.createMaterialTable(session);
-        materialTable.add(newMaterials, materialTypePE);
-        materialTable.save();
+        return materialTypePE;
     }
 
     public AttachmentWithContent getProjectFileAttachment(String sessionToken, TechId projectId,

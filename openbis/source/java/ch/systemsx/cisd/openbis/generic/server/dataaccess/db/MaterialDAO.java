@@ -91,6 +91,11 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
             internalCreateMaterial(materialPE, hibernateTemplate);
         }
         hibernateTemplate.flush();
+        // TODO 2010-02-16, Tomasz Pylak: can this be avoided by changing hibernate configuration?
+        // Now registration time increases nonlinearly with the number of registered materials, so
+        // we have to do it in batches and clear the session in between (requirement: 150.000
+        // materials registered, each with one material property and 3 others).
+        hibernateTemplate.clear();
     }
 
     private void internalCreateMaterial(MaterialPE material, HibernateTemplate hibernateTemplate)
@@ -99,9 +104,9 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
         validatePE(material);
         material.setCode(CodeConverter.tryToDatabase(material.getCode()));
         hibernateTemplate.saveOrUpdate(material);
-        if (operationLog.isInfoEnabled())
+        if (operationLog.isDebugEnabled())
         {
-            operationLog.info(String.format("ADD: material '%s'.", material));
+            operationLog.debug(String.format("ADD: material '%s'.", material));
         }
     }
 
@@ -116,7 +121,6 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
         criteria.add(Restrictions.eq("code", code));
         criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.createCriteria("materialType").add(Restrictions.eq("code", typeCode));
-        criteria.setFetchMode("materialType.materialTypePropertyTypesInternal", FetchMode.JOIN);
         final MaterialPE material = (MaterialPE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())
         {
@@ -125,5 +129,4 @@ public class MaterialDAO extends AbstractGenericEntityDAO<MaterialPE> implements
         }
         return material;
     }
-
 }
