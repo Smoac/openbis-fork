@@ -129,7 +129,7 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
             } else
             {
                 rsyncModuleOrNull = null;
-                file = getCanonicalFile(hostFile.substring(index + 1));
+                file = new File(hostFile.substring(index + 1));
             }
         } else
         {
@@ -139,8 +139,8 @@ public final class HostAwareFileWithHighwaterMark extends HostAwareFile
         final long highwaterMarkInKb =
                 PropertyUtils.getLong(properties, hostFilePropertyKey.concat(SEP).concat(
                         HIGHWATER_MARK_PROPERTY_KEY), -1L);
-        return new HostAwareFileWithHighwaterMark(hostNameOrNull, file,
-                rsyncModuleOrNull, highwaterMarkInKb);
+        return new HostAwareFileWithHighwaterMark(hostNameOrNull, file, rsyncModuleOrNull,
+                highwaterMarkInKb);
     }
 
     private static File getCanonicalFile(final String hostFile)
