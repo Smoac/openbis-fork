@@ -502,12 +502,4 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
-REVOKE ALL ON TABLE queries FROM PUBLIC;
-REVOKE ALL ON TABLE queries FROM felmer;
-GRANT ALL ON TABLE queries TO felmer;
-GRANT SELECT ON TABLE queries TO openbis_readonly;
-REVOKE ALL ON SEQUENCE query_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE query_id_seq FROM felmer;
-GRANT ALL ON SEQUENCE query_id_seq TO felmer;
-GRANT SELECT ON SEQUENCE query_id_seq TO openbis_readonly;
 
