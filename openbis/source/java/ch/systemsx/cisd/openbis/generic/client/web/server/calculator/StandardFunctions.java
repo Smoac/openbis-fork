@@ -226,6 +226,74 @@ final class StandardFunctions
         return array.get(array.size() - 1);
     }
     
+    /**
+     * Like sum, but returns the default value if the list is empty.
+     * 
+     * @throws NumberFormatException if an element can not be parsed as a floating-point number.
+     */
+    public static Double sumOrDefault(List<Object> values, Double defaultValue)
+    {
+        if (values.isEmpty()) return defaultValue;
+        return sum(values);
+    }
+    
+    /**
+     * Like avg, but returns the default value if the list is empty.
+     * 
+     * @throws NumberFormatException if an element can not be parsed as a floating-point number.
+     */
+    public static Double avgOrDefault(List<Object> values, Double defaultValue)
+    {
+        if (values.isEmpty()) return defaultValue;
+        return avg(values);
+    }
+    
+    /**
+     * Like stdev, but returns the default value if the list is empty.
+     * 
+     * @throws NumberFormatException if an element can not be parsed as a floating-point number.
+     */
+    public static Double stdevOrDefault(List<Object> values, Double defaultValue)
+    {
+        if (values.isEmpty()) return defaultValue;
+        return stdev(values);
+    }
+    
+    
+    /**
+     * Like median, but returns the default value if the list is empty.
+     * 
+     * @throws NumberFormatException if an element can not be parsed as a floating-point number.
+     */
+    public static Double medianOrDefault(List<Object> values, Double defaultValue)
+    {
+        if (values.isEmpty()) return defaultValue;
+        return median(values);
+    }
+    
+    /**
+     * Like min, but returns the default value if the list is empty.
+     * 
+     * @throws NumberFormatException if an element can not be parsed as a floating-point number.
+     */
+    public static Double minOrDefault(List<Object> values, Double defaultValue)
+    {
+        if (values.isEmpty()) return defaultValue;
+        return min(values);
+    }
+    
+    /**
+     * Like max, but returns the default value if the list is empty.
+     * 
+     * @throws NumberFormatException if an element can not be parsed as a floating-point number.
+     */
+    public static Double maxOrDefault(List<Object> values, Double defaultValue)
+    {
+        if (values.isEmpty()) return defaultValue;
+        return max(values);
+    }
+
+    
     private static boolean isBlank(Object value)
     {
         return value == null || value.toString().trim().length() == 0;

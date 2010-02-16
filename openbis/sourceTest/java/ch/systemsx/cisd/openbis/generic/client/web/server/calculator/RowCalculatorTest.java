@@ -25,6 +25,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.evaluator.EvaluatorException;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.columns.framework.AbstractColumnDefinition;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ParameterWithValue;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
@@ -214,6 +215,48 @@ public class RowCalculatorTest extends AssertJUnit
 
         assertEquals(0.0, calculator.evalToDouble());
 
+    }
+    
+    @Test
+    public void testMinOrDefaultFunction()
+    {
+        Set<ParameterWithValue> parameters = createParameters("x", "0.0");
+        RowCalculator<Data> calculator =
+                createCalculator(parameters, "minOrDefault([${x},None,'  ',-2,'-3'])");
+        
+        try {
+            calculator.evalToDouble();
+            fail("EvaluatorException expected");
+        } catch (EvaluatorException e){
+            // do nothing -- this is expected
+        }
+        
+        calculator = createCalculator(parameters, "minOrDefault([${x},None,'  ',-2,'-3'], 38.6)");
+        assertEquals(-3.0, calculator.evalToDouble());
+        
+        calculator = createCalculator(parameters, "minOrDefault([], 38.6)");
+        assertEquals(38.6, calculator.evalToDouble());
+
+    }
+
+    @Test
+    public void testMaxOrDefaultFunction()
+    {
+        Set<ParameterWithValue> parameters = createParameters("x", "0.0");
+        RowCalculator<Data> calculator =
+                createCalculator(parameters, "maxOrDefault([${x},None,'  ',-2,'-3'])");
+        try {
+            calculator.evalToDouble();
+            fail("EvaluatorException expected");
+        } catch (EvaluatorException e){
+            // do nothing -- this is expected
+        }
+        
+        calculator = createCalculator(parameters, "maxOrDefault([${x},None,'  ',-2,'-3'], 38.6)");
+        assertEquals(0.0, calculator.evalToDouble());
+        
+        calculator = createCalculator(parameters, "maxOrDefault([], 38.6)");
+        assertEquals(38.6, calculator.evalToDouble());
     }
 
     private RowCalculator<Data> createCalculator(Set<ParameterWithValue> parameters,
