@@ -41,6 +41,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.DataTypeUtils;
 
 /**
  * Utility class containing functions helpful with dealing with grid custom filters or columns.
+ * TODO: (CR) Instead of a bunch of static methods, this should be refactored using the Command
+ * pattern to GridExpressionFilterCommand and GridExpressionColumnCommand. The arguments to the
+ * functions should become ivars.
  * 
  * @author Izabela Adamczyk
  */
@@ -58,11 +61,10 @@ public class GridExpressionUtils
     private static final String FILTER_EVALUATION_SERIOUS_ERROR_MSG =
             EVALUATION_SERIOUS_ERROR_MSG + "applying the filter: ";
 
-    private static final String COLUMN_EVALUATION_SERIOUS_ERROR_TEMPLATE =
-            "Error: calculating the value of a custom column '%s' failed, conntact '%s' who has defined this column: ";
+    private static final String COLUMN_EVALUATION_ERROR_TEMPLATE_SHORT =
+            "Error. Please contact '%s', who defined this column.";
 
-    private static final String COLUMN_EVALUATION_ERROR_TEMPLATE =
-            COLUMN_EVALUATION_SERIOUS_ERROR_TEMPLATE + "invalid column definition. ";
+    private static final String COLUMN_EVALUATION_ERROR_LONG = "Error: (%s).";
 
     /**
      * Applies the filter described by <code>customFilterInfo</code> to
@@ -109,14 +111,19 @@ public class GridExpressionUtils
         return new UserFailureException(msg, details);
     }
 
+    /**
+     * Evaluate custom columns using the data from the other columns
+     */
     public static <T> ArrayList<GridRowModel<T>> evalCustomColumns(final List<T> allRows,
-            List<GridCustomColumn> customColumns, Set<IColumnDefinition<T>> availableColumns)
+            List<GridCustomColumn> customColumns, Set<IColumnDefinition<T>> availableColumns,
+            boolean errorMessagesAreLong)
     {
         ArrayList<GridRowModel<T>> result = new ArrayList<GridRowModel<T>>();
         Map<String, RowCalculator<T>> calculators = new HashMap<String, RowCalculator<T>>();
         for (GridCustomColumn customColumn : customColumns)
         {
-            RowCalculator<T> rowCalculator = createRowCalculator(availableColumns, customColumn);
+            RowCalculator<T> rowCalculator =
+                    createRowCalculator(availableColumns, customColumn, errorMessagesAreLong);
             calculators.put(customColumn.getCode(), rowCalculator);
         }
         for (T rowData : allRows)
@@ -127,7 +134,8 @@ public class GridExpressionUtils
             {
                 String columnId = customColumn.getCode();
                 RowCalculator<T> calculator = calculators.get(columnId);
-                PrimitiveValue value = evalCustomColumn(rowData, customColumn, calculator);
+                PrimitiveValue value =
+                        evalCustomColumn(rowData, customColumn, calculator, errorMessagesAreLong);
                 customColumn.setDataType(DataTypeUtils.getCompatibleDataType(customColumn
                         .getDataType(), value.getDataType()));
                 customColumnValues.put(columnId, value);
@@ -138,7 +146,8 @@ public class GridExpressionUtils
     }
 
     private static <T> RowCalculator<T> createRowCalculator(
-            Set<IColumnDefinition<T>> availableColumns, GridCustomColumn customColumn)
+            Set<IColumnDefinition<T>> availableColumns, GridCustomColumn customColumn,
+            boolean errorMessagesAreLong)
     {
         String expression = StringEscapeUtils.unescapeHtml(customColumn.getExpression());
         try
@@ -148,7 +157,9 @@ public class GridExpressionUtils
         {
             // if a column definition is faulty than we replace the original expression with the one
             // which always evaluates to an error message
-            String msg = createCustomColumnErrorMessage(customColumn, ex).replace("'", "\\'");
+            String msg =
+                    createCustomColumnErrorMessage(customColumn, errorMessagesAreLong, ex).replace(
+                            "'", "\\'");
             return new RowCalculator<T>(availableColumns, "'" + msg + "'");
         }
     }
@@ -167,7 +178,7 @@ public class GridExpressionUtils
     }
 
     private static <T> PrimitiveValue evalCustomColumn(T rowData, GridCustomColumn customColumn,
-            RowCalculator<T> calculator)
+            RowCalculator<T> calculator, boolean errorMessagesAreLong)
     {
         // NOTE: we do not allow a calculated column to reference other calculated columns. It's
         // a simplest way to ensure that there are no cyclic dependencies between custom
@@ -183,26 +194,27 @@ public class GridExpressionUtils
             return calculator.getTypedResult();
         } catch (Exception ex)
         {
-            return new PrimitiveValue(createCustomColumnErrorMessage(customColumn, ex));
+            return new PrimitiveValue(createCustomColumnErrorMessage(customColumn,
+                    errorMessagesAreLong, ex));
         }
     }
 
-    private static String createCustomColumnErrorMessage(GridCustomColumn customColumn, Exception ex)
+    private static <T> String createCustomColumnErrorMessage(GridCustomColumn customColumn,
+            boolean errorMessagesAreLong, Exception ex)
     {
         String msg;
-        String details = null;
-        String columnDesc = customColumn.getName() + " (" + customColumn.getCode() + ")";
         Person registrator = customColumn.getRegistrator();
         String creator = registrator + " <" + registrator.getEmail() + ">";
-        if (ex instanceof EvaluatorException)
+
+        if (errorMessagesAreLong)
         {
-            msg = String.format(COLUMN_EVALUATION_ERROR_TEMPLATE, columnDesc, creator);
-            details = ex.getMessage();
+            msg = String.format(COLUMN_EVALUATION_ERROR_LONG, ex.getMessage());
         } else
         {
-            msg = String.format(COLUMN_EVALUATION_SERIOUS_ERROR_TEMPLATE, columnDesc, creator) + ex;
+            msg = String.format(COLUMN_EVALUATION_ERROR_TEMPLATE_SHORT, creator);
         }
-        return msg + " DETAILS: " + details;
+
+        return msg;
     }
 
     private static void logColumnCalculationError(Exception ex, String msg, String details)

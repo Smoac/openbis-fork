@@ -198,6 +198,9 @@ public final class CachedResultSetManagerTest
 
                     allowing(resultSetConfig).getAvailableColumns();
                     will(returnValue(null));
+                    
+                    allowing(resultSetConfig).isCustomColumnErrorMessageLong();
+                    will(returnValue(false));
 
                     one(resultSetConfig).tryGetGridDisplayId();
                     will(returnValue(null));
@@ -251,6 +254,9 @@ public final class CachedResultSetManagerTest
 
                     allowing(resultSetConfig).getAvailableColumns();
                     will(returnValue(null));
+                    
+                    allowing(resultSetConfig).isCustomColumnErrorMessageLong();
+                    will(returnValue(false));
 
                     one(resultSetConfig).tryGetGridDisplayId();
                     will(returnValue(null));

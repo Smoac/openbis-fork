@@ -68,4 +68,9 @@ public interface IResultSetConfig<K, T>
      *         to compute them.
      */
     public String tryGetGridDisplayId();
+    
+    /**
+     * Should the error message from the server be long or short?
+     */
+    public boolean isCustomColumnErrorMessageLong();
 }

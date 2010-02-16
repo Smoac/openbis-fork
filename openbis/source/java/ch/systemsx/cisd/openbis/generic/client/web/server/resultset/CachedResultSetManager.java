@@ -260,7 +260,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                     Comparable v1 = sortField.tryGetComparableValue(o1);
                     Comparable v2 = sortField.tryGetComparableValue(o2);
                     // treat null as minimal value
-                    if (v1 == null) 
+                    if (v1 == null)
                     {
                         return -1;
                     } else if (v2 == null)
@@ -429,7 +429,7 @@ public final class CachedResultSetManager<K> implements IResultSetManager<K>, Se
                 fetchCustomColumnsMetadata(sessionToken, resultConfig);
         List<GridRowModel<T>> rowModels =
                 GridExpressionUtils.evalCustomColumns(rows, customColumns, resultConfig
-                        .getAvailableColumns());
+                        .getAvailableColumns(), resultConfig.isCustomColumnErrorMessageLong());
 
         List<ColumnDistinctValues> columnDistinctValues =
                 calculateColumnDistinctValues(rowModels, resultConfig.getFilters());

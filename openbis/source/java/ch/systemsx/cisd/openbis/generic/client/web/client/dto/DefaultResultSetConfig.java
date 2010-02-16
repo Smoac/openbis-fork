@@ -45,6 +45,13 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     // null if no custom columns are needed
     private String gridDisplayIdOrNull;
 
+    // Flags for configuration of error messages from the server -- can't use BitSet since it's not
+    // supported by GWT
+    private int errorMessageFormatFlags = 0;
+
+    // Flag to set for long error messages from jython
+    private int ERROR_MESSAGE_FLAG_JYTHON_LONG = 0;
+
     public static <K, T> DefaultResultSetConfig<K, T> createFetchAll()
     {
         return new DefaultResultSetConfig<K, T>();
@@ -134,4 +141,24 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
     {
         return gridDisplayIdOrNull;
     }
+
+    /**
+     * Does this result set return long error messages from errors on custom columns? Defaults to
+     * false.
+     */
+    public boolean isCustomColumnErrorMessageLong()
+    {
+        return (errorMessageFormatFlags & (1 << ERROR_MESSAGE_FLAG_JYTHON_LONG)) > 0;
+    }
+
+    /**
+     * An argument of true will cause the server to return long error messages.
+     */
+    public void setCustomColumnErrorMessageLong(boolean longMessages)
+    {
+        if (longMessages != isCustomColumnErrorMessageLong())
+            errorMessageFormatFlags =
+                    errorMessageFormatFlags ^ (1 << ERROR_MESSAGE_FLAG_JYTHON_LONG);
+    }
+
 }
