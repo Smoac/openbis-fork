@@ -112,6 +112,8 @@ public final class TableNames
 
     public static final String AUTHORIZATION_GROUP_PERSONS_TABLE = "authorization_group_persons";
 
+    public static final String QUERIES_TABLE = "queries";
+
     private TableNames()
     {
         // This class can not be instantiated.

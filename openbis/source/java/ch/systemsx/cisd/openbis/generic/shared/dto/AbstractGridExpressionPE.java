@@ -16,25 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Version;
 
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
 /**
@@ -43,99 +30,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
  * @author Tomasz Pylak
  */
 @MappedSuperclass
-public abstract class AbstractGridExpressionPE<T> extends HibernateAbstractRegistrationHolder
-        implements IIdHolder, Comparable<T>, Serializable
+public abstract class AbstractGridExpressionPE<T> extends AbstractExpressionPE<T>
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private String gridId;
-
-    private String description;
-
-    private String expression;
-
-    private boolean isPublic;
-
-    private Date modificationDate;
-
-    private DatabaseInstancePE databaseInstance;
-
-    private Long id;
-
-    @Column(name = ColumnNames.DESCRIPTION_COLUMN)
-    @Length(max = GenericConstants.DESCRIPTION_2000, message = ValidationMessages.DESCRIPTION_LENGTH_MESSAGE)
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public void setDescription(final String description)
-    {
-        this.description = description;
-    }
-
-    @Column(name = ColumnNames.EXPRESSION_COLUMN)
-    @NotNull(message = ValidationMessages.EXPRESSION_NOT_NULL_MESSAGE)
-    @Length(min = 1, max = 2000, message = ValidationMessages.EXPRESSION_LENGTH_MESSAGE)
-    public String getExpression()
-    {
-        return expression;
-    }
-
-    public void setExpression(String expression)
-    {
-        this.expression = expression;
-    }
-
-    @Column(name = ColumnNames.IS_PUBLIC)
-    public boolean isPublic()
-    {
-        return isPublic;
-    }
-
-    public void setPublic(boolean isPublic)
-    {
-        this.isPublic = isPublic;
-    }
-
-    @Version
-    @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
-    public Date getModificationDate()
-    {
-        return modificationDate;
-    }
-
-    public void setModificationDate(Date versionDate)
-    {
-        this.modificationDate = versionDate;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
-    }
-
-    @SequenceGenerator(name = SequenceNames.FILTER_SEQUENCE, sequenceName = SequenceNames.FILTER_SEQUENCE, allocationSize = 1)
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.FILTER_SEQUENCE)
-    public final Long getId()
-    {
-        return id;
-    }
-
-    public final void setId(final Long id)
-    {
-        this.id = id;
-    }
-
+    
     @Column(name = ColumnNames.GRID_ID_COLUMN)
     @NotNull(message = ValidationMessages.GRID_ID_NOT_NULL_MESSAGE)
     @Length(min = 1, max = 200, message = ValidationMessages.GRID_ID_LENGTH_MESSAGE)

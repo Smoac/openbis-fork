@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 ETH Zuerich, CISD
+ * Copyright 2010 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,28 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
+package ch.systemsx.cisd.openbis.generic.server.dataaccess;
+
+import java.util.List;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 
 /**
- * Stores interface version.
  * 
- * @author Izabela Adamczyk
+ *
+ * @author Franz-Josef Elmer
  */
-public final class ServiceVersionHolder
+public interface IQueryDAO extends IGenericDAO<QueryPE>
 {
 
-    public static final int VERSION = 11; // for S75
+    /**
+     * Lists all queries defined in the home database instance.
+     */
+    public List<QueryPE> listQueries();
+
+    /**
+     * Creates a query in home database instance.
+     */
+    public void createQuery(QueryPE query);
+
 }

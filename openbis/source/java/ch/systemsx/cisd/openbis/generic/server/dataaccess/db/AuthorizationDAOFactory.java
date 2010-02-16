@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGridCustomFilterDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
@@ -74,6 +75,8 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
 
     private final IGridCustomColumnDAO gridCustomColumnDAO;
 
+    private final QueryDAO queryDAO;
+    
     private final PersistencyResources persistencyResources;
 
     public AuthorizationDAOFactory(final DatabaseConfigurationContext context,
@@ -91,6 +94,7 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         sampleDAO = new SampleDAO(sessionFactory, homeDatabaseInstance);
         gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory, homeDatabaseInstance);
         gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, homeDatabaseInstance);
+        queryDAO = new QueryDAO(sessionFactory, homeDatabaseInstance);
     }
 
     public final PersistencyResources getPersistencyResources()
@@ -215,6 +219,11 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
     public IGridCustomColumnDAO getGridCustomColumnDAO()
     {
         return gridCustomColumnDAO;
+    }
+
+    public IQueryDAO getQueryDAO()
+    {
+        return queryDAO;
     }
 
     public void disableSecondLevelCacheForSession()

@@ -64,4 +64,6 @@ public interface IAuthorizationDAOFactory
     public IGridCustomFilterDAO getGridCustomFilterDAO();
 
     public IGridCustomColumnDAO getGridCustomColumnDAO();
+    
+    public IQueryDAO getQueryDAO();
 }
