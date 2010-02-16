@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -222,7 +223,7 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-
+    
     @Test
     public void testCopyTwoDataSetsLocally()
     {
@@ -231,9 +232,9 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copier).copyToRemote(ds1Data, new File("tmp/test"), null, null, null);
+                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test"), null, null, null);
                     will(returnValue(Status.OK));
-                    one(copier).copyToRemote(ds2Data, new File("tmp/test"), null, null, null);
+                    one(copier).copyToRemote(ds2Data, getCanonicalFile("tmp/test"), null, null, null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -259,10 +260,10 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(copier).copyToRemote(ds1Data, new File("tmp/test"), null, null, null);
+                    one(copier).copyToRemote(ds1Data, getCanonicalFile("tmp/test"), null, null, null);
                     will(returnValue(Status.createError("error message")));
 
-                    one(copier).copyToRemote(ds2Data, new File("tmp/test"), null, null, null);
+                    one(copier).copyToRemote(ds2Data, getCanonicalFile("tmp/test"), null, null, null);
                     will(returnValue(Status.OK));
                 }
             });
@@ -475,5 +476,16 @@ public class DataSetCopierTest extends AbstractFileSystemTestCase
                 processingStatus.getDatasetsByStatus(status);
         assertEquals(expectedDatasets.length, actualDatasets.size());
         assertTrue(actualDatasets.containsAll(Arrays.asList(expectedDatasets)));
+    }
+    
+    private File getCanonicalFile(String fileName)
+    {
+        try
+        {
+            return new File(fileName).getCanonicalFile();
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
     }
 }
