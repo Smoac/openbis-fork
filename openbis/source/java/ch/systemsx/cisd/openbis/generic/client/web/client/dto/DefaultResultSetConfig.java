@@ -96,6 +96,7 @@ public class DefaultResultSetConfig<K, T> implements IResultSetConfig<K, T>, IsS
         setFilters(resultSetConfig.getFilters());
         setCacheConfig(resultSetConfig.getCacheConfig());
         setGridDisplayId(resultSetConfig.tryGetGridDisplayId());
+        setCustomColumnErrorMessageLong(resultSetConfig.isCustomColumnErrorMessageLong());
     }
 
     //

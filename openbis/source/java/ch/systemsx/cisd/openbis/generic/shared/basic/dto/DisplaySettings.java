@@ -46,8 +46,11 @@ public class DisplaySettings implements Serializable, IsSerializable
     private Map<String, Boolean> sectionSettings = new HashMap<String, Boolean>();
 
     // for new users with clean display settings basic search mode will be used by default
-    private boolean useWildcardSearchMode = false; 
-    
+    private boolean useWildcardSearchMode = false;
+
+    // For new new users, custom column error messages are in user format, not debugging
+    private boolean displayCustomColumnDebuggingErrorMessages = false;
+
     private RealNumberFormatingParameters realNumberFormatingParameters =
             new RealNumberFormatingParameters();
 
@@ -86,7 +89,7 @@ public class DisplaySettings implements Serializable, IsSerializable
         }
         return realNumberFormatingParameters;
     }
-    
+
     // for serialization
 
     @SuppressWarnings("unused")
@@ -114,5 +117,20 @@ public class DisplaySettings implements Serializable, IsSerializable
     {
         this.realNumberFormatingParameters = realNumberFormatingParameters;
     }
-}
 
+    /**
+     * Are error messages from custom columns displayed in debugging format or user format?
+     */
+    public boolean isDisplayCustomColumnDebuggingErrorMessages()
+    {
+        return displayCustomColumnDebuggingErrorMessages;
+    }
+
+    /**
+     * Are error messages from custom columns displayed in debugging format or user format?
+     */
+    public void setDisplayCustomColumnDebuggingErrorMessages(boolean isDebugging)
+    {
+        displayCustomColumnDebuggingErrorMessages = isDebugging;
+    }
+}

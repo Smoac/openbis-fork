@@ -527,7 +527,7 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         }
         DefaultResultSetConfig<String, T> resultSetConfig =
                 createPagingConfig(loadConfig, columnDefinitions, filterToolbar.getFilters(),
-                        pendingFetchConfigOrNull, getGridDisplayTypeID());
+                        pendingFetchConfigOrNull, getGridDisplayTypeID(), viewContext);
         debug("create a refresh callback " + pendingFetchConfigOrNull);
         ListEntitiesCallback listCallback =
                 new ListEntitiesCallback(viewContext, callback, resultSetConfig);
@@ -566,7 +566,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
 
     private static <T> DefaultResultSetConfig<String, T> createPagingConfig(
             PagingLoadConfig loadConfig, Set<IColumnDefinition<T>> availableColumns,
-            GridFilters<T> filters, ResultSetFetchConfig<String> cacheConfig, String gridDisplayId)
+            GridFilters<T> filters, ResultSetFetchConfig<String> cacheConfig, String gridDisplayId,
+            IViewContext<ICommonClientServiceAsync> viewContext)
     {
         int limit = loadConfig.getLimit();
         int offset = loadConfig.getOffset();
@@ -581,6 +582,8 @@ public abstract class AbstractBrowserGrid<T/* Entity */, M extends BaseEntityMod
         resultSetConfig.setFilters(filters);
         resultSetConfig.setCacheConfig(cacheConfig);
         resultSetConfig.setGridDisplayId(gridDisplayId);
+        resultSetConfig.setCustomColumnErrorMessageLong(viewContext.getDisplaySettingsManager()
+                .isDisplayCustomColumnDebuggingErrorMessages());
         return resultSetConfig;
     }
 

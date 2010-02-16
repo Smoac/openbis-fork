@@ -750,6 +750,8 @@ public abstract class Dict
     public static final String SCIENTIFIC_FORMATING = "scientific_formating";
 
     public static final String REAL_NUMBER_FORMATING_PRECISION = "real_number_formating_precision";
+    
+    public static final String ERROR_MESSAGE_FORMATING = "error_message_formating";
 
     //
     // Help Info

@@ -465,7 +465,20 @@ public class DisplaySettingsManager
     {
         displaySettings.setUseWildcardSearchMode(newValue);
     }
-    
+
+    /**
+     * Should error messages from custom columns be displayed in debugging or user format?
+     */
+    public final boolean isDisplayCustomColumnDebuggingErrorMessages()
+    {
+        return displaySettings.isDisplayCustomColumnDebuggingErrorMessages();
+    }
+
+    public final void setDisplayCustomColumnDebuggingErrorMessages(boolean isDebugging)
+    {
+        displaySettings.setDisplayCustomColumnDebuggingErrorMessages(isDebugging);
+    }
+
     @SuppressWarnings("deprecation")
     public final RealNumberFormatingParameters getRealNumberFormatingParameters()
     {

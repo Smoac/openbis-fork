@@ -427,6 +427,7 @@ var common = {
   real_number_formating_fields: "Custom Real Number Formating in Tables",
   scientific_formating: "Scientific",
   real_number_formating_precision: "Precision",
+  error_message_formating: "Debugging Error Messages",
     
   //
   // Role View

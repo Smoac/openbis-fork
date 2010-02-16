@@ -68,11 +68,13 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     private final CheckBoxField useWildcardSearchModeCheckbox;
 
     private final FieldSet formatingFields;
-    
+
     private final CheckBoxField scientificFormatingField;
-    
+
+    private final CheckBoxField errorMessageFormattingField;
+
     private final IntegerField precisionField;
-    
+
     private final IDelegatedAction resetCallback;
 
     public ChangeUserSettingsDialog(final IViewContext<?> viewContext,
@@ -84,7 +86,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         this.resetCallback = resetCallback;
         form.setLabelWidth(150);
         form.setFieldWidth(400);
-//        setHeight(250);
+        // setHeight(250);
 
         addField(homeGroupField = createHomeGroupField());
         addField(useWildcardSearchModeCheckbox = createUseWildcardSearchModeField());
@@ -94,6 +96,8 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         scientificFormatingField = createScientificCheckBox();
         formatingFields.add(scientificFormatingField);
         addField(formatingFields);
+        errorMessageFormattingField = createErrorMessageFormattingCheckBox();
+        addField(errorMessageFormattingField);
         fbar.insert(createResetButton(), 1); // inserting Reset button in between Save and Cancel
 
         DialogWithOnlineHelpUtils.addHelpButton(viewContext.getCommonViewContext(), this,
@@ -120,7 +124,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         field.setValue(viewContext.getDisplaySettingsManager().isUseWildcardSearchMode());
         return field;
     }
-    
+
     @Override
     protected void save(AsyncCallback<Void> saveCallback)
     {
@@ -137,6 +141,11 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         DisplaySettingsManager displaySettingsManager = viewContext.getDisplaySettingsManager();
         boolean useWildcardSearchMode = extractUseWildcardSearchMode();
         displaySettingsManager.updateUseWildcardSearchMode(useWildcardSearchMode);
+
+        boolean useCustomColumnDebuggingMessages = errorMessageFormattingField.getValue();
+        displaySettingsManager
+                .setDisplayCustomColumnDebuggingErrorMessages(useCustomColumnDebuggingMessages);
+
         displaySettingsManager.storeSettings();
     }
 
@@ -162,7 +171,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         fields.addListener(Events.Collapse, listener);
         return fields;
     }
-    
+
     private IntegerField createPrecisionField()
     {
         IntegerField field =
@@ -171,7 +180,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         field.setValue(getRealNumberFormatingParameters().getPrecision());
         return field;
     }
-    
+
     private CheckBoxField createScientificCheckBox()
     {
         CheckBoxField field =
@@ -179,12 +188,20 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         field.setValue(getRealNumberFormatingParameters().isScientific());
         return field;
     }
-    
+
+    private CheckBoxField createErrorMessageFormattingCheckBox()
+    {
+        CheckBoxField field =
+                new CheckBoxField(viewContext.getMessage(Dict.ERROR_MESSAGE_FORMATING), false);
+        field.setValue(viewContext.getDisplaySettingsManager().isDisplayCustomColumnDebuggingErrorMessages());
+        return field;
+    }
+
     private RealNumberFormatingParameters getRealNumberFormatingParameters()
     {
         return viewContext.getDisplaySettingsManager().getRealNumberFormatingParameters();
     }
-    
+
     private boolean extractUseWildcardSearchMode()
     {
         return useWildcardSearchModeCheckbox.getValue();
