@@ -16,15 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.server;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import javax.annotation.Resource;
-import javax.sql.DataSource;
-
-import net.lemnik.eodsql.DataSet;
-import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
@@ -38,8 +30,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
@@ -83,21 +73,19 @@ public class QueryServer extends AbstractServer<IQueryServer> implements
     public TableModel queryDatabase(String sessionToken, String sqlQuery)
     {
         checkSession(sessionToken);
+        
+        DAO dao = createDAO();
+        return dao.query(sqlQuery);
+    }
+
+    private DAO createDAO()
+    {
         DatabaseDefinition definition = tryToGetDatabaseDefinition();
         if (definition == null)
         {
             throw new UnsupportedOperationException("Undefined query database");
         }
-        DataSource dataSource = definition.getConfigurationContext().getDataSource();
-        DataSet<Map<String, Object>> result = QueryTool.select(dataSource, sqlQuery);
-        for (Map<String, Object> row : result)
-        {
-            System.out.println(row);
-        }
-        result.close();
-        List<TableModelColumnHeader> headers = new ArrayList<TableModelColumnHeader>();
-        List<TableModelRow> rows = new ArrayList<TableModelRow>();
-        return new TableModel(headers, rows);
+        return new DAO(definition.getConfigurationContext().getDataSource());
     }
     
     private DatabaseDefinition tryToGetDatabaseDefinition()
