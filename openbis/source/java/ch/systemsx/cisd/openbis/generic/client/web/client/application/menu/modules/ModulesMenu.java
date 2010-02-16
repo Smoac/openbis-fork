@@ -16,10 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.modules;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu;
@@ -50,11 +53,15 @@ public class ModulesMenu extends TopMenuItem
 
     private void initialize(List<IModule> modules)
     {
-        // TODO 2010-02-16, Piotr Buczek: initialize modules and add items to menu afterwards
-        addItemsForModules(modules);
+        ModuleInitializationController.initialize(modules, this);
     }
 
-    private void addItemsForModules(List<IModule> modules)
+    /**
+     * Adds menu items supplied by the specified <var>modules</var> to the this menu and then shows
+     * the menu. Additional simplification of the menu structure is done if there is only one item
+     * in the submenu.
+     */
+    void addModuleItems(List<IModule> modules)
     {
         Menu submenu = getMenu();
         for (IModule module : modules)
@@ -74,8 +81,6 @@ public class ModulesMenu extends TopMenuItem
     /**
      * If there is only one item in specified <var>topMenu</var> and that item has a sub menu then
      * 'pull up' this one item into the top menu.
-     * 
-     * @param modulesMenu
      */
     private static void simplifyIfNecessary(TopMenuItem topMenu)
     {
@@ -87,9 +92,100 @@ public class ModulesMenu extends TopMenuItem
                 topMenu.setText(menuItem.getText());
                 topMenu.setMenu(menuItem.getSubMenu());
             }
-        } else
-        {
-            return; // nothing to simplify
         }
+    }
+
+    private static class ModuleInitializationController
+    {
+        public static void initialize(List<IModule> modules, ModulesMenu modulesMenu)
+        {
+            ModuleInitializationController controller =
+                    new ModuleInitializationController(modules, modulesMenu);
+            for (IModule module : modules)
+            {
+                module.initialize(new ModuleInitializationCallback(controller, module));
+            }
+        }
+
+        private int remainingModulesCounter;
+
+        private final List<IModule> successfullyInitializedModules = new ArrayList<IModule>();
+
+        private final List<IModule> uninitializedModules = new ArrayList<IModule>();
+
+        private final ModulesMenu modulesMenu;
+
+        private ModuleInitializationController(List<IModule> allModules, ModulesMenu modulesMenu)
+        {
+            this.modulesMenu = modulesMenu;
+            successfullyInitializedModules.addAll(allModules);
+            remainingModulesCounter = allModules.size();
+        }
+
+        private void onInitializationFailure(Throwable caught, IModule module)
+        {
+            successfullyInitializedModules.remove(module);
+            uninitializedModules.add(module);
+            onModuleInitializationComplete();
+        }
+
+        private void onInitializationSuccess(IModule module)
+        {
+            onModuleInitializationComplete();
+        }
+
+        private void onModuleInitializationComplete()
+        {
+            remainingModulesCounter--;
+            if (remainingModulesCounter == 0)
+            {
+                modulesMenu.addModuleItems(successfullyInitializedModules);
+                showErrorMessageIfNecessary();
+            }
+        }
+
+        private void showErrorMessageIfNecessary()
+        {
+            if (uninitializedModules.size() == 0)
+            {
+                return;
+            }
+
+            final StringBuilder sb = new StringBuilder();
+            sb.append("Initialization of these utilities failed: ");
+            for (IModule module : uninitializedModules)
+            {
+                sb.append(module.getName() + ", ");
+            }
+            sb.setLength(sb.length() - 2);
+
+            MessageBox.alert("Error", sb.toString(), null);
+        }
+
+    }
+
+    private static class ModuleInitializationCallback implements AsyncCallback<Void>
+    {
+
+        private final ModuleInitializationController manager;
+
+        private final IModule module;
+
+        public ModuleInitializationCallback(ModuleInitializationController manager, IModule module)
+        {
+            this.manager = manager;
+            this.module = module;
+        }
+
+        public void onFailure(Throwable caught)
+        {
+            manager.onInitializationFailure(caught, module);
+        }
+
+        public void onSuccess(Void result)
+        {
+            manager.onInitializationSuccess(module);
+        }
+
     }
 }
