@@ -54,7 +54,7 @@ class DAO extends SimpleJdbcDaoSupport
         {
             return DataTypeCode.INTEGER;
         }
-        if (JdbcUtils.isNumeric(sqlType))
+        if (isReal(sqlType))
         {
             return DataTypeCode.REAL;
         }
@@ -65,6 +65,12 @@ class DAO extends SimpleJdbcDaoSupport
     {
         return Types.BIGINT == sqlType || Types.INTEGER == sqlType || Types.SMALLINT == sqlType
         || Types.TINYINT == sqlType;
+    }
+
+    private static boolean isReal(int sqlType)
+    {
+        return Types.DECIMAL == sqlType || Types.DOUBLE == sqlType || Types.FLOAT == sqlType
+                || Types.NUMERIC == sqlType || Types.REAL == sqlType;
     }
     
     public DAO(DataSource dataSource)
