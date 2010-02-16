@@ -60,9 +60,11 @@ public class ScreeningLibraryTransformer
             return;
         }
         String[] headers = csvReader.getValues();
-        IScreeningLibraryColumnExtractor extractor = new QiagenScreeningLibraryColumnExtractor(headers);
+        IScreeningLibraryColumnExtractor extractor =
+                new QiagenScreeningLibraryColumnExtractor(headers);
         LibraryEntityRegistrator registrator =
-                new LibraryEntityRegistrator(extractor, experimentIdentifier, plateGeometry, groupCode);
+                new LibraryEntityRegistrator(extractor, experimentIdentifier, plateGeometry,
+                        groupCode);
         while (csvReader.readRecord())
         {
             String[] row = csvReader.getValues();
@@ -71,14 +73,14 @@ public class ScreeningLibraryTransformer
         System.out.println("Done, look for results in " + new File(".").getAbsolutePath());
     }
 
-    private static CsvReader readFile(String path) throws FileNotFoundException, IOException
+    static CsvReader readFile(String path) throws FileNotFoundException, IOException
     {
-        File masterPlatesFile = new File(path);
-        if (masterPlatesFile.isFile() == false)
+        File file = new File(path);
+        if (file.isFile() == false)
         {
-            error(masterPlatesFile + " does not exist or is not a file.");
+            error(file + " does not exist or is not a file.");
         }
-        FileInputStream fileInputStream = new FileInputStream(masterPlatesFile);
+        FileInputStream fileInputStream = new FileInputStream(file);
 
         CsvReader csvReader = new CsvReader(fileInputStream, Charset.defaultCharset());
         csvReader.setDelimiter(SEPARATOR);
