@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.server;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -26,7 +28,6 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.springframework.stereotype.Component;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPaceholderConfigurer;
 import ch.systemsx.cisd.common.utilities.BeanUtils;
@@ -37,6 +38,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.query.shared.IQueryServer;
 import ch.systemsx.cisd.openbis.plugin.query.shared.ResourceNames;
@@ -59,7 +62,6 @@ public class QueryServer extends AbstractServer<IQueryServer> implements
     {
     }
     
-    @Private
     QueryServer(final ISessionManager<Session> sessionManager, final IDAOFactory daoFactory,
             final ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
             final IDataSetTypeSlaveServerPlugin dataSetTypeSlaveServerPlugin)
@@ -93,7 +95,9 @@ public class QueryServer extends AbstractServer<IQueryServer> implements
             System.out.println(row);
         }
         result.close();
-        return null;
+        List<TableModelColumnHeader> headers = new ArrayList<TableModelColumnHeader>();
+        List<TableModelRow> rows = new ArrayList<TableModelRow>();
+        return new TableModel(headers, rows);
     }
     
     private DatabaseDefinition tryToGetDatabaseDefinition()
