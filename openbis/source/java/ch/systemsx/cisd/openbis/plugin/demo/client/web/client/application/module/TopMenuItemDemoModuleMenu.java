@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.module;
 
 import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -26,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.Dict;
@@ -36,7 +36,7 @@ import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.Dict;
  * 
  * @author Izabela Adamczyk
  */
-public class TopMenuItemDemoModuleMenu extends TopMenuItem
+public class TopMenuItemDemoModuleMenu extends MenuItem
 {
     public static final String ID = GenericConstants.ID_PREFIX;
 
@@ -89,6 +89,6 @@ public class TopMenuItemDemoModuleMenu extends TopMenuItem
         Menu submenu = new Menu();
         submenu.add(new ActionMenu(ActionMenuKind.STATISTICS, viewContext,
                 new ExperimentStatisticsTabItemFactory(viewContext)));
-        setMenu(submenu);
+        setSubMenu(submenu);
     }
 }

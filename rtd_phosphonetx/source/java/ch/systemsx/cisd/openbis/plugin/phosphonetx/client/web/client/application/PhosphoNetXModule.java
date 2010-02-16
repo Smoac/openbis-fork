@@ -16,57 +16,41 @@
 
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
+import java.util.Collections;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNetXClientServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class PhosphoNetXModule implements IModule
 {
     private final IViewContext<IPhosphoNetXClientServiceAsync> viewContext;
-    
+
     public PhosphoNetXModule(IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
     {
         this.viewContext = viewContext;
     }
-        
-    public Widget getMenu()
+
+    public List<? extends MenuItem> getMenuItems()
     {
-        return new QueryMenu(viewContext);
+        return Collections.singletonList(new QueryMenu(viewContext));
     }
 
-    public List<Component> getMenuItems()
+    public String getName()
     {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public String getModuleDescription()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public String getModuleName()
-    {
-        // TODO Auto-generated method stub
-        return null;
+        return viewContext.getMessage(Dict.QUERY_MENU_TITLE);
     }
 
     public void initialize(AsyncCallback<Void> callback)
     {
-        // TODO Auto-generated method stub
-        
+        callback.onSuccess(null);
     }
 
 }

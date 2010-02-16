@@ -322,6 +322,8 @@ var common = {
   menu_compute: "Perform",
   COMPUTE_MENU_QUERIES: "Query",
   COMPUTE_MENU_PROCESSING: "Processing",
+  
+  menu_modules: "Utilities",
     
   //
   // Tab Titles

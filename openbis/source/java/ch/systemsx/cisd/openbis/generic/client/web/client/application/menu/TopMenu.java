@@ -16,9 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.menu;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -113,10 +116,14 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new DataSetMenu(viewContext, componentProvider));
         toolBar.add(new MaterialMenu(viewContext, componentProvider));
         toolBar.add(new AdministrationMenu(viewContext, componentProvider));
+        // toolBar.add(new ModulesMenu(viewContext, viewContext.getClientPluginFactoryProvider()));
 
-        for (IModule m : viewContext.getClientPluginFactoryProvider().getModules())
+        TopMenuItem modulesMenuOrNull =
+                tryCreateModulesMenu(viewContext.getClientPluginFactoryProvider().getModules());
+        if (modulesMenuOrNull != null)
         {
-            toolBar.add(new WidgetComponent(m.getMenu()));
+            simplifyMenuIfNecessary(modulesMenuOrNull);
+            toolBar.add(modulesMenuOrNull);
         }
 
         toolBar.add(new FillToolItem());
@@ -124,6 +131,46 @@ public class TopMenu extends LayoutContainer
         toolBar.add(new SeparatorToolItem());
         toolBar.add(new InfoButton(viewContext));
         toolBar.add(new LoggedUserMenu(viewContext, componentProvider));
+    }
+
+    private TopMenuItem tryCreateModulesMenu(List<IModule> modules)
+    {
+        TopMenuItem modulesMenu = new TopMenuItem("Utilities");
+
+        Menu submenu = new Menu();
+        for (IModule module : modules)
+        {
+            for (MenuItem menuItem : module.getMenuItems())
+            {
+                submenu.add(menuItem);
+            }
+        }
+        if (submenu.getItems().size() == 0)
+        {
+            return null;
+        }
+        modulesMenu.setMenu(submenu);
+        return modulesMenu;
+    }
+
+    /**
+     * If there is only one item in the specified <var>topMenu</var> and that item has a sub menu
+     * than 'pull up' this one item into top menu.
+     */
+    private void simplifyMenuIfNecessary(TopMenuItem topMenu)
+    {
+        if (topMenu.getMenu().getItemCount() == 1)
+        {
+            MenuItem menuItem = (MenuItem) topMenu.getMenu().getItem(0);
+            if (menuItem.getSubMenu() != null)
+            {
+                topMenu.setText(menuItem.getText());
+                topMenu.setMenu(menuItem.getSubMenu());
+            }
+        } else
+        {
+            return; // nothing to simplify
+        }
     }
 
     @Override

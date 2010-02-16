@@ -18,15 +18,12 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Widget;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenuItem;
 
 /**
  * Plugin that does not depend on entity kind and type. All methods except
- * {@link #initialize(AsyncCallback)} is invoked after invocation of the call back of the
+ * {@link #initialize(AsyncCallback)} are invoked after invocation of the call back of the
  * initialization method.
  * 
  * @author Izabela Adamczyk
@@ -39,25 +36,15 @@ public interface IModule
      * {@link AsyncCallback#onFailure(Throwable)} is invoked.
      */
     void initialize(AsyncCallback<Void> callback);
-    
-    /**
-     * Returns a widget that will be used as a top menu element.
-     * <p>
-     * Note that although any widget may be returned by the method, the height of the top menu will
-     * not be adjusted automatically, so make sure that your widget is not too high.
-     * </p>
-     * <p>
-     * {@link TopMenuItem} should be used for standard menus.
-     * </p>
-     */
-    Widget getMenu();
-    
-    String getModuleName();
-    
-    String getModuleDescription();
+
+	/**
+     * Returns user friendly name of the module.
+	 */
+    String getName();
 
     /**
-     * Returns a list with menu items. The list empty if this module isn't applicable. 
+     * Returns a list with menu items (they can be complex submenus or single menu items). The list
+     * should be empty if this module isn't applicable.
      */
-    List<Component> getMenuItems();
+    List<? extends MenuItem> getMenuItems();
 }

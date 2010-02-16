@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.application;
 
 import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -34,21 +35,21 @@ import ch.systemsx.cisd.openbis.plugin.phosphonetx.client.web.client.IPhosphoNet
 /**
  * @author Franz-Josef Elmer
  */
-public class QueryMenu extends TopMenuItem
+public class QueryMenu extends MenuItem
 {
     public static final String ID = GenericConstants.ID_PREFIX + "-phosphonetx-";
 
     private static enum ActionMenuKind implements IActionMenuItem
     {
-//        ALL_PROTEINS_OF_AN_EXPERIMENT()
-//        {
-//            @Override
-//            IDisposableComponent createComponent(
-//                    IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
-//            {
-//                return ProteinByExperimentBrowserGrid.create(viewContext);
-//            }
-//        },
+        // ALL_PROTEINS_OF_AN_EXPERIMENT()
+        // {
+        // @Override
+        // IDisposableComponent createComponent(
+        // IViewContext<IPhosphoNetXClientServiceAsync> viewContext)
+        // {
+        // return ProteinByExperimentBrowserGrid.create(viewContext);
+        // }
+        // },
         ALL_RAW_DATA_SAMPLES()
         {
             @Override
@@ -111,6 +112,6 @@ public class QueryMenu extends TopMenuItem
         {
             submenu.add(actionMenuKind.createActionMenu(viewContext));
         }
-        setMenu(submenu);
+        setSubMenu(submenu);
     }
 }

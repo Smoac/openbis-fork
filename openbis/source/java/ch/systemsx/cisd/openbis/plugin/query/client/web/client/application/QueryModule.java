@@ -16,20 +16,17 @@
 
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application;
 
+import java.util.Collections;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class QueryModule implements IModule
@@ -40,34 +37,23 @@ public class QueryModule implements IModule
     {
         this.viewContext = viewContext;
     }
-    
-    public Widget getMenu()
+
+    public List<? extends MenuItem> getMenuItems()
     {
-        return new Button("hello");
+        // return Collections.emptyList();
+		// FIXME
+        return Collections.singletonList(new MenuItem("hello"));
     }
 
-    public List<Component> getMenuItems()
+    public String getName()
     {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public String getModuleDescription()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public String getModuleName()
-    {
-        // TODO Auto-generated method stub
-        return null;
+        return viewContext.getMessage(Dict.MODULE_MENU_TITLE);
     }
 
     public void initialize(AsyncCallback<Void> callback)
     {
-        // TODO Auto-generated method stub
-        
+        // FIXME
+        callback.onSuccess(null);
     }
 
 }

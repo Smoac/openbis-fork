@@ -16,15 +16,16 @@
 
 package ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.module;
 
+import java.util.Collections;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Widget;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.IDemoClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.Dict;
 
 /**
  * Simple demo module.
@@ -46,34 +47,20 @@ public class DemoModule implements IModule
         return viewContext;
     }
 
-    public Widget getMenu()
+    public List<? extends MenuItem> getMenuItems()
     {
-        return new TopMenuItemDemoModuleMenu(getViewContext());
+        return Collections.singletonList(new TopMenuItemDemoModuleMenu(getViewContext()));
         // Uncomment to see customized top menu .
         // return new CustomizedWidgetDemoModuleMenu(getViewContext());
     }
 
-    public List<Component> getMenuItems()
+    public String getName()
     {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public String getModuleDescription()
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public String getModuleName()
-    {
-        // TODO Auto-generated method stub
-        return null;
+        return viewContext.getMessage(Dict.MODULE_MENU_TITLE);
     }
 
     public void initialize(AsyncCallback<Void> callback)
     {
-        // TODO Auto-generated method stub
-        
+        callback.onSuccess(null);
     }
 }

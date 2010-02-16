@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -35,6 +37,8 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Cli
  */
 public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryProvider
 {
+    private final Set<IClientPluginFactory> pluginFactories = new HashSet<IClientPluginFactory>();
+
     private final Map<EntityKindAndTypeCode, IClientPluginFactory> pluginFactoryByEntityKindAndTypeCode =
             new HashMap<EntityKindAndTypeCode, IClientPluginFactory>();
 
@@ -51,14 +55,17 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
             final IViewContext<ICommonClientServiceAsync> originalViewContext)
     {
         // Automatically generated part - START
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.ClientPluginFactory(originalViewContext));
-        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.ClientPluginFactory(originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.demo.client.web.client.application.ClientPluginFactory(
+                originalViewContext));
+        registerPluginFactory(new ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.ClientPluginFactory(
+                originalViewContext));
         // Automatically generated part - END
     }
 
     protected final void registerPluginFactory(final IClientPluginFactory pluginFactory)
     {
         assert pluginFactory != null : "Unspecified client plugin factory.";
+        pluginFactories.add(pluginFactory);
         for (final EntityKind entityKind : EntityKind.values())
         {
             for (final String entityType : pluginFactory.getEntityTypeCodes(entityKind))
@@ -100,7 +107,7 @@ public class DefaultClientPluginFactoryProvider implements IClientPluginFactoryP
     public final List<IModule> getModules()
     {
         ArrayList<IModule> modules = new ArrayList<IModule>();
-        for (IClientPluginFactory factory : pluginFactoryByEntityKindAndTypeCode.values())
+        for (IClientPluginFactory factory : pluginFactories)
         {
             IModule m = factory.tryGetModule();
             if (m != null)

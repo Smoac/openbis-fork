@@ -500,6 +500,8 @@ public abstract class Dict
 
     public static final String MENU_SAMPLE = "menu_sample";
 
+    public static final String MENU_MODULES = "menu_modules";
+
     public static final String MENU_COMPUTE = "menu_compute";
 
     //
@@ -742,7 +744,7 @@ public abstract class Dict
 
     public static final String RESET_USER_SETTINGS_CONFIRMATION_MSG =
             "reset_user_settings_confirmation_msg";
-    
+
     public static final String REAL_NUMBER_FORMATING_FIELDS = "real_number_formating_fields";
 
     public static final String SCIENTIFIC_FORMATING = "scientific_formating";
