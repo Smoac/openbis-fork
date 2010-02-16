@@ -24,15 +24,15 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GenericTableResult
 
 /**
  * The values of a row of a {@link GenericTableResultSet}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class GenericTableRow implements Serializable, IsSerializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-    
+
     private ISerializableComparable[] cells;
-    
+
     /**
      * Creates an instance for specified cells.
      */
@@ -48,7 +48,15 @@ public class GenericTableRow implements Serializable, IsSerializable
      */
     public ISerializableComparable tryToGetValue(int index)
     {
-        return cells[index]; 
+        return cells[index];
+    }
+
+    /**
+     * Return the length of the underlying array. Useful for debugging.
+     */
+    public int length()
+    {
+        return cells.length;
     }
 
     // GWT only
