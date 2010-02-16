@@ -26,6 +26,11 @@ import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.Stan
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.stdev;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.toFloat;
 import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.toInt;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.avgOrDefault;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.maxOrDefault;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.medianOrDefault;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.minOrDefault;
+import static ch.systemsx.cisd.openbis.generic.client.web.server.calculator.StandardFunctions.stdevOrDefault;
 
 import java.util.Arrays;
 
@@ -132,31 +137,6 @@ public class StandardFunctionsTest extends AssertJUnit
     @Test
     public void testAvg()
     {
-        assertEquals(0.0, stdev(Arrays.<Object>asList(1.5)));
-        assertEquals(2.0, stdev(Arrays.<Object>asList(2, 4, 4, 4, 5, 5, 7, 9)));
-        assertEquals(0.0, stdev(Arrays.<Object>asList(null, 1)));
-        assertEquals(4.5, stdev(Arrays.<Object>asList(" ", 1, "10")));
-        try
-        {
-            stdev(Arrays.<Object>asList());
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex)
-        {
-            assertEquals("Argument of function 'stdev' is an empty array.", ex.getMessage());
-        }
-        try
-        {
-            stdev(Arrays.<Object>asList("a"));
-            fail("NumberFormatException expected");
-        } catch (NumberFormatException ex)
-        {
-            // ignored
-        }
-    }
-    
-    @Test
-    public void testStdev()
-    {
         assertEquals(1.5, avg(Arrays.<Object>asList(1.5)));
         assertEquals(5.0, avg(Arrays.<Object>asList(1, 4, 10)));
         assertEquals(5.5, avg(Arrays.<Object>asList(null, 1, 10)));
@@ -172,6 +152,31 @@ public class StandardFunctionsTest extends AssertJUnit
         try
         {
             avg(Arrays.<Object>asList("a"));
+            fail("NumberFormatException expected");
+        } catch (NumberFormatException ex)
+        {
+            // ignored
+        }
+    }
+    
+    @Test
+    public void testStdev()
+    {
+        assertEquals(0.0, stdev(Arrays.<Object>asList(1.5)));
+        assertEquals(2.0, stdev(Arrays.<Object>asList(2, 4, 4, 4, 5, 5, 7, 9)));
+        assertEquals(0.0, stdev(Arrays.<Object>asList(null, 1)));
+        assertEquals(4.5, stdev(Arrays.<Object>asList(" ", 1, "10")));
+        try
+        {
+            stdev(Arrays.<Object>asList());
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Argument of function 'stdev' is an empty array.", ex.getMessage());
+        }
+        try
+        {
+            stdev(Arrays.<Object>asList("a"));
             fail("NumberFormatException expected");
         } catch (NumberFormatException ex)
         {
@@ -252,5 +257,40 @@ public class StandardFunctionsTest extends AssertJUnit
         {
             // ignored
         }
+    }
+    
+    @Test
+    public void testAvgOrDefault()
+    {
+        assertEquals(-47.8, avgOrDefault(Arrays.<Object>asList(), -47.8));
+        assertEquals(5.0, avgOrDefault(Arrays.<Object>asList(2, 4, 4, 4, 5, 5, 7, 9), -47.8));
+    }
+    
+    @Test
+    public void testStdevOrDefault()
+    {
+        assertEquals(384.21, stdevOrDefault(Arrays.<Object>asList(), 384.21));
+        assertEquals(2.0, stdevOrDefault(Arrays.<Object>asList(2, 4, 4, 4, 5, 5, 7, 9), 384.21));
+    }
+    
+    @Test
+    public void testMedianOrDefault()
+    {
+        assertEquals(-47.8, medianOrDefault(Arrays.<Object>asList(), -47.8));
+        assertEquals(4.0, medianOrDefault(Arrays.<Object>asList(4, 1, 10), -47.8));
+    }
+    
+    @Test
+    public void testMinOrDefault()
+    {
+        assertEquals(-47.8, minOrDefault(Arrays.<Object>asList(), -47.8));
+        assertEquals(1.0, minOrDefault(Arrays.<Object>asList(4, 1, 10), -47.8));
+    }
+    
+    @Test
+    public void testMaxOrDefault()
+    {
+        assertEquals(-47.8, maxOrDefault(Arrays.<Object>asList(), -47.8));
+        assertEquals(10.0, maxOrDefault(Arrays.<Object>asList(4, 1, 10), -47.8));
     }
 }
