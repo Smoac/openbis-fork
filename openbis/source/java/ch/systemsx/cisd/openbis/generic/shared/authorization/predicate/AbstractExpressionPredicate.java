@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.IAuthorizationDataP
 import ch.systemsx.cisd.openbis.generic.shared.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IFilterOrColumnUpdates;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractExpressionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractGridExpressionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -38,11 +39,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
  * @author Tomasz Pylak
  */
 
-abstract public class AbstractGridExpressionPredicate<T> extends AbstractPredicate<T>
+abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T>
 {
 
     public static class DeleteGridCustomFilterPredicate extends
-            AbstractGridExpressionPredicate<TechId>
+            AbstractExpressionPredicate<TechId>
     {
         public DeleteGridCustomFilterPredicate()
         {
@@ -50,14 +51,14 @@ abstract public class AbstractGridExpressionPredicate<T> extends AbstractPredica
         }
 
         @Override
-        public AbstractGridExpressionPE<?> convert(TechId techId)
+        public AbstractExpressionPE<?> convert(TechId techId)
         {
             return authorizationDataProvider.getGridCustomFilter(techId);
         }
     }
 
     public static class DeleteGridCustomColumnPredicate extends
-            AbstractGridExpressionPredicate<TechId>
+            AbstractExpressionPredicate<TechId>
     {
         public DeleteGridCustomColumnPredicate()
         {
@@ -65,14 +66,14 @@ abstract public class AbstractGridExpressionPredicate<T> extends AbstractPredica
         }
 
         @Override
-        public AbstractGridExpressionPE<?> convert(TechId techId)
+        public AbstractExpressionPE<?> convert(TechId techId)
         {
             return authorizationDataProvider.getGridCustomColumn(techId);
         }
     }
 
     public static class UpdateGridCustomFilterPredicate extends
-            AbstractGridExpressionPredicate<IFilterOrColumnUpdates>
+            AbstractExpressionPredicate<IFilterOrColumnUpdates>
     {
         public UpdateGridCustomFilterPredicate()
         {
@@ -80,7 +81,7 @@ abstract public class AbstractGridExpressionPredicate<T> extends AbstractPredica
         }
 
         @Override
-        public AbstractGridExpressionPE<?> convert(IFilterOrColumnUpdates criteria)
+        public AbstractExpressionPE<?> convert(IFilterOrColumnUpdates criteria)
         {
             TechId techId = TechId.create(criteria);
             return authorizationDataProvider.getGridCustomFilter(techId);
@@ -88,7 +89,7 @@ abstract public class AbstractGridExpressionPredicate<T> extends AbstractPredica
     }
 
     public static class UpdateGridCustomColumnPredicate extends
-            AbstractGridExpressionPredicate<IFilterOrColumnUpdates>
+            AbstractExpressionPredicate<IFilterOrColumnUpdates>
     {
         public UpdateGridCustomColumnPredicate()
         {
@@ -96,20 +97,20 @@ abstract public class AbstractGridExpressionPredicate<T> extends AbstractPredica
         }
 
         @Override
-        public AbstractGridExpressionPE<?> convert(IFilterOrColumnUpdates criteria)
+        public AbstractExpressionPE<?> convert(IFilterOrColumnUpdates criteria)
         {
             TechId techId = TechId.create(criteria);
             return authorizationDataProvider.getGridCustomColumn(techId);
         }
     }
 
-    abstract protected AbstractGridExpressionPE<?> convert(T value);
+    abstract protected AbstractExpressionPE<?> convert(T value);
 
     private final String description;
 
     protected IAuthorizationDataProvider authorizationDataProvider;
 
-    public AbstractGridExpressionPredicate(String description)
+    public AbstractExpressionPredicate(String description)
     {
         this.description = description;
     }
@@ -133,7 +134,7 @@ abstract public class AbstractGridExpressionPredicate<T> extends AbstractPredica
     final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final T value)
     {
-        AbstractGridExpressionPE<?> gridExpression = convert(value);
+        AbstractExpressionPE<?> gridExpression = convert(value);
         final boolean matching = isMatching(person, gridExpression);
         if (matching)
         {
@@ -143,14 +144,14 @@ abstract public class AbstractGridExpressionPredicate<T> extends AbstractPredica
         return Status.createError(createErrorMsg(gridExpression, userId));
     }
 
-    private static boolean isMatching(PersonPE person, AbstractGridExpressionPE<?> gridExpression)
+    private static boolean isMatching(PersonPE person, AbstractExpressionPE<?> gridExpression)
     {
         // needs to be an instance admin in filter database instance or registrator of a filter
         return isRegistrator(person, gridExpression)
                 || isInstanceAdmin(person, gridExpression.getDatabaseInstance());
     }
 
-    private String createErrorMsg(AbstractGridExpressionPE<?> gridExpression, String userId)
+    private String createErrorMsg(AbstractExpressionPE<?> gridExpression, String userId)
     {
         return String.format("User '%s' does not have enough privileges to"
                 + " perform update/delete operation on custom grid filter/column "
@@ -159,7 +160,7 @@ abstract public class AbstractGridExpressionPredicate<T> extends AbstractPredica
     }
 
     private static boolean isRegistrator(final PersonPE person,
-            final AbstractGridExpressionPE<?> gridExpression)
+            final AbstractExpressionPE<?> gridExpression)
     {
         return person.equals(gridExpression.getRegistrator());
     }

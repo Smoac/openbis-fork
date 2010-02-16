@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -268,6 +269,11 @@ public final class PredicateExecutor
         public GridCustomColumnPE getGridCustomColumn(TechId techId)
         {
             return daoFactory.getGridCustomColumnDAO().getByTechId(techId);
+        }
+
+        public QueryPE getQuery(TechId techId)
+        {
+            return daoFactory.getQueryDAO().getByTechId(techId);
         }
 
     }

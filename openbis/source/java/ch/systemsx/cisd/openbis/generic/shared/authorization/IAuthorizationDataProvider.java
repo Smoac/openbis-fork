@@ -24,6 +24,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.QueryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -66,5 +67,10 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
      * Returns the grid custom column with given <var>techId</var>
      */
     public GridCustomColumnPE getGridCustomColumn(TechId techId);
+    
+    /**
+     * Returns the query with specified ID.
+     */
+    public QueryPE getQuery(TechId techId);
 
 }

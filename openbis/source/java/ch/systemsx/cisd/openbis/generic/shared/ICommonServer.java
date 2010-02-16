@@ -32,10 +32,10 @@ import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.GroupIden
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ListSampleCriteriaPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.ProjectUpdatesPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.SampleTechIdPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGridExpressionPredicate.DeleteGridCustomColumnPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGridExpressionPredicate.DeleteGridCustomFilterPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGridExpressionPredicate.UpdateGridCustomColumnPredicate;
-import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractGridExpressionPredicate.UpdateGridCustomFilterPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate.DeleteGridCustomColumnPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate.DeleteGridCustomFilterPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate.UpdateGridCustomColumnPredicate;
+import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractExpressionPredicate.UpdateGridCustomFilterPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.DataSetTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.authorization.predicate.AbstractTechIdPredicate.GroupTechIdPredicate;
