@@ -17,8 +17,7 @@
 	<property name="server.webapp.file" value="${server.dist}/openBIS.war" />
 	<property name="server.service" value="${server.dist}/service" />
 	<property name="server.service.lib" value="${server.service}/lib" />
-	<property name="application.server.resource"
-              value="../${ant.project.name}/${server-resource}" />
+	<property name="application.server.resource" value="../${ant.project.name}/${server-resource}" />
 
 	<property name="webapp.dist" value="${dist}/webapp" />
 	<property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
@@ -52,7 +51,12 @@
 	<target name="run-system-tests" depends="prepare-gwt, compile-tests">
 		<delete dir="${output.test}" />
 		<mkdir dir="${output.test}" />
-		<junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
+		<junit dir="."
+		       fork="true"
+		       forkmode="once"
+		       maxmemory="1024m"
+		       showoutput="true"
+		       failureproperty="tests-failed">
 			<classpath>
 				<pathelement location="${sources}" />
 				<pathelement location="${sources.test}" />
@@ -74,7 +78,12 @@
 			<formatter type="xml" />
 			<test name="ch.systemsx.cisd.openbis.generic.EditingTestSuite" todir="${output.test}" />
 		</junit>
-		<junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
+		<junit dir="."
+		       fork="true"
+		       forkmode="once"
+		       maxmemory="1024m"
+		       showoutput="true"
+		       failureproperty="tests-failed">
 			<classpath>
 				<pathelement location="${sources}" />
 				<pathelement location="${sources.test}" />
@@ -96,7 +105,12 @@
 			<formatter type="xml" />
 			<test name="ch.systemsx.cisd.openbis.generic.ViewingTestSuite1" todir="${output.test}" />
 		</junit>
-		<junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
+		<junit dir="."
+		       fork="true"
+		       forkmode="once"
+		       maxmemory="1024m"
+		       showoutput="true"
+		       failureproperty="tests-failed">
 			<classpath>
 				<pathelement location="${sources}" />
 				<pathelement location="${sources.test}" />
@@ -120,15 +134,20 @@
 		</junit>
 		<fail>
 			<condition>
-				<isset property="tests-failed"/>
+				<isset property="tests-failed" />
 			</condition>
 		</fail>
 	</target>
-	
+
 	<target name="run-system-tests-no-prep">
 		<delete dir="${output.test}" />
 		<mkdir dir="${output.test}" />
-		<junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
+		<junit dir="."
+		       fork="true"
+		       forkmode="once"
+		       maxmemory="1024m"
+		       showoutput="true"
+		       failureproperty="tests-failed">
 			<classpath>
 				<pathelement location="${sources}" />
 				<pathelement location="${sources.test}" />
@@ -150,7 +169,12 @@
 			<formatter type="xml" />
 			<test name="ch.systemsx.cisd.openbis.generic.EditingTestSuite" todir="${output.test}" />
 		</junit>
-		<junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
+		<junit dir="."
+		       fork="true"
+		       forkmode="once"
+		       maxmemory="1024m"
+		       showoutput="true"
+		       failureproperty="tests-failed">
 			<classpath>
 				<pathelement location="${sources}" />
 				<pathelement location="${sources.test}" />
@@ -172,7 +196,12 @@
 			<formatter type="xml" />
 			<test name="ch.systemsx.cisd.openbis.generic.ViewingTestSuite1" todir="${output.test}" />
 		</junit>
-		<junit dir="." fork="true" forkmode="once" maxmemory="1024m" showoutput="true" failureproperty="tests-failed">
+		<junit dir="."
+		       fork="true"
+		       forkmode="once"
+		       maxmemory="1024m"
+		       showoutput="true"
+		       failureproperty="tests-failed">
 			<classpath>
 				<pathelement location="${sources}" />
 				<pathelement location="${sources.test}" />
@@ -196,7 +225,7 @@
 		</junit>
 		<fail>
 			<condition>
-				<isset property="tests-failed"/>
+				<isset property="tests-failed" />
 			</condition>
 		</fail>
 	</target>
@@ -207,36 +236,39 @@
 
 	<target name="dist" description="Makes a distribution file.">
 		<antcall target="make-dist">
-		        <param name="variant" value="" />
+			<param name="variant" value="" />
 		</antcall>
 	</target>
 
-        <target name="make-dist" description="Makes a distribution file." depends="clean, war">
-                <copy file="${lib}/tomcat5/apache-tomcat.zip" todir="${server.dist}" />
-                <loadfile property="tomcat.version" srcFile="${lib}/tomcat5/version.txt">
-                        <filterchain>
-                                <striplinebreaks />
-                        </filterchain>
-                </loadfile>
-                <echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
-                <copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
-                <copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
-                <copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
-                <copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
-                <copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
-                <property name="server.dist.file" value="${server.dist}${variant}-${version.number}-r${revision.number}.zip" />
-                <zip basedir="${dist}" destfile="${server.dist.file}" excludes="*.zip">
-                        <zipfileset file="${original.openbis.server.dist}/install.sh" filemode="777" prefix="${server.folder.name}" />
-                </zip>
-                <delete dir="${server.dist}" />
-        </target>
+	<target name="make-dist" description="Makes a distribution file." depends="clean, war">
+		<copy file="${lib}/tomcat5/apache-tomcat.zip" todir="${server.dist}" />
+		<loadfile property="tomcat.version" srcFile="${lib}/tomcat5/version.txt">
+			<filterchain>
+				<striplinebreaks />
+			</filterchain>
+		</loadfile>
+		<echo file="${server.dist}/tomcat-version.txt">${tomcat.version}</echo>
+		<copy file="${original.openbis.server.dist}/server.xml" todir="${server.dist}" />
+		<copy file="${original.server.dist}/service.properties" todir="${server.dist}" />
+		<copy file="${original.server.dist}/openbis.conf" todir="${server.dist}" />
+		<copy file="${original.openbis.server.dist}/openBIS.keystore" todir="${server.dist}" />
+		<copy file="${original.openbis.server.dist}/passwd.sh" todir="${server.dist}" />
+		<property name="server.dist.file"
+		          value="${server.dist}${variant}-${version.number}-r${revision.number}.zip" />
+		<zip basedir="${dist}" destfile="${server.dist.file}" excludes="*.zip">
+			<zipfileset file="${original.openbis.server.dist}/install.sh"
+			            filemode="777"
+			            prefix="${server.folder.name}" />
+		</zip>
+		<delete dir="${server.dist}" />
+	</target>
 
 	<!--
       // Task for continuous integration server.
       -->
 	<target name="ci"
-            depends="build-common.ci, check-dependencies, dist"
-            description="Task for continuous integration server." />
+	        depends="build-common.ci, check-dependencies, dist"
+	        description="Task for continuous integration server." />
 
 	<!--
       // Nightly build task for continuous integration server.
@@ -245,8 +277,8 @@
       //   		Orig: depends="build-common.ci, run-system-tests, dist"
       -->
 	<target name="nightly-build"
-            depends="build-common.ci, dist"
-            description="Nightly build task for continuous integration server." />
+	        depends="build-common.ci, dist"
+	        description="Nightly build task for continuous integration server." />
 
 	<!--
       // Compiles the javascript using GWT compiler.
@@ -292,7 +324,7 @@
       // Override 'prepare-gwt' target by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating 'ClientPluginProvider.java'.
       -->
 	<target name="prepare-gwt"
-            description="Override 'prepare-gwt' by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating 'ClientPluginProvider.java'.">
+	        description="Override 'prepare-gwt' by writing out 'OpenBIS.gwt-without-entry-point.xml' and updating 'ClientPluginProvider.java'.">
 		<antcall target="prepare-web-client" />
 		<antcall target="compile-tests" />
 		<antcall target="server-common-common.prepare-gwt" />
@@ -426,12 +458,13 @@
 	<!--
       // Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.
       -->
-	<target name="prepare-web-client" depends="compile"
-            description="Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.">
+	<target name="prepare-web-client"
+	        depends="compile"
+	        description="Updates 'ClientPluginProvider.java' and 'OpenBIS.gwt-without-entry-point.xml' with requested plugins.">
 		<java classname="ch.systemsx.cisd.openbis.generic.shared.util.WebClientFilesUpdater"
-              classpath="${ecp}:../openbis/source/java"
-              fork="true"
-              failonerror="true">
+		      classpath="${ecp}:../openbis/source/java"
+		      fork="true"
+		      failonerror="true">
 			<arg value="../openbis/source/java" />
 		</java>
 	</target>
@@ -452,7 +485,8 @@
 			</fileset>
 		</recursive-jar>
 		<jar update="true" destfile="${jar.file}">
-			<fileset dir="../${ant.project.name}/${classes}" includes="ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class"/>
+			<fileset dir="../${ant.project.name}/${classes}"
+			         includes="ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class" />
 		</jar>
 	</target>
 
@@ -620,7 +654,7 @@
 			<lib dir="${lib}/jython">
 				<include name="jython.jar" />
 			</lib>
-			
+
 		</war>
 		<!-- Does some cleaning. -->
 		<delete file="${jar.file}" failonerror="true" />
@@ -630,46 +664,52 @@
 	<!--
 	// Duplicate developer database and creates dump file and index files
 	-->
-	<target name="dump-and-index" 
+	<target name="dump-and-index"
 	        description="Dumps developer database and creates a Lucene index files">
-		<java classpath="${eclipse.cp}" failonerror="true" fork="true" dir="." maxmemory="512m"
+		<java classpath="${eclipse.cp}"
+		      failonerror="true"
+		      fork="true"
+		      dir="."
+		      maxmemory="512m"
 		      classname="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IndexCreationUtil">
-			<sysproperty key="log4j.configuration" file="etc/log.xml"/>
-			<arg value="-d"/>
-			<arg value="dev_indexed"/>
-			<arg value="${targets}/dev_indexed.sql"/>
-			<arg value="dev"/>
-			<arg value="${targets}/dev_indexed-index"/>
+			<sysproperty key="log4j.configuration" file="etc/log.xml" />
+			<arg value="-d" />
+			<arg value="dev_indexed" />
+			<arg value="${targets}/dev_indexed.sql" />
+			<arg value="dev" />
+			<arg value="${targets}/dev_indexed-index" />
 		</java>
 	</target>
 
 	<!--
         // Replace developer database and index
         -->
-	<target name="replace-database-and-index" 
-                description="Replaces developer database and index">
-		<java classpath="${eclipse.cp}" failonerror="true" fork="true" dir="."
-                      classname="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseAndIndexReplacer">
-			<sysproperty key="log4j.configuration" file="etc/log.xml"/>
-			<arg value="dev"/>
-			<arg value="${targets}/indices"/>
-			<arg value="dev_indexed"/>
-			<arg value="${targets}/dev_indexed-index"/>
+	<target name="replace-database-and-index" description="Replaces developer database and index">
+		<java classpath="${eclipse.cp}"
+		      failonerror="true"
+		      fork="true"
+		      dir="."
+		      classname="ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DatabaseAndIndexReplacer">
+			<sysproperty key="log4j.configuration" file="etc/log.xml" />
+			<arg value="dev" />
+			<arg value="${targets}/indices" />
+			<arg value="dev_indexed" />
+			<arg value="${targets}/dev_indexed-index" />
 		</java>
 	</target>
-	
-	
+
+
 	<!-- 
 			//
 			// MODULE TEST
 			//
 			// Run the app with compiled javscript, but using the classes compiled by Eclipse 
 			-->
-	
+
 	<!-- Properties used the the test mode -->
 	<property name="module-test.path" value="openbis-test" />
 	<property name="module-test.target" value="${targets.www}/${module-test.path}" />
-	
+
 	<!-- 
 			// Compile Java to javscript, assuming that prepare-gwt has already been run 
 			-->
@@ -682,15 +722,15 @@
 			<arg value="-war" />
 			<arg value="${targets.www}" />
 			<arg value="ch.systemsx.cisd.openbis.OpenBISFirefox" />
-			<arg value="-style"/>
-			<arg value="PRETTY"/> 
+			<arg value="-style" />
+			<arg value="PRETTY" />
 		</java>
 		<move todir="${module-test.target}">
 			<!-- The module definition for OpenBISFirefox renames it to ch.systemsx.cisd.openbis.OpenBIS -->
 			<fileset dir="${targets.www}/ch.systemsx.cisd.openbis.OpenBIS" />
 		</move>
 	</target>
-	
+
 	<!-- 
 			// Run the production mode, assuming compile-module-test has already been run
 			-->
@@ -702,7 +742,7 @@
 				<pathelement location="${gwt.lib}/gwt-dev.jar" />
 				<pathelement location="${gwt.lib}/gwt-user.jar" />
 			</classpath>
-			<jvmarg value="-Xmx512M"/>		
+			<jvmarg value="-Xmx512M" />
 			<jvmarg value="-ea" />
 
 			<!-- Properties : same as in the properties file -->
@@ -731,7 +771,7 @@
 			<sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql" />
 
 			<sysproperty key="log4j.configuration" value="etc/log.xml" />
-			<sysproperty key="javax.net.ssl.trustStore" value="dist/server/openBIS.keystore"/>
+			<sysproperty key="javax.net.ssl.trustStore" value="dist/server/openBIS.keystore" />
 
 			<!-- Arguments to com.google.gwt.dev.DevMode -->
 			<!-- Provide two startup urls : one for the compiled version, one for the normal dev version -->
@@ -746,10 +786,12 @@
 			<arg value="-logLevel" />
 			<arg value="WARN" />
 		</java>
-	 </target>	
-	
-	
-	
-	<target name="module-test" depends="prepare-gwt, compile-module-test, run-module-test" description="Prepare, compile, and run the module test mode">
-	</target>	
+	</target>
+
+
+
+	<target name="module-test"
+	        depends="prepare-gwt, compile-module-test, run-module-test"
+	        description="Prepare, compile, and run the module test mode">
+	</target>
 </project>
