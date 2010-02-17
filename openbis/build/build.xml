@@ -656,5 +656,100 @@
 			<arg value="dev_indexed"/>
 			<arg value="${targets}/dev_indexed-index"/>
 		</java>
+	</target>
+	
+	
+	<!-- 
+			//
+			// MODULE TEST
+			//
+			// Run the app with compiled javscript, but using the classes compiled by Eclipse 
+			-->
+	
+	<!-- Properties used the the test mode -->
+	<property name="module-test.path" value="openbis-test" />
+	<property name="module-test.target" value="${targets.www}/${module-test.path}" />
+	
+	<!-- 
+			// Compile Java to javscript, assuming that prepare-gwt has already been run 
+			-->
+	<target name="compile-module-test" description="Compile the module test mode">
+		<delete dir="${module-test.target}" />
+		<java classpath="${ecp}:${gwt.lib}/gwt-dev.jar:${gwt.user.lib}:../openbis/${sources}:${sources}"
+		      classname="com.google.gwt.dev.Compiler"
+		      fork="true">
+			<jvmarg value="-Xmx512M" />
+			<arg value="-war" />
+			<arg value="${targets.www}" />
+			<arg value="ch.systemsx.cisd.openbis.OpenBISFirefox" />
+			<arg value="-style"/>
+			<arg value="PRETTY"/> 
+		</java>
+		<move todir="${module-test.target}">
+			<!-- The module definition for OpenBISFirefox renames it to ch.systemsx.cisd.openbis.OpenBIS -->
+			<fileset dir="${targets.www}/ch.systemsx.cisd.openbis.OpenBIS" />
+		</move>
+	</target>
+	
+	<!-- 
+			// Run the production mode, assuming compile-module-test has already been run
+			-->
+	<target name="run-module-test" description="Run the module test mode">
+		<java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
+			<classpath>
+				<pathelement location="${sources}" />
+				<pathelement path="${ecp}" />
+				<pathelement location="${gwt.lib}/gwt-dev.jar" />
+				<pathelement location="${gwt.lib}/gwt-user.jar" />
+			</classpath>
+			<jvmarg value="-Xmx512M"/>		
+			<jvmarg value="-ea" />
+
+			<!-- Properties : same as in the properties file -->
+			<sysproperty key="authentication-service" value="dummy-authentication-service" />
+			<sysproperty key="session-timeout" value="720" />
+			<sysproperty key="authorization-component-factory" value="active-authorization" />
+			<sysproperty key="script-folder" value="./source/" />
+
+			<sysproperty key="database.engine" value="postgresql" />
+			<sysproperty key="database.create-from-scratch" value="false" />
+			<sysproperty key="database.kind" value="dev" />
+
+			<sysproperty key="database-instance" value="CISD" />
+
+			<sysproperty key="data-store-server-base-url" value="https://localhost:8889" />
+
+			<sysproperty key="cifex-url" value="https://cifex.ethz.ch:443" />
+			<sysproperty key="cifex-recipient" value="id:cifexdatamanager" />
+
+			<sysproperty key="hibernate.search.index-base" value="./targets/indices-dev" />
+			<sysproperty key="hibernate.search.index-mode" value="SKIP_IF_MARKER_FOUND" />
+			<sysproperty key="hibernate.search.batch-size" value="1000" />
+			<sysproperty key="hibernate.search.worker.execution" value="async" />
+			<sysproperty key="hibernate.search.indexing_strategy" value="manual" />
+
+			<sysproperty key="mass-upload-folder" value="sourceTest/sql/postgresql" />
+
+			<sysproperty key="log4j.configuration" value="etc/log.xml" />
+			<sysproperty key="javax.net.ssl.trustStore" value="dist/server/openBIS.keystore"/>
+
+			<!-- Arguments to com.google.gwt.dev.DevMode -->
+			<!-- Provide two startup urls : one for the compiled version, one for the normal dev version -->
+			<arg value="-startupUrl" />
+			<arg value="openbis-test/index.html" />
+			<arg value="-startupUrl" />
+			<arg value="ch.systemsx.cisd.openbis.OpenBIS/index.html" />
+
+			<arg value="ch.systemsx.cisd.openbis.OpenBIS" />
+			<arg value="-war" />
+			<arg value="targets/www" />
+			<arg value="-logLevel" />
+			<arg value="WARN" />
+		</java>
+	 </target>	
+	
+	
+	
+	<target name="module-test" depends="prepare-gwt, compile-module-test, run-module-test" description="Prepare, compile, and run the module test mode">
 	</target>	
 </project>
