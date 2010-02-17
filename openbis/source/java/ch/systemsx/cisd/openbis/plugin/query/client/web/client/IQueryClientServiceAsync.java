@@ -19,7 +19,12 @@ package ch.systemsx.cisd.openbis.plugin.query.client.web.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 
 /**
  * @author Piotr Buczek
@@ -33,5 +38,15 @@ public interface IQueryClientServiceAsync extends IClientServiceAsync
     /** @see IQueryClientService#createQueryResultsReport(String) */
     public void createQueryResultsReport(String sqlQuery,
             AsyncCallback<TableModelReference> callback);
+    
+    /** @see IQueryClientService#listQueries(IResultSetConfig) */
+    public void listQueries(IResultSetConfig<String, GridCustomFilter> resultSetConfig,
+            AsyncCallback<ResultSet<GridCustomFilter>> callback);
 
+    /** @see IQueryClientService#prepareExportQueries(TableExportCriteria) */
+    public void prepareExportQueries(TableExportCriteria<GridCustomFilter> criteria,
+            AsyncCallback<String> callback);
+
+    /** @see IQueryClientService#registerQuery(NewExpression) */
+    public void registerQuery(NewExpression query, AsyncCallback<Void> callback);
 }

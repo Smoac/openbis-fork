@@ -18,42 +18,79 @@ package ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.modu
 
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.MultilineVarcharField;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractRegistrationDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 
 /**
  * 
  *
  * @author Franz-Josef Elmer
  */
-public class QueryEditor extends ContentPanel implements IDatabaseModificationObserver
+public class QueryEditor extends AbstractRegistrationDialog
 {
     public static final String ID = Constants.QUERY_ID_PREFIX + "_query_editor";
 
-    public static DatabaseModificationAwareComponent create(
-            IViewContext<IQueryClientServiceAsync> viewContext)
+    private final IViewContext<IQueryClientServiceAsync> viewContext;
+    private final TextField<String> nameField;
+    private final TextField<String> descriptionField;
+    private final MultilineVarcharField statementField;
+    private final CheckBoxField isPublicField;
+    
+    public QueryEditor(IViewContext<IQueryClientServiceAsync> viewContext, IDelegatedAction refreshAction)
     {
-        QueryEditor editor = new QueryEditor(viewContext);
-        return new DatabaseModificationAwareComponent(editor, editor);
+        super(viewContext, "edit", refreshAction);
+        this.viewContext = viewContext;
+        setLayout(new FitLayout());
+        form.setHeaderVisible(false);
+        form.setBorders(false);
+        form.setBodyBorder(false);
+        nameField = AbstractRegistrationDialog.createTextField(viewContext.getMessage(Dict.NAME), true);
+        nameField.setMaxLength(200);
+        form.add(nameField, new FormData("100%"));
+        descriptionField = AbstractRegistrationDialog.createTextField(viewContext.getMessage(Dict.DESCRIPTION), false);
+        descriptionField.setMaxLength(GenericConstants.DESCRIPTION_2000);
+        form.add(descriptionField, new FormData("100%"));
+        statementField = createStatementField();
+        form.add(statementField, new FormData("100%"));
+        isPublicField = new CheckBoxField(viewContext.getMessage(Dict.IS_PUBLIC), false);
+        form.add(isPublicField);
+        setWidth("100%");
+        setHeight(500);
+        Button testButton = new Button(viewContext.getMessage(Dict.BUTTON_TEST_QUERY));
+        testButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+            {
+                @Override
+                public void componentSelected(ButtonEvent ce)
+                {
+                    System.out.println("test");
+                }
+            });
+        addButton(testButton);
     }
     
-    private final IViewContext<IQueryClientServiceAsync> viewContext;
-    
-    public QueryEditor(IViewContext<IQueryClientServiceAsync> viewContext)
+    private MultilineVarcharField createStatementField()
     {
-        this.viewContext = viewContext;
-        setHeaderVisible(false);
-        setCollapsible(false);
-        setAnimCollapse(false);
-        setBodyBorder(true);
-        setLayout(new FitLayout());
+        MultilineVarcharField field =
+                new MultilineVarcharField(viewContext.getMessage(Dict.SQL_STATEMENT), true, 15);
+        field.setMaxLength(2000);
+        return field;
     }
     
     public DatabaseModificationKind[] getRelevantModifications()
@@ -63,6 +100,17 @@ public class QueryEditor extends ContentPanel implements IDatabaseModificationOb
 
     public void update(Set<DatabaseModificationKind> observedModifications)
     {
+    }
+
+    @Override
+    protected void register(AsyncCallback<Void> registrationCallback)
+    {
+        NewExpression query = new NewExpression();
+        query.setName(nameField.getValue());
+        query.setDescription(descriptionField.getValue());
+        query.setExpression(statementField.getValue());
+        query.setPublic(isPublicField.isValid());
+        viewContext.getService().registerQuery(query, registrationCallback);
     }
 
 }

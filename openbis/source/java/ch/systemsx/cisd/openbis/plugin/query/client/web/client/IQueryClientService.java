@@ -17,8 +17,13 @@
 package ch.systemsx.cisd.openbis.plugin.query.client.web.client;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.IResultSetConfig;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteria;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableModelReference;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GridCustomFilter;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExpression;
 
 /**
  * @author Piotr Buczek
@@ -33,4 +38,20 @@ public interface IQueryClientService extends IClientService
     public TableModelReference createQueryResultsReport(String sqlQuery)
             throws UserFailureException;
 
+    /**
+     * Returns all queries for the specified configuration.
+     */
+    public ResultSet<GridCustomFilter> listQueries(
+            IResultSetConfig<String, GridCustomFilter> resultSetConfig) throws UserFailureException;
+
+    /**
+     * Prepares export of queries.
+     */
+    public String prepareExportQueries(TableExportCriteria<GridCustomFilter> criteria)
+            throws UserFailureException;
+    
+    /**
+     * Registers specified new query.
+     */
+    public void registerQuery(NewExpression query) throws UserFailureException;
 }
