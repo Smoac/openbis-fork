@@ -788,10 +788,13 @@
 		</java>
 	</target>
 
-
-
-	<target name="module-test"
+	<target name="prepare-and-run-module-test"
 	        depends="prepare-gwt, compile-module-test, run-module-test"
 	        description="Prepare, compile, and run the module test mode">
+	</target>
+
+	<target name="module-test"
+	        depends="compile-module-test, run-module-test"
+	        description="Compile and run the module test mode">
 	</target>
 </project>
