@@ -59,6 +59,10 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
 
     private DatabaseDefinition databaseDefinition;
 
+    /** @deprecated don't use it directly - use getter instead */
+    @Deprecated
+    private DAO dao;
+
     public QueryServer()
     {
     }
@@ -75,6 +79,25 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         return new QueryServerLogger(getSessionManager(), invocationSuccessful, elapsedTime);
     }
 
+    private DAO getDAO()
+    {
+        if (dao == null)
+        {
+            dao = createDAO();
+        }
+        return dao;
+    }
+
+    private DAO createDAO()
+    {
+        DatabaseDefinition definition = tryToGetDatabaseDefinition();
+        if (definition == null)
+        {
+            throw new UnsupportedOperationException("Undefined query database");
+        }
+        return new DAO(definition.getConfigurationContext().getDataSource());
+    }
+
     public String tryToGetQueryDatabaseLabel(String sessionToken)
     {
         checkSession(sessionToken);
@@ -87,14 +110,19 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     {
         checkSession(sessionToken);
 
-        DAO dao = createDAO();
-        return dao.query(sqlQuery);
+        try
+        {
+            return getDAO().query(sqlQuery);
+        } catch (DataAccessException ex)
+        {
+            throw new UserFailureException(ex.getMostSpecificCause().getMessage(), ex);
+        }
     }
 
     public List<GridCustomFilter> listQueries(String sessionToken)
     {
         checkSession(sessionToken);
-        
+
         try
         {
             List<QueryPE> queries = getDAOFactory().getQueryDAO().listQueries();
@@ -108,7 +136,7 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
     public void registerQuery(String sessionToken, NewExpression expression)
     {
         Session session = getSession(sessionToken);
-        
+
         QueryPE query = new QueryPE();
         query.setName(expression.getName());
         query.setDescription(expression.getDescription());
@@ -118,21 +146,11 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         try
         {
             getDAOFactory().getQueryDAO().createQuery(query);
-            
+
         } catch (DataAccessException ex)
         {
             DataAccessExceptionTranslator.throwException(ex, "Query", null);
         }
-    }
-
-    private DAO createDAO()
-    {
-        DatabaseDefinition definition = tryToGetDatabaseDefinition();
-        if (definition == null)
-        {
-            throw new UnsupportedOperationException("Undefined query database");
-        }
-        return new DAO(definition.getConfigurationContext().getDataSource());
     }
 
     private DatabaseDefinition tryToGetDatabaseDefinition()
@@ -154,4 +172,5 @@ public class QueryServer extends AbstractServer<IQueryServer> implements IQueryS
         }
         return databaseDefinition;
     }
+
 }
