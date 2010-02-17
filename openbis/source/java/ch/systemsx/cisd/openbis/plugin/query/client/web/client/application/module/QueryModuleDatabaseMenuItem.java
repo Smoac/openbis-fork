@@ -21,13 +21,9 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItemFactory;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ITabActionMenuItemDefinition;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TabActionMenuItemFactory;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.QueryModule;
@@ -47,52 +43,43 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
         super(viewContext.getMessage(Dict.QUERY_DATABASE_MENU_TITLE_TEMPLATE, databaseLabel));
 
         Menu submenu = new Menu();
-        submenu.add(new ActionMenu(ActionMenuKind.RUN_CUSTOM_QUERY, viewContext,
-                new CustomQueryExecutionTabItemFactory(viewContext)));
+        ActionMenuDefinition[] values = ActionMenuDefinition.values();
+        for (ActionMenuDefinition definition : values)
+        {
+            submenu.add(TabActionMenuItemFactory.createActionMenu(viewContext, ID, definition));
+            
+        }
         setSubMenu(submenu);
     }
 
-    public static enum ActionMenuKind implements IActionMenuItem
+    private static enum ActionMenuDefinition implements
+            ITabActionMenuItemDefinition<IQueryClientServiceAsync>
     {
-        RUN_CUSTOM_QUERY;
-
-        public String getMenuId()
+        RUN_CUSTOM_QUERY("Run Custom SQL Query")
         {
-            return ID + "_" + this.name();
+            public DatabaseModificationAwareComponent createComponent(
+                    IViewContext<IQueryClientServiceAsync> viewContext)
+            {
+                return CustomQueryViewer.create(viewContext);
+            }
+        };
+
+        private final String helpPageTitle;
+
+        private ActionMenuDefinition(String helpPageTitle)
+        {
+            this.helpPageTitle = helpPageTitle;
         }
 
-        public String getMenuText(IMessageProvider messageProvider)
+        public String getHelpPageTitle()
         {
-            return messageProvider.getMessage(this.name());
+            return helpPageTitle;
         }
 
-    }
-
-    private final class CustomQueryExecutionTabItemFactory implements ITabItemFactory
-    {
-        private final IViewContext<IQueryClientServiceAsync> viewContext;
-
-        private CustomQueryExecutionTabItemFactory(
-                IViewContext<IQueryClientServiceAsync> viewContext)
+        public String getName()
         {
-            this.viewContext = viewContext;
-        }
-
-        public ITabItem create()
-        {
-            return DefaultTabItem.create("Custom Query Executor", CustomQueryViewer
-                    .create(viewContext), viewContext, false);
-        }
-
-        public String getId()
-        {
-            return CustomQueryViewer.ID;
-        }
-
-        public HelpPageIdentifier getHelpPageIdentifier()
-        {
-            return HelpPageIdentifier.createSpecific("Custom Query Executor");
+            return name();
         }
     }
-
+    
 }
