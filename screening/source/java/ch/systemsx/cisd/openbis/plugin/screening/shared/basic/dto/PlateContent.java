@@ -30,6 +30,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
  */
 public class PlateContent implements IsSerializable
 {
+    // reference to dataset will be null if not exactly one dataset with images exist for a plate
     private PlateImages plateImages;
 
     // not null if exactly one image analysis dataset exists

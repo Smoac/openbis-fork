@@ -24,6 +24,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
  * DTO with metadata of a plate and all its wells + reference to a dataset with plate images.
+ * <p>
+ * There is no information which images are missing for the plate in the dataset, although it can be
+ * a case because e.g. they have not been acquired. The information about the plate geometry is
+ * available, so it is assumed that DSS will be asked to serve each of the images which could be
+ * potentially there and some will be delivered empty or not delivered.
+ * </p>
  * 
  * @author Tomasz Pylak
  */
