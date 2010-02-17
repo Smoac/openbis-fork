@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.google.gwt.junit.DoNotRunWith;
+import com.google.gwt.junit.Platform;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.TopMenu.ActionMenuKind;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.CheckExperimentTable;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ListExperiments;
@@ -51,6 +54,7 @@ public class ExperimentBrowserTest extends AbstractGWTTestCase
         launchTest();
     }
 
+    @DoNotRunWith(Platform.HtmlUnit)
     public final void testListExperiments()
     {
         loginAndInvokeAction(ActionMenuKind.EXPERIMENT_MENU_BROWSE);
