@@ -22,15 +22,11 @@ import junit.framework.TestSuite;
 import com.google.gwt.junit.tools.GWTTestSuite;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AuthenticationTest;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.EntityTypeBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ExperimentBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.MaterialBrowserTest;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeAssignmentBrowserTest;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.PropertyTypeBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SampleBrowserTest;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.SearchTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset.GenericDataSetViewerTest;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment.GenericExperimentAttachmentDownloadTest;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.GenericSampleViewerTest;
 
 /**
@@ -53,11 +49,7 @@ public class ViewingTestSuite2 extends GWTTestSuite
         // TODO 2009-01-21, IA: Uncomment after it's clear how to deal with
         // (NS_ERROR_DOM_SECURITY_ERR): Security error on CC
         // testSuite.addTestSuite(GenericExperimentRegistrationTest.class);
-
-        testSuite.addTestSuite(PropertyTypeBrowserTest.class);
-        testSuite.addTestSuite(PropertyTypeAssignmentBrowserTest.class);
-        testSuite.addTestSuite(GenericExperimentAttachmentDownloadTest.class);
-        testSuite.addTestSuite(EntityTypeBrowserTest.class);
+        
         return testSuite;
     }
 }
