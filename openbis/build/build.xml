@@ -753,7 +753,7 @@
 
 			<sysproperty key="database.engine" value="postgresql" />
 			<sysproperty key="database.create-from-scratch" value="false" />
-			<sysproperty key="database.kind" value="dev" />
+			<sysproperty key="database.kind" value="test" />
 
 			<sysproperty key="database-instance" value="CISD" />
 
