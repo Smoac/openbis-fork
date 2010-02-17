@@ -62,7 +62,16 @@ public class QueryModuleDatabaseMenuItem extends MenuItem
             {
                 return CustomQueryViewer.create(viewContext);
             }
-        };
+        },
+        QUERY_EDITOR("SQL Query Editor")
+        {
+            public DatabaseModificationAwareComponent createComponent(
+                    IViewContext<IQueryClientServiceAsync> viewContext)
+            {
+                return QueryEditor.create(viewContext);
+            }
+        }
+        ;
 
         private final String helpPageTitle;
 

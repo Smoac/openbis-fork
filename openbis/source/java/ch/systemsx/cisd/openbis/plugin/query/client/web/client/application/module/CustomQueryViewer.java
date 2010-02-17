@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Element;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
@@ -33,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.report.
 import ch.systemsx.cisd.openbis.generic.shared.basic.IReportInformationProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServiceAsync;
+import ch.systemsx.cisd.openbis.plugin.query.client.web.client.application.Constants;
 
 /**
  * @author Piotr Buczek
@@ -40,8 +40,7 @@ import ch.systemsx.cisd.openbis.plugin.query.client.web.client.IQueryClientServi
 public class CustomQueryViewer extends ContentPanel implements IDatabaseModificationObserver
 {
 
-    public static final String ID =
-            GenericConstants.ID_PREFIX + "query-module" + "_custom-query-viewer";
+    public static final String ID = Constants.QUERY_ID_PREFIX + "_custom-query-viewer";
 
     // TODO
     private static final String QUERY = "select * from groups";

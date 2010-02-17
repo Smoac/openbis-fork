@@ -13,7 +13,8 @@ var query = {
 	RUN_CUSTOM_QUERY_menu_item: "Run Custom SQL Query",
 	RUN_CUSTOM_QUERY_tab_label: "Custom SQL Query",
 	
-	DEFINE_QUERY: "Create a new SQL Query",
+	QUERY_EDITOR_menu_item: "Create a new SQL Query",
+	QUERY_EDITOR_tab_label: "Create a new SQL Query",
 
   // LAST LINE: KEEP IT AT THE END
   lastline: "" // we need a line without a comma

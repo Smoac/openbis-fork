@@ -218,10 +218,9 @@ public final class ClientPluginFactory extends AbstractClientPluginFactory<DemoV
         return DefaultTabItem.createUnaware(identifier, component, false);
     }
 
-    // FIXME
     @Override
     public IModule tryGetModule()
     {
-        return new DemoModule(getViewContext());
+        return null;
     }
 }
