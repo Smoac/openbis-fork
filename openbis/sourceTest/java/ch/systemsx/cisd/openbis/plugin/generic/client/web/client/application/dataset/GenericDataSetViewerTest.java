@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.testframework.CheckTab
  * @author Piotr Buczek
  */
 // TODO 2009-10-07, Piotr Buczek: ignore iframe trying to get connection with DSS
+@DoNotRunWith(Platform.HtmlUnit)
 public class GenericDataSetViewerTest extends AbstractGWTTestCase
 {
 
@@ -79,7 +80,6 @@ public class GenericDataSetViewerTest extends AbstractGWTTestCase
         launchTest();
     }
 
-    @DoNotRunWith(Platform.HtmlUnit)
     public final void testShowExperimentDataSetWithParents()
     {
         final String parentCodes[] =
