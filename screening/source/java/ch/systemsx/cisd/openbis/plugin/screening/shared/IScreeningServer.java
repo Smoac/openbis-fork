@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -46,7 +47,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 public interface IScreeningServer extends IServer
 {
     /**
-     * Returns plate content.
+     * loads data about the plate for a specified sample id. Attaches information about images and
+     * image analysis only if one dataset with such a data exist.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -54,7 +56,8 @@ public interface IScreeningServer extends IServer
             @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId);
 
     /**
-     * Returns plate content for a specified HCS_IMAGE dataset.
+     * Returns plate content for a specified HCS_IMAGE dataset. Loads data about the plate for a
+     * specified dataset, which is supposed to contain images in BDS-HCS format.
      */
     @Transactional(readOnly = true)
     @RolesAllowed(RoleSet.OBSERVER)
@@ -67,6 +70,15 @@ public interface IScreeningServer extends IServer
             String sessionToken,
             TechId geneMaterialId,
             @AuthorizationGuard(guardClass = GroupIdentifierPredicate.class) ExperimentIdentifier experimentIdentifier);
+
+    /**
+     * loads all images from all existing image datasets (in BDS-HCS format) for the specified
+     * plate.
+     */
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleSet.OBSERVER)
+    public List<PlateSingleImageReference> listPlateImages(String sessionToken,
+            @AuthorizationGuard(guardClass = SampleTechIdPredicate.class) TechId plateId);
 
     /**
      * For given {@link TechId} returns the {@link Sample} and its derived (child) samples.

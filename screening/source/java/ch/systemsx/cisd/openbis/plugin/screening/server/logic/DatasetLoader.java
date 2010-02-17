@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRow;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
 
 /**
  * Loads content of datasets by contacting DSS.
@@ -34,7 +35,42 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImagePara
  */
 public class DatasetLoader
 {
-    public static List<PlateImageParameters> loadImageParameters(List<String> datasets,
+
+    public static List<PlateSingleImageReference> loadPlateImages(List<String> datasets,
+            String datastoreCode, IExternalDataTable externalDataTable)
+    {
+        TableModel imageParamsReport =
+                externalDataTable.createReportFromDatasets(
+                        ScreeningConstants.PLATE_IMAGE_REPORT_KEY, datastoreCode, datasets);
+        return asPlateImages(imageParamsReport);
+    }
+
+    private static List<PlateSingleImageReference> asPlateImages(TableModel imagePathsReport)
+    {
+        List<PlateSingleImageReference> paths = new ArrayList<PlateSingleImageReference>();
+        List<TableModelRow> rows = imagePathsReport.getRows();
+        for (TableModelRow row : rows)
+        {
+            paths.add(asImagePath(row.getValues()));
+        }
+        return paths;
+    }
+
+    private static PlateSingleImageReference asImagePath(List<ISerializableComparable> values)
+    {
+        PlateSingleImageReference path = new PlateSingleImageReference();
+        int col = 0;
+        path.setDatasetCode(asText(values.get(col++)));
+        path.setWellRow(asNum(values.get(col++)));
+        path.setWellCol(asNum(values.get(col++)));
+        path.setTile(asNum(values.get(col++)));
+        path.setChannel(asNum(values.get(col++)));
+        path.setImageUrl(asText(values.get(col++)));
+        path.setImagePath(asText(values.get(col++)));
+        return path;
+    }
+
+    public static List<PlateImageParameters> loadPlateImageParameters(List<String> datasets,
             String datastoreCode, IExternalDataTable externalDataTable)
     {
         TableModel imageParamsReport =

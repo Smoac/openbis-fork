@@ -39,11 +39,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImageParameters;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 
@@ -55,10 +56,19 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellMetadata;
 public class PlateContentLoader
 {
     /**
+     * loads all images from all existing image datasets for the specified plate.
+     */
+    public static List<PlateSingleImageReference> listPlateImages(Session session,
+            IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
+    {
+        return new PlateContentLoader(session, businessObjectFactory).loadAllImages(plateId);
+    }
+
+    /**
      * loads data about the plate for a specified sample id. Attaches information about images and
      * image analysis only if one dataset with such a data exist.
      */
-    public static PlateContent load(Session session,
+    public static PlateContent loadImagesAndMetadata(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, TechId plateId)
     {
         return new PlateContentLoader(session, businessObjectFactory).getPlateContent(plateId);
@@ -68,7 +78,7 @@ public class PlateContentLoader
      * loads data about the plate for a specified dataset, which is supposed to contain images in
      * BDS-HCS format.
      */
-    public static PlateImages loadForDataset(Session session,
+    public static PlateImages loadImagesAndMetadataForDataset(Session session,
             IScreeningBusinessObjectFactory businessObjectFactory, TechId datasetId)
     {
         return new PlateContentLoader(session, businessObjectFactory)
@@ -97,7 +107,7 @@ public class PlateContentLoader
         }
         List<WellMetadata> wells = loadWells(new TechId(plate.getId()));
         DatasetImagesReference datasetImagesReference =
-                loadImages(businessObjectFactory.createExternalDataTable(session), externalData);
+                loadImages(createExternalDataTable(), externalData);
         return new PlateImages(translate(plate), wells, datasetImagesReference);
     }
 
@@ -109,32 +119,87 @@ public class PlateContentLoader
         return externalData;
     }
 
+    private List<PlateSingleImageReference> loadAllImages(TechId plateId)
+    {
+        IExternalDataTable externalDataTable = createExternalDataTable();
+        List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
+        List<ExternalDataPE> imageDatasets =
+                filterDatasetsByType(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
+        List<PlateSingleImageReference> imagePaths = new ArrayList<PlateSingleImageReference>();
+        if (imageDatasets.size() > 0)
+        {
+            List<String> datasetCodes = extractCodes(imageDatasets);
+            // NOTE: we assume that all datasets for one plate come from the same datastore
+            ExternalDataPE imageDataset = imageDatasets.get(0);
+            String dataStoreCode = extractDataStoreCode(imageDataset);
+            ensureSameDataStore(imageDatasets, dataStoreCode);
+            imagePaths =
+                    DatasetLoader.loadPlateImages(datasetCodes, dataStoreCode, externalDataTable);
+        }
+        return imagePaths;
+    }
+
+    private List<String> extractCodes(List<ExternalDataPE> datasets)
+    {
+        List<String> datasetCodes = new ArrayList<String>();
+        for (ExternalDataPE dataset : datasets)
+        {
+            datasetCodes.add(dataset.getCode());
+        }
+        return datasetCodes;
+    }
+
+    private String extractDataStoreCode(ExternalDataPE imageDataset)
+    {
+        return imageDataset.getDataStore().getCode();
+    }
+
+    private void ensureSameDataStore(List<ExternalDataPE> datasets, String dataStoreCode)
+    {
+        for (ExternalDataPE dataset : datasets)
+        {
+            String anotherDataStoreCode = extractDataStoreCode(dataset);
+            if (anotherDataStoreCode.equals(dataStoreCode) == false)
+            {
+                throw UserFailureException
+                        .fromTemplate(
+                                "Datasets come from the different stores: '%s' and '%s'. Cannot perform the operation.",
+                                dataStoreCode, anotherDataStoreCode);
+            }
+        }
+    }
+
     private PlateContent getPlateContent(TechId plateId)
     {
-        IExternalDataTable externalDataTable =
-                businessObjectFactory.createExternalDataTable(session);
+        IExternalDataTable externalDataTable = createExternalDataTable();
 
         Sample plate = loadPlate(plateId);
         List<ExternalDataPE> datasets = loadDatasets(plateId, externalDataTable);
         List<WellMetadata> wells = loadWells(plateId);
 
-        DatasetImagesReference images = null;
-        int imageDatasetsNumber = countDatasets(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
-        if (imageDatasetsNumber == 1)
+        List<ExternalDataPE> imageDatasets =
+                filterDatasetsByType(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
+        DatasetImagesReference imageDataset = null;
+        if (imageDatasets.size() == 1)
         {
-            images = tryLoadImages(datasets, externalDataTable);
+            imageDataset = loadImages(externalDataTable, imageDatasets.get(0));
         }
 
-        int imageAnalysisDatasetsNumber =
-                countDatasets(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
-        DatasetReference imageAnalysisDataset = null;
-        if (imageAnalysisDatasetsNumber == 1)
+        List<ExternalDataPE> analysisDatasets =
+                filterDatasetsByType(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
+        DatasetReference analysisDataset = null;
+        if (analysisDatasets.size() == 1)
         {
-            imageAnalysisDataset = tryFindImageAnalysisDataset(datasets);
+            analysisDataset = ScreeningUtils.createDatasetReference(analysisDatasets.get(0));
         }
 
-        return new PlateContent(plate, wells, images, imageDatasetsNumber, imageAnalysisDataset,
-                imageAnalysisDatasetsNumber);
+        return new PlateContent(plate, wells, imageDataset, imageDatasets.size(), analysisDataset,
+                analysisDatasets.size());
+    }
+
+    private IExternalDataTable createExternalDataTable()
+    {
+        return businessObjectFactory.createExternalDataTable(session);
     }
 
     private Sample loadPlate(TechId plateId)
@@ -150,19 +215,6 @@ public class PlateContentLoader
         return SampleTranslator.translate(sample, session.getBaseIndexURL());
     }
 
-    private DatasetReference tryFindImageAnalysisDataset(List<ExternalDataPE> datasets)
-    {
-        ExternalDataPE dataset =
-                tryFindDataset(datasets, ScreeningConstants.IMAGE_ANALYSIS_DATASET_TYPE);
-        if (dataset != null)
-        {
-            return ScreeningUtils.createDatasetReference(dataset);
-        } else
-        {
-            return null;
-        }
-    }
-
     private List<WellMetadata> loadWells(TechId plateId)
     {
         ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
@@ -176,19 +228,6 @@ public class PlateContentLoader
                         ScreeningConstants.INHIBITOR_PROPERTY_CODE);
         materialLister.enrichWithProperties(genes);
         return createWells(wells);
-    }
-
-    private DatasetImagesReference tryLoadImages(List<ExternalDataPE> datasets,
-            IExternalDataTable externalDataTable)
-    {
-        ExternalDataPE dataset = tryFindDataset(datasets, ScreeningConstants.IMAGE_DATASET_TYPE);
-        if (dataset != null)
-        {
-            return loadImages(externalDataTable, dataset);
-        } else
-        {
-            return null;
-        }
     }
 
     protected static List<ExternalDataPE> loadDatasets(TechId plateId,
@@ -214,34 +253,24 @@ public class PlateContentLoader
         String datasetCode = dataset.getCode();
         List<String> datasets = Arrays.asList(datasetCode);
         List<PlateImageParameters> imageParamsReports =
-                DatasetLoader.loadImageParameters(datasets, dataStore.getCode(), externalDataTable);
+                DatasetLoader.loadPlateImageParameters(datasets, dataStore.getCode(),
+                        externalDataTable);
         assert imageParamsReports.size() == 1;
         return imageParamsReports.get(0);
     }
 
-    private static int countDatasets(List<ExternalDataPE> datasets, String datasetType)
+    private static List<ExternalDataPE> filterDatasetsByType(List<ExternalDataPE> datasets,
+            String datasetTypeCode)
     {
-        int counter = 0;
+        List<ExternalDataPE> chosenDatasets = new ArrayList<ExternalDataPE>();
         for (ExternalDataPE dataset : datasets)
         {
-            if (isTypeEqual(dataset, datasetType))
+            if (isTypeEqual(dataset, datasetTypeCode))
             {
-                counter++;
+                chosenDatasets.add(dataset);
             }
         }
-        return counter;
-    }
-
-    private static ExternalDataPE tryFindDataset(List<ExternalDataPE> datasets, String datasetType)
-    {
-        for (ExternalDataPE dataset : datasets)
-        {
-            if (isTypeEqual(dataset, datasetType))
-            {
-                return dataset;
-            }
-        }
-        return null;
+        return chosenDatasets;
     }
 
     private static boolean isTypeEqual(ExternalDataPE dataset, String datasetType)

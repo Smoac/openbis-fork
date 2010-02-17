@@ -49,7 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin implements
         IReportingPluginTask
 {
-    // -------- column headers used to describe images for a plate ------
+    // -------- column headers used to describe images for a plate
 
     private static final String IMAGE = "Thumbnail";
 
@@ -62,6 +62,8 @@ public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin imple
     private static final String ROW = "Row";
 
     private static final String DATASET_CODE = "Dataset Code";
+
+    private static final String IMAGE_PATH = "Image Path";
 
     // ----------
 
@@ -96,6 +98,7 @@ public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin imple
         builder.addHeader(TILE);
         builder.addHeader(CHANNEL);
         builder.addHeader(IMAGE);
+        builder.addHeader(IMAGE_PATH);
     }
 
     private void addReportRows(SimpleTableModelBuilder builder, DatasetDescription dataset,
@@ -114,6 +117,7 @@ public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin imple
                     if (img != null)
                     {
 
+                        String imageStoreRelativePath = getStoreRelativePath(img.getPath());
                         ISerializableComparable image =
                                 createImageCell(dataset, new File(img.getPath()));
                         String datasetCode = dataset.getDatasetCode();
@@ -121,15 +125,20 @@ public class ScreeningImageReportingPlugin extends AbstractDatastorePlugin imple
                                 tileLocation.getX() + (tileLocation.getY() - 1)
                                         * wellGeometry.getColumns();
                         List<ISerializableComparable> row =
-                                Arrays.<ISerializableComparable> asList(new StringTableCell(
-                                        datasetCode), asNum(wellLocation.getY()),
-                                        asNum(wellLocation.getX()), asNum(tileNumber),
-                                        asNum(channel), image);
+                                Arrays.<ISerializableComparable> asList(asText(datasetCode),
+                                        asNum(wellLocation.getY()), asNum(wellLocation.getX()),
+                                        asNum(tileNumber), asNum(channel), image,
+                                        asText(imageStoreRelativePath));
                         builder.addRow(row);
                     }
                 }
             }
         }
+    }
+
+    private StringTableCell asText(String datasetCode)
+    {
+        return new StringTableCell(datasetCode);
     }
 
     private static ISerializableComparable asNum(int num)

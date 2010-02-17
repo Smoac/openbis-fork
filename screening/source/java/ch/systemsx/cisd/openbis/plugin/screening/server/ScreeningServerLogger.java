@@ -32,6 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -90,6 +91,12 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
     {
         logAccess(sessionToken, "getDataSetInfo", "datasetId(%s)", datasetId.getId());
+        return null;
+    }
+
+    public List<PlateSingleImageReference> listPlateImages(String sessionToken, TechId plateId)
+    {
+        logAccess(sessionToken, "loadAllImages", "PLATE(%s)", plateId.getId());
         return null;
     }
 }

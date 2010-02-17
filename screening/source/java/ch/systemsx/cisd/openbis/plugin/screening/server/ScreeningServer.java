@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateSingleImageReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
 
 /**
@@ -120,13 +121,14 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     public PlateContent getPlateContent(String sessionToken, TechId plateId)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.load(session, businessObjectFactory, plateId);
+        return PlateContentLoader.loadImagesAndMetadata(session, businessObjectFactory, plateId);
     }
 
     public PlateImages getPlateContentForDataset(String sessionToken, TechId datasetId)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.loadForDataset(session, businessObjectFactory, datasetId);
+        return PlateContentLoader.loadImagesAndMetadataForDataset(session, businessObjectFactory,
+                datasetId);
     }
 
     public List<WellContent> getPlateLocations(String sessionToken, TechId geneMaterialId,
@@ -135,6 +137,12 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
         Session session = getSession(sessionToken);
         return GenePlateLocationsLoader.load(session, businessObjectFactory, getDAOFactory(),
                 geneMaterialId, experimentIdentifier);
+    }
+
+    public List<PlateSingleImageReference> listPlateImages(String sessionToken, TechId plateId)
+    {
+        Session session = getSession(sessionToken);
+        return PlateContentLoader.listPlateImages(session, businessObjectFactory, plateId);
     }
 
     public ExternalData getDataSetInfo(String sessionToken, TechId datasetId)
