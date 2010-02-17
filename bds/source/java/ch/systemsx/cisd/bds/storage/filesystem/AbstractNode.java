@@ -26,6 +26,7 @@ import ch.systemsx.cisd.bds.storage.IFileBasedNode;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
+import ch.systemsx.cisd.common.filesystem.SoftLinkMaker;
 
 /**
  * An abstract implementation of <code>INode</code>.
@@ -39,8 +40,7 @@ abstract class AbstractNode implements IFileBasedNode
     {
         assert source != null;
         IFileOperations fileOperations = FileOperations.getMonitoredInstanceForCurrentThread();
-        assert directory != null
-                && fileOperations.isDirectory(directory);
+        assert directory != null && fileOperations.isDirectory(directory);
         final String newName;
         if (nameOrNull == null)
         {
@@ -52,17 +52,37 @@ abstract class AbstractNode implements IFileBasedNode
         final File destination = new File(directory, newName);
         if (fileOperations.exists(destination) == false)
         {
-            final boolean successful =
-                    fileOperations.rename(source,
-                            destination);
-            if (successful == false)
+            if (isSymbolicLink(source, fileOperations))
             {
-                throw EnvironmentFailureException.fromTemplate(
-                        "Can not move file '%s' to directory '%s'.", source.getAbsolutePath(),
-                        directory.getAbsolutePath());
+                moveSymbolicLink(source, destination);
+            } else
+            {
+                final boolean successful = fileOperations.rename(source, destination);
+                if (successful == false)
+                {
+                    throw EnvironmentFailureException.fromTemplate(
+                            "Can not move file '%s' to directory '%s'.", source.getAbsolutePath(),
+                            directory.getAbsolutePath());
+                }
             }
         }
         return destination;
+    }
+
+    private static void moveSymbolicLink(File source, File destination)
+    {
+        SoftLinkMaker.createSymbolicLink(source, destination);
+        boolean ok = source.delete();
+        if (ok == false)
+        {
+            throw EnvironmentFailureException.fromTemplate("Can not delete symbolic link '%s'.",
+                    source.getPath());
+        }
+    }
+
+    private static boolean isSymbolicLink(File file, IFileOperations fileOperations)
+    {
+        return fileOperations.getCanonicalPath(file).equals(file.getAbsolutePath()) == false;
     }
 
     protected final File nodeFile;
